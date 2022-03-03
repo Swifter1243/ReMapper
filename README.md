@@ -54,4 +54,4 @@ If you want to define implicit any types (explained before), then add `tsconfig.
         "resolveJsonModule": true,
         "allowJs": true,
     }
-}```
+}
