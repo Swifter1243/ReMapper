@@ -22,3 +22,36 @@ TypeScript will by default force you to specify the type (number, array, object.
 
 If you're a person coming from JavaScript, you'll need to do some exploring with this package to get comfortable. Check out examples and read the descriptions of what different things do.
 
+### Installation
+
+Firstly, open a terminal in VSCode (Ctrl + Shift + `) or Command Prompt (Windows Key > Search "cmd")
+
+Run `npm install -g typescript ts-node` in the terminal in order to get started with TypeScript.
+
+Next, get the terminal running inside of your map project folder with `cd "directory here"` (yes quotes are needed)
+
+Finally, install this package with `npm install swifter_remapper`
+
+If you want to define implicit any types (explained before), then add `tsconfig.json` to your project folder:
+```js
+{
+    "include": [
+        "node_modules/swifter_remapper/**/*",
+        "./**/*"
+    ],
+    "exclude": [
+        "node_modules"
+    ],
+    "compilerOptions": {
+        "target": "ES2015",
+        "module": "commonjs",
+        "noImplicitAny": false,
+        "types": [
+            "node",
+        ],
+        "esModuleInterop": true,
+        "moduleResolution": "node",
+        "resolveJsonModule": true,
+        "allowJs": true,
+    }
+}```
