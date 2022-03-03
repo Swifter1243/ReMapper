@@ -33,7 +33,7 @@ Next, get the terminal running inside of your map project folder with `cd "direc
 Finally, install this package with `npm install swifter_remapper`
 
 If you want to define implicit any types (explained before), then add `tsconfig.json` to your project folder:
-```js
+```json
 {
     "include": [
         "node_modules/swifter_remapper/**/*",
