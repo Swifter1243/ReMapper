@@ -1,11 +1,11 @@
 ### Welcome to ReMapper!
-This is a (https://www.typescriptlang.org/) library designed to help with making Beat Saber modcharts.
+This is a [TypeScript](https://www.typescriptlang.org/) library designed to help with making Beat Saber modcharts.
 
 Here are some notable features:
 - Wrappers for Notes, Walls, Events, Custom Events, and Environment Objects.
 - Class for handling colors (you can make pretty rainbows!!!).
 - Wrapper for optimizing and managing animations.
-- Blender to Environment stuff w/ (https://github.com/thelightdesigner/ScuffedWalls)
+- Blender to Environment stuff w/ [ScuffedWalls](https://github.com/thelightdesigner/ScuffedWalls)
     - Switch environments
     - Supports animations
     - Compatible with any environment piece (including multiple at once!)
