@@ -1,0 +1,19 @@
+{
+  "name": "swifter_remapper",
+  "version": "1.0.0",
+  "description": "A framework for Beat Saber map scripting.",
+  "main": "./src/main.ts",
+  "author": "Swifter",
+  "license": "ISC",
+  "dependencies": {
+    "@types/node": "^17.0.16",
+    "docdash": "^1.2.0",
+    "js-easing-functions": "^1.0.3",
+    "jsdoc": "^3.6.10",
+    "jsdoc-plugin-typescript": "^2.0.6",
+    "three": "^0.136.0"
+  },
+  "scripts": {
+    "generate-docs": "jsdoc -c jsdoc.json"
+  }
+}

@@ -1,0 +1,54 @@
+export class Regex {
+    string: string = ""
+
+    /**
+     * Specifies the start with the end of a previous seperator: "]".
+     */
+    start() { this.string += "\\]"; return this }
+
+    /**
+     * Specifies the end of the entire string.
+     */
+    end() { this.string += "$"; return this }
+
+    /**
+     * Adds a string.
+     */
+    add(string: string) { this.string += string; return this }
+
+    /**
+     * Refers to seperation of gameObjects: ".[x]". E.X. "Thing.[0]Thing".
+     * @param index Option to specify index of the seperator.
+     */
+    seperate(index: number = undefined) {
+        if (index === undefined) this.string += "\\.\\[\\d*\\]";
+        else this.string += `\\.\\[${index}\\]`;
+        return this;
+    }
+
+    /**
+     * Refers to gameObject name variation: " (x)". E.X. "Thing", "Thing (1)".
+     * @param number Option to specify number on variation..
+     */
+    vary(number: number = undefined) {
+        if (number === undefined) this.string += "(|\\s\\(\\d*\\))";
+        else {
+            if (number === 0) this.string += "";
+            else this.string += ` \\(${number}\\)`
+        }
+        return this;
+    }
+
+    /**
+     * Tests the regex expression's validity.
+     */
+    verify() {
+        try {
+            let regex = new RegExp(this.string);
+            console.log(`Regex ${this.string} is valid`)
+        } catch (err) {
+            throw err;
+        }
+        return this;
+    }
+}
