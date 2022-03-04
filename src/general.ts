@@ -41,11 +41,29 @@ export function filterObjects(objects: object[], min: number, max: number, prope
  * @param {Boolean} smallestToLargest Whether to sort smallest to largest. True by default.
  */
 export function sortObjects(objects: object[], property: string, smallestToLargest = true) {
+    // TODO: Should we handle undefined objects? that shouldn't even be allowed
     if (objects === undefined) return;
 
-    objects = objects.sort((a, b) => smallestToLargest ?
-        a[property] - b[property] :
-        b[property] - a[property]);
+    objects.sort((a, b) => {
+        // swap vars
+        if (smallestToLargest) {
+            let ogA = a;
+            a = b;
+            b = ogA;
+        }
+
+        let aVal = a[property];
+        let bVal = b[property];
+
+        if (aVal < bVal) {
+            return - 1; // a is less than b
+        }
+        if (aVal > bVal) {
+            return 1; // a is greater than 1
+        }
+
+        return 0; // equal time
+    });
 }
 
 /**
