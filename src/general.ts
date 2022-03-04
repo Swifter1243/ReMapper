@@ -247,7 +247,7 @@ export function clamp(input: number, min: number = undefined, max: number = unde
  * @param {*} obj 
  * @returns
  */
-export function copy(obj) {
+export function copy<T>(obj: T): T {
     if (obj == null || typeof obj !== "object") { return obj; }
 
     let newObj = Array.isArray(obj) ? [] : {};
@@ -258,8 +258,8 @@ export function copy(obj) {
         newObj[x] = value;
     })
 
-    Object.setPrototypeOf(newObj, obj.__proto__);
-    return newObj;
+    Object.setPrototypeOf(newObj, (obj as any).__proto__);
+    return newObj as T;
 }
 
 /**
