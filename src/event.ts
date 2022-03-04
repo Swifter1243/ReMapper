@@ -16,7 +16,7 @@ export namespace EventInternals {
         };
 
         constructor(time: number | object) {
-            if (typeof time === "object") {
+            if (time instanceof Object) {
                 this.json = time;
                 return;
             }
@@ -27,7 +27,7 @@ export namespace EventInternals {
         * Push this event to the difficulty
         */
         push() {
-            activeDiff.events.push(general.copy(this));
+            activeDiff.events.push(general.copy(this) as any);
             return this;
         }
 

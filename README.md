@@ -45,9 +45,6 @@ If you want to define implicit any types (explained before), then add `tsconfig.
         "target": "ES2015",
         "module": "commonjs",
         "noImplicitAny": false,
-        "types": [
-            "node",
-        ],
         "esModuleInterop": true,
         "moduleResolution": "node",
         "resolveJsonModule": true,

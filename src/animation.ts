@@ -1,7 +1,7 @@
 import { activeDiff } from "./beatmap";
 import { ANIM } from "./constants";
 import * as general from './general';
-import { easing } from "./general";
+import { easingInterpolate } from "./general";
 import { arrAdd } from "./general";
 import { copy } from "./general";
 import { arrEqual } from "./general";
@@ -158,14 +158,14 @@ class ObjectAnimation extends AnimationInternals.BaseAnimation {
     set time(value: KeyframesLinear) { this.add(ANIM.TIME, value) }
 }
 
-class NoteAnimation extends ObjectAnimation {
+export class NoteAnimation extends ObjectAnimation {
     get dissolveArrow() { return this.get(ANIM.DISSOLVE_ARROW) }
     set dissolveArrow(value: KeyframesLinear) { this.add(ANIM.DISSOLVE_ARROW, value) }
 }
 
-class WallAnimation extends ObjectAnimation { }
+export class WallAnimation extends ObjectAnimation { }
 
-class EnvironmentAnimation extends AnimationInternals.BaseAnimation {
+export class EnvironmentAnimation extends AnimationInternals.BaseAnimation {
     get position() { return this.get(ANIM.POSITION) }
     get rotation() { return this.get(ANIM.ROTATION) }
     get localPosition() { return this.get(ANIM.LOCAL_POSITION) }
@@ -179,7 +179,7 @@ class EnvironmentAnimation extends AnimationInternals.BaseAnimation {
     set scale(value: KeyframesVec3) { this.add(ANIM.SCALE, value) }
 }
 
-class FogAnimation extends AnimationInternals.BaseAnimation {
+export class FogAnimation extends AnimationInternals.BaseAnimation {
     get attenuation() { return this.get(ANIM.ATTENUATION) }
     get offset() { return this.get(ANIM.OFFSET) }
     get startY() { return this.get(ANIM.STARTY) }
@@ -191,7 +191,7 @@ class FogAnimation extends AnimationInternals.BaseAnimation {
     set height(value: KeyframesLinear) { this.add(ANIM.HEIGHT, value) }
 }
 
-class AbstractAnimation extends ObjectAnimation {
+export class AbstractAnimation extends ObjectAnimation {
     get position() { return this.get(ANIM.POSITION) }
     get localPosition() { return this.get(ANIM.LOCAL_POSITION) }
     get definitePosition() { return this.get(ANIM.DEFINITE_POSITION) }
@@ -313,29 +313,38 @@ export function simplifyArray(array: any[]): any[] {
  * @returns {Array}
  */
 export function optimizeArray(animation: any[], lenience: number = 0.1): any[] {
-    animation = copy(complexifyArray(animation));
+    animation = copy(complexifyArray(animation)).map(x => new Keyframe(x));
 
-    let differences = [];
-    let valLen = new Keyframe(copy(animation[0])).values.length;
-    for (let i = 0; i < valLen; i++) differences[i] = 0;
+    // not enough points to optimize
+    if (animation.length < 3) return animation;
 
-    for (let i = 0; i < animation.length; i++) {
-        let x = new Keyframe(animation[i]).values;
-        let left = undefined;
-        let right = undefined;
-        if (animation[i - 1]) left = new Keyframe(animation[i - 1]).values;
-        if (animation[i + 1]) right = new Keyframe(animation[i + 1]).values;
+    let differences: number[] = [];
+    for (let i = 0; i < animation[0].values.length; i++) differences[i] = 0;
 
-        if (left === undefined && arrEqual(x, right, lenience)) { checkSplice() }
-        if (right === undefined && arrEqual(x, left, lenience)) { checkSplice() }
-        if (arrEqual(left, x, lenience) && arrEqual(x, right, lenience)) { checkSplice() }
+
+    for (let i = 1; i < animation.length - 1; i++) {
+        let middle: Keyframe = animation[i];
+        let left: Keyframe | undefined = animation[i - 1];
+        let right: Keyframe | undefined = animation[i + 1];
+
+        // While the keyframes may be similar, their easing/spline difference is
+        // non-negligible to the animation path and therefore should not be considered for removal
+        if (left?.easing !== middle.easing || right?.easing !== middle.easing) continue;
+        if (left?.spline !== middle.spline || right?.easing !== middle.spline) continue;
+
+
+        // TODO: instead of comparing left-middle value similarity and middle-right value similarity,
+        // compare if middle - left / right is similar to left - right
+        // or just compare left-middle instead
+        // - Fern
+        if (arrEqual(left.values, middle.values, lenience) && arrEqual(middle.values, right.values, lenience)) { checkSplice() }
 
         function checkSplice() {
             if (right !== undefined && left !== undefined) {
-                for (let j = 0; j < valLen; j++) {
-                    differences[j] += right[j] - x[j];
+                for (let j = 0; j < differences.length; j++) {
+                    differences[j] += right[j] - middle[j];
                     if (Math.abs(differences[j]) > lenience) {
-                        for (let k = 0; k < valLen; k++) differences[k] = 0;
+                        for (let k = 0; k < differences.length; k++) differences[k] = 0;
                         return;
                     }
                     else {
@@ -453,7 +462,7 @@ function timeInKeyframes(time: number, keyframes: any[]) {
     r = new Keyframe(keyframes[rightIndex]);
 
     normalTime = findFraction(l.time, r.time - l.time, time);
-    normalTime = easing(r.easing, normalTime);
+    normalTime = easingInterpolate(r.easing, normalTime);
 
     return {
         interpolate: true,

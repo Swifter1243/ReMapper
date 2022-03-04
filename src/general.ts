@@ -6,7 +6,7 @@ import { Difficulty } from './beatmap';
 import * as three from 'three';
 import { complexifyArray } from './animation';
 import { Keyframe } from './animation';
-import { ANIM } from './constants';
+import { ANIM, EASE } from './constants';
 import { simplifyArray } from './animation';
 import { KeyframesVec3 } from './animation';
 import { activeDiff } from './beatmap';
@@ -89,8 +89,8 @@ export function eventsBetween(min: number, max: number, forEach: (note: EventInt
  * @param {String} easing Optional easing
  * @returns {Number}
  */
-export function lerp(start: number, end: number, fraction: number, easing = undefined) {
-    if (easing !== undefined) fraction = easing(easing, fraction);
+export function lerp(start: number, end: number, fraction: number, easing: EASE = undefined) {
+    if (easing !== undefined) fraction = easingInterpolate(easing, fraction);
     return start + (end - start) * fraction;
 }
 
@@ -102,8 +102,8 @@ export function lerp(start: number, end: number, fraction: number, easing = unde
  * @param {String} easing Optional easing 
  * @returns 
  */
-export function lerpWrap(start: number, end: number, fraction: number, easing = undefined) {
-    if (easing !== undefined) fraction = easing(easing, fraction);
+export function lerpWrap(start: number, end: number, fraction: number, easing: EASE = undefined) {
+    if (easing !== undefined) fraction = easingInterpolate(easing, fraction);
     let distance = Math.abs(end - start);
 
     if (distance < 0.5) return lerp(start, end, fraction);
@@ -220,7 +220,7 @@ export function round(input: number, number: number) {
  */
 export function clamp(input: number, min: number = undefined, max: number = undefined) {
     if (max !== undefined && input > max) input = max;
-    if (min !== undefined && input < min) input = min;
+    else if (min !== undefined && input < min) input = min;
     return input;
 }
 
@@ -229,7 +229,7 @@ export function clamp(input: number, min: number = undefined, max: number = unde
  * @param {*} obj 
  * @returns
  */
-export function copy(obj) {
+export function copy<T>(obj: T): T {
     if (obj == null || typeof obj !== "object") { return obj; }
 
     let newObj = Array.isArray(obj) ? [] : {};
@@ -240,8 +240,8 @@ export function copy(obj) {
         newObj[x] = value;
     })
 
-    Object.setPrototypeOf(newObj, obj.__proto__);
-    return newObj;
+    Object.setPrototypeOf(newObj, (obj as any).__proto__);
+    return newObj as T;
 }
 
 /**
@@ -259,7 +259,7 @@ export function isEmptyObject(o: object) {
  * @param {Number} value Progress of easing (0-1).
  * @returns {Number}
  */
-export function easing(easing: string, value: number) {
+export function easingInterpolate(easing: EASE, value: number) {
     if (easing === "easeLinear" || easing === undefined) return value;
     if (easing === "easeStep") return value === 1 ? 1 : 0;
     return jseasingfunctions[easing](value, 0, 1, 1);
@@ -271,9 +271,9 @@ export function easing(easing: string, value: number) {
  * @param {Array} point 
  * @returns {Array}
  */
-export function rotatePoint(rotation: number[], point: number[]) {
+export function rotatePoint(rotation: Vec3, point: Vec3) {
     const deg2rad = Math.PI / 180;
-    let mathRot: [number, number, number] = copy(rotation).map(x => x * deg2rad);
+    let mathRot = copy(rotation).map(x => x * deg2rad) as Vec3;
     let vector = new three.Vector3(...point).applyEuler(new three.Euler(...mathRot, "YXZ"));
     return [vector.x, vector.y, vector.z];
 }
@@ -284,7 +284,7 @@ export function rotatePoint(rotation: number[], point: number[]) {
  * @param {Number} length
  * @returns {Array}
  */
-export function rotateVector(rotation: number[], length: number) {
+export function rotateVector(rotation: Vec3, length: number) {
     return rotatePoint(rotation, [0, -length, 0]);
 }
 
@@ -412,10 +412,10 @@ export function getJumps(NJS: number, offset: number, BPM: number) {
  * @param {Array} scale 
  * @returns 
  */
-export function worldToWall(pos: number[], rot: number[], scale: number[]) {
+export function worldToWall(pos: Vec3, rot: Vec3, scale: Vec3) {
     let wallOffset = [0, -0.5, -0.5];
-    let offset = rotatePoint(rot, scale.map((y, i) => y * wallOffset[i]));
-    pos = pos.map((y, i) => y + offset[i]);
+    let offset = rotatePoint(rot, scale.map((y, i) => y * wallOffset[i]) as Vec3);
+    pos = pos.map((y, i) => y + offset[i]) as Vec3;
 
     pos[0] -= 0.5;
     pos[1] -= 0.1 / 0.6;

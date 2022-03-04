@@ -44,7 +44,7 @@ export class Regex {
      */
     verify() {
         try {
-            let regex = new RegExp(this.string);
+            new RegExp(this.string);
             console.log(`Regex ${this.string} is valid`)
         } catch (err) {
             throw err;
