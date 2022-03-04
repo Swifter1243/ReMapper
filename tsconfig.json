@@ -1,0 +1,25 @@
+{
+    "extends": "@tsconfig/node16/tsconfig.json",
+    "include": [
+        "src/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+        "**/*.spec.ts"
+    ],
+    "ts-node": {
+        "transpileOnly": true /* Skips type checking for faster startup times */
+    },
+    "compilerOptions": {
+        "declaration": true, /* Generates corresponding '.d.ts' file. */
+        "outDir": "./dist/", /* Redirect output structure to the directory. */
+        "target": "ES6",
+        "module": "commonjs",
+        "noImplicitAny": false,
+        "esModuleInterop": true,
+        "moduleResolution": "node",
+        "resolveJsonModule": true,
+        "allowJs": true,
+        "strict": false
+    }
+}
