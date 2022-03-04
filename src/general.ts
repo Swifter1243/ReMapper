@@ -271,9 +271,9 @@ export function easingInterpolate(easing: EASE, value: number) {
  * @param {Array} point 
  * @returns {Array}
  */
-export function rotatePoint(rotation: number[], point: number[]) {
+export function rotatePoint(rotation: Vec3, point: Vec3) {
     const deg2rad = Math.PI / 180;
-    let mathRot: [number, number, number] = copy(rotation).map(x => x * deg2rad);
+    let mathRot = copy(rotation).map(x => x * deg2rad) as Vec3;
     let vector = new three.Vector3(...point).applyEuler(new three.Euler(...mathRot, "YXZ"));
     return [vector.x, vector.y, vector.z];
 }
@@ -284,7 +284,7 @@ export function rotatePoint(rotation: number[], point: number[]) {
  * @param {Number} length
  * @returns {Array}
  */
-export function rotateVector(rotation: number[], length: number) {
+export function rotateVector(rotation: Vec3, length: number) {
     return rotatePoint(rotation, [0, -length, 0]);
 }
 
@@ -412,10 +412,10 @@ export function getJumps(NJS: number, offset: number, BPM: number) {
  * @param {Array} scale 
  * @returns 
  */
-export function worldToWall(pos: number[], rot: number[], scale: number[]) {
+export function worldToWall(pos: Vec3, rot: Vec3, scale: Vec3) {
     let wallOffset = [0, -0.5, -0.5];
-    let offset = rotatePoint(rot, scale.map((y, i) => y * wallOffset[i]));
-    pos = pos.map((y, i) => y + offset[i]);
+    let offset = rotatePoint(rot, scale.map((y, i) => y * wallOffset[i]) as Vec3);
+    pos = pos.map((y, i) => y + offset[i]) as Vec3;
 
     pos[0] -= 0.5;
     pos[1] -= 0.1 / 0.6;

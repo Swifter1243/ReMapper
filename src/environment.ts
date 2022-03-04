@@ -159,12 +159,12 @@ class BaseBlenderEnvironment {
                     data.scale.push([...scale.values.map((y, i) => y * this.scale[i] * blenderShrink), ref.time]);
                 }
 
-                let objPos = pos.values;
-                let objRot = rot.values;
+                let objPos = pos.values as Vec3;
+                let objRot = rot.values as Vec3;
                 let objScale = scale.values;
 
                 data.rawPos.push([...objPos, ref.time]);
-                let offset = general.rotatePoint(objRot, objScale.map((y, i) => y * this.anchor[i] * blenderShrink));
+                let offset = general.rotatePoint(objRot, objScale.map((y, i) => y * this.anchor[i] * blenderShrink) as Vec3);
                 data.pos.push([...objPos.map((y, i) => y + offset[i]), ref.time]);
             }
 
