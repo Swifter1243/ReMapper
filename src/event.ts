@@ -27,7 +27,7 @@ export namespace EventInternals {
         * Push this event to the difficulty
         */
         push() {
-            activeDiff.events.push(general.copy(this));
+            activeDiff.events.push(general.copy(this) as any);
             return this;
         }
 
