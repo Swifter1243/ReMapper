@@ -158,14 +158,14 @@ class ObjectAnimation extends AnimationInternals.BaseAnimation {
     set time(value: KeyframesLinear) { this.add(ANIM.TIME, value) }
 }
 
-class NoteAnimation extends ObjectAnimation {
+export class NoteAnimation extends ObjectAnimation {
     get dissolveArrow() { return this.get(ANIM.DISSOLVE_ARROW) }
     set dissolveArrow(value: KeyframesLinear) { this.add(ANIM.DISSOLVE_ARROW, value) }
 }
 
-class WallAnimation extends ObjectAnimation { }
+export class WallAnimation extends ObjectAnimation { }
 
-class EnvironmentAnimation extends AnimationInternals.BaseAnimation {
+export class EnvironmentAnimation extends AnimationInternals.BaseAnimation {
     get position() { return this.get(ANIM.POSITION) }
     get rotation() { return this.get(ANIM.ROTATION) }
     get localPosition() { return this.get(ANIM.LOCAL_POSITION) }
@@ -179,7 +179,7 @@ class EnvironmentAnimation extends AnimationInternals.BaseAnimation {
     set scale(value: KeyframesVec3) { this.add(ANIM.SCALE, value) }
 }
 
-class FogAnimation extends AnimationInternals.BaseAnimation {
+export class FogAnimation extends AnimationInternals.BaseAnimation {
     get attenuation() { return this.get(ANIM.ATTENUATION) }
     get offset() { return this.get(ANIM.OFFSET) }
     get startY() { return this.get(ANIM.STARTY) }
@@ -191,7 +191,7 @@ class FogAnimation extends AnimationInternals.BaseAnimation {
     set height(value: KeyframesLinear) { this.add(ANIM.HEIGHT, value) }
 }
 
-class AbstractAnimation extends ObjectAnimation {
+export class AbstractAnimation extends ObjectAnimation {
     get position() { return this.get(ANIM.POSITION) }
     get localPosition() { return this.get(ANIM.LOCAL_POSITION) }
     get definitePosition() { return this.get(ANIM.DEFINITE_POSITION) }
