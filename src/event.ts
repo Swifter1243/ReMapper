@@ -16,7 +16,7 @@ export namespace EventInternals {
         };
 
         constructor(time: number | object) {
-            if (typeof time === "object") {
+            if (time instanceof Object) {
                 this.json = time;
                 return;
             }
