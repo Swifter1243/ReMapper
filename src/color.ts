@@ -109,7 +109,7 @@ export function lerpColor(start: Color, end: Color, fraction: number, easing = u
     if (format !== "RGB" && format !== "HSV") format = "RGB";
 
     let returnFormat = start.format;
-    if (easing !== undefined) fraction = general.easing(easing, fraction);
+    if (easing !== undefined) fraction = general.easingInterpolate(easing, fraction);
 
     let output = new Color([0, 0, 0], format);
     let newStart = new Color(start.value, start.format);

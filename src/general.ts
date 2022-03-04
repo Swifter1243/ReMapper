@@ -6,7 +6,7 @@ import { Difficulty } from './beatmap';
 import * as three from 'three';
 import { complexifyArray } from './animation';
 import { Keyframe } from './animation';
-import { ANIM } from './constants';
+import { ANIM, EASE } from './constants';
 import { simplifyArray } from './animation';
 import { KeyframesVec3 } from './animation';
 import { activeDiff } from './beatmap';
@@ -89,8 +89,8 @@ export function eventsBetween(min: number, max: number, forEach: (note: EventInt
  * @param {String} easing Optional easing
  * @returns {Number}
  */
-export function lerp(start: number, end: number, fraction: number, easing = undefined) {
-    if (easing !== undefined) fraction = easing(easing, fraction);
+export function lerp(start: number, end: number, fraction: number, easing: EASE = undefined) {
+    if (easing !== undefined) fraction = easingInterpolate(easing, fraction);
     return start + (end - start) * fraction;
 }
 
@@ -102,8 +102,8 @@ export function lerp(start: number, end: number, fraction: number, easing = unde
  * @param {String} easing Optional easing 
  * @returns 
  */
-export function lerpWrap(start: number, end: number, fraction: number, easing = undefined) {
-    if (easing !== undefined) fraction = easing(easing, fraction);
+export function lerpWrap(start: number, end: number, fraction: number, easing: EASE = undefined) {
+    if (easing !== undefined) fraction = easingInterpolate(easing, fraction);
     let distance = Math.abs(end - start);
 
     if (distance < 0.5) return lerp(start, end, fraction);
@@ -220,7 +220,7 @@ export function round(input: number, number: number) {
  */
 export function clamp(input: number, min: number = undefined, max: number = undefined) {
     if (max !== undefined && input > max) input = max;
-    if (min !== undefined && input < min) input = min;
+    else if (min !== undefined && input < min) input = min;
     return input;
 }
 
@@ -259,7 +259,7 @@ export function isEmptyObject(o: object) {
  * @param {Number} value Progress of easing (0-1).
  * @returns {Number}
  */
-export function easing(easing: string, value: number) {
+export function easingInterpolate(easing: EASE, value: number) {
     if (easing === "easeLinear" || easing === undefined) return value;
     if (easing === "easeStep") return value === 1 ? 1 : 0;
     return jseasingfunctions[easing](value, 0, 1, 1);
