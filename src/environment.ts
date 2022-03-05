@@ -1,4 +1,4 @@
-import { combineAnimations, Animation, Keyframe } from './animation';
+import { combineAnimations, Animation, Keyframe, AnimationInternals } from './animation';
 import { activeDiff } from './beatmap';
 import { Vec3, debugWall, copy, rotatePoint } from './general';
 import { CustomEvent } from './custom_event';
@@ -375,16 +375,16 @@ class BlenderAssigned extends BaseBlenderEnvironment {
  * @param {String} group 
  * @param {Number} time 
  * @param {Number} duration 
- * @param {Object} keyframes
+ * @param {Object} animation
  * @param {String} easing 
  */
-export function animateEnvGroup(group: string, time: number, duration: number, keyframes: object, easing: string = undefined) {
+export function animateEnvGroup(group: string, time: number, duration: number, animation: AnimationInternals.BaseAnimation, easing: string = undefined) {
     activeDiff.environment.forEach(x => {
         if (x.group === group) {
-            let newAnimation = copy(keyframes);
+            let newAnimation = copy(animation.json);
 
             Object.keys(newAnimation).forEach(key => {
-                if (x[key]) newAnimation[key] = combineAnimations(newAnimation[key], x[key], key);
+                if (x.json[key]) newAnimation[key] = combineAnimations(newAnimation[key], x.json[key], key);
             })
 
             new CustomEvent(time).animateTrack(x.track, duration, newAnimation, easing).push();
@@ -397,16 +397,16 @@ export function animateEnvGroup(group: string, time: number, duration: number, k
  * @param {String} group 
  * @param {Number} time 
  * @param {Number} duration 
- * @param {Object} keyframes
+ * @param {Object} animation
  * @param {String} easing 
  */
-export function animateEnvTrack(track: string, time: number, duration: number, keyframes: object, easing: string = undefined) {
+export function animateEnvTrack(track: string, time: number, duration: number, animation: AnimationInternals.BaseAnimation, easing: string = undefined) {
     activeDiff.environment.forEach(x => {
         if (x.track === track) {
-            let newAnimation = copy(keyframes);
+            let newAnimation = copy(animation.json);
 
             Object.keys(newAnimation).forEach(key => {
-                if (x[key]) newAnimation[key] = combineAnimations(newAnimation[key], x[key], key);
+                if (x.json[key]) newAnimation[key] = combineAnimations(newAnimation[key], x.json[key], key);
             })
 
             new CustomEvent(time).animateTrack(track, duration, newAnimation, easing).push();
