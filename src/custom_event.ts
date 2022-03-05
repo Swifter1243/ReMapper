@@ -1,5 +1,4 @@
 import * as general from './general';
-import * as beatmap from './beatmap';
 import { activeDiff } from './beatmap';
 import { AnimationInternals } from './animation';
 import { Animation } from './animation';
@@ -60,11 +59,15 @@ export class CustomEvent extends CustomEventInternals.BaseEvent {
      */
     abstract() { return this.import({}) };
 
-    animateTrack(track: string, duration: number = 0, animation: object = {}, easing: string = undefined) {
+    animateTrack(track: string, duration: number = undefined, animation: object = {}, easing: string = undefined) {
+        duration ??= 0;
+        animation ??= {};
         return new AnimateTrack(this.json, track, duration, animation, easing);
     }
 
-    assignPathAnimation(track: string, duration: number = 0, animation: object = {}, easing: string = undefined) {
+    assignPathAnimation(track: string, duration: number = undefined, animation: object = {}, easing: string = undefined) {
+        duration ??= 0;
+        animation ??= {};
         return new AssignPathAnimation(this.json, track, duration, animation, easing);
     }
 
@@ -77,7 +80,7 @@ export class CustomEvent extends CustomEventInternals.BaseEvent {
 }
 
 class AnimateTrack extends CustomEventInternals.BaseEvent {
-    constructor(json: object, track: string, duration: number = 0, animation: object = {}, easing: string = undefined) {
+    constructor(json: object, track: string, duration: number, animation: object, easing: string) {
         super(json);
         this.track = track;
         this.duration = duration;
@@ -132,7 +135,7 @@ class AnimateTrack extends CustomEventInternals.BaseEvent {
 }
 
 class AssignPathAnimation extends CustomEventInternals.BaseEvent {
-    constructor(json: object, track: string, duration: number = 0, animation: object = {}, easing: string = undefined) {
+    constructor(json: object, track: string, duration: number, animation: object, easing: string) {
         super(json);
         this.type = "AssignPathAnimation";
         this.track = track;
@@ -187,7 +190,7 @@ class AssignPathAnimation extends CustomEventInternals.BaseEvent {
 }
 
 class AssignTrackParent extends CustomEventInternals.BaseEvent {
-    constructor(json: object, childrenTracks: string[], parentTrack: string, worldPositionStays: boolean = undefined) {
+    constructor(json: object, childrenTracks: string[], parentTrack: string, worldPositionStays: boolean) {
         super(json);
         this.type = "AssignTrackParent";
         this.childrenTracks = childrenTracks;

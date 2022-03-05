@@ -30,7 +30,9 @@ export class Environment {
      * @param {String} id 
      * @param {String} lookupMethod 
      */
-    constructor(id: string = "", lookupMethod: string = "") {
+    constructor(id: string = undefined, lookupMethod: string = undefined) {
+        id ??= "";
+        lookupMethod ??= "";
         this.id = id;
         this.lookupMethod = lookupMethod;
     }
@@ -205,7 +207,9 @@ export class BlenderEnvironment extends BaseBlenderEnvironment {
      * @param {Vec3} anchor
      * @param {Boolean} disappearWhenAbsent Determine whether to make this object disappear when no data for it is present in an environment.
      */
-    assignObjects(tracks: string | string[], scale: Vec3 = [1, 1, 1], anchor: Vec3 = [0, 0, 0], disappearWhenAbsent: boolean = true) {
+    assignObjects(tracks: string | string[], scale: Vec3 = undefined, anchor: Vec3 = undefined, disappearWhenAbsent: boolean = true) {
+        scale ??= [1, 1, 1];
+        anchor ??= [0, 0, 0];
         if (typeof tracks === "string") tracks = [tracks];
         tracks.forEach(x => { this.assigned.push(new BlenderAssigned(scale, anchor, x, disappearWhenAbsent)) })
     }

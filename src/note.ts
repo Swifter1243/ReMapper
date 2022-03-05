@@ -31,7 +31,7 @@ export class Note {
      * @param {Number} direction 
      * @param {Array} position Array for x and y of the note. If an additional boolean of true is added, it will be converted to a noodle position instead of the vanilla grid.
      */
-    constructor(time: number = 0, type: number = undefined, direction: number = undefined, position: any[] = undefined) {
+    constructor(time: number = undefined, type: number = undefined, direction: number = undefined, position: any[] = undefined) {
         if (time !== undefined) this.time = time;
         if (type !== undefined) this.type = type;
         if (direction !== undefined) this.direction = direction;
