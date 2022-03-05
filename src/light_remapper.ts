@@ -62,9 +62,12 @@ class BaseLightRemapper {
      * @param {Boolean} log Log the output JSON of each event.
      * @param {Function} forLights Lambda function for each event.
      */
-    run(log: boolean = false, forLights: (event: EventInternals.AbstractEvent) => void = undefined) { this.doProcess(log, forLights) };
+    run(log: boolean = undefined, forLights: (event: EventInternals.AbstractEvent) => void = undefined) { 
+        log ??= false;
+        this.doProcess(log, forLights);
+    }
 
-    protected set setRange(value: number | number[]) { typeof value === "number" ? this.range === [value, value] : this.range = value };
+    protected set setRange(value: number | number[]) { typeof value === "number" ? this.range === [value, value] : this.range = value }
 
     protected doProcess(test: number[] | boolean, forLights: (event: EventInternals.AbstractEvent) => void = undefined) {
         let array: EventInternals.AbstractEvent[] = [];

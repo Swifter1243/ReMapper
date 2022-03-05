@@ -1,15 +1,7 @@
 import { activeDiff } from "./beatmap";
 import { ANIM } from "./constants";
 import * as general from './general';
-import { easingInterpolate } from "./general";
-import { arrAdd } from "./general";
-import { copy } from "./general";
-import { arrEqual } from "./general";
-import { arrMul } from "./general";
-import { arrLast } from "./general";
-import { findFraction } from "./general";
-import { lerp } from "./general";
-import { lerpWrap } from "./general";
+import { easingInterpolate, arrAdd, copy, arrEqual, arrMul, arrLast, findFraction, lerp, lerpWrap } from "./general";
 
 export type KeyframesLinear = [number] | [number, number, string?, string?][] | string;
 export type KeyframesVec3 = [number, number, number] | [number, number, number, number, string?, string?][] | string;
@@ -20,7 +12,9 @@ export namespace AnimationInternals {
         json = {};
         length;
 
-        constructor(length: number = 1, data = undefined) {
+        constructor(length: number = undefined, data = undefined) {
+            length ??= 1;
+
             this.length = length;
             if (data !== undefined) this.json = data;
         }
@@ -31,7 +25,7 @@ export namespace AnimationInternals {
         clear(property: string = undefined) {
             if (property !== undefined) delete this.json[property];
             else Object.keys(this.json).forEach(x => { delete this.json[x] });
-        };
+        }
 
         /**
          * Set a property's animations. Does not edit the value.
@@ -72,7 +66,9 @@ export namespace AnimationInternals {
          * @param {Number} accuracy Multiplier for the max difference that values are considered "similar".
          * @param {String} property Optimize only a single property, or set to undefined to optimize all.
          */
-        optimize(accuracy: number = 1, property: string = undefined) {
+        optimize(accuracy: number = undefined, property: string = undefined) {
+            accuracy ??= 1;
+
             if (property === undefined) {
                 Object.keys(this.json).map(key => {
                     if (Array.isArray(this.json[key])) {

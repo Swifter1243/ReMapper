@@ -23,14 +23,14 @@ export class Wall {
     animate = new Animation().wallAnimation(this.json._customData._animation);
 
     /**
-     * Wall object for ease of creation
+     * Wall object for ease of creation.
      * @param {Number} time
      * @param {Number} duration 
-     * @param {Number} type Can be left empty to create a noodle wall template
+     * @param {Number} type Can be left empty to create a noodle wall template.
      * @param {Number} lineIndex 
      * @param {Number} width
      */
-    constructor(time: number = 0, duration: number = 0, type: number = undefined, lineIndex: number = undefined, width: number = undefined) {
+    constructor(time: number = undefined, duration: number = undefined, type: number = undefined, lineIndex: number = undefined, width: number = undefined) {
         if (time !== undefined) this.time = time;
         if (duration !== undefined) this.duration = duration;
         if (type !== undefined) this.type = type;

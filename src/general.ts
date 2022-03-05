@@ -433,7 +433,13 @@ export function worldToWall(pos: Vec3, rot: Vec3, scale: Vec3) {
  * @param {Number} animDur How long animation lasts for.
  * @param {Number} animFreq Frequency of keyframes in animation.
  */
-export function debugWall(pos: KeyframesVec3 = [0, 0, 0], rot: KeyframesVec3 = [0, 0, 0], scale: KeyframesVec3 = [1, 1, 1], animStart: number = 0, animDur: number = 0, animFreq: number = 1 / 8) {
+export function debugWall(pos: KeyframesVec3 = undefined, rot: KeyframesVec3 = undefined, scale: KeyframesVec3 = undefined, animStart: number = undefined, animDur: number = undefined, animFreq: number = 1 / 8) {
+    pos ??= [0,0,0];
+    rot ??= [0,0,0];
+    scale ??= [1,1,1];
+    animStart ??= 0;
+    animDur ??= 0;
+
     let wall = new Wall();
     wall.life = animDur + 69420;
     wall.lifeStart = 0;

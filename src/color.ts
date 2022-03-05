@@ -21,7 +21,7 @@ export class Color {
      * @param {String} format
      * @param {Boolean} alert Option to remove alerts about already being the same format.
      */
-    toFormat(format, alert = true) {
+    toFormat(format: string, alert: boolean = true) {
         if (format === "RGB") {
             if (this.format === "RGB" && alert) console.warn(`The color ${this.internalValue} was already RGB!`);
             if (this.format === "HSV") this.HSVtoRGB();
