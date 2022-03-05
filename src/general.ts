@@ -1,14 +1,9 @@
 const EPSILON = 1e-3;
 import * as jseasingfunctions from 'js-easing-functions';
-import { Animation } from './animation';
+import { Animation, complexifyArray, Keyframe, KeyframesVec3 } from './animation';
 import { Wall } from './wall';
-import { Difficulty } from './beatmap';
 import * as three from 'three';
-import { complexifyArray } from './animation';
-import { Keyframe } from './animation';
 import { ANIM, EASE } from './constants';
-import { simplifyArray } from './animation';
-import { KeyframesVec3 } from './animation';
 import { activeDiff } from './beatmap';
 import { Note } from './note';
 import { EventInternals } from './event';

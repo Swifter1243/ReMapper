@@ -1,15 +1,10 @@
 import * as fs from 'fs';
 import { Note } from './note';
 import { Wall } from './wall';
-import { Event } from './event';
-import { CustomEvent } from './custom_event';
+import { Event, EventInternals } from './event';
+import { CustomEvent, CustomEventInternals } from './custom_event';
 import { Environment } from './environment';
-import * as general from './general';
-import { CustomEventInternals } from './custom_event';
-import { EventInternals } from './event';
-import { copy } from './general';
-import { jsonPrune } from './general';
-import { jsonRemove } from './general';
+import { copy, jsonGet, jsonPrune, jsonRemove, jsonSet, sortObjects } from './general';
 
 export class Difficulty {
     json;
@@ -86,13 +81,13 @@ export class Difficulty {
         }
         for (let i = 0; i < this.events.length; i++) outputJSON._events[i] = copy(this.events[i].json);
 
-        general.sortObjects(outputJSON._events, "_time");
-        general.sortObjects(outputJSON._notes, "_time");
-        general.sortObjects(outputJSON._obstacles, "_time");
+        sortObjects(outputJSON._events, "_time");
+        sortObjects(outputJSON._notes, "_time");
+        sortObjects(outputJSON._obstacles, "_time");
 
         if (this.customEvents !== undefined) {
             for (let i = 0; i < this.customEvents.length; i++) outputJSON._customData._customEvents[i] = copy(this.customEvents[i].json);
-            general.sortObjects(outputJSON._customData._customEvents, "_time");
+            sortObjects(outputJSON._customData._customEvents, "_time");
         }
 
         if (this.environment !== undefined) {
@@ -162,7 +157,7 @@ export class Difficulty {
     }
 
     #updateSets(object, property, value) {
-        general.jsonSet(object, property, value);
+        jsonSet(object, property, value);
 
         let sets = info.json._difficultyBeatmapSets;
 
@@ -180,46 +175,46 @@ export class Difficulty {
     }
 
     // Info.dat
-    get NJS() { return general.jsonGet(this.diffSetMap, "_noteJumpMovementSpeed") };
-    get offset() { return general.jsonGet(this.diffSetMap, "_noteJumpStartBeatOffset") };
-    get fileName() { return general.jsonGet(this.diffSetMap, "_beatmapFilename") };
-    get setName() { return general.jsonGet(this.diffSet, "_beatmapCharacteristicName") };
-    get diffName() { return general.jsonGet(this.diffSetMap, "_difficulty") };
-    get diffRank() { return general.jsonGet(this.diffSetMap, "_difficultyRank") };
-    get requirements() { return general.jsonGet(this.diffSetMap, "_customData._requirements") };
-    get suggestions() { return general.jsonGet(this.diffSetMap, "_customData._suggestions") };
-    get settings() { return general.jsonGet(this.diffSetMap, "_customData._settings") };
+    get NJS() { return jsonGet(this.diffSetMap, "_noteJumpMovementSpeed") }
+    get offset() { return jsonGet(this.diffSetMap, "_noteJumpStartBeatOffset") }
+    get fileName() { return jsonGet(this.diffSetMap, "_beatmapFilename") }
+    get setName() { return jsonGet(this.diffSet, "_beatmapCharacteristicName") }
+    get diffName() { return jsonGet(this.diffSetMap, "_difficulty") }
+    get diffRank() { return jsonGet(this.diffSetMap, "_difficultyRank") }
+    get requirements() { return jsonGet(this.diffSetMap, "_customData._requirements") }
+    get suggestions() { return jsonGet(this.diffSetMap, "_customData._suggestions") }
+    get settings() { return jsonGet(this.diffSetMap, "_customData._settings") }
 
-    set NJS(value) { this.#updateSets(this.diffSetMap, "_noteJumpMovementSpeed", value) };
-    set offset(value) { this.#updateSets(this.diffSetMap, "_noteJumpStartBeatOffset", value) };
-    set fileName(value) { this.#updateSets(this.diffSetMap, "_beatmapFilename", value) };
-    set setName(value) { this.#updateSets(this.diffSet, "_beatmapCharacteristicName", value) };
-    set diffName(value) { this.#updateSets(this.diffSetMap, "_difficulty", value) };
-    set diffRank(value) { this.#updateSets(this.diffSetMap, "_difficultyRank", value) };
-    set requirements(value) { this.#updateSets(this.diffSetMap, "_customData._requirements", value) };
-    set suggestions(value) { this.#updateSets(this.diffSetMap, "_customData._suggestions", value) };
-    set settings(value) { this.#updateSets(this.diffSetMap, "_customData._settings", value) };
+    set NJS(value) { this.#updateSets(this.diffSetMap, "_noteJumpMovementSpeed", value) }
+    set offset(value) { this.#updateSets(this.diffSetMap, "_noteJumpStartBeatOffset", value) }
+    set fileName(value) { this.#updateSets(this.diffSetMap, "_beatmapFilename", value) }
+    set setName(value) { this.#updateSets(this.diffSet, "_beatmapCharacteristicName", value) }
+    set diffName(value) { this.#updateSets(this.diffSetMap, "_difficulty", value) }
+    set diffRank(value) { this.#updateSets(this.diffSetMap, "_difficultyRank", value) }
+    set requirements(value) { this.#updateSets(this.diffSetMap, "_customData._requirements", value) }
+    set suggestions(value) { this.#updateSets(this.diffSetMap, "_customData._suggestions", value) }
+    set settings(value) { this.#updateSets(this.diffSetMap, "_customData._settings", value) }
 
     // Map
-    get version() { return general.jsonGet(this.json, "_version") };
-    get notes(): Note[] { return general.jsonGet(this.json, "_notes") };
-    get obstacles(): Wall[] { return general.jsonGet(this.json, "_obstacles") };
-    get events(): EventInternals.AbstractEvent[] { return general.jsonGet(this.json, "_events") };
-    get waypoints() { return general.jsonGet(this.json, "_waypoints") };
-    get customData() { return general.jsonGet(this.json, "_customData") };
-    get customEvents(): CustomEventInternals.BaseEvent[] { return general.jsonGet(this.json, "_customData._customEvents") };
-    get pointDefinitions() { return general.jsonGet(this.json, "_customData._pointDefinitions") };
-    get environment(): Environment[] { return general.jsonGet(this.json, "_customData._environment") };
+    get version() { return jsonGet(this.json, "_version") }
+    get notes(): Note[] { return jsonGet(this.json, "_notes") }
+    get obstacles(): Wall[] { return jsonGet(this.json, "_obstacles") }
+    get events(): EventInternals.AbstractEvent[] { return jsonGet(this.json, "_events") }
+    get waypoints() { return jsonGet(this.json, "_waypoints") }
+    get customData() { return jsonGet(this.json, "_customData") }
+    get customEvents(): CustomEventInternals.BaseEvent[] { return jsonGet(this.json, "_customData._customEvents") }
+    get pointDefinitions() { return jsonGet(this.json, "_customData._pointDefinitions") }
+    get environment(): Environment[] { return jsonGet(this.json, "_customData._environment") }
 
-    set version(value) { general.jsonSet(this.json, "_version", value) };
-    set notes(value) { general.jsonSet(this.json, "_notes", value) };
-    set obstacles(value) { general.jsonSet(this.json, "_obstacles", value) };
-    set events(value) { general.jsonSet(this.json, "_events", value) };
-    set waypoints(value) { general.jsonSet(this.json, "_waypoints", value) };
-    set customData(value) { general.jsonSet(this.json, "_customData", value) };
-    set customEvents(value) { general.jsonSet(this.json, "_customData._customEvents", value) };
-    set pointDefinitions(value) { general.jsonSet(this.json, "_customData._pointDefinitions", value) };
-    set environment(value) { general.jsonSet(this.json, "_customData._environment", value) };
+    set version(value) { jsonSet(this.json, "_version", value) }
+    set notes(value) { jsonSet(this.json, "_notes", value) }
+    set obstacles(value) { jsonSet(this.json, "_obstacles", value) }
+    set events(value) { jsonSet(this.json, "_events", value) }
+    set waypoints(value) { jsonSet(this.json, "_waypoints", value) }
+    set customData(value) { jsonSet(this.json, "_customData", value) }
+    set customEvents(value) { jsonSet(this.json, "_customData._customEvents", value) }
+    set pointDefinitions(value) { jsonSet(this.json, "_customData._pointDefinitions", value) }
+    set environment(value) { jsonSet(this.json, "_customData._environment", value) }
 }
 
 export class Info {
@@ -245,27 +240,27 @@ export class Info {
     }
 
     private updateInfo(object, property, value) {
-        general.jsonSet(object, property, value);
+        jsonSet(object, property, value);
         info.save();
     }
 
-    get version() { return general.jsonGet(this.json, "_version") };
-    get name() { return general.jsonGet(this.json, "_songName") };
-    get subName() { return general.jsonGet(this.json, "_songSubName") };
-    get authorName() { return general.jsonGet(this.json, "_songAuthorName") };
-    get mapper() { return general.jsonGet(this.json, "_levelAuthorName") };
-    get BPM() { return general.jsonGet(this.json, "_beatsPerMinute") };
-    get previewStart() { return general.jsonGet(this.json, "_previewStartTime") };
-    get previewDuration() { return general.jsonGet(this.json, "_previewDuration") };
-    get songOffset() { return general.jsonGet(this.json, "_songTimeOffset") };
-    get shuffle() { return general.jsonGet(this.json, "_shuffle") };
-    get shufflePeriod() { return general.jsonGet(this.json, "_shufflePeriod") };
-    get coverFileName() { return general.jsonGet(this.json, "_coverImageFilename") };
-    get songFileName() { return general.jsonGet(this.json, "_songFilename") };
-    get environment() { return general.jsonGet(this.json, "_environmentName") };
-    get environment360() { return general.jsonGet(this.json, "_allDirectionsEnvironmentName") };
-    get customData() { return general.jsonGet(this.json, "_customData") };
-    get editors() { return general.jsonGet(this.json, "_customData._editors") };
+    get version() { return jsonGet(this.json, "_version") };
+    get name() { return jsonGet(this.json, "_songName") };
+    get subName() { return jsonGet(this.json, "_songSubName") };
+    get authorName() { return jsonGet(this.json, "_songAuthorName") };
+    get mapper() { return jsonGet(this.json, "_levelAuthorName") };
+    get BPM() { return jsonGet(this.json, "_beatsPerMinute") };
+    get previewStart() { return jsonGet(this.json, "_previewStartTime") };
+    get previewDuration() { return jsonGet(this.json, "_previewDuration") };
+    get songOffset() { return jsonGet(this.json, "_songTimeOffset") };
+    get shuffle() { return jsonGet(this.json, "_shuffle") };
+    get shufflePeriod() { return jsonGet(this.json, "_shufflePeriod") };
+    get coverFileName() { return jsonGet(this.json, "_coverImageFilename") };
+    get songFileName() { return jsonGet(this.json, "_songFilename") };
+    get environment() { return jsonGet(this.json, "_environmentName") };
+    get environment360() { return jsonGet(this.json, "_allDirectionsEnvironmentName") };
+    get customData() { return jsonGet(this.json, "_customData") };
+    get editors() { return jsonGet(this.json, "_customData._editors") };
 
     set version(value) { this.updateInfo(this.json, "_version", value) };
     set name(value) { this.updateInfo(this.json, "_songName", value) };

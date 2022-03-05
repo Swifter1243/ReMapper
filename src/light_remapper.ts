@@ -1,6 +1,5 @@
-import { Event } from "./event";
+import { Event, EventInternals } from "./event";
 import { activeDiff } from "./beatmap";
-import { EventInternals } from "./event";
 import { copy } from "./general";
 
 class BaseLightRemapper {

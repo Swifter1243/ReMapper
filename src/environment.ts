@@ -1,15 +1,7 @@
-import * as general from './general';
-import * as beatmap from './beatmap';
-import { combineAnimations } from './animation';
-import { Note } from './note';
-import { Wall } from './wall';
-import { Animation } from './animation';
+import { combineAnimations, Animation, Keyframe } from './animation';
 import { activeDiff } from './beatmap';
-import { Vec3 } from './general';
+import { Vec3, debugWall, copy, rotatePoint } from './general';
 import { CustomEvent } from './custom_event';
-import { Keyframe } from './animation';
-import { KeyframesVec3 } from './animation';
-import { debugWall } from './general';
 
 let envCount = 0;
 let blenderEnvCount = 0;
@@ -54,7 +46,7 @@ export class Environment {
         if (this.group && this.track === undefined) this.track = `environment${envCount}`;
         envCount++;
         if (activeDiff.environment === undefined) activeDiff.environment = [];
-        activeDiff.environment.push(general.copy(this));
+        activeDiff.environment.push(copy(this));
         return this;
     }
 
@@ -166,7 +158,7 @@ class BaseBlenderEnvironment {
                 let objScale = scale.values;
 
                 data.rawPos.push([...objPos, ref.time]);
-                let offset = general.rotatePoint(objRot, objScale.map((y, i) => y * this.anchor[i] * blenderShrink) as Vec3);
+                let offset = rotatePoint(objRot, objScale.map((y, i) => y * this.anchor[i] * blenderShrink) as Vec3);
                 data.pos.push([...objPos.map((y, i) => y + offset[i]), ref.time]);
             }
 
@@ -389,7 +381,7 @@ class BlenderAssigned extends BaseBlenderEnvironment {
 export function animateEnvGroup(group: string, time: number, duration: number, keyframes: object, easing: string = undefined) {
     activeDiff.environment.forEach(x => {
         if (x.group === group) {
-            let newAnimation = general.copy(keyframes);
+            let newAnimation = copy(keyframes);
 
             Object.keys(newAnimation).forEach(key => {
                 if (x[key]) newAnimation[key] = combineAnimations(newAnimation[key], x[key], key);
@@ -411,7 +403,7 @@ export function animateEnvGroup(group: string, time: number, duration: number, k
 export function animateEnvTrack(track: string, time: number, duration: number, keyframes: object, easing: string = undefined) {
     activeDiff.environment.forEach(x => {
         if (x.track === track) {
-            let newAnimation = general.copy(keyframes);
+            let newAnimation = copy(keyframes);
 
             Object.keys(newAnimation).forEach(key => {
                 if (x[key]) newAnimation[key] = combineAnimations(newAnimation[key], x[key], key);

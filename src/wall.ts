@@ -1,13 +1,6 @@
-import * as general from './general';
-import * as beatmap from './beatmap';
-import { activeDiff } from './beatmap';
-import { forceJumpsForNoodle } from './beatmap';
-import { copy } from './general';
-import { Animation } from './animation';
-import { AnimationInternals } from './animation';
-import { jsonCheck } from './general';
-import { jsonPrune } from './general';
-import { isEmptyObject } from './general';
+import { activeDiff, info } from './beatmap';
+import { copy, jsonPrune, isEmptyObject, getJumps } from './general';
+import { Animation, AnimationInternals } from './animation';
 
 export class Wall {
     json: any = {
@@ -20,7 +13,7 @@ export class Wall {
             _animation: {}
         }
     };
-    animate = new Animation().wallAnimation(this.json._customData._animation);
+    animate = new Animation().wallAnimation(this.animation);
 
     /**
      * Wall object for ease of creation.
@@ -54,7 +47,7 @@ export class Wall {
         this.json = json;
         if (this.customData === undefined) this.customData = {};
         if (this.animation === undefined) this.animation = {};
-        this.animate = new Animation().wallAnimation(this.json._customData._animation);
+        this.animate = new Animation().wallAnimation(this.animation);
         return this;
     }
 
@@ -62,7 +55,7 @@ export class Wall {
      * Push this wall to the difficulty
      */
      push() {
-        activeDiff.obstacles.push(general.copy(this));
+        activeDiff.obstacles.push(copy(this));
         return this;
     }
 
@@ -72,6 +65,7 @@ export class Wall {
      */
     importAnimation(animation: AnimationInternals.BaseAnimation) {
         this.animation = animation.json;
+        this.animate = new Animation().wallAnimation(this.animation);
         return this;
     }
 
@@ -93,8 +87,8 @@ export class Wall {
         if (this.json._customData._noteJumpStartBeatOffset) return this.json._customData._noteJumpStartBeatOffset;
         else return activeDiff.offset;
     };
-    get halfJumpDur() { return general.getJumps(this.NJS, this.offset, beatmap.info.BPM).halfDur };
-    get jumpDist() { return general.getJumps(this.NJS, this.offset, beatmap.info.BPM).dist };
+    get halfJumpDur() { return getJumps(this.NJS, this.offset, info.BPM).halfDur };
+    get jumpDist() { return getJumps(this.NJS, this.offset, info.BPM).dist };
     get life() { return this.halfJumpDur * 2 + this.duration };
     get lifeStart() { return this.time - this.halfJumpDur };
     get fake() { return this.json._customData._fake };

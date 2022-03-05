@@ -1,7 +1,6 @@
 import * as general from './general';
 import { activeDiff } from './beatmap';
-import { AnimationInternals } from './animation';
-import { Animation } from './animation';
+import { AnimationInternals, Animation } from './animation';
 
 export namespace CustomEventInternals {
     export class BaseEvent {
@@ -51,7 +50,7 @@ export class CustomEvent extends CustomEventInternals.BaseEvent {
      * @param {Object} json 
      * @returns {AbstractEvent}
      */
-    import(json: object) { return new AbstractEvent(json) };
+    import(json: object) { return new AbstractEvent(json) }
 
     /**
      * Create an event with no particular identity.

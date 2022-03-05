@@ -1,4 +1,4 @@
-import * as general from './general';
+import { clamp, easingInterpolate as lerpEasing, lerp, lerpWrap } from "./general";
 
 export class Color {
     private internalValue: [number, number, number, number] = [0, 0, 0, 1];
@@ -43,13 +43,13 @@ export class Color {
     }
 
     private processValue(value) {
-        value = value.map(x => general.clamp(x, 0));
+        value = value.map(x => clamp(x, 0));
         if (value[3] === undefined) value[3] = 1;
         return value;
     }
 
     private HSVtoRGB() {
-        let h = general.clamp(this.internalValue[0], 0, 1);
+        let h = clamp(this.internalValue[0], 0, 1);
         let s = this.internalValue[1];
         let v = this.internalValue[2];
 
@@ -109,7 +109,7 @@ export function lerpColor(start: Color, end: Color, fraction: number, easing = u
     if (format !== "RGB" && format !== "HSV") format = "RGB";
 
     let returnFormat = start.format;
-    if (easing !== undefined) fraction = general.easingInterpolate(easing, fraction);
+    if (easing !== undefined) fraction = lerpEasing(easing, fraction);
 
     let output = new Color([0, 0, 0], format);
     let newStart = new Color(start.value, start.format);
@@ -119,13 +119,13 @@ export function lerpColor(start: Color, end: Color, fraction: number, easing = u
     newEnd.toFormat(format, false);
 
     if (format === "HSV") {
-        output.value[0] = general.lerpWrap(newStart.value[0], newEnd.value[0], fraction);
-        output.value[1] = general.lerp(newStart.value[1], newEnd.value[1], fraction);
-        output.value[2] = general.lerp(newStart.value[2], newEnd.value[2], fraction);
-        output.value[3] = general.lerp(newStart.value[3], newEnd.value[3], fraction);
+        output.value[0] = lerpWrap(newStart.value[0], newEnd.value[0], fraction);
+        output.value[1] = lerp(newStart.value[1], newEnd.value[1], fraction);
+        output.value[2] = lerp(newStart.value[2], newEnd.value[2], fraction);
+        output.value[3] = lerp(newStart.value[3], newEnd.value[3], fraction);
     }
     else {
-        for (let i = 0; i <= 3; i++) output.value[i] = general.lerp(newStart.value[i], newEnd.value[i], fraction);
+        for (let i = 0; i <= 3; i++) output.value[i] = lerp(newStart.value[i], newEnd.value[i], fraction);
     }
 
     output.toFormat(returnFormat, false);

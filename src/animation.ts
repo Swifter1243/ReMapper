@@ -70,7 +70,7 @@ export namespace AnimationInternals {
             accuracy ??= 1;
 
             if (property === undefined) {
-                Object.keys(this.json).map(key => {
+                Object.keys(this.json).forEach(key => {
                     if (Array.isArray(this.json[key])) {
                         this.set(key, optimizeArray(this.get(key), lookupLenience(key)));
                     }
@@ -304,24 +304,24 @@ export function simplifyArray(array: any[]): any[] {
 
 /**
  * Specific function for animations, removes similar keyframes from an animation.
- * @param {Array} animation 
+ * @param {Array} keyframes 
  * @param {Number} lenience The maximum distance values can be considered similar.
  * @returns {Array}
  */
-export function optimizeArray(animation: any[], lenience: number = 0.1): any[] {
-    animation = copy(complexifyArray(animation)).map(x => new Keyframe(x));
+export function optimizeArray(keyframes: any[], lenience: number = 0.1): any[] {
+    keyframes = copy(complexifyArray(keyframes)).map(x => new Keyframe(x));
 
     // not enough points to optimize
-    if (animation.length < 3) return animation;
+    if (keyframes.length < 3) return keyframes.map(x => x.data);
 
     let differences: number[] = [];
-    for (let i = 0; i < animation[0].values.length; i++) differences[i] = 0;
+    for (let i = 0; i < keyframes[0].values.length; i++) differences[i] = 0;
 
 
-    for (let i = 1; i < animation.length - 1; i++) {
-        let middle: Keyframe = animation[i];
-        let left: Keyframe | undefined = animation[i - 1];
-        let right: Keyframe | undefined = animation[i + 1];
+    for (let i = 1; i < keyframes.length - 1; i++) {
+        let middle: Keyframe = keyframes[i];
+        let left: Keyframe | undefined = keyframes[i - 1];
+        let right: Keyframe | undefined = keyframes[i + 1];
 
         // While the keyframes may be similar, their easing/spline difference is
         // non-negligible to the animation path and therefore should not be considered for removal
@@ -346,14 +346,14 @@ export function optimizeArray(animation: any[], lenience: number = 0.1): any[] {
                     else {
                         deleteElem()
                         return;
-                    };
+                    }
                 }
             }
             
-            function deleteElem() { animation.splice(i, 1); i--};
+            function deleteElem() { keyframes.splice(i, 1); i--}
         }
     }
-    return animation;
+    return keyframes.map(x => x.data);
 }
 
 /**
