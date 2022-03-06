@@ -112,6 +112,36 @@ export function lerpWrap(start: number, end: number, fraction: number, easing: E
 }
 
 /**
+ * Interpolates between a start and end rotation to get a rotation in between.
+ * @param {Vec3} start 
+ * @param {Vec3} end 
+ * @param {Number} fraction 
+ * @param {EASE} easing 
+ * @returns
+ */
+export function lerpRotation(start: Vec3, end: Vec3, fraction: number, easing: EASE = undefined): Vec3 {
+    if (easing !== undefined) fraction = lerpEasing(easing, fraction);
+    let q1 = new three.Quaternion().setFromEuler(new three.Euler(...toRadians(start), "YXZ"));
+    let q2 = new three.Quaternion().setFromEuler(new three.Euler(...toRadians(end), "YXZ"));
+    q1.slerp(q2, fraction);
+    let output = toDegrees(new three.Euler().reorder("YXZ").setFromQuaternion(q1).toArray());
+    output.pop();
+    return output as Vec3;
+}
+
+/**
+ * Process a number through an easing.
+ * @param {String} easing Name of easing.
+ * @param {Number} value Progress of easing (0-1).
+ * @returns {Number}
+ */
+ export function lerpEasing(easing: EASE, value: number) {
+    if (easing === "easeLinear" || easing === undefined) return value;
+    if (easing === "easeStep") return value === 1 ? 1 : 0;
+    return jseasingfunctions[easing](value, 0, 1, 1);
+}
+
+/**
  * Find value between 0 and 1 from a beginning, length, and a point in time between.
  * @param {Number} beginning 
  * @param {Number} length 
@@ -246,18 +276,6 @@ export function copy<T>(obj: T): T {
  */
 export function isEmptyObject(o: object) {
     return Object.keys(o).length === 0;
-}
-
-/**
- * Process a number through an easing.
- * @param {String} easing Name of easing.
- * @param {Number} value Progress of easing (0-1).
- * @returns {Number}
- */
-export function lerpEasing(easing: EASE, value: number) {
-    if (easing === "easeLinear" || easing === undefined) return value;
-    if (easing === "easeStep") return value === 1 ? 1 : 0;
-    return jseasingfunctions[easing](value, 0, 1, 1);
 }
 
 /**

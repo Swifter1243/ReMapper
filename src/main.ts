@@ -13,7 +13,6 @@ export * from './light_remapper';
 
 /*
 TODO:
-- interpolate rotations for noodle properly
 - add descriptions to all of the functions for making subclasses
 - create examples
 */

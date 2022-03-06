@@ -1,6 +1,6 @@
 import { activeDiff } from "./beatmap";
 import { ANIM } from "./constants";
-import { lerpEasing, arrAdd, copy, arrEqual, arrMul, arrLast, findFraction, lerp, lerpWrap, Vec3, Vec4 } from "./general";
+import { lerpEasing, arrAdd, copy, arrEqual, arrMul, arrLast, findFraction, lerp, lerpWrap, Vec3, Vec4, lerpRotation } from "./general";
 
 export type KeyframesLinear = [number] | [number, number, string?, string?][] | string;
 export type KeyframesVec3 = Vec3 | [...Vec3, number, string?, string?][] | string;
@@ -374,11 +374,7 @@ export function getValuesAtTime(property: string, keyframes: any[], time: number
     let timeInfo = timeInKeyframes(time, keyframes);
     if (timeInfo.interpolate) {
         if (property === ANIM.ROTATION || property === ANIM.LOCAL_ROTATION) {
-            let output = [];
-            timeInfo.l.values.forEach((x, i) => {
-                output.push(lerpWrap(x / 360, timeInfo.r.values[i] / 360, timeInfo.normalTime) * 360);
-            })
-            return output;
+            return lerpRotation(timeInfo.l.values, timeInfo.r.values, timeInfo.normalTime);
         }
         else {
             if (timeInfo.r.spline === "splineCatmullRom") {
