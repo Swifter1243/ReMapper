@@ -38,7 +38,7 @@ export namespace CustomEventInternals {
 
 
     export class AnimateTrack extends BaseEvent {
-        animate: AnimationInternals.BaseAnimation;
+        animate: AnimationInternals.AbstractAnimation;
 
         constructor(json: object, track: string, duration: number, animation: object, easing: string) {
             super(json);
@@ -95,7 +95,7 @@ export namespace CustomEventInternals {
     }
 
     export class AssignPathAnimation extends BaseEvent {
-        animate: AnimationInternals.BaseAnimation;
+        animate: AnimationInternals.AbstractAnimation;
 
         constructor(json: object, track: string, duration: number, animation: object, easing: string) {
             super(json);
@@ -211,7 +211,7 @@ export namespace CustomEventInternals {
     }
 
     export class AbstractEvent extends BaseEvent {
-        animate: AnimationInternals.BaseAnimation;
+        animate: AnimationInternals.AbstractAnimation;
 
         constructor(json: object) {
             super(json);

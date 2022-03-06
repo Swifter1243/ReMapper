@@ -159,7 +159,7 @@ export namespace BlenderEnvironmentInternals {
                     let objScale = scale.values;
 
                     data.rawPos.push([...objPos, ref.time]);
-                    let offset = rotatePoint(objRot, objScale.map((y, i) => y * this.anchor[i] * blenderShrink) as Vec3);
+                    let offset = rotatePoint(objRot, objScale.map((y, i) => y * -this.anchor[i] * blenderShrink) as Vec3);
                     data.pos.push([...objPos.map((y, i) => y + offset[i]), ref.time]);
                 }
 
@@ -244,7 +244,7 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
     }
 
     /**
-     * Assign pre-existing objects to be animated with this environment. 
+     * Assign pre-existing tracks to be animated with this environment. 
      * For example if the current data track is "shore" and you assign an object with track "cloud", there needs to be data for the track "shore_cloud".
      * In your shore model if you set the second material name to shore_cloud, you can move represent the cloud's transform by that object.
      * @param {Array} tracks Can be a single track or array of tracks.
@@ -380,7 +380,7 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
  * @param {String} easing 
  */
 export function animateEnvGroup(group: string, time: number, duration: number, animation: AnimationInternals.BaseAnimation, easing: string = undefined) {
-    activeDiff.environment.forEach(x => {
+    if (activeDiff.environment !== undefined) activeDiff.environment.forEach(x => {
         if (x.group === group) {
             let newAnimation = copy(animation.json);
 
@@ -402,7 +402,7 @@ export function animateEnvGroup(group: string, time: number, duration: number, a
  * @param {String} easing 
  */
 export function animateEnvTrack(track: string, time: number, duration: number, animation: AnimationInternals.BaseAnimation, easing: string = undefined) {
-    activeDiff.environment.forEach(x => {
+    if (activeDiff.environment !== undefined) activeDiff.environment.forEach(x => {
         if (x.track === track) {
             let newAnimation = copy(animation.json);
 

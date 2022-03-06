@@ -1,6 +1,6 @@
 import { activeDiff } from "./beatmap";
 import { ANIM } from "./constants";
-import { lerpEasing, arrAdd, copy, arrEqual, arrMul, arrLast, findFraction, lerp, lerpWrap, Vec3, Vec4, lerpRotation } from "./general";
+import { lerpEasing, arrAdd, copy, arrEqual, arrMul, arrLast, findFraction, lerp, Vec3, Vec4, lerpRotation } from "./general";
 
 export type KeyframesLinear = [number] | [number, number, string?, string?][] | string;
 export type KeyframesVec3 = Vec3 | [...Vec3, number, string?, string?][] | string;
@@ -101,6 +101,96 @@ export namespace AnimationInternals {
             else return time * -1;
         }
     }
+
+
+    class ObjectAnimation extends BaseAnimation {
+        get position() { return this.get(ANIM.POSITION) }
+        get definitePosition() { return this.get(ANIM.DEFINITE_POSITION) }
+        get rotation() { return this.get(ANIM.ROTATION) }
+        get localRotation() { return this.get(ANIM.LOCAL_ROTATION) }
+        get scale() { return this.get(ANIM.SCALE) }
+        get dissolve() { return this.get(ANIM.DISSOLVE) }
+        get color() { return this.get(ANIM.COLOR) }
+        get interactable() { return this.get(ANIM.INTERACTABLE) }
+        get time() { return this.get(ANIM.TIME) }
+
+        set position(value: KeyframesVec3) { this.add(ANIM.POSITION, value) }
+        set definitePosition(value: KeyframesVec3) { this.add(ANIM.DEFINITE_POSITION, value) }
+        set rotation(value: KeyframesVec3) { this.add(ANIM.ROTATION, value) }
+        set localRotation(value: KeyframesVec3) { this.add(ANIM.LOCAL_ROTATION, value) }
+        set scale(value: KeyframesVec3) { this.add(ANIM.SCALE, value) }
+        set dissolve(value: KeyframesLinear) { this.add(ANIM.DISSOLVE, value) }
+        set color(value: KeyframesVec4) { this.add(ANIM.COLOR, value) }
+        set interactable(value: KeyframesLinear) { this.add(ANIM.INTERACTABLE, value) }
+        set time(value: KeyframesLinear) { this.add(ANIM.TIME, value) }
+    }
+
+    export class NoteAnimation extends ObjectAnimation {
+        get dissolveArrow() { return this.get(ANIM.DISSOLVE_ARROW) }
+        set dissolveArrow(value: KeyframesLinear) { this.add(ANIM.DISSOLVE_ARROW, value) }
+    }
+
+    export class WallAnimation extends ObjectAnimation { }
+
+    export class EnvironmentAnimation extends BaseAnimation {
+        get position() { return this.get(ANIM.POSITION) }
+        get rotation() { return this.get(ANIM.ROTATION) }
+        get localPosition() { return this.get(ANIM.LOCAL_POSITION) }
+        get localRotation() { return this.get(ANIM.LOCAL_ROTATION) }
+        get scale() { return this.get(ANIM.SCALE) }
+
+        set position(value: KeyframesVec3) { this.add(ANIM.POSITION, value) }
+        set rotation(value: KeyframesVec3) { this.add(ANIM.ROTATION, value) }
+        set localPosition(value: KeyframesVec3) { this.add(ANIM.LOCAL_POSITION, value) }
+        set localRotation(value: KeyframesVec3) { this.add(ANIM.LOCAL_ROTATION, value) }
+        set scale(value: KeyframesVec3) { this.add(ANIM.SCALE, value) }
+    }
+
+    export class FogAnimation extends BaseAnimation {
+        get attenuation() { return this.get(ANIM.ATTENUATION) }
+        get offset() { return this.get(ANIM.OFFSET) }
+        get startY() { return this.get(ANIM.STARTY) }
+        get height() { return this.get(ANIM.HEIGHT) }
+
+        set attenuation(value: KeyframesLinear) { this.add(ANIM.ATTENUATION, value) }
+        set offset(value: KeyframesLinear) { this.add(ANIM.OFFSET, value) }
+        set startY(value: KeyframesLinear) { this.add(ANIM.STARTY, value) }
+        set height(value: KeyframesLinear) { this.add(ANIM.HEIGHT, value) }
+    }
+
+    export class AbstractAnimation extends ObjectAnimation {
+        get position() { return this.get(ANIM.POSITION) }
+        get localPosition() { return this.get(ANIM.LOCAL_POSITION) }
+        get definitePosition() { return this.get(ANIM.DEFINITE_POSITION) }
+        get rotation() { return this.get(ANIM.ROTATION) }
+        get localRotation() { return this.get(ANIM.LOCAL_ROTATION) }
+        get scale() { return this.get(ANIM.SCALE) }
+        get dissolve() { return this.get(ANIM.DISSOLVE) }
+        get dissolveArrow() { return this.get(ANIM.DISSOLVE_ARROW) }
+        get color() { return this.get(ANIM.COLOR) }
+        get interactable() { return this.get(ANIM.INTERACTABLE) }
+        get time() { return this.get(ANIM.TIME) }
+        get attenuation() { return this.get(ANIM.ATTENUATION) }
+        get offset() { return this.get(ANIM.OFFSET) }
+        get startY() { return this.get(ANIM.STARTY) }
+        get height() { return this.get(ANIM.HEIGHT) }
+
+        set position(value: KeyframesVec3) { this.add(ANIM.POSITION, value) }
+        set localPosition(value: KeyframesVec3) { this.add(ANIM.LOCAL_POSITION, value) }
+        set definitePosition(value: KeyframesVec3) { this.add(ANIM.DEFINITE_POSITION, value) }
+        set rotation(value: KeyframesVec3) { this.add(ANIM.ROTATION, value) }
+        set localRotation(value: KeyframesVec3) { this.add(ANIM.LOCAL_ROTATION, value) }
+        set scale(value: KeyframesVec3) { this.add(ANIM.SCALE, value) }
+        set dissolve(value: KeyframesLinear) { this.add(ANIM.DISSOLVE, value) }
+        set dissolveArrow(value: KeyframesLinear) { this.add(ANIM.DISSOLVE_ARROW, value) }
+        set color(value: KeyframesVec4) { this.add(ANIM.COLOR, value) }
+        set interactable(value: KeyframesLinear) { this.add(ANIM.INTERACTABLE, value) }
+        set time(value: KeyframesLinear) { this.add(ANIM.TIME, value) }
+        set attenuation(value: KeyframesLinear) { this.add(ANIM.ATTENUATION, value) }
+        set offset(value: KeyframesLinear) { this.add(ANIM.OFFSET, value) }
+        set startY(value: KeyframesLinear) { this.add(ANIM.STARTY, value) }
+        set height(value: KeyframesLinear) { this.add(ANIM.HEIGHT, value) }
+    }
 }
 
 export class Animation extends AnimationInternals.BaseAnimation {
@@ -118,7 +208,7 @@ export class Animation extends AnimationInternals.BaseAnimation {
     * @param {Object} json 
     * @returns {AbstractAnimation}
     */
-    import(json: object) { return new AbstractAnimation(this.length, json) }
+    import(json: object) { return new AnimationInternals.AbstractAnimation(this.length, json) }
 
     /**
      * Create an event with no particular identity.
@@ -131,117 +221,28 @@ export class Animation extends AnimationInternals.BaseAnimation {
      * @param {Object} json 
      * @returns 
      */
-    noteAnimation(json: object = undefined) { return new NoteAnimation(this.length, json) }
+    noteAnimation(json: object = undefined) { return new AnimationInternals.NoteAnimation(this.length, json) }
 
     /**
      * State that this animation is for a wall.
      * @param {Object} json 
      * @returns 
      */
-    wallAnimation(json: object = undefined) { return new WallAnimation(this.length, json) }
+    wallAnimation(json: object = undefined) { return new AnimationInternals.WallAnimation(this.length, json) }
 
     /**
      * State that this animation is for an environment object.
      * @param {Object} json 
      * @returns 
      */
-    environmentAnimation(json: object = undefined) { return new EnvironmentAnimation(this.length, json) }
+    environmentAnimation(json: object = undefined) { return new AnimationInternals.EnvironmentAnimation(this.length, json) }
 
     /**
      * State that this animation is for fog.
      * @param {Object} json 
      * @returns 
      */
-    fogAnimation(json: object = undefined) { return new FogAnimation(this.length, json) }
-}
-
-class ObjectAnimation extends AnimationInternals.BaseAnimation {
-    get position() { return this.get(ANIM.POSITION) }
-    get definitePosition() { return this.get(ANIM.DEFINITE_POSITION) }
-    get rotation() { return this.get(ANIM.ROTATION) }
-    get localRotation() { return this.get(ANIM.LOCAL_ROTATION) }
-    get scale() { return this.get(ANIM.SCALE) }
-    get dissolve() { return this.get(ANIM.DISSOLVE) }
-    get color() { return this.get(ANIM.COLOR) }
-    get interactable() { return this.get(ANIM.INTERACTABLE) }
-    get time() { return this.get(ANIM.TIME) }
-
-    set position(value: KeyframesVec3) { this.add(ANIM.POSITION, value) }
-    set definitePosition(value: KeyframesVec3) { this.add(ANIM.DEFINITE_POSITION, value) }
-    set rotation(value: KeyframesVec3) { this.add(ANIM.ROTATION, value) }
-    set localRotation(value: KeyframesVec3) { this.add(ANIM.LOCAL_ROTATION, value) }
-    set scale(value: KeyframesVec3) { this.add(ANIM.SCALE, value) }
-    set dissolve(value: KeyframesLinear) { this.add(ANIM.DISSOLVE, value) }
-    set color(value: KeyframesVec4) { this.add(ANIM.COLOR, value) }
-    set interactable(value: KeyframesLinear) { this.add(ANIM.INTERACTABLE, value) }
-    set time(value: KeyframesLinear) { this.add(ANIM.TIME, value) }
-}
-
-export class NoteAnimation extends ObjectAnimation {
-    get dissolveArrow() { return this.get(ANIM.DISSOLVE_ARROW) }
-    set dissolveArrow(value: KeyframesLinear) { this.add(ANIM.DISSOLVE_ARROW, value) }
-}
-
-export class WallAnimation extends ObjectAnimation { }
-
-export class EnvironmentAnimation extends AnimationInternals.BaseAnimation {
-    get position() { return this.get(ANIM.POSITION) }
-    get rotation() { return this.get(ANIM.ROTATION) }
-    get localPosition() { return this.get(ANIM.LOCAL_POSITION) }
-    get localRotation() { return this.get(ANIM.LOCAL_ROTATION) }
-    get scale() { return this.get(ANIM.SCALE) }
-
-    set position(value: KeyframesVec3) { this.add(ANIM.POSITION, value) }
-    set rotation(value: KeyframesVec3) { this.add(ANIM.ROTATION, value) }
-    set localPosition(value: KeyframesVec3) { this.add(ANIM.LOCAL_POSITION, value) }
-    set localRotation(value: KeyframesVec3) { this.add(ANIM.LOCAL_ROTATION, value) }
-    set scale(value: KeyframesVec3) { this.add(ANIM.SCALE, value) }
-}
-
-export class FogAnimation extends AnimationInternals.BaseAnimation {
-    get attenuation() { return this.get(ANIM.ATTENUATION) }
-    get offset() { return this.get(ANIM.OFFSET) }
-    get startY() { return this.get(ANIM.STARTY) }
-    get height() { return this.get(ANIM.HEIGHT) }
-
-    set attenuation(value: KeyframesLinear) { this.add(ANIM.ATTENUATION, value) }
-    set offset(value: KeyframesLinear) { this.add(ANIM.OFFSET, value) }
-    set startY(value: KeyframesLinear) { this.add(ANIM.STARTY, value) }
-    set height(value: KeyframesLinear) { this.add(ANIM.HEIGHT, value) }
-}
-
-export class AbstractAnimation extends ObjectAnimation {
-    get position() { return this.get(ANIM.POSITION) }
-    get localPosition() { return this.get(ANIM.LOCAL_POSITION) }
-    get definitePosition() { return this.get(ANIM.DEFINITE_POSITION) }
-    get rotation() { return this.get(ANIM.ROTATION) }
-    get localRotation() { return this.get(ANIM.LOCAL_ROTATION) }
-    get scale() { return this.get(ANIM.SCALE) }
-    get dissolve() { return this.get(ANIM.DISSOLVE) }
-    get dissolveArrow() { return this.get(ANIM.DISSOLVE_ARROW) }
-    get color() { return this.get(ANIM.COLOR) }
-    get interactable() { return this.get(ANIM.INTERACTABLE) }
-    get time() { return this.get(ANIM.TIME) }
-    get attenuation() { return this.get(ANIM.ATTENUATION) }
-    get offset() { return this.get(ANIM.OFFSET) }
-    get startY() { return this.get(ANIM.STARTY) }
-    get height() { return this.get(ANIM.HEIGHT) }
-
-    set position(value: KeyframesVec3) { this.add(ANIM.POSITION, value) }
-    set localPosition(value: KeyframesVec3) { this.add(ANIM.LOCAL_POSITION, value) }
-    set definitePosition(value: KeyframesVec3) { this.add(ANIM.DEFINITE_POSITION, value) }
-    set rotation(value: KeyframesVec3) { this.add(ANIM.ROTATION, value) }
-    set localRotation(value: KeyframesVec3) { this.add(ANIM.LOCAL_ROTATION, value) }
-    set scale(value: KeyframesVec3) { this.add(ANIM.SCALE, value) }
-    set dissolve(value: KeyframesLinear) { this.add(ANIM.DISSOLVE, value) }
-    set dissolveArrow(value: KeyframesLinear) { this.add(ANIM.DISSOLVE_ARROW, value) }
-    set color(value: KeyframesVec4) { this.add(ANIM.COLOR, value) }
-    set interactable(value: KeyframesLinear) { this.add(ANIM.INTERACTABLE, value) }
-    set time(value: KeyframesLinear) { this.add(ANIM.TIME, value) }
-    set attenuation(value: KeyframesLinear) { this.add(ANIM.ATTENUATION, value) }
-    set offset(value: KeyframesLinear) { this.add(ANIM.OFFSET, value) }
-    set startY(value: KeyframesLinear) { this.add(ANIM.STARTY, value) }
-    set height(value: KeyframesLinear) { this.add(ANIM.HEIGHT, value) }
+    fogAnimation(json: object = undefined) { return new AnimationInternals.FogAnimation(this.length, json) }
 }
 
 export class Keyframe {

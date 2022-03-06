@@ -26,17 +26,17 @@ export namespace EventInternals {
             return this;
         }
 
-        get time() { return this.json._time };
-        get type() { return this.json._type };
-        get value() { return this.json._value };
-        get floatValue() { return this.json._floatValue };
-        get customData() { return jsonGet(this.json, "_customData") };
+        get time() { return this.json._time }
+        get type() { return this.json._type }
+        get value() { return this.json._value }
+        get floatValue() { return this.json._floatValue }
+        get customData() { return jsonGet(this.json, "_customData") }
 
-        set time(value: number) { this.json._time = value };
-        set type(value: number) { this.json._type = value };
-        set value(value: number) { this.json._value = value };
-        set floatValue(value: number) { this.json._floatValue = value };
-        set customData(value) { jsonSet(this.json, "_customData", value) };
+        set time(value: number) { this.json._time = value }
+        set type(value: number) { this.json._type = value }
+        set value(value: number) { this.json._value = value }
+        set floatValue(value: number) { this.json._floatValue = value }
+        set customData(value) { jsonSet(this.json, "_customData", value) }
 
         get isModded() {
             if (this.customData === undefined) return false;
@@ -172,7 +172,7 @@ export namespace EventInternals {
         * Remove the subclass of the event, giving access to all properties, but can allow for invalid data.
         * @returns {AbstractEvent}
         */
-        abstract() { return new Event().import(this.json) };
+        abstract() { return new Event().import(this.json) }
     
         get lockPosition() { return jsonGet(this.json, "_customData._lockPosition") }
         get speed() { return jsonGet(this.json, "_customData._speed") }

@@ -1,11 +1,12 @@
 import { Event, EventInternals } from "./event";
 import { activeDiff } from "./beatmap";
 import { copy } from "./general";
+import { EVENT } from "./constants";
 
 export namespace LightRemapperInternals {
     export class BaseLightRemapper {
-        protected startType: number;
-        protected endType: number;
+        protected startType: EVENT;
+        protected endType: EVENT;
         protected range: number[];
         protected startMap: number[] | number[][] | boolean;
         protected endMap: number | number[] | (number | number[])[];
@@ -16,7 +17,7 @@ export namespace LightRemapperInternals {
          * @param {Number} startType 
          * @param {Number | Array} range Range a lightID needs to fit in, in order to pass
          */
-        constructor(startType: number, range: number | number[] = undefined) { this.conditions(startType, range) }
+        constructor(startType: EVENT, range: number | number[] = undefined) { this.conditions(startType, range) }
 
         /**
          * Set the entry conditions for each event.
@@ -35,7 +36,7 @@ export namespace LightRemapperInternals {
          * @param {Number} type 
          * @returns 
          */
-        setType(type: number) {
+        setType(type: EVENT) {
             this.endType = type;
             return this;
         }
@@ -120,7 +121,7 @@ export namespace LightRemapperInternals {
                         start = thisKey.startMap[0][0];
                     }
                     else if (typeof thisKey.startMap === "object") {
-                        ids = ids.map(x => (x - (thisKey.startMap[0] as number)) / (thisKey.startMap[1] as number) + (thisKey.startMap[0] as number));
+                        ids = ids.map(x => (x - (thisKey.startMap[0] as number)) / (thisKey.startMap[1] as number) + 1);
                         start = thisKey.startMap[0] as number;
                     }
                     else if (typeof thisKey.startMap === "boolean") {

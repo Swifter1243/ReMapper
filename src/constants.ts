@@ -290,17 +290,17 @@ export let ENV = {
         PILLAR: {
             ID: new Regex().start().add("PillarPair").seperate().add("PillarL").seperate().add("Pillar").end().string,
             SCALE: <Vec3>[10, 10 * (1 / 0.032), 10],
-            ANCHOR: <Vec3>[0, 0.5, 0]
+            ANCHOR: <Vec3>[0, -0.5, 0]
         },
         SOLID_LASER: {
             ID: new Regex().add("SmallPillarPair").seperate().add("PillarL").seperate().add("LaserL").end().string,
             SCALE: <Vec3>[1 / 3.5, 7000, 1 / 3.5],
-            ANCHOR: <Vec3>[0, -0.5, 0]
+            ANCHOR: <Vec3>[0, 0.5, 0]
         },
         LOW_CLOUDS: {
             ID: new Regex().add("LowCloudsGenerator").end().string,
             SCALE: <Vec3>[425, 40, 425],
-            ANCHOR: <Vec3>[0, 0.25, 0]
+            ANCHOR: <Vec3>[0, -0.25, 0]
         }
     }
 }
