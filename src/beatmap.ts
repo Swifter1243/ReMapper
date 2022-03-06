@@ -4,7 +4,7 @@ import { Wall } from './wall';
 import { Event, EventInternals } from './event';
 import { CustomEvent, CustomEventInternals } from './custom_event';
 import { Environment } from './environment';
-import { copy, jsonGet, jsonPrune, jsonRemove, jsonSet, sortObjects } from './general';
+import { copy, jsonGet, jsonPrune, jsonRemove, jsonSet, sortObjects, Vec3 } from './general';
 
 export class Difficulty {
     json;
@@ -156,53 +156,79 @@ export class Difficulty {
         this.updateSets(this.settings, setting, value);
     }
 
-    private updateSets(object, property, value) {
+    private updateSets(object, property: string, value) {
         jsonSet(object, property, value);
         jsonPrune(object);
         info.save();
     }
 
-    // Info.dat
-    get NJS() { return jsonGet(this.diffSetMap, "_noteJumpMovementSpeed") }
-    get offset() { return jsonGet(this.diffSetMap, "_noteJumpStartBeatOffset") }
-    get fileName() { return jsonGet(this.diffSetMap, "_beatmapFilename") }
-    get setName() { return jsonGet(this.diffSet, "_beatmapCharacteristicName") }
-    get diffName() { return jsonGet(this.diffSetMap, "_difficulty") }
-    get diffRank() { return jsonGet(this.diffSetMap, "_difficultyRank") }
-    get requirements() { return jsonGet(this.diffSetMap, "_customData._requirements") }
-    get suggestions() { return jsonGet(this.diffSetMap, "_customData._suggestions") }
-    get settings() { return jsonGet(this.diffSetMap, "_customData._settings") }
+    private colorArrayToTuple(array: Vec3) { return { r: array[0], g: array[1], b: array[2] } }
 
-    set NJS(value) { this.updateSets(this.diffSetMap, "_noteJumpMovementSpeed", value) }
-    set offset(value) { this.updateSets(this.diffSetMap, "_noteJumpStartBeatOffset", value) }
-    set fileName(value) { this.updateSets(this.diffSetMap, "_beatmapFilename", value) }
-    set setName(value) { this.updateSets(this.diffSet, "_beatmapCharacteristicName", value) }
-    set diffName(value) { this.updateSets(this.diffSetMap, "_difficulty", value) }
-    set diffRank(value) { this.updateSets(this.diffSetMap, "_difficultyRank", value) }
-    set requirements(value) { this.updateSets(this.diffSetMap, "_customData._requirements", value) }
-    set suggestions(value) { this.updateSets(this.diffSetMap, "_customData._suggestions", value) }
-    set settings(value) { this.updateSets(this.diffSetMap, "_customData._settings", value) }
+    // Info.dat
+    get NJS(): number { return jsonGet(this.diffSetMap, "_noteJumpMovementSpeed") }
+    get offset(): number { return jsonGet(this.diffSetMap, "_noteJumpStartBeatOffset") }
+    get fileName(): string { return jsonGet(this.diffSetMap, "_beatmapFilename") }
+    get diffSetName(): string { return jsonGet(this.diffSet, "_beatmapCharacteristicName") }
+    get name(): string { return jsonGet(this.diffSetMap, "_difficulty") }
+    get diffRank(): number { return jsonGet(this.diffSetMap, "_difficultyRank") }
+    get requirements(): string[] { return jsonGet(this.diffSetMap, "_customData._requirements") }
+    get suggestions(): string[] { return jsonGet(this.diffSetMap, "_customData._suggestions") }
+    get settings(): string[] { return jsonGet(this.diffSetMap, "_customData._settings") }
+    get warnings(): string[] { return jsonGet(this.diffSetMap, "_customData._warnings") }
+    get information(): string[] { return jsonGet(this.diffSetMap, "_customData._information") }
+    get label(): string { return jsonGet(this.diffSetMap, "_customData._difficultyLabel") }
+    get editorOffset(): number { return jsonGet(this.diffSetMap, "_customData._editorOffset") }
+    get editorOldOffset(): number { return jsonGet(this.diffSetMap, "_customData._editorOldOffset") }
+    get colorLeft(): Vec3 { return jsonGet(this.diffSetMap, "_customData._colorLeft") }
+    get colorRight(): Vec3 { return jsonGet(this.diffSetMap, "_customData._colorRight") }
+    get lightColorLeft(): Vec3 { return jsonGet(this.diffSetMap, "_customData._envColorLeft") }
+    get lightColorRight(): Vec3 { return jsonGet(this.diffSetMap, "_customData._envColorRight") }
+    get boostColorLeft(): Vec3 { return jsonGet(this.diffSetMap, "_customData._envColorLeftBoost") }
+    get boostColorRight(): Vec3 { return jsonGet(this.diffSetMap, "_customData._envColorRightBoost") }
+    get obstacleColor(): Vec3 { return jsonGet(this.diffSetMap, "_customData._obstacleColor") }
+
+    set NJS(value: number) { this.updateSets(this.diffSetMap, "_noteJumpMovementSpeed", value) }
+    set offset(value: number) { this.updateSets(this.diffSetMap, "_noteJumpStartBeatOffset", value) }
+    set fileName(value: string) { this.updateSets(this.diffSetMap, "_beatmapFilename", value) }
+    set diffSetName(value: string) { this.updateSets(this.diffSet, "_beatmapCharacteristicName", value) }
+    set name(value: string) { this.updateSets(this.diffSetMap, "_difficulty", value) }
+    set diffRank(value: number) { this.updateSets(this.diffSetMap, "_difficultyRank", value) }
+    set requirements(value: string[]) { this.updateSets(this.diffSetMap, "_customData._requirements", value) }
+    set suggestions(value: string[]) { this.updateSets(this.diffSetMap, "_customData._suggestions", value) }
+    set settings(value: string[]) { this.updateSets(this.diffSetMap, "_customData._settings", value) }
+    set warnings(value: string[]) { this.updateSets(this.diffSetMap, "_customData._warnings", value) }
+    set information(value: string[]) { this.updateSets(this.diffSetMap, "_customData._information", value) }
+    set label(value: string) { this.updateSets(this.diffSetMap, "_customData._difficultyLabel", value) }
+    set editorOffset(value: number) { this.updateSets(this.diffSetMap, "_customData._editorOffset", value) }
+    set editorOldOffset(value: number) { this.updateSets(this.diffSetMap, "_customData._editorOldOffset", value) }
+    set colorLeft(value: Vec3) { this.updateSets(this.diffSetMap, "_customData._colorLeft", this.colorArrayToTuple(value)) }
+    set colorRight(value: Vec3) { this.updateSets(this.diffSetMap, "_customData._colorRight", this.colorArrayToTuple(value)) }
+    set lightColorLeft(value: Vec3) { this.updateSets(this.diffSetMap, "_customData._envColorLeft", this.colorArrayToTuple(value)) }
+    set lightColorRight(value: Vec3) { this.updateSets(this.diffSetMap, "_customData._envColorRight", this.colorArrayToTuple(value)) }
+    set boostColorLeft(value: Vec3) { this.updateSets(this.diffSetMap, "_customData._envColorLeftBoost", this.colorArrayToTuple(value)) }
+    set boostColorRight(value: Vec3) { this.updateSets(this.diffSetMap, "_customData._envColorRightBoost", this.colorArrayToTuple(value)) }
+    set obstacleColor(value: Vec3) { this.updateSets(this.diffSetMap, "_customData._obstacleColor", this.colorArrayToTuple(value)) }
 
     // Map
-    get version() { return jsonGet(this.json, "_version") }
+    get version(): string { return jsonGet(this.json, "_version") }
     get notes(): Note[] { return jsonGet(this.json, "_notes") }
     get obstacles(): Wall[] { return jsonGet(this.json, "_obstacles") }
     get events(): EventInternals.AbstractEvent[] { return jsonGet(this.json, "_events") }
-    get waypoints() { return jsonGet(this.json, "_waypoints") }
+    get waypoints(): any[] { return jsonGet(this.json, "_waypoints") }
     get customData() { return jsonGet(this.json, "_customData") }
     get customEvents(): CustomEventInternals.BaseEvent[] { return jsonGet(this.json, "_customData._customEvents") }
-    get pointDefinitions() { return jsonGet(this.json, "_customData._pointDefinitions") }
+    get pointDefinitions(): any[] { return jsonGet(this.json, "_customData._pointDefinitions") }
     get environment(): Environment[] { return jsonGet(this.json, "_customData._environment") }
 
-    set version(value) { jsonSet(this.json, "_version", value) }
-    set notes(value) { jsonSet(this.json, "_notes", value) }
-    set obstacles(value) { jsonSet(this.json, "_obstacles", value) }
-    set events(value) { jsonSet(this.json, "_events", value) }
-    set waypoints(value) { jsonSet(this.json, "_waypoints", value) }
+    set version(value: string) { jsonSet(this.json, "_version", value) }
+    set notes(value: Note[]) { jsonSet(this.json, "_notes", value) }
+    set obstacles(value: Wall[]) { jsonSet(this.json, "_obstacles", value) }
+    set events(value: EventInternals.AbstractEvent[]) { jsonSet(this.json, "_events", value) }
+    set waypoints(value: any[]) { jsonSet(this.json, "_waypoints", value) }
     set customData(value) { jsonSet(this.json, "_customData", value) }
-    set customEvents(value) { jsonSet(this.json, "_customData._customEvents", value) }
-    set pointDefinitions(value) { jsonSet(this.json, "_customData._pointDefinitions", value) }
-    set environment(value) { jsonSet(this.json, "_customData._environment", value) }
+    set customEvents(value: CustomEventInternals.BaseEvent[]) { jsonSet(this.json, "_customData._customEvents", value) }
+    set pointDefinitions(value: any[]) { jsonSet(this.json, "_customData._pointDefinitions", value) }
+    set environment(value: Environment[]) { jsonSet(this.json, "_customData._environment", value) }
 }
 
 export class Info {
@@ -249,6 +275,9 @@ export class Info {
     get environment360() { return jsonGet(this.json, "_allDirectionsEnvironmentName") }
     get customData() { return jsonGet(this.json, "_customData") }
     get editors() { return jsonGet(this.json, "_customData._editors") }
+    get contributors() { return jsonGet(this.json, "_customData._contributors") }
+    get customEnvironment() { return jsonGet(this.json, "_customData._customEnvironment") }
+    get customEnvironmentHash() { return jsonGet(this.json, "_customData._customEnvironmentHash") }
 
     set version(value) { this.updateInfo(this.json, "_version", value) }
     set name(value) { this.updateInfo(this.json, "_songName", value) }
@@ -267,6 +296,9 @@ export class Info {
     set environment360(value) { this.updateInfo(this.json, "_allDirectionsEnvironmentName", value) }
     set customData(value) { this.updateInfo(this.json, "_customData", value) }
     set editors(value) { this.updateInfo(this.json, "_customData._editors", value) }
+    set contributors(value) { this.updateInfo(this.json, "_customData._contributors", value) }
+    set customEnvironment(value) { this.updateInfo(this.json, "_customData._customEnvironment", value) }
+    set customEnvironmentHash(value) { this.updateInfo(this.json, "_customData._customEnvironmentHash", value) }
 }
 
 export let info = new Info();

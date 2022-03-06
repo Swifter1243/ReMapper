@@ -1,4 +1,4 @@
-import { clamp, easingInterpolate as lerpEasing, lerp, lerpWrap } from "./general";
+import { clamp, lerpEasing, lerp, lerpWrap } from "./general";
 
 export class Color {
     private internalValue: [number, number, number, number] = [0, 0, 0, 1];

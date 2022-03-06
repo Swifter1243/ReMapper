@@ -85,7 +85,7 @@ export function eventsBetween(min: number, max: number, forEach: (note: EventInt
  * @returns {Number}
  */
 export function lerp(start: number, end: number, fraction: number, easing: EASE = undefined) {
-    if (easing !== undefined) fraction = easingInterpolate(easing, fraction);
+    if (easing !== undefined) fraction = lerpEasing(easing, fraction);
     return start + (end - start) * fraction;
 }
 
@@ -98,10 +98,10 @@ export function lerp(start: number, end: number, fraction: number, easing: EASE 
  * @returns 
  */
 export function lerpWrap(start: number, end: number, fraction: number, easing: EASE = undefined) {
-    if (easing !== undefined) fraction = easingInterpolate(easing, fraction);
+    if (easing !== undefined) fraction = lerpEasing(easing, fraction);
     let distance = Math.abs(end - start);
 
-    if (distance < 0.5) return lerp(start, end, fraction);
+    if (distance <= 0.5) return lerp(start, end, fraction);
     else {
         if (end > start) start += 1;
         else start -= 1;
@@ -254,7 +254,7 @@ export function isEmptyObject(o: object) {
  * @param {Number} value Progress of easing (0-1).
  * @returns {Number}
  */
-export function easingInterpolate(easing: EASE, value: number) {
+export function lerpEasing(easing: EASE, value: number) {
     if (easing === "easeLinear" || easing === undefined) return value;
     if (easing === "easeStep") return value === 1 ? 1 : 0;
     return jseasingfunctions[easing](value, 0, 1, 1);
@@ -267,8 +267,7 @@ export function easingInterpolate(easing: EASE, value: number) {
  * @returns {Array}
  */
 export function rotatePoint(rotation: Vec3, point: Vec3) {
-    const deg2rad = Math.PI / 180;
-    let mathRot = copy(rotation).map(x => x * deg2rad) as Vec3;
+    let mathRot = toRadians(rotation);
     let vector = new three.Vector3(...point).applyEuler(new three.Euler(...mathRot, "YXZ"));
     return [vector.x, vector.y, vector.z];
 }
@@ -281,6 +280,24 @@ export function rotatePoint(rotation: Vec3, point: Vec3) {
  */
 export function rotateVector(rotation: Vec3, length: number) {
     return rotatePoint(rotation, [0, -length, 0]);
+}
+
+/**
+ * Convert an array of numbers from degrees to radians.
+ * @param {Array} values 
+ * @returns 
+ */
+export function toRadians(values: number[]) {
+    return values.map(x => x * (Math.PI / 180));
+}
+
+/**
+ * Convert an array of numbers from radians to degrees.
+ * @param {Array} values 
+ * @returns 
+ */
+export function toDegrees(values: number[]) {
+    return values.map(x => x * (180 / Math.PI));
 }
 
 /**

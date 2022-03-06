@@ -1,6 +1,6 @@
 import { activeDiff } from "./beatmap";
 import { ANIM } from "./constants";
-import { easingInterpolate, arrAdd, copy, arrEqual, arrMul, arrLast, findFraction, lerp, lerpWrap, Vec3, Vec4 } from "./general";
+import { lerpEasing, arrAdd, copy, arrEqual, arrMul, arrLast, findFraction, lerp, lerpWrap, Vec3, Vec4 } from "./general";
 
 export type KeyframesLinear = [number] | [number, number, string?, string?][] | string;
 export type KeyframesVec3 = Vec3 | [...Vec3, number, string?, string?][] | string;
@@ -371,23 +371,23 @@ export function isSimple(array: any[]) {
  */
 export function getValuesAtTime(property: string, keyframes: any[], time: number) {
     keyframes = complexifyArray(keyframes);
-    let info = timeInKeyframes(time, keyframes);
-    if (info.interpolate) {
+    let timeInfo = timeInKeyframes(time, keyframes);
+    if (timeInfo.interpolate) {
         if (property === ANIM.ROTATION || property === ANIM.LOCAL_ROTATION) {
             let output = [];
-            info.l.values.forEach((x, i) => {
-                output.push(lerpWrap(x / 360, info.r.values[i] / 360, info.normalTime) * 360);
+            timeInfo.l.values.forEach((x, i) => {
+                output.push(lerpWrap(x / 360, timeInfo.r.values[i] / 360, timeInfo.normalTime) * 360);
             })
             return output;
         }
         else {
-            if (info.r.spline === "splineCatmullRom") {
-                let p0 = info.leftIndex - 1 < 0 ? info.l.values : new Keyframe(keyframes[info.leftIndex - 1]).values;
-                let p1 = info.l.values;
-                let p2 = info.r.values;
-                let p3 = info.rightIndex + 1 > keyframes.length - 1 ? info.r.values : new Keyframe(keyframes[info.rightIndex + 1]).values;
+            if (timeInfo.r.spline === "splineCatmullRom") {
+                let p0 = timeInfo.leftIndex - 1 < 0 ? timeInfo.l.values : new Keyframe(keyframes[timeInfo.leftIndex - 1]).values;
+                let p1 = timeInfo.l.values;
+                let p2 = timeInfo.r.values;
+                let p3 = timeInfo.rightIndex + 1 > keyframes.length - 1 ? timeInfo.r.values : new Keyframe(keyframes[timeInfo.rightIndex + 1]).values;
 
-                let t = info.normalTime;
+                let t = timeInfo.normalTime;
                 let tt = t * t;
                 let ttt = tt * t;
 
@@ -405,14 +405,14 @@ export function getValuesAtTime(property: string, keyframes: any[], time: number
             }
             else {
                 let output = [];
-                info.l.values.forEach((x, i) => {
-                    output.push(lerp(x, info.r.values[i], info.normalTime));
+                timeInfo.l.values.forEach((x, i) => {
+                    output.push(lerp(x, timeInfo.r.values[i], timeInfo.normalTime));
                 })
                 return output;
             }
         }
     }
-    else return info.l.values;
+    else return timeInfo.l.values;
 }
 
 /**
@@ -455,7 +455,7 @@ function timeInKeyframes(time: number, keyframes: any[]) {
     r = new Keyframe(keyframes[rightIndex]);
 
     normalTime = findFraction(l.time, r.time - l.time, time);
-    normalTime = easingInterpolate(r.easing, normalTime);
+    normalTime = lerpEasing(r.easing, normalTime);
 
     return {
         interpolate: true,

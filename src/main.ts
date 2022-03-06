@@ -13,6 +13,7 @@ export * from './light_remapper';
 
 /*
 TODO:
-- use quaternion lerp instead of lerpWrap for rotation
-- allow the addition of more custom data to the diff info
+- interpolate rotations for noodle properly
+- add descriptions to all of the functions for making subclasses
+- create examples
 */
