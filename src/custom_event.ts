@@ -273,22 +273,56 @@ export class CustomEvent extends CustomEventInternals.BaseEvent {
      */
     abstract() { return this.import({}) }
 
+    /**
+     * Animate a track.
+     * @param {String} track 
+     * @param {Number} duration 
+     * @param {Object} animation JSON for the animation.
+     * @param {String} easing 
+     * @returns 
+     */
     animateTrack(track: string, duration: number = undefined, animation: object = {}, easing: string = undefined) {
         duration ??= 0;
         animation ??= {};
         return new CustomEventInternals.AnimateTrack(this.json, track, duration, animation, easing);
     }
 
+    /**
+     * Animate objects on a track across their lifespan.
+     * @param {String} track 
+     * @param {Number} duration 
+     * @param {Object} animation JSON for the animation.
+     * @param {String} easing 
+     * @returns 
+     */
     assignPathAnimation(track: string, duration: number = undefined, animation: object = {}, easing: string = undefined) {
         duration ??= 0;
         animation ??= {};
         return new CustomEventInternals.AssignPathAnimation(this.json, track, duration, animation, easing);
     }
 
+    /**
+     * Assign a parent to a track.
+     * @param {Array} childrenTracks 
+     * @param {String} parentTrack 
+     * @param {Boolean} worldPositionStays Object stays in the same place after being parented, false by default.
+     * @returns 
+     */
     assignTrackParent(childrenTracks: string[], parentTrack: string, worldPositionStays: boolean = undefined) {
         return new CustomEventInternals.AssignTrackParent(this.json, childrenTracks, parentTrack, worldPositionStays);
     }
 
+    /**
+     * Assign the player to a track.
+     * @param {String} track 
+     * @returns 
+     */
     assignPlayerToTrack(track: string) { return new CustomEventInternals.AssignPlayerToTrack(this.json, track) }
+
+    /**
+     * Assign the fog to a track.
+     * @param {String} track 
+     * @returns 
+     */
     assignFogTrack(track: string) { return new CustomEventInternals.AssignFogTrack(this.json, track) }
 }

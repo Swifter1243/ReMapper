@@ -394,7 +394,7 @@ export function animateEnvGroup(group: string, time: number, duration: number, a
 }
 
 /**
- * Animate an environment piece with a track, with all of it's individual transforms combined.
+ * Animate an environment piece with a track, with all of it's initial transforms combined.
  * @param {String} group 
  * @param {Number} time 
  * @param {Number} duration 

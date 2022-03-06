@@ -125,9 +125,33 @@ export class Animation extends AnimationInternals.BaseAnimation {
      * @returns {AbstractAnimation};
      */
     abstract(json: object = {}) { return this.import(json) }
+
+    /**
+     * State that this animation is for a note.
+     * @param {Object} json 
+     * @returns 
+     */
     noteAnimation(json: object = undefined) { return new NoteAnimation(this.length, json) }
+
+    /**
+     * State that this animation is for a wall.
+     * @param {Object} json 
+     * @returns 
+     */
     wallAnimation(json: object = undefined) { return new WallAnimation(this.length, json) }
+
+    /**
+     * State that this animation is for an environment object.
+     * @param {Object} json 
+     * @returns 
+     */
     environmentAnimation(json: object = undefined) { return new EnvironmentAnimation(this.length, json) }
+
+    /**
+     * State that this animation is for fog.
+     * @param {Object} json 
+     * @returns 
+     */
     fogAnimation(json: object = undefined) { return new FogAnimation(this.length, json) }
 }
 

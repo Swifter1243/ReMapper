@@ -52,11 +52,21 @@ export namespace EventInternals {
             this.type = type;
         }
     
+        /**
+         * Create an event that turns lights off.
+         * @returns 
+         */
         off() {
             this.value = EVENT.OFF;
             return this;
         }
     
+        /**
+         * Create an event that turns lights on.
+         * @param {Array} color Can be boolean to determine if the light is blue (true), or a color.
+         * @param {Number | Array} lightID 
+         * @returns 
+         */
         on(color: number[] | boolean, lightID: number | number[] = undefined) {
             this.value = (typeof color === "boolean" && color) ? EVENT.BLUE_ON : EVENT.RED_ON;
             if (typeof color !== "boolean") this.color = color;
@@ -64,13 +74,25 @@ export namespace EventInternals {
             return this;
         }
     
+        /**
+         * Create an event that flashes the lights.
+         * @param {Array} color Can be boolean to determine if the light is blue (true), or a color.
+         * @param {Number | Array} lightID 
+         * @returns 
+         */
         flash(color: number[] | boolean, lightID: number | number[] = undefined) {
             this.value = (typeof color === "boolean" && color) ? EVENT.BLUE_FLASH : EVENT.RED_FLASH;
             if (typeof color !== "boolean") this.color = color;
             if (lightID !== undefined) this.lightID = lightID;
             return this;
         }
-    
+
+        /**
+         * Create an event that fades the lights out.
+         * @param {Array} color Can be boolean to determine if the light is blue (true), or a color.
+         * @param {Number | Array} lightID 
+         * @returns 
+         */
         fade(color: number[] | boolean, lightID: number | number[] = undefined) {
             this.value = (typeof color === "boolean" && color) ? EVENT.BLUE_FADE : EVENT.RED_FADE;
             if (typeof color !== "boolean") this.color = color;
@@ -78,6 +100,12 @@ export namespace EventInternals {
             return this;
         }
     
+        /**
+         * Create an event that makes the lights fade in to this color from the previous.
+         * @param {Array} color Can be boolean to determine if the light is blue (true), or a color.
+         * @param {Number | Array} lightID 
+         * @returns 
+         */
         in(color: number[] | boolean, lightID: number | number[] = undefined) {
             this.value = (typeof color === "boolean" && color) ? EVENT.BLUE_IN : EVENT.RED_IN;
             if (typeof color !== "boolean") this.color = color;
@@ -85,6 +113,14 @@ export namespace EventInternals {
             return this;
         }
     
+        /**
+         * Create a light gradient between 2 colors. This feature is deprecated in Chroma.
+         * @param {Array} startColor 
+         * @param {Array} endColor 
+         * @param {Number} duration 
+         * @param {String} easing 
+         * @returns 
+         */
         gradient(startColor: number[], endColor: number[], duration: number, easing: string = undefined) {
             this.startColor = startColor;
             this.endColor = endColor;
@@ -276,14 +312,58 @@ export class Event extends EventInternals.BaseEvent {
      */
     constructor(time: number = 0) { super(time) }
 
+    /**
+     * Controls the back lasers.
+     * @returns 
+     */
     backLasers() { return new EventInternals.LightEvent(this.json, EVENT.BACK_LASERS) }
+
+    /**
+     * Controls the ring lights.
+     * @returns 
+     */
     ringLights() { return new EventInternals.LightEvent(this.json, EVENT.RING_LIGHTS) }
+
+    /**
+     * Controls the left lasers.
+     * @returns 
+     */
     leftLasers() { return new EventInternals.LightEvent(this.json, EVENT.LEFT_LASERS) }
+
+    /**
+     * Controls the right lasers.
+     * @returns 
+     */
     rightLasers() { return new EventInternals.LightEvent(this.json, EVENT.RIGHT_LASERS) }
+
+    /**
+     * Controls the center lasers.
+     * @returns 
+     */
     centerLasers() { return new EventInternals.LightEvent(this.json, EVENT.CENTER_LASERS) }
+
+    /**
+     * Controls the extra left lasers in some environments.
+     * @returns 
+     */
     extraLeft() { return new EventInternals.LightEvent(this.json, EVENT.LEFT_EXTRA) }
+
+    /**
+     * Controls the extra right lasers in some environments.
+     * @returns 
+     */
     extraRight() { return new EventInternals.LightEvent(this.json, EVENT.RIGHT_EXTRA) }
+
+    /**
+     * Controls the left lasers in the Billie environment.
+     * @returns 
+     */
     billieLeft() { return new EventInternals.LightEvent(this.json, EVENT.BILLIE_LEFT) }
+
+    /**
+     * Controls the right lasers in the Billie environment.
+     * @returns 
+     */
     billieRight() { return new EventInternals.LightEvent(this.json, EVENT.BILLIE_RIGHT) }
 
     /**
@@ -297,30 +377,60 @@ export class Event extends EventInternals.BaseEvent {
      * Create an event with no particular identity.
     * @returns {AbstractEvent};
     */
-    abstract() { return this.import({}) };
+    abstract() { return this.import({}) }
 
+    /**
+     * Make this event change boost colors.
+     * @param {Boolean} on 
+     * @returns 
+     */
     boost(on: boolean) {
         this.type = EVENT.BOOST;
         this.value = on ? EVENT.BOOST_ON : EVENT.BOOST_OFF;
         return new EventInternals.BaseEvent(this.json);
     }
 
-    moveCars(value: number) {
+    /**
+     * Move cars in the interscope environment.
+     * @param {Number} value 
+     * @returns 
+     */
+    moveCars(value: EVENT) {
         this.type = EVENT.RING_SPIN;
         this.value = value;
         return new EventInternals.BaseEvent(this.json);
     }
 
+    /**
+     * Lower the hydraulics of the cars in the interscope environment.
+     * @returns 
+     */
     lowerHydraulics() {
         this.type = EVENT.LOWER_HYDRAULICS;
         return new EventInternals.BaseEvent(this.json);
     }
 
+    /**
+     * Raise the hydraulics of the cars in the interscope environment.
+     * @returns 
+     */
     raiseHydraulics() {
         this.type = EVENT.RAISE_HYDRAULICS;
         return new EventInternals.BaseEvent(this.json);
     }
 
+    /**
+     * Spin the rings in an environment.
+     * @param {Number} rotation 
+     * @param {Number} direction 
+     * @param {Number} step 
+     * @param {Number} speed 
+     * @param {Number} prop 
+     * @param {Boolean} reset 
+     * @param {String} nameFilter 
+     * @param {Boolean} counterSpin 
+     * @returns 
+     */
     ringSpin(
         rotation: number = undefined,
         direction: number = undefined,
@@ -333,16 +443,47 @@ export class Event extends EventInternals.BaseEvent {
         return new EventInternals.RingSpinEvent(this.json, rotation, direction, step, speed, prop, reset, nameFilter, counterSpin);
     }
 
+    /**
+     * Control the zoom of the rings.
+     * @param {Number} step 
+     * @param {Number} speed 
+     * @returns 
+     */
     ringZoom(step: number = undefined, speed: number = undefined) { return new EventInternals.RingZoomEvent(this.json, step, speed) }
 
+    /**
+     * Control the movement speed of the left lasers.
+     * @param {Number} speed When containing decimals, the noodle data will be used for speed.
+     * @param {Number} direction 
+     * @param {Boolean} lockPosition 
+     * @returns 
+     */
     leftLaserSpeed(speed: number, direction: number = undefined, lockPosition: boolean = undefined) {
         return new EventInternals.LaserSpeedEvent(this.json, EVENT.LEFT_SPEED, speed, direction, lockPosition);
     }
 
+    /**
+     * Control the movement speed of the right lasers.
+     * @param {Number} speed When containing decimals, the noodle data will be used for speed.
+     * @param {Number} direction 
+     * @param {Boolean} lockPosition 
+     * @returns 
+     */
     rightLaserSpeed(speed: number, direction: number = undefined, lockPosition: boolean = undefined) {
         return new EventInternals.LaserSpeedEvent(this.json, EVENT.RIGHT_SPEED, speed, direction, lockPosition);
     }
 
-    earlyRotation(rotation: number) { return new EventInternals.RotationEvent(this.json, EVENT.EARLY_ROTATION, rotation) }
-    lateRotation(rotation: number) { return new EventInternals.RotationEvent(this.json, EVENT.LATE_ROTATION, rotation) }
+    /**
+     * Used for 360 mode, rotates future objects and active objects.
+     * @param {Number} rotation 
+     * @returns 
+     */
+    earlyRotation(rotation: EVENT) { return new EventInternals.RotationEvent(this.json, EVENT.EARLY_ROTATION, rotation) }
+
+    /**
+     * Used for 360 mode, rotates future objects only.
+     * @param {Number} rotation 
+     * @returns 
+     */
+    lateRotation(rotation: EVENT) { return new EventInternals.RotationEvent(this.json, EVENT.LATE_ROTATION, rotation) }
 }

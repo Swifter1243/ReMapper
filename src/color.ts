@@ -1,7 +1,7 @@
-import { clamp, lerpEasing, lerp, lerpWrap } from "./general";
+import { clamp, lerpEasing, lerp, lerpWrap, Vec4 } from "./general";
 
 export class Color {
-    private internalValue: [number, number, number, number] = [0, 0, 0, 1];
+    private internalValue: Vec4 = [0, 0, 0, 1];
     format = "RGB";
 
     /**

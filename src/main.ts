@@ -13,6 +13,5 @@ export * from './light_remapper';
 
 /*
 TODO:
-- add descriptions to all of the functions for making subclasses
 - create examples
 */

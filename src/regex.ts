@@ -2,6 +2,13 @@ export class Regex {
     string: string = ""
 
     /**
+     * Regex wrapper for easier regex statement creation. 
+     * String together methods to make a statement.
+     * You'll want to access the "string" property after.
+     */
+    constructor() { /* stop telling me it's empty sonarlint */ }
+
+    /**
      * Specifies the start with the end of a previous seperator: "]".
      */
     start() { this.string += "\\]"; return this }
