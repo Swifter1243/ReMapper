@@ -1,6 +1,7 @@
 import { activeDiff, info } from './beatmap';
 import { copy, jsonPrune, isEmptyObject, getJumps } from './general';
 import { Animation, AnimationInternals } from './animation';
+import { WALL } from './constants';
 
 export class Wall {
     json: any = {
@@ -23,7 +24,7 @@ export class Wall {
      * @param {Number} lineIndex 
      * @param {Number} width
      */
-    constructor(time: number = undefined, duration: number = undefined, type: number = undefined, lineIndex: number = undefined, width: number = undefined) {
+    constructor(time: number = undefined, duration: number = undefined, type: WALL = undefined, lineIndex: number = undefined, width: number = undefined) {
         if (time !== undefined) this.time = time;
         if (duration !== undefined) this.duration = duration;
         if (type !== undefined) this.type = type;

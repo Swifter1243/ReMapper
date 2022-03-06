@@ -9,7 +9,6 @@ export namespace CustomEventInternals {
             _type: "",
             _data: {}
         };
-        animate = new Animation().abstract(this.data);
 
         constructor(time: number | object) {
             if (typeof time === "object") {
@@ -39,6 +38,8 @@ export namespace CustomEventInternals {
 
 
     export class AnimateTrack extends BaseEvent {
+        animate: AnimationInternals.BaseAnimation;
+
         constructor(json: object, track: string, duration: number, animation: object, easing: string) {
             super(json);
             this.track = track;
@@ -94,6 +95,8 @@ export namespace CustomEventInternals {
     }
 
     export class AssignPathAnimation extends BaseEvent {
+        animate: AnimationInternals.BaseAnimation;
+
         constructor(json: object, track: string, duration: number, animation: object, easing: string) {
             super(json);
             this.type = "AssignPathAnimation";
@@ -154,7 +157,6 @@ export namespace CustomEventInternals {
             this.type = "AssignTrackParent";
             this.childrenTracks = childrenTracks;
             this.parentTrack = parentTrack;
-            this.animate = new Animation().abstract(this.data);
 
             if (worldPositionStays !== undefined) this.worldPositionStays = worldPositionStays;
         }
@@ -179,7 +181,6 @@ export namespace CustomEventInternals {
             super(json);
             this.type = "AssignPlayerToTrack";
             this.track = track;
-            this.animate = new Animation().abstract(this.data);
         }
 
         /**
@@ -197,7 +198,6 @@ export namespace CustomEventInternals {
             super(json);
             this.type = "AssignFogTrack";
             this.track = track;
-            this.animate = new Animation().abstract(this.data);
         }
 
         /**
@@ -211,6 +211,8 @@ export namespace CustomEventInternals {
     }
 
     export class AbstractEvent extends BaseEvent {
+        animate: AnimationInternals.BaseAnimation;
+
         constructor(json: object) {
             super(json);
             this.animate = new Animation().abstract(this.data);

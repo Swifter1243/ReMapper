@@ -20,7 +20,7 @@ I would advise against using JS for this, because it doesn't properly autocomple
 
 TypeScript will by default force you to specify the type (number, array, object.. etc) of every variable, if you don't like this, you can add a file to your project that will ignore this.
 
-If you're a person coming from JavaScript, you'll need to do some exploring with this package to get comfortable. Check out [examples](https://github.com/Swifter1243/ReMapper/blob/master/examples.ts) and read the descriptions of what different things do.
+If you're a person coming from JavaScript, you'll need to do some exploring with this package to get comfortable. Check out [examples](https://github.com/Swifter1243/ReMapper/blob/master/examples.md) and read the descriptions of what different things do.
 
 ### Installation
 
