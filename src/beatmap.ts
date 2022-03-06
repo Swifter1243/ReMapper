@@ -153,24 +153,12 @@ export class Difficulty {
      * @param {*} value The value of the setting, leave blank to remove setting.
      */
     setSetting(setting: string, value = undefined) {
-        this.#updateSets(this.settings, setting, value);
+        this.updateSets(this.settings, setting, value);
     }
 
-    #updateSets(object, property, value) {
+    private updateSets(object, property, value) {
         jsonSet(object, property, value);
-
-        let sets = info.json._difficultyBeatmapSets;
-
-        sets.forEach(set => {
-            set._difficultyBeatmaps.forEach(setmap => {
-                if (this.fileName === setmap._beatmapFilename) {
-                    set = this.diffSet;
-                    setmap = this.diffSetMap;
-                }
-            })
-        })
-
-        info.json._difficultyBeatmapSets = sets;
+        jsonPrune(object);
         info.save();
     }
 
@@ -185,15 +173,15 @@ export class Difficulty {
     get suggestions() { return jsonGet(this.diffSetMap, "_customData._suggestions") }
     get settings() { return jsonGet(this.diffSetMap, "_customData._settings") }
 
-    set NJS(value) { this.#updateSets(this.diffSetMap, "_noteJumpMovementSpeed", value) }
-    set offset(value) { this.#updateSets(this.diffSetMap, "_noteJumpStartBeatOffset", value) }
-    set fileName(value) { this.#updateSets(this.diffSetMap, "_beatmapFilename", value) }
-    set setName(value) { this.#updateSets(this.diffSet, "_beatmapCharacteristicName", value) }
-    set diffName(value) { this.#updateSets(this.diffSetMap, "_difficulty", value) }
-    set diffRank(value) { this.#updateSets(this.diffSetMap, "_difficultyRank", value) }
-    set requirements(value) { this.#updateSets(this.diffSetMap, "_customData._requirements", value) }
-    set suggestions(value) { this.#updateSets(this.diffSetMap, "_customData._suggestions", value) }
-    set settings(value) { this.#updateSets(this.diffSetMap, "_customData._settings", value) }
+    set NJS(value) { this.updateSets(this.diffSetMap, "_noteJumpMovementSpeed", value) }
+    set offset(value) { this.updateSets(this.diffSetMap, "_noteJumpStartBeatOffset", value) }
+    set fileName(value) { this.updateSets(this.diffSetMap, "_beatmapFilename", value) }
+    set setName(value) { this.updateSets(this.diffSet, "_beatmapCharacteristicName", value) }
+    set diffName(value) { this.updateSets(this.diffSetMap, "_difficulty", value) }
+    set diffRank(value) { this.updateSets(this.diffSetMap, "_difficultyRank", value) }
+    set requirements(value) { this.updateSets(this.diffSetMap, "_customData._requirements", value) }
+    set suggestions(value) { this.updateSets(this.diffSetMap, "_customData._suggestions", value) }
+    set settings(value) { this.updateSets(this.diffSetMap, "_customData._settings", value) }
 
     // Map
     get version() { return jsonGet(this.json, "_version") }
@@ -244,41 +232,41 @@ export class Info {
         info.save();
     }
 
-    get version() { return jsonGet(this.json, "_version") };
-    get name() { return jsonGet(this.json, "_songName") };
-    get subName() { return jsonGet(this.json, "_songSubName") };
-    get authorName() { return jsonGet(this.json, "_songAuthorName") };
-    get mapper() { return jsonGet(this.json, "_levelAuthorName") };
-    get BPM() { return jsonGet(this.json, "_beatsPerMinute") };
-    get previewStart() { return jsonGet(this.json, "_previewStartTime") };
-    get previewDuration() { return jsonGet(this.json, "_previewDuration") };
-    get songOffset() { return jsonGet(this.json, "_songTimeOffset") };
-    get shuffle() { return jsonGet(this.json, "_shuffle") };
-    get shufflePeriod() { return jsonGet(this.json, "_shufflePeriod") };
-    get coverFileName() { return jsonGet(this.json, "_coverImageFilename") };
-    get songFileName() { return jsonGet(this.json, "_songFilename") };
-    get environment() { return jsonGet(this.json, "_environmentName") };
-    get environment360() { return jsonGet(this.json, "_allDirectionsEnvironmentName") };
-    get customData() { return jsonGet(this.json, "_customData") };
-    get editors() { return jsonGet(this.json, "_customData._editors") };
+    get version() { return jsonGet(this.json, "_version") }
+    get name() { return jsonGet(this.json, "_songName") }
+    get subName() { return jsonGet(this.json, "_songSubName") }
+    get authorName() { return jsonGet(this.json, "_songAuthorName") }
+    get mapper() { return jsonGet(this.json, "_levelAuthorName") }
+    get BPM() { return jsonGet(this.json, "_beatsPerMinute") }
+    get previewStart() { return jsonGet(this.json, "_previewStartTime") }
+    get previewDuration() { return jsonGet(this.json, "_previewDuration") }
+    get songOffset() { return jsonGet(this.json, "_songTimeOffset") }
+    get shuffle() { return jsonGet(this.json, "_shuffle") }
+    get shufflePeriod() { return jsonGet(this.json, "_shufflePeriod") }
+    get coverFileName() { return jsonGet(this.json, "_coverImageFilename") }
+    get songFileName() { return jsonGet(this.json, "_songFilename") }
+    get environment() { return jsonGet(this.json, "_environmentName") }
+    get environment360() { return jsonGet(this.json, "_allDirectionsEnvironmentName") }
+    get customData() { return jsonGet(this.json, "_customData") }
+    get editors() { return jsonGet(this.json, "_customData._editors") }
 
-    set version(value) { this.updateInfo(this.json, "_version", value) };
-    set name(value) { this.updateInfo(this.json, "_songName", value) };
-    set subName(value) { this.updateInfo(this.json, "_songSubName", value) };
-    set authorName(value) { this.updateInfo(this.json, "_songAuthorName", value) };
-    set mapper(value) { this.updateInfo(this.json, "_levelAuthorName", value) };
-    set BPM(value) { this.updateInfo(this.json, "_beatsPerMinute", value) };
-    set previewStart(value) { this.updateInfo(this.json, "_previewStartTime", value) };
-    set previewDuration(value) { this.updateInfo(this.json, "_previewDuration", value) };
-    set songOffset(value) { this.updateInfo(this.json, "_songTimeOffset", value) };
-    set shuffle(value) { this.updateInfo(this.json, "_shuffle", value) };
-    set shufflePeriod(value) { this.updateInfo(this.json, "_shufflePeriod", value) };
-    set coverFileName(value) { this.updateInfo(this.json, "_coverImageFilename", value) };
-    set songFileName(value) { this.updateInfo(this.json, "_songFilename", value) };
-    set environment(value) { this.updateInfo(this.json, "_environmentName", value) };
-    set environment360(value) { this.updateInfo(this.json, "_allDirectionsEnvironmentName", value) };
-    set customData(value) { this.updateInfo(this.json, "_customData", value) };
-    set editors(value) { this.updateInfo(this.json, "_customData._editors", value) };
+    set version(value) { this.updateInfo(this.json, "_version", value) }
+    set name(value) { this.updateInfo(this.json, "_songName", value) }
+    set subName(value) { this.updateInfo(this.json, "_songSubName", value) }
+    set authorName(value) { this.updateInfo(this.json, "_songAuthorName", value) }
+    set mapper(value) { this.updateInfo(this.json, "_levelAuthorName", value) }
+    set BPM(value) { this.updateInfo(this.json, "_beatsPerMinute", value) }
+    set previewStart(value) { this.updateInfo(this.json, "_previewStartTime", value) }
+    set previewDuration(value) { this.updateInfo(this.json, "_previewDuration", value) }
+    set songOffset(value) { this.updateInfo(this.json, "_songTimeOffset", value) }
+    set shuffle(value) { this.updateInfo(this.json, "_shuffle", value) }
+    set shufflePeriod(value) { this.updateInfo(this.json, "_shufflePeriod", value) }
+    set coverFileName(value) { this.updateInfo(this.json, "_coverImageFilename", value) }
+    set songFileName(value) { this.updateInfo(this.json, "_songFilename", value) }
+    set environment(value) { this.updateInfo(this.json, "_environmentName", value) }
+    set environment360(value) { this.updateInfo(this.json, "_allDirectionsEnvironmentName", value) }
+    set customData(value) { this.updateInfo(this.json, "_customData", value) }
+    set editors(value) { this.updateInfo(this.json, "_customData._editors", value) }
 }
 
 export let info = new Info();
@@ -289,7 +277,7 @@ export let forceJumpsForNoodle = true;
  * Set the difficulty that objects are being created for.
  * @param {Object} diff 
  */
-export function setActiveDiff(diff: Difficulty) { activeDiff = diff };
+export function setActiveDiff(diff: Difficulty) { activeDiff = diff }
 
 /**
  * Set whether exported walls and notes with custom data will have their NJS / Offset forced.

@@ -50,18 +50,18 @@ export class Environment {
         return this;
     }
 
-    get id() { return this.json._id };
-    get lookupMethod() { return this.json._lookupMethod };
-    get duplicate() { return this.json._duplicate };
-    get active() { return this.json._active };
-    get scale() { return this.json._scale };
-    get position() { return this.json._position };
-    get localPosition() { return this.json._localPosition };
-    get rotation() { return this.json._rotation };
-    get localRotation() { return this.json._localRotation };
-    get lightID() { return this.json._lightID };
-    get track() { return this.json._track };
-    get group() { return this.json._group };
+    get id() { return this.json._id }
+    get lookupMethod() { return this.json._lookupMethod }
+    get duplicate() { return this.json._duplicate }
+    get active() { return this.json._active }
+    get scale() { return this.json._scale }
+    get position() { return this.json._position }
+    get localPosition() { return this.json._localPosition }
+    get rotation() { return this.json._rotation }
+    get localRotation() { return this.json._localRotation }
+    get lightID() { return this.json._lightID }
+    get track() { return this.json._track }
+    get group() { return this.json._group }
     get animationProperties() {
         let returnObj: any = {};
         if (this.position !== undefined) returnObj._position = this.position;
@@ -72,108 +72,161 @@ export class Environment {
         return returnObj;
     }
 
-    set id(value: string) { this.json._id = value };
-    set lookupMethod(value: string) { this.json._lookupMethod = value };
-    set duplicate(value: number) { this.json._duplicate = value };
-    set active(value: boolean) { this.json._active = value };
-    set scale(value: number[]) { this.json._scale = value };
-    set position(value: number[]) { this.json._position = value };
-    set localPosition(value: number[]) { this.json._localPosition = value };
-    set rotation(value: number[]) { this.json._rotation = value };
-    set localRotation(value: number[]) { this.json._localRotation = value };
-    set lightID(value: number) { this.json._lightID = value };
-    set track(value: string) { this.json._track = value };
-    set group(value: string) { this.json._group = value };
+    set id(value: string) { this.json._id = value }
+    set lookupMethod(value: string) { this.json._lookupMethod = value }
+    set duplicate(value: number) { this.json._duplicate = value }
+    set active(value: boolean) { this.json._active = value }
+    set scale(value: number[]) { this.json._scale = value }
+    set position(value: number[]) { this.json._position = value }
+    set localPosition(value: number[]) { this.json._localPosition = value }
+    set rotation(value: number[]) { this.json._rotation = value }
+    set localRotation(value: number[]) { this.json._localRotation = value }
+    set lightID(value: number) { this.json._lightID = value }
+    set track(value: string) { this.json._track = value }
+    set group(value: string) { this.json._group = value }
 }
 
 const blenderShrink = 9 / 10; // For whatever reason.. this needs to be multiplied to all of the scales to make things look proper... who knows man.
 
-class BaseBlenderEnvironment {
-    scale: [number, number, number];
-    anchor: [number, number, number];
+export namespace BlenderEnvironmentInternals {
+    export class BaseBlenderEnvironment {
+        scale: [number, number, number];
+        anchor: [number, number, number];
 
-    constructor(scale: Vec3, anchor: Vec3) {
-        this.scale = <Vec3>scale.map(x => (1 / x) / 0.6);
-        this.anchor = anchor;
+        constructor(scale: Vec3, anchor: Vec3) {
+            this.scale = <Vec3>scale.map(x => (1 / x) / 0.6);
+            this.anchor = anchor;
+        }
+
+        processData(trackData: any[] | string) {
+            let outputData = [];
+
+            if (typeof trackData === "string") trackData = getTrackData(trackData);
+
+            trackData.forEach(x => {
+                let data = {
+                    rawPos: [],
+                    rawScale: [],
+                    pos: [],
+                    rot: [],
+                    scale: []
+                };
+
+                let posData = x._definitePosition;
+                let rotData = x._localRotation;
+                let scaleData = x._scale;
+
+                let longestArr = [];
+                let length = Math.max(posData.length, rotData.length, scaleData.length);
+                if (posData.length === length) longestArr = posData;
+                if (rotData.length === length) longestArr = rotData;
+                if (scaleData.length === length) longestArr = scaleData;
+
+                let posIndex = 0;
+                let rotIndex = 0;
+                let scaleIndex = 0;
+
+                for (let i = 0; i < length; i++) {
+                    let pos = new Keyframe(posData[posIndex]);
+                    let rot = new Keyframe(rotData[rotIndex]);
+                    let scale = new Keyframe(scaleData[scaleIndex]);
+                    let ref = new Keyframe(longestArr[i]);
+
+                    posIndex++;
+                    rotIndex++;
+                    scaleIndex++;
+
+                    if (pos.time !== ref.time) {
+                        posIndex--;
+                        pos = new Keyframe(posData[posIndex]);
+                    }
+                    if (rot.time !== ref.time) {
+                        rotIndex--;
+                        rot = new Keyframe(rotData[rotIndex]);
+                    }
+                    else data.rot.push(rot.data);
+                    if (scale.time !== ref.time) {
+                        scaleIndex--;
+                        scale = new Keyframe(scaleData[scaleIndex]);
+                    }
+                    else {
+                        data.rawScale.push([...scale.values.map(y => y * blenderShrink), ref.time]);
+                        data.scale.push([...scale.values.map((y, i) => y * this.scale[i] * blenderShrink), ref.time]);
+                    }
+
+                    let objPos = pos.values as Vec3;
+                    let objRot = rot.values as Vec3;
+                    let objScale = scale.values;
+
+                    data.rawPos.push([...objPos, ref.time]);
+                    let offset = rotatePoint(objRot, objScale.map((y, i) => y * this.anchor[i] * blenderShrink) as Vec3);
+                    data.pos.push([...objPos.map((y, i) => y + offset[i]), ref.time]);
+                }
+
+                outputData.push(data);
+            })
+
+            return outputData;
+        }
     }
+    export class BlenderAssigned extends BaseBlenderEnvironment {
+        track: string;
+        disappearWhenAbsent: boolean;
 
-    processData(trackData: any[] | string) {
-        let outputData = [];
+        constructor(scale: Vec3, anchor: Vec3, track: string, disappearWhenAbsent: boolean) {
+            super(scale, anchor);
+            this.track = track;
+            this.disappearWhenAbsent = disappearWhenAbsent;
+        }
 
-        if (typeof trackData === "string") trackData = getTrackData(trackData);
+        getDataForTrack(dataTrack: string) {
+            return this.processData(`${dataTrack}_${this.track}`);
+        }
 
-        trackData.forEach(x => {
-            let data = {
-                rawPos: [],
-                rawScale: [],
-                pos: [],
-                rot: [],
-                scale: []
-            };
+        static(dataTrack: string) {
+            let data = this.getDataForTrack(dataTrack);
 
-            let posData = x._definitePosition;
-            let rotData = x._localRotation;
-            let scaleData = x._scale;
+            if (data.length > 0) {
+                let x = data[0];
+                let objPos = [x.pos[0][0], x.pos[0][1], x.pos[0][2]];
+                let objRot = [x.rot[0][0], x.rot[0][1], x.rot[0][2]];
+                let objScale = [x.scale[0][0], x.scale[0][1], x.scale[0][2]];
 
-            let longestArr = [];
-            let length = Math.max(posData.length, rotData.length, scaleData.length);
-            if (posData.length === length) longestArr = posData;
-            if (rotData.length === length) longestArr = rotData;
-            if (scaleData.length === length) longestArr = scaleData;
-
-            let posIndex = 0;
-            let rotIndex = 0;
-            let scaleIndex = 0;
-
-            for (let i = 0; i < length; i++) {
-                let pos = new Keyframe(posData[posIndex]);
-                let rot = new Keyframe(rotData[rotIndex]);
-                let scale = new Keyframe(scaleData[scaleIndex]);
-                let ref = new Keyframe(longestArr[i]);
-
-                posIndex++;
-                rotIndex++;
-                scaleIndex++;
-
-                if (pos.time !== ref.time) {
-                    posIndex--;
-                    pos = new Keyframe(posData[posIndex]);
-                }
-                if (rot.time !== ref.time) {
-                    rotIndex--;
-                    rot = new Keyframe(rotData[rotIndex]);
-                }
-                else data.rot.push(rot.data);
-                if (scale.time !== ref.time) {
-                    scaleIndex--;
-                    scale = new Keyframe(scaleData[scaleIndex]);
-                }
-                else {
-                    data.rawScale.push([...scale.values.map(y => y * blenderShrink), ref.time]);
-                    data.scale.push([...scale.values.map((y, i) => y * this.scale[i] * blenderShrink), ref.time]);
-                }
-
-                let objPos = pos.values as Vec3;
-                let objRot = rot.values as Vec3;
-                let objScale = scale.values;
-
-                data.rawPos.push([...objPos, ref.time]);
-                let offset = rotatePoint(objRot, objScale.map((y, i) => y * this.anchor[i] * blenderShrink) as Vec3);
-                data.pos.push([...objPos.map((y, i) => y + offset[i]), ref.time]);
+                let moveEvent = new CustomEvent().animateTrack(this.track);
+                moveEvent.animate.position = objPos;
+                moveEvent.animate.rotation = objRot;
+                moveEvent.animate.scale = objScale;
+                moveEvent.push();
             }
+        }
 
-            outputData.push(data);
-        })
+        animate(dataTrack: string, time: number, duration: number) {
+            let data = this.getDataForTrack(dataTrack);
 
-        return outputData;
+            if (data.length > 0) {
+                let x = data[0];
+
+                let moveEvent = new CustomEvent(time).animateTrack(this.track);
+                moveEvent.animate.position = x.pos;
+                moveEvent.animate.rotation = x.rot;
+                moveEvent.animate.scale = x.scale;
+                moveEvent.duration = duration;
+                moveEvent.push();
+            }
+            else if (this.disappearWhenAbsent) {
+                let moveEvent = new CustomEvent(time).animateTrack(this.track);
+                moveEvent.animate.position = [0, -69420, 0];
+                moveEvent.push();
+            }
+        }
     }
 }
 
-export class BlenderEnvironment extends BaseBlenderEnvironment {
+export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderEnvironment {
     id: string;
     trackID: number;
     lookupMethod: string;
-    assigned: BlenderAssigned[] = [];
+    assigned: BlenderEnvironmentInternals.BlenderAssigned[] = [];
     objectAmounts: number[][] = [];
     maxObjects: number = 0;
 
@@ -203,7 +256,7 @@ export class BlenderEnvironment extends BaseBlenderEnvironment {
         scale ??= [1, 1, 1];
         anchor ??= [0, 0, 0];
         if (typeof tracks === "string") tracks = [tracks];
-        tracks.forEach(x => { this.assigned.push(new BlenderAssigned(scale, anchor, x, disappearWhenAbsent)) })
+        tracks.forEach(x => { this.assigned.push(new BlenderEnvironmentInternals.BlenderAssigned(scale, anchor, x, disappearWhenAbsent)) })
     }
 
     /**
@@ -277,8 +330,8 @@ export class BlenderEnvironment extends BaseBlenderEnvironment {
                 else dataAnim.position = x.pos;
                 dataAnim.rotation = x.rot;
                 dataAnim.scale = x.scale;
+                dataAnim.optimize();
 
-                //dataAnim.optimize();
                 new CustomEvent(time).animateTrack(this.getPieceTrack(i), duration, dataAnim.json).push();
                 objects++;
             })
@@ -293,7 +346,7 @@ export class BlenderEnvironment extends BaseBlenderEnvironment {
             let objects = this.lookupAmount(x[1]);
             for (let i = objects; i < this.maxObjects; i++) {
                 let event = new CustomEvent(x[1]).animateTrack(this.getPieceTrack(i));
-                if (useLocalPosition) event.animate.position = [0, -69420, 0];
+                if (useLocalPosition) event.animate.localPosition = [0, -69420, 0];
                 else event.animate.position = [0, -69420, 0];
                 event.push();
             }
@@ -315,58 +368,6 @@ export class BlenderEnvironment extends BaseBlenderEnvironment {
      */
     getPieceTrack(index: number) {
         return `blenderEnv${this.trackID}_${index}`;
-    }
-}
-
-class BlenderAssigned extends BaseBlenderEnvironment {
-    track: string;
-    disappearWhenAbsent: boolean;
-
-    constructor(scale: Vec3, anchor: Vec3, track: string, disappearWhenAbsent: boolean) {
-        super(scale, anchor);
-        this.track = track;
-        this.disappearWhenAbsent = disappearWhenAbsent;
-    }
-
-    getDataForTrack(dataTrack: string) {
-        return this.processData(`${dataTrack}_${this.track}`);
-    }
-
-    static(dataTrack: string) {
-        let data = this.getDataForTrack(dataTrack);
-
-        if (data.length > 0) {
-            let x = data[0];
-            let objPos = [x.pos[0][0], x.pos[0][1], x.pos[0][2]];
-            let objRot = [x.rot[0][0], x.rot[0][1], x.rot[0][2]];
-            let objScale = [x.scale[0][0], x.scale[0][1], x.scale[0][2]];
-
-            let moveEvent = new CustomEvent().animateTrack(this.track);
-            moveEvent.animate.position = objPos;
-            moveEvent.animate.rotation = objRot;
-            moveEvent.animate.scale = objScale;
-            moveEvent.push();
-        }
-    }
-
-    animate(dataTrack: string, time: number, duration: number) {
-        let data = this.getDataForTrack(dataTrack);
-
-        if (data.length > 0) {
-            let x = data[0];
-
-            let moveEvent = new CustomEvent(time).animateTrack(this.track);
-            moveEvent.animate.position = x.pos;
-            moveEvent.animate.rotation = x.rot;
-            moveEvent.animate.scale = x.scale;
-            moveEvent.duration = duration;
-            moveEvent.push();
-        }
-        else if (this.disappearWhenAbsent) {
-            let moveEvent = new CustomEvent(time).animateTrack(this.track);
-            moveEvent.animate.position = [0, -69420, 0];
-            moveEvent.push();
-        }
     }
 }
 
@@ -410,7 +411,6 @@ export function animateEnvTrack(track: string, time: number, duration: number, a
             })
 
             new CustomEvent(time).animateTrack(track, duration, newAnimation, easing).push();
-            return;
         }
     })
 }

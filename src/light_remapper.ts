@@ -2,151 +2,163 @@ import { Event, EventInternals } from "./event";
 import { activeDiff } from "./beatmap";
 import { copy } from "./general";
 
-class BaseLightRemapper {
-    protected startType: number;
-    protected endType: number;
-    protected range: number[];
-    protected startMap: number[] | number[][] | boolean;
-    protected endMap: number | number[] | (number | number[])[];
-    protected mulColor: number[];
+export namespace LightRemapperInternals {
+    export class BaseLightRemapper {
+        protected startType: number;
+        protected endType: number;
+        protected range: number[];
+        protected startMap: number[] | number[][] | boolean;
+        protected endMap: number | number[] | (number | number[])[];
+        protected mulColor: number[];
 
-    /**
-     * Class mainly focused on remapping lightIDs for events.
-     * @param {Number} startType 
-     * @param {Number | Array} range Range a lightID needs to fit in, in order to pass
-     */
-    constructor(startType: number, range: number | number[] = undefined) { this.conditions(startType, range) }
+        /**
+         * Class mainly focused on remapping lightIDs for events.
+         * @param {Number} startType 
+         * @param {Number | Array} range Range a lightID needs to fit in, in order to pass
+         */
+        constructor(startType: number, range: number | number[] = undefined) { this.conditions(startType, range) }
 
-    /**
-     * Set the entry conditions for each event.
-     * @param {Number} type 
-     * @param {Number | Array} range Range a lightID needs to fit in, in order to pass
-     * @returns 
-     */
-    conditions(type: number, range: number | number[]) {
-        this.startType = type;
-        this.setRange = range;
-        return this;
-    }
-
-    /**
-     * Sets the type of the event.
-     * @param {Number} type 
-     * @returns 
-     */
-    setType(type: number) {
-        this.endType = type;
-        return this;
-    }
-
-    /**
-     * Multiplies the colors of the event. Applies to gradients too.
-     * @param {Number} rgb 
-     * @param {Number} alpha 
-     * @returns 
-     */
-    multiplyColor(rgb: number, alpha: number = 1) {
-        this.mulColor = [rgb, alpha]
-        return this;
-    }
-
-    /**
-     * Test the algorithm with some lightIDs which will be logged.
-     * @param {Array} ids 
-     */
-    test(ids: number[]) { this.doProcess(ids) }
-
-    /**
-     * Run the algorithm.
-     * @param {Boolean} log Log the output JSON of each event.
-     * @param {Function} forLights Lambda function for each event.
-     */
-    run(log: boolean = undefined, forLights: (event: EventInternals.AbstractEvent) => void = undefined) { 
-        log ??= false;
-        this.doProcess(log, forLights);
-    }
-
-    protected set setRange(value: number | number[]) { typeof value === "number" ? this.range === [value, value] : this.range = value }
-
-    protected doProcess(test: number[] | boolean, forLights: (event: EventInternals.AbstractEvent) => void = undefined) {
-        let array: EventInternals.AbstractEvent[] = [];
-        if (typeof test === "boolean") array = activeDiff.events;
-        else {
-            test.forEach(x => {
-                let event = new Event().abstract();
-                event.lightID = x;
-                event.type = this.startType;
-                array.push(event);
-            })
+        /**
+         * Set the entry conditions for each event.
+         * @param {Number} type 
+         * @param {Number | Array} range Range a lightID needs to fit in, in order to pass
+         * @returns 
+         */
+        conditions(type: number, range: number | number[]) {
+            this.startType = type;
+            this.setRange = range;
+            return this;
         }
-        let startIDs = [];
-        let endIDs = [];
 
-        array.forEach(event => {
-            let isInRange = event.lightID !== undefined;
-            if (this.range !== undefined && isInRange) isInRange = isInID(event.lightID, this.range[0], this.range[1]);
+        /**
+         * Sets the type of the event.
+         * @param {Number} type 
+         * @returns 
+         */
+        setType(type: number) {
+            this.endType = type;
+            return this;
+        }
 
-            if (event.type === this.startType && isInRange) {
-                algorithm(this);
-                if (forLights !== undefined) forLights(event);
-                if (typeof test === "object") endIDs.push(event.lightID);
-                else if (test) console.log(event.json)
+        /**
+         * Multiplies the colors of the event. Applies to gradients too.
+         * @param {Number} rgb 
+         * @param {Number} alpha 
+         * @returns 
+         */
+        multiplyColor(rgb: number, alpha: number = 1) {
+            this.mulColor = [rgb, alpha]
+            return this;
+        }
+
+        /**
+         * Test the algorithm with some lightIDs which will be logged.
+         * @param {Array} ids 
+         */
+        test(ids: number[]) { this.doProcess(ids) }
+
+        /**
+         * Run the algorithm.
+         * @param {Boolean} log Log the output JSON of each event.
+         * @param {Function} forLights Lambda function for each event.
+         */
+        run(log: boolean = undefined, forLights: (event: EventInternals.AbstractEvent) => void = undefined) {
+            log ??= false;
+            this.doProcess(log, forLights);
+        }
+
+        protected set setRange(value: number | number[]) { this.range = typeof value === "number" ? [value, value] : value }
+
+        protected doProcess(test: number[] | boolean, forLights: (event: EventInternals.AbstractEvent) => void = undefined) {
+            let array: EventInternals.AbstractEvent[] = [];
+            if (typeof test === "boolean") array = activeDiff.events;
+            else {
+                test.forEach(x => {
+                    let event = new Event().abstract();
+                    event.lightID = x;
+                    event.type = this.startType;
+                    array.push(event);
+                })
             }
+            let startIDs = [];
+            let endIDs = [];
 
-            function algorithm(thisKey) {
-                if (typeof test === "object") startIDs.push(event.lightID);
+            array.forEach(event => {
+                let isInRange = event.lightID !== undefined;
+                if (this.range !== undefined && isInRange) isInRange = isInID(event.lightID, this.range[0], this.range[1]);
 
-                if (thisKey.endType !== undefined) event.type = thisKey.endType;
+                if (event.type === this.startType && isInRange) {
+                    algorithm(this);
+                    if (forLights !== undefined) forLights(event);
+                    if (typeof test === "object") endIDs.push(event.lightID);
+                    else if (test) console.log(event.json)
+                }
 
-                if (thisKey.mulColor !== undefined) {
-                    function mulColor(color) {
-                        color[0] *= thisKey.mulColor[0];
-                        color[1] *= thisKey.mulColor[0];
-                        color[2] *= thisKey.mulColor[0];
-                        if (thisKey.mulColor[1] && color[3]) color[3] *= thisKey.mulColor[1];
+                function algorithm(thisKey) {
+                    if (typeof test === "object") startIDs.push(event.lightID);
+
+                    if (thisKey.endType !== undefined) event.type = thisKey.endType;
+
+                    if (thisKey.mulColor !== undefined) {
+                        function mulColor(color) {
+                            color[0] *= thisKey.mulColor[0];
+                            color[1] *= thisKey.mulColor[0];
+                            color[2] *= thisKey.mulColor[0];
+                            if (thisKey.mulColor[1] && color[3]) color[3] *= thisKey.mulColor[1];
+                        }
+
+                        if (event.color) mulColor(event.color);
+                        if (event.startColor) mulColor(event.startColor);
+                        if (event.endColor) mulColor(event.endColor);
                     }
 
-                    if (event.color) mulColor(event.color);
-                    if (event.startColor) mulColor(event.startColor);
-                    if (event.endColor) mulColor(event.endColor);
+                    let ids: number[] = typeof event.lightID === "number" ? [event.lightID] : event.lightID;
+                    let start = 1;
+
+                    if (typeof thisKey.startMap === "object" && typeof thisKey.startMap[0] === "object") {
+                        ids = solveLightMap(thisKey.startMap as number[][], ids);
+                        start = thisKey.startMap[0][0];
+                    }
+                    else if (typeof thisKey.startMap === "object") {
+                        ids = ids.map(x => (x - (thisKey.startMap[0] as number)) / (thisKey.startMap[1] as number) + (thisKey.startMap[0] as number));
+                        start = thisKey.startMap[0] as number;
+                    }
+                    else if (typeof thisKey.startMap === "boolean") {
+                        event.lightID = thisKey.endMap as number | number[];
+                        return;
+                    }
+
+                    if (typeof thisKey.endMap === "object" && typeof thisKey.endMap[1] === "object") { applyLightMap(thisKey.endMap as number[][], ids) }
+                    else if (typeof thisKey.endMap === "object") ids = ids.map(x => (x - start) * (thisKey.endMap[1] as number) + start + (thisKey.endMap[0] as number));
+                    else if (thisKey.endMap !== undefined) ids = ids.map(x => x + thisKey.endMap as number);
+
+                    event.lightID = ids.length === 1 ? ids[0] : ids;
                 }
+            })
 
-                let ids: number[] = typeof event.lightID === "number" ? [event.lightID] : event.lightID;
-                let start = 1;
+            if (typeof test === "object") console.log(`startIDs: ${startIDs}\nendIDs: ${endIDs}`);
+        }
+    }
 
-                if (typeof thisKey.startMap === "object" && typeof thisKey.startMap[0] === "object") {
-                    ids = solveLightMap(thisKey.startMap as number[][], ids);
-                    start = thisKey.startMap[0][0];
-                }
-                else if (typeof thisKey.startMap === "object") {
-                    ids = ids.map(x => (x - (thisKey.startMap[0] as number)) / (thisKey.startMap[1] as number) + (thisKey.startMap[0] as number));
-                    start = thisKey.startMap[0] as number;
-                }
-                else if (typeof thisKey.startMap === "boolean") {
-                    event.lightID = thisKey.endMap as number | number[];
-                    return;
-                }
-
-                if (typeof thisKey.endMap === "object" && typeof thisKey.endMap[1] === "object") { applyLightMap(thisKey.endMap as number[][], ids) }
-                else if (typeof thisKey.endMap === "object") ids = ids.map(x => (x - start) * (thisKey.endMap[1] as number) + start + (thisKey.endMap[0] as number));
-                else if (thisKey.endMap !== undefined) ids = ids.map(x => x += thisKey.endMap as number);
-
-                event.lightID = ids.length === 1 ? ids[0] : ids;
-            }
-        })
-
-        if (typeof test === "object") console.log(`startIDs: ${startIDs}\nendIDs: ${endIDs}`);
+    export class LightOverrider extends BaseLightRemapper {
+        constructor(startType: number, endType: number, range: number[], lightID: number | number[], mulColor: number[]) {
+            super(startType, range);
+            this.endType = endType;
+            this.startMap = false;
+            this.endMap = lightID;
+            this.mulColor = mulColor;
+        }
     }
 }
 
-export class LightRemapper extends BaseLightRemapper {
+export class LightRemapper extends LightRemapperInternals.BaseLightRemapper {
     /**
      * Sets the lightID of the event.
      * Removes some (now redundant) functions.
      * @param {Number | Array} lightID 
      * @returns 
      */
-    setLightID(lightID: number | number[]) { return new LightOverrider(this.startType, this.endType, this.range, lightID, this.mulColor); }
+    setLightID(lightID: number | number[]) { return new LightRemapperInternals.LightOverrider(this.startType, this.endType, this.range, lightID, this.mulColor); }
 
     /**
      * Normalizes a sequence of lightIDs to a sequence of: 1, 2, 3, 4, 5... etc.
@@ -175,7 +187,7 @@ export class LightRemapper extends BaseLightRemapper {
     normalizeWithChanges(map: number[][]) {
         this.startMap = map;
         return this;
-    };
+    }
 
     /**
      * Effects the ending sequence of lightIDs.
@@ -198,16 +210,6 @@ export class LightRemapper extends BaseLightRemapper {
     remapEnd(map: number[][], offset: number = 0) {
         this.endMap = [offset, ...map];
         return this;
-    }
-}
-
-class LightOverrider extends BaseLightRemapper {
-    constructor(startType: number, endType: number, range: number[], lightID: number | number[], mulColor: number[]) {
-        super(startType, range);
-        this.endType = endType;
-        this.startMap = false;
-        this.endMap = lightID;
-        this.mulColor = mulColor;
     }
 }
 
@@ -263,8 +265,7 @@ function applyLightMap(map: (number | number[])[], ids: number[]) {
         ids[i] = apply(ids[i], map) + offset;
 
         function apply(input, changes) {
-            let output = 0
-            input;
+            let output = 0;
 
             if (changes.length < 1) {
                 return input

@@ -38,7 +38,7 @@ export function filterObjects(objects: object[], min: number, max: number, prope
 export function sortObjects(objects: object[], property: string, smallestToLargest = true) {
     if (objects === undefined) return;
 
-    objects = objects.sort((a, b) => smallestToLargest ?
+    objects.sort((a, b) => smallestToLargest ?
         a[property] - b[property] :
         b[property] - a[property]);
 }
@@ -139,8 +139,8 @@ export function arrLast(arr: any[]) {
  * @returns {Array}
  */
 export function arrAdd(arr: any[], value: any[] | number) {
-    if (typeof value === "number") return arr.map(x => x += value);
-    else return arr.map((x, i) => x += (value[i] !== undefined ? value[i] : 0));
+    if (typeof value === "number") return arr.map(x => x + value);
+    else return arr.map((x, i) => x + (value[i] !== undefined ? value[i] : 0));
 }
 
 /**
@@ -150,8 +150,8 @@ export function arrAdd(arr: any[], value: any[] | number) {
  * @returns {Array}
  */
 export function arrMul(arr: any[], value: any[] | number) {
-    if (typeof value === "number") return arr.map(x => x *= value);
-    else return arr.map((x, i) => x *= (value[i] !== undefined ? value[i] : 1));
+    if (typeof value === "number") return arr.map(x => x * value);
+    else return arr.map((x, i) => x * (value[i] !== undefined ? value[i] : 1));
 }
 
 /**
@@ -161,8 +161,8 @@ export function arrMul(arr: any[], value: any[] | number) {
  * @returns {Array}
  */
 export function arrDiv(arr: any[], value: any[] | number) {
-    if (typeof value === "number") return arr.map(x => x /= value);
-    else return arr.map((x, i) => x /= (value[i] !== undefined ? value[i] : 1));
+    if (typeof value === "number") return arr.map(x => x / value);
+    else return arr.map((x, i) => x / (value[i] !== undefined ? value[i] : 1));
 }
 
 /**
@@ -230,7 +230,7 @@ export function copy<T>(obj: T): T {
     let newObj = Array.isArray(obj) ? [] : {};
     let keys = Object.getOwnPropertyNames(obj);
 
-    keys.map(x => {
+    keys.forEach(x => {
         let value = copy(obj[x]);
         newObj[x] = value;
     })
@@ -340,7 +340,6 @@ export function jsonSet(obj: object, prop: string, value) {
         currentObj = currentObj[steps[i]];
     }
     currentObj[steps[steps.length - 1]] = value;
-    //jsonPrune(obj);
 }
 
 /**
@@ -368,7 +367,6 @@ export function jsonRemove(obj: object, prop: string) {
         if (currentObj === undefined) return;
     }
     delete currentObj[steps[steps.length - 1]];
-    //jsonPrune(obj);
 }
 
 /**
@@ -467,10 +465,10 @@ export function debugWall(pos: KeyframesVec3 = undefined, rot: KeyframesVec3 = u
     let rotDomain = getDomain(rot);
     let scaleDomain = getDomain(scale);
 
-    let min = getDomain([[posDomain.min], [rotDomain.min], [scaleDomain.min]]).min;
-    let max = getDomain([[posDomain.max], [rotDomain.max], [scaleDomain.max]]).max;
+    let totalMin = getDomain([[posDomain.min], [rotDomain.min], [scaleDomain.min]]).min;
+    let totalMax = getDomain([[posDomain.max], [rotDomain.max], [scaleDomain.max]]).max;
 
-    for (let i = min; i <= max; i += animFreq / animDur) {
+    for (let i = totalMin; i <= totalMax; i += animFreq / animDur) {
         let time = i * animDur + animStart;
         let objPos = dataAnim.get(ANIM.POSITION, i);
         let objRot = dataAnim.get(ANIM.ROTATION, i);

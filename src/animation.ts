@@ -1,11 +1,10 @@
 import { activeDiff } from "./beatmap";
 import { ANIM } from "./constants";
-import * as general from './general';
-import { easingInterpolate, arrAdd, copy, arrEqual, arrMul, arrLast, findFraction, lerp, lerpWrap } from "./general";
+import { easingInterpolate, arrAdd, copy, arrEqual, arrMul, arrLast, findFraction, lerp, lerpWrap, Vec3, Vec4 } from "./general";
 
 export type KeyframesLinear = [number] | [number, number, string?, string?][] | string;
-export type KeyframesVec3 = [number, number, number] | [number, number, number, number, string?, string?][] | string;
-export type KeyframesVec4 = [number, number, number, number] | [number, number, number, number, number, string?, string?][] | string;
+export type KeyframesVec3 = Vec3 | [...Vec3, number, string?, string?][] | string;
+export type KeyframesVec4 = Vec4 | [...Vec4, number, string?, string?][] | string;
 
 export namespace AnimationInternals {
     export class BaseAnimation {
@@ -32,7 +31,7 @@ export namespace AnimationInternals {
          * @param {String} property 
          * @param {*} value 
          */
-        set(property: string, value) { this.json[property] = value };
+        set(property: string, value) { this.json[property] = value }
 
         /**
          * Get a property's animations.
@@ -47,7 +46,7 @@ export namespace AnimationInternals {
                 time = this.convertTime(time);
                 return getValuesAtTime(property, this.json[property], time);
             }
-        };
+        }
 
         /**
          * Add animations to a property, also sorts by time and makes optimizations if possible.
@@ -98,8 +97,8 @@ export namespace AnimationInternals {
         }
 
         private convertTime(time) {
-            if (time >= 0) return time /= this.length;
-            else return time *= -1;
+            if (time >= 0) return time / this.length;
+            else return time * -1;
         }
     }
 }
@@ -298,7 +297,7 @@ export function simplifyArray(array: any[]): any[] {
         let newArr = array[0];
         newArr.pop();
         return newArr;
-    };
+    }
     return array;
 }
 
@@ -343,14 +342,12 @@ export function optimizeArray(keyframes: any[], lenience: number = 0.1): any[] {
                         for (let k = 0; k < differences.length; k++) differences[k] = 0;
                         return;
                     }
-                    else {
-                        deleteElem()
-                        return;
-                    }
                 }
+
+                deleteElem();
             }
-            
-            function deleteElem() { keyframes.splice(i, 1); i--}
+
+            function deleteElem() { keyframes.splice(i, 1); i--; }
         }
     }
     return keyframes.map(x => x.data);
@@ -478,8 +475,8 @@ function timeInKeyframes(time: number, keyframes: any[]) {
  * @returns {Array}
  */
 export function combineAnimations(anim1: any[], anim2: any[], property: string) {
-    let simpleArr = general.copy(anim1);
-    let complexArr = general.copy(anim2);
+    let simpleArr = copy(anim1);
+    let complexArr = copy(anim2);
 
     if (isSimple(anim1) && isSimple(anim2)) { complexArr = complexifyArray(anim2) }
     if (!isSimple(anim1) && isSimple(anim2)) {
@@ -497,7 +494,7 @@ export function combineAnimations(anim1: any[], anim2: any[], property: string) 
 
     for (let j = 0; j < complexArr.length; j++) for (let i = 0; i < simpleArr.length; i++) {
         complexArr[j][i] = editElem(complexArr[j][i], simpleArr[i]);
-    };
+    }
     return complexArr;
 }
 
