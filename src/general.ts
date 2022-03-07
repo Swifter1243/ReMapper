@@ -348,6 +348,7 @@ export function jsonPrune(obj: object) {
 * @param {Object} obj 
 * @param {String} prop
 * @param {*} init Optional value to initialize the property if it doesn't exist yet.
+* @deprecated Why does this exist
 */
 export function jsonGet(obj: object, prop: string) {
     const steps = prop.split('.')
@@ -364,6 +365,7 @@ export function jsonGet(obj: object, prop: string) {
  * @param {Object} obj 
  * @param {String} prop 
  * @param {*} value
+ * @deprecated Why does this exist
  */
 export function jsonSet(obj: object, prop: string, value) {
     const steps = prop.split('.');
@@ -382,6 +384,7 @@ export function jsonSet(obj: object, prop: string, value) {
  * @param {Object} obj 
  * @param {String} prop 
  * @returns {Boolean}
+ * @deprecated Why does this exist
  */
 export function jsonCheck(obj: object, prop: string) {
     let value = jsonGet(obj, prop);
@@ -393,6 +396,7 @@ export function jsonCheck(obj: object, prop: string) {
 * Remove a property of an object recursively, and delete empty objects left behind.
 * @param {Object} obj 
 * @param {String} prop 
+* @deprecated Why does this exist
 */
 export function jsonRemove(obj: object, prop: string) {
     const steps = prop.split('.')
