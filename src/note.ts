@@ -109,6 +109,7 @@ export class Note {
     set spawnEffect(value: boolean) { this.json._customData._disableSpawnEffect = !value }
     set position(value: any[]) {
         let isNoodle = false;
+        // what even happened here
         if (value[2] !== undefined) isNoodle = value[2];
 
         if (!isNoodle) {
