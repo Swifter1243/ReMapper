@@ -55,4 +55,6 @@ If you want to define implicit any types (explained before), then add `tsconfig.
     }
 }
 ```
-If you want to update the package, you can run `npm install` in your project directory.
+If you want to update the package, you can run `npm uninstall swifter_remapper` and then `npm install swifter_remapper` again.
+
+You would run this script with `ts-node "script name here"`.
