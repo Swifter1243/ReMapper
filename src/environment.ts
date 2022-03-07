@@ -415,6 +415,8 @@ export function animateEnvTrack(track: string, time: number, duration: number, a
     })
 }
 
+// What the actual **** is going on here and why
+// why does this exist
 function getTrackData(track: string): any[] {
     if (!trackData[track]) {
         trackData[track] = [];

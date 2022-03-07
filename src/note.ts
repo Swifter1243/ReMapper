@@ -14,6 +14,7 @@ export class Note {
             _animation: {}
         }
     };
+    /// NOOO DON'T DO THIS PLEASE USE A CONSTRUCTOR
     animate = new Animation().noteAnimation(this.animation);
 
     /**
