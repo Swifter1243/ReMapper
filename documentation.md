@@ -1,3 +1,8 @@
+# Practical Examples
+
+Practical examples, and a template can be found in the [examples](/examples/) folder.
+
+
 # Importing
 In order for your script to include functions, classes, or whatever else from this package, you'll need to import them.
 If you know exactly what you want to import, you can type it out anywhere, press tab, and it'll be added to an import statement at the top like so:

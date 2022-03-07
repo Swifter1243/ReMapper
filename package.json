@@ -3,7 +3,7 @@
   "version": "1.0.3",
   "description": "A framework for Beat Saber map scripting.",
   "main": "./dist/main.js",
-  "typings": "dist/main",
+  "typings": "dist/main.d.ts",
   "author": "Swifter",
   "license": "MIT",
   "dependencies": {

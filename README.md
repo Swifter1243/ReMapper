@@ -20,41 +20,58 @@ I would advise against using JS for this, because it doesn't properly autocomple
 
 TypeScript will by default force you to specify the type (number, array, object.. etc) of every variable, if you don't like this, you can add a file to your project that will ignore this.
 
-You'll likely need to do some exploring with this package to get comfortable. Check out [examples](https://github.com/Swifter1243/ReMapper/blob/master/examples.md) and read the descriptions of what different things do.
+You'll likely need to do some exploring with this package to get comfortable. Check out the [examples](/examples/) and [read the documentation](/documentation.md) to find out what each different thing does.
 
 # Installation
 
-Firstly, open a terminal in VSCode (Ctrl + Shift + `) or Command Prompt (Windows Key > Search "cmd")
+## Using TS
 
-Run `npm install -g typescript ts-node` in the terminal in order to get started with TypeScript.
+Usage with typescript itself will require a typescript project to be setup.
 
-Next, get the terminal running inside of your map project folder with `cd "directory here"` (yes quotes are needed)
+[See this guide on how to create a typescript project for noodle.](https://gist.github.com/cal117/f3fdaa3990fc683be072a1a67b1d43eb)
 
-Finally, install this package with `npm install swifter_remapper`
+Firstly, open a terminal and run the following to install Remapper globally:
 
-If you want to define implicit any types (explained before), then add `tsconfig.json` to your project folder:
-```json
-{
-    "include": [
-        "./**/*"
-    ],
-    "exclude": [
-        "node_modules"
-    ],
-    "ts-node": {
-        "transpileOnly": true /* Skips type checking for faster startup times */
-    },
-    "compilerOptions": {
-        "target": "ES2015",
-        "module": "commonjs",
-        "noImplicitAny": false,
-        "esModuleInterop": true,
-        "moduleResolution": "node",
-        "resolveJsonModule": true,
-        "allowJs": true,
-    }
-}
+```bash
+# Yarn
+yarn global add swifter_remapper
+# NPM
+npm install -g swifter_remapper
 ```
-If you want to update the package, you can run `npm uninstall swifter_remapper` and then `npm install swifter_remapper` again.
 
-You would run this script with `ts-node "script name here"`.
+### Usage
+
+```ts
+import * as Remapper from 'swifter_remapper'
+
+// ... do stuff
+```
+
+If a Remapper update releases, feel free to run `npm install -g swifter_remapper` again (this will install the latest).
+
+## Using JS
+
+*Using JS or any other derivative (such as CoffeeScript) is not recommended, however it is not required to use typescript.*
+
+Remapper provides type declarations (d.ts) that are read by IDEs and compilers, these can catch errors and allows you to use the typescript library without needing to use typescript for scripting.
+
+Firstly, open a terminal and run the following to install Remapper globally:
+
+```bash
+# Yarn
+yarn global add swifter_remapper
+# NPM
+npm install -g swifter_remapper
+```
+
+Remapper can be imported from anywhere now, you do not need to create a nodejs project.
+
+### Usage:
+
+```js
+const Remapper = require('swifter_remapper');
+
+// do stuff
+```
+
+If a Remapper update releases, feel free to run `npm install -g swifter_remapper` again (this will install the latest).
