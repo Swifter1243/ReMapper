@@ -41,6 +41,8 @@ If you want to define implicit any types (explained before), then add `tsconfig.
     "exclude": [
         "node_modules"
     ],
+    // only include this if you want to have faster map script generation at the cost of ignoring type errors
+    // experienced programmers should be fine
     "ts-node": {
         "transpileOnly": true /* Skips type checking for faster startup times */
     },
