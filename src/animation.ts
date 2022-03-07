@@ -2,9 +2,9 @@ import { activeDiff } from "./beatmap";
 import { ANIM, EASE } from "./constants";
 import { lerpEasing, arrAdd, copy, arrEqual, arrMul, arrLast, findFraction, lerp, Vec3, Vec4, lerpRotation } from "./general";
 
-export type KeyframeComplexSimple = number[]
+export type KeyframeSimpleVariable = number[]
 export type KeyframeComplexVariable = ((number | string | EASE)[])
-export type KeyframeVariable = KeyframeComplexSimple | KeyframeComplexVariable[]
+export type KeyframeVariable = KeyframeSimpleVariable | KeyframeComplexVariable[]
 
 // TODO: Simple/Complex variants? boilerplate ew 🤢
 export type KeyframesLinear = [number] | [number, number, string?, string?][] | string;
@@ -257,7 +257,7 @@ export class Keyframe {
     easing: EASE = undefined;
     spline: string = undefined;
 
-    constructor(data: KeyframeComplexSimple) {
+    constructor(data: KeyframeSimpleVariable) {
         this.timeIndex = this.getTimeIndex(data);
         this.time = data[this.timeIndex];
         this.values = this.getValues(data);
