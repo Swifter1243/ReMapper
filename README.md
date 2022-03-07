@@ -41,6 +41,9 @@ If you want to define implicit any types (explained before), then add `tsconfig.
     "exclude": [
         "node_modules"
     ],
+    "ts-node": {
+        "transpileOnly": true /* Skips type checking for faster startup times */
+    },
     "compilerOptions": {
         "target": "ES2015",
         "module": "commonjs",
@@ -51,3 +54,5 @@ If you want to define implicit any types (explained before), then add `tsconfig.
         "allowJs": true,
     }
 }
+```
+If you want to update the package, you can run `npm install` in your project directory.

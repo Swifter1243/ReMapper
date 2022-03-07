@@ -1,10 +1,11 @@
 {
   "name": "swifter_remapper",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "A framework for Beat Saber map scripting.",
-  "main": "./src/main.js",
+  "main": "./dist/main.js",
+  "typings": "dist/main",
   "author": "Swifter",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "js-easing-functions": "^1.0.3",
     "three": "^0.136.0"
