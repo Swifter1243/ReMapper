@@ -1,7 +1,12 @@
 import { activeDiff } from "./beatmap";
-import { ANIM } from "./constants";
+import { ANIM, EASE } from "./constants";
 import { lerpEasing, arrAdd, copy, arrEqual, arrMul, arrLast, findFraction, lerp, Vec3, Vec4, lerpRotation } from "./general";
 
+export type KeyframeComplexSimple = number[]
+export type KeyframeComplexVariable = ((number | string | EASE)[])
+export type KeyframeVariable = KeyframeComplexSimple | KeyframeComplexVariable[]
+
+// TODO: Simple/Complex variants? boilerplate ew 🤢
 export type KeyframesLinear = [number] | [number, number, string?, string?][] | string;
 export type KeyframesVec3 = Vec3 | [...Vec3, number, string?, string?][] | string;
 export type KeyframesVec4 = Vec4 | [...Vec4, number, string?, string?][] | string;
@@ -249,10 +254,10 @@ export class Keyframe {
     values: number[] = [];
     timeIndex = 0;
     time: number = 0;
-    easing: string = undefined;
+    easing: EASE = undefined;
     spline: string = undefined;
 
-    constructor(data: any[]) {
+    constructor(data: KeyframeComplexSimple) {
         this.timeIndex = this.getTimeIndex(data);
         this.time = data[this.timeIndex];
         this.values = this.getValues(data);
@@ -262,11 +267,7 @@ export class Keyframe {
 
     private getValues(arr: any[]) {
         let time = this.getTimeIndex(arr);
-        let output = [];
-        arr.forEach((x, i) => {
-            if (i < time) output.push(x);
-        })
-        return output;
+        return arr.slice(0, time);
     }
 
     private getTimeIndex(arr: any[]) {
@@ -275,25 +276,18 @@ export class Keyframe {
         }
     }
 
-    private getEasing(arr: any[]) {
-        let output = undefined;
-        arr.forEach(x => {
-            if (typeof x === "string" && x.includes("ease")) output = x;
-        })
-        return output;
+    private getEasing(arr: any[]): EASE {
+        // Why does JS/TS not have .first(predicate)? seriously wtf
+        return arr.filter(x => x instanceof String && x.includes("ease"))[0];
     }
 
     private getSpline(arr: any[]) {
-        let output = undefined;
-        arr.forEach(x => {
-            if (typeof x === "string" && x.includes("spline")) output = x;
-        })
-        return output;
+                // Why does JS/TS not have .first(predicate)? seriously wtf
+        return arr.filter(x => x instanceof String && x.includes("spline"))[0];
     }
 
     get data() {
-        let output: (string | number)[] = [...this.values];
-        output.push(this.time);
+        let output: (string | number)[] = [...this.values, this.time];
         if (this.easing !== undefined) output.push(this.easing);
         if (this.spline !== undefined) output.push(this.spline);
         return output;
@@ -332,37 +326,41 @@ export function simplifyArray(array: any[]): any[] {
  * @param {Number} lenience The maximum distance values can be considered similar.
  * @returns {Array}
  */
-export function optimizeArray(keyframes: any[], lenience: number = 0.1): any[] {
-    keyframes = copy(complexifyArray(keyframes)).map(x => new Keyframe(x));
+export function optimizeArray(rawKeyframes: any[], lenience: number = 0.1): any[] {
+    let keyframes = copy(complexifyArray(rawKeyframes)).map(x => new Keyframe(x));
 
     // not enough points to optimize
-    if (keyframes.length < 3) return keyframes.map(x => x.data);
+    if (keyframes.length <= 2) return keyframes.map(x => x.data);
 
+    // Initialize an array with values of 0
+    // TODO: Why keep an array of differences when we don't need it?
     let differences: number[] = [];
     for (let i = 0; i < keyframes[0].values.length; i++) differences[i] = 0;
 
-
-    for (let i = 1; i < keyframes.length - 1; i++) {
-        let middle: Keyframe = keyframes[i];
-        let left: Keyframe | undefined = keyframes[i - 1];
-        let right: Keyframe | undefined = keyframes[i + 1];
+    // Checks if point a-b have similar keyframe data including time
+    for (let i = 1; i < keyframes.length; i++) {
+        let left: Keyframe = keyframes[i - 1];
+        let point: Keyframe = keyframes[i];
 
         // While the keyframes may be similar, their easing/spline difference is
         // non-negligible to the animation path and therefore should not be considered for removal
-        if (left?.easing !== middle.easing || right?.easing !== middle.easing) continue;
-        if (left?.spline !== middle.spline || right?.easing !== middle.spline) continue;
+        if (left?.easing !== point.easing) continue;
+        if (left?.spline !== point.spline) continue;
 
 
         // TODO: instead of comparing left-middle value similarity and middle-right value similarity,
         // compare if middle - left / right is similar to left - right
         // or just compare left-middle instead
         // - Fern
-        if (arrEqual(left.values, middle.values, lenience) && arrEqual(middle.values, right.values, lenience)) { checkSplice() }
+        if (arrEqual(left.values, point.values, lenience)) { checkSplice() }
 
+        // TODO: Make this less complicated
+        // If you're already checking if the arrays are similar, 
+        // why bother check again ?
         function checkSplice() {
-            if (right !== undefined && left !== undefined) {
+            if (left !== undefined) {
                 for (let j = 0; j < differences.length; j++) {
-                    differences[j] += right[j] - middle[j];
+                    differences[j] += point[j] - left[j];
                     if (Math.abs(differences[j]) > lenience) {
                         for (let k = 0; k < differences.length; k++) differences[k] = 0;
                         return;
@@ -399,9 +397,10 @@ export function getValuesAtTime(property: string, keyframes: any[], time: number
     let timeInfo = timeInKeyframes(time, keyframes);
     if (timeInfo.interpolate) {
         if (property === ANIM.ROTATION || property === ANIM.LOCAL_ROTATION) {
-            return lerpRotation(timeInfo.l.values, timeInfo.r.values, timeInfo.normalTime);
+            return lerpRotation(timeInfo.l.values as Vec3, timeInfo.r.values as Vec3, timeInfo.normalTime);
         }
         else {
+            // TODO: Move this into its own function, this is bad
             if (timeInfo.r.spline === "splineCatmullRom") {
                 let p0 = timeInfo.leftIndex - 1 < 0 ? timeInfo.l.values : new Keyframe(keyframes[timeInfo.leftIndex - 1]).values;
                 let p1 = timeInfo.l.values;
@@ -425,10 +424,11 @@ export function getValuesAtTime(property: string, keyframes: any[], time: number
                 return arrMul(arrAdd(arrAdd(o0, o1), arrAdd(o2, o3)), 0.5);
             }
             else {
-                let output = [];
-                timeInfo.l.values.forEach((x, i) => {
-                    output.push(lerp(x, timeInfo.r.values[i], timeInfo.normalTime));
-                })
+                // TODO: Move this into a lerpArray function?
+                let output = timeInfo.l.values.map((x, i) => {
+                    return lerp(x, timeInfo.r.values[i], timeInfo.normalTime);
+                });
+
                 return output;
             }
         }
@@ -443,8 +443,8 @@ export function getValuesAtTime(property: string, keyframes: any[], time: number
  * @returns {Object} Tells keyframes to the left and right of the time, if both left and right exist, and the fraction between their times.
  */
 function timeInKeyframes(time: number, keyframes: any[]) {
-    let l;
-    let r;
+    let l: Keyframe | undefined;
+    let r: Keyframe | undefined;
     let normalTime = 0;
 
     if (keyframes.length === 0) return { interpolate: false };

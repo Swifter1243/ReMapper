@@ -12,5 +12,16 @@ export * from './regex';
 export * from './light_remapper';
 
 /*
-TODO: Nothing????
+* a lot of `copy`/`simple` and `complex` calls can be removed/simplified if you just didn't use `any[]`, consider that in the future
+* remove implicitAny and refactor
+* simplify some functions by moving portions of their responsibilities to other functions or cleaning
+*   - Example being getValuesAtTime (possbily rename to InterpolateValues)
+* Support beatmap v2.5.0
+*   - Specifically ensure floatValue works (probably default to 1f if undefined)
+* Support Beatmap v3.0.0 (breaking changes, backwards compatibility is planned for basegame features)
+* Improve optimizeAnimation function to be less complicated and transparent. 
+* Add different levels of optimizeAnimation (possibly yoinked/inspired from OhHeck)
+* - Some more destructive or accurate than others, testing needed
+* 
+* - Fern
 */
