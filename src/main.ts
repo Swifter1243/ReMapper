@@ -26,5 +26,5 @@ export * from './light_remapper';
 * Add different levels of optimizeAnimation (possibly yoinked/inspired from OhHeck)
 * - Some more destructive or accurate than others, testing needed
 
-* - Fern
+* Test if installing globally works
 */

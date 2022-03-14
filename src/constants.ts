@@ -148,7 +148,10 @@ export const SETTINGS = {
     },
     BURN_MARKS: "_graphics._burnMarkTrailsEnabled",
     SCREEN_DISTORTION: "_graphics._screenDisplacementEffectsEnabled",
-    MAX_SHOCKWAVE_PARTICLES: "_graphics._maxShockwaveParticles"
+    MAX_SHOCKWAVE_PARTICLES: "_graphics._maxShockwaveParticles",
+    DISABLE_CHROMA: "_chroma._disableChromaEvents",
+    DISABLE_ENVIRONMENT_ENHANCEMENTS: "_chroma._disableEnvironmentEnhancements",
+    ZEN_MODE_WALLS: "_chroma._forceZenModeWalls"
 }
 
 export const PRESET = {
@@ -164,10 +167,12 @@ export const PRESET = {
         },
         _chroma: {
             _disableEnvironmentEnhancements: false,
-            _disableChromaEvents: false
+            _disableChromaEvents: false,
+            _forceZenModeWalls: true
         },
         _modifiers: {
-            _noFailOn0Energy: true
+            _noFailOn0Energy: true,
+            _enabledObstacleType: "All"
         }
     },
     CHROMA_SETTINGS: {
