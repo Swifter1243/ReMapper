@@ -317,15 +317,15 @@ export function simplifyArray(array: KeyframesAny): KeyframesAny {
 
 /**
  * Specific function for animations, removes similar keyframes from an animation.
- * @param {Array} keyframes 
+ * @param {Array} animation 
  * @param {Number} lenience The maximum distance values can be considered similar.
  * @returns {Array}
  */
-export function optimizeArray(rawKeyframes: any[], lenience: number = 0.1): any[] {
-    let keyframes = copy(complexifyArray(rawKeyframes)).map(x => new Keyframe(x));
+export function optimizeArray(animation: KeyframesAny, lenience: number = 0.1): KeyframesAny {
+    let keyframes = copy(complexifyArray(animation)).map(x => new Keyframe(x));
 
     // not enough points to optimize
-    if (keyframes.length <= 2) return keyframes.map(x => x.data);
+    if (keyframes.length <= 2) return simplifyArray(keyframes.map(x => x.data) as KeyframesAny);
 
     // Initialize an array with values of 0
     // TODO: Why keep an array of differences when we don't need it?
@@ -368,7 +368,7 @@ export function optimizeArray(rawKeyframes: any[], lenience: number = 0.1): any[
             function deleteElem() { keyframes.splice(i, 1); i--; }
         }
     }
-    return keyframes.map(x => x.data);
+    return simplifyArray(keyframes.map(x => x.data) as KeyframesAny);
 }
 
 /**
@@ -383,13 +383,13 @@ export function isSimple(array: KeyframesAny) {
 /**
  * Get the values of an animation at a given time. Accounts for easings and splines!
  * @param {String} property 
- * @param {Array} keyframes 
+ * @param {Array} animation 
  * @param {Time} time 
  * @returns {Array}
  */
-export function getValuesAtTime(property: string, keyframes: any[], time: number) {
-    keyframes = complexifyArray(keyframes);
-    let timeInfo = timeInKeyframes(time, keyframes);
+export function getValuesAtTime(property: string, animation: KeyframesAny, time: number) {
+    animation = complexifyArray(animation);
+    let timeInfo = timeInKeyframes(time, animation);
     if (timeInfo.interpolate) {
         if (property === ANIM.ROTATION || property === ANIM.LOCAL_ROTATION) {
             return lerpRotation(timeInfo.l.values as Vec3, timeInfo.r.values as Vec3, timeInfo.normalTime);
@@ -397,10 +397,10 @@ export function getValuesAtTime(property: string, keyframes: any[], time: number
         else {
             // TODO: Move this into its own function, this is bad
             if (timeInfo.r.spline === "splineCatmullRom") {
-                let p0 = timeInfo.leftIndex - 1 < 0 ? timeInfo.l.values : new Keyframe(keyframes[timeInfo.leftIndex - 1]).values;
+                let p0 = timeInfo.leftIndex - 1 < 0 ? timeInfo.l.values : new Keyframe(animation[timeInfo.leftIndex - 1]).values;
                 let p1 = timeInfo.l.values;
                 let p2 = timeInfo.r.values;
-                let p3 = timeInfo.rightIndex + 1 > keyframes.length - 1 ? timeInfo.r.values : new Keyframe(keyframes[timeInfo.rightIndex + 1]).values;
+                let p3 = timeInfo.rightIndex + 1 > animation.length - 1 ? timeInfo.r.values : new Keyframe(animation[timeInfo.rightIndex + 1]).values;
 
                 let t = timeInfo.normalTime;
                 let tt = t * t;
@@ -429,44 +429,38 @@ export function getValuesAtTime(property: string, keyframes: any[], time: number
     else return timeInfo.l.values;
 }
 
-/**
- * Gets information in a list of keyframes at a certain time.
- * @param {Number} time 
- * @param {Array} keyframes 
- * @returns {Object} Tells keyframes to the left and right of the time, if both left and right exist, and the fraction between their times.
- */
-function timeInKeyframes(time: number, keyframes: any[]) {
+function timeInKeyframes(time: number, animation: KeyframeArray) {
     let l: Keyframe | undefined;
     let r: Keyframe | undefined;
     let normalTime = 0;
 
-    if (keyframes.length === 0) return { interpolate: false };
+    if (animation.length === 0) return { interpolate: false };
 
-    let first = new Keyframe(keyframes[0]);
+    let first = new Keyframe(animation[0]);
     if (first.time >= time) {
         l = first;
         return { interpolate: false, l: l };
     }
 
-    let last = new Keyframe(arrLast(keyframes));
+    let last = new Keyframe(arrLast(animation));
     if (last.time <= time) {
         l = last;
         return { interpolate: false, l: l };
     }
 
     let leftIndex = 0;
-    let rightIndex = keyframes.length;
+    let rightIndex = animation.length;
 
     while (leftIndex < rightIndex - 1) {
         let m = Math.floor((leftIndex + rightIndex) / 2);
-        let pointTime = new Keyframe(keyframes[m]).time;
+        let pointTime = new Keyframe(animation[m]).time;
 
         if (pointTime < time) leftIndex = m;
         else rightIndex = m;
     }
 
-    l = new Keyframe(keyframes[leftIndex]);
-    r = new Keyframe(keyframes[rightIndex]);
+    l = new Keyframe(animation[leftIndex]);
+    r = new Keyframe(animation[rightIndex]);
 
     normalTime = findFraction(l.time, r.time - l.time, time);
     normalTime = lerpEasing(r.easing, normalTime);
@@ -514,13 +508,13 @@ export function combineAnimations(anim1: KeyframesAny, anim2: KeyframesAny, prop
 
 /**
  * Export keyframes to a point definition.
- * @param {Array} keyframes 
+ * @param {Array} animation 
  * @param {String} name 
  */
-export function toPointDef(keyframes: any[], name: string) {
+export function toPointDef(animation: KeyframesAny, name: string) {
     if (activeDiff.pointDefinitions === undefined) activeDiff.pointDefinitions = [];
     activeDiff.pointDefinitions.push({
         "_name": name,
-        "_points": keyframes
+        "_points": animation
     })
 }
