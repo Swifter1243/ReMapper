@@ -332,20 +332,20 @@ export function simplifyArray(array: any[]): any[] {
  * @param {Number} lenience The maximum distance values can be considered similar.
  * @returns {Array}
  */
-export function optimizeArray(keyframes: any[], lenience: number = 0.1): any[] {
-    keyframes = copy(complexifyArray(keyframes)).map(x => new Keyframe(x));
+export function optimizeArray(keyframes: any[], lenience: number = 0.1) {
+    let newKeyframes: Keyframe[] = copy(complexifyArray(keyframes)).map(x => new Keyframe(x));
 
     // not enough points to optimize
-    if (keyframes.length < 3) return keyframes.map(x => x.data);
+    if (newKeyframes.length < 3) return simplifyArray(newKeyframes.map(x => x.data));
 
     let differences: number[] = [];
-    for (let i = 0; i < keyframes[0].values.length; i++) differences[i] = 0;
+    for (let i = 0; i < newKeyframes[0].values.length; i++) differences[i] = 0;
 
 
-    for (let i = 1; i < keyframes.length - 1; i++) {
-        let middle: Keyframe = keyframes[i];
-        let left: Keyframe | undefined = keyframes[i - 1];
-        let right: Keyframe | undefined = keyframes[i + 1];
+    for (let i = 1; i < newKeyframes.length - 1; i++) {
+        let middle: Keyframe = newKeyframes[i];
+        let left: Keyframe | undefined = newKeyframes[i - 1];
+        let right: Keyframe | undefined = newKeyframes[i + 1];
 
         // While the keyframes may be similar, their easing/spline difference is
         // non-negligible to the animation path and therefore should not be considered for removal
@@ -372,10 +372,10 @@ export function optimizeArray(keyframes: any[], lenience: number = 0.1): any[] {
                 deleteElem();
             }
 
-            function deleteElem() { keyframes.splice(i, 1); i--; }
+            function deleteElem() { newKeyframes.splice(i, 1); i--; }
         }
     }
-    return keyframes.map(x => x.data);
+    return simplifyArray(newKeyframes.map(x => x.data));
 }
 
 /**

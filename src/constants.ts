@@ -1,12 +1,12 @@
 import { Vec3 } from "./general"
 import { Regex } from "./regex"
 
-export const enum MODS {
+export enum MODS {
     NOODLE_EXTENSIONS = "Noodle Extensions",
     CHROMA = "Chroma"
 }
 
-export const enum ENV_NAMES {
+export enum ENV_NAMES {
     BTS = "BTSEnvironment",
     BIG_MIRROR = "BigMirrorEnvironment",
     BILLIE = "BillieEnvironment",
@@ -32,7 +32,7 @@ export const enum ENV_NAMES {
     TRIANGLE = "TriangleEnvironment"
 }
 
-export const enum EASE {
+export enum EASE {
     LINEAR = "easeLinear",
     STEP = "easeStep",
     IN_QUAD = "easeInQuad",
@@ -67,7 +67,7 @@ export const enum EASE {
     IN_OUT_BOUNCE = "easeInOutBounce"
 }
 
-export const enum SPLINE {
+export enum SPLINE {
     CATMULLROM = "splineCatmullRom"
 }
 
@@ -185,7 +185,7 @@ export const PRESET = {
     }
 }
 
-export const enum NOTE {
+export enum NOTE {
     // Type
     RED = 0,
     BLUE = 1,
@@ -203,7 +203,7 @@ export const enum NOTE {
     DOT = 8
 }
 
-export const enum WALL {
+export enum WALL {
     // Type
     FULL = 0,
     CROUCH = 1
@@ -266,7 +266,7 @@ export enum EVENT {
     CW_60 = 7
 }
 
-export const enum ANIM {
+export enum ANIM {
     POSITION = "_position",
     DEFINITE_POSITION = "_definitePosition",
     LOCAL_POSITION = "_localPosition",
@@ -305,7 +305,7 @@ export let ENV = {
     }
 }
 
-export const enum COLOR {
+export enum COLOR {
     RGB = "RGB",
     HSV = "HSV"
 }

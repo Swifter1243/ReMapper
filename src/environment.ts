@@ -1,7 +1,7 @@
 import { combineAnimations, Animation, Keyframe, AnimationInternals } from './animation';
 import { activeDiff } from './beatmap';
 import { Vec3, debugWall, copy, rotatePoint } from './general';
-import { CustomEvent } from './custom_event';
+import { CustomEvent, CustomEventInternals } from './custom_event';
 
 let envCount = 0;
 let blenderEnvCount = 0;
@@ -183,7 +183,7 @@ export namespace BlenderEnvironmentInternals {
             return this.processData(`${dataTrack}_${this.track}`);
         }
 
-        static(dataTrack: string) {
+        static(dataTrack: string, forEvents: (moveEvent: CustomEventInternals.AnimateTrack) => void = undefined) {
             let data = this.getDataForTrack(dataTrack);
 
             if (data.length > 0) {
@@ -196,11 +196,12 @@ export namespace BlenderEnvironmentInternals {
                 moveEvent.animate.position = objPos;
                 moveEvent.animate.rotation = objRot;
                 moveEvent.animate.scale = objScale;
+                if (forEvents !== undefined) forEvents(moveEvent);
                 moveEvent.push();
             }
         }
 
-        animate(dataTrack: string, time: number, duration: number) {
+        animate(dataTrack: string, time: number, duration: number, forEvents: (moveEvent: CustomEventInternals.AnimateTrack) => void = undefined) {
             let data = this.getDataForTrack(dataTrack);
 
             if (data.length > 0) {
@@ -211,11 +212,12 @@ export namespace BlenderEnvironmentInternals {
                 moveEvent.animate.rotation = x.rot;
                 moveEvent.animate.scale = x.scale;
                 moveEvent.duration = duration;
+                if (forEvents !== undefined) forEvents(moveEvent);
                 moveEvent.push();
             }
             else if (this.disappearWhenAbsent) {
                 let moveEvent = new CustomEvent(time).animateTrack(this.track);
-                moveEvent.animate.position = [0, -69420, 0];
+                moveEvent.animate.localPosition = [0, -69420, 0];
                 moveEvent.push();
             }
         }
@@ -276,8 +278,10 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
      * Set the environment to be static. Should only be used once.
      * @param {String} dataTrack The track ScuffedWalls will output for this model's data.
      * If left undefined, a debug model with debug walls, useful for fitting objects to a cube, will be placed. 
+     * @param {Function} forEnv Runs for each environment object.
+     * @param {Function} forAssigned Runs for each assigned object moving event.
      */
-    static(dataTrack: string = undefined) {
+    static(dataTrack: string = undefined, forEnv: (envObject: Environment, objects: number) => void = undefined, forAssigned: (moveEvent: CustomEventInternals.AnimateTrack) => void = undefined) {
         let data;
         if (dataTrack === undefined) data = this.processData(debugData);
         else data = this.processData(dataTrack);
@@ -293,9 +297,11 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
             envObject.rotation = rot;
             envObject.scale = scale;
             envObject.duplicate = 1;
-            envObject.push();
 
             objects++;
+
+            if (forEnv !== undefined) forEnv(envObject, objects);
+            envObject.push();
 
             if (dataTrack === undefined) debugWall([x.rawPos[0][0], x.rawPos[0][1], x.rawPos[0][2]], rot, [x.rawScale[0][0], x.rawScale[0][1], x.rawScale[0][2]]);
         })
@@ -303,34 +309,40 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
         this.maxObjects = objects;
         this.objectAmounts = [[0, objects]];
 
-        this.assigned.forEach(x => { x.static(dataTrack) });
+        this.assigned.forEach(x => { x.static(dataTrack, forAssigned) });
     }
 
     /**
      * Set the environment to switch to different models at certain times. Also uses model animations.
      * @param {Array} switches First element is the data track of the switch, second element is the time, 
      * third element (optional) is the duration of the animation.
-     * @param {Boolean} useLocalPosition Use local position instead of position. 
-     * Means the object can move from parents but origin might not be [0,0,0].
+     * fourth element (optional) is a function to run per environment moving event animation.
+     * fifth element (optional) is a function to run per assigned object moving event.
+     * @param {Function} forEnvSpawn function to run for each initial environment object.
      */
-    animate(switches: [string, number, number?][], useLocalPosition: boolean = false) {
+    animate(switches: [string, number, number?,
+        ((envAnimation: AnimationInternals.EnvironmentAnimation, objects: number) => void)?,
+        ((moveEvent: CustomEventInternals.AnimateTrack) => void)?
+    ][], forEnvSpawn: (envObject: Environment) => void = undefined) {
         switches.sort((a, b) => a[1] - b[1]);
 
         switches.forEach(x => {
             let dataTrack = x[0];
             let time = x[1];
             let duration = x[2] ?? 0;
+            let forEnv = x[3];
+            let forAssigned = x[4];
             let data = this.processData(dataTrack);
             let objects = 0;
 
             data.forEach((x, i) => {
                 let dataAnim = new Animation().environmentAnimation();
 
-                if (useLocalPosition) dataAnim.localPosition = x.pos;
-                else dataAnim.position = x.pos;
+                dataAnim.position = x.pos;
                 dataAnim.rotation = x.rot;
                 dataAnim.scale = x.scale;
                 dataAnim.optimize();
+                if (forEnv !== undefined) forEnv(dataAnim, objects);
 
                 new CustomEvent(time).animateTrack(this.getPieceTrack(i), duration, dataAnim.json).push();
                 objects++;
@@ -339,15 +351,14 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
             if (objects > this.maxObjects) this.maxObjects = objects;
             this.objectAmounts.push([time, objects]);
 
-            this.assigned.forEach(x => { x.animate(dataTrack, time, duration) });
+            this.assigned.forEach(x => { x.animate(dataTrack, time, duration, forAssigned) });
         })
 
         switches.forEach(x => {
             let objects = this.lookupAmount(x[1]);
             for (let i = objects; i < this.maxObjects; i++) {
                 let event = new CustomEvent(x[1]).animateTrack(this.getPieceTrack(i));
-                if (useLocalPosition) event.animate.localPosition = [0, -69420, 0];
-                else event.animate.position = [0, -69420, 0];
+                event.animate.localPosition = [0, -69420, 0];
                 event.push();
             }
         })
@@ -357,6 +368,7 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
             envObject.position = [0, -69420, 0];
             envObject.duplicate = 1;
             envObject.track = this.getPieceTrack(i);
+            if (forEnvSpawn !== undefined) forEnvSpawn(envObject);
             envObject.push();
         }
     }
