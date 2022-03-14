@@ -1,15 +1,16 @@
 import { activeDiff } from "./beatmap";
-import { ANIM, EASE } from "./constants";
+import { ANIM, EASE, SPLINE } from "./constants";
 import { lerpEasing, arrAdd, copy, arrEqual, arrMul, arrLast, findFraction, lerp, Vec3, Vec4, lerpRotation } from "./general";
 
-export type KeyframeSimpleVariable = number[]
-export type KeyframeComplexVariable = ((number | string | EASE)[])
-export type KeyframeVariable = KeyframeSimpleVariable | KeyframeComplexVariable[]
+export type Interpolation = EASE | SPLINE;
 
-// TODO: Simple/Complex variants? boilerplate ew 🤢
-export type KeyframesLinear = [number] | [number, number, string?, string?][] | string;
-export type KeyframesVec3 = Vec3 | [...Vec3, number, string?, string?][] | string;
-export type KeyframesVec4 = Vec4 | [...Vec4, number, string?, string?][] | string;
+export type KeyframesLinear = [number] | [number, number, Interpolation?, SPLINE?][] | string;
+export type KeyframesVec3 = Vec3 | [...Vec3, number, Interpolation?, SPLINE?][] | string;
+export type KeyframesVec4 = Vec4 | [...Vec4, number, Interpolation?, SPLINE?][] | string;
+export type KeyframesAny = number[] | KeyframeValues[] | string;
+
+export type KeyframeValues = (number | EASE | SPLINE)[];
+export type KeyframeArray = KeyframeValues[];
 
 export namespace AnimationInternals {
     export class BaseAnimation {
@@ -91,14 +92,10 @@ export namespace AnimationInternals {
         }
 
         private convert(value) {
-            let data = complexifyArray(value);
-
-            data.forEach(x => {
+            return value.map(x => {
                 let time = new Keyframe(x).timeIndex;
                 x[time] = this.convertTime(x[time]);
             })
-
-            return simplifyArray(data);
         }
 
         private convertTime(time) {
@@ -255,35 +252,33 @@ export class Keyframe {
     timeIndex = 0;
     time: number = 0;
     easing: EASE = undefined;
-    spline: string = undefined;
+    spline: SPLINE = undefined;
 
-    constructor(data: KeyframeSimpleVariable) {
+    constructor(data: KeyframeValues) {
         this.timeIndex = this.getTimeIndex(data);
-        this.time = data[this.timeIndex];
+        this.time = data[this.timeIndex] as number;
         this.values = this.getValues(data);
         this.easing = this.getEasing(data);
         this.spline = this.getSpline(data);
     }
 
-    private getValues(arr: any[]) {
+    private getValues(arr: KeyframeValues): number[] {
         let time = this.getTimeIndex(arr);
-        return arr.slice(0, time);
+        return arr.slice(0, time) as number[];
     }
 
-    private getTimeIndex(arr: any[]) {
+    private getTimeIndex(arr: KeyframeValues): number {
         for (let i = arr.length - 1; i >= 0; i--) {
             if (typeof arr[i] !== "string") return i;
         }
     }
 
-    private getEasing(arr: any[]): EASE {
-        // Why does JS/TS not have .first(predicate)? seriously wtf
-        return arr.filter(x => x instanceof String && x.includes("ease"))[0];
+    private getEasing(arr: KeyframeValues): EASE {
+        return arr.filter(x => typeof x === "string" && x.includes("ease"))[0] as EASE;
     }
 
-    private getSpline(arr: any[]) {
-                // Why does JS/TS not have .first(predicate)? seriously wtf
-        return arr.filter(x => x instanceof String && x.includes("spline"))[0];
+    private getSpline(arr: KeyframeValues): SPLINE {
+        return arr.filter(x => typeof x === "string" && x.includes("spline"))[0] as SPLINE;
     }
 
     get data() {
@@ -299,10 +294,10 @@ export class Keyframe {
  * @param {Array} array 
  * @returns {Array}
  */
-export function complexifyArray(array: any[]): any[] {
+export function complexifyArray(array: KeyframesAny): KeyframeArray {
     if (array === undefined) return [];
-    if (!isSimple(array)) return array;
-    return [[...array, 0]];
+    if (!isSimple(array)) return array as KeyframeValues[];
+    return [[...array as number[], 0]];
 }
 
 /**
@@ -310,12 +305,12 @@ export function complexifyArray(array: any[]): any[] {
  * @param {Array} array 
  * @returns {Array}
  */
-export function simplifyArray(array: any[]): any[] {
+export function simplifyArray(array: KeyframesAny): KeyframesAny {
     if (array === undefined) return [];
-    if (array.length <= 1 && !isSimple(array) && new Keyframe(array[0]).time === 0) {
-        let newArr = array[0];
+    if (array.length <= 1 && !isSimple(array) && new Keyframe(array[0] as KeyframeValues).time === 0) {
+        let newArr = array[0] as KeyframeValues;
         newArr.pop();
-        return newArr;
+        return newArr as KeyframesAny;
     }
     return array;
 }
@@ -381,7 +376,7 @@ export function optimizeArray(rawKeyframes: any[], lenience: number = 0.1): any[
  * @param {Object} array 
  * @returns {Boolean}
  */
-export function isSimple(array: any[]) {
+export function isSimple(array: KeyframesAny) {
     return typeof array[0] !== "object";
 }
 
@@ -425,11 +420,9 @@ export function getValuesAtTime(property: string, keyframes: any[], time: number
             }
             else {
                 // TODO: Move this into a lerpArray function?
-                let output = timeInfo.l.values.map((x, i) => {
+                return timeInfo.l.values.map((x, i) => {
                     return lerp(x, timeInfo.r.values[i], timeInfo.normalTime);
                 });
-
-                return output;
             }
         }
     }
@@ -495,7 +488,7 @@ function timeInKeyframes(time: number, keyframes: any[]) {
  * @param {String} property Property that the animation originated from, important to determine how to combine.
  * @returns {Array}
  */
-export function combineAnimations(anim1: any[], anim2: any[], property: string) {
+export function combineAnimations(anim1: KeyframesAny, anim2: KeyframesAny, property: string) {
     let simpleArr = copy(anim1);
     let complexArr = copy(anim2);
 
@@ -514,7 +507,7 @@ export function combineAnimations(anim1: any[], anim2: any[], property: string) 
     }
 
     for (let j = 0; j < complexArr.length; j++) for (let i = 0; i < simpleArr.length; i++) {
-        complexArr[j][i] = editElem(complexArr[j][i], simpleArr[i]);
+        complexArr[j][i] = editElem(complexArr[j][i], simpleArr[i] as number);
     }
     return complexArr;
 }

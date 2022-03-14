@@ -15,7 +15,6 @@
         "outDir": "./dist/", /* Redirect output structure to the directory. */
         "target": "ES6",
         "module": "commonjs",
-        "noImplicitAny": false,
         "esModuleInterop": true,
         "moduleResolution": "node",
         "resolveJsonModule": true,
