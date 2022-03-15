@@ -322,7 +322,7 @@ export function simplifyArray(array: KeyframesAny): KeyframesAny {
  * @returns {Array}
  */
 export function optimizeArray(animation: KeyframesAny, lenience: number = 0.1): KeyframesAny {
-    let keyframes = copy(complexifyArray(animation)).map(x => new Keyframe(x));
+    let keyframes: Keyframe[] = copy(complexifyArray(animation)).map(x => new Keyframe(x));
 
     // not enough points to optimize
     if (keyframes.length <= 2) return simplifyArray(keyframes.map(x => x.data) as KeyframesAny);
@@ -330,7 +330,7 @@ export function optimizeArray(animation: KeyframesAny, lenience: number = 0.1): 
     // Initialize an array with values of 0
     // TODO: Why keep an array of differences when we don't need it?
     let differences: number[] = [];
-    for (let i = 0; i < keyframes[0].values.length; i++) differences[i] = 0;
+    for (let i = 0; i < newKeyframes[0].values.length; i++) differences[i] = 0;
 
     // Checks if point a-b have similar keyframe data including time
     for (let i = 1; i < keyframes.length; i++) {
@@ -365,7 +365,7 @@ export function optimizeArray(animation: KeyframesAny, lenience: number = 0.1): 
                 deleteElem();
             }
 
-            function deleteElem() { keyframes.splice(i, 1); i--; }
+            function deleteElem() { newKeyframes.splice(i, 1); i--; }
         }
     }
     return simplifyArray(keyframes.map(x => x.data) as KeyframesAny);

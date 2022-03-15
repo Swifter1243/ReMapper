@@ -60,3 +60,10 @@ If you want to define implicit any types (explained before), then add `tsconfig.
 If you want to update the package, you can run `npm uninstall swifter_remapper` and then `npm install swifter_remapper` again.
 
 You would run this script with `ts-node "script name here"`.
+
+If you have an error that looks like this, run the following command in an admin cmd/pwsh instance.
+
+`Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope LocalMachine`
+![image](https://media.discordapp.net/attachments/878480179528351775/950766613676834906/unknown.png?width=1025&height=95) 
+
+For more information on this, read [this](https://go.microsoft.com/fwlink/?LinkID=135170)

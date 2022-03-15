@@ -170,6 +170,8 @@ Just like before, you'll need a setup with ScuffedWalls in order to get this to 
   Track:model
   Type:3
 ```
+If you are unsure on how models work with ScuffedWalls, check out [this](https://github.com/thelightdesigner/ScuffedWalls/blob/main/Blender%20Project.md) guide.
+
 Remember that ScuffedWalls already exports it's changes to your output diff, so for this script you'd want to provide your output diff as your input and output.
 ```js
 let map = Difficulty("ExpertPlusStandard.dat");
