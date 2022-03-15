@@ -14,6 +14,7 @@ export class Note {
             _animation: {}
         }
     };
+    /// NOOO DON'T DO THIS PLEASE USE A CONSTRUCTOR
     animate = new Animation().noteAnimation(this.animation);
 
     /**
@@ -23,7 +24,7 @@ export class Note {
      * @param {Number} direction 
      * @param {Array} position Array for x and y of the note. If an additional boolean of true is added, it will be converted to a noodle position instead of the vanilla grid.
      */
-    constructor(time: number = undefined, type: NOTE = undefined, direction: NOTE = undefined, position: any[] = undefined) {
+    constructor(time: number = undefined, type: NOTE = undefined, direction: NOTE = undefined, position: [number, number, boolean?] = undefined) {
         if (time !== undefined) this.time = time;
         if (type !== undefined) this.type = type;
         if (direction !== undefined) this.direction = direction;
@@ -75,7 +76,7 @@ export class Note {
         if (this.json._customData._position) isNoodle = true;
 
         if (!isNoodle) return [this.json._lineIndex, this.json._lineLayer];
-        else return [...this.json._customData._position, true];
+        else return [...(this.json._customData._position as [number, number]), true];
     }
     get rotation() { return this.json._customData._rotation }
     get localRotation() { return this.json._customData._localRotation }
@@ -106,7 +107,7 @@ export class Note {
     set noteGravity(value: boolean) { this.json._customData._disableNoteGravity = !value }
     set noteLook(value: boolean) { this.json._customData._disableNoteLook = !value }
     set spawnEffect(value: boolean) { this.json._customData._disableSpawnEffect = !value }
-    set position(value: any[]) {
+    set position(value: [number, number, boolean?]) {
         let isNoodle = false;
         if (value[2] !== undefined) isNoodle = value[2];
 

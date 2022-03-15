@@ -168,7 +168,7 @@ export function arrLast(arr: any[]) {
  * @param {*} value Can be a number or an array.
  * @returns {Array}
  */
-export function arrAdd(arr: any[], value: any[] | number) {
+export function arrAdd(arr: number[], value: number[] | number) {
     if (typeof value === "number") return arr.map(x => x + value);
     else return arr.map((x, i) => x + (value[i] !== undefined ? value[i] : 0));
 }
@@ -179,7 +179,7 @@ export function arrAdd(arr: any[], value: any[] | number) {
  * @param {*} value Can be a number or an array.
  * @returns {Array}
  */
-export function arrMul(arr: any[], value: any[] | number) {
+export function arrMul(arr: number[], value: number[] | number) {
     if (typeof value === "number") return arr.map(x => x * value);
     else return arr.map((x, i) => x * (value[i] !== undefined ? value[i] : 1));
 }
@@ -190,7 +190,7 @@ export function arrMul(arr: any[], value: any[] | number) {
  * @param {*} value Can be a number or an array.
  * @returns {Array}
  */
-export function arrDiv(arr: any[], value: any[] | number) {
+export function arrDiv(arr: number[], value: number[] | number) {
     if (typeof value === "number") return arr.map(x => x / value);
     else return arr.map((x, i) => x / (value[i] !== undefined ? value[i] : 1));
 }
@@ -202,7 +202,7 @@ export function arrDiv(arr: any[], value: any[] | number) {
  * @param {Number} lenience The maximum difference 2 numbers in an array can have before they're considered not equal.
  * @returns {Boolean}
  */
-export function arrEqual(arr1: any[], arr2: any[], lenience: number = 0) {
+export function arrEqual(arr1: number[], arr2: number[], lenience: number = 0) {
     if (!arr1 || !arr2) return false;
     if (arr1.length !== arr2.length) return false;
     let result = true;
