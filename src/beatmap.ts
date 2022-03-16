@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import { Arc, Note } from './note';
+import { Arc, Bomb, Note } from './note';
 import { Wall } from './wall';
 import { Event, EventInternals } from './event';
 import { CustomEvent, CustomEventInternals } from './custom_event';
@@ -41,6 +41,7 @@ export class Difficulty {
 
         // Converting JSON to classes
         for (let i = 0; i < this.notes.length; i++) this.notes[i] = new Note().import(this.notes[i]);
+        for (let i = 0; i < this.bombs.length; i++) this.bombs[i] = new Bomb().import(this.bombs[i]);
         for (let i = 0; i < this.arcs.length; i++) this.arcs[i] = new Arc().import(this.notes[i]);
         for (let i = 0; i < this.walls.length; i++) this.walls[i] = new Wall().import(this.walls[i]);
         // for (let i = 0; i < this.events.length; i++) this.events[i] = new Event().import(this.events[i]); TODO: fix this
@@ -72,6 +73,15 @@ export class Difficulty {
             jsonPrune(note.json);
             outputJSON.colorNotes[i] = note.json;
         }
+        for (let i = 0; i < this.bombs.length; i++) {
+            let bomb = copy(this.bombs[i]);
+            if (forceJumpsForNoodle && bomb.isModded) {
+                bomb.NJS = bomb.NJS;
+                bomb.offset = bomb.offset;
+            }
+            jsonPrune(bomb.json);
+            outputJSON.bombNotes[i] = bomb.json;
+        }
         for (let i = 0; i < this.arcs.length; i++) {
             let arc = copy(this.arcs[i]);
             // if (forceJumpsForNoodle && note.isModded) {
@@ -94,6 +104,7 @@ export class Difficulty {
 
         // sortObjects(outputJSON._events, "_time");
         sortObjects(outputJSON.colorNotes, "b");
+        sortObjects(outputJSON.bombNotes, "b");
         sortObjects(outputJSON.sliders, "b");
         sortObjects(outputJSON.obstacles, "b");
 
