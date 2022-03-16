@@ -1,5 +1,5 @@
 import { activeDiff, info } from './beatmap';
-import { copy, jsonPrune, isEmptyObject, getJumps } from './general';
+import { copy, jsonPrune, isEmptyObject, getJumps, Vec2, Vec3, Vec4 } from './general';
 import { Animation, AnimationInternals } from './animation';
 
 export class Wall {
@@ -24,7 +24,7 @@ export class Wall {
      * @param {Array} position Array for x and y of the wall. If an additional boolean of true is added, noodle position will be used.
      * @param {Array} dimensions Array for width and height.
      */
-    constructor(beat: number = undefined, duration: number = undefined, position: [number, number, boolean?] = undefined, dimensions: [number, number] = undefined) {
+    constructor(beat: number = undefined, duration: number = undefined, position: [...Vec2, boolean?] = undefined, dimensions: Vec2 = undefined) {
         if (beat !== undefined) this.beat = beat;
         if (duration !== undefined) this.duration = duration;
         if (position !== undefined) this.position = position;
@@ -64,45 +64,45 @@ export class Wall {
 
     get beat(): number { return this.json.b }
     get duration(): number { return this.json.d }
-    get dimensions(): [number, number] { return [this.json.w, this.json.h] }
+    get dimensions(): Vec2 { return [this.json.w, this.json.h] }
 
     set beat(value: number) { this.json.b = value }
     set duration(value: number) { this.json.d = value }
-    set dimensions(value: [number, number]) { this.json.w = value[0]; this.json.h = value[1] }
+    set dimensions(value: Vec2) { this.json.w = value[0]; this.json.h = value[1] }
 
     // Modded
-    get customData() { return this.json._customData }
-    get scale(): [number, number, number] { return this.json._customData._scale }
-    get position(): [number, number, boolean?] {
+    get customData(): any { return this.json._customData }
+    get scale(): Vec3 { return this.json._customData._scale }
+    get position(): [...Vec2, boolean?] {
         let isNoodle = false;
         if (this.json._customData._position) isNoodle = true;
 
         if (!isNoodle) return [this.json.x, this.json.y];
-        else return [...(this.json._customData._position as [number, number]), true];
+        else return [...(this.json._customData._position as Vec2), true];
     }
-    get rotation() { return this.json._customData._rotation }
-    get localRotation() { return this.json._customData._localRotation }
-    get NJS() {
+    get rotation(): Vec3 { return this.json._customData._rotation }
+    get localRotation(): Vec3 { return this.json._customData._localRotation }
+    get NJS(): number {
         if (this.json._customData._noteJumpMovementSpeed) return this.json._customData._noteJumpMovementSpeed;
         else return activeDiff.NJS;
     }
-    get offset() {
+    get offset(): number {
         if (this.json._customData._noteJumpStartBeatOffset) return this.json._customData._noteJumpStartBeatOffset;
         else return activeDiff.offset;
     }
-    get halfJumpDur() { return getJumps(this.NJS, this.offset, info.BPM).halfDur }
-    get jumpDist() { return getJumps(this.NJS, this.offset, info.BPM).dist }
-    get life() { return this.halfJumpDur * 2 + this.duration }
-    get lifeStart() { return this.beat - this.halfJumpDur }
-    get fake() { return this.json._customData._fake }
-    get interactable() { return this.json._customData._interactable }
-    get track() { return this.json._customData._track }
-    get color() { return this.json._customData._color }
-    get animation() { return this.json._customData._animation }
+    get halfJumpDur(): number { return getJumps(this.NJS, this.offset, info.BPM).halfDur }
+    get jumpDist(): number { return getJumps(this.NJS, this.offset, info.BPM).dist }
+    get life(): number { return this.halfJumpDur * 2 + this.duration }
+    get lifeStart(): number { return this.beat - this.halfJumpDur }
+    get fake(): boolean { return this.json._customData._fake }
+    get interactable(): boolean { return this.json._customData._interactable }
+    get track(): string { return this.json._customData._track }
+    get color(): Vec3 | Vec4 { return this.json._customData._color }
+    get animation(): any { return this.json._customData._animation }
 
-    set customData(value) { this.json._customData = value }
-    set scale(value: [number, number, number]) { this.json._customData._scale = value }
-    set position(value: [number, number, boolean?]) {
+    set customData(value: any) { this.json._customData = value }
+    set scale(value: Vec3) { this.json._customData._scale = value }
+    set position(value: [...Vec2, boolean?]) {
         let isNoodle = false;
         if (value[2] !== undefined) isNoodle = value[2];
 
@@ -119,8 +119,8 @@ export class Wall {
             this.json._customData._position = [value[0] - 0.5, value[1]];
         }
     }
-    set rotation(value: number[]) { this.json._customData._rotation = value }
-    set localRotation(value: number[]) { this.json._customData._localRotation = value }
+    set rotation(value: Vec3) { this.json._customData._rotation = value }
+    set localRotation(value: Vec3) { this.json._customData._localRotation = value }
     set NJS(value: number) { this.json._customData._noteJumpMovementSpeed = value }
     set offset(value: number) { this.json._customData._noteJumpStartBeatOffset = value }
     set life(value: number) { this.duration = value - (this.halfJumpDur * 2) }
@@ -128,7 +128,7 @@ export class Wall {
     set fake(value: boolean) { this.json._customData._fake = value }
     set interactable(value: boolean) { this.json._customData._interactable = value }
     set track(value: string) { this.json._customData._track = value }
-    set color(value: number[]) { this.json._customData._color = value }
+    set color(value: Vec3 | Vec4) { this.json._customData._color = value }
     set animation(value) { this.json._customData._animation = value }
 
     get isModded() {
