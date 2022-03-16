@@ -335,7 +335,7 @@ export class Arc {
     }
 
     /**
-     * Create a note using JSON.
+     * Create an arc using JSON.
      * @param {Object} json 
      * @returns {Note}
      */
@@ -391,7 +391,7 @@ export class Chain {
     };
 
     /**
-     * Arc object for ease of creation.
+     * Chain object for ease of creation.
      * @param {Number} type 
      * @param {Number} direction 
      * @param {Array} head [beat, x, y]. Only beat is required.
@@ -415,7 +415,7 @@ export class Chain {
     }
 
     /**
-     * Create a note using JSON.
+     * Create a chain using JSON.
      * @param {Object} json 
      * @returns {Note}
      */
@@ -428,7 +428,7 @@ export class Chain {
     }
 
     /**
-     * Push this arc to the difficulty
+     * Push this chain to the difficulty
      */
     push() {
         activeDiff.chains.push(copy(this));

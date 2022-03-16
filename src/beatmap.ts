@@ -1,10 +1,11 @@
 import * as fs from 'fs';
 import { Arc, Bomb, Chain, Note } from './note';
 import { Wall } from './wall';
-import { Event, EventInternals } from './event';
+import { Event, EventInternals } from './basicEvent';
 import { CustomEvent, CustomEventInternals } from './custom_event';
 import { Environment } from './environment';
 import { copy, jsonGet, jsonPrune, jsonRemove, jsonSet, sortObjects, Vec3 } from './general';
+import { BPMChange } from './event';
 
 export class Difficulty {
     json;
@@ -40,6 +41,7 @@ export class Difficulty {
         if (this.diffSet === undefined) throw new Error(`The difficulty ${input} does not exist in your Info.dat`)
 
         // Converting JSON to classes
+        for (let i = 0; i < this.BPMChanges.length; i++) this.BPMChanges[i] = new BPMChange().import(this.BPMChanges[i]);
         for (let i = 0; i < this.notes.length; i++) this.notes[i] = new Note().import(this.notes[i]);
         for (let i = 0; i < this.bombs.length; i++) this.bombs[i] = new Bomb().import(this.bombs[i]);
         for (let i = 0; i < this.arcs.length; i++) this.arcs[i] = new Arc().import(this.arcs[i]);
@@ -65,6 +67,7 @@ export class Difficulty {
 
         let outputJSON = copy(this.json);
 
+        for (let i = 0; i < this.BPMChanges.length; i++) outputJSON.bpmEvents[i] = this.BPMChanges[i].json;
         for (let i = 0; i < this.notes.length; i++) {
             let note = copy(this.notes[i]);
             if (forceJumpsForNoodle && note.isModded) {
@@ -244,7 +247,7 @@ export class Difficulty {
 
     // Map
     get version(): string { return jsonGet(this.json, "version") }
-    get bpmChanges(): any[] { return jsonGet(this.json, "bpmEvents") }
+    get BPMChanges(): BPMChange[] { return jsonGet(this.json, "bpmEvents") }
     get rotations(): any[] { return jsonGet(this.json, "rotationEvents") }
     get notes(): Note[] { return jsonGet(this.json, "colorNotes") }
     get bombs(): Bomb[] { return jsonGet(this.json, "bombNotes") }
@@ -264,7 +267,7 @@ export class Difficulty {
     get environment(): Environment[] { return jsonGet(this.json, "_customData._environment") }
 
     set version(value: string) { jsonSet(this.json, "version", value) }
-    set bpmChanges(value: any[]) { jsonSet(this.json, "bpmEvents", value) }
+    set BPMChanges(value: BPMChange[]) { jsonSet(this.json, "bpmEvents", value) }
     set rotations(value: any[]) { jsonSet(this.json, "rotationEvents", value) }
     set notes(value: Note[]) { jsonSet(this.json, "colorNotes", value) }
     set bombs(value: Bomb[]) { jsonSet(this.json, "bombNotes", value) }

@@ -3,6 +3,7 @@ export * from './beatmap';
 export * from './color';
 export * from './note';
 export * from './wall';
+export * from './basicEvent';
 export * from './event';
 export * from './custom_event';
 export * from './environment';

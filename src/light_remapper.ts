@@ -1,4 +1,4 @@
-import { Event, EventInternals } from "./event";
+import { Event, EventInternals } from "./basicEvent";
 import { activeDiff } from "./beatmap";
 import { copy } from "./general";
 import { EVENT } from "./constants";

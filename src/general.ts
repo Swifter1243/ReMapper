@@ -6,7 +6,7 @@ import * as three from 'three';
 import { ANIM, EASE } from './constants';
 import { activeDiff } from './beatmap';
 import { Note } from './note';
-import { EventInternals } from './event';
+import { EventInternals } from './basicEvent';
 
 export type Vec2 = [number, number];
 export type Vec3 = [number, number, number];
