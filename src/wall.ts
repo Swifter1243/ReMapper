@@ -1,7 +1,6 @@
 import { activeDiff, info } from './beatmap';
 import { copy, jsonPrune, isEmptyObject, getJumps } from './general';
 import { Animation, AnimationInternals } from './animation';
-import { WALL } from './constants';
 
 export class Wall {
     json: any = {
@@ -66,6 +65,12 @@ export class Wall {
     get beat(): number { return this.json.b }
     get duration(): number { return this.json.d }
     get dimensions(): [number, number] { return [this.json.w, this.json.h] }
+
+    set beat(value: number) { this.json.b = value }
+    set duration(value: number) { this.json.d = value }
+    set dimensions(value: [number, number]) { this.json.w = value[0]; this.json.h = value[1] }
+
+    // Modded
     get customData() { return this.json._customData }
     get scale(): [number, number, number] { return this.json._customData._scale }
     get position(): [number, number, boolean?] {
@@ -95,9 +100,6 @@ export class Wall {
     get color() { return this.json._customData._color }
     get animation() { return this.json._customData._animation }
 
-    set beat(value: number) { this.json.b = value }
-    set duration(value: number) { this.json.d = value }
-    set dimensions(value: [number, number]) { this.json.w = value[0]; this.json.h = value[1] }
     set customData(value) { this.json._customData = value }
     set scale(value: [number, number, number]) { this.json._customData._scale = value }
     set position(value: [number, number, boolean?]) {

@@ -1,15 +1,16 @@
+import { FORMAT } from "./constants";
 import { clamp, lerpEasing, lerp, lerpWrap, Vec4 } from "./general";
 
 export class Color {
     private internalValue: Vec4 = [0, 0, 0, 1];
-    format = "RGB";
+    format = FORMAT.RGB;
 
     /**
      * 
      * @param {Array} value The value of the color.
      * @param {String} format The format of the color. Defaults to RGB.
      */
-    constructor(value: number[], format: string) {
+    constructor(value: number[], format: FORMAT) {
         if (value === undefined) value = this.internalValue;
         if (format === undefined) format = this.format;
         this.internalValue = this.processValue(value);
@@ -68,7 +69,7 @@ export class Color {
             case 5: r = v, g = p, b = q; break;
         }
         this.internalValue = [r, g, b, this.internalValue[3]];
-        this.format = "RGB";
+        this.format = FORMAT.RGB;
     }
 
     private RGBtoHSV() {
@@ -90,7 +91,7 @@ export class Color {
         }
 
         this.internalValue = [h, s, v, this.internalValue[3]];
-        this.format = "HSV";
+        this.format = FORMAT.HSV;
     }
 
     get value() { return this.internalValue }
@@ -105,8 +106,8 @@ export class Color {
  * @param {String} easing Optional easing
  * @param {String} format Option to lerp through HSV or RGB
  */
-export function lerpColor(start: Color, end: Color, fraction: number, easing = undefined, format: string = undefined) {
-    if (format !== "RGB" && format !== "HSV") format = "RGB";
+export function lerpColor(start: Color, end: Color, fraction: number, easing = undefined, format: FORMAT = undefined) {
+    if (format !== FORMAT.RGB && format !== FORMAT.HSV) format = FORMAT.RGB;
 
     let returnFormat = start.format;
     if (easing !== undefined) fraction = lerpEasing(easing, fraction);

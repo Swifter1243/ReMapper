@@ -190,12 +190,12 @@ export const PRESET = {
     }
 }
 
-export enum NOTE {
-    // Type
+export enum COLOR {
     RED = 0,
     BLUE = 1,
+}
 
-    // Direction
+export enum CUT {
     UP = 0,
     DOWN = 1,
     LEFT = 2,
@@ -207,10 +207,10 @@ export enum NOTE {
     DOT = 8
 }
 
-export enum WALL {
-    // Type
-    FULL = 0,
-    CROUCH = 1
+export enum ANCHOR_MODE {
+    STRAIGHT = 0,
+    CLOCKWISE = 1,
+    COUNTER_CLOCKWISE = 2
 }
 
 export enum EVENT {
@@ -309,7 +309,7 @@ export let ENV = {
     }
 }
 
-export enum COLOR {
+export enum FORMAT {
     RGB = "RGB",
     HSV = "HSV"
 }
