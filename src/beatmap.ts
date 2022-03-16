@@ -39,15 +39,16 @@ export class Difficulty {
 
         if (this.diffSet === undefined) throw new Error(`The difficulty ${input} does not exist in your Info.dat`)
 
+        // Converting JSON to classes
         for (let i = 0; i < this.notes.length; i++) this.notes[i] = new Note().import(this.notes[i]);
-        for (let i = 0; i < this.obstacles.length; i++) this.obstacles[i] = new Wall().import(this.obstacles[i]);
-        for (let i = 0; i < this.events.length; i++) this.events[i] = new Event().import(this.events[i]);
+        for (let i = 0; i < this.walls.length; i++) this.walls[i] = new Wall().import(this.walls[i]);
+        // for (let i = 0; i < this.events.length; i++) this.events[i] = new Event().import(this.events[i]); TODO: fix this
         if (this.customEvents !== undefined)
             for (let i = 0; i < this.customEvents.length; i++) this.customEvents[i] = new CustomEvent().import(this.customEvents[i]);
         if (this.environment !== undefined)
             for (let i = 0; i < this.environment.length; i++) this.environment[i] = new Environment().import(this.environment[i]);
 
-        if (this.version === undefined) this.version = "2.2.0";
+        if (this.version === undefined) this.version = "3.0.0";
 
         activeDiff = this;
     }
@@ -68,22 +69,22 @@ export class Difficulty {
                 note.offset = note.offset;
             }
             jsonPrune(note.json);
-            outputJSON._notes[i] = note.json;
+            outputJSON.colorNotes[i] = note.json;
         }
-        for (let i = 0; i < this.obstacles.length; i++) {
-            let wall = copy(this.obstacles[i]);
+        for (let i = 0; i < this.walls.length; i++) {
+            let wall = copy(this.walls[i]);
             if (forceJumpsForNoodle && wall.isModded) {
                 wall.NJS = wall.NJS;
                 wall.offset = wall.offset;
             }
             jsonPrune(wall.json);
-            outputJSON._obstacles[i] = wall.json;
+            outputJSON.obstacles[i] = wall.json;
         }
-        for (let i = 0; i < this.events.length; i++) outputJSON._events[i] = copy(this.events[i].json);
+        //for (let i = 0; i < this.events.length; i++) outputJSON._events[i] = copy(this.events[i].json); // TODO: fix these
 
-        sortObjects(outputJSON._events, "_time");
-        sortObjects(outputJSON._notes, "_time");
-        sortObjects(outputJSON._obstacles, "_time");
+        // sortObjects(outputJSON._events, "_time");
+        // sortObjects(outputJSON._notes, "_time");
+        // sortObjects(outputJSON._obstacles, "_time");
 
         if (this.customEvents !== undefined) {
             for (let i = 0; i < this.customEvents.length; i++) outputJSON._customData._customEvents[i] = copy(this.customEvents[i].json);
@@ -210,21 +211,41 @@ export class Difficulty {
     set obstacleColor(value: Vec3) { this.updateSets(this.diffSetMap, "_customData._obstacleColor", this.colorArrayToTuple(value)) }
 
     // Map
-    get version(): string { return jsonGet(this.json, "_version") }
-    get notes(): Note[] { return jsonGet(this.json, "_notes") }
-    get obstacles(): Wall[] { return jsonGet(this.json, "_obstacles") }
-    get events(): EventInternals.AbstractEvent[] { return jsonGet(this.json, "_events") }
-    get waypoints(): any[] { return jsonGet(this.json, "_waypoints") }
+    get version(): string { return jsonGet(this.json, "version") }
+    get bpmChanges(): any[] { return jsonGet(this.json, "bpmEvents") }
+    get rotations(): any[] { return jsonGet(this.json, "rotationEvents") }
+    get notes(): Note[] { return jsonGet(this.json, "colorNotes") }
+    get bombs(): any[] { return jsonGet(this.json, "bombNotes") }
+    get walls(): Wall[] { return jsonGet(this.json, "obstacles") }
+    get arcs(): any[] { return jsonGet(this.json, "sliders") }
+    get chains(): any[] { return jsonGet(this.json, "burstSliders") }
+    get waypoints(): any[] { return jsonGet(this.json, "waypoints") }
+    get basicEvents(): any[] { return jsonGet(this.json, "basicBeatmapEvents") }
+    get boosts(): any[] { return jsonGet(this.json, "colorBoostBeatmapEvents") }
+    get lightGroups(): any[] { return jsonGet(this.json, "lightColorEventBoxGroups") }
+    get lightRotationGroups(): any[] { return jsonGet(this.json, "lightRotationEventBoxGroups") }
+    get eventKeywords(): any[] { return jsonGet(this.json, "basicEventTypesWithKeywords") }
+    get useNormalEvents(): boolean { return jsonGet(this.json, "useNormalEventsAsCompatibleEvents") }
     get customData() { return jsonGet(this.json, "_customData") }
     get customEvents(): CustomEventInternals.BaseEvent[] { return jsonGet(this.json, "_customData._customEvents") }
     get pointDefinitions(): any[] { return jsonGet(this.json, "_customData._pointDefinitions") }
     get environment(): Environment[] { return jsonGet(this.json, "_customData._environment") }
 
-    set version(value: string) { jsonSet(this.json, "_version", value) }
-    set notes(value: Note[]) { jsonSet(this.json, "_notes", value) }
-    set obstacles(value: Wall[]) { jsonSet(this.json, "_obstacles", value) }
-    set events(value: EventInternals.AbstractEvent[]) { jsonSet(this.json, "_events", value) }
-    set waypoints(value: any[]) { jsonSet(this.json, "_waypoints", value) }
+    set version(value: string) { jsonSet(this.json, "version", value) }
+    set bpmChanges(value: any[]) { jsonSet(this.json, "bpmEvents", value) }
+    set rotations(value: any[]) { jsonSet(this.json, "rotationEvents", value) }
+    set notes(value: Note[]) { jsonSet(this.json, "colorNotes", value) }
+    set bombs(value: any[]) { jsonSet(this.json, "bombNotes", value) }
+    set walls(value: Wall[]) { jsonSet(this.json, "obstacles", value) }
+    set arcs(value: any[]) { jsonSet(this.json, "sliders", value) }
+    set chains(value: any[]) { jsonSet(this.json, "burstSliders", value) }
+    set waypoints(value: any[]) { jsonSet(this.json, "waypoints", value) }
+    set basicEvents(value: any[]) { jsonSet(this.json, "basicBeatmapEvents", value) }
+    set boosts(value: any[]) { jsonSet(this.json, "colorBoostBeatmapEvents", value) }
+    set lightGroups(value: any[]) { jsonSet(this.json, "lightColorEventBoxGroups", value) }
+    set lightRotationGroups(value: any[]) { jsonSet(this.json, "lightRotationEventBoxGroups", value) }
+    set eventKeywords(value: any[]) { jsonSet(this.json, "basicEventTypesWithKeywords", value) }
+    set useNormalEvents(value: boolean) { jsonSet(this.json, "useNormalEventsAsCompatibleEvents", value) }
     set customData(value) { jsonSet(this.json, "_customData", value) }
     set customEvents(value: CustomEventInternals.BaseEvent[]) { jsonSet(this.json, "_customData._customEvents", value) }
     set pointDefinitions(value: any[]) { jsonSet(this.json, "_customData._pointDefinitions", value) }

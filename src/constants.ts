@@ -194,7 +194,6 @@ export enum NOTE {
     // Type
     RED = 0,
     BLUE = 1,
-    BOMB = 3,
 
     // Direction
     UP = 0,

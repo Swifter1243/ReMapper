@@ -5,11 +5,12 @@ import { NOTE } from './constants';
 
 export class Note {
     json: any = {
-        _time: 0,
-        _type: 0,
-        _cutDirection: 0,
-        _lineIndex: 0,
-        _lineLayer: 0,
+        b: 0,
+        x: 0,
+        y: 0,
+        a: 0,
+        c: 0,
+        d: 0,
         _customData: {
             _animation: {}
         }
@@ -18,17 +19,19 @@ export class Note {
     animate = new Animation().noteAnimation(this.animation);
 
     /**
-     * Note object for ease of creation
-     * @param {Number} time
+     * Note object for ease of creation.
+     * @param {Number} beat
      * @param {Number} type 
      * @param {Number} direction 
-     * @param {Array} position Array for x and y of the note. If an additional boolean of true is added, it will be converted to a noodle position instead of the vanilla grid.
-     */
-    constructor(time: number = undefined, type: NOTE = undefined, direction: NOTE = undefined, position: [number, number, boolean?] = undefined) {
-        if (time !== undefined) this.time = time;
+     * @param {Array} position Array for x and y of the note. If an additional boolean of true is added, noodle position will be used.
+     * @param {Number} angleOffset
+    */
+    constructor(beat: number = undefined, type: NOTE = undefined, direction: NOTE = undefined, position: [number, number, boolean?] = undefined, angleOffset: number = undefined) {
+        if (beat !== undefined) this.beat = beat;
         if (type !== undefined) this.type = type;
         if (direction !== undefined) this.direction = direction;
         if (position !== undefined) this.position = position;
+        if (angleOffset !== undefined) this.angleOffset = angleOffset;
     }
 
     /**
@@ -62,9 +65,10 @@ export class Note {
         return this;
     }
 
-    get time() { return this.json._time }
-    get type() { return this.json._type }
-    get direction() { return this.json._cutDirection }
+    get beat() { return this.json.b }
+    get angleOffset() { return this.json.a }
+    get type() { return this.json.c }
+    get direction() { return this.json.d }
     get customData() { return this.json._customData }
     get preciseDirection() { return this.json._customData._cutDirection }
     get flip() { return this.json._customData._flip }
@@ -75,7 +79,7 @@ export class Note {
         let isNoodle = false;
         if (this.json._customData._position) isNoodle = true;
 
-        if (!isNoodle) return [this.json._lineIndex, this.json._lineLayer];
+        if (!isNoodle) return [this.json.x, this.json.y];
         else return [...(this.json._customData._position as [number, number]), true];
     }
     get rotation() { return this.json._customData._rotation }
@@ -83,24 +87,25 @@ export class Note {
     get NJS() {
         if (this.json._customData._noteJumpMovementSpeed) return this.json._customData._noteJumpMovementSpeed;
         else return activeDiff.NJS;
-    };
+    }
     get offset() {
         if (this.json._customData._noteJumpStartBeatOffset) return this.json._customData._noteJumpStartBeatOffset;
         else return activeDiff.offset;
-    };
+    }
     get halfJumpDur() { return getJumps(this.NJS, this.offset, info.BPM).halfDur }
     get jumpDist() { return getJumps(this.NJS, this.offset, info.BPM).dist }
     get life() { return this.halfJumpDur * 2 }
-    get lifeStart() { return this.time - this.life / 2 }
+    get lifeStart() { return this.beat - this.life / 2 }
     get fake() { return this.json._customData._fake }
     get interactable() { return this.json._customData._interactable }
     get track() { return this.json._customData._track }
     get color() { return this.json._customData._color }
     get animation() { return this.json._customData._animation }
 
-    set time(value: number) { this.json._time = value }
-    set type(value: number) { this.json._type = value }
-    set direction(value: number) { this.json._cutDirection = value }
+    set beat(value: number) { this.json.b = value }
+    set angleOffset(value: number) { this.json.a = value }
+    set type(value: NOTE) { this.json.c = value }
+    set direction(value: NOTE) { this.json.d = value }
     set customData(value) { this.json._customData = value }
     set preciseDirection(value: number) { this.json._customData._cutDirection = value }
     set flip(value: boolean) { this.json._customData._flip = value }
@@ -112,14 +117,14 @@ export class Note {
         if (value[2] !== undefined) isNoodle = value[2];
 
         if (!isNoodle) {
-            this.json._lineIndex = value[0];
-            this.json._lineLayer = value[1];
+            this.json.x = value[0];
+            this.json.y = value[1];
 
             delete this.json._customData._position;
         }
         else {
-            this.json._lineIndex = 0;
-            this.json._lineLayer = 0;
+            this.json.x = 0;
+            this.json.y = 0;
 
             this.json._customData._position = [value[0] - 0.5, value[1]];
         }
@@ -128,12 +133,12 @@ export class Note {
     set localRotation(value: number[]) { this.json._customData._localRotation = value }
     set NJS(value: number) { this.json._customData._noteJumpMovementSpeed = value }
     set offset(value: number) { this.json._customData._noteJumpStartBeatOffset = value }
-    set life(value: number) { 
+    set life(value: number) {
         if (value < 2) console.log("Warning: The lifespan of a note has a minimum of 2 beats.");
         let defaultJumps = getJumps(this.NJS, 0, info.BPM);
         this.offset = (value - (2 * defaultJumps.halfDur)) / 2;
     };
-    set lifeStart(value: number) { this.time = value + this.life / 2 }
+    set lifeStart(value: number) { this.beat = value + this.life / 2 }
     set fake(value: boolean) { this.json._customData._fake = value }
     set interactable(value: boolean) { this.json._customData._interactable = value }
     set track(value: string) { this.json._customData._track = value }

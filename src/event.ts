@@ -22,7 +22,7 @@ export namespace EventInternals {
         * Push this event to the difficulty
         */
         push() {
-            activeDiff.events.push(copy(this) as any);
+            // activeDiff.events.push(copy(this) as any); TODO: fix this
             return this;
         }
 
