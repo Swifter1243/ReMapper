@@ -1,6 +1,6 @@
 import { activeDiff, info } from './beatmap';
 import { Animation, AnimationInternals } from './animation';
-import { isEmptyObject, getJumps, copy, jsonPrune } from './general';
+import { isEmptyObject, getJumps, copy, jsonPrune, Vec2 } from './general';
 import { ANCHOR_MODE, COLOR, CUT } from './constants';
 
 export class Note {
@@ -341,7 +341,7 @@ export class Arc {
      */
     import(json) {
         this.json = json;
-        // if (this.customData === undefined) this.customData = {};
+        // if (this.customData === undefined) this.customData = {}; TODO: deal with the modded stuff in this class
         // if (this.animation === undefined) this.animation = {};
         // this.animate = new Animation().noteAnimation(this.animation);
         return this;
@@ -374,4 +374,80 @@ export class Arc {
     set headLength(value: number) { this.json.mu = value }
     set tailLength(value: number) { this.json.tmu = value }
     set midAnchorMode(value: number) { this.json.m = value }
+}
+
+export class Chain {
+    json: any = {
+        b: 0,
+        c: 0,
+        x: 0,
+        y: 0,
+        d: 0,
+        tb: 0,
+        tx: 0,
+        ty: 0,
+        sc: 4,
+        s: 1
+    };
+
+    /**
+     * Arc object for ease of creation.
+     * @param {Number} type 
+     * @param {Number} direction 
+     * @param {Array} head [beat, x, y]. Only beat is required.
+     * @param {Array} tail [beat, x, y]. Only beat is required.
+     * @param {Number} slices 
+     * @param {Number} squish 
+     */
+    constructor(type: COLOR = undefined, direction: CUT = undefined, head: [number, number?, number?] = undefined, tail: [number, number?, number?] = undefined, slices: number = undefined, squish: number = undefined) {
+        if (type !== undefined) this.type = type;
+        if (direction !== undefined) this.direction = direction;
+        if (head !== undefined) {
+            this.beats = [head[0], this.beats[1]];
+            if (head[1] !== undefined && head[2] !== undefined) this.headPos = [head[1], head[2]];
+        }
+        if (tail !== undefined) {
+            this.beats = [this.beats[1], tail[0]];
+            if (tail[1] !== undefined && tail[2] !== undefined) this.tailPos = [tail[1], tail[2]];
+        }
+        if (slices !== undefined) this.slices = slices;
+        if (squish !== undefined) this.squish = squish;
+    }
+
+    /**
+     * Create a note using JSON.
+     * @param {Object} json 
+     * @returns {Note}
+     */
+    import(json) {
+        this.json = json;
+        // if (this.customData === undefined) this.customData = {}; TODO: deal with the modded stuff in this class
+        // if (this.animation === undefined) this.animation = {};
+        // this.animate = new Animation().noteAnimation(this.animation);
+        return this;
+    }
+
+    /**
+     * Push this arc to the difficulty
+     */
+    push() {
+        activeDiff.chains.push(copy(this));
+        return this;
+    }
+
+    get beats(): Vec2 { return [this.json.b, this.json.tb] }
+    get type(): COLOR { return this.json.c }
+    get headPos(): Vec2 { return [this.json.x, this.json.y] }
+    get direction(): CUT { return this.json.d }
+    get tailPos(): Vec2 { return [this.json.tx, this.json.ty] }
+    get slices(): number { return this.json.sc }
+    get squish(): number { return this.json.s }
+
+    set beats(value: Vec2) { this.json.b = value[0], this.json.tb = value[1] }
+    set type(value: COLOR) { this.json.c = value }
+    set headPos(value: Vec2) { this.json.x = value[0], this.json.y = value[1] }
+    set direction(value: CUT) { this.json.d = value }
+    set tailPos(value: Vec2) { this.json.tx = value[0], this.json.ty = value[1] }
+    set slices(value: number) { this.json.d = value }
+    set squish(value: number) { this.json.d = value }
 }

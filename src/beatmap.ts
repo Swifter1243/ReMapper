@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import { Arc, Bomb, Note } from './note';
+import { Arc, Bomb, Chain, Note } from './note';
 import { Wall } from './wall';
 import { Event, EventInternals } from './event';
 import { CustomEvent, CustomEventInternals } from './custom_event';
@@ -42,7 +42,8 @@ export class Difficulty {
         // Converting JSON to classes
         for (let i = 0; i < this.notes.length; i++) this.notes[i] = new Note().import(this.notes[i]);
         for (let i = 0; i < this.bombs.length; i++) this.bombs[i] = new Bomb().import(this.bombs[i]);
-        for (let i = 0; i < this.arcs.length; i++) this.arcs[i] = new Arc().import(this.notes[i]);
+        for (let i = 0; i < this.arcs.length; i++) this.arcs[i] = new Arc().import(this.arcs[i]);
+        for (let i = 0; i < this.chains.length; i++) this.chains[i] = new Chain().import(this.chains[i]);
         for (let i = 0; i < this.walls.length; i++) this.walls[i] = new Wall().import(this.walls[i]);
         // for (let i = 0; i < this.events.length; i++) this.events[i] = new Event().import(this.events[i]); TODO: fix this
         if (this.customEvents !== undefined)
@@ -90,6 +91,15 @@ export class Difficulty {
             // }
             jsonPrune(arc.json);
             outputJSON.sliders[i] = arc.json;
+        }
+        for (let i = 0; i < this.chains.length; i++) {
+            let chain = copy(this.chains[i]);
+            // if (forceJumpsForNoodle && note.isModded) {
+            //     note.NJS = note.NJS;
+            //     note.offset = note.offset;
+            // }
+            jsonPrune(chain.json);
+            outputJSON.burstSliders[i] = chain.json;
         }
         for (let i = 0; i < this.walls.length; i++) {
             let wall = copy(this.walls[i]);
@@ -237,10 +247,10 @@ export class Difficulty {
     get bpmChanges(): any[] { return jsonGet(this.json, "bpmEvents") }
     get rotations(): any[] { return jsonGet(this.json, "rotationEvents") }
     get notes(): Note[] { return jsonGet(this.json, "colorNotes") }
-    get bombs(): any[] { return jsonGet(this.json, "bombNotes") }
+    get bombs(): Bomb[] { return jsonGet(this.json, "bombNotes") }
     get walls(): Wall[] { return jsonGet(this.json, "obstacles") }
     get arcs(): Arc[] { return jsonGet(this.json, "sliders") }
-    get chains(): any[] { return jsonGet(this.json, "burstSliders") }
+    get chains(): Chain[] { return jsonGet(this.json, "burstSliders") }
     get waypoints(): any[] { return jsonGet(this.json, "waypoints") }
     get basicEvents(): any[] { return jsonGet(this.json, "basicBeatmapEvents") }
     get boosts(): any[] { return jsonGet(this.json, "colorBoostBeatmapEvents") }
@@ -257,10 +267,10 @@ export class Difficulty {
     set bpmChanges(value: any[]) { jsonSet(this.json, "bpmEvents", value) }
     set rotations(value: any[]) { jsonSet(this.json, "rotationEvents", value) }
     set notes(value: Note[]) { jsonSet(this.json, "colorNotes", value) }
-    set bombs(value: any[]) { jsonSet(this.json, "bombNotes", value) }
+    set bombs(value: Bomb[]) { jsonSet(this.json, "bombNotes", value) }
     set walls(value: Wall[]) { jsonSet(this.json, "obstacles", value) }
     set arcs(value: Arc[]) { jsonSet(this.json, "sliders", value) }
-    set chains(value: any[]) { jsonSet(this.json, "burstSliders", value) }
+    set chains(value: Chain[]) { jsonSet(this.json, "burstSliders", value) }
     set waypoints(value: any[]) { jsonSet(this.json, "waypoints", value) }
     set basicEvents(value: any[]) { jsonSet(this.json, "basicBeatmapEvents", value) }
     set boosts(value: any[]) { jsonSet(this.json, "colorBoostBeatmapEvents", value) }

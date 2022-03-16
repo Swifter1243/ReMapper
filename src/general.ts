@@ -8,6 +8,7 @@ import { activeDiff } from './beatmap';
 import { Note } from './note';
 import { EventInternals } from './event';
 
+export type Vec2 = [number, number];
 export type Vec3 = [number, number, number];
 export type Vec4 = [number, number, number, number];
 
