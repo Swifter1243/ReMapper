@@ -4,7 +4,7 @@ import { Wall } from './wall';
 import { Event, EventInternals } from './event';
 import { CustomEvent, CustomEventInternals } from './custom_event';
 import { Environment } from './environment';
-import { copy, jsonGet, jsonPrune, jsonRemove, jsonSet, sortObjects, Vec3 } from './general';
+import { copy, isEmptyObject, jsonGet, jsonPrune, jsonRemove, jsonSet, sortObjects, Vec3 } from './general';
 
 export class Difficulty {
     json;
@@ -158,7 +158,7 @@ export class Difficulty {
 
     private updateSets(object, property: string, value) {
         jsonSet(object, property, value);
-        jsonPrune(object);
+        if (!isEmptyObject(value)) jsonPrune(this.diffSetMap);
         info.save();
     }
 
