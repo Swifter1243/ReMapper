@@ -5,7 +5,7 @@ import { Event, EventInternals } from './basicEvent';
 import { CustomEvent, CustomEventInternals } from './custom_event';
 import { Environment } from './environment';
 import { copy, jsonGet, jsonPrune, jsonRemove, jsonSet, sortObjects, Vec3 } from './general';
-import { BPMChange } from './event';
+import { BPMChange, Rotation } from './event';
 
 export class Difficulty {
     json;
@@ -42,6 +42,7 @@ export class Difficulty {
 
         // Converting JSON to classes
         for (let i = 0; i < this.BPMChanges.length; i++) this.BPMChanges[i] = new BPMChange().import(this.BPMChanges[i]);
+        for (let i = 0; i < this.rotations.length; i++) this.rotations[i] = new Rotation().import(this.rotations[i]);
         for (let i = 0; i < this.notes.length; i++) this.notes[i] = new Note().import(this.notes[i]);
         for (let i = 0; i < this.bombs.length; i++) this.bombs[i] = new Bomb().import(this.bombs[i]);
         for (let i = 0; i < this.arcs.length; i++) this.arcs[i] = new Arc().import(this.arcs[i]);
@@ -68,6 +69,7 @@ export class Difficulty {
         let outputJSON = copy(this.json);
 
         for (let i = 0; i < this.BPMChanges.length; i++) outputJSON.bpmEvents[i] = this.BPMChanges[i].json;
+        for (let i = 0; i < this.rotations.length; i++) outputJSON.rotationEvents[i] = this.rotations[i].json;
         for (let i = 0; i < this.notes.length; i++) {
             let note = copy(this.notes[i]);
             if (forceJumpsForNoodle && note.isModded) {
@@ -116,6 +118,8 @@ export class Difficulty {
         //for (let i = 0; i < this.events.length; i++) outputJSON._events[i] = copy(this.events[i].json); // TODO: fix these
 
         // sortObjects(outputJSON._events, "_time");
+        sortObjects(outputJSON.bpmEvents, "b");
+        sortObjects(outputJSON.rotationEvents, "b");
         sortObjects(outputJSON.colorNotes, "b");
         sortObjects(outputJSON.bombNotes, "b");
         sortObjects(outputJSON.sliders, "b");
@@ -248,7 +252,7 @@ export class Difficulty {
     // Map
     get version(): string { return jsonGet(this.json, "version") }
     get BPMChanges(): BPMChange[] { return jsonGet(this.json, "bpmEvents") }
-    get rotations(): any[] { return jsonGet(this.json, "rotationEvents") }
+    get rotations(): Rotation[] { return jsonGet(this.json, "rotationEvents") }
     get notes(): Note[] { return jsonGet(this.json, "colorNotes") }
     get bombs(): Bomb[] { return jsonGet(this.json, "bombNotes") }
     get walls(): Wall[] { return jsonGet(this.json, "obstacles") }
@@ -268,7 +272,7 @@ export class Difficulty {
 
     set version(value: string) { jsonSet(this.json, "version", value) }
     set BPMChanges(value: BPMChange[]) { jsonSet(this.json, "bpmEvents", value) }
-    set rotations(value: any[]) { jsonSet(this.json, "rotationEvents", value) }
+    set rotations(value: Rotation[]) { jsonSet(this.json, "rotationEvents", value) }
     set notes(value: Note[]) { jsonSet(this.json, "colorNotes", value) }
     set bombs(value: Bomb[]) { jsonSet(this.json, "bombNotes", value) }
     set walls(value: Wall[]) { jsonSet(this.json, "obstacles", value) }
