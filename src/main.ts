@@ -18,6 +18,7 @@ export * from './light_remapper';
 * Update general functions to not be broken
 * Add a function for converting cut direction to a rotation
 * When mods are released, add modded properties to new classes
+* Also add new animations
 
 * simplify some functions by moving portions of their responsibilities to other functions or cleaning
 *   - Example being getValuesAtTime (possbily rename to InterpolateValues)
