@@ -317,7 +317,7 @@ export class Arc {
      * @param {Array} tail [beat, x, y, direction, length]. Only beat is required.
      * @param {Number} midAnchorMode 
      */
-    constructor(type: COLOR = undefined, head: [number, number?, number?, CUT?, number?] = undefined, tail: [number, number?, number?, CUT?, number?] = undefined, midAnchorMode: ANCHOR_MODE = undefined) {
+    constructor(head: [number, number?, number?, CUT?, number?] = undefined, tail: [number, number?, number?, CUT?, number?] = undefined, type: COLOR = undefined, midAnchorMode: ANCHOR_MODE = undefined) {
         if (type !== undefined) this.type = type;
         if (head !== undefined) {
             this.beats = [head[0], this.beats[1]];
@@ -326,7 +326,7 @@ export class Arc {
             if (head[4] !== undefined) this.headLength = head[4];
         }
         if (tail !== undefined) {
-            this.beats = [this.beats[1], tail[0]];
+            this.beats = [this.beats[0], tail[0]];
             if (tail[1] !== undefined && tail[2] !== undefined) this.tailPos = [tail[1], tail[2]];
             if (tail[3] !== undefined) this.tailDirection = tail[3];
             if (tail[4] !== undefined) this.tailLength = tail[4];
@@ -399,7 +399,7 @@ export class Chain {
      * @param {Number} slices 
      * @param {Number} squish 
      */
-    constructor(type: COLOR = undefined, direction: CUT = undefined, head: [number, number?, number?] = undefined, tail: [number, number?, number?] = undefined, slices: number = undefined, squish: number = undefined) {
+    constructor(head: [number, number?, number?] = undefined, tail: [number, number?, number?] = undefined, type: COLOR = undefined, direction: CUT = undefined,  slices: number = undefined, squish: number = undefined) {
         if (type !== undefined) this.type = type;
         if (direction !== undefined) this.direction = direction;
         if (head !== undefined) {
@@ -407,7 +407,7 @@ export class Chain {
             if (head[1] !== undefined && head[2] !== undefined) this.headPos = [head[1], head[2]];
         }
         if (tail !== undefined) {
-            this.beats = [this.beats[1], tail[0]];
+            this.beats = [this.beats[0], tail[0]];
             if (tail[1] !== undefined && tail[2] !== undefined) this.tailPos = [tail[1], tail[2]];
         }
         if (slices !== undefined) this.slices = slices;
@@ -448,6 +448,6 @@ export class Chain {
     set headPos(value: Vec2) { this.json.x = value[0], this.json.y = value[1] }
     set direction(value: CUT) { this.json.d = value }
     set tailPos(value: Vec2) { this.json.tx = value[0], this.json.ty = value[1] }
-    set slices(value: number) { this.json.d = value }
-    set squish(value: number) { this.json.d = value }
+    set slices(value: number) { this.json.sc = value }
+    set squish(value: number) { this.json.s = value }
 }
