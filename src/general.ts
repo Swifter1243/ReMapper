@@ -347,12 +347,12 @@ export function jsonPrune(obj: object) {
 * Get a property of an object.
 * @param {Object} obj 
 * @param {String} prop
-* @param {boolean?} init Optional value to initialize the property if it doesn't exist yet.
+* @param {Any?} init Optional value to initialize the property if it doesn't exist yet.
 */
-export function jsonGet(obj: object, prop: string, init?: boolean) {
+export function jsonGet(obj: object, prop: string, init?: any) {
 
     // If the property doesn't exist, initialize it.
-    if (init) jsonFill(obj, prop);
+    if (init != null) jsonFill(obj, prop, init);
     
     // Fetch the property based on the path/prop.
     const steps = prop.split('.')
@@ -371,13 +371,15 @@ export function jsonGet(obj: object, prop: string, init?: boolean) {
 * @param {Object} obj 
 * @param {String} prop
 */
-export function jsonFill(obj: object, prop: string) {
+export function jsonFill(obj: object, prop: string, value: any) {
     const steps = prop.split('.');
 
     // Create empty objects along the path
     const nestedObject = [...steps]
         .reverse()
-        .reduce((prev, current) => ( {[current]: {...prev}} ), {});
+        .reduce((prev, current, i) => {
+            return i === 0? { [current]: value } : { [current]: prev };
+        }, {});
     
     // Merge the original object into the nested object (if the original object is empty, it will just take the nested object)
     obj[steps[0]] = Object.assign({}, nestedObject[steps[0]], obj[steps[0]]);
