@@ -368,8 +368,9 @@ export function jsonGet(obj: object, prop: string, init?: any) {
 
 /**
 * Fill the object with empty properties along the path of prop.
-* @param {Object} obj 
+* @param {Object} obj
 * @param {String} prop
+* @param {Any} value
 */
 export function jsonFill(obj: object, prop: string, value: any) {
     const steps = prop.split('.');
