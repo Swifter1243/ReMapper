@@ -150,9 +150,10 @@ export class Difficulty {
     /**
      * Set a setting.
      * @param {String} setting The path of the setting.
-     * @param {*} value The value of the setting, leave blank to remove setting.
+     * @param {Any} value The value of the setting, leave blank to remove setting.
      */
-    setSetting(setting: string, value = undefined) {
+    setSetting(setting: string, value: any = undefined) {
+        //console.log("hi", this.settings);
         this.updateSets(this.settings, setting, value);
     }
 
@@ -173,7 +174,7 @@ export class Difficulty {
     get diffRank(): number { return jsonGet(this.diffSetMap, "_difficultyRank") }
     get requirements(): string[] { return jsonGet(this.diffSetMap, "_customData._requirements") }
     get suggestions(): string[] { return jsonGet(this.diffSetMap, "_customData._suggestions") }
-    get settings(): string[] { return jsonGet(this.diffSetMap, "_customData._settings") }
+    get settings(): string[] { return jsonGet(this.diffSetMap, "_customData._settings", true) }
     get warnings(): string[] { return jsonGet(this.diffSetMap, "_customData._warnings") }
     get information(): string[] { return jsonGet(this.diffSetMap, "_customData._information") }
     get label(): string { return jsonGet(this.diffSetMap, "_customData._difficultyLabel") }
