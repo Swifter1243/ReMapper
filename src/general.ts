@@ -275,6 +275,7 @@ export function copy<T>(obj: T): T {
  * @returns {Boolean}
  */
 export function isEmptyObject(o: object) {
+    if (typeof o !== "object") return false;
     return Object.keys(o).length === 0;
 }
 
