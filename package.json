@@ -16,18 +16,21 @@
     "@tsconfig/node16": "^1.0.2",
     "@types/chai": "^4.3.0",
     "@types/mocha": "^9.1.0",
-    "@types/node": "^17.0.16",
+    "@types/node": "^17.0.21",
     "chai": "^4.3.6",
+    "cross-env": "^5.2.0",
     "docdash": "^1.2.0",
     "jsdoc": "^3.6.10",
     "jsdoc-plugin-typescript": "^2.0.6",
     "mocha": "^9.2.2",
+    "nyc": "^14.1.1",
     "ts-node": "^10.7.0",
     "typescript": "^4.6.2"
   },
   "scripts": {
     "prepublishOnly": "tsc",
     "generate-docs": "jsdoc -c jsdoc.json",
-    "test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -r ts-node/register 'tests/**/*.ts'"
+    "test": "cross-env TS_NODE_FILES=true mocha --exit --require ts-node/register --colors test test/**/*.ts",
+    "coverage": "nyc npm run test"
   }
 }
