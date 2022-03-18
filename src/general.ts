@@ -327,6 +327,10 @@ export function toDegrees(values: number[]) {
  */
 export function jsonPrune(obj: object) {
     for (let prop in obj) {
+        if (obj[prop] == null) {
+            delete obj[prop];
+            continue;
+        }
         const type = typeof obj[prop];
         if (type === "object") {
             if (Array.isArray(obj[prop])) {
@@ -342,7 +346,6 @@ export function jsonPrune(obj: object) {
         } else if (type === "string" && obj[prop].length === 0) {
             delete obj[prop];
         }
-        if (type === "undefined") delete obj[prop];
     }
 }
 
