@@ -388,7 +388,7 @@ export function jsonSet(obj: object, prop: string, value) {
  */
 export function jsonCheck(obj: object, prop: string) {
     let value = jsonGet(obj, prop);
-    if (value !== undefined) return true;
+    if (value != null) return true;
     return false;
 }
 
