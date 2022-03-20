@@ -60,7 +60,7 @@ export namespace AnimationInternals {
          * @param {*} value 
          */
         add(property: string, value) {
-            value = complexifyArray(this.convert(value));
+            value = this.convert(complexifyArray(value));
             let concatArray = value.concat(complexifyArray(this.json[property]));
             let newValue = simplifyArray(concatArray.sort((a, b) => new Keyframe(a).time - new Keyframe(b).time));
             this.json[property] = newValue;
@@ -95,6 +95,7 @@ export namespace AnimationInternals {
             return value.map(x => {
                 let time = new Keyframe(x).timeIndex;
                 x[time] = this.convertTime(x[time]);
+                return x;
             })
         }
 

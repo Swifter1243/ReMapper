@@ -4,7 +4,7 @@ import { Wall } from './wall';
 import { Event, EventInternals } from './event';
 import { CustomEvent, CustomEventInternals } from './custom_event';
 import { Environment } from './environment';
-import { copy, jsonGet, jsonPrune, jsonRemove, jsonSet, sortObjects, Vec3 } from './general';
+import { copy, isEmptyObject, jsonGet, jsonPrune, jsonRemove, jsonSet, sortObjects, Vec3 } from './general';
 
 export class Difficulty {
     json;
@@ -153,12 +153,13 @@ export class Difficulty {
      * @param {*} value The value of the setting, leave blank to remove setting.
      */
     setSetting(setting: string, value = undefined) {
+        if (this.settings === undefined) this.settings = {};
         this.updateSets(this.settings, setting, value);
     }
 
     private updateSets(object, property: string, value) {
         jsonSet(object, property, value);
-        jsonPrune(object);
+        if (!isEmptyObject(value)) jsonPrune(this.diffSetMap);
         info.save();
     }
 
@@ -173,7 +174,7 @@ export class Difficulty {
     get diffRank(): number { return jsonGet(this.diffSetMap, "_difficultyRank") }
     get requirements(): string[] { return jsonGet(this.diffSetMap, "_customData._requirements") }
     get suggestions(): string[] { return jsonGet(this.diffSetMap, "_customData._suggestions") }
-    get settings(): string[] { return jsonGet(this.diffSetMap, "_customData._settings") }
+    get settings(): any { return jsonGet(this.diffSetMap, "_customData._settings") }
     get warnings(): string[] { return jsonGet(this.diffSetMap, "_customData._warnings") }
     get information(): string[] { return jsonGet(this.diffSetMap, "_customData._information") }
     get label(): string { return jsonGet(this.diffSetMap, "_customData._difficultyLabel") }
@@ -195,7 +196,7 @@ export class Difficulty {
     set diffRank(value: number) { this.updateSets(this.diffSetMap, "_difficultyRank", value) }
     set requirements(value: string[]) { this.updateSets(this.diffSetMap, "_customData._requirements", value) }
     set suggestions(value: string[]) { this.updateSets(this.diffSetMap, "_customData._suggestions", value) }
-    set settings(value: string[]) { this.updateSets(this.diffSetMap, "_customData._settings", value) }
+    set settings(value: any) { this.updateSets(this.diffSetMap, "_customData._settings", value) }
     set warnings(value: string[]) { this.updateSets(this.diffSetMap, "_customData._warnings", value) }
     set information(value: string[]) { this.updateSets(this.diffSetMap, "_customData._information", value) }
     set label(value: string) { this.updateSets(this.diffSetMap, "_customData._difficultyLabel", value) }
