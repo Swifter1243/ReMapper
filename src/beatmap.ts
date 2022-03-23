@@ -1,3 +1,4 @@
+import path from 'path';
 import * as fs from 'fs';
 import { Note } from './note';
 import { Wall } from './wall';
@@ -19,6 +20,10 @@ export class Difficulty {
      * @param {String} input Filename for the output. If left blank, input will be used.
      */
     constructor(input: string, output: string = undefined) {
+
+        if (input.includes(path.sep))
+            info = new Info(path.dirname(input));
+
         this.mapFile = input;
         if (output !== undefined) {
             if (!fs.existsSync(output)) throw new Error(`The file ${output} does not exist`)
@@ -236,14 +241,14 @@ export class Info {
     json;
     fileName = "Info.dat";
 
-    constructor() {
-        let fileName = this.fileName;
+    constructor(path?: string) {
+        let fileName = path ?? this.fileName;
         if (fs.existsSync(fileName)) {
             this.json = JSON.parse(fs.readFileSync(fileName, "utf-8"));
             this.fileName = fileName;
         }
         else {
-            throw new Error(`The file "${fileName}" does not exist. Please call "change()" if your Info.dat file is named differently.`)
+            throw new Error(`The file "${fileName}" does not exist.`)
         }
     }
 
@@ -302,7 +307,7 @@ export class Info {
     set customEnvironmentHash(value) { this.updateInfo(this.json, "_customData._customEnvironmentHash", value) }
 }
 
-export let info = new Info();
+export let info: Info;
 export let activeDiff: Difficulty;
 export let forceJumpsForNoodle = true;
 
