@@ -1,7 +1,8 @@
-import { combineAnimations, Animation, Keyframe, AnimationInternals, TrackValue, Track } from './animation';
+import { combineAnimations, Keyframe, AnimationInternals, TrackValue, Track } from './animation';
 import { activeDiff } from './beatmap';
 import { Vec3, debugWall, copy, rotatePoint } from './general';
 import { CustomEvent, CustomEventInternals } from './custom_event';
+import { LOOKUP } from './constants';
 
 let envCount = 0;
 let blenderEnvCount = 0;
@@ -22,9 +23,9 @@ export class Environment {
      * @param {String} id 
      * @param {String} lookupMethod 
      */
-    constructor(id: string = undefined, lookupMethod: string = undefined) {
+    constructor(id: string = undefined, lookupMethod: LOOKUP = undefined) {
         id ??= "";
-        lookupMethod ??= "";
+        lookupMethod ??= LOOKUP.CONTAINS;
         this.id = id;
         this.lookupMethod = lookupMethod;
     }
@@ -73,7 +74,7 @@ export class Environment {
     }
 
     set id(value: string) { this.json._id = value }
-    set lookupMethod(value: string) { this.json._lookupMethod = value }
+    set lookupMethod(value: LOOKUP) { this.json._lookupMethod = value }
     set duplicate(value: number) { this.json._duplicate = value }
     set active(value: boolean) { this.json._active = value }
     set scale(value: number[]) { this.json._scale = value }
@@ -227,7 +228,7 @@ export namespace BlenderEnvironmentInternals {
 export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderEnvironment {
     id: string;
     trackID: number;
-    lookupMethod: string;
+    lookupMethod: LOOKUP;
     assigned: BlenderEnvironmentInternals.BlenderAssigned[] = [];
     objectAmounts: number[][] = [];
     maxObjects: number = 0;
@@ -237,7 +238,7 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
     * @param {Array} scale The scale of the object relative to a noodle unit cube.
     * @param {Array} anchor The anchor point of rotation on the object, 1 = length of object on that axis.
     */
-    constructor(scale: Vec3, anchor: Vec3, id: string = undefined, lookupMethod: string = undefined) {
+    constructor(scale: Vec3, anchor: Vec3, id: string = undefined, lookupMethod: LOOKUP = undefined) {
         super(scale, anchor)
         this.id = id;
         this.lookupMethod = lookupMethod;

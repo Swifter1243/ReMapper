@@ -315,14 +315,22 @@ export enum COLOR {
     HSV = "HSV"
 }
 
-export const SW_SCRIPT = `
+export enum LOOKUP {
+    CONTAINS = "Contains",
+    REGEX = "Regex",
+    EXACT = "Exact"
+}
+
+/*
+ScuffedWalls Script:
 0:Run
   Script:script.ts
   RunBefore: false
   RefreshOnSave: true`
 
-export const SW_MODEL = `
+ScuffedWalls Model:
 0:ModelToWall
   Path:model.dae
   Track:model
-  Type:3`
+  Type:3
+  */
