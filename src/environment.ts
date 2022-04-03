@@ -1,4 +1,4 @@
-import { combineAnimations, Animation, Keyframe, AnimationInternals } from './animation';
+import { combineAnimations, Animation, Keyframe, AnimationInternals, TrackValue, Track } from './animation';
 import { activeDiff } from './beatmap';
 import { Vec3, debugWall, copy, rotatePoint } from './general';
 import { CustomEvent, CustomEventInternals } from './custom_event';
@@ -43,7 +43,7 @@ export class Environment {
      * Push this environment object to the difficulty
      */
     push() {
-        if (this.group && this.track === undefined) this.track = `environment${envCount}`;
+        if (this.group && this.track === undefined) this.trackSet = `environment${envCount}`;
         envCount++;
         if (activeDiff.environment === undefined) activeDiff.environment = [];
         activeDiff.environment.push(copy(this));
@@ -60,7 +60,7 @@ export class Environment {
     get rotation() { return this.json._rotation }
     get localRotation() { return this.json._localRotation }
     get lightID() { return this.json._lightID }
-    get track() { return this.json._track }
+    get track() { return new Track(this.json._track) }
     get group() { return this.json._group }
     get animationProperties() {
         let returnObj: any = {};
@@ -82,7 +82,7 @@ export class Environment {
     set rotation(value: number[]) { this.json._rotation = value }
     set localRotation(value: number[]) { this.json._localRotation = value }
     set lightID(value: number) { this.json._lightID = value }
-    set track(value: string) { this.json._track = value }
+    set trackSet(value: TrackValue) { this.json._track = value }
     set group(value: string) { this.json._group = value }
 }
 
@@ -367,7 +367,7 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
             let envObject = new Environment(this.id, this.lookupMethod);
             envObject.position = [0, -69420, 0];
             envObject.duplicate = 1;
-            envObject.track = this.getPieceTrack(i);
+            envObject.trackSet = this.getPieceTrack(i);
             if (forEnvSpawn !== undefined) forEnvSpawn(envObject);
             envObject.push();
         }
@@ -400,7 +400,7 @@ export function animateEnvGroup(group: string, time: number, duration: number, a
                 if (x.json[key]) newAnimation[key] = combineAnimations(newAnimation[key], x.json[key], key);
             })
 
-            new CustomEvent(time).animateTrack(x.track, duration, newAnimation, easing).push();
+            new CustomEvent(time).animateTrack(x.track.value as string, duration, newAnimation, easing).push();
         }
     })
 }
@@ -415,7 +415,7 @@ export function animateEnvGroup(group: string, time: number, duration: number, a
  */
 export function animateEnvTrack(track: string, time: number, duration: number, animation: AnimationInternals.BaseAnimation, easing: string = undefined) {
     if (activeDiff.environment !== undefined) activeDiff.environment.forEach(x => {
-        if (x.track === track) {
+        if (x.track.has(track)) {
             let newAnimation = copy(animation.json);
 
             Object.keys(newAnimation).forEach(key => {
@@ -432,7 +432,7 @@ function getTrackData(track: string): any[] {
         trackData[track] = [];
         for (let i = 0; i < activeDiff.notes.length; i++) {
             let note = activeDiff.notes[i];
-            if (note.track === track) {
+            if (note.track.has(track)) {
                 trackData[track].push(note.animation);
                 activeDiff.notes.splice(i, 1);
                 i--;

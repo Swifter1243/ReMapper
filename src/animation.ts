@@ -12,6 +12,7 @@ export type KeyframesAny = number[] | KeyframeValues[] | string;
 export type KeyframeValues = (number | EASE | SPLINE)[];
 export type KeyframeArray = KeyframeValues[];
 
+export type TrackValue = string | string[];
 export namespace AnimationInternals {
     export class BaseAnimation {
         json = {};
@@ -287,6 +288,35 @@ export class Keyframe {
         if (this.easing !== undefined) output.push(this.easing);
         if (this.spline !== undefined) output.push(this.spline);
         return output;
+    }
+}
+
+export class Track {
+    value: TrackValue;
+
+    /**
+     * Handler for the track property.
+     * @param {TrackValue} value 
+     */
+    constructor(value: TrackValue) { this.value = value }
+
+    /**
+     * Safely check if either the array contains this value or the track is equal to this value.
+     * @param {String} value 
+     * @returns 
+     */
+    has(value: string) {
+        if (typeof this.value === "string") return this.value === value;
+        else return this.value.some(x => x === value);
+    }
+
+    /**
+     * Safely add a track.
+     * @param value 
+     */
+    add(value: string) {
+        if (typeof this.value === "string") this.value = [this.value];
+        if (!this.value.includes(value)) this.value.push(value);
     }
 }
 

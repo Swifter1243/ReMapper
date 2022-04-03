@@ -1,6 +1,6 @@
 import * as general from './general';
 import { activeDiff } from './beatmap';
-import { AnimationInternals, Animation } from './animation';
+import { AnimationInternals, Animation, TrackValue, Track } from './animation';
 
 export namespace CustomEventInternals {
     export class BaseEvent {
@@ -40,9 +40,9 @@ export namespace CustomEventInternals {
     export class AnimateTrack extends BaseEvent {
         animate: AnimationInternals.AbstractAnimation;
 
-        constructor(json: object, track: string, duration: number, animation: object, easing: string) {
+        constructor(json: object, track: TrackValue, duration: number, animation: object, easing: string) {
             super(json);
-            this.track = track;
+            this.trackSet = track;
             this.duration = duration;
             this.type = "AnimateTrack";
             this.setProperties(animation);
@@ -59,7 +59,7 @@ export namespace CustomEventInternals {
             let oldData = general.copy(this.data);
 
             Object.keys(this.data).forEach(key => { delete this.data[key] });
-            this.track = oldData._track;
+            this.trackSet = oldData._track;
             this.duration = oldData._duration;
             if (oldData._easing) this.easing = oldData._easing;
 
@@ -85,11 +85,11 @@ export namespace CustomEventInternals {
         */
         abstract() { return new CustomEvent().import(this.json) }
 
-        get track() { return this.data._track }
+        get track() { return new Track(this.data._track) }
         get duration() { return this.data._duration }
         get easing() { return this.data._easing }
 
-        set track(value) { this.data._track = value }
+        set trackSet(value: TrackValue) { this.data._track = value }
         set duration(value) { this.data._duration = value }
         set easing(value) { this.data._easing = value }
     }
@@ -100,7 +100,7 @@ export namespace CustomEventInternals {
         constructor(json: object, track: string, duration: number, animation: object, easing: string) {
             super(json);
             this.type = "AssignPathAnimation";
-            this.track = track;
+            this.trackSet = track;
             this.duration = duration;
             this.setProperties(animation);
             this.animate = new Animation().abstract(this.data);
@@ -116,7 +116,7 @@ export namespace CustomEventInternals {
             let oldData = general.copy(this.data);
 
             Object.keys(this.data).forEach(key => { delete this.data[key] });
-            this.track = oldData._track;
+            this.trackSet = oldData._track;
             this.duration = oldData._duration;
             if (oldData._easing) this.easing = oldData._easing;
 
@@ -142,11 +142,11 @@ export namespace CustomEventInternals {
         */
         abstract() { return new CustomEvent().import(this.json) }
 
-        get track() { return this.data._track }
+        get track() { return new Track(this.data._track) }
         get duration() { return this.data._duration }
         get easing() { return this.data._easing }
 
-        set track(value) { this.data._track = value }
+        set trackSet(value: TrackValue) { this.data._track = value }
         set duration(value) { this.data._duration = value }
         set easing(value) { this.data._easing = value }
     }
@@ -180,7 +180,7 @@ export namespace CustomEventInternals {
         constructor(json: object, track: string) {
             super(json);
             this.type = "AssignPlayerToTrack";
-            this.track = track;
+            this.trackSet = track;
         }
 
         /**
@@ -189,15 +189,15 @@ export namespace CustomEventInternals {
         */
         abstract() { return new CustomEvent().import(this.json) }
 
-        get track() { return this.data._track }
-        set track(value) { this.data._track = value }
+        get track() { return new Track(this.data._track) }
+        set trackSet(value: TrackValue) { this.data._track = value }
     }
 
     export class AssignFogTrack extends BaseEvent {
         constructor(json: object, track: string) {
             super(json);
             this.type = "AssignFogTrack";
-            this.track = track;
+            this.trackSet = track;
         }
 
         /**
@@ -206,8 +206,8 @@ export namespace CustomEventInternals {
         */
         abstract() { return new CustomEvent().import(this.json) }
 
-        get track() { return this.data._track }
-        set track(value) { this.data._track = value }
+        get track() { return new Track(this.data._track) }
+        set trackSet(value: TrackValue) { this.data._track = value }
     }
 
     export class AbstractEvent extends BaseEvent {
@@ -239,14 +239,14 @@ export namespace CustomEventInternals {
             return this;
         }
 
-        get track() { return this.data._track }
+        get track() { return new Track(this.data._track) }
         get duration() { return this.data._duration }
         get easing() { return this.data._easing }
         get childrenTracks() { return this.data._childrenTracks }
         get parentTrack() { return this.data._parentTrack }
         get worldPositionStays() { return this.data._worldPositionStays }
 
-        set track(value) { this.data._track = value }
+        set trackSet(value: TrackValue) { this.data._track = value }
         set duration(value) { this.data._duration = value }
         set easing(value) { this.data._easing = value }
         set childrenTracks(value) { this.data._childrenTracks = value }

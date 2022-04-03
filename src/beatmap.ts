@@ -310,11 +310,11 @@ export let forceJumpsForNoodle = true;
  * Set the difficulty that objects are being created for.
  * @param {Object} diff 
  */
-export function setActiveDiff(diff: Difficulty) { activeDiff = diff }
+export function activeDiffSet(diff: Difficulty) { activeDiff = diff }
 
 /**
  * Set whether exported walls and notes with custom data will have their NJS / Offset forced.
  * This helps avoid things like JDFixer breaking things. Should be set before your scripting.
  * @param {Boolean} value
  */
-export function setForceJumpsForNoodle(value: boolean) { forceJumpsForNoodle = value; }
+export function forceJumpsForNoodleSet(value: boolean) { forceJumpsForNoodle = value; }
