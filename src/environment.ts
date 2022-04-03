@@ -316,12 +316,12 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
      * Set the environment to switch to different models at certain times. Also uses model animations.
      * @param {Array} switches First element is the data track of the switch, second element is the time, 
      * third element (optional) is the duration of the animation.
-     * fourth element (optional) is a function to run per environment moving event animation.
+     * fourth element (optional) is a function to run per environment moving event.
      * fifth element (optional) is a function to run per assigned object moving event.
      * @param {Function} forEnvSpawn function to run for each initial environment object.
      */
     animate(switches: [string, number, number?,
-        ((envAnimation: AnimationInternals.EnvironmentAnimation, objects: number) => void)?,
+        ((moveEvent: CustomEventInternals.AnimateTrack, objects: number) => void)?,
         ((moveEvent: CustomEventInternals.AnimateTrack) => void)?
     ][], forEnvSpawn: (envObject: Environment) => void = undefined) {
         switches.sort((a, b) => a[1] - b[1]);
@@ -336,15 +336,15 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
             let objects = 0;
 
             data.forEach((x, i) => {
-                let dataAnim = new Animation().environmentAnimation();
 
-                dataAnim.position = x.pos;
-                dataAnim.rotation = x.rot;
-                dataAnim.scale = x.scale;
-                dataAnim.optimize();
-                if (forEnv !== undefined) forEnv(dataAnim, objects);
+                let event = new CustomEvent(time).animateTrack(this.getPieceTrack(i), duration);
+                event.animate.position = x.pos;
+                event.animate.rotation = x.rot;
+                event.animate.scale = x.scale;
+                event.animate.optimize();
+                if (forEnv !== undefined) forEnv(event, objects);
+                event.push();
 
-                new CustomEvent(time).animateTrack(this.getPieceTrack(i), duration, dataAnim.json).push();
                 objects++;
             })
 
@@ -363,7 +363,7 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
             }
         })
 
-        for (let i = 0; i <= this.maxObjects; i++) {
+        for (let i = 0; i < this.maxObjects; i++) {
             let envObject = new Environment(this.id, this.lookupMethod);
             envObject.position = [0, -69420, 0];
             envObject.duplicate = 1;

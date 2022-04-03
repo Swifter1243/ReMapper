@@ -11,9 +11,7 @@ export * from './constants';
 export * from './regex';
 export * from './light_remapper';
 
-/*
-- Allow tracks to take in array of strings too (track class?)
-- Allow start time for animations when switching envs
-- fix there being one too many pieces duplicated for blenderToEnv animations (< instead of <= on (let i = 0; i <= blenderEnv.maxObjects; i++))
+/* TODO:
 - Have lookup methods as constants
+- Check pull requests or something
 */
