@@ -282,13 +282,14 @@ export function isEmptyObject(o: object) {
 /**
  * Rotate a point around 0,0,0.
  * @param {Array} rotation
- * @param {Array} point 
+ * @param {Array} point
+ * @param {Array} anchor Anchor of rotation.
  * @returns {Array}
  */
-export function rotatePoint(rotation: Vec3, point: Vec3) {
+export function rotatePoint(rotation: Vec3, point: Vec3, anchor: Vec3 = [0,0,0]) {
     let mathRot = toRadians(rotation);
-    let vector = new three.Vector3(...point).applyEuler(new three.Euler(...mathRot, "YXZ"));
-    return [vector.x, vector.y, vector.z];
+    let vector = new three.Vector3(...arrAdd(point, arrMul(anchor, -1))).applyEuler(new three.Euler(...mathRot, "YXZ"));
+    return arrAdd([vector.x, vector.y, vector.z], anchor) as Vec3;
 }
 
 /**
