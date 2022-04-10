@@ -202,7 +202,7 @@ blenderEnv.animate([
 ```
 Alternatively, you can simply use `processData()` to get the raw math output from this algorithm if you'd like to do something completely seperate with it.
 
-You can also assign other tracks to be animated with this environment. For example if you assign a track called "cloud", if you were to then switch to "model", you would represent the position of "cloud" in the model as an object with the track "model_cloud". You can add tracks to objects by renaming the second material on the object in blender. This object can also be animated.
+You can also assign other tracks to be animated with this environment. For example if you assign a track called "cloud", if you were to then use a model with the track "model", you would represent the position of "cloud" in the model as an object with the track "model_cloud". You can add tracks to objects by renaming the second material on the object in blender. This object can also be animated.
 ```js
 blenderEnv.assignObjects("cloud", ENV.BTS.LOW_CLOUDS.SCALE, ENV.BTS.LOW_CLOUDS.ANCHOR);
 ```
