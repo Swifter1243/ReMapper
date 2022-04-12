@@ -15,7 +15,7 @@ export type KeyframeArray = KeyframeValues[];
 export type TrackValue = string | string[];
 export namespace AnimationInternals {
     export class BaseAnimation {
-        json = {};
+        json: any = {};
         length;
 
         constructor(length: number = undefined, data = undefined) {

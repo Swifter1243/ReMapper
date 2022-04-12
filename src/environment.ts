@@ -44,7 +44,7 @@ export class Environment {
      * Push this environment object to the difficulty
      */
     push() {
-        if (this.group && this.track === undefined) this.trackSet = `environment${envCount}`;
+        if (this.track === undefined) this.trackSet = `environment${envCount}`;
         envCount++;
         if (activeDiff.environment === undefined) activeDiff.environment = [];
         activeDiff.environment.push(copy(this));
@@ -218,7 +218,7 @@ export namespace BlenderEnvironmentInternals {
             }
             else if (this.disappearWhenAbsent) {
                 let moveEvent = new CustomEvent(time).animateTrack(this.track);
-                moveEvent.animate.localPosition = [0, -69420, 0];
+                moveEvent.animate.position = [0, -69420, 0];
                 moveEvent.push();
             }
         }
@@ -356,10 +356,11 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
         })
 
         switches.forEach(x => {
-            let objects = this.lookupAmount(x[1]);
+            let time = x[1];
+            let objects = this.lookupAmount(time);
             for (let i = objects; i < this.maxObjects; i++) {
-                let event = new CustomEvent(x[1]).animateTrack(this.getPieceTrack(i));
-                event.animate.localPosition = [0, -69420, 0];
+                let event = new CustomEvent(time).animateTrack(this.getPieceTrack(i));
+                event.animate.position = [0, -69420, 0];
                 event.push();
             }
         })
