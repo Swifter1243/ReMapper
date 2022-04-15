@@ -306,17 +306,9 @@ export class Track {
      * @returns 
      */
     has(value: string) {
+        if (this.value === undefined) return false;
         if (typeof this.value === "string") return this.value === value;
         else return this.value.some(x => x === value);
-    }
-
-    /**
-     * Safely add a track.
-     * @param value 
-     */
-    add(value: string) {
-        if (typeof this.value === "string") this.value = [this.value];
-        if (!this.value.includes(value)) this.value.push(value);
     }
 }
 

@@ -1,6 +1,6 @@
 {
   "name": "swifter_remapper",
-  "version": "1.0.5",
+  "version": "1.0.7",
   "description": "A framework for Beat Saber map scripting.",
   "main": "./dist/main.js",
   "typings": "dist/main.d.ts",
