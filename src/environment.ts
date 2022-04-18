@@ -44,7 +44,7 @@ export class Environment {
      * Push this environment object to the difficulty
      */
     push() {
-        if (this.track === undefined) this.trackSet = `environment${envCount}`;
+        if (this.track.value === undefined) this.trackSet = `environment${envCount}`;
         envCount++;
         if (activeDiff.environment === undefined) activeDiff.environment = [];
         activeDiff.environment.push(copy(this));

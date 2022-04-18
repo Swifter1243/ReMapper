@@ -132,7 +132,7 @@ event.push();
 Environment objects also have wrappers to make use of them easier.
 ```js
 // Only a handful of environment pieces have constants for their ID, feel free to PR more!
-let env = new Environment(ENV.BTS.PILLAR.ID, "Regex");
+let env = new Environment(ENV.BTS.PILLAR.ID, LOOKUP.REGEX);
 env.duplicate = 1;
 env.position = [0, 10, 0];
 env.push();
@@ -181,7 +181,7 @@ You absolutely need ScuffedWalls to be running from your map directory, or else 
 This time the environments are in the form of a class, which stores the transformation data for the environment piece to get it fitting to the model, and also the data for creation of the environment pieces if you plan to use it to place them.
 ```js
 // Again, only a handful of environment pieces have scales and anchors available as constants.
-let blenderEnv = new BlenderEnvironment(ENV.BTS.PILLAR.SCALE, ENV.BTS.PILLAR.ANCHOR, ENV.BTS.PILLAR.ID, "Regex");
+let blenderEnv = new BlenderEnvironment(ENV.BTS.PILLAR.SCALE, ENV.BTS.PILLAR.ANCHOR, ENV.BTS.PILLAR.ID, LOOKUP.REGEX);
 ```
 The way scale works is that it represents the object's size relative to a noodle cube. Each value is divided by `0.6`, since the scale is more likely to be relavant to unity units, rather than noodle units (0.6 of a unity unit). Each value is also an inverse value, as most of the time you're scaling down. So inputting 2 would end up halving the scale.
 
