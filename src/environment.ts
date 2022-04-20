@@ -93,6 +93,8 @@ export namespace BlenderEnvironmentInternals {
     export class BaseBlenderEnvironment {
         scale: [number, number, number];
         anchor: [number, number, number];
+        accuracy: number = 1;
+        assignedAccuracy: number = 1;
 
         constructor(scale: Vec3, anchor: Vec3) {
             this.scale = <Vec3>scale.map(x => (1 / x) / 0.6);
@@ -212,6 +214,7 @@ export namespace BlenderEnvironmentInternals {
                 moveEvent.animate.position = x.pos;
                 moveEvent.animate.rotation = x.rot;
                 moveEvent.animate.scale = x.scale;
+                moveEvent.animate.optimize(this.assignedAccuracy);
                 moveEvent.duration = duration;
                 if (forEvents !== undefined) forEvents(moveEvent);
                 moveEvent.push();
@@ -342,7 +345,7 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
                 event.animate.position = x.pos;
                 event.animate.rotation = x.rot;
                 event.animate.scale = x.scale;
-                event.animate.optimize();
+                event.animate.optimize(this.accuracy);
                 if (forEnv !== undefined) forEnv(event, objects);
                 event.push();
 

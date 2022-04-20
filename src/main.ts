@@ -12,7 +12,6 @@ export * from './regex';
 export * from './light_remapper';
 
 /* TODO:
-- Add optimization function to assigned objects
 - Add a way to export maps and exclude diffs
 - Check pull requests or something
 */
