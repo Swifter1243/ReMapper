@@ -1,3 +1,4 @@
+import path from 'path';
 import * as fs from 'fs';
 import { Note } from './note';
 import { Wall } from './wall';
@@ -11,6 +12,7 @@ export class Difficulty {
     diffSet;
     diffSetMap;
     mapFile;
+    relativeMapFile: string;
 
     /**
      * Creates a difficulty. Can be used to access various information and the map data.
@@ -19,7 +21,13 @@ export class Difficulty {
      * @param {String} input Filename for the output. If left blank, input will be used.
      */
     constructor(input: string, output: string = undefined) {
+
+        // If the path contains a separator of any kind, use it instead of the default "Info.dat"
+        info.load((input.includes('\\') || input.includes('/')) ? path.join(path.dirname(input), "Info.dat") : undefined);
+
         this.mapFile = input;
+        this.relativeMapFile = path.parse(output ?? input).base;
+        
         if (output !== undefined) {
             if (!fs.existsSync(output)) throw new Error(`The file ${output} does not exist`)
             this.mapFile = output;
@@ -30,7 +38,7 @@ export class Difficulty {
 
         info.json._difficultyBeatmapSets.forEach(set => {
             set._difficultyBeatmaps.forEach(setmap => {
-                if (this.mapFile === setmap._beatmapFilename) {
+                if (this.relativeMapFile === setmap._beatmapFilename) {
                     this.diffSet = set;
                     this.diffSetMap = setmap;
                 }
@@ -56,7 +64,9 @@ export class Difficulty {
      * Saves the difficulty.
      * @param {String} diffName Filename for the save. If left blank, the beatmap file name will be used for the save.
      */
-    save(diffName: string = this.mapFile) {
+    save(diffName?: string) {
+
+        diffName ??= this.mapFile
         if (!fs.existsSync(diffName)) throw new Error(`The file ${diffName} does not exist and cannot be saved`);
 
         let outputJSON = copy(this.json);
@@ -236,14 +246,14 @@ export class Info {
     json;
     fileName = "Info.dat";
 
-    constructor() {
-        let fileName = this.fileName;
+    load(path?: string) {
+        let fileName = path ?? this.fileName;
         if (fs.existsSync(fileName)) {
             this.json = JSON.parse(fs.readFileSync(fileName, "utf-8"));
             this.fileName = fileName;
         }
         else {
-            throw new Error(`The file "${fileName}" does not exist. Please call "change()" if your Info.dat file is named differently.`)
+            throw new Error(`The file "${fileName}" does not exist.`)
         }
     }
 
@@ -251,6 +261,10 @@ export class Info {
      * Saves the Info.dat
      */
     save() {
+
+        if (!this.json)
+            throw new Error("The Info object has not been loaded.")
+
         fs.writeFileSync(this.fileName, JSON.stringify(this.json, null, 2));
     }
 
