@@ -1,11 +1,13 @@
 import path from 'path';
+import seven from 'node-7z';
+import sevenBin from '7zip-bin';
 import * as fs from 'fs';
 import { Note } from './note';
 import { Wall } from './wall';
 import { Event, EventInternals } from './event';
 import { CustomEvent, CustomEventInternals } from './custom_event';
 import { Environment } from './environment';
-import { copy, isEmptyObject, jsonGet, jsonPrune, jsonRemove, jsonSet, sortObjects, Vec3 } from './general';
+import { copy, isEmptyObject, jsonGet, jsonPrune, jsonRemove, jsonSet, rand, sortObjects, Vec3 } from './general';
 
 export class Difficulty {
     json;
@@ -27,7 +29,7 @@ export class Difficulty {
 
         this.mapFile = input;
         this.relativeMapFile = path.parse(output ?? input).base;
-        
+
         if (output !== undefined) {
             if (!fs.existsSync(output)) throw new Error(`The file ${output} does not exist`)
             this.mapFile = output;
@@ -65,8 +67,7 @@ export class Difficulty {
      * @param {String} diffName Filename for the save. If left blank, the beatmap file name will be used for the save.
      */
     save(diffName?: string) {
-
-        diffName ??= this.mapFile
+        diffName ??= this.mapFile;
         if (!fs.existsSync(diffName)) throw new Error(`The file ${diffName} does not exist and cannot be saved`);
 
         let outputJSON = copy(this.json);
@@ -261,10 +262,7 @@ export class Info {
      * Saves the Info.dat
      */
     save() {
-
-        if (!this.json)
-            throw new Error("The Info object has not been loaded.")
-
+        if (!this.json) throw new Error("The Info object has not been loaded.");
         fs.writeFileSync(this.fileName, JSON.stringify(this.json, null, 2));
     }
 
@@ -332,3 +330,63 @@ export function activeDiffSet(diff: Difficulty) { activeDiff = diff }
  * @param {Boolean} value
  */
 export function forceJumpsForNoodleSet(value: boolean) { forceJumpsForNoodle = value; }
+
+/**
+ * Automatically zip the map, including only necessary files.
+ * @param {String[]} excludeDiffs Difficulties to exclude.
+ * @param {String} zipName Name of the zip (don't include ".zip"). Uses folder name if undefined.
+ */
+export function exportZip(excludeDiffs: string[] = [], zipName?: string) {
+    if (!info.json) throw new Error("The Info object has not been loaded.");
+
+    let absoluteInfoFileName = info.fileName === "Info.dat" ? process.cwd() + `\\${info.fileName}` : info.fileName;
+    let workingDir = path.parse(absoluteInfoFileName).dir;
+    let exportInfo = copy(info.json);
+    let files: string[] = [];
+    function pushFile(file: string) {
+        let dir = workingDir + `\\${file}`;
+        if (fs.existsSync(dir)) files.push(dir);
+    }
+
+    pushFile(exportInfo._songFilename);
+    if (exportInfo._coverImageFilename !== undefined) pushFile(exportInfo._coverImageFilename);
+
+    for (let s = 0; s < exportInfo._difficultyBeatmapSets.length; s++) {
+        let set = exportInfo._difficultyBeatmapSets[s];
+        for (let m = 0; m < set._difficultyBeatmaps.length; m++) {
+            let map = set._difficultyBeatmaps[m];
+            let passed = true;
+            excludeDiffs.forEach(d => {
+                if (map._beatmapFilename === d) {
+                    set._difficultyBeatmaps.splice(m, 1);
+                    m--;
+                    passed = false;
+                }
+            })
+
+            if (passed) pushFile(map._beatmapFilename);
+        }
+
+        if (set._difficultyBeatmaps.length === 0) {
+            exportInfo._difficultyBeatmapSets.splice(s, 1);
+            s--;
+        }
+    }
+
+    zipName ??= `${path.parse(workingDir).name}`;
+    zipName = workingDir + `\\${zipName}.zip`;
+    let tempInfo = workingDir + `\\TEMPINFO.dat`;
+    files.push(tempInfo);
+    fs.writeFileSync(tempInfo, JSON.stringify(exportInfo, null, 0));
+    fs.unlinkSync(zipName);
+
+    let zip = seven.add(zipName, files, { $bin: sevenBin.path7za });
+    zip.on('end', function () {
+        let zip2 = seven.rename(zipName, [
+            ["TEMPINFO.dat", path.parse(info.fileName).base]
+        ], { $bin: sevenBin.path7za })
+        zip2.on('end', function () {
+            fs.unlinkSync(tempInfo);
+        })
+    });
+}
