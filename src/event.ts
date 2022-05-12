@@ -1,6 +1,6 @@
 import { EVENT } from './constants';
 import { activeDiff } from './beatmap';
-import { copy, jsonPrune, isEmptyObject, jsonGet, jsonSet } from './general';
+import { copy, jsonPrune, isEmptyObject, jsonGet, jsonSet, ColorType } from './general';
 
 export namespace EventInternals {
     export class BaseEvent {
@@ -67,7 +67,7 @@ export namespace EventInternals {
          * @param {Number | Array} lightID 
          * @returns 
          */
-        on(color: number[] | boolean, lightID: number | number[] = undefined) {
+        on(color: ColorType | boolean, lightID: number | number[] = undefined) {
             this.value = (typeof color === "boolean" && color) ? EVENT.BLUE_ON : EVENT.RED_ON;
             if (typeof color !== "boolean") this.color = color;
             if (lightID !== undefined) this.lightID = lightID;
@@ -80,7 +80,7 @@ export namespace EventInternals {
          * @param {Number | Array} lightID 
          * @returns 
          */
-        flash(color: number[] | boolean, lightID: number | number[] = undefined) {
+        flash(color: ColorType | boolean, lightID: number | number[] = undefined) {
             this.value = (typeof color === "boolean" && color) ? EVENT.BLUE_FLASH : EVENT.RED_FLASH;
             if (typeof color !== "boolean") this.color = color;
             if (lightID !== undefined) this.lightID = lightID;
@@ -93,7 +93,7 @@ export namespace EventInternals {
          * @param {Number | Array} lightID 
          * @returns 
          */
-        fade(color: number[] | boolean, lightID: number | number[] = undefined) {
+        fade(color: ColorType | boolean, lightID: number | number[] = undefined) {
             this.value = (typeof color === "boolean" && color) ? EVENT.BLUE_FADE : EVENT.RED_FADE;
             if (typeof color !== "boolean") this.color = color;
             if (lightID !== undefined) this.lightID = lightID;
@@ -106,7 +106,7 @@ export namespace EventInternals {
          * @param {Number | Array} lightID 
          * @returns 
          */
-        in(color: number[] | boolean, lightID: number | number[] = undefined) {
+        in(color: ColorType | boolean, lightID: number | number[] = undefined) {
             this.value = (typeof color === "boolean" && color) ? EVENT.BLUE_IN : EVENT.RED_IN;
             if (typeof color !== "boolean") this.color = color;
             if (lightID !== undefined) this.lightID = lightID;
@@ -121,7 +121,7 @@ export namespace EventInternals {
          * @param {String} easing 
          * @returns 
          */
-        gradient(startColor: number[], endColor: number[], duration: number, easing: string = undefined) {
+        gradient(startColor: ColorType, endColor: ColorType, duration: number, easing: string = undefined) {
             this.startColor = startColor;
             this.endColor = endColor;
             this.duration = duration;
@@ -147,12 +147,12 @@ export namespace EventInternals {
         get gradientEasing() { return jsonGet(this.json, "_customData._lightGradient._easing") }
     
         set lightID(value: number | number[]) { jsonSet(this.json, "_customData._lightID", value) }
-        set color(value: number[]) { jsonSet(this.json, "_customData._color", value) }
+        set color(value: ColorType) { jsonSet(this.json, "_customData._color", value) }
         set easing(value: string) { jsonSet(this.json, "_customData._easing", value) }
         set lerpType(value: string) { jsonSet(this.json, "_customData._lerpType", value) }
         set lightGradient(value) { jsonSet(this.json, "_customData._lightGradient", value) }
-        set startColor(value: number[]) { jsonSet(this.json, "_customData._lightGradient._startColor", value) }
-        set endColor(value: number[]) { jsonSet(this.json, "_customData._lightGradient._endColor", value) }
+        set startColor(value: ColorType) { jsonSet(this.json, "_customData._lightGradient._startColor", value) }
+        set endColor(value: ColorType) { jsonSet(this.json, "_customData._lightGradient._endColor", value) }
         set duration(value: number) { jsonSet(this.json, "_customData._lightGradient._duration", value) }
         set gradientEasing(value: string) { jsonSet(this.json, "_customData._lightGradient._easing", value) }
     }
@@ -294,12 +294,12 @@ export namespace EventInternals {
         set prop(value: number) { jsonSet(this.json, "_customData._prop", value) }
         set counterSpin(value: boolean) { jsonSet(this.json, "_customData._counterSpin", value) }
         set lightID(value: number | number[]) { jsonSet(this.json, "_customData._lightID", value) }
-        set color(value: number[]) { jsonSet(this.json, "_customData._color", value) }
+        set color(value: ColorType) { jsonSet(this.json, "_customData._color", value) }
         set easing(value: string) { jsonSet(this.json, "_customData._easing", value) }
         set lerpType(value: string) { jsonSet(this.json, "_customData._lerpType", value) }
         set lightGradient(value) { jsonSet(this.json, "_customData._lightGradient", value) }
-        set startColor(value: number[]) { jsonSet(this.json, "_customData._lightGradient._startColor", value) }
-        set endColor(value: number[]) { jsonSet(this.json, "_customData._lightGradient._endColor", value) }
+        set startColor(value: ColorType) { jsonSet(this.json, "_customData._lightGradient._startColor", value) }
+        set endColor(value: ColorType) { jsonSet(this.json, "_customData._lightGradient._endColor", value) }
         set duration(value: number) { jsonSet(this.json, "_customData._lightGradient._duration", value) }
         set gradientEasing(value: string) { jsonSet(this.json, "_customData._lightGradient._easing", value) }
     }

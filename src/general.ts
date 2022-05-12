@@ -10,6 +10,7 @@ import { EventInternals } from './event';
 
 export type Vec3 = [number, number, number];
 export type Vec4 = [number, number, number, number];
+export type ColorType = [number, number, number] | [number, number, number, number];
 
 /**
  * Allows you to filter through an array of objects with a min and max property.

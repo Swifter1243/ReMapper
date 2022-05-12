@@ -1,6 +1,6 @@
 import { activeDiff, info } from './beatmap';
 import { Animation, AnimationInternals, Track, TrackValue } from './animation';
-import { isEmptyObject, getJumps, copy, jsonPrune } from './general';
+import { isEmptyObject, getJumps, copy, jsonPrune, ColorType } from './general';
 import { NOTE } from './constants';
 
 export class Note {
@@ -137,7 +137,7 @@ export class Note {
     set fake(value: boolean) { this.json._customData._fake = value }
     set interactable(value: boolean) { this.json._customData._interactable = value }
     set trackSet(value: TrackValue) { this.json._customData._track = value }
-    set color(value: number[]) { this.json._customData._color = value }
+    set color(value: ColorType) { this.json._customData._color = value }
     set animation(value) { this.json._customData._animation = value }
 
     get isModded() {

@@ -407,9 +407,9 @@ export function transferVisuals(diffs: string[], forDiff?: (diff: Difficulty) =>
         let workingDiff = new Difficulty(x);
 
         workingDiff.environment = startActive.environment;
-        workingDiff.pointDefinitions = workingDiff.pointDefinitions;
-        workingDiff.customEvents = workingDiff.customEvents;
-        workingDiff.events = workingDiff.events;
+        workingDiff.pointDefinitions = startActive.pointDefinitions;
+        workingDiff.customEvents = startActive.customEvents;
+        workingDiff.events = startActive.events;
 
         for (let y = 0; y < workingDiff.obstacles.length; y++) {
             let obstacle = workingDiff.obstacles[y];
