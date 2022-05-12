@@ -1,6 +1,14 @@
+# Usage
+This documentation **does not contain every ReMapper feature**. It is simply a guide to understand it's more complex systems, so everything else should be intuitive from there.
+
+**Every** function in ReMapper has a description for it's purpose, and a description for each argument that may not be intuitive, which is visible as you write the function. ReMapper is best used by starting from scratch and adding things as you need them.
+
+If seeing the structure of a completed map helps, you can check out my [Map Scripts](https://github.com/Swifter1243/MapScripts) that use ReMapper. **(NOTE: At the moment no maps made by ReMapper are released by me, sorry!)**
+
+I would recommend reading all the way up to the end of [Environment](#environment), and pay attention to as much as possible.
 # Importing
 In order for your script to include functions, classes, or whatever else from this package, you'll need to import them.
-If you know exactly what you want to import, you can type it out anywhere, press tab, and it'll be added to an import statement at the top like so:
+If you know exactly what you want to import, as you're typing it, press tab, and it'll be added to an import statement at the top like so:
 ```js
 import { info, Difficulty } from "swifter_remapper";
 
