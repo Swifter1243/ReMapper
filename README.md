@@ -62,7 +62,7 @@ For faster startup times, you can add this `tsconfig.json` to your project folde
     }
 }
 ```
-Only include this if you are ok with the ignoring type errors at runtime, but of course they'll still show up in your IDE.
+Only include this if you are ok with ignoring type errors at runtime, but of course they'll still show up in your IDE.
 
 If you want to update the package, you can run `npm uninstall swifter_remapper` and then `npm install swifter_remapper` again.
 
