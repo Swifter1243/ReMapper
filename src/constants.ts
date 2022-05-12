@@ -303,8 +303,20 @@ export let ENV = {
             ANCHOR: <Vec3>[0, 0.5, 0]
         },
         LOW_CLOUDS: {
-            ID: new Regex().add("LowCloudsGenerator").end().string,
+            ID: "LowCloudsGenerator$",
             SCALE: <Vec3>[425, 40, 425],
+            ANCHOR: <Vec3>[0, -0.25, 0]
+        }
+    },
+    GAGA: {
+        CUBE: {
+            ID: "BackCube$",
+            SCALE: <Vec3>[16, 7 / 10, 14 / 10],
+            ANCHOR: <Vec3>[0, -0.5, -0.5]
+        },
+        SECOND_AURORA: {
+            ID: new Regex().add("Aurora").seperate().add("AuroraSecondary").end().string,
+            SCALE: <Vec3>[900, 200, 1000],
             ANCHOR: <Vec3>[0, -0.25, 0]
         }
     }
