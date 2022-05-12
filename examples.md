@@ -5,7 +5,7 @@ This documentation **does not contain every ReMapper feature**. It is simply a g
 
 If seeing the structure of a completed map helps, you can check out my [Map Scripts](https://github.com/Swifter1243/MapScripts) that use ReMapper. **(NOTE: At the moment no maps made by ReMapper are released by me, sorry!)**
 
-I would recommend reading all the way up to the end of [Environment](#environment), and pay attention to as much as possible.
+I would recommend reading all the way up to the end of [Environment](#environment), and pay attention to as much as possible. Every detail is crucial and can apply to multiple places.
 # Importing
 In order for your script to include functions, classes, or whatever else from this package, you'll need to import them.
 If you know exactly what you want to import, as you're typing it, press tab, and it'll be added to an import statement at the top like so:
