@@ -375,6 +375,7 @@ export function exportZip(excludeDiffs: string[] = [], zipName?: string) {
 
     zipName ??= `${path.parse(workingDir).name}`;
     zipName = workingDir + `\\${zipName}.zip`;
+    if (!fs.existsSync(zipName)) fs.writeFileSync(zipName, "");
     let tempInfo = workingDir + `\\TEMPINFO.dat`;
     files.push(tempInfo);
     fs.writeFileSync(tempInfo, JSON.stringify(exportInfo, null, 0));
