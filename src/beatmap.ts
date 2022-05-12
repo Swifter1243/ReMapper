@@ -390,3 +390,40 @@ export function exportZip(excludeDiffs: string[] = [], zipName?: string) {
         })
     });
 }
+
+/**
+ * Transfer the visual aspect of maps to other difficulties.
+ * More specifically modded walls, custom events, point definitions, environment enhancements, and lighting events.
+ * @param {Array} diffs The difficulties being effected.
+ * @param {Function} forDiff A function to run over each difficulty.
+ * The activeDiff keyword will change to be each difficulty running during this function.
+ * Be mindful that the external difficulties don't have an input/output structure,
+ * so new pushed notes for example may not be cleared on the next run and would build up.
+ */
+export function transferVisuals(diffs: string[], forDiff?: (diff: Difficulty) => void) {
+    let startActive = activeDiff;
+
+    diffs.forEach(x => {
+        let workingDiff = new Difficulty(x);
+
+        workingDiff.environment = startActive.environment;
+        workingDiff.pointDefinitions = workingDiff.pointDefinitions;
+        workingDiff.customEvents = workingDiff.customEvents;
+        workingDiff.events = workingDiff.events;
+
+        for (let y = 0; y < workingDiff.obstacles.length; y++) {
+            let obstacle = workingDiff.obstacles[y];
+            if (obstacle.isModded) {
+                workingDiff.obstacles.splice(y, 1);
+                y--;
+            }
+        }
+
+        startActive.obstacles.forEach(y => { if (y.isModded) workingDiff.obstacles.push(y) })
+
+        if (forDiff !== undefined) forDiff(workingDiff);
+        workingDiff.save();
+    })
+
+    activeDiffSet(startActive);
+}
