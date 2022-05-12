@@ -214,7 +214,7 @@ export namespace BlenderEnvironmentInternals {
                 moveEvent.animate.position = x.pos;
                 moveEvent.animate.rotation = x.rot;
                 moveEvent.animate.scale = x.scale;
-                moveEvent.animate.optimize(this.parent.assignedAccuracy);
+                if (this.parent.assignedAccuracy > 0) moveEvent.animate.optimize(this.parent.assignedAccuracy);
                 moveEvent.duration = duration;
                 if (forEvents !== undefined) forEvents(moveEvent);
                 moveEvent.push();
@@ -347,7 +347,7 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
                 event.animate.position = x.pos;
                 event.animate.rotation = x.rot;
                 event.animate.scale = x.scale;
-                event.animate.optimize(this.accuracy);
+                if (this.accuracy > 0) event.animate.optimize(this.accuracy);
                 if (forEnv !== undefined) forEnv(event, objects);
                 event.push();
 
