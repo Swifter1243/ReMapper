@@ -1,4 +1,4 @@
-import { EVENT } from './constants';
+import { EASE, EVENT } from './constants';
 import { activeDiff } from './beatmap';
 import { copy, jsonPrune, isEmptyObject, jsonGet, jsonSet, ColorType } from './general';
 
@@ -121,7 +121,7 @@ export namespace EventInternals {
          * @param {String} easing 
          * @returns 
          */
-        gradient(startColor: ColorType, endColor: ColorType, duration: number, easing: string = undefined) {
+        gradient(startColor: ColorType, endColor: ColorType, duration: number, easing: EASE = undefined) {
             this.startColor = startColor;
             this.endColor = endColor;
             this.duration = duration;
@@ -148,13 +148,13 @@ export namespace EventInternals {
     
         set lightID(value: number | number[]) { jsonSet(this.json, "_customData._lightID", value) }
         set color(value: ColorType) { jsonSet(this.json, "_customData._color", value) }
-        set easing(value: string) { jsonSet(this.json, "_customData._easing", value) }
+        set easing(value: EASE) { jsonSet(this.json, "_customData._easing", value) }
         set lerpType(value: string) { jsonSet(this.json, "_customData._lerpType", value) }
         set lightGradient(value) { jsonSet(this.json, "_customData._lightGradient", value) }
         set startColor(value: ColorType) { jsonSet(this.json, "_customData._lightGradient._startColor", value) }
         set endColor(value: ColorType) { jsonSet(this.json, "_customData._lightGradient._endColor", value) }
         set duration(value: number) { jsonSet(this.json, "_customData._lightGradient._duration", value) }
-        set gradientEasing(value: string) { jsonSet(this.json, "_customData._lightGradient._easing", value) }
+        set gradientEasing(value: EASE) { jsonSet(this.json, "_customData._lightGradient._easing", value) }
     }
     
     export class LaserSpeedEvent extends EventInternals.BaseEvent {
@@ -295,13 +295,13 @@ export namespace EventInternals {
         set counterSpin(value: boolean) { jsonSet(this.json, "_customData._counterSpin", value) }
         set lightID(value: number | number[]) { jsonSet(this.json, "_customData._lightID", value) }
         set color(value: ColorType) { jsonSet(this.json, "_customData._color", value) }
-        set easing(value: string) { jsonSet(this.json, "_customData._easing", value) }
+        set easing(value: EASE) { jsonSet(this.json, "_customData._easing", value) }
         set lerpType(value: string) { jsonSet(this.json, "_customData._lerpType", value) }
         set lightGradient(value) { jsonSet(this.json, "_customData._lightGradient", value) }
         set startColor(value: ColorType) { jsonSet(this.json, "_customData._lightGradient._startColor", value) }
         set endColor(value: ColorType) { jsonSet(this.json, "_customData._lightGradient._endColor", value) }
         set duration(value: number) { jsonSet(this.json, "_customData._lightGradient._duration", value) }
-        set gradientEasing(value: string) { jsonSet(this.json, "_customData._lightGradient._easing", value) }
+        set gradientEasing(value: EASE) { jsonSet(this.json, "_customData._lightGradient._easing", value) }
     }
 }
 

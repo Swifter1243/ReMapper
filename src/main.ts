@@ -12,7 +12,6 @@ export * from './regex';
 export * from './light_remapper';
 
 /* TODO:
-- Check if wall/note formulas are working
 - Pull fern's PRs and fix instances where adding would be setting now (blenderenvironment and debugwall)
 - Check pull requests or something
 */
