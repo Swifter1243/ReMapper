@@ -153,7 +153,7 @@ You can also assign a `group`, and call `animateEnvGroup()` to do this for every
 # Blender Environment
 This is an improvement of my previous [BlenderToEnvironment](https://github.com/Swifter1243/BlenderToEnvironment) repo. 
 
-Just like before, you'll need a setup with ScuffedWalls in order to get this to work. `SW_SCRIPT` and `SW_MODEL` exist as constants for the statements you can copy and paste into your ScuffedWalls script to both get the script running from it and get the model exported. But I'm nice so I'll put them here since you're reading this:
+Just like before, you'll need a setup with ScuffedWalls in order to get this to work. The statements for these are available in [constants.ts](https://github.com/Swifter1243/ReMapper/blob/master/src/constants.ts) that you can copy and paste into your ScuffedWalls script to both get the script running from it and get the model exported. But I'm nice so I'll put them here since you're reading this:
 ```
 0:Run
   Script:script.ts
@@ -176,6 +176,7 @@ You absolutely need ScuffedWalls to be running from your map directory, or else 
 This time the environments are in the form of a class, which stores the transformation data for the environment piece to get it fitting to the model, and also the data for creation of the environment pieces if you plan to use it to place them.
 ```js
 // Again, only a handful of environment pieces have scales and anchors available as constants.
+// However, you may use ANY piece, but you'll have to figure out the anchor and scale yourself.
 let blenderEnv = new BlenderEnvironment(ENV.BTS.PILLAR.SCALE, ENV.BTS.PILLAR.ANCHOR, ENV.BTS.PILLAR.ID, LOOKUP.REGEX);
 ```
 The way scale works is that it represents the object's size relative to a noodle cube. Each value is divided by `0.6`, since the scale is more likely to be relavant to unity units, rather than noodle units (0.6 of a unity unit). Each value is also an inverse value, as most of the time you're scaling down. So inputting 2 would end up halving the scale.
@@ -186,7 +187,7 @@ When it comes to actually spawning in the objects, you have 2 options. The first
 ```js
 blenderEnv.static("model"); // Needs to be the same track as the model!
 ```
-There is additionally a boolean that can be added after the data track to instead use a debug model with a debug wall, useful for getting your scale and offset right. The object should be fitting the cube.
+Tip: If you don't define a track for the model, a debug model will be spawned in with unit walls to help you find the anchor and scale to fit your piece to a cube.
 
 The other option is to use the `animate()` method, which allows you to switch between models during the map, and supports animations. Environment pieces are recycled, so you aren't adding the count of each model's pieces to the map every time you switch. All animations will also be automatically optimized to cut down on points, since blender animation exports are notorious for keyframe spam.
 ```js
@@ -199,6 +200,7 @@ Alternatively, you can simply use `processData()` to get the raw math output fro
 
 You can also assign other tracks to be animated with this environment. For example if you assign a track called "cloud", if you were to then use a model with the track "model", you would represent the position of "cloud" in the model as an object with the track "model_cloud". You can add tracks to objects by renaming the second material on the object in blender. This object can also be animated.
 ```js
+// Reminder that you can still use your own anchor and scale if you wish!
 blenderEnv.assignObjects("cloud", ENV.BTS.LOW_CLOUDS.SCALE, ENV.BTS.LOW_CLOUDS.ANCHOR);
 ```
 This will also work with the static method, but it will use an animation event to reposition the object.
