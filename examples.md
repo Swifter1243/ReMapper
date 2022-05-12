@@ -85,13 +85,13 @@ Single keyframes are supported by using a single array, time will be interpreted
 ```js
 wall.animate.definitePosition = [0, 0, 0];
 ```
-Setting a property actually adds to existing keyframes and sorts by time.
+You can add to an animation by using the add method and ANIM constant.
 ```js
-wall.animate.definitePosition = [[0, 1, 0, 4, EASE.OUT_EXPO]] // Easings and splines work too!
+wall.animate.add(ANIM.DEFINITE_POSITION, [0, 1, 0, 4, EASE.OUT_EXPO]); // Easings and splines work too!
 ```
 You can use a negative number for time to return to a range of 0-1, it will be converted to positive internally.
 ```js
-wall.animate.definitePosition = [[0, 2, 0, -0.5]]
+wall.animate.add(ANIM.DEFINITE_POSITION, [0, 2, 0, -0.5]);
 ```
 This wrapper also allows you to grab what the values of a property would be at a certain time. It accounts for easings, splines, and what the property actually is (rotations interpolate differently than positions, for example).
 ```js

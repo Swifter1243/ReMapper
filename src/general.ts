@@ -519,9 +519,9 @@ export function debugWall(pos: KeyframesVec3 = undefined, rot: KeyframesVec3 = u
         data.scale.push([...objScale, time])
     }
 
-    wallAnim.definitePosition = data.pos;
-    wallAnim.localRotation = data.rot;
-    wallAnim.scale = data.scale;
+    wallAnim.add(ANIM.DEFINITE_POSITION, data.pos);
+    wallAnim.add(ANIM.LOCAL_ROTATION, data.rot);
+    wallAnim.add(ANIM.SCALE, data.scale);
     wallAnim.optimize();
 
     wall.color = [0, 0, 0, 1];

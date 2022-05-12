@@ -170,6 +170,7 @@ export namespace BlenderEnvironmentInternals {
             return outputData;
         }
     }
+
     export class BlenderAssigned extends BaseBlenderEnvironment {
         track: string;
         disappearWhenAbsent: boolean;
@@ -342,7 +343,6 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
             let objects = 0;
 
             data.forEach((x, i) => {
-
                 let event = new CustomEvent(time).animateTrack(this.getPieceTrack(i), duration);
                 event.animate.position = x.pos;
                 event.animate.rotation = x.rot;
