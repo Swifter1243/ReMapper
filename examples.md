@@ -106,19 +106,6 @@ animation.scale = [[1, 1, 1, 0], [2, 2, 2, 1]];
 wall.importAnimation(animation);
 ```
 If you are dealing with animations with a large amount of points, like keyframe exports from blender for example, it may be a good idea to call the `optimize()` method on the animation in order to cut down on points. This method does it's best to reduce point count while retaining the shape of the animation.
-# Color
-The color class is used to express colors in different formats. Right now RGB and HSV (hue, saturation, value) is supported. Here's a quick code example on how expressing colors with HSV could be useful:
-```js
-// Rainbow notes!
-for (let i = 0; i <= 1; i++) {
-    let time = 2 + (i * 4); // Starts at beat 2, for 4 beats.
-    let color = new Color([i, 1, 1], "HSV"); // Hue will be cycled through in for loop, saturation and value will be full.
-
-    let note = new Note(time);
-    note.color = color.export(); // Converts to RGB and returns value array.
-    note.push();
-}
-```
 # Events
 Events are similar to making Notes and Walls, but they have subclasses, which means you will need to further specify what kind of event it will be.
 ```js
@@ -215,6 +202,19 @@ You can also assign other tracks to be animated with this environment. For examp
 blenderEnv.assignObjects("cloud", ENV.BTS.LOW_CLOUDS.SCALE, ENV.BTS.LOW_CLOUDS.ANCHOR);
 ```
 This will also work with the static method, but it will use an animation event to reposition the object.
+# Color
+The color class is used to express colors in different formats. Right now RGB and HSV (hue, saturation, value) is supported. Here's a quick code example on how expressing colors with HSV could be useful:
+```js
+// Rainbow notes!
+for (let i = 0; i <= 1; i++) {
+    let time = 2 + (i * 4); // Starts at beat 2, for 4 beats.
+    let color = new Color([i, 1, 1], "HSV"); // Hue will be cycled through in for loop, saturation and value will be full.
+
+    let note = new Note(time);
+    note.color = color.export(); // Converts to RGB and returns value array.
+    note.push();
+}
+```
 # Light Remapper
 This is a class mostly focused on refactoring the order of lightIDs in a given range. The reason this might be needed is if for example you have duplicated lights, and would like to light them in the editor, and have the events automatically carry over.
 ```js
