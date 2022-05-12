@@ -93,8 +93,6 @@ export namespace BlenderEnvironmentInternals {
     export class BaseBlenderEnvironment {
         scale: [number, number, number];
         anchor: [number, number, number];
-        accuracy: number = 1;
-        assignedAccuracy: number = 1;
 
         constructor(scale: Vec3, anchor: Vec3) {
             this.scale = <Vec3>scale.map(x => (1 / x) / 0.6);
@@ -175,9 +173,11 @@ export namespace BlenderEnvironmentInternals {
     export class BlenderAssigned extends BaseBlenderEnvironment {
         track: string;
         disappearWhenAbsent: boolean;
+        parent: BlenderEnvironment;
 
-        constructor(scale: Vec3, anchor: Vec3, track: string, disappearWhenAbsent: boolean) {
+        constructor(parent: BlenderEnvironment, scale: Vec3, anchor: Vec3, track: string, disappearWhenAbsent: boolean) {
             super(scale, anchor);
+            this.parent = parent;
             this.track = track;
             this.disappearWhenAbsent = disappearWhenAbsent;
         }
@@ -214,7 +214,7 @@ export namespace BlenderEnvironmentInternals {
                 moveEvent.animate.position = x.pos;
                 moveEvent.animate.rotation = x.rot;
                 moveEvent.animate.scale = x.scale;
-                moveEvent.animate.optimize(this.assignedAccuracy);
+                moveEvent.animate.optimize(this.parent.assignedAccuracy);
                 moveEvent.duration = duration;
                 if (forEvents !== undefined) forEvents(moveEvent);
                 moveEvent.push();
@@ -235,6 +235,8 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
     assigned: BlenderEnvironmentInternals.BlenderAssigned[] = [];
     objectAmounts: number[][] = [];
     maxObjects: number = 0;
+    accuracy: number = 1;
+    assignedAccuracy: number = 1;
 
     /**
     * Tool for using model data from ScuffedWalls for environments.
@@ -262,7 +264,7 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
         scale ??= [1, 1, 1];
         anchor ??= [0, 0, 0];
         if (typeof tracks === "string") tracks = [tracks];
-        tracks.forEach(x => { this.assigned.push(new BlenderEnvironmentInternals.BlenderAssigned(scale, anchor, x, disappearWhenAbsent)) })
+        tracks.forEach(x => { this.assigned.push(new BlenderEnvironmentInternals.BlenderAssigned(this, scale, anchor, x, disappearWhenAbsent)) })
     }
 
     /**
