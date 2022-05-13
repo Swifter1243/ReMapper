@@ -1,6 +1,14 @@
+# Usage
+This documentation **does not contain every ReMapper feature**. It is simply a guide to understand it's more complex systems, so everything else should be intuitive from there.
+
+**Every** function in ReMapper has a description for it's purpose, and a description for each argument that may not be intuitive, which is visible as you write the function. ReMapper is best used by starting from scratch and adding things as you need them.
+
+If seeing the structure of a completed map helps, you can check out my [Map Scripts](https://github.com/Swifter1243/MapScripts) that use ReMapper. **(NOTE: At the moment no maps made by ReMapper are released by me, sorry!)**
+
+I would recommend reading all the way up to the end of [Environment](#environment), and pay attention to as much as possible. Every detail is crucial and can apply to multiple places.
 # Importing
 In order for your script to include functions, classes, or whatever else from this package, you'll need to import them.
-If you know exactly what you want to import, you can type it out anywhere, press tab, and it'll be added to an import statement at the top like so:
+If you know exactly what you want to import, as you're typing it, press tab, and it'll be added to an import statement at the top like so:
 ```js
 import { info, Difficulty } from "swifter_remapper";
 
@@ -77,13 +85,13 @@ Single keyframes are supported by using a single array, time will be interpreted
 ```js
 wall.animate.definitePosition = [0, 0, 0];
 ```
-Setting a property actually adds to existing keyframes and sorts by time.
+You can add to an animation by using the add method and ANIM constant.
 ```js
-wall.animate.definitePosition = [[0, 1, 0, 4, EASE.OUT_EXPO]] // Easings and splines work too!
+wall.animate.add(ANIM.DEFINITE_POSITION, [0, 1, 0, 4, EASE.OUT_EXPO]); // Easings and splines work too!
 ```
 You can use a negative number for time to return to a range of 0-1, it will be converted to positive internally.
 ```js
-wall.animate.definitePosition = [[0, 2, 0, -0.5]]
+wall.animate.add(ANIM.DEFINITE_POSITION, [0, 2, 0, -0.5]);
 ```
 This wrapper also allows you to grab what the values of a property would be at a certain time. It accounts for easings, splines, and what the property actually is (rotations interpolate differently than positions, for example).
 ```js
@@ -98,19 +106,6 @@ animation.scale = [[1, 1, 1, 0], [2, 2, 2, 1]];
 wall.importAnimation(animation);
 ```
 If you are dealing with animations with a large amount of points, like keyframe exports from blender for example, it may be a good idea to call the `optimize()` method on the animation in order to cut down on points. This method does it's best to reduce point count while retaining the shape of the animation.
-# Color
-The color class is used to express colors in different formats. Right now RGB and HSV (hue, saturation, value) is supported. Here's a quick code example on how expressing colors with HSV could be useful:
-```js
-// Rainbow notes!
-for (let i = 0; i <= 1; i++) {
-    let time = 2 + (i * 4); // Starts at beat 2, for 4 beats.
-    let color = new Color([i, 1, 1], "HSV"); // Hue will be cycled through in for loop, saturation and value will be full.
-
-    let note = new Note(time);
-    note.color = color.export(); // Converts to RGB and returns value array.
-    note.push();
-}
-```
 # Events
 Events are similar to making Notes and Walls, but they have subclasses, which means you will need to further specify what kind of event it will be.
 ```js
@@ -132,7 +127,7 @@ event.push();
 Environment objects also have wrappers to make use of them easier.
 ```js
 // Only a handful of environment pieces have constants for their ID, feel free to PR more!
-let env = new Environment(ENV.BTS.PILLAR.ID, "Regex");
+let env = new Environment(ENV.BTS.PILLAR.ID, LOOKUP.REGEX);
 env.duplicate = 1;
 env.position = [0, 10, 0];
 env.push();
@@ -148,9 +143,9 @@ If you add a track to an environment object, you can animate it with it's origin
 let animation = new Animation(5).environmentAnimation();
 animation.position = [[0, 0, 0, 0], [0, -10, 0, 5, EASE.IN_OUT_EXPO]];
 
-env.track = "pillar";
+env.trackSet = "pillar";
 env.push();
-animateEnvTrack(env.track, 3, animation.length, animation);
+animateEnvTrack("pillar", 3, animation.length, animation);
 ```
 The expected animation as a result of this would be: `[[0, 10, 0, 0], [0, 0, 0, 1, "easeInOutExpo"]]`
 
@@ -158,7 +153,7 @@ You can also assign a `group`, and call `animateEnvGroup()` to do this for every
 # Blender Environment
 This is an improvement of my previous [BlenderToEnvironment](https://github.com/Swifter1243/BlenderToEnvironment) repo. 
 
-Just like before, you'll need a setup with ScuffedWalls in order to get this to work. `SW_SCRIPT` and `SW_MODEL` exist as constants for the statements you can copy and paste into your ScuffedWalls script to both get the script running from it and get the model exported. But I'm nice so I'll put them here since you're reading this:
+Just like before, you'll need a setup with ScuffedWalls in order to get this to work. The statements for these are available in [constants.ts](https://github.com/Swifter1243/ReMapper/blob/master/src/constants.ts) that you can copy and paste into your ScuffedWalls script to both get the script running from it and get the model exported. But I'm nice so I'll put them here since you're reading this:
 ```
 0:Run
   Script:script.ts
@@ -181,7 +176,8 @@ You absolutely need ScuffedWalls to be running from your map directory, or else 
 This time the environments are in the form of a class, which stores the transformation data for the environment piece to get it fitting to the model, and also the data for creation of the environment pieces if you plan to use it to place them.
 ```js
 // Again, only a handful of environment pieces have scales and anchors available as constants.
-let blenderEnv = new BlenderEnvironment(ENV.BTS.PILLAR.SCALE, ENV.BTS.PILLAR.ANCHOR, ENV.BTS.PILLAR.ID, "Regex");
+// However, you may use ANY piece, but you'll have to figure out the anchor and scale yourself.
+let blenderEnv = new BlenderEnvironment(ENV.BTS.PILLAR.SCALE, ENV.BTS.PILLAR.ANCHOR, ENV.BTS.PILLAR.ID, LOOKUP.REGEX);
 ```
 The way scale works is that it represents the object's size relative to a noodle cube. Each value is divided by `0.6`, since the scale is more likely to be relavant to unity units, rather than noodle units (0.6 of a unity unit). Each value is also an inverse value, as most of the time you're scaling down. So inputting 2 would end up halving the scale.
 
@@ -191,7 +187,7 @@ When it comes to actually spawning in the objects, you have 2 options. The first
 ```js
 blenderEnv.static("model"); // Needs to be the same track as the model!
 ```
-There is additionally a boolean that can be added after the data track to instead use a debug model with a debug wall, useful for getting your scale and offset right. The object should be fitting the cube.
+Tip: If you don't define a track for the model, a debug model will be spawned in with unit walls to help you find the anchor and scale to fit your piece to a cube.
 
 The other option is to use the `animate()` method, which allows you to switch between models during the map, and supports animations. Environment pieces are recycled, so you aren't adding the count of each model's pieces to the map every time you switch. All animations will also be automatically optimized to cut down on points, since blender animation exports are notorious for keyframe spam.
 ```js
@@ -202,11 +198,25 @@ blenderEnv.animate([
 ```
 Alternatively, you can simply use `processData()` to get the raw math output from this algorithm if you'd like to do something completely seperate with it.
 
-You can also assign other tracks to be animated with this environment. For example if you assign a track called "cloud", if you were to then switch to "model", you could represent the position of "cloud" in the model as an object with the track "model_cloud". You can add tracks to objects by renaming the second material on the object in blender. This object can also be animated.
+You can also assign other tracks to be animated with this environment. For example if you assign a track called "cloud", if you were to then use a model with the track "model", you would represent the position of "cloud" in the model as an object with the track "model_cloud". You can add tracks to objects by renaming the second material on the object in blender. This object can also be animated.
 ```js
+// Reminder that you can still use your own anchor and scale if you wish!
 blenderEnv.assignObjects("cloud", ENV.BTS.LOW_CLOUDS.SCALE, ENV.BTS.LOW_CLOUDS.ANCHOR);
 ```
 This will also work with the static method, but it will use an animation event to reposition the object.
+# Color
+The color class is used to express colors in different formats. Right now RGB and HSV (hue, saturation, value) is supported. Here's a quick code example on how expressing colors with HSV could be useful:
+```js
+// Rainbow notes!
+for (let i = 0; i <= 1; i++) {
+    let time = 2 + (i * 4); // Starts at beat 2, for 4 beats.
+    let color = new Color([i, 1, 1], "HSV"); // Hue will be cycled through in for loop, saturation and value will be full.
+
+    let note = new Note(time);
+    note.color = color.export(); // Converts to RGB and returns value array.
+    note.push();
+}
+```
 # Light Remapper
 This is a class mostly focused on refactoring the order of lightIDs in a given range. The reason this might be needed is if for example you have duplicated lights, and would like to light them in the editor, and have the events automatically carry over.
 ```js

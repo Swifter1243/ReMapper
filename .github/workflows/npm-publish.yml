@@ -1,0 +1,49 @@
+name: npm-publish
+on:
+  release:
+    
+jobs:
+  npm-publish:
+    name: npm-publish
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+    - uses: actions/setup-node@v1
+      with:
+        node-version: 16
+
+    - uses: actions/cache@v3
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+    - run: npm install
+    - run: npm install -g typescript
+    - run: npm test
+      
+    - name: Set git config
+      run: |
+        git config --global committer.email "noreply@github.com"
+        git config --global committer.name "GitHub"
+        git config --global author.email "${GITHUB_ACTOR}@users.noreply.github.com"
+        git config --global author.name "${GITHUB_ACTOR}"
+
+    - name: Set version
+      run: npm version -f ${{ github.event.release.tag_name }}
+
+    - uses: JS-DevTools/npm-publish@v1
+      with:
+        token: ${{ secrets.NPM_TOKEN }}
+        
+
+    # - name: Publish if version has been updated
+    #   uses: pascalgn/npm-publish-action@1.3.9
+    #   with: # All of theses inputs are optional
+    #     workspace: "."
+    #     publish_command: "npm"
+    #     publish_args: "--non-interactive"
+    #   env: # More info about the environment variables in the README
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Leave this as is, it's automatically generated
+    #     NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} # You need to set this in your repo settings

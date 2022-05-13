@@ -10,6 +10,7 @@ import { EventInternals } from './event';
 
 export type Vec3 = [number, number, number];
 export type Vec4 = [number, number, number, number];
+export type ColorType = [number, number, number] | [number, number, number, number];
 
 /**
  * Allows you to filter through an array of objects with a min and max property.
@@ -282,13 +283,14 @@ export function isEmptyObject(o: object) {
 /**
  * Rotate a point around 0,0,0.
  * @param {Array} rotation
- * @param {Array} point 
+ * @param {Array} point
+ * @param {Array} anchor Anchor of rotation.
  * @returns {Array}
  */
-export function rotatePoint(rotation: Vec3, point: Vec3) {
+export function rotatePoint(rotation: Vec3, point: Vec3, anchor: Vec3 = [0,0,0]) {
     let mathRot = toRadians(rotation);
-    let vector = new three.Vector3(...point).applyEuler(new three.Euler(...mathRot, "YXZ"));
-    return [vector.x, vector.y, vector.z];
+    let vector = new three.Vector3(...arrAdd(point, arrMul(anchor, -1))).applyEuler(new three.Euler(...mathRot, "YXZ"));
+    return arrAdd([vector.x, vector.y, vector.z], anchor) as Vec3;
 }
 
 /**
@@ -517,9 +519,9 @@ export function debugWall(pos: KeyframesVec3 = undefined, rot: KeyframesVec3 = u
         data.scale.push([...objScale, time])
     }
 
-    wallAnim.definitePosition = data.pos;
-    wallAnim.localRotation = data.rot;
-    wallAnim.scale = data.scale;
+    wallAnim.add(ANIM.DEFINITE_POSITION, data.pos);
+    wallAnim.add(ANIM.LOCAL_ROTATION, data.rot);
+    wallAnim.add(ANIM.SCALE, data.scale);
     wallAnim.optimize();
 
     wall.color = [0, 0, 0, 1];

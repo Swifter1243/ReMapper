@@ -12,9 +12,10 @@ export type KeyframesAny = number[] | KeyframeValues[] | string;
 export type KeyframeValues = (number | EASE | SPLINE)[];
 export type KeyframeArray = KeyframeValues[];
 
+export type TrackValue = string | string[];
 export namespace AnimationInternals {
     export class BaseAnimation {
-        json = {};
+        json: any = {};
         length;
 
         constructor(length: number = undefined, data = undefined) {
@@ -37,7 +38,9 @@ export namespace AnimationInternals {
          * @param {String} property 
          * @param {*} value 
          */
-        set(property: string, value) { this.json[property] = value }
+        set(property: string, value: KeyframesAny) {
+            this.json[property] = simplifyArray(complexifyArray(value).sort((a: KeyframeValues, b: KeyframeValues) => new Keyframe(a).time - new Keyframe(b).time))
+        }
 
         /**
          * Get a property's animations.
@@ -117,20 +120,20 @@ export namespace AnimationInternals {
         get interactable() { return this.get(ANIM.INTERACTABLE) }
         get time() { return this.get(ANIM.TIME) }
 
-        set position(value: KeyframesVec3) { this.add(ANIM.POSITION, value) }
-        set definitePosition(value: KeyframesVec3) { this.add(ANIM.DEFINITE_POSITION, value) }
-        set rotation(value: KeyframesVec3) { this.add(ANIM.ROTATION, value) }
-        set localRotation(value: KeyframesVec3) { this.add(ANIM.LOCAL_ROTATION, value) }
-        set scale(value: KeyframesVec3) { this.add(ANIM.SCALE, value) }
-        set dissolve(value: KeyframesLinear) { this.add(ANIM.DISSOLVE, value) }
-        set color(value: KeyframesVec4) { this.add(ANIM.COLOR, value) }
-        set interactable(value: KeyframesLinear) { this.add(ANIM.INTERACTABLE, value) }
-        set time(value: KeyframesLinear) { this.add(ANIM.TIME, value) }
+        set position(value: KeyframesVec3) { this.set(ANIM.POSITION, value) }
+        set definitePosition(value: KeyframesVec3) { this.set(ANIM.DEFINITE_POSITION, value) }
+        set rotation(value: KeyframesVec3) { this.set(ANIM.ROTATION, value) }
+        set localRotation(value: KeyframesVec3) { this.set(ANIM.LOCAL_ROTATION, value) }
+        set scale(value: KeyframesVec3) { this.set(ANIM.SCALE, value) }
+        set dissolve(value: KeyframesLinear) { this.set(ANIM.DISSOLVE, value) }
+        set color(value: KeyframesVec4) { this.set(ANIM.COLOR, value) }
+        set interactable(value: KeyframesLinear) { this.set(ANIM.INTERACTABLE, value) }
+        set time(value: KeyframesLinear) { this.set(ANIM.TIME, value) }
     }
 
     export class NoteAnimation extends ObjectAnimation {
         get dissolveArrow() { return this.get(ANIM.DISSOLVE_ARROW) }
-        set dissolveArrow(value: KeyframesLinear) { this.add(ANIM.DISSOLVE_ARROW, value) }
+        set dissolveArrow(value: KeyframesLinear) { this.set(ANIM.DISSOLVE_ARROW, value) }
     }
 
     export class WallAnimation extends ObjectAnimation { }
@@ -142,11 +145,11 @@ export namespace AnimationInternals {
         get localRotation() { return this.get(ANIM.LOCAL_ROTATION) }
         get scale() { return this.get(ANIM.SCALE) }
 
-        set position(value: KeyframesVec3) { this.add(ANIM.POSITION, value) }
-        set rotation(value: KeyframesVec3) { this.add(ANIM.ROTATION, value) }
-        set localPosition(value: KeyframesVec3) { this.add(ANIM.LOCAL_POSITION, value) }
-        set localRotation(value: KeyframesVec3) { this.add(ANIM.LOCAL_ROTATION, value) }
-        set scale(value: KeyframesVec3) { this.add(ANIM.SCALE, value) }
+        set position(value: KeyframesVec3) { this.set(ANIM.POSITION, value) }
+        set rotation(value: KeyframesVec3) { this.set(ANIM.ROTATION, value) }
+        set localPosition(value: KeyframesVec3) { this.set(ANIM.LOCAL_POSITION, value) }
+        set localRotation(value: KeyframesVec3) { this.set(ANIM.LOCAL_ROTATION, value) }
+        set scale(value: KeyframesVec3) { this.set(ANIM.SCALE, value) }
     }
 
     export class FogAnimation extends BaseAnimation {
@@ -155,10 +158,10 @@ export namespace AnimationInternals {
         get startY() { return this.get(ANIM.STARTY) }
         get height() { return this.get(ANIM.HEIGHT) }
 
-        set attenuation(value: KeyframesLinear) { this.add(ANIM.ATTENUATION, value) }
-        set offset(value: KeyframesLinear) { this.add(ANIM.OFFSET, value) }
-        set startY(value: KeyframesLinear) { this.add(ANIM.STARTY, value) }
-        set height(value: KeyframesLinear) { this.add(ANIM.HEIGHT, value) }
+        set attenuation(value: KeyframesLinear) { this.set(ANIM.ATTENUATION, value) }
+        set offset(value: KeyframesLinear) { this.set(ANIM.OFFSET, value) }
+        set startY(value: KeyframesLinear) { this.set(ANIM.STARTY, value) }
+        set height(value: KeyframesLinear) { this.set(ANIM.HEIGHT, value) }
     }
 
     export class AbstractAnimation extends ObjectAnimation {
@@ -178,21 +181,21 @@ export namespace AnimationInternals {
         get startY() { return this.get(ANIM.STARTY) }
         get height() { return this.get(ANIM.HEIGHT) }
 
-        set position(value: KeyframesVec3) { this.add(ANIM.POSITION, value) }
-        set localPosition(value: KeyframesVec3) { this.add(ANIM.LOCAL_POSITION, value) }
-        set definitePosition(value: KeyframesVec3) { this.add(ANIM.DEFINITE_POSITION, value) }
-        set rotation(value: KeyframesVec3) { this.add(ANIM.ROTATION, value) }
-        set localRotation(value: KeyframesVec3) { this.add(ANIM.LOCAL_ROTATION, value) }
-        set scale(value: KeyframesVec3) { this.add(ANIM.SCALE, value) }
-        set dissolve(value: KeyframesLinear) { this.add(ANIM.DISSOLVE, value) }
-        set dissolveArrow(value: KeyframesLinear) { this.add(ANIM.DISSOLVE_ARROW, value) }
-        set color(value: KeyframesVec4) { this.add(ANIM.COLOR, value) }
-        set interactable(value: KeyframesLinear) { this.add(ANIM.INTERACTABLE, value) }
-        set time(value: KeyframesLinear) { this.add(ANIM.TIME, value) }
-        set attenuation(value: KeyframesLinear) { this.add(ANIM.ATTENUATION, value) }
-        set offset(value: KeyframesLinear) { this.add(ANIM.OFFSET, value) }
-        set startY(value: KeyframesLinear) { this.add(ANIM.STARTY, value) }
-        set height(value: KeyframesLinear) { this.add(ANIM.HEIGHT, value) }
+        set position(value: KeyframesVec3) { this.set(ANIM.POSITION, value) }
+        set localPosition(value: KeyframesVec3) { this.set(ANIM.LOCAL_POSITION, value) }
+        set definitePosition(value: KeyframesVec3) { this.set(ANIM.DEFINITE_POSITION, value) }
+        set rotation(value: KeyframesVec3) { this.set(ANIM.ROTATION, value) }
+        set localRotation(value: KeyframesVec3) { this.set(ANIM.LOCAL_ROTATION, value) }
+        set scale(value: KeyframesVec3) { this.set(ANIM.SCALE, value) }
+        set dissolve(value: KeyframesLinear) { this.set(ANIM.DISSOLVE, value) }
+        set dissolveArrow(value: KeyframesLinear) { this.set(ANIM.DISSOLVE_ARROW, value) }
+        set color(value: KeyframesVec4) { this.set(ANIM.COLOR, value) }
+        set interactable(value: KeyframesLinear) { this.set(ANIM.INTERACTABLE, value) }
+        set time(value: KeyframesLinear) { this.set(ANIM.TIME, value) }
+        set attenuation(value: KeyframesLinear) { this.set(ANIM.ATTENUATION, value) }
+        set offset(value: KeyframesLinear) { this.set(ANIM.OFFSET, value) }
+        set startY(value: KeyframesLinear) { this.set(ANIM.STARTY, value) }
+        set height(value: KeyframesLinear) { this.set(ANIM.HEIGHT, value) }
     }
 }
 
@@ -287,6 +290,27 @@ export class Keyframe {
         if (this.easing !== undefined) output.push(this.easing);
         if (this.spline !== undefined) output.push(this.spline);
         return output;
+    }
+}
+
+export class Track {
+    value: TrackValue;
+
+    /**
+     * Handler for the track property.
+     * @param {TrackValue} value 
+     */
+    constructor(value: TrackValue) { this.value = value }
+
+    /**
+     * Safely check if either the array contains this value or the track is equal to this value.
+     * @param {String} value 
+     * @returns 
+     */
+    has(value: string) {
+        if (this.value === undefined) return false;
+        if (typeof this.value === "string") return this.value === value;
+        else return this.value.some(x => x === value);
     }
 }
 

@@ -1,7 +1,8 @@
-import { combineAnimations, Animation, Keyframe, AnimationInternals } from './animation';
+import { combineAnimations, Keyframe, AnimationInternals, TrackValue, Track } from './animation';
 import { activeDiff } from './beatmap';
 import { Vec3, debugWall, copy, rotatePoint } from './general';
 import { CustomEvent, CustomEventInternals } from './custom_event';
+import { LOOKUP } from './constants';
 
 let envCount = 0;
 let blenderEnvCount = 0;
@@ -22,9 +23,9 @@ export class Environment {
      * @param {String} id 
      * @param {String} lookupMethod 
      */
-    constructor(id: string = undefined, lookupMethod: string = undefined) {
+    constructor(id: string = undefined, lookupMethod: LOOKUP = undefined) {
         id ??= "";
-        lookupMethod ??= "";
+        lookupMethod ??= LOOKUP.CONTAINS;
         this.id = id;
         this.lookupMethod = lookupMethod;
     }
@@ -43,7 +44,7 @@ export class Environment {
      * Push this environment object to the difficulty
      */
     push() {
-        if (this.group && this.track === undefined) this.track = `environment${envCount}`;
+        if (this.track.value === undefined) this.trackSet = `environment${envCount}`;
         envCount++;
         if (activeDiff.environment === undefined) activeDiff.environment = [];
         activeDiff.environment.push(copy(this));
@@ -60,7 +61,7 @@ export class Environment {
     get rotation() { return this.json._rotation }
     get localRotation() { return this.json._localRotation }
     get lightID() { return this.json._lightID }
-    get track() { return this.json._track }
+    get track() { return new Track(this.json._track) }
     get group() { return this.json._group }
     get animationProperties() {
         let returnObj: any = {};
@@ -73,7 +74,7 @@ export class Environment {
     }
 
     set id(value: string) { this.json._id = value }
-    set lookupMethod(value: string) { this.json._lookupMethod = value }
+    set lookupMethod(value: LOOKUP) { this.json._lookupMethod = value }
     set duplicate(value: number) { this.json._duplicate = value }
     set active(value: boolean) { this.json._active = value }
     set scale(value: number[]) { this.json._scale = value }
@@ -82,7 +83,7 @@ export class Environment {
     set rotation(value: number[]) { this.json._rotation = value }
     set localRotation(value: number[]) { this.json._localRotation = value }
     set lightID(value: number) { this.json._lightID = value }
-    set track(value: string) { this.json._track = value }
+    set trackSet(value: TrackValue) { this.json._track = value }
     set group(value: string) { this.json._group = value }
 }
 
@@ -169,12 +170,15 @@ export namespace BlenderEnvironmentInternals {
             return outputData;
         }
     }
+
     export class BlenderAssigned extends BaseBlenderEnvironment {
         track: string;
         disappearWhenAbsent: boolean;
+        parent: BlenderEnvironment;
 
-        constructor(scale: Vec3, anchor: Vec3, track: string, disappearWhenAbsent: boolean) {
+        constructor(parent: BlenderEnvironment, scale: Vec3, anchor: Vec3, track: string, disappearWhenAbsent: boolean) {
             super(scale, anchor);
+            this.parent = parent;
             this.track = track;
             this.disappearWhenAbsent = disappearWhenAbsent;
         }
@@ -211,13 +215,14 @@ export namespace BlenderEnvironmentInternals {
                 moveEvent.animate.position = x.pos;
                 moveEvent.animate.rotation = x.rot;
                 moveEvent.animate.scale = x.scale;
+                if (this.parent.assignedAccuracy > 0) moveEvent.animate.optimize(this.parent.assignedAccuracy);
                 moveEvent.duration = duration;
                 if (forEvents !== undefined) forEvents(moveEvent);
                 moveEvent.push();
             }
             else if (this.disappearWhenAbsent) {
                 let moveEvent = new CustomEvent(time).animateTrack(this.track);
-                moveEvent.animate.localPosition = [0, -69420, 0];
+                moveEvent.animate.position = [0, -69420, 0];
                 moveEvent.push();
             }
         }
@@ -227,17 +232,19 @@ export namespace BlenderEnvironmentInternals {
 export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderEnvironment {
     id: string;
     trackID: number;
-    lookupMethod: string;
+    lookupMethod: LOOKUP;
     assigned: BlenderEnvironmentInternals.BlenderAssigned[] = [];
     objectAmounts: number[][] = [];
     maxObjects: number = 0;
+    accuracy: number = 1;
+    assignedAccuracy: number = 1;
 
     /**
     * Tool for using model data from ScuffedWalls for environments.
     * @param {Array} scale The scale of the object relative to a noodle unit cube.
     * @param {Array} anchor The anchor point of rotation on the object, 1 = length of object on that axis.
     */
-    constructor(scale: Vec3, anchor: Vec3, id: string = undefined, lookupMethod: string = undefined) {
+    constructor(scale: Vec3, anchor: Vec3, id: string = undefined, lookupMethod: LOOKUP = undefined) {
         super(scale, anchor)
         this.id = id;
         this.lookupMethod = lookupMethod;
@@ -258,7 +265,7 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
         scale ??= [1, 1, 1];
         anchor ??= [0, 0, 0];
         if (typeof tracks === "string") tracks = [tracks];
-        tracks.forEach(x => { this.assigned.push(new BlenderEnvironmentInternals.BlenderAssigned(scale, anchor, x, disappearWhenAbsent)) })
+        tracks.forEach(x => { this.assigned.push(new BlenderEnvironmentInternals.BlenderAssigned(this, scale, anchor, x, disappearWhenAbsent)) })
     }
 
     /**
@@ -316,12 +323,12 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
      * Set the environment to switch to different models at certain times. Also uses model animations.
      * @param {Array} switches First element is the data track of the switch, second element is the time, 
      * third element (optional) is the duration of the animation.
-     * fourth element (optional) is a function to run per environment moving event animation.
+     * fourth element (optional) is a function to run per environment moving event.
      * fifth element (optional) is a function to run per assigned object moving event.
      * @param {Function} forEnvSpawn function to run for each initial environment object.
      */
     animate(switches: [string, number, number?,
-        ((envAnimation: AnimationInternals.EnvironmentAnimation, objects: number) => void)?,
+        ((moveEvent: CustomEventInternals.AnimateTrack, objects: number) => void)?,
         ((moveEvent: CustomEventInternals.AnimateTrack) => void)?
     ][], forEnvSpawn: (envObject: Environment) => void = undefined) {
         switches.sort((a, b) => a[1] - b[1]);
@@ -336,15 +343,14 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
             let objects = 0;
 
             data.forEach((x, i) => {
-                let dataAnim = new Animation().environmentAnimation();
+                let event = new CustomEvent(time).animateTrack(this.getPieceTrack(i), duration);
+                event.animate.position = x.pos;
+                event.animate.rotation = x.rot;
+                event.animate.scale = x.scale;
+                if (this.accuracy > 0) event.animate.optimize(this.accuracy);
+                if (forEnv !== undefined) forEnv(event, objects);
+                event.push();
 
-                dataAnim.position = x.pos;
-                dataAnim.rotation = x.rot;
-                dataAnim.scale = x.scale;
-                dataAnim.optimize();
-                if (forEnv !== undefined) forEnv(dataAnim, objects);
-
-                new CustomEvent(time).animateTrack(this.getPieceTrack(i), duration, dataAnim.json).push();
                 objects++;
             })
 
@@ -355,19 +361,20 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
         })
 
         switches.forEach(x => {
-            let objects = this.lookupAmount(x[1]);
+            let time = x[1];
+            let objects = this.lookupAmount(time);
             for (let i = objects; i < this.maxObjects; i++) {
-                let event = new CustomEvent(x[1]).animateTrack(this.getPieceTrack(i));
-                event.animate.localPosition = [0, -69420, 0];
+                let event = new CustomEvent(time).animateTrack(this.getPieceTrack(i));
+                event.animate.position = [0, -69420, 0];
                 event.push();
             }
         })
 
-        for (let i = 0; i <= this.maxObjects; i++) {
+        for (let i = 0; i < this.maxObjects; i++) {
             let envObject = new Environment(this.id, this.lookupMethod);
             envObject.position = [0, -69420, 0];
             envObject.duplicate = 1;
-            envObject.track = this.getPieceTrack(i);
+            envObject.trackSet = this.getPieceTrack(i);
             if (forEnvSpawn !== undefined) forEnvSpawn(envObject);
             envObject.push();
         }
@@ -400,7 +407,7 @@ export function animateEnvGroup(group: string, time: number, duration: number, a
                 if (x.json[key]) newAnimation[key] = combineAnimations(newAnimation[key], x.json[key], key);
             })
 
-            new CustomEvent(time).animateTrack(x.track, duration, newAnimation, easing).push();
+            new CustomEvent(time).animateTrack(x.track.value as string, duration, newAnimation, easing).push();
         }
     })
 }
@@ -415,7 +422,7 @@ export function animateEnvGroup(group: string, time: number, duration: number, a
  */
 export function animateEnvTrack(track: string, time: number, duration: number, animation: AnimationInternals.BaseAnimation, easing: string = undefined) {
     if (activeDiff.environment !== undefined) activeDiff.environment.forEach(x => {
-        if (x.track === track) {
+        if (x.track.has(track)) {
             let newAnimation = copy(animation.json);
 
             Object.keys(newAnimation).forEach(key => {
@@ -432,7 +439,7 @@ function getTrackData(track: string): any[] {
         trackData[track] = [];
         for (let i = 0; i < activeDiff.notes.length; i++) {
             let note = activeDiff.notes[i];
-            if (note.track === track) {
+            if (note.track.has(track)) {
                 trackData[track].push(note.animation);
                 activeDiff.notes.splice(i, 1);
                 i--;

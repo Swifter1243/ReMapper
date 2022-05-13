@@ -1,5 +1,17 @@
 # Welcome to ReMapper!
-This is a [TypeScript](https://www.typescriptlang.org/) library designed to help with making Beat Saber modcharts.
+This is a [TypeScript](https://www.typescriptlang.org/) library designed to help with making Beat Saber modcharts. It is designed to optimize the scripting experience, and reduce code to be very minimal, and sometimes single lines.
+
+Normal way:
+```js
+map._notes.push({
+  _time: 20,
+  _lineIndex: 1,
+  _lineLayer: 1,
+  _type: 1,
+  _cutDirection: 3
+});
+```
+ReMapper: `new Note(20, NOTE.RED, NOTE.RIGHT, [1, 1]).push();`
 
 Here are some notable features:
 - Wrappers for Notes, Walls, Events, Custom Events, and Environment Objects.
@@ -14,13 +26,9 @@ Here are some notable features:
 - Various random useful functions.
 - Much more!!!
 
-While this library was designed for TypeScript, it is *technically* useable with JavaScript.
+While this library was designed for TypeScript, it is *technically* useable with JavaScript, but types will save you a lot of time in the long run, and makes everything feel secure.
 
-I would advise against using JS for this, because it doesn't properly autocomplete properties on objects, which defeats the purpose as you'd need to refer to documentation to use this package, it's much better to have everything just show up.
-
-TypeScript will by default force you to specify the type (number, array, object.. etc) of every variable, if you don't like this, you can add a file to your project that will ignore this.
-
-You'll likely need to do some exploring with this package to get comfortable. Check out [examples](https://github.com/Swifter1243/ReMapper/blob/master/examples.md) and read the descriptions of what different things do.
+You'll likely need to do some exploring with this package to get comfortable. Check out [examples](https://github.com/Swifter1243/ReMapper/blob/master/examples.md) and thoroughly read the descriptions of what different things do.
 
 # Installation
 
@@ -32,8 +40,8 @@ Next, get the terminal running inside of your map project folder with `cd "direc
 
 Finally, install this package with `npm install swifter_remapper`
 
-If you want to define implicit any types (explained before), then add `tsconfig.json` to your project folder:
-```json
+For faster startup times, you can add this `tsconfig.json` to your project folder:
+```jsonc
 {
     "include": [
         "./**/*"
@@ -41,15 +49,12 @@ If you want to define implicit any types (explained before), then add `tsconfig.
     "exclude": [
         "node_modules"
     ],
-    // only include this if you want to have faster map script generation at the cost of ignoring type errors
-    // experienced programmers should be fine
     "ts-node": {
-        "transpileOnly": true /* Skips type checking for faster startup times */
+        "transpileOnly": true
     },
     "compilerOptions": {
         "target": "ES2015",
         "module": "commonjs",
-        "noImplicitAny": false,
         "esModuleInterop": true,
         "moduleResolution": "node",
         "resolveJsonModule": true,
@@ -57,9 +62,13 @@ If you want to define implicit any types (explained before), then add `tsconfig.
     }
 }
 ```
+Only include this if you are ok with ignoring type errors at runtime, but of course they'll still show up in your IDE.
+
 If you want to update the package, you can run `npm uninstall swifter_remapper` and then `npm install swifter_remapper` again.
 
 You would run this script with `ts-node "script name here"`.
+
+# Troubleshooting
 
 If you have an error that looks like this, run the following command in an admin cmd/pwsh instance.
 

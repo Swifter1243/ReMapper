@@ -1,6 +1,6 @@
 import { activeDiff, info } from './beatmap';
-import { Animation, AnimationInternals } from './animation';
-import { isEmptyObject, getJumps, copy, jsonPrune } from './general';
+import { Animation, AnimationInternals, Track, TrackValue } from './animation';
+import { isEmptyObject, getJumps, copy, jsonPrune, ColorType } from './general';
 import { NOTE } from './constants';
 
 export class Note {
@@ -94,7 +94,7 @@ export class Note {
     get lifeStart() { return this.time - this.life / 2 }
     get fake() { return this.json._customData._fake }
     get interactable() { return this.json._customData._interactable }
-    get track() { return this.json._customData._track }
+    get track() { return new Track(this.json._customData._track) }
     get color() { return this.json._customData._color }
     get animation() { return this.json._customData._animation }
 
@@ -136,8 +136,8 @@ export class Note {
     set lifeStart(value: number) { this.time = value + this.life / 2 }
     set fake(value: boolean) { this.json._customData._fake = value }
     set interactable(value: boolean) { this.json._customData._interactable = value }
-    set track(value: string) { this.json._customData._track = value }
-    set color(value: number[]) { this.json._customData._color = value }
+    set trackSet(value: TrackValue) { this.json._customData._track = value }
+    set color(value: ColorType) { this.json._customData._color = value }
     set animation(value) { this.json._customData._animation = value }
 
     get isModded() {

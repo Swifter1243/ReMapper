@@ -1,16 +1,20 @@
+import path from 'path';
+import seven from 'node-7z';
+import sevenBin from '7zip-bin';
 import * as fs from 'fs';
 import { Note } from './note';
 import { Wall } from './wall';
 import { Event, EventInternals } from './event';
 import { CustomEvent, CustomEventInternals } from './custom_event';
 import { Environment } from './environment';
-import { copy, isEmptyObject, jsonGet, jsonPrune, jsonRemove, jsonSet, sortObjects, Vec3 } from './general';
+import { copy, isEmptyObject, jsonGet, jsonPrune, jsonRemove, jsonSet, rand, sortObjects, Vec3 } from './general';
 
 export class Difficulty {
     json;
     diffSet;
     diffSetMap;
     mapFile;
+    relativeMapFile: string;
 
     /**
      * Creates a difficulty. Can be used to access various information and the map data.
@@ -19,7 +23,13 @@ export class Difficulty {
      * @param {String} input Filename for the output. If left blank, input will be used.
      */
     constructor(input: string, output: string = undefined) {
+
+        // If the path contains a separator of any kind, use it instead of the default "Info.dat"
+        info.load((input.includes('\\') || input.includes('/')) ? path.join(path.dirname(input), "Info.dat") : undefined);
+
         this.mapFile = input;
+        this.relativeMapFile = path.parse(output ?? input).base;
+
         if (output !== undefined) {
             if (!fs.existsSync(output)) throw new Error(`The file ${output} does not exist`)
             this.mapFile = output;
@@ -30,7 +40,7 @@ export class Difficulty {
 
         info.json._difficultyBeatmapSets.forEach(set => {
             set._difficultyBeatmaps.forEach(setmap => {
-                if (this.mapFile === setmap._beatmapFilename) {
+                if (this.relativeMapFile === setmap._beatmapFilename) {
                     this.diffSet = set;
                     this.diffSetMap = setmap;
                 }
@@ -56,7 +66,8 @@ export class Difficulty {
      * Saves the difficulty.
      * @param {String} diffName Filename for the save. If left blank, the beatmap file name will be used for the save.
      */
-    save(diffName: string = this.mapFile) {
+    save(diffName?: string) {
+        diffName ??= this.mapFile;
         if (!fs.existsSync(diffName)) throw new Error(`The file ${diffName} does not exist and cannot be saved`);
 
         let outputJSON = copy(this.json);
@@ -236,14 +247,14 @@ export class Info {
     json;
     fileName = "Info.dat";
 
-    constructor() {
-        let fileName = this.fileName;
+    load(path?: string) {
+        let fileName = path ?? this.fileName;
         if (fs.existsSync(fileName)) {
             this.json = JSON.parse(fs.readFileSync(fileName, "utf-8"));
             this.fileName = fileName;
         }
         else {
-            throw new Error(`The file "${fileName}" does not exist. Please call "change()" if your Info.dat file is named differently.`)
+            throw new Error(`The file "${fileName}" does not exist.`)
         }
     }
 
@@ -251,6 +262,7 @@ export class Info {
      * Saves the Info.dat
      */
     save() {
+        if (!this.json) throw new Error("The Info object has not been loaded.");
         fs.writeFileSync(this.fileName, JSON.stringify(this.json, null, 2));
     }
 
@@ -310,11 +322,109 @@ export let forceJumpsForNoodle = true;
  * Set the difficulty that objects are being created for.
  * @param {Object} diff 
  */
-export function setActiveDiff(diff: Difficulty) { activeDiff = diff }
+export function activeDiffSet(diff: Difficulty) { activeDiff = diff }
 
 /**
  * Set whether exported walls and notes with custom data will have their NJS / Offset forced.
  * This helps avoid things like JDFixer breaking things. Should be set before your scripting.
  * @param {Boolean} value
  */
-export function setForceJumpsForNoodle(value: boolean) { forceJumpsForNoodle = value; }
+export function forceJumpsForNoodleSet(value: boolean) { forceJumpsForNoodle = value; }
+
+/**
+ * Automatically zip the map, including only necessary files.
+ * @param {String[]} excludeDiffs Difficulties to exclude.
+ * @param {String} zipName Name of the zip (don't include ".zip"). Uses folder name if undefined.
+ */
+export function exportZip(excludeDiffs: string[] = [], zipName?: string) {
+    if (!info.json) throw new Error("The Info object has not been loaded.");
+
+    let absoluteInfoFileName = info.fileName === "Info.dat" ? process.cwd() + `\\${info.fileName}` : info.fileName;
+    let workingDir = path.parse(absoluteInfoFileName).dir;
+    let exportInfo = copy(info.json);
+    let files: string[] = [];
+    function pushFile(file: string) {
+        let dir = workingDir + `\\${file}`;
+        if (fs.existsSync(dir)) files.push(dir);
+    }
+
+    pushFile(exportInfo._songFilename);
+    if (exportInfo._coverImageFilename !== undefined) pushFile(exportInfo._coverImageFilename);
+
+    for (let s = 0; s < exportInfo._difficultyBeatmapSets.length; s++) {
+        let set = exportInfo._difficultyBeatmapSets[s];
+        for (let m = 0; m < set._difficultyBeatmaps.length; m++) {
+            let map = set._difficultyBeatmaps[m];
+            let passed = true;
+            excludeDiffs.forEach(d => {
+                if (map._beatmapFilename === d) {
+                    set._difficultyBeatmaps.splice(m, 1);
+                    m--;
+                    passed = false;
+                }
+            })
+
+            if (passed) pushFile(map._beatmapFilename);
+        }
+
+        if (set._difficultyBeatmaps.length === 0) {
+            exportInfo._difficultyBeatmapSets.splice(s, 1);
+            s--;
+        }
+    }
+
+    zipName ??= `${path.parse(workingDir).name}`;
+    zipName = workingDir + `\\${zipName}.zip`;
+    if (!fs.existsSync(zipName)) fs.writeFileSync(zipName, "");
+    let tempInfo = workingDir + `\\TEMPINFO.dat`;
+    files.push(tempInfo);
+    fs.writeFileSync(tempInfo, JSON.stringify(exportInfo, null, 0));
+    fs.unlinkSync(zipName);
+
+    let zip = seven.add(zipName, files, { $bin: sevenBin.path7za });
+    zip.on('end', function () {
+        let zip2 = seven.rename(zipName, [
+            ["TEMPINFO.dat", path.parse(info.fileName).base]
+        ], { $bin: sevenBin.path7za })
+        zip2.on('end', function () {
+            fs.unlinkSync(tempInfo);
+        })
+    });
+}
+
+/**
+ * Transfer the visual aspect of maps to other difficulties.
+ * More specifically modded walls, custom events, point definitions, environment enhancements, and lighting events.
+ * @param {Array} diffs The difficulties being effected.
+ * @param {Function} forDiff A function to run over each difficulty.
+ * The activeDiff keyword will change to be each difficulty running during this function.
+ * Be mindful that the external difficulties don't have an input/output structure,
+ * so new pushed notes for example may not be cleared on the next run and would build up.
+ */
+export function transferVisuals(diffs: string[], forDiff?: (diff: Difficulty) => void) {
+    let startActive = activeDiff;
+
+    diffs.forEach(x => {
+        let workingDiff = new Difficulty(x);
+
+        workingDiff.environment = startActive.environment;
+        workingDiff.pointDefinitions = startActive.pointDefinitions;
+        workingDiff.customEvents = startActive.customEvents;
+        workingDiff.events = startActive.events;
+
+        for (let y = 0; y < workingDiff.obstacles.length; y++) {
+            let obstacle = workingDiff.obstacles[y];
+            if (obstacle.isModded) {
+                workingDiff.obstacles.splice(y, 1);
+                y--;
+            }
+        }
+
+        startActive.obstacles.forEach(y => { if (y.isModded) workingDiff.obstacles.push(y) })
+
+        if (forDiff !== undefined) forDiff(workingDiff);
+        workingDiff.save();
+    })
+
+    activeDiffSet(startActive);
+}
