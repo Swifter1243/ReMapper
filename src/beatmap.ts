@@ -161,10 +161,9 @@ export class Difficulty {
     /**
      * Set a setting.
      * @param {String} setting The path of the setting.
-     * @param {*} value The value of the setting, leave blank to remove setting.
+     * @param {Any} value The value of the setting, leave blank to remove setting.
      */
-    setSetting(setting: string, value = undefined) {
-        if (this.settings === undefined) this.settings = {};
+    setSetting(setting: string, value: any = undefined) {
         this.updateSets(this.settings, setting, value);
     }
 
@@ -183,9 +182,9 @@ export class Difficulty {
     get diffSetName(): string { return jsonGet(this.diffSet, "_beatmapCharacteristicName") }
     get name(): string { return jsonGet(this.diffSetMap, "_difficulty") }
     get diffRank(): number { return jsonGet(this.diffSetMap, "_difficultyRank") }
-    get requirements(): string[] { return jsonGet(this.diffSetMap, "_customData._requirements") }
-    get suggestions(): string[] { return jsonGet(this.diffSetMap, "_customData._suggestions") }
-    get settings(): any { return jsonGet(this.diffSetMap, "_customData._settings") }
+    get requirements(): string[] { return jsonGet(this.diffSetMap, "_customData._requirements", []) }
+    get suggestions(): string[] { return jsonGet(this.diffSetMap, "_customData._suggestions", []) }
+    get settings(): any { return jsonGet(this.diffSetMap, "_customData._settings", {}) }
     get warnings(): string[] { return jsonGet(this.diffSetMap, "_customData._warnings") }
     get information(): string[] { return jsonGet(this.diffSetMap, "_customData._information") }
     get label(): string { return jsonGet(this.diffSetMap, "_customData._difficultyLabel") }
