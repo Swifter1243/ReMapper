@@ -76,3 +76,9 @@ If you have an error that looks like this, run the following command in an admin
 ![image](https://media.discordapp.net/attachments/878480179528351775/950766613676834906/unknown.png?width=1025&height=95) 
 
 For more information on this, read [this](https://go.microsoft.com/fwlink/?LinkID=135170)
+
+
+# Contributing
+
+## Unit Tests
+Run `npm test` in main repository folder to run unit tests.
