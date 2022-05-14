@@ -12,5 +12,5 @@ export * from './regex';
 export * from './light_remapper';
 
 /* TODO:
-- Check pull requests or something
+- Nothing? (real)
 */

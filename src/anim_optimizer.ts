@@ -1,6 +1,5 @@
 import { Keyframe } from "./animation";
 
-
 export namespace OptimizeMath {
 
     export function areArrayElementsIdentical<T>(enumerable1: T[], enumerable2: T[]): boolean {
@@ -21,12 +20,11 @@ export namespace OptimizeMath {
         return true;
     }
 
-
     // threshold is the minimum difference for contrast
     // e.g 0.2 threshold means difference must be 0.2 or greater
     export function areFloatsSimilar(enumerable1: number[], enumerable2: number[], threshold: number) {
         if (enumerable1.length != enumerable2.length) {
-            throw `Arrays are not matching lengths. First: ${enumerable1.length} Second: ${enumerable2.length}`
+            throw new Error(`Arrays are not matching lengths. First: ${enumerable1.length} Second: ${enumerable2.length}`);
         }
 
         for (let i = 0; i < enumerable1.length; i++) {
@@ -48,31 +46,29 @@ export namespace OptimizeMath {
             && Math.abs(a.time - b.time) <= timeDifferenceThreshold
     }
 
-
     /// <summary>
-	///
-	/// </summary>
-	/// <param name="startPoint"></param>
-	/// <param name="middlePoint"></param>
-	/// <param name="endPoint"></param>
-	/// <param name="middleSlope"></param>
-	/// <param name="endSlope"></param>
-	/// <param name="middleYIntercepts"></param>
-	/// <param name="endYIntercepts"></param>
-	/// <param name="skip"></param>
-	/// <returns>true if similar</returns>
+    ///
+    /// </summary>
+    /// <param name="startPoint"></param>
+    /// <param name="middlePoint"></param>
+    /// <param name="endPoint"></param>
+    /// <param name="middleSlope"></param>
+    /// <param name="endSlope"></param>
+    /// <param name="middleYIntercepts"></param>
+    /// <param name="endYIntercepts"></param>
+    /// <param name="skip"></param>
+    /// <returns>true if similar</returns>
     export function ComparePointsSlope(startPoint: Keyframe, middlePoint: Keyframe, endPoint: Keyframe,
         // pass in array to reuse and avoid allocations
         middleSlope: number[], endSlope: number[],
         middleYIntercepts: number[], endYIntercepts: number[],
 
-        timeDifferenceThreshold: number, differenceThreshold: number, yInterceptDifferenceThreshold: number): { similar: boolean, skip: boolean }
-    {
+        timeDifferenceThreshold: number, differenceThreshold: number, yInterceptDifferenceThreshold: number): { similar: boolean, skip: boolean } {
         // skip these points because time difference is too small
         if (Math.abs(startPoint.time - endPoint.time) <= timeDifferenceThreshold ||
             Math.abs(startPoint.time - middlePoint.time) <= timeDifferenceThreshold ||
             Math.abs(middlePoint.time - endPoint.time) <= timeDifferenceThreshold) {
-            return {skip: true, similar: false};
+            return { skip: true, similar: false };
         }
 
         // TODO: Yeet, it's sorted by time I'm stupid
@@ -88,7 +84,7 @@ export namespace OptimizeMath {
         // Skip points where their easing or smoothness is different,
         // which would allow for middlePoint to cause a non-negligible difference
         if (endPoint.easing != middlePoint.easing || endPoint.spline != middlePoint.spline) {
-            return {skip: true, similar: false};
+            return { skip: true, similar: false };
         }
 
         // Skip points that are identical with large time differences
@@ -103,8 +99,6 @@ export namespace OptimizeMath {
         GetYIntercept(middlePoint, middleSlope, middleYIntercepts);
         GetYIntercept(endPoint, endSlope, endYIntercepts);
 
-
-
         // example point data
         // "_name":"colorWave","_points":[
         // [1,1,1,1,0],
@@ -118,10 +112,8 @@ export namespace OptimizeMath {
         // [2,2,2,2,1]
         // ]}
 
-
-
-        const similar = 
-        // The points slope apply on the same Y intercept
+        const similar =
+            // The points slope apply on the same Y intercept
             areFloatsSimilar(middleYIntercepts, endYIntercepts, yInterceptDifferenceThreshold) &&
             // Both points are identical
             areFloatsSimilar(middleSlope, endSlope, differenceThreshold);
@@ -133,8 +125,7 @@ export namespace OptimizeMath {
 
     }
 
-	export function GetYIntercept(pointData: Keyframe, slopeArray: number[], yIntercepts: number[])
-    {
+    export function GetYIntercept(pointData: Keyframe, slopeArray: number[], yIntercepts: number[]) {
         for (let i = 0; i < slopeArray.length; i++) {
             const slope = slopeArray[i];
             const x = pointData.values[i];
@@ -148,8 +139,7 @@ export namespace OptimizeMath {
         }
     }
 
-	export function SlopeOfPoint(a: Keyframe, b: Keyframe, slopes: number[])
-    {
+    export function SlopeOfPoint(a: Keyframe, b: Keyframe, slopes: number[]) {
         const yDiff = b.time - a.time;
 
         for (let i = 0; i < b.values.length; i++) {
@@ -185,13 +175,12 @@ export function optimizeDuplicates(pointA: Keyframe, pointB: Keyframe, pointC: K
     return middlePointUnnecessary ? pointB : undefined;
 }
 
-
 // TODO: Configure threshold
 // https://github.com/ErisApps/OhHeck/blob/ae8d02bf6bf2ec8545c2a07546c6844185b97f1c/OhHeck.Core/Analyzer/Lints/Animation/SimilarPointData.cs
 export function optimizeSimilarPoints(pointA: Keyframe, pointB: Keyframe, pointC: Keyframe | undefined): Keyframe | undefined {
-	// The minimum difference for considering not similar
-	const differenceThreshold = 1; // 3f;
-	const timeDifferenceThreshold = 0.03; // 0.1f;
+    // The minimum difference for considering not similar
+    const differenceThreshold = 1; // 3f;
+    const timeDifferenceThreshold = 0.03; // 0.1f;
 
 
     // ignore points who have different easing or smoothness since those can
@@ -199,13 +188,11 @@ export function optimizeSimilarPoints(pointA: Keyframe, pointB: Keyframe, pointC
     if (pointA.easing != pointB.easing || pointA.spline != pointB.spline || (pointC !== undefined && (pointB.spline != pointC.spline || pointB.easing != pointC.easing))) {
         return undefined;
     }
-    
+
     if (pointC === undefined) {
         // array is size 2
-        return OptimizeMath.arePointSimilar(pointA, pointB, differenceThreshold,  timeDifferenceThreshold) ? pointA : undefined;
+        return OptimizeMath.arePointSimilar(pointA, pointB, differenceThreshold, timeDifferenceThreshold) ? pointA : undefined;
     }
-
-
 
     // [[0,2, 0.2], [0, 2, 0.5], [0, 2, 1]]
     // removes the middle point
@@ -223,20 +210,19 @@ const dummyArrays: number[][] = [[], [], [], []]
 // TODO: Configure threshold
 // https://github.com/ErisApps/OhHeck/blob/ae8d02bf6bf2ec8545c2a07546c6844185b97f1c/OhHeck.Core/Analyzer/Lints/Animation/SimilarPointDataSlope.cs
 export function optimizeSimilarPointsSlope(pointA: Keyframe, pointB: Keyframe, pointC: Keyframe | undefined): Keyframe | undefined {
-    
+
     if (pointC === undefined) {
         // array is size 2
         return undefined;
     }
 
-	// The minimum difference for considering not similar
-	// These numbers at quick glance seem to be fairly reliable, nice
-	// however they should be configurable or looked at later
-	const differenceThreshold = 0.03;
-	const timeDifferenceThreshold = 0.025;
-	const yInterceptDifferenceThreshold = 0.5;
-	const compareAllPreviousPoints = true;
-
+    // The minimum difference for considering not similar
+    // These numbers at quick glance seem to be fairly reliable, nice
+    // however they should be configurable or looked at later
+    const differenceThreshold = 0.03;
+    const timeDifferenceThreshold = 0.025;
+    const yInterceptDifferenceThreshold = 0.5;
+    const compareAllPreviousPoints = true;
 
     // ignore points who have different easing or smoothness since those can
     // be considered not similar even with small time differences
@@ -244,18 +230,12 @@ export function optimizeSimilarPointsSlope(pointA: Keyframe, pointB: Keyframe, p
         return undefined;
     }
 
-
-
-
-
     // [[0,2, 0.2], [0, 2, 0.5], [0, 2, 1]]
     // removes the middle point
     // ignores time
-
     const middlePointUnnecessary = OptimizeMath.ComparePointsSlope(pointA, pointB, pointC, dummyArrays[0], dummyArrays[1], dummyArrays[2], dummyArrays[3], timeDifferenceThreshold, differenceThreshold, yInterceptDifferenceThreshold)
     return middlePointUnnecessary.similar ? pointB : undefined;
 }
-
 
 export function optimizePoints(points_og: Keyframe[], optimizers: OptimizeFunction[], passes = 1): Keyframe[] {
     const points = [...points_og].sort((a, b) => a.time - b.time)
