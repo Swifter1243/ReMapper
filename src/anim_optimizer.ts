@@ -257,7 +257,8 @@ export class OptimizeSimilarPointsSlopeSettings {
 }
 
 export class OptimizeSettings {
-    public optimizeDuplicates: boolean | undefined = true // false or undefined to disable
+    // false or undefined to disable these settings
+    public optimizeDuplicates: boolean | undefined = true 
     public optimizeSimilarPointSettings: OptimizeSimilarPointsSettings | undefined = new OptimizeSimilarPointsSettings()
     public optimizeSimilarPointSlopeSettings: OptimizeSimilarPointsSlopeSettings = new OptimizeSimilarPointsSlopeSettings()
 
@@ -294,7 +295,13 @@ export function optimizePoints(points_og: Keyframe[], optimizeSettings: Optimize
     }
 
     // get unique redundant points and none undefined
-    const toRemoveUnique: Keyframe[] = toRemove.filter(e => e !== undefined && /* unique index */ !toRemoveUnique.some(otherP => e !== otherP))
+    const toRemoveUnique: Keyframe[] = [];
+    toRemove.forEach((e) => {
+        // only add items that are not undefined and not in the array already
+        if (e !== undefined && !toRemoveUnique.some(otherP => e !== otherP)) {
+            toRemoveUnique.push(e)
+        }
+    })
 
     // probably slow but JS is weird for removing items at specific indexes, oh well
     return points.filter(p => !toRemoveUnique.some(otherP => p === otherP))
