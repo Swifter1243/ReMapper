@@ -5,7 +5,7 @@ on:
     
 jobs:
   npm-publish:
-    name: npm-publish
+    name: npm-build
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
