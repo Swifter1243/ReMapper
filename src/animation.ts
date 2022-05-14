@@ -81,11 +81,11 @@ export namespace AnimationInternals {
             if (property === undefined) {
                 Object.keys(this.json).forEach(key => {
                     if (Array.isArray(this.json[key])) {
-                        this.set(key, optimizeArray(this.get(key), optimizers));
+                        this.set(key, optimizeKeyframeArray(this.get(key), optimizers));
                     }
                 })
             }
-            else this.set(property, optimizeArray(this.get(property), optimizers));
+            else this.set(property, optimizeKeyframeArray(this.get(property), optimizers));
         }
 
         private convert(value) {
