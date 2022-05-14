@@ -1,3 +1,4 @@
+import { optimizeDuplicates, OptimizeFunction, optimizePoints, optimizeSimilarPoints, optimizeSimilarPointsSlope } from "./anim_optimizer";
 import { activeDiff } from "./beatmap";
 import { ANIM, EASE, SPLINE } from "./constants";
 import { lerpEasing, arrAdd, copy, arrEqual, arrMul, arrLast, findFraction, lerp, Vec3, Vec4, lerpRotation } from "./general";
