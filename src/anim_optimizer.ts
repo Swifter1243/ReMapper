@@ -144,7 +144,7 @@ export namespace OptimizeMath {
 
         for (let i = 0; i < b.values.length; i++) {
             const xDiff = b.values[i] - a.values[i];
-            if (xDiff == 0 || yDiff == 0) {
+            if (xDiff === 0 || yDiff === 0) {
                 slopes[i] = 0;
             }
             else {
@@ -185,7 +185,7 @@ export function optimizeSimilarPoints(pointA: Keyframe, pointB: Keyframe, pointC
 
     // ignore points who have different easing or smoothness since those can
     // be considered not similar even with small time differences
-    if (pointA.easing != pointB.easing || pointA.spline != pointB.spline || (pointC !== undefined && (pointB.spline != pointC.spline || pointB.easing != pointC.easing))) {
+    if (pointA.easing !== pointB.easing || pointA.spline !== pointB.spline || (pointC !== undefined && (pointB.spline !== pointC.spline || pointB.easing !== pointC.easing))) {
         return undefined;
     }
 
@@ -226,7 +226,7 @@ export function optimizeSimilarPointsSlope(pointA: Keyframe, pointB: Keyframe, p
 
     // ignore points who have different easing or smoothness since those can
     // be considered not similar even with small time differences
-    if (pointA.easing != pointB.easing || pointA.spline != pointB.spline || pointB.spline != pointC.spline || pointB.easing != pointC.easing) {
+    if (pointA.easing !== pointB.easing || pointA.spline !== pointB.spline || pointB.spline !== pointC.spline || pointB.easing !== pointC.easing) {
         return undefined;
     }
 
@@ -246,7 +246,7 @@ export function optimizePoints(points_og: Keyframe[], optimizers: OptimizeFuncti
     if (points.length < 2) return points;
 
     for (let pass = 0; pass < passes; pass++) {
-        if (points.length == 2) {
+        if (points.length === 2) {
             toRemove.push(...optimizers.map((optimizerFn) => optimizerFn(points[0], points[1], undefined)))
         }
 
