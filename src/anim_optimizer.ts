@@ -162,7 +162,7 @@ export namespace OptimizeMath {
 
         for (let i = 0; i < b.values.length; i++) {
             const xDiff = b.values[i] - a.values[i];
-            if (xDiff == 0 || yDiff == 0) {
+            if (xDiff === 0 || yDiff === 0) {
                 slopes[i] = 0;
             }
             else {
@@ -192,7 +192,7 @@ export function optimizeDuplicates(pointA: Keyframe, pointB: Keyframe, pointC: K
 export function optimizeSimilarPoints(pointA: Keyframe, pointB: Keyframe, pointC: Keyframe | undefined, differenceThreshold = 1, timeDifferenceThreshold = 0.03): Keyframe | undefined {
     // ignore points who have different easing or smoothness since those can
     // be considered not similar even with small time differences
-    if (pointA.easing != pointB.easing || pointA.spline != pointB.spline || (pointC !== undefined && (pointB.spline != pointC.spline || pointB.easing != pointC.easing))) {
+    if (pointA.easing !== pointB.easing || pointA.spline !== pointB.spline || (pointC !== undefined && (pointB.spline !== pointC.spline || pointB.easing !== pointC.easing))) {
         return undefined;
     }
 
@@ -225,7 +225,7 @@ export function optimizeSimilarPointsSlope(pointA: Keyframe, pointB: Keyframe, p
 
     // ignore points who have different easing or smoothness since those can
     // be considered not similar even with small time differences
-    if (pointA.easing != pointB.easing || pointA.spline != pointB.spline || pointB.spline != pointC.spline || pointB.easing != pointC.easing) {
+    if (pointA.easing !== pointB.easing || pointA.spline !== pointB.spline || pointB.spline !== pointC.spline || pointB.easing !== pointC.easing) {
         return undefined;
     }
 
@@ -242,7 +242,7 @@ export function optimizePoints(points: Keyframe[], settings: OptimizeSettings = 
     points = points.sort((a, b) => a.time - b.time);
 
     // not enough points
-    if (points.length < 2) return;
+    if (points.length < 2) return points;
 
     function processPoints(pointA: Keyframe, pointB: Keyframe, pointC?: Keyframe | undefined): boolean {
         let pointPassed = true;
