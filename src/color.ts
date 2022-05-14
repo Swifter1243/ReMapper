@@ -1,4 +1,4 @@
-import { clamp, lerpEasing, lerp, lerpWrap, Vec4 } from "./general";
+import { clamp, lerpEasing, lerp, lerpWrap, Vec4, ColorType } from "./general";
 
 export class Color {
     private internalValue: Vec4 = [0, 0, 0, 1];
@@ -9,7 +9,7 @@ export class Color {
      * @param {Array} value The value of the color.
      * @param {String} format The format of the color. Defaults to RGB.
      */
-    constructor(value: number[], format: string) {
+    constructor(value: ColorType, format: string) {
         if (value === undefined) value = this.internalValue;
         if (format === undefined) format = this.format;
         this.internalValue = this.processValue(value);

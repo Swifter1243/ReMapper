@@ -3,6 +3,7 @@ import { activeDiff } from './beatmap';
 import { Vec3, debugWall, copy, rotatePoint } from './general';
 import { CustomEvent, CustomEventInternals } from './custom_event';
 import { LOOKUP } from './constants';
+import { OptimizeSettings } from './anim_optimizer';
 
 let envCount = 0;
 let blenderEnvCount = 0;
@@ -215,7 +216,7 @@ export namespace BlenderEnvironmentInternals {
                 moveEvent.animate.position = x.pos;
                 moveEvent.animate.rotation = x.rot;
                 moveEvent.animate.scale = x.scale;
-                if (this.parent.assignedAccuracy > 0) moveEvent.animate.optimize(this.parent.assignedAccuracy);
+                if (this.parent.assignedOptimizeSettings) moveEvent.animate.optimize(undefined, this.parent.assignedOptimizeSettings);
                 moveEvent.duration = duration;
                 if (forEvents !== undefined) forEvents(moveEvent);
                 moveEvent.push();
@@ -236,8 +237,8 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
     assigned: BlenderEnvironmentInternals.BlenderAssigned[] = [];
     objectAmounts: number[][] = [];
     maxObjects: number = 0;
-    accuracy: number = 1;
-    assignedAccuracy: number = 1;
+    optimizeSettings: OptimizeSettings | undefined = new OptimizeSettings();
+    assignedOptimizeSettings: OptimizeSettings | undefined = new OptimizeSettings();
 
     /**
     * Tool for using model data from ScuffedWalls for environments.
@@ -347,7 +348,7 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
                 event.animate.position = x.pos;
                 event.animate.rotation = x.rot;
                 event.animate.scale = x.scale;
-                if (this.accuracy > 0) event.animate.optimize(this.accuracy);
+                if (this.optimizeSettings) event.animate.optimize(undefined, this.optimizeSettings);
                 if (forEnv !== undefined) forEnv(event, objects);
                 event.push();
 

@@ -1,6 +1,7 @@
+import { optimizeAnimation, OptimizeSettings } from "./anim_optimizer";
 import { activeDiff } from "./beatmap";
 import { ANIM, EASE, SPLINE } from "./constants";
-import { lerpEasing, arrAdd, copy, arrEqual, arrMul, arrLast, findFraction, lerp, Vec3, Vec4, lerpRotation } from "./general";
+import { lerpEasing, arrAdd, copy, arrMul, arrLast, findFraction, lerp, Vec3, Vec4, lerpRotation } from "./general";
 
 export type Interpolation = EASE | SPLINE;
 
@@ -71,27 +72,18 @@ export namespace AnimationInternals {
 
         /**
          * Remove similar values to cut down on keyframe count.
-         * @param {Number} accuracy Multiplier for the max difference that values are considered "similar".
          * @param {String} property Optimize only a single property, or set to undefined to optimize all.
+         * @param {OptimizeSettings} property Options for the optimizer. Optional.
          */
-        optimize(accuracy: number = undefined, property: string = undefined) {
-            accuracy ??= 1;
-
+        optimize(property: string = undefined, settings: OptimizeSettings = new OptimizeSettings()) {
             if (property === undefined) {
                 Object.keys(this.json).forEach(key => {
                     if (Array.isArray(this.json[key])) {
-                        this.set(key, optimizeArray(this.get(key), lookupLenience(key)));
+                        this.set(key, optimizeAnimation(this.get(key), settings));
                     }
                 })
             }
-            else this.set(property, optimizeArray(this.get(property), lookupLenience(property)));
-
-            function lookupLenience(prop) {
-                if (prop === ANIM.POSITION || prop === ANIM.LOCAL_POSITION || prop === ANIM.DEFINITE_POSITION) return 0.1 * accuracy;
-                if (prop === ANIM.SCALE) return 0.05 * accuracy;
-                if (prop === ANIM.ROTATION || prop === ANIM.LOCAL_ROTATION) return 4 * accuracy;
-                return 0;
-            }
+            else this.set(property, optimizeAnimation(this.get(property), settings));
         }
 
         private convert(value) {
@@ -338,62 +330,6 @@ export function simplifyArray(array: KeyframesAny): KeyframesAny {
         return newArr as KeyframesAny;
     }
     return array;
-}
-
-/**
- * Specific function for animations, removes similar keyframes from an animation.
- * @param {Array} animation 
- * @param {Number} lenience The maximum distance values can be considered similar.
- * @returns {Array}
- */
-export function optimizeArray(animation: KeyframesAny, lenience: number = 0.1): KeyframesAny {
-    let keyframes: Keyframe[] = copy(complexifyArray(animation)).map(x => new Keyframe(x));
-
-    // not enough points to optimize
-    if (keyframes.length <= 2) return simplifyArray(keyframes.map(x => x.data) as KeyframesAny);
-
-    // Initialize an array with values of 0
-    // TODO: Why keep an array of differences when we don't need it?
-    let differences: number[] = [];
-    for (let i = 0; i < keyframes[0].values.length; i++) differences[i] = 0;
-
-    // Checks if point a-b have similar keyframe data including time
-    for (let i = 1; i < keyframes.length; i++) {
-        let left: Keyframe = keyframes[i - 1];
-        let point: Keyframe = keyframes[i];
-
-        // While the keyframes may be similar, their easing/spline difference is
-        // non-negligible to the animation path and therefore should not be considered for removal
-        if (left?.easing !== point.easing) continue;
-        if (left?.spline !== point.spline) continue;
-
-
-        // TODO: instead of comparing left-middle value similarity and middle-right value similarity,
-        // compare if middle - left / right is similar to left - right
-        // or just compare left-middle instead
-        // - Fern
-        if (arrEqual(left.values, point.values, lenience)) { checkSplice() }
-
-        // TODO: Make this less complicated
-        // If you're already checking if the arrays are similar, 
-        // why bother check again ?
-        function checkSplice() {
-            if (left !== undefined) {
-                for (let j = 0; j < differences.length; j++) {
-                    differences[j] += point[j] - left[j];
-                    if (Math.abs(differences[j]) > lenience) {
-                        for (let k = 0; k < differences.length; k++) differences[k] = 0;
-                        return;
-                    }
-                }
-
-                deleteElem();
-            }
-
-            function deleteElem() { keyframes.splice(i, 1); i--; }
-        }
-    }
-    return simplifyArray(keyframes.map(x => x.data) as KeyframesAny);
 }
 
 /**

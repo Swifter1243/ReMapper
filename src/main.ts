@@ -10,7 +10,8 @@ export * from './animation';
 export * from './constants';
 export * from './regex';
 export * from './light_remapper';
+export * from './anim_optimizer';
 
 /* TODO:
-- Check pull requests or something
+- Nothing? (real)
 */
