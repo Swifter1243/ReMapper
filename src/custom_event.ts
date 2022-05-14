@@ -56,7 +56,7 @@ export namespace CustomEventInternals {
          * @param data 
          */
         setProperties(data: object) {
-            let oldData = general.copy(this.data);
+            const oldData = general.copy(this.data);
 
             Object.keys(this.data).forEach(key => { delete this.data[key] });
             this.trackSet = oldData._track;
@@ -113,7 +113,7 @@ export namespace CustomEventInternals {
          * @param data 
          */
         setProperties(data: object) {
-            let oldData = general.copy(this.data);
+            const oldData = general.copy(this.data);
 
             Object.keys(this.data).forEach(key => { delete this.data[key] });
             this.trackSet = oldData._track;
@@ -260,7 +260,7 @@ export class CustomEvent extends CustomEventInternals.BaseEvent {
      * Event object for ease of creation.
      * @param {Object} time
      */
-    constructor(time: number = 0) { super(time) }
+    constructor(time = 0) { super(time) }
 
     /**
      * Create a custom event using JSON.

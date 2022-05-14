@@ -40,7 +40,7 @@ export namespace EventInternals {
 
         get isModded() {
             if (this.customData === undefined) return false;
-            let customData = copy(this.customData);
+            const customData = copy(this.customData);
             jsonPrune(customData);
             return !isEmptyObject(customData);
         }
@@ -310,7 +310,7 @@ export class Event extends EventInternals.BaseEvent {
      * Event object for ease of creation.
      * @param {Object} time
      */
-    constructor(time: number = 0) { super(time) }
+    constructor(time = 0) { super(time) }
 
     /**
      * Controls the back lasers.

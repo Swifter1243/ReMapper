@@ -21,7 +21,7 @@ export type ColorType = [number, number, number] | [number, number, number, numb
  * @returns {Array}
  */
 export function filterObjects(objects: object[], min: number, max: number, property: string) {
-    let passedObjects = [];
+    const passedObjects = [];
 
     objects.forEach(obj => {
         if (obj[property] + EPSILON >= min && obj[property] + EPSILON < max) passedObjects.push(obj);
@@ -100,7 +100,7 @@ export function lerp(start: number, end: number, fraction: number, easing: EASE 
  */
 export function lerpWrap(start: number, end: number, fraction: number, easing: EASE = undefined) {
     if (easing !== undefined) fraction = lerpEasing(easing, fraction);
-    let distance = Math.abs(end - start);
+    const distance = Math.abs(end - start);
 
     if (distance <= 0.5) return lerp(start, end, fraction);
     else {
@@ -122,10 +122,10 @@ export function lerpWrap(start: number, end: number, fraction: number, easing: E
  */
 export function lerpRotation(start: Vec3, end: Vec3, fraction: number, easing: EASE = undefined): Vec3 {
     if (easing !== undefined) fraction = lerpEasing(easing, fraction);
-    let q1 = new three.Quaternion().setFromEuler(new three.Euler(...toRadians(start), "YXZ"));
-    let q2 = new three.Quaternion().setFromEuler(new three.Euler(...toRadians(end), "YXZ"));
+    const q1 = new three.Quaternion().setFromEuler(new three.Euler(...toRadians(start), "YXZ"));
+    const q2 = new three.Quaternion().setFromEuler(new three.Euler(...toRadians(end), "YXZ"));
     q1.slerp(q2, fraction);
-    let output = toDegrees(new three.Euler().reorder("YXZ").setFromQuaternion(q1).toArray());
+    const output = toDegrees(new three.Euler().reorder("YXZ").setFromQuaternion(q1).toArray());
     output.pop();
     return output as Vec3;
 }
@@ -203,13 +203,13 @@ export function arrDiv(arr: number[], value: number[] | number) {
  * @param {Number} lenience The maximum difference 2 numbers in an array can have before they're considered not equal.
  * @returns {Boolean}
  */
-export function arrEqual(arr1: number[], arr2: number[], lenience: number = 0) {
+export function arrEqual(arr1: number[], arr2: number[], lenience = 0) {
     if (!arr1 || !arr2) return false;
     if (arr1.length !== arr2.length) return false;
     let result = true;
     arr1.forEach((x, i) => {
         if (lenience !== 0 && typeof x === "number" && typeof arr2[i] === "number") {
-            let difference = x - arr2[i];
+            const difference = x - arr2[i];
             if (Math.abs(difference) > lenience) result = false;
         }
         else if (x !== arr2[i]) result = false;
@@ -258,11 +258,11 @@ export function clamp(input: number, min: number = undefined, max: number = unde
 export function copy<T>(obj: T): T {
     if (obj == null || typeof obj !== "object") { return obj; }
 
-    let newObj = Array.isArray(obj) ? [] : {};
-    let keys = Object.getOwnPropertyNames(obj);
+    const newObj = Array.isArray(obj) ? [] : {};
+    const keys = Object.getOwnPropertyNames(obj);
 
     keys.forEach(x => {
-        let value = copy(obj[x]);
+        const value = copy(obj[x]);
         newObj[x] = value;
     })
 
@@ -288,8 +288,8 @@ export function isEmptyObject(o: object) {
  * @returns {Array}
  */
 export function rotatePoint(rotation: Vec3, point: Vec3, anchor: Vec3 = [0,0,0]) {
-    let mathRot = toRadians(rotation);
-    let vector = new three.Vector3(...arrAdd(point, arrMul(anchor, -1))).applyEuler(new three.Euler(...mathRot, "YXZ"));
+    const mathRot = toRadians(rotation);
+    const vector = new three.Vector3(...arrAdd(point, arrMul(anchor, -1))).applyEuler(new three.Euler(...mathRot, "YXZ"));
     return arrAdd([vector.x, vector.y, vector.z], anchor) as Vec3;
 }
 
@@ -326,7 +326,7 @@ export function toDegrees(values: number[]) {
  * @param {Object} obj 
  */
 export function jsonPrune(obj: object) {
-    for (let prop in obj) {
+    for (const prop in obj) {
         if (obj[prop] == null) {
             delete obj[prop];
             continue;
@@ -417,7 +417,7 @@ export function jsonSet(obj: object, prop: string, value) {
  * @returns {Boolean}
  */
 export function jsonCheck(obj: object, prop: string) {
-    let value = jsonGet(obj, prop);
+    const value = jsonGet(obj, prop);
     if (value != null) return true;
     return false;
 }
@@ -453,13 +453,13 @@ export function getJumps(NJS: number, offset: number, BPM: number) {
     const startHJD = 4;
     const maxHJD = 18;
 
-    let num = 60 / BPM;
+    const num = 60 / BPM;
     let num2 = startHJD;
     while (NJS * num * num2 > maxHJD) num2 /= 2;
     num2 += offset;
     if (num2 < 1) num2 = 1;
 
-    let jumpDur = num * num2 * 2;
+    const jumpDur = num * num2 * 2;
     let jumpDist = NJS * jumpDur;
     jumpDist /= 0.6;
 
@@ -474,8 +474,8 @@ export function getJumps(NJS: number, offset: number, BPM: number) {
  * @returns 
  */
 export function worldToWall(pos: Vec3, rot: Vec3, scale: Vec3) {
-    let wallOffset = [0, -0.5, -0.5];
-    let offset = rotatePoint(rot, scale.map((y, i) => y * wallOffset[i]) as Vec3);
+    const wallOffset = [0, -0.5, -0.5];
+    const offset = rotatePoint(rot, scale.map((y, i) => y * wallOffset[i]) as Vec3);
     pos = pos.map((y, i) => y + offset[i]) as Vec3;
 
     pos[0] -= 0.5;
@@ -501,16 +501,16 @@ export function debugWall(pos: KeyframesVec3 = undefined, rot: KeyframesVec3 = u
     animStart ??= 0;
     animDur ??= 0;
 
-    let wall = new Wall();
+    const wall = new Wall();
     wall.life = animDur + 69420;
     wall.lifeStart = 0;
-    let wallAnim = new Animation(wall.life).wallAnimation();
-    let dataAnim = new Animation().wallAnimation();
+    const wallAnim = new Animation(wall.life).wallAnimation();
+    const dataAnim = new Animation().wallAnimation();
     dataAnim.position = copy(pos);
     dataAnim.rotation = copy(rot);
     dataAnim.scale = copy(scale);
 
-    let data = {
+    const data = {
         pos: [],
         rot: [],
         scale: []
@@ -522,25 +522,25 @@ export function debugWall(pos: KeyframesVec3 = undefined, rot: KeyframesVec3 = u
         let min = 1;
         let max = 0;
         arr.forEach(x => {
-            let time = new Keyframe(x).time;
+            const time = new Keyframe(x).time;
             if (time < min) min = time;
             if (time > max) max = time;
         })
         return { min: min, max: max };
     }
 
-    let posDomain = getDomain(pos);
-    let rotDomain = getDomain(rot);
-    let scaleDomain = getDomain(scale);
+    const posDomain = getDomain(pos);
+    const rotDomain = getDomain(rot);
+    const scaleDomain = getDomain(scale);
 
-    let totalMin = getDomain([[posDomain.min], [rotDomain.min], [scaleDomain.min]]).min;
-    let totalMax = getDomain([[posDomain.max], [rotDomain.max], [scaleDomain.max]]).max;
+    const totalMin = getDomain([[posDomain.min], [rotDomain.min], [scaleDomain.min]]).min;
+    const totalMax = getDomain([[posDomain.max], [rotDomain.max], [scaleDomain.max]]).max;
 
     for (let i = totalMin; i <= totalMax; i += animFreq / animDur) {
-        let time = i * animDur + animStart;
+        const time = i * animDur + animStart;
         let objPos = dataAnim.get(ANIM.POSITION, i);
-        let objRot = dataAnim.get(ANIM.ROTATION, i);
-        let objScale = dataAnim.get(ANIM.SCALE, i);
+        const objRot = dataAnim.get(ANIM.ROTATION, i);
+        const objScale = dataAnim.get(ANIM.SCALE, i);
 
         objPos = worldToWall(objPos, objRot, objScale);
 

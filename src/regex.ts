@@ -1,5 +1,5 @@
 export class Regex {
-    string: string = ""
+    string = ""
 
     /**
      * Regex wrapper for easier regex statement creation. 
@@ -50,12 +50,9 @@ export class Regex {
      * Tests the regex expression's validity.
      */
     verify() {
-        try {
-            new RegExp(this.string);
-            console.log(`Regex ${this.string} is valid`)
-        } catch (err) {
-            throw err;
-        }
+        new RegExp(this.string);
+        console.log(`Regex ${this.string} is valid`)
+
         return this;
     }
 }

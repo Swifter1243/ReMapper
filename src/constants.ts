@@ -290,7 +290,7 @@ export enum ANIM {
 }
 
 // Known objects that work. Feel free to PR your own!
-export let ENV = {
+export const ENV = {
     BTS: {
         PILLAR: {
             ID: new Regex().start().add("PillarPair").seperate().add("PillarL").seperate().add("Pillar").end().string,

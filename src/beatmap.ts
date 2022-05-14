@@ -70,10 +70,10 @@ export class Difficulty {
         diffName ??= this.mapFile;
         if (!fs.existsSync(diffName)) throw new Error(`The file ${diffName} does not exist and cannot be saved`);
 
-        let outputJSON = copy(this.json);
+        const outputJSON = copy(this.json);
 
         for (let i = 0; i < this.notes.length; i++) {
-            let note = copy(this.notes[i]);
+            const note = copy(this.notes[i]);
             if (forceJumpsForNoodle && note.isModded) {
                 note.NJS = note.NJS;
                 note.offset = note.offset;
@@ -82,7 +82,7 @@ export class Difficulty {
             outputJSON._notes[i] = note.json;
         }
         for (let i = 0; i < this.obstacles.length; i++) {
-            let wall = copy(this.obstacles[i]);
+            const wall = copy(this.obstacles[i]);
             if (forceJumpsForNoodle && wall.isModded) {
                 wall.NJS = wall.NJS;
                 wall.offset = wall.offset;
@@ -103,7 +103,7 @@ export class Difficulty {
 
         if (this.environment !== undefined) {
             for (let i = 0; i < this.environment.length; i++) {
-                let json = copy(this.environment[i].json);
+                const json = copy(this.environment[i].json);
                 jsonRemove(json, "_group");
                 outputJSON._customData._environment[i] = json;
             }
@@ -118,7 +118,7 @@ export class Difficulty {
      * @param {Boolean} required True by default, set to false to remove the requirement.
      */
     require(requirement: string, required = true) {
-        let requirements = {};
+        const requirements = {};
 
         let requirementsArr = this.requirements;
         if (requirementsArr === undefined) requirementsArr = [];
@@ -141,7 +141,7 @@ export class Difficulty {
      * @param {Boolean} suggested True by default, set to false to remove the suggestion.
      */
     suggest(suggestion: string, suggested = true) {
-        let suggestions = {};
+        const suggestions = {};
 
         let suggestionsArr = this.suggestions;
         if (suggestionsArr === undefined) suggestionsArr = [];
@@ -247,7 +247,7 @@ export class Info {
     fileName = "Info.dat";
 
     load(path?: string) {
-        let fileName = path ?? this.fileName;
+        const fileName = path ?? this.fileName;
         if (fs.existsSync(fileName)) {
             this.json = JSON.parse(fs.readFileSync(fileName, "utf-8"));
             this.fileName = fileName;
@@ -313,7 +313,7 @@ export class Info {
     set customEnvironmentHash(value) { this.updateInfo(this.json, "_customData._customEnvironmentHash", value) }
 }
 
-export let info = new Info();
+export const info = new Info();
 export let activeDiff: Difficulty;
 export let forceJumpsForNoodle = true;
 
@@ -338,12 +338,12 @@ export function forceJumpsForNoodleSet(value: boolean) { forceJumpsForNoodle = v
 export function exportZip(excludeDiffs: string[] = [], zipName?: string) {
     if (!info.json) throw new Error("The Info object has not been loaded.");
 
-    let absoluteInfoFileName = info.fileName === "Info.dat" ? process.cwd() + `\\${info.fileName}` : info.fileName;
-    let workingDir = path.parse(absoluteInfoFileName).dir;
-    let exportInfo = copy(info.json);
-    let files: string[] = [];
+    const absoluteInfoFileName = info.fileName === "Info.dat" ? process.cwd() + `\\${info.fileName}` : info.fileName;
+    const workingDir = path.parse(absoluteInfoFileName).dir;
+    const exportInfo = copy(info.json);
+    const files: string[] = [];
     function pushFile(file: string) {
-        let dir = workingDir + `\\${file}`;
+        const dir = workingDir + `\\${file}`;
         if (fs.existsSync(dir)) files.push(dir);
     }
 
@@ -351,9 +351,9 @@ export function exportZip(excludeDiffs: string[] = [], zipName?: string) {
     if (exportInfo._coverImageFilename !== undefined) pushFile(exportInfo._coverImageFilename);
 
     for (let s = 0; s < exportInfo._difficultyBeatmapSets.length; s++) {
-        let set = exportInfo._difficultyBeatmapSets[s];
+        const set = exportInfo._difficultyBeatmapSets[s];
         for (let m = 0; m < set._difficultyBeatmaps.length; m++) {
-            let map = set._difficultyBeatmaps[m];
+            const map = set._difficultyBeatmaps[m];
             let passed = true;
             excludeDiffs.forEach(d => {
                 if (map._beatmapFilename === d) {
@@ -375,14 +375,14 @@ export function exportZip(excludeDiffs: string[] = [], zipName?: string) {
     zipName ??= `${path.parse(workingDir).name}`;
     zipName = workingDir + `\\${zipName}.zip`;
     if (!fs.existsSync(zipName)) fs.writeFileSync(zipName, "");
-    let tempInfo = workingDir + `\\TEMPINFO.dat`;
+    const tempInfo = workingDir + `\\TEMPINFO.dat`;
     files.push(tempInfo);
     fs.writeFileSync(tempInfo, JSON.stringify(exportInfo, null, 0));
     fs.unlinkSync(zipName);
 
-    let zip = seven.add(zipName, files, { $bin: sevenBin.path7za });
+    const zip = seven.add(zipName, files, { $bin: sevenBin.path7za });
     zip.on('end', function () {
-        let zip2 = seven.rename(zipName, [
+        const zip2 = seven.rename(zipName, [
             ["TEMPINFO.dat", path.parse(info.fileName).base]
         ], { $bin: sevenBin.path7za })
         zip2.on('end', function () {
@@ -401,10 +401,10 @@ export function exportZip(excludeDiffs: string[] = [], zipName?: string) {
  * so new pushed notes for example may not be cleared on the next run and would build up.
  */
 export function transferVisuals(diffs: string[], forDiff?: (diff: Difficulty) => void) {
-    let startActive = activeDiff;
+    const startActive = activeDiff;
 
     diffs.forEach(x => {
-        let workingDiff = new Difficulty(x);
+        const workingDiff = new Difficulty(x);
 
         workingDiff.environment = startActive.environment;
         workingDiff.pointDefinitions = startActive.pointDefinitions;
@@ -412,7 +412,7 @@ export function transferVisuals(diffs: string[], forDiff?: (diff: Difficulty) =>
         workingDiff.events = startActive.events;
 
         for (let y = 0; y < workingDiff.obstacles.length; y++) {
-            let obstacle = workingDiff.obstacles[y];
+            const obstacle = workingDiff.obstacles[y];
             if (obstacle.isModded) {
                 workingDiff.obstacles.splice(y, 1);
                 y--;
