@@ -1,4 +1,4 @@
-import { optimizePoints, OptimizeSettings } from "./anim_optimizer";
+import { optimizeAnimation, OptimizeSettings } from "./anim_optimizer";
 import { activeDiff } from "./beatmap";
 import { ANIM, EASE, SPLINE } from "./constants";
 import { lerpEasing, arrAdd, copy, arrMul, arrLast, findFraction, lerp, Vec3, Vec4, lerpRotation } from "./general";
@@ -79,11 +79,11 @@ export namespace AnimationInternals {
             if (property === undefined) {
                 Object.keys(this.json).forEach(key => {
                     if (Array.isArray(this.json[key])) {
-                        this.set(key, optimizeKeyframeArray(this.get(key), settings));
+                        this.set(key, optimizeAnimation(this.get(key), settings));
                     }
                 })
             }
-            else this.set(property, optimizeKeyframeArray(this.get(property), settings));
+            else this.set(property, optimizeAnimation(this.get(property), settings));
         }
 
         private convert(value) {
@@ -330,21 +330,6 @@ export function simplifyArray(array: KeyframesAny): KeyframesAny {
         return newArr as KeyframesAny;
     }
     return array;
-}
-
-/**
- * Specific function for animations, removes similar keyframes from an animation.
- * @param {Array} animation 
- * @param {OptimizeSettings} property Options for the optimizer. Optional.
- * @returns {Array}
- */
-export function optimizeKeyframeArray(animation: KeyframesAny, settings: OptimizeSettings): KeyframesAny {
-    const keyframes: Keyframe[] = copy(complexifyArray(animation)).map(x => new Keyframe(x));
-
-    // not enough points to optimize
-    if (keyframes.length <= 2) return simplifyArray(keyframes.map(x => x.data) as KeyframesAny);
-
-    return simplifyArray(optimizePoints(keyframes, settings).map(x => x.data) as KeyframesAny);
 }
 
 /**
