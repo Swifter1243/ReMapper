@@ -3,7 +3,7 @@ import { activeDiff } from './beatmap';
 import { Vec3, debugWall, copy, rotatePoint } from './general';
 import { CustomEvent, CustomEventInternals } from './custom_event';
 import { LOOKUP } from './constants';
-import { OptimizeFunction } from './anim_optimizer';
+import { OptimizeSettings } from './anim_optimizer';
 
 let envCount = 0;
 let blenderEnvCount = 0;
@@ -216,7 +216,7 @@ export namespace BlenderEnvironmentInternals {
                 moveEvent.animate.position = x.pos;
                 moveEvent.animate.rotation = x.rot;
                 moveEvent.animate.scale = x.scale;
-                if (this.parent.assignedOptimizers) moveEvent.animate.optimize(this.parent.assignedOptimizers);
+                if (this.parent.assignedOptimizeSettings.optimize) moveEvent.animate.optimize(undefined, this.parent.assignedOptimizeSettings);
                 moveEvent.duration = duration;
                 if (forEvents !== undefined) forEvents(moveEvent);
                 moveEvent.push();
@@ -237,8 +237,8 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
     assigned: BlenderEnvironmentInternals.BlenderAssigned[] = [];
     objectAmounts: number[][] = [];
     maxObjects: number = 0;
-    optimizers?: OptimizeFunction[];
-    assignedOptimizers?: OptimizeFunction[];
+    optimizeSettings = new OptimizeSettings();
+    assignedOptimizeSettings = new OptimizeSettings();
 
     /**
     * Tool for using model data from ScuffedWalls for environments.
@@ -348,7 +348,7 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
                 event.animate.position = x.pos;
                 event.animate.rotation = x.rot;
                 event.animate.scale = x.scale;
-                if (this.optimizers) event.animate.optimize(this.optimizers);
+                if (this.optimizeSettings.optimize) event.animate.optimize(undefined, this.optimizeSettings);
                 if (forEnv !== undefined) forEnv(event, objects);
                 event.push();
 

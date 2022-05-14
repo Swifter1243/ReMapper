@@ -1,7 +1,7 @@
-import { optimizeDuplicates, OptimizeFunction, optimizePoints, optimizeSimilarPoints, optimizeSimilarPointsSlope } from "./anim_optimizer";
+import { optimizePoints, OptimizeSettings } from "./anim_optimizer";
 import { activeDiff } from "./beatmap";
 import { ANIM, EASE, SPLINE } from "./constants";
-import { lerpEasing, arrAdd, copy, arrEqual, arrMul, arrLast, findFraction, lerp, Vec3, Vec4, lerpRotation } from "./general";
+import { lerpEasing, arrAdd, copy, arrMul, arrLast, findFraction, lerp, Vec3, Vec4, lerpRotation } from "./general";
 
 export type Interpolation = EASE | SPLINE;
 
@@ -72,20 +72,18 @@ export namespace AnimationInternals {
 
         /**
          * Remove similar values to cut down on keyframe count.
-         * @param {Number} accuracy Multiplier for the max difference that values are considered "similar".
          * @param {String} property Optimize only a single property, or set to undefined to optimize all.
+         * @param {OptimizeSettings} property Options for the optimizer. Optional.
          */
-        optimize(optimizers: OptimizeFunction[] = undefined, property: string = undefined) {
-            optimizers ??= [optimizeDuplicates, optimizeSimilarPoints, optimizeSimilarPointsSlope];
-
+        optimize(property: string = undefined, settings: OptimizeSettings = new OptimizeSettings()) {
             if (property === undefined) {
                 Object.keys(this.json).forEach(key => {
                     if (Array.isArray(this.json[key])) {
-                        this.set(key, optimizeKeyframeArray(this.get(key), optimizers));
+                        this.set(key, optimizeKeyframeArray(this.get(key), settings));
                     }
                 })
             }
-            else this.set(property, optimizeKeyframeArray(this.get(property), optimizers));
+            else this.set(property, optimizeKeyframeArray(this.get(property), settings));
         }
 
         private convert(value) {
@@ -337,16 +335,16 @@ export function simplifyArray(array: KeyframesAny): KeyframesAny {
 /**
  * Specific function for animations, removes similar keyframes from an animation.
  * @param {Array} animation 
- * @param {Number} lenience The maximum distance values can be considered similar.
+ * @param {OptimizeSettings} property Options for the optimizer. Optional.
  * @returns {Array}
  */
-export function optimizeKeyframeArray(animation: KeyframesAny, optimizers: OptimizeFunction[]): KeyframesAny {
+export function optimizeKeyframeArray(animation: KeyframesAny, settings: OptimizeSettings): KeyframesAny {
     const keyframes: Keyframe[] = copy(complexifyArray(animation)).map(x => new Keyframe(x));
 
     // not enough points to optimize
     if (keyframes.length <= 2) return simplifyArray(keyframes.map(x => x.data) as KeyframesAny);
 
-    return simplifyArray(optimizePoints(keyframes, optimizers).map(x => x.data) as KeyframesAny);
+    return simplifyArray(optimizePoints(keyframes, settings).map(x => x.data) as KeyframesAny);
 }
 
 /**
