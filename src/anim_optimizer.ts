@@ -200,11 +200,6 @@ export function optimizeSimilarPoints(pointA: Keyframe, pointB: Keyframe, pointC
     return middlePointUnnecessary ? pointB : undefined;
 }
 
-// reuse the same arrays because performance
-// less memory allocations
-// might cause bugs, we'll see
-const dummyArrays: number[][] = [[], [], [], []]
-
 // TODO: Configure threshold
 // https://github.com/ErisApps/OhHeck/blob/ae8d02bf6bf2ec8545c2a07546c6844185b97f1c/OhHeck.Core/Analyzer/Lints/Animation/SimilarPointDataSlope.cs
 export function optimizeSimilarPointsSlope(pointA: Keyframe, pointB: Keyframe, pointC: Keyframe | undefined, settings: OptimizeSimilarPointsSlopeSettings): Keyframe | undefined {
@@ -226,6 +221,11 @@ export function optimizeSimilarPointsSlope(pointA: Keyframe, pointB: Keyframe, p
     const timeDifferenceThreshold = settings.timeDifferenceThreshold;
     const yInterceptDifferenceThreshold = settings.yInterceptDifferenceThreshold;
 
+
+    // reuse the same arrays because performance
+    // less memory allocations
+    // TODO: move to parameter
+    const dummyArrays: number[][] = [[], [], [], []]
 
     // [[0,2, 0.2], [0, 2, 0.5], [0, 2, 1]]
     // removes the middle point
