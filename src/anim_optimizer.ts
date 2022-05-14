@@ -234,7 +234,7 @@ export function optimizeSimilarPointsSlope(pointA: Keyframe, pointB: Keyframe, p
     return middlePointUnnecessary.similar ? pointB : undefined;
 }
 
-class OptimizeSimilarPointsSettings {
+export class OptimizeSimilarPointsSettings {
 
     constructor(
         public differenceThreshold = 1,
@@ -243,7 +243,7 @@ class OptimizeSimilarPointsSettings {
 
 }
 
-class OptimizeSimilarPointsSlopeSettings {
+export class OptimizeSimilarPointsSlopeSettings {
 
     constructor(
         // The minimum difference for considering not similar
@@ -256,7 +256,7 @@ class OptimizeSimilarPointsSlopeSettings {
 
 }
 
-class OptimizeSettings {
+export class OptimizeSettings {
     public optimizeDuplicates: boolean | undefined = true // false or undefined to disable
     public optimizeSimilarPointSettings: OptimizeSimilarPointsSettings | undefined = new OptimizeSimilarPointsSettings()
     public optimizeSimilarPointSlopeSettings: OptimizeSimilarPointsSlopeSettings = new OptimizeSimilarPointsSlopeSettings()
