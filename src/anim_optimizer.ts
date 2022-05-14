@@ -260,5 +260,5 @@ export function optimizePoints(points_og: Keyframe[], optimizers: OptimizeFuncti
     }
 
     // probably slow but JS is weird for removing items at specific indexes, oh well
-    return points.filter(p => toRemove.some(otherP => p === otherP))
+    return points.filter(p => !toRemove.some(otherP => p === otherP))
 }
