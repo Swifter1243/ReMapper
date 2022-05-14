@@ -243,7 +243,7 @@ export function optimizePoints(points_og: Keyframe[], optimizers: OptimizeFuncti
     const toRemove: (Keyframe | undefined)[] = []
 
     // not enough points
-    if (points.length < 2) return;
+    if (points.length < 2) return points;
 
     for (let pass = 0; pass < passes; pass++) {
         if (points.length == 2) {
