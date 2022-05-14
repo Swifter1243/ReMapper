@@ -235,59 +235,51 @@ export function optimizeSimilarPointsSlope(pointA: Keyframe, pointB: Keyframe, p
 }
 
 export class OptimizeSimilarPointsSettings {
-
-    constructor(
-        public differenceThreshold = 1,
-        public timeDifferenceThreshold = 0.03
-    ) { }
-
+    differenceThreshold = 1;
+    timeDifferenceThreshold = 0.03;
 }
 
 export class OptimizeSimilarPointsSlopeSettings {
-
-    constructor(
-        // The minimum difference for considering not similar
-        // These numbers at quick glance seem to be fairly reliable, nice
-        // however they should be configurable or looked at later
-        public differenceThreshold = 0.03,
-        public timeDifferenceThreshold = 0.025,
-        public yInterceptDifferenceThreshold = 0.5,
-    ) { }
-
+    // The minimum difference for considering not similar
+    // These numbers at quick glance seem to be fairly reliable, nice
+    // however they should be configurable or looked at later
+    differenceThreshold = 0.03;
+    timeDifferenceThreshold = 0.025;
+    yInterceptDifferenceThreshold = 0.5;
 }
 
 export class OptimizeSettings {
     public optimizeDuplicates: boolean | undefined = true // false or undefined to disable
-    public optimizeSimilarPointSettings: OptimizeSimilarPointsSettings | undefined = new OptimizeSimilarPointsSettings()
-    public optimizeSimilarPointSlopeSettings: OptimizeSimilarPointsSlopeSettings = new OptimizeSimilarPointsSlopeSettings()
+    public optimizeSimilarPoints: OptimizeSimilarPointsSettings | undefined = new OptimizeSimilarPointsSettings()
+    public optimizeSimilarPointsSlope: OptimizeSimilarPointsSlopeSettings | undefined = new OptimizeSimilarPointsSlopeSettings()
 
     public additionalOptimizers: OptimizeFunction[] | undefined = undefined
 }
 
-export function optimizePoints(points_og: Keyframe[], optimizeSettings: OptimizeSettings, passes = 1): Keyframe[] {
-    const points = points_og.sort((a, b) => a.time - b.time)
+export function optimizePoints(points: Keyframe[], optimizeSettings: OptimizeSettings, passes = 1): Keyframe[] {
+    const newPoints = points.sort((a, b) => a.time - b.time);
 
     const optimizers: OptimizeFunction[] = [...optimizeSettings.additionalOptimizers ?? []]
-    
+
     if (optimizeSettings.optimizeDuplicates) optimizers.push(optimizeDuplicates);
-    if (optimizeSettings.optimizeSimilarPointSettings) optimizers.push((a, b, c) => optimizeSimilarPoints(a, b, c, optimizeSettings.optimizeSimilarPointSettings))
-    if (optimizeSettings.optimizeSimilarPointSlopeSettings) optimizers.push((a, b, c) => optimizeSimilarPointsSlope(a, b, c, optimizeSettings.optimizeSimilarPointSlopeSettings))
+    if (optimizeSettings.optimizeSimilarPoints) optimizers.push((a, b, c) => optimizeSimilarPoints(a, b, c, optimizeSettings.optimizeSimilarPoints))
+    if (optimizeSettings.optimizeSimilarPoints) optimizers.push((a, b, c) => optimizeSimilarPointsSlope(a, b, c, optimizeSettings.optimizeSimilarPointsSlope))
 
     // not enough points
-    if (optimizers.length === 0 || points.length < 2) return points;
+    if (optimizers.length === 0 || newPoints.length < 2) return newPoints;
 
     const toRemove: (Keyframe | undefined)[] = []
 
 
     for (let pass = 0; pass < passes; pass++) {
-        if (points.length === 2) {
-            toRemove.push(...optimizers.map((optimizerFn) => optimizerFn(points[0], points[1], undefined)))
+        if (newPoints.length === 2) {
+            toRemove.push(...optimizers.map((optimizerFn) => optimizerFn(newPoints[0], newPoints[1], undefined)))
         }
 
-        for (let i = 1; i < points.length - 1; i++) {
-            const pointA = points[i - 1];
-            const pointB = points[i]
-            const pointC = points[i + 1];
+        for (let i = 1; i < newPoints.length - 1; i++) {
+            const pointA = newPoints[i - 1];
+            const pointB = newPoints[i]
+            const pointC = newPoints[i + 1];
 
             toRemove.push(...optimizers.map((optimizerFn) => optimizerFn(pointA, pointB, pointC)))
         }
@@ -297,5 +289,5 @@ export function optimizePoints(points_og: Keyframe[], optimizeSettings: Optimize
     const toRemoveUnique: Keyframe[] = toRemove.filter(e => e !== undefined && /* unique index */ !toRemoveUnique.some(otherP => e !== otherP))
 
     // probably slow but JS is weird for removing items at specific indexes, oh well
-    return points.filter(p => !toRemoveUnique.some(otherP => p === otherP))
+    return newPoints.filter(p => !toRemoveUnique.some(otherP => p === otherP))
 }
