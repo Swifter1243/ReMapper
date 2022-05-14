@@ -165,8 +165,6 @@ export function optimizeDuplicates(pointA: Keyframe, pointB: Keyframe, pointC: K
         return OptimizeMath.areArrayElementsIdentical(pointA.values, pointB.values) ? pointA : undefined;
     }
 
-
-
     // [[0,2, 0.2], [0, 2, 0.5], [0, 2, 1]]
     // removes the middle point
     // ignores time
@@ -279,6 +277,7 @@ export function optimizePoints(points_og: Keyframe[], optimizeSettings: Optimize
     if (optimizers.length === 0 || points.length < 2) return points;
 
     const toRemove: (Keyframe | undefined)[] = []
+
 
     for (let pass = 0; pass < passes; pass++) {
         if (points.length === 2) {
