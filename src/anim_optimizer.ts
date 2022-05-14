@@ -177,10 +177,10 @@ export function optimizeDuplicates(pointA: Keyframe, pointB: Keyframe, pointC: K
 
 // TODO: Configure threshold
 // https://github.com/ErisApps/OhHeck/blob/ae8d02bf6bf2ec8545c2a07546c6844185b97f1c/OhHeck.Core/Analyzer/Lints/Animation/SimilarPointData.cs
-export function optimizeSimilarPoints(pointA: Keyframe, pointB: Keyframe, pointC: Keyframe | undefined): Keyframe | undefined {
+export function optimizeSimilarPoints(pointA: Keyframe, pointB: Keyframe, pointC: Keyframe | undefined, settings: OptimizeSimilarPointsSettings): Keyframe | undefined {
     // The minimum difference for considering not similar
-    const differenceThreshold = 1; // 3f;
-    const timeDifferenceThreshold = 0.03; // 0.1f;
+    const differenceThreshold = settings.differenceThreshold;
+    const timeDifferenceThreshold = settings.timeDifferenceThreshold;
 
 
     // ignore points who have different easing or smoothness since those can
@@ -209,26 +209,25 @@ const dummyArrays: number[][] = [[], [], [], []]
 
 // TODO: Configure threshold
 // https://github.com/ErisApps/OhHeck/blob/ae8d02bf6bf2ec8545c2a07546c6844185b97f1c/OhHeck.Core/Analyzer/Lints/Animation/SimilarPointDataSlope.cs
-export function optimizeSimilarPointsSlope(pointA: Keyframe, pointB: Keyframe, pointC: Keyframe | undefined): Keyframe | undefined {
-
+export function optimizeSimilarPointsSlope(pointA: Keyframe, pointB: Keyframe, pointC: Keyframe | undefined, settings: OptimizeSimilarPointsSlopeSettings): Keyframe | undefined {
     if (pointC === undefined) {
         // array is size 2
         return undefined;
     }
-
-    // The minimum difference for considering not similar
-    // These numbers at quick glance seem to be fairly reliable, nice
-    // however they should be configurable or looked at later
-    const differenceThreshold = 0.03;
-    const timeDifferenceThreshold = 0.025;
-    const yInterceptDifferenceThreshold = 0.5;
-    const compareAllPreviousPoints = true;
 
     // ignore points who have different easing or smoothness since those can
     // be considered not similar even with small time differences
     if (pointA.easing !== pointB.easing || pointA.spline !== pointB.spline || pointB.spline !== pointC.spline || pointB.easing !== pointC.easing) {
         return undefined;
     }
+
+    // The minimum difference for considering not similar
+    // These numbers at quick glance seem to be fairly reliable, nice
+    // however they should be configurable or looked at later
+    const differenceThreshold = settings.differenceThreshold;
+    const timeDifferenceThreshold = settings.timeDifferenceThreshold;
+    const yInterceptDifferenceThreshold = settings.yInterceptDifferenceThreshold;
+
 
     // [[0,2, 0.2], [0, 2, 0.5], [0, 2, 1]]
     // removes the middle point
@@ -237,13 +236,49 @@ export function optimizeSimilarPointsSlope(pointA: Keyframe, pointB: Keyframe, p
     return middlePointUnnecessary.similar ? pointB : undefined;
 }
 
-export function optimizePoints(points_og: Keyframe[], optimizers: OptimizeFunction[], passes = 1): Keyframe[] {
-    const points = [...points_og].sort((a, b) => a.time - b.time)
+class OptimizeSimilarPointsSettings {
 
-    const toRemove: (Keyframe | undefined)[] = []
+    constructor(
+        public differenceThreshold = 1,
+        public timeDifferenceThreshold = 0.03
+    ) { }
+
+}
+
+class OptimizeSimilarPointsSlopeSettings {
+
+    constructor(
+        // The minimum difference for considering not similar
+        // These numbers at quick glance seem to be fairly reliable, nice
+        // however they should be configurable or looked at later
+        public differenceThreshold = 0.03,
+        public timeDifferenceThreshold = 0.025,
+        public yInterceptDifferenceThreshold = 0.5,
+    ) { }
+
+}
+
+class OptimizeSettings {
+    public optimizeDuplicates: boolean | undefined = true // false or undefined to disable
+    public optimizeSimilarPointSettings: OptimizeSimilarPointsSettings | undefined = new OptimizeSimilarPointsSettings()
+    public optimizeSimilarPointSlopeSettings: OptimizeSimilarPointsSlopeSettings = new OptimizeSimilarPointsSlopeSettings()
+
+    public additionalOptimizers: OptimizeFunction[] | undefined = undefined
+}
+
+export function optimizePoints(points_og: Keyframe[], optimizeSettings: OptimizeSettings, passes = 1): Keyframe[] {
+    const points = points_og.sort((a, b) => a.time - b.time)
+
+    const optimizers: OptimizeFunction[] = [...optimizeSettings.additionalOptimizers ?? []]
+    
+    if (optimizeSettings.optimizeDuplicates) optimizers.push(optimizeDuplicates);
+    if (optimizeSettings.optimizeSimilarPointSettings) optimizers.push((a, b, c) => optimizeSimilarPoints(a, b, c, optimizeSettings.optimizeSimilarPointSettings))
+    if (optimizeSettings.optimizeSimilarPointSlopeSettings) optimizers.push((a, b, c) => optimizeSimilarPointsSlope(a, b, c, optimizeSettings.optimizeSimilarPointSlopeSettings))
 
     // not enough points
-    if (points.length < 2) return points;
+    if (optimizers.length === 0 || points.length < 2) return points;
+
+    const toRemove: (Keyframe | undefined)[] = []
 
     for (let pass = 0; pass < passes; pass++) {
         if (points.length === 2) {
@@ -259,6 +294,9 @@ export function optimizePoints(points_og: Keyframe[], optimizers: OptimizeFuncti
         }
     }
 
+    // get unique redundant points and none undefined
+    const toRemoveUnique: Keyframe[] = toRemove.filter(e => e !== undefined && /* unique index */ !toRemoveUnique.some(otherP => e !== otherP))
+
     // probably slow but JS is weird for removing items at specific indexes, oh well
-    return points.filter(p => !toRemove.some(otherP => p === otherP))
+    return points.filter(p => !toRemoveUnique.some(otherP => p === otherP))
 }
