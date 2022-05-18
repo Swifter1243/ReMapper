@@ -175,19 +175,19 @@ You absolutely need ScuffedWalls to be running from your map directory, or else 
 
 This time the environments are in the form of a class, which stores the transformation data for the environment piece to get it fitting to the model, and also the data for creation of the environment pieces if you plan to use it to place them.
 ```js
-// Again, only a handful of environment pieces have scales and anchors available as constants.
-// However, you may use ANY piece, but you'll have to figure out the anchor and scale yourself.
 let blenderEnv = new BlenderEnvironment(ENV.BTS.PILLAR.SCALE, ENV.BTS.PILLAR.ANCHOR, ENV.BTS.PILLAR.ID, LOOKUP.REGEX);
 ```
-The way scale works is that it represents the object's size relative to a noodle cube. Each value is divided by `0.6`, since the scale is more likely to be relavant to unity units, rather than noodle units (0.6 of a unity unit). Each value is also an inverse value, as most of the time you're scaling down. So inputting 2 would end up halving the scale.
+The point of the scale and anchor is to transform the given piece to fit to a cube, so you can represnet it in blender. The transformations for a couple of pieces are available in `ENV`, but you are not limited to these, you can use ANY piece as long as you find the correct transformations.
 
-Anchor is the location of the anchor of rotation/scaling relative to the center of the object. 1 is the full width of the object on a given axis. For example if the anchor point of an object was found in the middle on the x and z axis, but at the bottom of the object on the y axis, the anchor would be `[0, -0.5, 0]` since the anchor is found downwards by half of the object's height.
+Scale is used to fit the object to a noodle unit cube. Each value is divided by `0.6`, since the model is more likely to line up to unity units. Each value is also an inverse value, as most of the time you're scaling down. So inputting 2 would end up halving the scale.
+
+Anchor is used to offset the position of an object relative to it's rotation so that the object rotates around it's visual center. 1 on a given axis will move an object by it's size in that direction. For example if your environment object rotates at it's base, you would use the anchor `[0, -0.5, 0]` since relative to the center, the anchor is found downwards by half it's height.
 
 When it comes to actually spawning in the objects, you have 2 options. The first is to use the `static()` method, which uses no animations and is intended to stay the same way the entire map.
 ```js
 blenderEnv.static("model"); // Needs to be the same track as the model!
 ```
-Tip: If you don't define a track for the model, a debug model will be spawned in with unit walls to help you find the anchor and scale to fit your piece to a cube.
+Tip: If you don't define a track for the model, a debug model will be spawned in with noodle unit sized walls to help you find the anchor and scale to fit your piece to a cube.
 
 The other option is to use the `animate()` method, which allows you to switch between models during the map, and supports animations. Environment pieces are recycled, so you aren't adding the count of each model's pieces to the map every time you switch. All animations will also be automatically optimized to cut down on points, since blender animation exports are notorious for keyframe spam.
 ```js
