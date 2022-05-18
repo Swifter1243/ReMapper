@@ -177,7 +177,7 @@ This time the environments are in the form of a class, which stores the transfor
 ```js
 let blenderEnv = new BlenderEnvironment(ENV.BTS.PILLAR.SCALE, ENV.BTS.PILLAR.ANCHOR, ENV.BTS.PILLAR.ID, LOOKUP.REGEX);
 ```
-The point of the scale and anchor is to transform the given piece to fit to a cube, so you can represnet it in blender. The transformations for a couple of pieces are available in `ENV`, but you are not limited to these, you can use ANY piece as long as you find the correct transformations.
+The point of the scale and anchor is to transform the given piece to fit to a cube, so you can represent it in blender. The transformations for a couple of pieces are available in `ENV`, but you are not limited to these, you can use ANY piece as long as you find the correct transformations.
 
 Scale is used to fit the object to a noodle unit cube. Each value is divided by `0.6`, since the model is more likely to line up to unity units. Each value is also an inverse value, as most of the time you're scaling down. So inputting 2 would end up halving the scale.
 
