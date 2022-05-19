@@ -2,7 +2,7 @@ import { complexifyArray, Keyframe, KeyframesAny, simplifyArray } from "./animat
 import { copy } from "./general";
 
 function areArrayElementsIdentical<T>(enumerable1: T[], enumerable2: T[]): boolean {
-    if (enumerable1.length != enumerable2.length) {
+    if (enumerable1.length !== enumerable2.length) {
         return false;
     }
 
@@ -22,7 +22,7 @@ function areArrayElementsIdentical<T>(enumerable1: T[], enumerable2: T[]): boole
 // threshold is the minimum difference for contrast
 // e.g 0.2 threshold means difference must be 0.2 or greater
 function areFloatsSimilar(enumerable1: number[], enumerable2: number[], threshold: number) {
-    if (enumerable1.length != enumerable2.length) {
+    if (enumerable1.length !== enumerable2.length) {
         throw new Error(`Arrays are not matching lengths. First: ${enumerable1.length} Second: ${enumerable2.length}`);
     }
 
@@ -257,7 +257,8 @@ export class OptimizeSimilarPointsSlopeSettings {
  */
 export class OptimizeSettings {
     // false or undefined to disable these settings
-    passes = 1;
+    passes = 5;
+    performance_log = false;
     optimizeDuplicates: boolean | undefined = true; // false or undefined to disable
     optimizeSimilarPoints: OptimizeSimilarPointsSettings | undefined = new OptimizeSimilarPointsSettings();
     optimizeSimilarPointsSlope: OptimizeSimilarPointsSlopeSettings | undefined = new OptimizeSimilarPointsSlopeSettings();
@@ -265,7 +266,7 @@ export class OptimizeSettings {
 }
 
 function optimizeKeyframes(keyframes: Keyframe[], optimizeSettings: OptimizeSettings): Keyframe[] {
-    const newKeyframes = keyframes.sort((a, b) => a.time - b.time);
+    const sortedKeyframes = keyframes.sort((a, b) => a.time - b.time);
 
     const optimizers: OptimizeFunction[] = [...optimizeSettings.additionalOptimizers ?? []]
 
@@ -275,15 +276,21 @@ function optimizeKeyframes(keyframes: Keyframe[], optimizeSettings: OptimizeSett
 
     const toRemove: (Keyframe | undefined)[] = []
 
+    if (optimizeSettings.performance_log) {
+        console.log(`Optimizing ${keyframes.length} points`)
+    }
+
+    // TODO: Log each optimizer's point removal  
+
     for (let pass = 0; pass < optimizeSettings.passes; pass++) {
-        if (newKeyframes.length === 2) {
-            toRemove.push(...optimizers.map((optimizerFn) => optimizerFn(newKeyframes[0], newKeyframes[1], undefined)))
+        if (sortedKeyframes.length === 2) {
+            toRemove.push(...optimizers.map((optimizerFn) => optimizerFn(sortedKeyframes[0], sortedKeyframes[1], undefined)))
         }
 
-        for (let i = 1; i < newKeyframes.length - 1; i++) {
-            const pointA = newKeyframes[i - 1];
-            const pointB = newKeyframes[i]
-            const pointC = newKeyframes[i + 1];
+        for (let i = 1; i < sortedKeyframes.length - 1; i++) {
+            const pointA = sortedKeyframes[i - 1];
+            const pointB = sortedKeyframes[i]
+            const pointC = sortedKeyframes[i + 1];
 
             toRemove.push(...optimizers.map((optimizerFn) => optimizerFn(pointA, pointB, pointC)))
         }
@@ -299,7 +306,13 @@ function optimizeKeyframes(keyframes: Keyframe[], optimizeSettings: OptimizeSett
     })
 
     // probably slow but JS is weird for removing items at specific indexes, oh well
-    return newKeyframes.filter(p => !toRemoveUnique.some(otherP => p === otherP))
+    const optimizedKeyframes = sortedKeyframes.filter(p => !toRemoveUnique.some(otherP => p === otherP))
+
+    if (optimizeSettings.performance_log) {
+        console.log(`Optimized ${optimizedKeyframes.length} (${optimizedKeyframes.length / keyframes.length}%) points`)
+    }
+
+    return optimizedKeyframes;
 }
 
 /**
