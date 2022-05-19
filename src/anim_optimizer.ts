@@ -309,7 +309,7 @@ function optimizeKeyframes(keyframes: Keyframe[], optimizeSettings: OptimizeSett
     const optimizedKeyframes = sortedKeyframes.filter(p => !toRemoveUnique.some(otherP => p === otherP))
 
     if (optimizeSettings.performance_log) {
-        console.log(`Optimized ${optimizedKeyframes.length} (${optimizedKeyframes.length / keyframes.length}%) points`)
+        console.log(`Optimized ${optimizedKeyframes.length} (${optimizedKeyframes.length / keyframes.length * 100}%) points`)
     }
 
     return optimizedKeyframes;
