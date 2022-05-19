@@ -68,6 +68,15 @@ If you want to update the package, you can run `npm uninstall swifter_remapper` 
 
 You would run this script with `ts-node "script name here"`.
 
+## Reloading on script save
+You can use `nodemon` for running your script when it changes (or when your map changes)
+
+For TypeScript support, `ts-node` is required, see above
+
+Install `nodemon` using `npm install -g nodemon`. By default, it will reload whenever a file in the current directory is modified.
+
+If you want to further configure nodemon, read [this](https://github.com/remy/nodemon#nodemon) 
+
 # Troubleshooting
 
 If you have an error that looks like this, run the following command in an admin cmd/pwsh instance.
