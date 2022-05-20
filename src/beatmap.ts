@@ -226,10 +226,10 @@ export class Difficulty {
     get obstacles(): Wall[] { return jsonGet(this.json, "_obstacles") }
     get events(): EventInternals.AbstractEvent[] { return jsonGet(this.json, "_events") }
     get waypoints(): any[] { return jsonGet(this.json, "_waypoints") }
-    get customData() { return jsonGet(this.json, "_customData") }
-    get customEvents(): CustomEventInternals.BaseEvent[] { return jsonGet(this.json, "_customData._customEvents") }
-    get pointDefinitions(): any[] { return jsonGet(this.json, "_customData._pointDefinitions") }
-    get environment(): Environment[] { return jsonGet(this.json, "_customData._environment") }
+    get customData() { return jsonGet(this.json, "_customData", {}) }
+    get customEvents(): CustomEventInternals.BaseEvent[] { return jsonGet(this.json, "_customData._customEvents", []) }
+    get pointDefinitions(): any[] { return jsonGet(this.json, "_customData._pointDefinitions", []) }
+    get environment(): Environment[] { return jsonGet(this.json, "_customData._environment", []) }
 
     set version(value: string) { jsonSet(this.json, "_version", value) }
     set notes(value: Note[]) { jsonSet(this.json, "_notes", value) }

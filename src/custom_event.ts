@@ -22,7 +22,6 @@ export namespace CustomEventInternals {
         * Push this event to the difficulty
         */
         push() {
-            if (activeDiff.customEvents === undefined) activeDiff.customEvents = [];
             activeDiff.customEvents.push(general.copy(this));
             return this;
         }
