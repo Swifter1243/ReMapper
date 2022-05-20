@@ -79,11 +79,16 @@ export namespace AnimationInternals {
             if (property === undefined) {
                 Object.keys(this.json).forEach(key => {
                     if (Array.isArray(this.json[key])) {
+                        if (settings.performance_log) {
+                            console.log(`Optimizing ${key}`)
+                        }
                         this.set(key, optimizeAnimation(this.get(key), settings));
                     }
                 })
             }
-            else this.set(property, optimizeAnimation(this.get(property), settings));
+            else {
+                this.set(property, optimizeAnimation(this.get(property), settings));
+            }
         }
 
         private convert(value) {
