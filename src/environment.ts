@@ -7,7 +7,7 @@ import { OptimizeSettings } from './anim_optimizer';
 
 let envCount = 0;
 let blenderEnvCount = 0;
-let trackData: any = []
+const trackData: any = []
 
 const debugData = [
     { _definitePosition: [[0, 1, 0, 0]], _localRotation: [[0, 0, 0, 0]], _scale: [[1, 1, 1, 0]] },
@@ -65,7 +65,7 @@ export class Environment {
     get track() { return new Track(this.json._track) }
     get group() { return this.json._group }
     get animationProperties() {
-        let returnObj: any = {};
+        const returnObj: any = {};
         if (this.position !== undefined) returnObj._position = this.position;
         if (this.localPosition !== undefined) returnObj._localPosition = this.localPosition;
         if (this.rotation !== undefined) returnObj._rotation = this.rotation;
@@ -101,12 +101,12 @@ export namespace BlenderEnvironmentInternals {
         }
 
         processData(trackData: any[] | string) {
-            let outputData = [];
+            const outputData = [];
 
             if (typeof trackData === "string") trackData = getTrackData(trackData);
 
             trackData.forEach(x => {
-                let data = {
+                const data = {
                     rawPos: [],
                     rawScale: [],
                     pos: [],
@@ -114,12 +114,12 @@ export namespace BlenderEnvironmentInternals {
                     scale: []
                 };
 
-                let posData = x._definitePosition;
-                let rotData = x._localRotation;
-                let scaleData = x._scale;
+                const posData = x._definitePosition;
+                const rotData = x._localRotation;
+                const scaleData = x._scale;
 
                 let longestArr = [];
-                let length = Math.max(posData.length, rotData.length, scaleData.length);
+                const length = Math.max(posData.length, rotData.length, scaleData.length);
                 if (posData.length === length) longestArr = posData;
                 if (rotData.length === length) longestArr = rotData;
                 if (scaleData.length === length) longestArr = scaleData;
@@ -132,7 +132,7 @@ export namespace BlenderEnvironmentInternals {
                     let pos = new Keyframe(posData[posIndex]);
                     let rot = new Keyframe(rotData[rotIndex]);
                     let scale = new Keyframe(scaleData[scaleIndex]);
-                    let ref = new Keyframe(longestArr[i]);
+                    const ref = new Keyframe(longestArr[i]);
 
                     posIndex++;
                     rotIndex++;
@@ -156,12 +156,12 @@ export namespace BlenderEnvironmentInternals {
                         data.scale.push([...scale.values.map((y, i) => y * this.scale[i] * blenderShrink), ref.time]);
                     }
 
-                    let objPos = pos.values as Vec3;
-                    let objRot = rot.values as Vec3;
-                    let objScale = scale.values;
+                    const objPos = pos.values as Vec3;
+                    const objRot = rot.values as Vec3;
+                    const objScale = scale.values;
 
                     data.rawPos.push([...objPos, ref.time]);
-                    let offset = rotatePoint(objRot, objScale.map((y, i) => y * -this.anchor[i] * blenderShrink) as Vec3);
+                    const offset = rotatePoint(objRot, objScale.map((y, i) => y * -this.anchor[i] * blenderShrink) as Vec3);
                     data.pos.push([...objPos.map((y, i) => y + offset[i]), ref.time]);
                 }
 
@@ -189,15 +189,15 @@ export namespace BlenderEnvironmentInternals {
         }
 
         static(dataTrack: string, forEvents: (moveEvent: CustomEventInternals.AnimateTrack) => void = undefined) {
-            let data = this.getDataForTrack(dataTrack);
+            const data = this.getDataForTrack(dataTrack);
 
             if (data.length > 0) {
-                let x = data[0];
-                let objPos = [x.pos[0][0], x.pos[0][1], x.pos[0][2]];
-                let objRot = [x.rot[0][0], x.rot[0][1], x.rot[0][2]];
-                let objScale = [x.scale[0][0], x.scale[0][1], x.scale[0][2]];
+                const x = data[0];
+                const objPos = [x.pos[0][0], x.pos[0][1], x.pos[0][2]];
+                const objRot = [x.rot[0][0], x.rot[0][1], x.rot[0][2]];
+                const objScale = [x.scale[0][0], x.scale[0][1], x.scale[0][2]];
 
-                let moveEvent = new CustomEvent().animateTrack(this.track);
+                const moveEvent = new CustomEvent().animateTrack(this.track);
                 moveEvent.animate.position = objPos;
                 moveEvent.animate.rotation = objRot;
                 moveEvent.animate.scale = objScale;
@@ -207,12 +207,12 @@ export namespace BlenderEnvironmentInternals {
         }
 
         animate(dataTrack: string, time: number, duration: number, forEvents: (moveEvent: CustomEventInternals.AnimateTrack) => void = undefined) {
-            let data = this.getDataForTrack(dataTrack);
+            const data = this.getDataForTrack(dataTrack);
 
             if (data.length > 0) {
-                let x = data[0];
+                const x = data[0];
 
-                let moveEvent = new CustomEvent(time).animateTrack(this.track);
+                const moveEvent = new CustomEvent(time).animateTrack(this.track);
                 moveEvent.animate.position = x.pos;
                 moveEvent.animate.rotation = x.rot;
                 moveEvent.animate.scale = x.scale;
@@ -222,7 +222,7 @@ export namespace BlenderEnvironmentInternals {
                 moveEvent.push();
             }
             else if (this.disappearWhenAbsent) {
-                let moveEvent = new CustomEvent(time).animateTrack(this.track);
+                const moveEvent = new CustomEvent(time).animateTrack(this.track);
                 moveEvent.animate.position = [0, -69420, 0];
                 moveEvent.push();
             }
@@ -236,7 +236,7 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
     lookupMethod: LOOKUP;
     assigned: BlenderEnvironmentInternals.BlenderAssigned[] = [];
     objectAmounts: number[][] = [];
-    maxObjects: number = 0;
+    maxObjects = 0;
     optimizeSettings: OptimizeSettings | undefined = new OptimizeSettings();
     assignedOptimizeSettings: OptimizeSettings | undefined = new OptimizeSettings();
 
@@ -262,7 +262,7 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
      * @param {Vec3} anchor
      * @param {Boolean} disappearWhenAbsent Determine whether to make this object disappear when no data for it is present in an environment.
      */
-    assignObjects(tracks: string | string[], scale: Vec3 = undefined, anchor: Vec3 = undefined, disappearWhenAbsent: boolean = true) {
+    assignObjects(tracks: string | string[], scale: Vec3 = undefined, anchor: Vec3 = undefined, disappearWhenAbsent = true) {
         scale ??= [1, 1, 1];
         anchor ??= [0, 0, 0];
         if (typeof tracks === "string") tracks = [tracks];
@@ -296,11 +296,11 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
         let objects = 0;
 
         data.forEach(x => {
-            let pos = [x.pos[0][0], x.pos[0][1], x.pos[0][2]];
-            let rot = [x.rot[0][0], x.rot[0][1], x.rot[0][2]];
-            let scale = [x.scale[0][0], x.scale[0][1], x.scale[0][2]];
+            const pos = [x.pos[0][0], x.pos[0][1], x.pos[0][2]];
+            const rot = [x.rot[0][0], x.rot[0][1], x.rot[0][2]];
+            const scale = [x.scale[0][0], x.scale[0][1], x.scale[0][2]];
 
-            let envObject = new Environment(this.id, this.lookupMethod);
+            const envObject = new Environment(this.id, this.lookupMethod);
             envObject.position = pos;
             envObject.rotation = rot;
             envObject.scale = scale;
@@ -335,16 +335,16 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
         switches.sort((a, b) => a[1] - b[1]);
 
         switches.forEach(x => {
-            let dataTrack = x[0];
-            let time = x[1];
-            let duration = x[2] ?? 0;
-            let forEnv = x[3];
-            let forAssigned = x[4];
-            let data = this.processData(dataTrack);
+            const dataTrack = x[0];
+            const time = x[1];
+            const duration = x[2] ?? 0;
+            const forEnv = x[3];
+            const forAssigned = x[4];
+            const data = this.processData(dataTrack);
             let objects = 0;
 
             data.forEach((x, i) => {
-                let event = new CustomEvent(time).animateTrack(this.getPieceTrack(i), duration);
+                const event = new CustomEvent(time).animateTrack(this.getPieceTrack(i), duration);
                 event.animate.position = x.pos;
                 event.animate.rotation = x.rot;
                 event.animate.scale = x.scale;
@@ -362,17 +362,17 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
         })
 
         switches.forEach(x => {
-            let time = x[1];
-            let objects = this.lookupAmount(time);
+            const time = x[1];
+            const objects = this.lookupAmount(time);
             for (let i = objects; i < this.maxObjects; i++) {
-                let event = new CustomEvent(time).animateTrack(this.getPieceTrack(i));
+                const event = new CustomEvent(time).animateTrack(this.getPieceTrack(i));
                 event.animate.position = [0, -69420, 0];
                 event.push();
             }
         })
 
         for (let i = 0; i < this.maxObjects; i++) {
-            let envObject = new Environment(this.id, this.lookupMethod);
+            const envObject = new Environment(this.id, this.lookupMethod);
             envObject.position = [0, -69420, 0];
             envObject.duplicate = 1;
             envObject.trackSet = this.getPieceTrack(i);
@@ -402,7 +402,7 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
 export function animateEnvGroup(group: string, time: number, duration: number, animation: AnimationInternals.BaseAnimation, easing: string = undefined) {
     if (activeDiff.environment !== undefined) activeDiff.environment.forEach(x => {
         if (x.group === group) {
-            let newAnimation = copy(animation.json);
+            const newAnimation = copy(animation.json);
 
             Object.keys(newAnimation).forEach(key => {
                 if (x.json[key]) newAnimation[key] = combineAnimations(newAnimation[key], x.json[key], key);
@@ -424,7 +424,7 @@ export function animateEnvGroup(group: string, time: number, duration: number, a
 export function animateEnvTrack(track: string, time: number, duration: number, animation: AnimationInternals.BaseAnimation, easing: string = undefined) {
     if (activeDiff.environment !== undefined) activeDiff.environment.forEach(x => {
         if (x.track.has(track)) {
-            let newAnimation = copy(animation.json);
+            const newAnimation = copy(animation.json);
 
             Object.keys(newAnimation).forEach(key => {
                 if (x.json[key]) newAnimation[key] = combineAnimations(newAnimation[key], x.json[key], key);
@@ -439,7 +439,7 @@ function getTrackData(track: string): any[] {
     if (!trackData[track]) {
         trackData[track] = [];
         for (let i = 0; i < activeDiff.notes.length; i++) {
-            let note = activeDiff.notes[i];
+            const note = activeDiff.notes[i];
             if (note.track.has(track)) {
                 trackData[track].push(note.animation);
                 activeDiff.notes.splice(i, 1);

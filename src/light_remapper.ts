@@ -47,7 +47,7 @@ export namespace LightRemapperInternals {
          * @param {Number} alpha 
          * @returns 
          */
-        multiplyColor(rgb: number, alpha: number = 1) {
+        multiplyColor(rgb: number, alpha = 1) {
             this.mulColor = [rgb, alpha]
             return this;
         }
@@ -75,14 +75,14 @@ export namespace LightRemapperInternals {
             if (typeof test === "boolean") array = activeDiff.events;
             else {
                 test.forEach(x => {
-                    let event = new Event().abstract();
+                    const event = new Event().abstract();
                     event.lightID = x;
                     event.type = this.startType;
                     array.push(event);
                 })
             }
-            let startIDs = [];
-            let endIDs = [];
+            const startIDs = [];
+            const endIDs = [];
 
             array.forEach(event => {
                 let isInRange = event.lightID !== undefined;
@@ -208,7 +208,7 @@ export class LightRemapper extends LightRemapperInternals.BaseLightRemapper {
      * @param {Number} offset Adds a number to each lightID.
      * @returns 
      */
-    remapEnd(map: number[][], offset: number = 0) {
+    remapEnd(map: number[][], offset = 0) {
         this.endMap = [offset, ...map];
         return this;
     }
@@ -231,7 +231,7 @@ function solveLightMap(map: number[][], ids: number[]) {
             while (true) {
                 currentChange = changes[currentIndex++]
 
-                let lastInputMapped = inputMapped
+                const lastInputMapped = inputMapped
 
                 if (!lastChange) { // implicit [0,1]
                     inputMapped += currentChange[0]
@@ -260,7 +260,7 @@ function solveLightMap(map: number[][], ids: number[]) {
 // This too
 function applyLightMap(map: (number | number[])[], ids: number[]) {
     map = copy(map);
-    let offset = map.splice(0, 1)[0];
+    const offset = map.splice(0, 1)[0];
 
     for (let i = 0; i < ids.length; i++) {
         ids[i] = apply(ids[i], map) + offset;

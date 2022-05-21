@@ -152,9 +152,46 @@ function SlopeOfPoint(a: Keyframe, b: Keyframe, slopes: number[]) {
     }
 }
 
+function roundTo(n: number, digits: number) {
+    const multiplier = Math.pow(10, digits);
+
+    return Math.round(n * multiplier) / multiplier
+
+    // let negative = false;
+    // if (digits === undefined) {
+    //     digits = 0;
+    // }
+    // if (n < 0) {
+    //     negative = true;
+    //     n = n * -1;
+    // }
+    // let multiplicator = Math.pow(10, digits);
+    // n = parseFloat((n * multiplicator).toFixed(11));
+    // n = (Math.round(n) / multiplicator).toFixed(digits);
+    // if (negative) {
+    //     n = (n * -1).toFixed(digits);
+    // }
+    // return n;
+}
+
 // pointC is undefined if array is size 2
 // return true to remove point
 export type OptimizeFunction = (pointA: Keyframe, pointB: Keyframe, pointC: Keyframe | undefined) => Keyframe | undefined;
+
+// Probably not necessary but whatever
+function optimizeFloatingPoints(a: Keyframe, b: Keyframe, c: Keyframe, optimizeFloatingPoints: OptimizeFloatingPointsSettings): Keyframe | undefined {
+    [a, b, c].forEach((p) => {
+        if (!p) return;
+
+        p.values = p.values.map(e => roundTo(e, optimizeFloatingPoints.decimals))
+        p.time = roundTo(p.time, optimizeFloatingPoints.decimals)
+    })
+
+    return undefined;
+
+}
+
+
 
 // https://github.com/ErisApps/OhHeck/blob/ae8d02bf6bf2ec8545c2a07546c6844185b97f1c/OhHeck.Core/Analyzer/Lints/Animation/DuplicatePointData.cs
 function optimizeDuplicates(pointA: Keyframe, pointB: Keyframe, pointC: Keyframe | undefined): Keyframe | undefined {
@@ -235,6 +272,13 @@ function optimizeSimilarPointsSlope(pointA: Keyframe, pointB: Keyframe, pointC: 
 /**
  * Settings for the "optimizeSimilarPoints" optimizing function, starts at default values.
  */
+export class OptimizeFloatingPointsSettings {
+    decimals = 5
+}
+
+/**
+ * Settings for the "optimizeSimilarPoints" optimizing function, starts at default values.
+ */
 export class OptimizeSimilarPointsSettings {
     differenceThreshold = 1;
     timeDifferenceThreshold = 0.03;
@@ -260,6 +304,7 @@ export class OptimizeSettings {
     passes = 5;
     performance_log = false;
     optimizeDuplicates: boolean | undefined = true; // false or undefined to disable
+    optimizeFloatingPoints: OptimizeFloatingPointsSettings | undefined = new OptimizeFloatingPointsSettings() 
     optimizeSimilarPoints: OptimizeSimilarPointsSettings | undefined = new OptimizeSimilarPointsSettings();
     optimizeSimilarPointsSlope: OptimizeSimilarPointsSlopeSettings | undefined = new OptimizeSimilarPointsSlopeSettings();
     additionalOptimizers: OptimizeFunction[] | undefined = undefined;
@@ -270,6 +315,7 @@ function optimizeKeyframes(keyframes: Keyframe[], optimizeSettings: OptimizeSett
 
     const optimizers: OptimizeFunction[] = [...optimizeSettings.additionalOptimizers ?? []]
 
+    if (optimizeSettings.optimizeFloatingPoints) optimizers.push((a, b, c) => optimizeFloatingPoints(a, b, c, optimizeSettings.optimizeFloatingPoints))
     if (optimizeSettings.optimizeDuplicates) optimizers.push(optimizeDuplicates);
     if (optimizeSettings.optimizeSimilarPoints) optimizers.push((a, b, c) => optimizeSimilarPoints(a, b, c, optimizeSettings.optimizeSimilarPoints))
     if (optimizeSettings.optimizeSimilarPoints) optimizers.push((a, b, c) => optimizeSimilarPointsSlope(a, b, c, optimizeSettings.optimizeSimilarPointsSlope))
@@ -300,7 +346,7 @@ function optimizeKeyframes(keyframes: Keyframe[], optimizeSettings: OptimizeSett
     const toRemoveUnique: Keyframe[] = [];
     toRemove.forEach((e) => {
         // only add items that are not undefined and not in the array already
-        if (e !== undefined && !toRemoveUnique.some(otherP => e !== otherP)) {
+        if (e !== undefined && !toRemoveUnique.some(otherP => e === otherP)) {
             toRemoveUnique.push(e)
         }
     })
@@ -309,7 +355,7 @@ function optimizeKeyframes(keyframes: Keyframe[], optimizeSettings: OptimizeSett
     const optimizedKeyframes = sortedKeyframes.filter(p => !toRemoveUnique.some(otherP => p === otherP))
 
     if (optimizeSettings.performance_log) {
-        console.log(`Optimized ${optimizedKeyframes.length} (${optimizedKeyframes.length / keyframes.length * 100}%) points`)
+        console.log(`Optimized to ${optimizedKeyframes.length} (${optimizedKeyframes.length / keyframes.length * 100}%) points`)
     }
 
     return optimizedKeyframes;

@@ -83,11 +83,11 @@ export class Wall {
     get NJS() {
         if (this.json._customData._noteJumpMovementSpeed) return this.json._customData._noteJumpMovementSpeed;
         else return activeDiff.NJS;
-    };
+    }
     get offset() {
         if (this.json._customData._noteJumpStartBeatOffset) return this.json._customData._noteJumpStartBeatOffset;
         else return activeDiff.offset;
-    };
+    }
     get halfJumpDur() { return getJumps(this.NJS, this.offset, info.BPM).halfDur }
     get jumpDist() { return getJumps(this.NJS, this.offset, info.BPM).dist }
     get life() { return this.halfJumpDur * 2 + this.duration }
@@ -120,7 +120,7 @@ export class Wall {
 
     get isModded() {
         if (this.customData === undefined) return false;
-        let customData = copy(this.customData);
+        const customData = copy(this.customData);
         jsonPrune(customData);
         return !isEmptyObject(customData);
     }

@@ -65,8 +65,8 @@ export namespace AnimationInternals {
          */
         add(property: string, value) {
             value = this.convert(complexifyArray(value));
-            let concatArray = value.concat(complexifyArray(this.json[property]));
-            let newValue = simplifyArray(concatArray.sort((a, b) => new Keyframe(a).time - new Keyframe(b).time));
+            const concatArray = value.concat(complexifyArray(this.json[property]));
+            const newValue = simplifyArray(concatArray.sort((a, b) => new Keyframe(a).time - new Keyframe(b).time));
             this.json[property] = newValue;
         }
 
@@ -93,7 +93,7 @@ export namespace AnimationInternals {
 
         private convert(value) {
             return value.map(x => {
-                let time = new Keyframe(x).timeIndex;
+                const time = new Keyframe(x).timeIndex;
                 x[time] = this.convertTime(x[time]);
                 return x;
             })
@@ -204,7 +204,7 @@ export class Animation extends AnimationInternals.BaseAnimation {
     * Setting a property will add any existing keyframes and sort by time.
     * @param {Number} length
     */
-    constructor(length: number = 1) { super(length) }
+    constructor(length = 1) { super(length) }
 
     /**
     * Create an animation using JSON.
@@ -251,7 +251,7 @@ export class Animation extends AnimationInternals.BaseAnimation {
 export class Keyframe {
     values: number[] = [];
     timeIndex = 0;
-    time: number = 0;
+    time = 0;
     easing: EASE = undefined;
     spline: SPLINE = undefined;
 
@@ -264,7 +264,7 @@ export class Keyframe {
     }
 
     private getValues(arr: KeyframeValues): number[] {
-        let time = this.getTimeIndex(arr);
+        const time = this.getTimeIndex(arr);
         return arr.slice(0, time) as number[];
     }
 
@@ -282,8 +282,9 @@ export class Keyframe {
         return arr.filter(x => typeof x === "string" && x.includes("spline"))[0] as SPLINE;
     }
 
+    // TODO: Rename this to compile or build?
     get data() {
-        let output: (string | number)[] = [...this.values, this.time];
+        const output: (string | number)[] = [...this.values, this.time];
         if (this.easing !== undefined) output.push(this.easing);
         if (this.spline !== undefined) output.push(this.spline);
         return output;
@@ -330,7 +331,7 @@ export function complexifyArray(array: KeyframesAny): KeyframeArray {
 export function simplifyArray(array: KeyframesAny): KeyframesAny {
     if (array === undefined) return [];
     if (array.length <= 1 && !isSimple(array) && new Keyframe(array[0] as KeyframeValues).time === 0) {
-        let newArr = array[0] as KeyframeValues;
+        const newArr = array[0] as KeyframeValues;
         newArr.pop();
         return newArr as KeyframesAny;
     }
@@ -355,7 +356,7 @@ export function isSimple(array: KeyframesAny) {
  */
 export function getValuesAtTime(property: string, animation: KeyframesAny, time: number) {
     animation = complexifyArray(animation);
-    let timeInfo = timeInKeyframes(time, animation);
+    const timeInfo = timeInKeyframes(time, animation);
     if (timeInfo.interpolate) {
         if (property === ANIM.ROTATION || property === ANIM.LOCAL_ROTATION) {
             return lerpRotation(timeInfo.l.values as Vec3, timeInfo.r.values as Vec3, timeInfo.normalTime);
@@ -363,24 +364,24 @@ export function getValuesAtTime(property: string, animation: KeyframesAny, time:
         else {
             // TODO: Move this into its own function, this is bad
             if (timeInfo.r.spline === "splineCatmullRom") {
-                let p0 = timeInfo.leftIndex - 1 < 0 ? timeInfo.l.values : new Keyframe(animation[timeInfo.leftIndex - 1]).values;
-                let p1 = timeInfo.l.values;
-                let p2 = timeInfo.r.values;
-                let p3 = timeInfo.rightIndex + 1 > animation.length - 1 ? timeInfo.r.values : new Keyframe(animation[timeInfo.rightIndex + 1]).values;
+                const p0 = timeInfo.leftIndex - 1 < 0 ? timeInfo.l.values : new Keyframe(animation[timeInfo.leftIndex - 1]).values;
+                const p1 = timeInfo.l.values;
+                const p2 = timeInfo.r.values;
+                const p3 = timeInfo.rightIndex + 1 > animation.length - 1 ? timeInfo.r.values : new Keyframe(animation[timeInfo.rightIndex + 1]).values;
 
-                let t = timeInfo.normalTime;
-                let tt = t * t;
-                let ttt = tt * t;
+                const t = timeInfo.normalTime;
+                const tt = t * t;
+                const ttt = tt * t;
 
-                let q0 = -ttt + (2 * tt) - t;
-                let q1 = (3 * ttt) - (5 * tt) + 2;
-                let q2 = (-3 * ttt) + (4 * tt) + t;
-                let q3 = ttt - tt;
+                const q0 = -ttt + (2 * tt) - t;
+                const q1 = (3 * ttt) - (5 * tt) + 2;
+                const q2 = (-3 * ttt) + (4 * tt) + t;
+                const q3 = ttt - tt;
 
-                let o0 = arrMul(p0, q0);
-                let o1 = arrMul(p1, q1);
-                let o2 = arrMul(p2, q2);
-                let o3 = arrMul(p3, q3);
+                const o0 = arrMul(p0, q0);
+                const o1 = arrMul(p1, q1);
+                const o2 = arrMul(p2, q2);
+                const o3 = arrMul(p3, q3);
 
                 return arrMul(arrAdd(arrAdd(o0, o1), arrAdd(o2, o3)), 0.5);
             }
@@ -402,13 +403,13 @@ function timeInKeyframes(time: number, animation: KeyframeArray) {
 
     if (animation.length === 0) return { interpolate: false };
 
-    let first = new Keyframe(animation[0]);
+    const first = new Keyframe(animation[0]);
     if (first.time >= time) {
         l = first;
         return { interpolate: false, l: l };
     }
 
-    let last = new Keyframe(arrLast(animation));
+    const last = new Keyframe(arrLast(animation));
     if (last.time <= time) {
         l = last;
         return { interpolate: false, l: l };
@@ -418,14 +419,15 @@ function timeInKeyframes(time: number, animation: KeyframeArray) {
     let rightIndex = animation.length;
 
     while (leftIndex < rightIndex - 1) {
-        let m = Math.floor((leftIndex + rightIndex) / 2);
-        let pointTime = new Keyframe(animation[m]).time;
+        const m = Math.floor((leftIndex + rightIndex) / 2);
+        const pointTime = new Keyframe(animation[m]).time;
 
         if (pointTime < time) leftIndex = m;
         else rightIndex = m;
     }
 
     l = new Keyframe(animation[leftIndex]);
+    // eslint-disable-next-line prefer-const
     r = new Keyframe(animation[rightIndex]);
 
     normalTime = findFraction(l.time, r.time - l.time, time);
@@ -459,7 +461,7 @@ export function combineAnimations(anim1: KeyframesAny, anim2: KeyframesAny, prop
     }
     if (!isSimple(anim1) && !isSimple(anim2)) { console.warn(`[${anim1}] and [${anim2}] are unable to combine!`); }
 
-    let editElem = function (e: number, e2: number) {
+    const editElem = function (e: number, e2: number) {
         if (property === (ANIM.POSITION || ANIM.LOCAL_POSITION)) e += e2;
         if (property === (ANIM.ROTATION || ANIM.LOCAL_ROTATION)) e = (e + e2) % 360;
         if (property === (ANIM.SCALE)) e *= e2;

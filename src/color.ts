@@ -21,7 +21,7 @@ export class Color {
      * @param {String} format
      * @param {Boolean} alert Option to remove alerts about already being the same format.
      */
-    toFormat(format: string, alert: boolean = true) {
+    toFormat(format: string, alert = true) {
         if (format === "RGB") {
             if (this.format === "RGB" && alert) console.warn(`The color ${this.internalValue} was already RGB!`);
             if (this.format === "HSV") this.HSVtoRGB();
@@ -49,16 +49,20 @@ export class Color {
     }
 
     private HSVtoRGB() {
-        let h = clamp(this.internalValue[0], 0, 1);
-        let s = this.internalValue[1];
-        let v = this.internalValue[2];
+        const h = clamp(this.internalValue[0], 0, 1);
+        const s = this.internalValue[1];
+        const v = this.internalValue[2];
 
-        let r, g, b, i, f, p, q, t;
-        i = Math.floor(h * 6);
-        f = h * 6 - i;
-        p = v * (1 - s);
-        q = v * (1 - f * s);
-        t = v * (1 - (1 - f) * s);
+        const i = Math.floor(h * 6);
+        const f = h * 6 - i;
+        const p = v * (1 - s);
+        const q = v * (1 - f * s);
+        const t = v * (1 - (1 - f) * s);
+
+        let r: number;
+        let g: number;
+        let b: number;
+
         switch (i % 6) {
             case 0: r = v, g = t, b = p; break;
             case 1: r = q, g = v, b = p; break;
@@ -72,15 +76,16 @@ export class Color {
     }
 
     private RGBtoHSV() {
-        let r = this.internalValue[0];
-        let g = this.internalValue[1];
-        let b = this.internalValue[2];
+        const r = this.internalValue[0];
+        const g = this.internalValue[1];
+        const b = this.internalValue[2];
 
-        let max = Math.max(r, g, b), min = Math.min(r, g, b),
-            d = max - min,
-            h,
-            s = (max === 0 ? 0 : d / max),
-            v = max;
+        const max = Math.max(r, g, b), min = Math.min(r, g, b),
+            d = max - min;
+        
+        let h: number;
+        const s = (max === 0 ? 0 : d / max);
+        const v = max;
 
         switch (max) {
             case min: h = 0; break;
@@ -108,12 +113,12 @@ export class Color {
 export function lerpColor(start: Color, end: Color, fraction: number, easing = undefined, format: string = undefined) {
     if (format !== "RGB" && format !== "HSV") format = "RGB";
 
-    let returnFormat = start.format;
+    const returnFormat = start.format;
     if (easing !== undefined) fraction = lerpEasing(easing, fraction);
 
-    let output = new Color([0, 0, 0], format);
-    let newStart = new Color(start.value, start.format);
-    let newEnd = new Color(end.value, end.format);
+    const output = new Color([0, 0, 0], format);
+    const newStart = new Color(start.value, start.format);
+    const newEnd = new Color(end.value, end.format);
 
     newStart.toFormat(format, false);
     newEnd.toFormat(format, false);

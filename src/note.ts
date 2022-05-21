@@ -83,11 +83,11 @@ export class Note {
     get NJS() {
         if (this.json._customData._noteJumpMovementSpeed) return this.json._customData._noteJumpMovementSpeed;
         else return activeDiff.NJS;
-    };
+    }
     get offset() {
         if (this.json._customData._noteJumpStartBeatOffset) return this.json._customData._noteJumpStartBeatOffset;
         else return activeDiff.offset;
-    };
+    }
     get halfJumpDur() { return getJumps(this.NJS, this.offset, info.BPM).halfDur }
     get jumpDist() { return getJumps(this.NJS, this.offset, info.BPM).dist }
     get life() { return this.halfJumpDur * 2 }
@@ -130,9 +130,9 @@ export class Note {
     set offset(value: number) { this.json._customData._noteJumpStartBeatOffset = value }
     set life(value: number) { 
         if (value < 2) console.log("Warning: The lifespan of a note has a minimum of 2 beats.");
-        let defaultJumps = getJumps(this.NJS, 0, info.BPM);
+        const defaultJumps = getJumps(this.NJS, 0, info.BPM);
         this.offset = (value - (2 * defaultJumps.halfDur)) / 2;
-    };
+    }
     set lifeStart(value: number) { this.time = value + this.life / 2 }
     set fake(value: boolean) { this.json._customData._fake = value }
     set interactable(value: boolean) { this.json._customData._interactable = value }
@@ -142,7 +142,7 @@ export class Note {
 
     get isModded() {
         if (this.customData === undefined) return false;
-        let customData = copy(this.customData);
+        const customData = copy(this.customData);
         jsonPrune(customData);
         return !isEmptyObject(customData);
     }
