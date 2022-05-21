@@ -90,7 +90,7 @@ export namespace AnimationInternals {
                         const newCount = this.get(key).length;
                         settings.performance_log = print;
                         if (print && newCount !== oldCount) {
-                            console.log(`Optimized ${key} ${oldCount} -> ${newCount} (Reduced ${(100 - (newCount / oldCount * 100)).toFixed(2)}%) points`)
+                            console.log(`Optimized ${key} ${oldCount} -> ${newCount} (reduced ${(100 - (newCount / oldCount * 100)).toFixed(2)}%) points`)
                         }
                     }
                 })

@@ -295,7 +295,7 @@ export class OptimizeFloatingPointsSettings {
  */
 export class OptimizeSimilarPointsSettings {
     differenceThreshold = 1;
-    timeDifferenceThreshold = 0.03;
+    timeDifferenceThreshold = 0.001;
 }
 
 /**
