@@ -368,7 +368,6 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
             for (let i = objects; i < this.maxObjects; i++) {
                 const event = new CustomEvent(time).animateTrack(this.getPieceTrack(i));
                 event.animate.position = "yeet";
-                console.log(event.animate.position);
                 event.push();
             }
         })
