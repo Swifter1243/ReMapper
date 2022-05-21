@@ -157,6 +157,9 @@ function roundTo(n: number, digits: number) {
 
     return Math.round(n * multiplier) / multiplier
 
+
+    // return parseFloat(n.toFixed(digits))
+
     // let negative = false;
     // if (digits === undefined) {
     //     digits = 0;
@@ -231,6 +234,8 @@ function optimizeSimilarPoints(pointA: Keyframe, pointB: Keyframe, pointC: Keyfr
     // removes the middle point
     // ignores time
     const middlePointUnnecessary = arePointSimilar(pointA, pointB, differenceThreshold, timeDifferenceThreshold) && arePointSimilar(pointB, pointC, differenceThreshold, timeDifferenceThreshold);
+
+    // console.log(`similar ${middlePointUnnecessary} a: ${pointA.values} b: ${pointB.values} c: ${pointC.values}`)
 
     return middlePointUnnecessary ? pointB : undefined;
 }
@@ -315,7 +320,7 @@ function optimizeKeyframes(keyframes: Keyframe[], optimizeSettings: OptimizeSett
 
     const optimizers: OptimizeFunction[] = [...optimizeSettings.additionalOptimizers ?? []]
 
-    // if (optimizeSettings.optimizeFloatingPoints) optimizers.push((a, b, c) => optimizeFloatingPoints(a, b, c, optimizeSettings.optimizeFloatingPoints))
+    if (optimizeSettings.optimizeFloatingPoints) optimizers.push((a, b, c) => optimizeFloatingPoints(a, b, c, optimizeSettings.optimizeFloatingPoints))
     if (optimizeSettings.optimizeDuplicates) optimizers.push(optimizeDuplicates);
     if (optimizeSettings.optimizeSimilarPoints) optimizers.push((a, b, c) => optimizeSimilarPoints(a, b, c, optimizeSettings.optimizeSimilarPoints))
     if (optimizeSettings.optimizeSimilarPointsSlope) optimizers.push((a, b, c) => optimizeSimilarPointsSlope(a, b, c, optimizeSettings.optimizeSimilarPointsSlope))
@@ -324,7 +329,7 @@ function optimizeKeyframes(keyframes: Keyframe[], optimizeSettings: OptimizeSett
         console.log(`Optimizing ${keyframes.length} points`)
     }
 
-    // TODO: Log each optimizer's point removal  
+    // TODO: Log each optimizer's point removal
 
     
     let optimizedKeyframes = [...sortedKeyframes];
@@ -344,16 +349,16 @@ function optimizeKeyframes(keyframes: Keyframe[], optimizeSettings: OptimizeSett
             toRemove.push(...optimizers.map((optimizerFn) => optimizerFn(pointA, pointB, pointC)))
         }
 
-    // get unique redundant points and none undefined
-    const toRemoveUnique: Keyframe[] = [];
-    toRemove.forEach((e) => {
-        // only add items that are not undefined and not in the array already
-        if (e !== undefined && !toRemoveUnique.some(otherP => e === otherP)) {
-            toRemoveUnique.push(e)
-        }
-    })
+        // get unique redundant points and none undefined
+        const toRemoveUnique: Keyframe[] = [];
+        toRemove.forEach((e) => {
+            // only add items that are not undefined and not in the array already
+            if (e !== undefined && !toRemoveUnique.some(otherP => e === otherP)) {
+                toRemoveUnique.push(e)
+            }
+        })
 
-    // probably slow but JS is weird for removing items at specific indexes, oh well
+        // probably slow but JS is weird for removing items at specific indexes, oh well
         optimizedKeyframes = sortedKeyframes.filter(p => !toRemoveUnique.some(otherP => p === otherP))
     }
 
