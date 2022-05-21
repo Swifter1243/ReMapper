@@ -1,4 +1,4 @@
-import { combineAnimations, Keyframe, AnimationInternals, TrackValue, Track } from './animation';
+import { combineAnimations, Keyframe, AnimationInternals, TrackValue, Track, toPointDef } from './animation';
 import { activeDiff } from './beatmap';
 import { Vec3, debugWall, copy, rotatePoint } from './general';
 import { CustomEvent, CustomEventInternals } from './custom_event';
@@ -223,7 +223,7 @@ export namespace BlenderEnvironmentInternals {
             }
             else if (this.disappearWhenAbsent) {
                 const moveEvent = new CustomEvent(time).animateTrack(this.track);
-                moveEvent.animate.position = [0, -69420, 0];
+                moveEvent.animate.position = "yeet";
                 moveEvent.push();
             }
         }
@@ -332,6 +332,7 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
         ((moveEvent: CustomEventInternals.AnimateTrack, objects: number) => void)?,
         ((moveEvent: CustomEventInternals.AnimateTrack) => void)?
     ][], forEnvSpawn: (envObject: Environment) => void = undefined) {
+        createYeetDef();
         switches.sort((a, b) => a[1] - b[1]);
 
         switches.forEach(x => {
@@ -366,7 +367,8 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
             const objects = this.lookupAmount(time);
             for (let i = objects; i < this.maxObjects; i++) {
                 const event = new CustomEvent(time).animateTrack(this.getPieceTrack(i));
-                event.animate.position = [0, -69420, 0];
+                event.animate.position = "yeet";
+                console.log(event.animate.position);
                 event.push();
             }
         })
@@ -448,4 +450,13 @@ function getTrackData(track: string): any[] {
         }
     }
     return trackData[track];
+}
+
+let noYeet = true;
+
+function createYeetDef() {
+    if (noYeet === true) {
+        noYeet = false;
+        toPointDef([0, -69420, 0], "yeet");
+    } 
 }

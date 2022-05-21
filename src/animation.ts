@@ -40,7 +40,8 @@ export namespace AnimationInternals {
          * @param {*} value 
          */
         set(property: string, value: KeyframesAny) {
-            this.json[property] = simplifyArray(complexifyArray(value).sort((a: KeyframeValues, b: KeyframeValues) => new Keyframe(a).time - new Keyframe(b).time))
+            if (typeof value === "string") this.json[property] = value;
+            else this.json[property] = simplifyArray(complexifyArray(value).sort((a: KeyframeValues, b: KeyframeValues) => new Keyframe(a).time - new Keyframe(b).time))
         }
 
         /**
@@ -51,7 +52,7 @@ export namespace AnimationInternals {
          * @returns {*}
          */
         get(property: string, time: number = undefined) {
-            if (time === undefined) return this.json[property];
+            if (time === undefined || typeof time === "string") return this.json[property];
             else {
                 time = this.convertTime(time);
                 return getValuesAtTime(property, this.json[property], time);
@@ -64,10 +65,13 @@ export namespace AnimationInternals {
          * @param {*} value 
          */
         add(property: string, value) {
-            value = this.convert(complexifyArray(value));
-            const concatArray = value.concat(complexifyArray(this.json[property]));
-            const newValue = simplifyArray(concatArray.sort((a, b) => new Keyframe(a).time - new Keyframe(b).time));
-            this.json[property] = newValue;
+            if (typeof value === "string") this.json[property] = value;
+            else {
+                value = this.convert(complexifyArray(value));
+                const concatArray = value.concat(complexifyArray(this.json[property]));
+                const newValue = simplifyArray(concatArray.sort((a, b) => new Keyframe(a).time - new Keyframe(b).time));
+                this.json[property] = newValue;
+            }
         }
 
         /**
