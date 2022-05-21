@@ -318,7 +318,7 @@ function optimizeKeyframes(keyframes: Keyframe[], optimizeSettings: OptimizeSett
     if (optimizeSettings.optimizeFloatingPoints) optimizers.push((a, b, c) => optimizeFloatingPoints(a, b, c, optimizeSettings.optimizeFloatingPoints))
     if (optimizeSettings.optimizeDuplicates) optimizers.push(optimizeDuplicates);
     if (optimizeSettings.optimizeSimilarPoints) optimizers.push((a, b, c) => optimizeSimilarPoints(a, b, c, optimizeSettings.optimizeSimilarPoints))
-    if (optimizeSettings.optimizeSimilarPoints) optimizers.push((a, b, c) => optimizeSimilarPointsSlope(a, b, c, optimizeSettings.optimizeSimilarPointsSlope))
+    if (optimizeSettings.optimizeSimilarPointsSlope) optimizers.push((a, b, c) => optimizeSimilarPointsSlope(a, b, c, optimizeSettings.optimizeSimilarPointsSlope))
 
     const toRemove: (Keyframe | undefined)[] = []
 
