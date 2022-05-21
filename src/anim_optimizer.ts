@@ -315,12 +315,10 @@ function optimizeKeyframes(keyframes: Keyframe[], optimizeSettings: OptimizeSett
 
     const optimizers: OptimizeFunction[] = [...optimizeSettings.additionalOptimizers ?? []]
 
-    if (optimizeSettings.optimizeFloatingPoints) optimizers.push((a, b, c) => optimizeFloatingPoints(a, b, c, optimizeSettings.optimizeFloatingPoints))
+    // if (optimizeSettings.optimizeFloatingPoints) optimizers.push((a, b, c) => optimizeFloatingPoints(a, b, c, optimizeSettings.optimizeFloatingPoints))
     if (optimizeSettings.optimizeDuplicates) optimizers.push(optimizeDuplicates);
     if (optimizeSettings.optimizeSimilarPoints) optimizers.push((a, b, c) => optimizeSimilarPoints(a, b, c, optimizeSettings.optimizeSimilarPoints))
     if (optimizeSettings.optimizeSimilarPointsSlope) optimizers.push((a, b, c) => optimizeSimilarPointsSlope(a, b, c, optimizeSettings.optimizeSimilarPointsSlope))
-
-    const toRemove: (Keyframe | undefined)[] = []
 
     if (optimizeSettings.performance_log) {
         console.log(`Optimizing ${keyframes.length} points`)
@@ -328,19 +326,23 @@ function optimizeKeyframes(keyframes: Keyframe[], optimizeSettings: OptimizeSett
 
     // TODO: Log each optimizer's point removal  
 
+    
+    let optimizedKeyframes = [...sortedKeyframes];
+
     for (let pass = 0; pass < optimizeSettings.passes; pass++) {
-        if (sortedKeyframes.length === 2) {
-            toRemove.push(...optimizers.map((optimizerFn) => optimizerFn(sortedKeyframes[0], sortedKeyframes[1], undefined)))
+        const toRemove: (Keyframe | undefined)[] = []
+
+        if (optimizedKeyframes.length === 2) {
+            toRemove.push(...optimizers.map((optimizerFn) => optimizerFn(optimizedKeyframes[0], optimizedKeyframes[1], undefined)))
         }
 
-        for (let i = 1; i < sortedKeyframes.length - 1; i++) {
-            const pointA = sortedKeyframes[i - 1];
-            const pointB = sortedKeyframes[i]
-            const pointC = sortedKeyframes[i + 1];
+        for (let i = 1; i < optimizedKeyframes.length - 1; i++) {
+            const pointA = optimizedKeyframes[i - 1];
+            const pointB = optimizedKeyframes[i]
+            const pointC = optimizedKeyframes[i + 1];
 
             toRemove.push(...optimizers.map((optimizerFn) => optimizerFn(pointA, pointB, pointC)))
         }
-    }
 
     // get unique redundant points and none undefined
     const toRemoveUnique: Keyframe[] = [];
@@ -352,7 +354,8 @@ function optimizeKeyframes(keyframes: Keyframe[], optimizeSettings: OptimizeSett
     })
 
     // probably slow but JS is weird for removing items at specific indexes, oh well
-    const optimizedKeyframes = sortedKeyframes.filter(p => !toRemoveUnique.some(otherP => p === otherP))
+        optimizedKeyframes = sortedKeyframes.filter(p => !toRemoveUnique.some(otherP => p === otherP))
+    }
 
     if (optimizeSettings.performance_log) {
         console.log(`Optimized to ${optimizedKeyframes.length} (${optimizedKeyframes.length / keyframes.length * 100}%) points`)
