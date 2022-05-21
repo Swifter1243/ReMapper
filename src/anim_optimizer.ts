@@ -19,6 +19,7 @@ function areArrayElementsIdentical<T>(enumerable1: T[], enumerable2: T[]): boole
     return true;
 }
 
+// returns false if the delta 
 // threshold is the minimum difference for contrast
 // e.g 0.2 threshold means difference must be 0.2 or greater
 function areFloatsSimilar(enumerable1: number[], enumerable2: number[], threshold: number) {
@@ -42,6 +43,7 @@ function arePointSimilar(a: Keyframe, b: Keyframe, differenceThreshold: number, 
     // Both points are identical
     return areFloatsSimilar(a.values, b.values, differenceThreshold)
         // time difference is small
+        // points are not similar if the delta of a.time and b.time are GREATER than timeDifferenceThreshold
         && Math.abs(a.time - b.time) <= timeDifferenceThreshold
 }
 
@@ -273,6 +275,13 @@ function optimizeSimilarPointsSlope(pointA: Keyframe, pointB: Keyframe, pointC: 
     const middlePointUnnecessary = ComparePointsSlope(pointA, pointB, pointC, dummyArrays[0], dummyArrays[1], dummyArrays[2], dummyArrays[3], timeDifferenceThreshold, differenceThreshold, yInterceptDifferenceThreshold)
     return middlePointUnnecessary.similar ? pointB : undefined;
 }
+
+/**
+ * Terminology
+ * Treshold:   The minimum delta required for points to be retained. 
+ *             If the delta is LESS than the threshold, the point will be considered for removal
+ * 
+ */
 
 /**
  * Settings for the "optimizeSimilarPoints" optimizing function, starts at default values.
