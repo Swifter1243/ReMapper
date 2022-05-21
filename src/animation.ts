@@ -79,10 +79,19 @@ export namespace AnimationInternals {
             if (property === undefined) {
                 Object.keys(this.json).forEach(key => {
                     if (Array.isArray(this.json[key])) {
-                        if (settings.performance_log) {
-                            console.log(`Optimizing ${key}`)
+                        const oldArray = this.get(key);
+                        const oldCount = oldArray.length;
+
+                        const print = settings.performance_log;
+                        settings.performance_log = false;
+
+                        this.set(key, optimizeAnimation(oldArray, settings));
+
+                        const newCount = this.get(key).length;
+                        settings.performance_log = print;
+                        if (print && newCount !== oldCount) {
+                            console.log(`Optimized ${key} ${oldCount} -> ${newCount} (Reduced ${(100 - (newCount / oldCount * 100)).toFixed(2)}%) points`)
                         }
-                        this.set(key, optimizeAnimation(this.get(key), settings));
                     }
                 })
             }
