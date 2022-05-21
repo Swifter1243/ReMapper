@@ -153,7 +153,7 @@ function SlopeOfPoint(a: Keyframe, b: Keyframe, slopes: number[]) {
 }
 
 function roundTo(n: number, digits: number) {
-    const multiplier = Math.pow(n, digits);
+    const multiplier = Math.pow(10, digits);
 
     return Math.round(n * multiplier) / multiplier
 
