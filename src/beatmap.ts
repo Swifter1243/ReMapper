@@ -8,6 +8,8 @@ import { Event, EventInternals } from './event';
 import { CustomEvent, CustomEventInternals } from './custom_event';
 import { Environment } from './environment';
 import { copy, isEmptyObject, jsonGet, jsonPrune, jsonRemove, jsonSet, rand, sortObjects, Vec3 } from './general';
+import { AnimationInternals } from './animation';
+import { OptimizeSettings } from './anim_optimizer';
 
 export class Difficulty {
     json;
@@ -60,6 +62,20 @@ export class Difficulty {
         if (this.version === undefined) this.version = "2.2.0";
 
         activeDiff = this;
+    }
+
+    optimize(optimize: OptimizeSettings = new OptimizeSettings()) {
+
+        const optimizeAnimation = (animation: AnimationInternals.BaseAnimation) => {
+            animation.optimize(undefined, optimize)
+        };
+
+
+        this.notes.forEach(e => optimizeAnimation(e.animate)),
+        this.obstacles.forEach(e => optimizeAnimation(e.animate)),
+        this.customEvents.filter(e => e instanceof CustomEventInternals.AnimateTrack).forEach(e => optimizeAnimation((e as CustomEventInternals.AnimateTrack).animate));
+
+        // TODO: Optimize point definitions
     }
 
     /** 
