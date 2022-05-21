@@ -300,7 +300,7 @@ function optimizeKeyframes(keyframes: Keyframe[], optimizeSettings: OptimizeSett
     const toRemoveUnique: Keyframe[] = [];
     toRemove.forEach((e) => {
         // only add items that are not undefined and not in the array already
-        if (e !== undefined && !toRemoveUnique.some(otherP => e !== otherP)) {
+        if (e !== undefined && !toRemoveUnique.some(otherP => e === otherP)) {
             toRemoveUnique.push(e)
         }
     })
