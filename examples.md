@@ -3,7 +3,7 @@ This documentation **does not contain every ReMapper feature**. It is simply a g
 
 **Every** function in ReMapper has a description for it's purpose, and a description for each argument that may not be intuitive, which is visible as you write the function. ReMapper is best used by starting from scratch and adding things as you need them.
 
-If seeing the structure of a completed map helps, you can check out my [Map Scripts](https://github.com/Swifter1243/MapScripts) that use ReMapper. **(NOTE: At the moment no maps made by ReMapper are released by me, sorry!)**
+If seeing the structure of a completed map helps, you can check out my [Map Scripts](https://github.com/Swifter1243/MapScripts/tree/main/ReMapper) that use ReMapper.
 
 I would recommend reading all the way up to the end of [Environment](#environment), and pay attention to as much as possible. Every detail is crucial and can apply to multiple places.
 # Importing
