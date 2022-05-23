@@ -1,6 +1,6 @@
-import * as general from './general';
-import { activeDiff } from './beatmap';
-import { AnimationInternals, Animation, TrackValue, Track } from './animation';
+import * as general from './general.ts';
+import { activeDiff } from './beatmap.ts';
+import { AnimationInternals, Animation, TrackValue, Track } from './animation.ts';
 
 export namespace CustomEventInternals {
     export class BaseEvent {

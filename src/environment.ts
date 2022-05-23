@@ -1,9 +1,9 @@
-import { combineAnimations, Keyframe, AnimationInternals, TrackValue, Track, toPointDef } from './animation';
-import { activeDiff } from './beatmap';
-import { Vec3, debugWall, copy, rotatePoint } from './general';
-import { CustomEvent, CustomEventInternals } from './custom_event';
-import { LOOKUP } from './constants';
-import { OptimizeSettings } from './anim_optimizer';
+import { combineAnimations, Keyframe, AnimationInternals, TrackValue, Track, toPointDef } from './animation.ts';
+import { activeDiff } from './beatmap.ts';
+import { Vec3, debugWall, copy, rotatePoint } from './general.ts';
+import { CustomEvent, CustomEventInternals } from './custom_event.ts';
+import { LOOKUP } from './constants.ts';
+import { OptimizeSettings } from './anim_optimizer.ts';
 
 let envCount = 0;
 let blenderEnvCount = 0;

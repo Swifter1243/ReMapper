@@ -1,5 +1,5 @@
-import { complexifyArray, Keyframe, KeyframesAny, simplifyArray } from "./animation";
-import { copy } from "./general";
+import { complexifyArray, Keyframe, KeyframesAny, simplifyArray } from "./animation.ts";
+import { copy } from "./general.ts";
 
 function areArrayElementsIdentical<T>(enumerable1: T[], enumerable2: T[]): boolean {
     if (enumerable1.length !== enumerable2.length) {

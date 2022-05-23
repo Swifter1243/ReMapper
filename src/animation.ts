@@ -1,7 +1,7 @@
-import { optimizeAnimation, OptimizeSettings } from "./anim_optimizer";
-import { activeDiff } from "./beatmap";
-import { ANIM, EASE, SPLINE } from "./constants";
-import { lerpEasing, arrAdd, copy, arrMul, arrLast, findFraction, lerp, Vec3, Vec4, lerpRotation } from "./general";
+import { optimizeAnimation, OptimizeSettings } from "./anim_optimizer.ts";
+import { activeDiff } from "./beatmap.ts";
+import { ANIM, EASE, SPLINE } from "./constants.ts";
+import { lerpEasing, arrAdd, copy, arrMul, arrLast, findFraction, lerp, Vec3, Vec4, lerpRotation } from "./general.ts";
 
 export type Interpolation = EASE | SPLINE;
 

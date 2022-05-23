@@ -1,6 +1,6 @@
-import { EASE, EVENT } from './constants';
-import { activeDiff } from './beatmap';
-import { copy, jsonPrune, isEmptyObject, jsonGet, jsonSet, ColorType } from './general';
+import { EASE, EVENT } from './constants.ts';
+import { activeDiff } from './beatmap.ts';
+import { copy, jsonPrune, isEmptyObject, jsonGet, jsonSet, ColorType } from './general.ts';
 
 export namespace EventInternals {
     export class BaseEvent {

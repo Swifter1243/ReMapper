@@ -1,7 +1,7 @@
-import { activeDiff, info } from './beatmap';
-import { copy, jsonPrune, isEmptyObject, getJumps, ColorType } from './general';
-import { Animation, AnimationInternals, Track, TrackValue } from './animation';
-import { WALL } from './constants';
+import { activeDiff, info } from './beatmap.ts';
+import { copy, jsonPrune, isEmptyObject, getJumps, ColorType } from './general.ts';
+import { Animation, AnimationInternals, Track, TrackValue } from './animation.ts';
+import { WALL } from './constants.ts';
 
 export class Wall {
     json: any = {

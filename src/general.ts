@@ -1,12 +1,12 @@
 const EPSILON = 1e-3;
 import * as jseasingfunctions from 'js-easing-functions';
-import { Animation, complexifyArray, Keyframe, KeyframesVec3 } from './animation';
-import { Wall } from './wall';
+import { Animation, complexifyArray, Keyframe, KeyframesVec3 } from './animation.ts';
+import { Wall } from './wall.ts';
 import * as three from 'three';
-import { ANIM, EASE } from './constants';
-import { activeDiff } from './beatmap';
-import { Note } from './note';
-import { EventInternals } from './event';
+import { ANIM, EASE } from './constants.ts';
+import { activeDiff } from './beatmap.ts';
+import { Note } from './note.ts';
+import { EventInternals } from './event.ts';
 
 export type Vec3 = [number, number, number];
 export type Vec4 = [number, number, number, number];

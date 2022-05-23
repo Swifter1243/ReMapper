@@ -1,15 +1,15 @@
-import path from 'path';
+import path from 'path'; // TODO: Figure this shit out
 import seven from 'node-7z';
 import sevenBin from '7zip-bin';
 import * as fs from 'fs';
-import { Note } from './note';
-import { Wall } from './wall';
-import { Event, EventInternals } from './event';
-import { CustomEvent, CustomEventInternals } from './custom_event';
-import { Environment } from './environment';
-import { copy, isEmptyObject, jsonGet, jsonPrune, jsonRemove, jsonSet, rand, sortObjects, Vec3 } from './general';
-import { AnimationInternals } from './animation';
-import { OptimizeSettings } from './anim_optimizer';
+import { Note } from './note.ts';
+import { Wall } from './wall.ts';
+import { Event, EventInternals } from './event.ts';
+import { CustomEvent, CustomEventInternals } from './custom_event.ts';
+import { Environment } from './environment.ts';
+import { copy, isEmptyObject, jsonGet, jsonPrune, jsonRemove, jsonSet, rand, sortObjects, Vec3 } from './general.ts';
+import { AnimationInternals } from './animation.ts';
+import { OptimizeSettings } from './anim_optimizer.ts';
 
 export class Difficulty {
     json;

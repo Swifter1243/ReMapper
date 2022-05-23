@@ -1,7 +1,7 @@
-import { activeDiff, info } from './beatmap';
-import { Animation, AnimationInternals, Track, TrackValue } from './animation';
-import { isEmptyObject, getJumps, copy, jsonPrune, ColorType } from './general';
-import { NOTE } from './constants';
+import { activeDiff, info } from './beatmap.ts';
+import { Animation, AnimationInternals, Track, TrackValue } from './animation.ts';
+import { isEmptyObject, getJumps, copy, jsonPrune, ColorType } from './general.ts';
+import { NOTE } from './constants.ts';
 
 export class Note {
     json: any = {

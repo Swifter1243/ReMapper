@@ -1,5 +1,5 @@
-import { Vec3 } from "./general"
-import { Regex } from "./regex"
+import { Vec3 } from "./general.ts"
+import { Regex } from "./regex.ts"
 
 export enum MODS {
     NOODLE_EXTENSIONS = "Noodle Extensions",

@@ -1,4 +1,4 @@
-import { clamp, lerpEasing, lerp, lerpWrap, Vec4, ColorType } from "./general";
+import { clamp, lerpEasing, lerp, lerpWrap, Vec4, ColorType } from "./general.ts";
 
 export class Color {
     private internalValue: Vec4 = [0, 0, 0, 1];
