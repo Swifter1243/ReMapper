@@ -251,6 +251,26 @@ export function clamp(input: number, min?: number, max?: number) {
 }
 
 /**
+ * Sets the decimals on a number.
+ * @param {Number} input 
+ * @param {Number} decimals 
+ * @returns {Number}
+ */
+export function setDecimals(input: number, decimals: number) {
+    const multiplier = Math.pow(10, decimals);
+    return Math.round(input * multiplier) / multiplier;
+}
+
+/**
+ * Get the amount of seconds in the script.
+ * @param {Number} decimals 
+ * @returns {Number}
+ */
+export function getSeconds(decimals = 2) {
+    return setDecimals(performance.now() / 1000, decimals);
+} 
+
+/**
  * Creates a new instance of an object.
  * @param {*} obj 
  * @returns

@@ -5,7 +5,7 @@ import { Wall } from './wall.ts';
 import { Event, EventInternals } from './event.ts';
 import { CustomEvent, CustomEventInternals } from './custom_event.ts';
 import { Environment } from './environment.ts';
-import { copy, isEmptyObject, jsonGet, jsonPrune, jsonRemove, jsonSet, sortObjects, Vec3 } from './general.ts';
+import { copy, isEmptyObject, jsonGet, jsonPrune, jsonRemove, jsonSet, sortObjects, Vec3, getSeconds } from './general.ts';
 import { AnimationInternals } from './animation.ts';
 import { OptimizeSettings } from './anim_optimizer.ts';
 
@@ -38,8 +38,8 @@ export class Difficulty {
         if (!fs.existsSync(input)) throw new Error(`The file ${input} does not exist`)
         this.json = JSON.parse(Deno.readTextFileSync(input));
 
-        info.json._difficultyBeatmapSets.forEach((set: Record<string,any>) => {
-            set._difficultyBeatmaps.forEach((setmap: Record<string,any>) => {
+        info.json._difficultyBeatmapSets.forEach((set: Record<string, any>) => {
+            set._difficultyBeatmaps.forEach((setmap: Record<string, any>) => {
                 if (this.relativeMapFile === setmap._beatmapFilename) {
                     this.diffSet = set;
                     this.diffSetMap = setmap;
@@ -126,6 +126,7 @@ export class Difficulty {
         }
 
         Deno.writeTextFileSync(diffName, JSON.stringify(outputJSON, null, 0));
+        console.log(`[ReMapper: ${getSeconds()}s] ${this.fileName} successfully saved!`);
     }
 
     /**
@@ -351,53 +352,58 @@ export function forceJumpsForNoodleSet(value: boolean) { forceJumpsForNoodle = v
  * @param {String[]} excludeDiffs Difficulties to exclude.
  * @param {String} zipName Name of the zip (don't include ".zip"). Uses folder name if undefined.
  */
-// export function exportZip(excludeDiffs: string[] = [], zipName?: string) {
-//     if (!info.json) throw new Error("The Info object has not been loaded.");
+export function exportZip(excludeDiffs: string[] = [], zipName?: string) {
+    if (!info.json) throw new Error("The Info object has not been loaded.");
 
-//     const absoluteInfoFileName = info.fileName === "Info.dat" ? Deno.cwd() + `\\${info.fileName}` : info.fileName;
-//     const workingDir = path.parse(absoluteInfoFileName).dir;
-//     const exportInfo = copy(info.json);
-//     const files: string[] = [];
-//     function pushFile(file: string) {
-//         const dir = workingDir + `\\${file}`;
-//         if (fs.existsSync(dir)) files.push(dir);
-//     }
+    const absoluteInfoFileName = info.fileName === "Info.dat" ? Deno.cwd() + `\\${info.fileName}` : info.fileName;
+    const workingDir = path.parse(absoluteInfoFileName).dir;
+    const exportInfo = copy(info.json);
+    let files: string[] = [];
+    function pushFile(file: string) {
+        const dir = workingDir + `\\${file}`;
+        if (fs.existsSync(dir)) files.push(dir);
+    }
 
-//     pushFile(exportInfo._songFilename);
-//     if (exportInfo._coverImageFilename !== undefined) pushFile(exportInfo._coverImageFilename);
+    pushFile(exportInfo._songFilename);
+    if (exportInfo._coverImageFilename !== undefined) pushFile(exportInfo._coverImageFilename);
 
-//     for (let s = 0; s < exportInfo._difficultyBeatmapSets.length; s++) {
-//         const set = exportInfo._difficultyBeatmapSets[s];
-//         for (let m = 0; m < set._difficultyBeatmaps.length; m++) {
-//             const map = set._difficultyBeatmaps[m];
-//             let passed = true;
-//             excludeDiffs.forEach(d => {
-//                 if (map._beatmapFilename === d) {
-//                     set._difficultyBeatmaps.splice(m, 1);
-//                     m--;
-//                     passed = false;
-//                 }
-//             })
+    for (let s = 0; s < exportInfo._difficultyBeatmapSets.length; s++) {
+        const set = exportInfo._difficultyBeatmapSets[s];
+        for (let m = 0; m < set._difficultyBeatmaps.length; m++) {
+            const map = set._difficultyBeatmaps[m];
+            let passed = true;
+            excludeDiffs.forEach(d => {
+                if (map._beatmapFilename === d) {
+                    set._difficultyBeatmaps.splice(m, 1);
+                    m--;
+                    passed = false;
+                }
+            })
 
-//             if (passed) pushFile(map._beatmapFilename);
-//         }
+            if (passed) pushFile(map._beatmapFilename);
+        }
 
-//         if (set._difficultyBeatmaps.length === 0) {
-//             exportInfo._difficultyBeatmapSets.splice(s, 1);
-//             s--;
-//         }
-//     }
+        if (set._difficultyBeatmaps.length === 0) {
+            exportInfo._difficultyBeatmapSets.splice(s, 1);
+            s--;
+        }
+    }
 
-//     zipName ??= `${path.parse(workingDir).name}`;
-//     zipName = workingDir + `\\${zipName}.zip`;
-//     if (!fs.existsSync(zipName)) Deno.writeTextFileSync(zipName, "");
-//     const tempInfo = workingDir + `\\TEMPINFO.dat`;
-//     files.push(tempInfo);
-//     fs.writeFileSync(tempInfo, JSON.stringify(exportInfo, null, 0));
-//     fs.unlinkSync(zipName);
+    zipName ??= `${path.parse(workingDir).name}`;
+    zipName = `${zipName}.zip`;
+    const tempDir = Deno.makeTempDirSync();
+    const tempInfo = tempDir + `\\Info.dat`;
+    files.push(tempInfo);
+    Deno.writeTextFileSync(tempInfo, JSON.stringify(exportInfo, null, 0));
 
-//     compress(files, undefined, {})
-// }
+    files = files.map(x => x = `"${x}"`);
+    zipName = zipName.replaceAll(" ", "_");
+    compressZip();
+    async function compressZip() {
+        await compress(files, zipName, { overwrite: true });
+        console.log(`[ReMapper: ${getSeconds()}s] ${zipName} has been zipped!`);
+    }
+}
 
 /**
  * Transfer the visual aspect of maps to other difficulties.

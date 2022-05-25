@@ -104,7 +104,7 @@ export class Euler {
 
             case 'YZX':
 
-                this.z = Math.asin(clamp(m21, - 1, 1));
+                this.z = Math.asin(clamp(m21, -1, 1));
 
                 if (Math.abs(m21) < 0.9999999) {
 
@@ -122,7 +122,7 @@ export class Euler {
 
             case 'XZY':
 
-                this.z = Math.asin(- clamp(m12, - 1, 1));
+                this.z = Math.asin(-clamp(m12, -1, 1));
 
                 if (Math.abs(m12) < 0.9999999) {
 

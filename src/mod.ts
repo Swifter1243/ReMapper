@@ -13,8 +13,8 @@ export * from './light_remapper.ts';
 export * from './anim_optimizer.ts';
 
 /* TODO:
-- Get the zip stuff working
-- Get nodemon working
 - Get blender stuff working
 - Make texttowall stuff
+- Group blender "yeet" stuff into one event
+- Make decimal precision function global
 */
