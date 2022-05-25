@@ -184,7 +184,7 @@ function roundTo(n: number, digits: number) {
 export type OptimizeFunction = (pointA: Keyframe, pointB: Keyframe, pointC: Keyframe | undefined) => Keyframe | undefined;
 
 // Probably not necessary but whatever
-function optimizeFloatingPoints(a: Keyframe, b: Keyframe, c: Keyframe, optimizeFloatingPoints: OptimizeFloatingPointsSettings): Keyframe | undefined {
+function optimizeFloatingPoints(a: Keyframe, b: Keyframe, c: Keyframe | undefined, optimizeFloatingPoints: OptimizeFloatingPointsSettings): Keyframe | undefined {
     [a, b, c].forEach((p) => {
         if (!p) return;
 
@@ -329,10 +329,10 @@ function optimizeKeyframes(keyframes: Keyframe[], optimizeSettings: OptimizeSett
 
     const optimizers: OptimizeFunction[] = [...optimizeSettings.additionalOptimizers ?? []]
 
-    if (optimizeSettings.optimizeFloatingPoints) optimizers.push((a, b, c) => optimizeFloatingPoints(a, b, c, optimizeSettings.optimizeFloatingPoints))
+    if (optimizeSettings.optimizeFloatingPoints) optimizers.push((a, b, c) => optimizeFloatingPoints(a, b, c, optimizeSettings.optimizeFloatingPoints as OptimizeFloatingPointsSettings))
     if (optimizeSettings.optimizeDuplicates) optimizers.push(optimizeDuplicates);
-    if (optimizeSettings.optimizeSimilarPoints) optimizers.push((a, b, c) => optimizeSimilarPoints(a, b, c, optimizeSettings.optimizeSimilarPoints))
-    if (optimizeSettings.optimizeSimilarPointsSlope) optimizers.push((a, b, c) => optimizeSimilarPointsSlope(a, b, c, optimizeSettings.optimizeSimilarPointsSlope))
+    if (optimizeSettings.optimizeSimilarPoints) optimizers.push((a, b, c) => optimizeSimilarPoints(a, b, c, optimizeSettings.optimizeSimilarPoints as OptimizeSimilarPointsSettings))
+    if (optimizeSettings.optimizeSimilarPointsSlope) optimizers.push((a, b, c) => optimizeSimilarPointsSlope(a, b, c, optimizeSettings.optimizeSimilarPointsSlope as OptimizeSimilarPointsSlopeSettings))
 
     if (optimizeSettings.performance_log) {
         console.log(`Optimizing ${keyframes.length} points`)

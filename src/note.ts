@@ -1,10 +1,11 @@
+// deno-lint-ignore-file no-explicit-any adjacent-overload-signatures
 import { activeDiff, info } from './beatmap.ts';
 import { Animation, AnimationInternals, Track, TrackValue } from './animation.ts';
 import { isEmptyObject, getJumps, copy, jsonPrune, ColorType } from './general.ts';
 import { NOTE } from './constants.ts';
 
 export class Note {
-    json: any = {
+    json: Record<string, any> = {
         _time: 0,
         _type: 0,
         _cutDirection: 0,
@@ -24,7 +25,7 @@ export class Note {
      * @param {Number} direction 
      * @param {Array} position Array for x and y of the note. If an additional boolean of true is added, it will be converted to a noodle position instead of the vanilla grid.
      */
-    constructor(time: number = undefined, type: NOTE = undefined, direction: NOTE = undefined, position: [number, number, boolean?] = undefined) {
+    constructor(time?: number, type?: NOTE, direction?: NOTE, position?: [number, number, boolean?]) {
         if (time !== undefined) this.time = time;
         if (type !== undefined) this.type = type;
         if (direction !== undefined) this.direction = direction;
@@ -36,7 +37,7 @@ export class Note {
      * @param {Object} json 
      * @returns {Note}
      */
-    import(json) {
+    import(json: Record<number, any>) {
         this.json = json;
         if (this.customData === undefined) this.customData = {};
         if (this.animation === undefined) this.animation = {};

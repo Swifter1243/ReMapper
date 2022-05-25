@@ -1,3 +1,4 @@
+// deno-lint-ignore-file no-explicit-any adjacent-overload-signatures
 import path from 'path'; // TODO: Figure this shit out
 import seven from 'node-7z';
 import sevenBin from '7zip-bin';
@@ -7,15 +8,15 @@ import { Wall } from './wall.ts';
 import { Event, EventInternals } from './event.ts';
 import { CustomEvent, CustomEventInternals } from './custom_event.ts';
 import { Environment } from './environment.ts';
-import { copy, isEmptyObject, jsonGet, jsonPrune, jsonRemove, jsonSet, rand, sortObjects, Vec3 } from './general.ts';
+import { copy, isEmptyObject, jsonGet, jsonPrune, jsonRemove, jsonSet, sortObjects, Vec3 } from './general.ts';
 import { AnimationInternals } from './animation.ts';
 import { OptimizeSettings } from './anim_optimizer.ts';
 
 export class Difficulty {
-    json;
-    diffSet;
-    diffSetMap;
-    mapFile;
+    json: Record<string, any> = {};
+    diffSet: Record<string, any> = {};
+    diffSetMap: Record<string, any> = {};
+    mapFile: string;
     relativeMapFile: string;
 
     /**
@@ -24,7 +25,7 @@ export class Difficulty {
      * @param {String} input Filename for the input.
      * @param {String} input Filename for the output. If left blank, input will be used.
      */
-    constructor(input: string, output: string = undefined) {
+    constructor(input: string, output?: string) {
 
         // If the path contains a separator of any kind, use it instead of the default "Info.dat"
         info.load((input.includes('\\') || input.includes('/')) ? path.join(path.dirname(input), "Info.dat") : undefined);
@@ -40,8 +41,8 @@ export class Difficulty {
         if (!fs.existsSync(input)) throw new Error(`The file ${input} does not exist`)
         this.json = JSON.parse(fs.readFileSync(input, "utf-8"));
 
-        info.json._difficultyBeatmapSets.forEach(set => {
-            set._difficultyBeatmaps.forEach(setmap => {
+        info.json._difficultyBeatmapSets.forEach((set: Record<string,any>) => {
+            set._difficultyBeatmaps.forEach((setmap: Record<string,any>) => {
                 if (this.relativeMapFile === setmap._beatmapFilename) {
                     this.diffSet = set;
                     this.diffSetMap = setmap;
@@ -65,14 +66,12 @@ export class Difficulty {
     }
 
     optimize(optimize: OptimizeSettings = new OptimizeSettings()) {
-
         const optimizeAnimation = (animation: AnimationInternals.BaseAnimation) => {
             animation.optimize(undefined, optimize)
         };
 
-
-        this.notes.forEach(e => optimizeAnimation(e.animate)),
-        this.obstacles.forEach(e => optimizeAnimation(e.animate)),
+        this.notes.forEach(e => optimizeAnimation(e.animate));
+        this.obstacles.forEach(e => optimizeAnimation(e.animate));
         this.customEvents.filter(e => e instanceof CustomEventInternals.AnimateTrack).forEach(e => optimizeAnimation((e as CustomEventInternals.AnimateTrack).animate));
 
         // TODO: Optimize point definitions
@@ -91,7 +90,9 @@ export class Difficulty {
         for (let i = 0; i < this.notes.length; i++) {
             const note = copy(this.notes[i]);
             if (forceJumpsForNoodle && note.isModded) {
+                // deno-lint-ignore no-self-assign
                 note.NJS = note.NJS;
+                // deno-lint-ignore no-self-assign
                 note.offset = note.offset;
             }
             jsonPrune(note.json);
@@ -100,7 +101,9 @@ export class Difficulty {
         for (let i = 0; i < this.obstacles.length; i++) {
             const wall = copy(this.obstacles[i]);
             if (forceJumpsForNoodle && wall.isModded) {
+                // deno-lint-ignore no-self-assign
                 wall.NJS = wall.NJS;
+                // deno-lint-ignore no-self-assign
                 wall.offset = wall.offset;
             }
             jsonPrune(wall.json);
@@ -134,7 +137,7 @@ export class Difficulty {
      * @param {Boolean} required True by default, set to false to remove the requirement.
      */
     require(requirement: string, required = true) {
-        const requirements = {};
+        const requirements: Record<string, any> = {};
 
         let requirementsArr = this.requirements;
         if (requirementsArr === undefined) requirementsArr = [];
@@ -157,7 +160,7 @@ export class Difficulty {
      * @param {Boolean} suggested True by default, set to false to remove the suggestion.
      */
     suggest(suggestion: string, suggested = true) {
-        const suggestions = {};
+        const suggestions: Record<string, any> = {};
 
         let suggestionsArr = this.suggestions;
         if (suggestionsArr === undefined) suggestionsArr = [];
@@ -183,7 +186,7 @@ export class Difficulty {
         this.updateSets(this.settings, setting, value);
     }
 
-    private updateSets(object, property: string, value) {
+    private updateSets(object: Record<string, any>, property: string, value: any) {
         jsonSet(object, property, value);
         if (!isEmptyObject(value)) jsonPrune(this.diffSetMap);
         info.save();
@@ -259,7 +262,7 @@ export class Difficulty {
 }
 
 export class Info {
-    json;
+    json: Record<string, any> = {};
     fileName = "Info.dat";
 
     load(path?: string) {
@@ -281,7 +284,7 @@ export class Info {
         fs.writeFileSync(this.fileName, JSON.stringify(this.json, null, 2));
     }
 
-    private updateInfo(object, property, value) {
+    private updateInfo(object: Record<string, any>, property: string, value: any) {
         jsonSet(object, property, value);
         info.save();
     }
@@ -354,7 +357,7 @@ export function forceJumpsForNoodleSet(value: boolean) { forceJumpsForNoodle = v
 export function exportZip(excludeDiffs: string[] = [], zipName?: string) {
     if (!info.json) throw new Error("The Info object has not been loaded.");
 
-    const absoluteInfoFileName = info.fileName === "Info.dat" ? process.cwd() + `\\${info.fileName}` : info.fileName;
+    const absoluteInfoFileName = info.fileName === "Info.dat" ? Deno.cwd() + `\\${info.fileName}` : info.fileName;
     const workingDir = path.parse(absoluteInfoFileName).dir;
     const exportInfo = copy(info.json);
     const files: string[] = [];

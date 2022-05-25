@@ -1,4 +1,5 @@
-import * as general from './general.ts';
+// deno-lint-ignore-file no-namespace no-explicit-any adjacent-overload-signatures
+import { copy } from './general.ts';
 import { activeDiff } from './beatmap.ts';
 import { AnimationInternals, Animation, TrackValue, Track } from './animation.ts';
 
@@ -10,7 +11,7 @@ export namespace CustomEventInternals {
             _data: {}
         };
 
-        constructor(time: number | object) {
+        constructor(time: number | Record<string, any>) {
             if (typeof time === "object") {
                 Object.assign(this.json, time);
                 return;
@@ -22,7 +23,7 @@ export namespace CustomEventInternals {
         * Push this event to the difficulty
         */
         push() {
-            activeDiff.customEvents.push(general.copy(this));
+            activeDiff.customEvents.push(copy(this));
             return this;
         }
 
@@ -39,7 +40,7 @@ export namespace CustomEventInternals {
     export class AnimateTrack extends BaseEvent {
         animate: AnimationInternals.AbstractAnimation;
 
-        constructor(json: object, track: TrackValue, duration: number, animation: object, easing: string) {
+        constructor(json: Record<string, any>, track: TrackValue, duration: number, animation: Record<string, any>, easing?: string) {
             super(json);
             this.trackSet = track;
             this.duration = duration;
@@ -54,8 +55,8 @@ export namespace CustomEventInternals {
          * Set the properties for animation.
          * @param data 
          */
-        setProperties(data: object) {
-            const oldData = general.copy(this.data);
+        setProperties(data: Record<string, any>) {
+            const oldData = copy(this.data);
 
             Object.keys(this.data).forEach(key => { delete this.data[key] });
             this.trackSet = oldData._track;
@@ -96,7 +97,7 @@ export namespace CustomEventInternals {
     export class AssignPathAnimation extends BaseEvent {
         animate: AnimationInternals.AbstractAnimation;
 
-        constructor(json: object, track: string, duration: number, animation: object, easing: string) {
+        constructor(json: Record<string, any>, track: string, duration: number, animation: Record<string, any>, easing?: string) {
             super(json);
             this.type = "AssignPathAnimation";
             this.trackSet = track;
@@ -111,8 +112,8 @@ export namespace CustomEventInternals {
          * Set the properties for animation.
          * @param data 
          */
-        setProperties(data: object) {
-            const oldData = general.copy(this.data);
+        setProperties(data: Record<string, any>) {
+            const oldData = copy(this.data);
 
             Object.keys(this.data).forEach(key => { delete this.data[key] });
             this.trackSet = oldData._track;
@@ -151,7 +152,7 @@ export namespace CustomEventInternals {
     }
 
     export class AssignTrackParent extends BaseEvent {
-        constructor(json: object, childrenTracks: string[], parentTrack: string, worldPositionStays: boolean) {
+        constructor(json: Record<string, any>, childrenTracks: string[], parentTrack: string, worldPositionStays?: boolean) {
             super(json);
             this.type = "AssignTrackParent";
             this.childrenTracks = childrenTracks;
@@ -176,7 +177,7 @@ export namespace CustomEventInternals {
     }
 
     export class AssignPlayerToTrack extends BaseEvent {
-        constructor(json: object, track: string) {
+        constructor(json: Record<string, any>, track: string) {
             super(json);
             this.type = "AssignPlayerToTrack";
             this.trackSet = track;
@@ -193,7 +194,7 @@ export namespace CustomEventInternals {
     }
 
     export class AssignFogTrack extends BaseEvent {
-        constructor(json: object, track: string) {
+        constructor(json: Record<string, any>, track: string) {
             super(json);
             this.type = "AssignFogTrack";
             this.trackSet = track;
@@ -212,7 +213,7 @@ export namespace CustomEventInternals {
     export class AbstractEvent extends BaseEvent {
         animate: AnimationInternals.AbstractAnimation;
 
-        constructor(json: object) {
+        constructor(json: Record<string, any>) {
             super(json);
             this.animate = new Animation().abstract(this.data);
         }
@@ -221,7 +222,7 @@ export namespace CustomEventInternals {
          * Add properties to the data.
          * @param data 
          */
-        appendData(data: object) {
+        appendData(data: Record<string, any>) {
             Object.keys(data).forEach(x => {
                 this.json._data[x] = data[x];
             })
@@ -266,7 +267,7 @@ export class CustomEvent extends CustomEventInternals.BaseEvent {
      * @param {Object} json 
      * @returns {AbstractEvent}
      */
-    import(json: object) { return new CustomEventInternals.AbstractEvent(json) }
+    import(json: Record<string, any>) { return new CustomEventInternals.AbstractEvent(json) }
 
     /**
      * Create an event with no particular identity.
@@ -282,7 +283,7 @@ export class CustomEvent extends CustomEventInternals.BaseEvent {
      * @param {String} easing 
      * @returns 
      */
-    animateTrack(track: string, duration: number = undefined, animation: object = {}, easing: string = undefined) {
+    animateTrack(track: string, duration?: number, animation: Record<string, any> = {}, easing?: string) {
         duration ??= 0;
         animation ??= {};
         return new CustomEventInternals.AnimateTrack(this.json, track, duration, animation, easing);
@@ -296,7 +297,7 @@ export class CustomEvent extends CustomEventInternals.BaseEvent {
      * @param {String} easing 
      * @returns 
      */
-    assignPathAnimation(track: string, duration: number = undefined, animation: object = {}, easing: string = undefined) {
+    assignPathAnimation(track: string, duration?: number, animation: Record<string, any> = {}, easing?: string) {
         duration ??= 0;
         animation ??= {};
         return new CustomEventInternals.AssignPathAnimation(this.json, track, duration, animation, easing);
@@ -309,7 +310,7 @@ export class CustomEvent extends CustomEventInternals.BaseEvent {
      * @param {Boolean} worldPositionStays Object stays in the same place after being parented, false by default.
      * @returns 
      */
-    assignTrackParent(childrenTracks: string[], parentTrack: string, worldPositionStays: boolean = undefined) {
+    assignTrackParent(childrenTracks: string[], parentTrack: string, worldPositionStays?: boolean) {
         return new CustomEventInternals.AssignTrackParent(this.json, childrenTracks, parentTrack, worldPositionStays);
     }
 

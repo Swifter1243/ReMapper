@@ -1,6 +1,7 @@
+// deno-lint-ignore-file no-explicit-any
 const EPSILON = 1e-3;
 import * as jseasingfunctions from 'js-easing-functions';
-import { Animation, complexifyArray, Keyframe, KeyframesVec3 } from './animation.ts';
+import { Animation, complexifyArray, Keyframe, KeyframesVec3, KeyframesAny } from './animation.ts';
 import { Wall } from './wall.ts';
 import * as three from 'three';
 import { ANIM, EASE } from './constants.ts';
@@ -11,6 +12,7 @@ import { EventInternals } from './event.ts';
 export type Vec3 = [number, number, number];
 export type Vec4 = [number, number, number, number];
 export type ColorType = [number, number, number] | [number, number, number, number];
+type Vec3Animation = Vec3 | Vec4[];
 
 /**
  * Allows you to filter through an array of objects with a min and max property.
@@ -20,8 +22,8 @@ export type ColorType = [number, number, number] | [number, number, number, numb
  * @param {String} property What property to check for.
  * @returns {Array}
  */
-export function filterObjects(objects: object[], min: number, max: number, property: string) {
-    const passedObjects = [];
+export function filterObjects(objects: any[], min: number, max: number, property: string) {
+    const passedObjects: any[] = [];
 
     objects.forEach(obj => {
         if (obj[property] + EPSILON >= min && obj[property] + EPSILON < max) passedObjects.push(obj);
@@ -36,7 +38,7 @@ export function filterObjects(objects: object[], min: number, max: number, prope
  * @param {String} property What property to sort.
  * @param {Boolean} smallestToLargest Whether to sort smallest to largest. True by default.
  */
-export function sortObjects(objects: object[], property: string, smallestToLargest = true) {
+export function sortObjects(objects: Record<string, any>[], property: string, smallestToLargest = true) {
     if (objects === undefined) return;
 
     objects.sort((a, b) => smallestToLargest ?
@@ -85,7 +87,7 @@ export function eventsBetween(min: number, max: number, forEach: (note: EventInt
  * @param {String} easing Optional easing
  * @returns {Number}
  */
-export function lerp(start: number, end: number, fraction: number, easing: EASE = undefined) {
+export function lerp(start: number, end: number, fraction: number, easing?: EASE) {
     if (easing !== undefined) fraction = lerpEasing(easing, fraction);
     return start + (end - start) * fraction;
 }
@@ -98,7 +100,7 @@ export function lerp(start: number, end: number, fraction: number, easing: EASE 
  * @param {String} easing Optional easing 
  * @returns 
  */
-export function lerpWrap(start: number, end: number, fraction: number, easing: EASE = undefined) {
+export function lerpWrap(start: number, end: number, fraction: number, easing?: EASE) {
     if (easing !== undefined) fraction = lerpEasing(easing, fraction);
     const distance = Math.abs(end - start);
 
@@ -120,7 +122,7 @@ export function lerpWrap(start: number, end: number, fraction: number, easing: E
  * @param {EASE} easing 
  * @returns
  */
-export function lerpRotation(start: Vec3, end: Vec3, fraction: number, easing: EASE = undefined): Vec3 {
+export function lerpRotation(start: Vec3, end: Vec3, fraction: number, easing?: EASE): Vec3 {
     if (easing !== undefined) fraction = lerpEasing(easing, fraction);
     const q1 = new three.Quaternion().setFromEuler(new three.Euler(...toRadians(start), "YXZ"));
     const q2 = new three.Quaternion().setFromEuler(new three.Euler(...toRadians(end), "YXZ"));
@@ -244,7 +246,7 @@ export function round(input: number, number: number) {
  * @param {Number} max Can be left undefined to ignore.
  * @returns {Number}
  */
-export function clamp(input: number, min: number = undefined, max: number = undefined) {
+export function clamp(input: number, min?: number, max?: number) {
     if (max !== undefined && input > max) input = max;
     else if (min !== undefined && input < min) input = min;
     return input;
@@ -256,14 +258,14 @@ export function clamp(input: number, min: number = undefined, max: number = unde
  * @returns
  */
 export function copy<T>(obj: T): T {
-    if (obj == null || typeof obj !== "object") { return obj; }
+    if (obj === null || typeof obj !== "object") { return obj; }
 
     const newObj = Array.isArray(obj) ? [] : {};
     const keys = Object.getOwnPropertyNames(obj);
 
     keys.forEach(x => {
-        const value = copy(obj[x]);
-        newObj[x] = value;
+        const value = copy((obj as any)[x]);
+        (newObj as any)[x] = value;
     })
 
     Object.setPrototypeOf(newObj, (obj as any).__proto__);
@@ -275,7 +277,7 @@ export function copy<T>(obj: T): T {
  * @param {Object} o 
  * @returns {Boolean}
  */
-export function isEmptyObject(o: object) {
+export function isEmptyObject(o: Record<string, any>) {
     if (typeof o !== "object") return false;
     return Object.keys(o).length === 0;
 }
@@ -325,7 +327,7 @@ export function toDegrees(values: number[]) {
  * Delete empty objects/arrays from an object recursively.
  * @param {Object} obj 
  */
-export function jsonPrune(obj: object) {
+export function jsonPrune(obj: Record<string, any>) {
     for (const prop in obj) {
         if (obj[prop] == null) {
             delete obj[prop];
@@ -355,7 +357,7 @@ export function jsonPrune(obj: object) {
 * @param {String} prop
 * @param {Any?} init Optional value to initialize the property if it doesn't exist yet.
 */
-export function jsonGet(obj: object, prop: string, init?: any) {
+export function jsonGet(obj: Record<string, any>, prop: string, init?: any) {
 
     // If the property doesn't exist, initialize it.
     if (init != null) jsonFill(obj, prop, init);
@@ -378,11 +380,11 @@ export function jsonGet(obj: object, prop: string, init?: any) {
 * @param {String} prop
 * @param {Any} value
 */
-export function jsonFill(obj: object, prop: string, value: any) {
+export function jsonFill(obj: Record<string, any>, prop: string, value: any) {
     const steps = prop.split('.');
 
     // Create empty objects along the path
-    const nestedObject = [...steps]
+    const nestedObject: any = [...steps]
         .reverse()
         .reduce((prev, current, i) => {
             return i === 0? { [current]: value } : { [current]: prev };
@@ -398,7 +400,7 @@ export function jsonFill(obj: object, prop: string, value: any) {
  * @param {String} prop 
  * @param {*} value
  */
-export function jsonSet(obj: object, prop: string, value) {
+export function jsonSet(obj: Record<string, any>, prop: string, value: any) {
     const steps = prop.split('.');
     let currentObj = obj;
     for (let i = 0; i < steps.length - 1; i++) {
@@ -416,7 +418,7 @@ export function jsonSet(obj: object, prop: string, value) {
  * @param {String} prop 
  * @returns {Boolean}
  */
-export function jsonCheck(obj: object, prop: string) {
+export function jsonCheck(obj: Record<string, any>, prop: string) {
     const value = jsonGet(obj, prop);
     if (value != null) return true;
     return false;
@@ -427,7 +429,7 @@ export function jsonCheck(obj: object, prop: string) {
 * @param {Object} obj 
 * @param {String} prop 
 */
-export function jsonRemove(obj: object, prop: string) {
+export function jsonRemove(obj: Record<string, any>, prop: string) {
     const steps = prop.split('.')
     let currentObj = obj
     for (let i = 0; i < steps.length - 1; i++) {
@@ -494,7 +496,7 @@ export function worldToWall(pos: Vec3, rot: Vec3, scale: Vec3) {
  * @param {Number} animDur How long animation lasts for.
  * @param {Number} animFreq Frequency of keyframes in animation.
  */
-export function debugWall(pos: KeyframesVec3 = undefined, rot: KeyframesVec3 = undefined, scale: KeyframesVec3 = undefined, animStart: number = undefined, animDur: number = undefined, animFreq: number = 1 / 8) {
+export function debugWall(pos?: KeyframesVec3, rot?: KeyframesVec3, scale?: KeyframesVec3, animStart?: number, animDur?: number, animFreq: number = 1 / 8) {
     pos ??= [0,0,0];
     rot ??= [0,0,0];
     scale ??= [1,1,1];
@@ -511,17 +513,17 @@ export function debugWall(pos: KeyframesVec3 = undefined, rot: KeyframesVec3 = u
     dataAnim.scale = copy(scale);
 
     const data = {
-        pos: [],
-        rot: [],
-        scale: []
+        pos: <number[][]>[],
+        rot: <number[][]>[],
+        scale: <number[][]>[]
     }
 
-    function getDomain(arr) {
-        arr = complexifyArray(arr);
-        arr = arr.sort((a, b) => new Keyframe(a).time - new Keyframe(b).time);
+    function getDomain(arr: KeyframesAny) {
+        let newArr = complexifyArray(arr);
+        newArr = newArr.sort((a, b) => new Keyframe(a).time - new Keyframe(b).time);
         let min = 1;
         let max = 0;
-        arr.forEach(x => {
+        newArr.forEach(x => {
             const time = new Keyframe(x).time;
             if (time < min) min = time;
             if (time > max) max = time;
@@ -529,9 +531,9 @@ export function debugWall(pos: KeyframesVec3 = undefined, rot: KeyframesVec3 = u
         return { min: min, max: max };
     }
 
-    const posDomain = getDomain(pos);
-    const rotDomain = getDomain(rot);
-    const scaleDomain = getDomain(scale);
+    const posDomain = getDomain(pos as KeyframesAny);
+    const rotDomain = getDomain(rot as KeyframesAny);
+    const scaleDomain = getDomain(scale as KeyframesAny);
 
     const totalMin = getDomain([[posDomain.min], [rotDomain.min], [scaleDomain.min]]).min;
     const totalMax = getDomain([[posDomain.max], [rotDomain.max], [scaleDomain.max]]).max;

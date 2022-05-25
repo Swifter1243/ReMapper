@@ -1,23 +1,24 @@
-import { Event, EventInternals } from "./event";
-import { activeDiff } from "./beatmap";
-import { copy } from "./general";
-import { EVENT } from "./constants";
+// deno-lint-ignore-file no-namespace
+import { Event, EventInternals } from "./event.ts";
+import { activeDiff } from "./beatmap.ts";
+import { copy } from "./general.ts";
+import { ColorType } from "./general.ts";
 
 export namespace LightRemapperInternals {
     export class BaseLightRemapper {
-        protected startType: EVENT;
-        protected endType: EVENT;
-        protected range: number[];
-        protected startMap: number[] | number[][] | boolean;
-        protected endMap: number | number[] | (number | number[])[];
-        protected mulColor: number[];
+        protected startType = 0;
+        protected endType?: number;
+        protected range: number[] = [];
+        protected startMap?: number[] | number[][] | boolean;
+        protected endMap?: number | number[] | (number | number[])[];
+        protected mulColor?: number[];
 
         /**
          * Class mainly focused on remapping lightIDs for events.
          * @param {Number} startType 
          * @param {Number | Array} range Range a lightID needs to fit in, in order to pass
          */
-        constructor(startType: EVENT, range: number | number[] = undefined) { this.conditions(startType, range) }
+        constructor(startType: number, range: number | number[]) { this.conditions(startType, range) }
 
         /**
          * Set the entry conditions for each event.
@@ -36,7 +37,7 @@ export namespace LightRemapperInternals {
          * @param {Number} type 
          * @returns 
          */
-        setType(type: EVENT) {
+        setType(type: number) {
             this.endType = type;
             return this;
         }
@@ -63,14 +64,14 @@ export namespace LightRemapperInternals {
          * @param {Boolean} log Log the output JSON of each event.
          * @param {Function} forLights Lambda function for each event.
          */
-        run(log: boolean = undefined, forLights: (event: EventInternals.AbstractEvent) => void = undefined) {
+        run(log?: boolean, forLights?: (event: EventInternals.AbstractEvent) => void) {
             log ??= false;
             this.doProcess(log, forLights);
         }
 
         protected set setRange(value: number | number[]) { this.range = typeof value === "number" ? [value, value] : value }
 
-        protected doProcess(test: number[] | boolean, forLights: (event: EventInternals.AbstractEvent) => void = undefined) {
+        protected doProcess(test: number[] | boolean, forLights?: (event: EventInternals.AbstractEvent) => void) {
             let array: EventInternals.AbstractEvent[] = [];
             if (typeof test === "boolean") array = activeDiff.events;
             else {
@@ -81,8 +82,8 @@ export namespace LightRemapperInternals {
                     array.push(event);
                 })
             }
-            const startIDs = [];
-            const endIDs = [];
+            const startIDs: (number | number[])[] = [];
+            const endIDs: (number | number[])[] = [];
 
             array.forEach(event => {
                 let isInRange = event.lightID !== undefined;
@@ -95,19 +96,21 @@ export namespace LightRemapperInternals {
                     else if (test) console.log(event.json)
                 }
 
-                function algorithm(thisKey) {
-                    if (typeof test === "object") startIDs.push(event.lightID);
-
-                    if (thisKey.endType !== undefined) event.type = thisKey.endType;
-
-                    if (thisKey.mulColor !== undefined) {
-                        function mulColor(color) {
+                function algorithm(thisKey: LightRemapperInternals.BaseLightRemapper) {
+                    function mulColor(color: ColorType) {
+                        if (thisKey.mulColor) {
                             color[0] *= thisKey.mulColor[0];
                             color[1] *= thisKey.mulColor[0];
                             color[2] *= thisKey.mulColor[0];
                             if (thisKey.mulColor[1] && color[3]) color[3] *= thisKey.mulColor[1];
                         }
+                    }
 
+                    if (typeof test === "object") startIDs.push(event.lightID);
+
+                    if (thisKey.endType !== undefined) event.type = thisKey.endType;
+
+                    if (thisKey.mulColor !== undefined) {
                         if (event.color) mulColor(event.color);
                         if (event.startColor) mulColor(event.startColor);
                         if (event.endColor) mulColor(event.endColor);
@@ -116,22 +119,24 @@ export namespace LightRemapperInternals {
                     let ids: number[] = typeof event.lightID === "number" ? [event.lightID] : event.lightID;
                     let start = 1;
 
-                    if (typeof thisKey.startMap === "object" && typeof thisKey.startMap[0] === "object") {
+                    if (thisKey.startMap && typeof thisKey.startMap === "object" && typeof thisKey.startMap[0] === "object") {
                         ids = solveLightMap(thisKey.startMap as number[][], ids);
                         start = thisKey.startMap[0][0];
                     }
-                    else if (typeof thisKey.startMap === "object") {
-                        ids = ids.map(x => (x - (thisKey.startMap[0] as number)) / (thisKey.startMap[1] as number) + 1);
+                    else if (thisKey.startMap && typeof thisKey.startMap === "object") {
+                        ids = ids.map(x => (x - ((thisKey.startMap as number[])[0])) / ((thisKey.startMap as number[])[1]) + 1);
                         start = thisKey.startMap[0] as number;
                     }
-                    else if (typeof thisKey.startMap === "boolean") {
+                    else if (thisKey.startMap && typeof thisKey.startMap === "boolean") {
                         event.lightID = thisKey.endMap as number | number[];
                         return;
                     }
 
-                    if (typeof thisKey.endMap === "object" && typeof thisKey.endMap[1] === "object") { applyLightMap(thisKey.endMap as number[][], ids) }
-                    else if (typeof thisKey.endMap === "object") ids = ids.map(x => (x - start) * (thisKey.endMap[1] as number) + start + (thisKey.endMap[0] as number));
-                    else if (thisKey.endMap !== undefined) ids = ids.map(x => x + thisKey.endMap as number);
+                    if (thisKey.endMap) {
+                        if (typeof thisKey.endMap === "object" && typeof thisKey.endMap[1] === "object") { applyLightMap(thisKey.endMap as number[][], ids) }
+                        else if (typeof thisKey.endMap === "object") ids = ids.map(x => (x - start) * ((thisKey.endMap as number[])[1]) + start + ((thisKey.endMap as number[])[0]));
+                        else ids = ids.map(x => x + (thisKey.endMap as number));
+                    }
 
                     event.lightID = ids.length === 1 ? ids[0] : ids;
                 }
@@ -142,7 +147,7 @@ export namespace LightRemapperInternals {
     }
 
     export class LightOverrider extends BaseLightRemapper {
-        constructor(startType: number, endType: number, range: number[], lightID: number | number[], mulColor: number[]) {
+        constructor(startType: number, range: number[] | number, endType?: number, lightID?: number | number[], mulColor?: number[]) {
             super(startType, range);
             this.endType = endType;
             this.startMap = false;
@@ -159,7 +164,7 @@ export class LightRemapper extends LightRemapperInternals.BaseLightRemapper {
      * @param {Number | Array} lightID 
      * @returns 
      */
-    setLightID(lightID: number | number[]) { return new LightRemapperInternals.LightOverrider(this.startType, this.endType, this.range, lightID, this.mulColor); }
+    setLightID(lightID: number | number[]) { return new LightRemapperInternals.LightOverrider(this.startType, this.range, this.endType, lightID, this.mulColor); }
 
     /**
      * Normalizes a sequence of lightIDs to a sequence of: 1, 2, 3, 4, 5... etc.
@@ -196,7 +201,7 @@ export class LightRemapper extends LightRemapperInternals.BaseLightRemapper {
      * @param {Number} step Changes the differences between each lightID.
      * @returns 
      */
-    addToEnd(offset: number, step: number = undefined) {
+    addToEnd(offset: number, step?: number) {
         if (step === undefined) this.endMap = offset;
         else this.endMap = [offset, step];
         return this;
@@ -216,91 +221,92 @@ export class LightRemapper extends LightRemapperInternals.BaseLightRemapper {
 
 // Made by Rabbit cause I'm too dumb! :)
 function solveLightMap(map: number[][], ids: number[]) {
+    function solve(output: number, changes: number[][]) {
+        let inputMapped = 0
+
+        if (changes.length < 1) {
+            return output
+        }
+
+        let currentChange, lastChange
+        let currentIndex = 0
+        while (true) {
+            currentChange = changes[currentIndex++]
+
+            const lastInputMapped = inputMapped
+
+            if (!lastChange) { // implicit [0,1]
+                inputMapped += currentChange[0]
+            } else {
+                inputMapped += lastChange[1] * (currentChange[0] - lastChange[0])
+            }
+
+            if (inputMapped > output) { // next change is too far out
+                if (!lastChange) { // implicit [0,1]
+                    return output
+                } else {
+                    return lastChange[0] + (output - lastInputMapped) / lastChange[1]
+                }
+            } else if (changes.length - currentIndex < 1) {
+                return currentChange[0] + (output - inputMapped) / currentChange[1]
+            }
+
+            lastChange = currentChange
+        }
+    }
+
     for (let i = 0; i < ids.length; i++) {
         ids[i] = solve(ids[i], map);
-
-        function solve(output, changes) {
-            let inputMapped = 0
-
-            if (changes.length < 1) {
-                return output
-            }
-
-            let currentChange, lastChange
-            let currentIndex = 0
-            while (true) {
-                currentChange = changes[currentIndex++]
-
-                const lastInputMapped = inputMapped
-
-                if (!lastChange) { // implicit [0,1]
-                    inputMapped += currentChange[0]
-                } else {
-                    inputMapped += lastChange[1] * (currentChange[0] - lastChange[0])
-                }
-
-                if (inputMapped > output) { // next change is too far out
-                    if (!lastChange) { // implicit [0,1]
-                        return output
-                    } else {
-                        return lastChange[0] + (output - lastInputMapped) / lastChange[1]
-                    }
-                } else if (changes.length - currentIndex < 1) {
-                    return currentChange[0] + (output - inputMapped) / currentChange[1]
-                }
-
-                lastChange = currentChange
-            }
-        }
     }
 
     return ids;
 }
 
-// This too
+// This too, I cba to add type stuff here cause IDK how it works lol
 function applyLightMap(map: (number | number[])[], ids: number[]) {
     map = copy(map);
     const offset = map.splice(0, 1)[0];
 
-    for (let i = 0; i < ids.length; i++) {
-        ids[i] = apply(ids[i], map) + offset;
+    // deno-lint-ignore no-explicit-any
+    function apply(input: any, changes: any) {
+        let output = 0;
 
-        function apply(input, changes) {
-            let output = 0;
+        if (changes.length < 1) {
+            return input
+        }
 
-            if (changes.length < 1) {
-                return input
-            }
+        let currentChange, lastChange
+        let currentIndex = 0
 
-            let currentChange, lastChange
-            let currentIndex = 0
+        while (true) {
+            currentChange = changes[currentIndex++]
 
-            while (true) {
-                currentChange = changes[currentIndex++]
-
-                if (currentChange[0] <= input) { // fill entire previous change
-                    if (!lastChange) { // implicit [0,1]
-                        output += currentChange[0]
-                    } else {
-                        output += lastChange[1] * (currentChange[0] - lastChange[0])
-                    }
-                } else { // next change is too far out
-                    if (!lastChange) { // implicit [0,1]
-                        return input
-                    } else {
-                        output += lastChange[1] * (input - lastChange[0])
-                        return output
-                    }
+            if (currentChange[0] <= input) { // fill entire previous change
+                if (!lastChange) { // implicit [0,1]
+                    output += currentChange[0]
+                } else {
+                    output += lastChange[1] * (currentChange[0] - lastChange[0])
                 }
-
-                if (changes.length - currentIndex < 1) {
-                    output += currentChange[1] * (input - currentChange[0])
+            } else { // next change is too far out
+                if (!lastChange) { // implicit [0,1]
+                    return input
+                } else {
+                    output += lastChange[1] * (input - lastChange[0])
                     return output
                 }
-
-                lastChange = currentChange
             }
+
+            if (changes.length - currentIndex < 1) {
+                output += currentChange[1] * (input - currentChange[0])
+                return output
+            }
+
+            lastChange = currentChange
         }
+    }
+
+    for (let i = 0; i < ids.length; i++) {
+        ids[i] = apply(ids[i], map) + offset;
     }
 }
 

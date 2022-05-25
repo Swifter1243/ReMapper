@@ -1,3 +1,4 @@
+// deno-lint-ignore-file no-namespace no-explicit-any adjacent-overload-signatures
 import { optimizeAnimation, OptimizeSettings } from "./anim_optimizer.ts";
 import { activeDiff } from "./beatmap.ts";
 import { ANIM, EASE, SPLINE } from "./constants.ts";
@@ -16,10 +17,10 @@ export type KeyframeArray = KeyframeValues[];
 export type TrackValue = string | string[];
 export namespace AnimationInternals {
     export class BaseAnimation {
-        json: any = {};
-        length;
+        json: Record<string, any> = {};
+        length: number;
 
-        constructor(length: number = undefined, data = undefined) {
+        constructor(length?: number, data?: Record<string, any>) {
             length ??= 1;
 
             this.length = length;
@@ -29,7 +30,7 @@ export namespace AnimationInternals {
         /**
          * Clear animation data. Leave blank to completely clear animation.
          */
-        clear(property: string = undefined) {
+        clear(property?: string) {
             if (property !== undefined) delete this.json[property];
             else Object.keys(this.json).forEach(x => { delete this.json[x] });
         }
@@ -51,7 +52,7 @@ export namespace AnimationInternals {
          * Time can be in length of animation or between 0 and 1 if negative.
          * @returns {*}
          */
-        get(property: string, time: number = undefined) {
+        get(property: string, time?: number) {
             if (time === undefined || typeof time === "string") return this.json[property];
             else {
                 time = this.convertTime(time);
@@ -64,11 +65,11 @@ export namespace AnimationInternals {
          * @param {String} property 
          * @param {*} value 
          */
-        add(property: string, value) {
+        add(property: string, value: KeyframesAny) {
             if (typeof value === "string") this.json[property] = value;
             else {
                 value = this.convert(complexifyArray(value));
-                const concatArray = value.concat(complexifyArray(this.json[property]));
+                const concatArray = (value as KeyframeArray).concat(complexifyArray(this.json[property]));
                 const newValue = simplifyArray(concatArray.sort((a, b) => new Keyframe(a).time - new Keyframe(b).time));
                 this.json[property] = newValue;
             }
@@ -79,7 +80,7 @@ export namespace AnimationInternals {
          * @param {String} property Optimize only a single property, or set to undefined to optimize all.
          * @param {OptimizeSettings} property Options for the optimizer. Optional.
          */
-        optimize(property: string = undefined, settings: OptimizeSettings = new OptimizeSettings()) {
+        optimize(property?: string, settings: OptimizeSettings = new OptimizeSettings()) {
             if (property === undefined) {
                 Object.keys(this.json).forEach(key => {
                     if (Array.isArray(this.json[key])) {
@@ -104,15 +105,15 @@ export namespace AnimationInternals {
             }
         }
 
-        private convert(value) {
+        private convert(value: KeyframeArray) {
             return value.map(x => {
                 const time = new Keyframe(x).timeIndex;
-                x[time] = this.convertTime(x[time]);
+                x[time] = this.convertTime(x[time] as number);
                 return x;
             })
         }
 
-        private convertTime(time) {
+        private convertTime(time: number) {
             if (time >= 0) return time / this.length;
             else return time * -1;
         }
@@ -130,20 +131,20 @@ export namespace AnimationInternals {
         get interactable() { return this.get(ANIM.INTERACTABLE) }
         get time() { return this.get(ANIM.TIME) }
 
-        set position(value: KeyframesVec3) { this.set(ANIM.POSITION, value) }
-        set definitePosition(value: KeyframesVec3) { this.set(ANIM.DEFINITE_POSITION, value) }
-        set rotation(value: KeyframesVec3) { this.set(ANIM.ROTATION, value) }
-        set localRotation(value: KeyframesVec3) { this.set(ANIM.LOCAL_ROTATION, value) }
-        set scale(value: KeyframesVec3) { this.set(ANIM.SCALE, value) }
-        set dissolve(value: KeyframesLinear) { this.set(ANIM.DISSOLVE, value) }
-        set color(value: KeyframesVec4) { this.set(ANIM.COLOR, value) }
-        set interactable(value: KeyframesLinear) { this.set(ANIM.INTERACTABLE, value) }
-        set time(value: KeyframesLinear) { this.set(ANIM.TIME, value) }
+        set position(value: KeyframesVec3) { this.set(ANIM.POSITION, value as KeyframesAny) }
+        set definitePosition(value: KeyframesVec3) { this.set(ANIM.DEFINITE_POSITION, value as KeyframesAny) }
+        set rotation(value: KeyframesVec3) { this.set(ANIM.ROTATION, value as KeyframesAny) }
+        set localRotation(value: KeyframesVec3) { this.set(ANIM.LOCAL_ROTATION, value as KeyframesAny) }
+        set scale(value: KeyframesVec3) { this.set(ANIM.SCALE, value as KeyframesAny) }
+        set dissolve(value: KeyframesLinear) { this.set(ANIM.DISSOLVE, value as KeyframesAny) }
+        set color(value: KeyframesVec4) { this.set(ANIM.COLOR, value as KeyframesAny) }
+        set interactable(value: KeyframesLinear) { this.set(ANIM.INTERACTABLE, value as KeyframesAny) }
+        set time(value: KeyframesLinear) { this.set(ANIM.TIME, value as KeyframesAny) }
     }
 
     export class NoteAnimation extends ObjectAnimation {
         get dissolveArrow() { return this.get(ANIM.DISSOLVE_ARROW) }
-        set dissolveArrow(value: KeyframesLinear) { this.set(ANIM.DISSOLVE_ARROW, value) }
+        set dissolveArrow(value: KeyframesLinear) { this.set(ANIM.DISSOLVE_ARROW, value as KeyframesAny) }
     }
 
     export class WallAnimation extends ObjectAnimation { }
@@ -155,11 +156,11 @@ export namespace AnimationInternals {
         get localRotation() { return this.get(ANIM.LOCAL_ROTATION) }
         get scale() { return this.get(ANIM.SCALE) }
 
-        set position(value: KeyframesVec3) { this.set(ANIM.POSITION, value) }
-        set rotation(value: KeyframesVec3) { this.set(ANIM.ROTATION, value) }
-        set localPosition(value: KeyframesVec3) { this.set(ANIM.LOCAL_POSITION, value) }
-        set localRotation(value: KeyframesVec3) { this.set(ANIM.LOCAL_ROTATION, value) }
-        set scale(value: KeyframesVec3) { this.set(ANIM.SCALE, value) }
+        set position(value: KeyframesVec3) { this.set(ANIM.POSITION, value as KeyframesAny) }
+        set rotation(value: KeyframesVec3) { this.set(ANIM.ROTATION, value as KeyframesAny) }
+        set localPosition(value: KeyframesVec3) { this.set(ANIM.LOCAL_POSITION, value as KeyframesAny) }
+        set localRotation(value: KeyframesVec3) { this.set(ANIM.LOCAL_ROTATION, value as KeyframesAny) }
+        set scale(value: KeyframesVec3) { this.set(ANIM.SCALE, value as KeyframesAny) }
     }
 
     export class FogAnimation extends BaseAnimation {
@@ -168,10 +169,10 @@ export namespace AnimationInternals {
         get startY() { return this.get(ANIM.STARTY) }
         get height() { return this.get(ANIM.HEIGHT) }
 
-        set attenuation(value: KeyframesLinear) { this.set(ANIM.ATTENUATION, value) }
-        set offset(value: KeyframesLinear) { this.set(ANIM.OFFSET, value) }
-        set startY(value: KeyframesLinear) { this.set(ANIM.STARTY, value) }
-        set height(value: KeyframesLinear) { this.set(ANIM.HEIGHT, value) }
+        set attenuation(value: KeyframesLinear) { this.set(ANIM.ATTENUATION, value as KeyframesAny) }
+        set offset(value: KeyframesLinear) { this.set(ANIM.OFFSET, value as KeyframesAny) }
+        set startY(value: KeyframesLinear) { this.set(ANIM.STARTY, value as KeyframesAny) }
+        set height(value: KeyframesLinear) { this.set(ANIM.HEIGHT, value as KeyframesAny) }
     }
 
     export class AbstractAnimation extends ObjectAnimation {
@@ -191,21 +192,21 @@ export namespace AnimationInternals {
         get startY() { return this.get(ANIM.STARTY) }
         get height() { return this.get(ANIM.HEIGHT) }
 
-        set position(value: KeyframesVec3) { this.set(ANIM.POSITION, value) }
-        set localPosition(value: KeyframesVec3) { this.set(ANIM.LOCAL_POSITION, value) }
-        set definitePosition(value: KeyframesVec3) { this.set(ANIM.DEFINITE_POSITION, value) }
-        set rotation(value: KeyframesVec3) { this.set(ANIM.ROTATION, value) }
-        set localRotation(value: KeyframesVec3) { this.set(ANIM.LOCAL_ROTATION, value) }
-        set scale(value: KeyframesVec3) { this.set(ANIM.SCALE, value) }
-        set dissolve(value: KeyframesLinear) { this.set(ANIM.DISSOLVE, value) }
-        set dissolveArrow(value: KeyframesLinear) { this.set(ANIM.DISSOLVE_ARROW, value) }
-        set color(value: KeyframesVec4) { this.set(ANIM.COLOR, value) }
-        set interactable(value: KeyframesLinear) { this.set(ANIM.INTERACTABLE, value) }
-        set time(value: KeyframesLinear) { this.set(ANIM.TIME, value) }
-        set attenuation(value: KeyframesLinear) { this.set(ANIM.ATTENUATION, value) }
-        set offset(value: KeyframesLinear) { this.set(ANIM.OFFSET, value) }
-        set startY(value: KeyframesLinear) { this.set(ANIM.STARTY, value) }
-        set height(value: KeyframesLinear) { this.set(ANIM.HEIGHT, value) }
+        set position(value: KeyframesVec3) { this.set(ANIM.POSITION, value as KeyframesAny) }
+        set localPosition(value: KeyframesVec3) { this.set(ANIM.LOCAL_POSITION, value as KeyframesAny) }
+        set definitePosition(value: KeyframesVec3) { this.set(ANIM.DEFINITE_POSITION, value as KeyframesAny) }
+        set rotation(value: KeyframesVec3) { this.set(ANIM.ROTATION, value as KeyframesAny) }
+        set localRotation(value: KeyframesVec3) { this.set(ANIM.LOCAL_ROTATION, value as KeyframesAny) }
+        set scale(value: KeyframesVec3) { this.set(ANIM.SCALE, value as KeyframesAny) }
+        set dissolve(value: KeyframesLinear) { this.set(ANIM.DISSOLVE, value as KeyframesAny) }
+        set dissolveArrow(value: KeyframesLinear) { this.set(ANIM.DISSOLVE_ARROW, value as KeyframesAny) }
+        set color(value: KeyframesVec4) { this.set(ANIM.COLOR, value as KeyframesAny) }
+        set interactable(value: KeyframesLinear) { this.set(ANIM.INTERACTABLE, value as KeyframesAny) }
+        set time(value: KeyframesLinear) { this.set(ANIM.TIME, value as KeyframesAny) }
+        set attenuation(value: KeyframesLinear) { this.set(ANIM.ATTENUATION, value as KeyframesAny) }
+        set offset(value: KeyframesLinear) { this.set(ANIM.OFFSET, value as KeyframesAny) }
+        set startY(value: KeyframesLinear) { this.set(ANIM.STARTY, value as KeyframesAny) }
+        set height(value: KeyframesLinear) { this.set(ANIM.HEIGHT, value as KeyframesAny) }
     }
 }
 
@@ -224,49 +225,49 @@ export class Animation extends AnimationInternals.BaseAnimation {
     * @param {Object} json 
     * @returns {AbstractAnimation}
     */
-    import(json: object) { return new AnimationInternals.AbstractAnimation(this.length, json) }
+    import(json: Record<string, any>) { return new AnimationInternals.AbstractAnimation(this.length, json) }
 
     /**
      * Create an event with no particular identity.
      * @returns {AbstractAnimation};
      */
-    abstract(json: object = {}) { return this.import(json) }
+    abstract(json: Record<string, any> = {}) { return this.import(json) }
 
     /**
      * State that this animation is for a note.
      * @param {Object} json 
      * @returns 
      */
-    noteAnimation(json: object = undefined) { return new AnimationInternals.NoteAnimation(this.length, json) }
+    noteAnimation(json?: Record<string, any>) { return new AnimationInternals.NoteAnimation(this.length, json) }
 
     /**
      * State that this animation is for a wall.
      * @param {Object} json 
      * @returns 
      */
-    wallAnimation(json: object = undefined) { return new AnimationInternals.WallAnimation(this.length, json) }
+    wallAnimation(json?: Record<string, any>) { return new AnimationInternals.WallAnimation(this.length, json) }
 
     /**
      * State that this animation is for an environment object.
      * @param {Object} json 
      * @returns 
      */
-    environmentAnimation(json: object = undefined) { return new AnimationInternals.EnvironmentAnimation(this.length, json) }
+    environmentAnimation(json?: Record<string, any>) { return new AnimationInternals.EnvironmentAnimation(this.length, json) }
 
     /**
      * State that this animation is for fog.
      * @param {Object} json 
      * @returns 
      */
-    fogAnimation(json: object = undefined) { return new AnimationInternals.FogAnimation(this.length, json) }
+    fogAnimation(json?: Record<string, any>) { return new AnimationInternals.FogAnimation(this.length, json) }
 }
 
 export class Keyframe {
     values: number[] = [];
     timeIndex = 0;
     time = 0;
-    easing: EASE = undefined;
-    spline: SPLINE = undefined;
+    easing?: EASE;
+    spline?: SPLINE;
 
     constructor(data: KeyframeValues) {
         this.timeIndex = this.getTimeIndex(data);
@@ -285,6 +286,7 @@ export class Keyframe {
         for (let i = arr.length - 1; i >= 0; i--) {
             if (typeof arr[i] !== "string") return i;
         }
+        return 0;
     }
 
     private getEasing(arr: KeyframeValues): EASE {
@@ -410,8 +412,8 @@ export function getValuesAtTime(property: string, animation: KeyframesAny, time:
 }
 
 function timeInKeyframes(time: number, animation: KeyframeArray) {
-    let l: Keyframe | undefined;
-    let r: Keyframe | undefined;
+    let l: Keyframe;
+    let r: Keyframe;
     let normalTime = 0;
 
     if (animation.length === 0) return { interpolate: false };
@@ -444,7 +446,7 @@ function timeInKeyframes(time: number, animation: KeyframeArray) {
     r = new Keyframe(animation[rightIndex]);
 
     normalTime = findFraction(l.time, r.time - l.time, time);
-    normalTime = lerpEasing(r.easing, normalTime);
+    if (r.easing) normalTime = lerpEasing(r.easing, normalTime);
 
     return {
         interpolate: true,
@@ -465,14 +467,19 @@ function timeInKeyframes(time: number, animation: KeyframeArray) {
  */
 export function combineAnimations(anim1: KeyframesAny, anim2: KeyframesAny, property: string) {
     let simpleArr = copy(anim1);
-    let complexArr = copy(anim2);
+    let complexArr: KeyframeArray = [];
 
     if (isSimple(anim1) && isSimple(anim2)) { complexArr = complexifyArray(anim2) }
-    if (!isSimple(anim1) && isSimple(anim2)) {
-        simpleArr = anim2;
-        complexArr = anim1;
+    else if (!isSimple(anim1) && isSimple(anim2)) {
+        simpleArr = copy(anim2);
+        complexArr = copy(anim1) as KeyframeArray;
     }
-    if (!isSimple(anim1) && !isSimple(anim2)) { console.warn(`[${anim1}] and [${anim2}] are unable to combine!`); }
+    else if (!isSimple(anim1) && !isSimple(anim2)) {
+        console.error(`[${anim1}] and [${anim2}] are unable to combine!`);
+    }
+    else {
+        complexArr = copy(anim2) as KeyframeArray;
+    }
 
     const editElem = function (e: number, e2: number) {
         if (property === (ANIM.POSITION || ANIM.LOCAL_POSITION)) e += e2;
@@ -482,7 +489,7 @@ export function combineAnimations(anim1: KeyframesAny, anim2: KeyframesAny, prop
     }
 
     for (let j = 0; j < complexArr.length; j++) for (let i = 0; i < simpleArr.length; i++) {
-        complexArr[j][i] = editElem(complexArr[j][i], simpleArr[i] as number);
+        complexArr[j][i] = editElem(complexArr[j][i] as number, simpleArr[i] as number);
     }
     return complexArr;
 }

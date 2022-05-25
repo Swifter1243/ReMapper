@@ -1,5 +1,5 @@
 import { activeDiff, info } from './beatmap.ts';
-import { copy, jsonPrune, isEmptyObject, getJumps, ColorType } from './general.ts';
+import { copy, jsonPrune, isEmptyObject, getJumps, ColorType, optionalNumber } from './general.ts';
 import { Animation, AnimationInternals, Track, TrackValue } from './animation.ts';
 import { WALL } from './constants.ts';
 
@@ -24,7 +24,7 @@ export class Wall {
      * @param {Number} lineIndex 
      * @param {Number} width
      */
-    constructor(time: number = undefined, duration: number = undefined, type: WALL = undefined, lineIndex: number = undefined, width: number = undefined) {
+    constructor(time: optionalNumber = undefined, duration: optionalNumber = undefined, type: WALL | undefined = undefined, lineIndex: optionalNumber = undefined, width: optionalNumber = undefined) {
         if (time !== undefined) this.time = time;
         if (duration !== undefined) this.duration = duration;
         if (type !== undefined) this.type = type;
@@ -44,7 +44,7 @@ export class Wall {
      * @param {Object} json 
      * @returns {Note}
      */
-    import(json) {
+    import(json: any) {
         this.json = json;
         if (this.customData === undefined) this.customData = {};
         if (this.animation === undefined) this.animation = {};

@@ -13,7 +13,6 @@ export * from './light_remapper.ts';
 export * from './anim_optimizer.ts';
 
 /* TODO:
-- Fix as many easy errors as possible
 - Fix file save stuff
 - Fix path stuff
 - Port jseasingsfunctions

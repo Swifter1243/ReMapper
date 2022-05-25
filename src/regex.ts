@@ -27,7 +27,7 @@ export class Regex {
      * Refers to seperation of gameObjects: ".[x]". E.X. "Thing.[0]Thing".
      * @param index Option to specify index of the seperator.
      */
-    seperate(index: number = undefined) {
+    seperate(index?: number) {
         if (index === undefined) this.string += "\\.\\[\\d*\\]";
         else this.string += `\\.\\[${index}\\]`;
         return this;
@@ -37,7 +37,7 @@ export class Regex {
      * Refers to gameObject name variation: " (x)". E.X. "Thing", "Thing (1)".
      * @param number Option to specify number on variation..
      */
-    vary(number: number = undefined) {
+    vary(number?: number) {
         if (number === undefined) this.string += "(|\\s\\(\\d*\\))";
         else {
             if (number === 0) this.string += "";
