@@ -1,5 +1,5 @@
 // deno-lint-ignore-file adjacent-overload-signatures no-explicit-any
-import { activeDiff, info } from './beatmap.ts';
+import { activeDiffGet, info } from './beatmap.ts';
 import { copy, jsonPrune, isEmptyObject, getJumps, ColorType } from './general.ts';
 import { Animation, AnimationInternals, Track, TrackValue } from './animation.ts';
 import { WALL } from './constants.ts';
@@ -56,8 +56,8 @@ export class Wall {
     /**
      * Push this wall to the difficulty
      */
-     push() {
-        activeDiff.obstacles.push(copy(this));
+    push() {
+        activeDiffGet().obstacles.push(copy(this));
         return this;
     }
 
@@ -83,11 +83,11 @@ export class Wall {
     get localRotation() { return this.json._customData._localRotation }
     get NJS() {
         if (this.json._customData._noteJumpMovementSpeed) return this.json._customData._noteJumpMovementSpeed;
-        else return activeDiff.NJS;
+        else return activeDiffGet().NJS;
     }
     get offset() {
         if (this.json._customData._noteJumpStartBeatOffset) return this.json._customData._noteJumpStartBeatOffset;
-        else return activeDiff.offset;
+        else return activeDiffGet().offset;
     }
     get halfJumpDur() { return getJumps(this.NJS, this.offset, info.BPM).halfDur }
     get jumpDist() { return getJumps(this.NJS, this.offset, info.BPM).dist }

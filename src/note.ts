@@ -1,5 +1,5 @@
 // deno-lint-ignore-file no-explicit-any adjacent-overload-signatures
-import { activeDiff, info } from './beatmap.ts';
+import { activeDiffGet, info } from './beatmap.ts';
 import { Animation, AnimationInternals, Track, TrackValue } from './animation.ts';
 import { isEmptyObject, getJumps, copy, jsonPrune, ColorType } from './general.ts';
 import { NOTE } from './constants.ts';
@@ -49,7 +49,7 @@ export class Note {
      * Push this note to the difficulty
      */
     push() {
-        activeDiff.notes.push(copy(this));
+        activeDiffGet().notes.push(copy(this));
         return this;
     }
 
@@ -83,11 +83,11 @@ export class Note {
     get localRotation() { return this.json._customData._localRotation }
     get NJS() {
         if (this.json._customData._noteJumpMovementSpeed) return this.json._customData._noteJumpMovementSpeed;
-        else return activeDiff.NJS;
+        else return activeDiffGet().NJS;
     }
     get offset() {
         if (this.json._customData._noteJumpStartBeatOffset) return this.json._customData._noteJumpStartBeatOffset;
-        else return activeDiff.offset;
+        else return activeDiffGet().offset;
     }
     get halfJumpDur() { return getJumps(this.NJS, this.offset, info.BPM).halfDur }
     get jumpDist() { return getJumps(this.NJS, this.offset, info.BPM).dist }

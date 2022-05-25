@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-namespace no-explicit-any adjacent-overload-signatures
 import { optimizeAnimation, OptimizeSettings } from "./anim_optimizer.ts";
-import { activeDiff } from "./beatmap.ts";
+import { activeDiffGet } from "./beatmap.ts";
 import { ANIM, EASE, SPLINE } from "./constants.ts";
 import { lerpEasing, arrAdd, copy, arrMul, arrLast, findFraction, lerp, Vec3, Vec4, lerpRotation } from "./general.ts";
 
@@ -8,6 +8,7 @@ export type Interpolation = EASE | SPLINE;
 
 export type KeyframesLinear = [number] | [number, number, Interpolation?, SPLINE?][] | string;
 export type KeyframesVec3 = Vec3 | [...Vec3, number, Interpolation?, SPLINE?][] | string;
+export type RawKeyframesVec3 = Vec3 | [...Vec3, number, Interpolation?, SPLINE?][];
 export type KeyframesVec4 = Vec4 | [...Vec4, number, Interpolation?, SPLINE?][] | string;
 export type KeyframesAny = number[] | KeyframeValues[] | string;
 
@@ -499,8 +500,8 @@ export function combineAnimations(anim1: KeyframesAny, anim2: KeyframesAny, prop
  * @param {String} name 
  */
 export function toPointDef(animation: KeyframesAny, name: string) {
-    if (activeDiff.pointDefinitions === undefined) activeDiff.pointDefinitions = [];
-    activeDiff.pointDefinitions.push({
+    if (activeDiffGet().pointDefinitions === undefined) activeDiffGet().pointDefinitions = [];
+    activeDiffGet().pointDefinitions.push({
         "_name": name,
         "_points": animation
     })

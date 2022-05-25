@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-explicit-any adjacent-overload-signatures no-namespace
 import { combineAnimations, Keyframe, AnimationInternals, TrackValue, Track, toPointDef } from './animation.ts';
-import { activeDiff } from './beatmap.ts';
+import { activeDiffGet } from './beatmap.ts';
 import { Vec3, debugWall, copy, rotatePoint } from './general.ts';
 import { CustomEvent, CustomEventInternals } from './custom_event.ts';
 import { LOOKUP } from './constants.ts';
@@ -48,8 +48,8 @@ export class Environment {
     push() {
         if (this.track.value === undefined) this.trackSet = `environment${envCount}`;
         envCount++;
-        if (activeDiff.environment === undefined) activeDiff.environment = [];
-        activeDiff.environment.push(copy(this));
+        if (activeDiffGet().environment === undefined) activeDiffGet().environment = [];
+        activeDiffGet().environment.push(copy(this));
         return this;
     }
 
@@ -402,7 +402,7 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
  * @param {String} easing 
  */
 export function animateEnvGroup(group: string, time: number, duration: number, animation: AnimationInternals.BaseAnimation, easing?: string) {
-    if (activeDiff.environment !== undefined) activeDiff.environment.forEach(x => {
+    if (activeDiffGet().environment !== undefined) activeDiffGet().environment.forEach(x => {
         if (x.group === group) {
             const newAnimation = copy(animation.json);
 
@@ -424,7 +424,7 @@ export function animateEnvGroup(group: string, time: number, duration: number, a
  * @param {String} easing 
  */
 export function animateEnvTrack(track: string, time: number, duration: number, animation: AnimationInternals.BaseAnimation, easing?: string) {
-    if (activeDiff.environment !== undefined) activeDiff.environment.forEach(x => {
+    if (activeDiffGet().environment !== undefined) activeDiffGet().environment.forEach(x => {
         if (x.track.has(track)) {
             const newAnimation = copy(animation.json);
 
@@ -440,11 +440,11 @@ export function animateEnvTrack(track: string, time: number, duration: number, a
 function getTrackData(track: string): any[] {
     if (!trackData[track]) {
         trackData[track] = [];
-        for (let i = 0; i < activeDiff.notes.length; i++) {
-            const note = activeDiff.notes[i];
+        for (let i = 0; i < activeDiffGet().notes.length; i++) {
+            const note = activeDiffGet().notes[i];
             if (note.track.has(track)) {
                 trackData[track].push(note.animation);
-                activeDiff.notes.splice(i, 1);
+                activeDiffGet().notes.splice(i, 1);
                 i--;
             }
         }

@@ -11,6 +11,7 @@ export * from './constants.ts';
 export * from './regex.ts';
 export * from './light_remapper.ts';
 export * from './anim_optimizer.ts';
+export * from './model.ts';
 
 /* TODO:
 - Get blender stuff working

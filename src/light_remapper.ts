@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-namespace
 import { Event, EventInternals } from "./event.ts";
-import { activeDiff } from "./beatmap.ts";
+import { activeDiffGet } from "./beatmap.ts";
 import { copy } from "./general.ts";
 import { ColorType } from "./general.ts";
 
@@ -73,7 +73,7 @@ export namespace LightRemapperInternals {
 
         protected doProcess(test: number[] | boolean, forLights?: (event: EventInternals.AbstractEvent) => void) {
             let array: EventInternals.AbstractEvent[] = [];
-            if (typeof test === "boolean") array = activeDiff.events;
+            if (typeof test === "boolean") array = activeDiffGet().events;
             else {
                 test.forEach(x => {
                     const event = new Event().abstract();

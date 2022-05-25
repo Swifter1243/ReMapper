@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-explicit-any no-namespace adjacent-overload-signatures
 import { EASE, EVENT } from './constants.ts';
-import { activeDiff } from './beatmap.ts';
+import { activeDiffGet } from './beatmap.ts';
 import { copy, jsonPrune, isEmptyObject, jsonGet, jsonSet, ColorType } from './general.ts';
 
 export namespace EventInternals {
@@ -23,7 +23,7 @@ export namespace EventInternals {
         * Push this event to the difficulty
         */
         push() {
-            activeDiff.events.push(copy(this) as any);
+            activeDiffGet().events.push(copy(this) as any);
             return this;
         }
 

@@ -2,12 +2,13 @@
 const EPSILON = 1e-3;
 import * as easings from './easings.ts';
 import { Euler, Vector3, Quaternion } from "./math.ts"
-import { Animation, complexifyArray, Keyframe, KeyframesVec3, KeyframesAny } from './animation.ts';
+import { RawKeyframesVec3 } from './animation.ts';
 import { Wall } from './wall.ts';
-import { ANIM, EASE } from './constants.ts';
-import { activeDiff } from './beatmap.ts';
+import { EASE } from './constants.ts';
+import { activeDiffGet } from './beatmap.ts';
 import { Note } from './note.ts';
 import { EventInternals } from './event.ts';
+import { Model } from "./model.ts";
 
 export type Vec3 = [number, number, number];
 export type Vec4 = [number, number, number, number];
@@ -53,7 +54,7 @@ export function sortObjects(objects: Record<string, any>[], property: string, sm
  * @returns {Array}
  */
 export function notesBetween(min: number, max: number, forEach: (note: Note) => void) {
-    filterObjects(activeDiff.notes, min, max, "time").forEach(x => { forEach(x) });
+    filterObjects(activeDiffGet().notes, min, max, "time").forEach(x => { forEach(x) });
 }
 
 /**
@@ -64,7 +65,7 @@ export function notesBetween(min: number, max: number, forEach: (note: Note) => 
  * @returns {Array}
  */
 export function wallsBetween(min: number, max: number, forEach: (note: Wall) => void) {
-    filterObjects(activeDiff.obstacles, min, max, "time").forEach(x => { forEach(x) });
+    filterObjects(activeDiffGet().obstacles, min, max, "time").forEach(x => { forEach(x) });
 }
 
 /**
@@ -75,7 +76,7 @@ export function wallsBetween(min: number, max: number, forEach: (note: Wall) => 
  * @returns {Array}
  */
 export function eventsBetween(min: number, max: number, forEach: (note: EventInternals.AbstractEvent) => void) {
-    filterObjects(activeDiff.events, min, max, "time").forEach(x => { forEach(x) });
+    filterObjects(activeDiffGet().events, min, max, "time").forEach(x => { forEach(x) });
 }
 
 /**
@@ -491,7 +492,7 @@ export function getJumps(NJS: number, offset: number, BPM: number) {
  * @param {Array} pos 
  * @param {Array} rot 
  * @param {Array} scale 
- * @returns 
+ * @returns {Vec3}
  */
 export function worldToWall(pos: Vec3, rot: Vec3, scale: Vec3) {
     const wallOffset = [0, -0.5, -0.5];
@@ -514,67 +515,27 @@ export function worldToWall(pos: Vec3, rot: Vec3, scale: Vec3) {
  * @param {Number} animDur How long animation lasts for.
  * @param {Number} animFreq Frequency of keyframes in animation.
  */
-export function debugWall(pos?: KeyframesVec3, rot?: KeyframesVec3, scale?: KeyframesVec3, animStart?: number, animDur?: number, animFreq: number = 1 / 8) {
-    pos ??= [0, 0, 0];
-    rot ??= [0, 0, 0];
-    scale ??= [1, 1, 1];
+export function debugWall(pos?: RawKeyframesVec3, rot?: RawKeyframesVec3, scale?: RawKeyframesVec3, animStart?: number, animDur?: number, animFreq: number = 1 / 8) {
     animStart ??= 0;
     animDur ??= 0;
 
     const wall = new Wall();
     wall.life = animDur + 69420;
     wall.lifeStart = 0;
-    const wallAnim = new Animation(wall.life).wallAnimation();
-    const dataAnim = new Animation().wallAnimation();
-    dataAnim.position = copy(pos);
-    dataAnim.rotation = copy(rot);
-    dataAnim.scale = copy(scale);
 
-    const data = {
-        pos: <number[][]>[],
-        rot: <number[][]>[],
-        scale: <number[][]>[]
-    }
-
-    function getDomain(arr: KeyframesAny) {
-        let newArr = complexifyArray(arr);
-        newArr = newArr.sort((a, b) => new Keyframe(a).time - new Keyframe(b).time);
-        let min = 1;
-        let max = 0;
-        newArr.forEach(x => {
-            const time = new Keyframe(x).time;
-            if (time < min) min = time;
-            if (time > max) max = time;
-        })
-        return { min: min, max: max };
-    }
-
-    const posDomain = getDomain(pos as KeyframesAny);
-    const rotDomain = getDomain(rot as KeyframesAny);
-    const scaleDomain = getDomain(scale as KeyframesAny);
-
-    const totalMin = getDomain([[posDomain.min], [rotDomain.min], [scaleDomain.min]]).min;
-    const totalMax = getDomain([[posDomain.max], [rotDomain.max], [scaleDomain.max]]).max;
-
-    for (let i = totalMin; i <= totalMax; i += animFreq / animDur) {
-        const time = i * animDur + animStart;
-        let objPos = dataAnim.get(ANIM.POSITION, i);
-        const objRot = dataAnim.get(ANIM.ROTATION, i);
-        const objScale = dataAnim.get(ANIM.SCALE, i);
-
-        objPos = worldToWall(objPos, objRot, objScale);
-
-        data.pos.push([...objPos, time]);
-        data.rot.push([...objRot, time]);
-        data.scale.push([...objScale, time])
-    }
-
-    wallAnim.add(ANIM.DEFINITE_POSITION, data.pos);
-    wallAnim.add(ANIM.LOCAL_ROTATION, data.rot);
-    wallAnim.add(ANIM.SCALE, data.scale);
-    wallAnim.optimize();
+    const model = new Model();
+    model.importAnimation([{
+        pos: pos,
+        rot: rot,
+        scale: scale
+    }], keyframe => {
+        keyframe.pos = worldToWall(keyframe.pos, keyframe.rot, keyframe.scale);
+        keyframe.time = keyframe.time * (animDur as number) + (animStart as number);
+    }, animFreq)
 
     wall.color = [0, 0, 0, 1];
-    wall.importAnimation(wallAnim);
+    wall.animate.position = model.data.cubes[0].pos;
+    wall.animate.rotation = model.data.cubes[0].rot;
+    wall.animate.scale = model.data.cubes[0].scale;
     wall.push();
 }

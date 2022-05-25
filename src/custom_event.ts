@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-namespace no-explicit-any adjacent-overload-signatures
 import { copy } from './general.ts';
-import { activeDiff } from './beatmap.ts';
+import { activeDiffGet } from './beatmap.ts';
 import { AnimationInternals, Animation, TrackValue, Track } from './animation.ts';
 
 export namespace CustomEventInternals {
@@ -23,7 +23,7 @@ export namespace CustomEventInternals {
         * Push this event to the difficulty
         */
         push() {
-            activeDiff.customEvents.push(copy(this));
+            activeDiffGet().customEvents.push(copy(this));
             return this;
         }
 

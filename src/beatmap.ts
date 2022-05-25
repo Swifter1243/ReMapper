@@ -331,7 +331,7 @@ export class Info {
 }
 
 export const info = new Info();
-export let activeDiff: Difficulty;
+export let activeDiff: Difficulty | undefined = undefined;
 export let forceJumpsForNoodle = true;
 
 /**
@@ -339,6 +339,15 @@ export let forceJumpsForNoodle = true;
  * @param {Object} diff 
  */
 export function activeDiffSet(diff: Difficulty) { activeDiff = diff }
+
+/**
+ * Get the active difficulty, ensuring that it is indeed active.
+ * @returns {Object}
+ */
+export function activeDiffGet() {
+    if (activeDiff) return activeDiff;
+    else throw new Error("There is currently no loaded difficulty.");
+}
 
 /**
  * Set whether exported walls and notes with custom data will have their NJS / Offset forced.
@@ -415,7 +424,7 @@ export function exportZip(excludeDiffs: string[] = [], zipName?: string) {
  * so new pushed notes for example may not be cleared on the next run and would build up.
  */
 export function transferVisuals(diffs: string[], forDiff?: (diff: Difficulty) => void) {
-    const startActive = activeDiff;
+    const startActive = activeDiff as Difficulty;
 
     diffs.forEach(x => {
         const workingDiff = new Difficulty(x);
