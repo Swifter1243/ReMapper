@@ -13,9 +13,6 @@ export * from './light_remapper.ts';
 export * from './anim_optimizer.ts';
 
 /* TODO:
-- Fix file save stuff
-- Fix path stuff
-- Port jseasingsfunctions
 - Port three stuff
 - Get the zip stuff working
 - Get nodemon working

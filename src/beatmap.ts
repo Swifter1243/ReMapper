@@ -1,8 +1,5 @@
 // deno-lint-ignore-file no-explicit-any adjacent-overload-signatures
-import path from 'path'; // TODO: Figure this shit out
-import seven from 'node-7z';
-import sevenBin from '7zip-bin';
-import * as fs from 'fs';
+import { path, fs, compress } from './deps.ts';
 import { Note } from './note.ts';
 import { Wall } from './wall.ts';
 import { Event, EventInternals } from './event.ts';
@@ -39,7 +36,7 @@ export class Difficulty {
         }
 
         if (!fs.existsSync(input)) throw new Error(`The file ${input} does not exist`)
-        this.json = JSON.parse(fs.readFileSync(input, "utf-8"));
+        this.json = JSON.parse(Deno.readTextFileSync(input));
 
         info.json._difficultyBeatmapSets.forEach((set: Record<string,any>) => {
             set._difficultyBeatmaps.forEach((setmap: Record<string,any>) => {
@@ -52,13 +49,13 @@ export class Difficulty {
 
         if (this.diffSet === undefined) throw new Error(`The difficulty ${input} does not exist in your Info.dat`)
 
-        for (let i = 0; i < this.notes.length; i++) this.notes[i] = new Note().import(this.notes[i]);
-        for (let i = 0; i < this.obstacles.length; i++) this.obstacles[i] = new Wall().import(this.obstacles[i]);
-        for (let i = 0; i < this.events.length; i++) this.events[i] = new Event().import(this.events[i]);
+        for (let i = 0; i < this.notes.length; i++) this.notes[i] = new Note().import(this.notes[i] as Record<string, any>);
+        for (let i = 0; i < this.obstacles.length; i++) this.obstacles[i] = new Wall().import(this.obstacles[i] as Record<string, any>);
+        for (let i = 0; i < this.events.length; i++) this.events[i] = new Event().import(this.events[i] as Record<string, any>);
         if (this.customEvents !== undefined)
-            for (let i = 0; i < this.customEvents.length; i++) this.customEvents[i] = new CustomEvent().import(this.customEvents[i]);
+            for (let i = 0; i < this.customEvents.length; i++) this.customEvents[i] = new CustomEvent().import(this.customEvents[i] as Record<string, any>);
         if (this.environment !== undefined)
-            for (let i = 0; i < this.environment.length; i++) this.environment[i] = new Environment().import(this.environment[i]);
+            for (let i = 0; i < this.environment.length; i++) this.environment[i] = new Environment().import(this.environment[i] as Record<string, any>);
 
         if (this.version === undefined) this.version = "2.2.0";
 
@@ -128,7 +125,7 @@ export class Difficulty {
             }
         }
 
-        fs.writeFileSync(diffName, JSON.stringify(outputJSON, null, 0));
+        Deno.writeTextFileSync(diffName, JSON.stringify(outputJSON, null, 0));
     }
 
     /**
@@ -268,7 +265,7 @@ export class Info {
     load(path?: string) {
         const fileName = path ?? this.fileName;
         if (fs.existsSync(fileName)) {
-            this.json = JSON.parse(fs.readFileSync(fileName, "utf-8"));
+            this.json = JSON.parse(Deno.readTextFileSync(fileName));
             this.fileName = fileName;
         }
         else {
@@ -281,7 +278,7 @@ export class Info {
      */
     save() {
         if (!this.json) throw new Error("The Info object has not been loaded.");
-        fs.writeFileSync(this.fileName, JSON.stringify(this.json, null, 2));
+        Deno.writeTextFileSync(this.fileName, JSON.stringify(this.json, null, 2));
     }
 
     private updateInfo(object: Record<string, any>, property: string, value: any) {
@@ -393,21 +390,13 @@ export function exportZip(excludeDiffs: string[] = [], zipName?: string) {
 
     zipName ??= `${path.parse(workingDir).name}`;
     zipName = workingDir + `\\${zipName}.zip`;
-    if (!fs.existsSync(zipName)) fs.writeFileSync(zipName, "");
+    if (!fs.existsSync(zipName)) Deno.writeTextFileSync(zipName, "");
     const tempInfo = workingDir + `\\TEMPINFO.dat`;
     files.push(tempInfo);
     fs.writeFileSync(tempInfo, JSON.stringify(exportInfo, null, 0));
     fs.unlinkSync(zipName);
 
-    const zip = seven.add(zipName, files, { $bin: sevenBin.path7za });
-    zip.on('end', function () {
-        const zip2 = seven.rename(zipName, [
-            ["TEMPINFO.dat", path.parse(info.fileName).base]
-        ], { $bin: sevenBin.path7za })
-        zip2.on('end', function () {
-            fs.unlinkSync(tempInfo);
-        })
-    });
+    compress(files, undefined, {})
 }
 
 /**

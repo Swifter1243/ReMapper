@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-explicit-any
 const EPSILON = 1e-3;
-import * as jseasingfunctions from 'js-easing-functions';
+import * as easings from './easings.ts';
 import { Animation, complexifyArray, Keyframe, KeyframesVec3, KeyframesAny } from './animation.ts';
 import { Wall } from './wall.ts';
 import * as three from 'three';
@@ -141,7 +141,7 @@ export function lerpRotation(start: Vec3, end: Vec3, fraction: number, easing?: 
  export function lerpEasing(easing: EASE, value: number) {
     if (easing === "easeLinear" || easing === undefined) return value;
     if (easing === "easeStep") return value === 1 ? 1 : 0;
-    return jseasingfunctions[easing](value, 0, 1, 1);
+    return easings[easing](value, 0, 1, 1);
 }
 
 /**
