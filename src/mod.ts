@@ -13,7 +13,6 @@ export * from './light_remapper.ts';
 export * from './anim_optimizer.ts';
 
 /* TODO:
-- Port three stuff
 - Get the zip stuff working
 - Get nodemon working
 - Get blender stuff working

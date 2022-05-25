@@ -1,9 +1,9 @@
 // deno-lint-ignore-file no-explicit-any
 const EPSILON = 1e-3;
 import * as easings from './easings.ts';
+import { Euler, Vector3, Quaternion } from "./math.ts"
 import { Animation, complexifyArray, Keyframe, KeyframesVec3, KeyframesAny } from './animation.ts';
 import { Wall } from './wall.ts';
-import * as three from 'three';
 import { ANIM, EASE } from './constants.ts';
 import { activeDiff } from './beatmap.ts';
 import { Note } from './note.ts';
@@ -12,7 +12,6 @@ import { EventInternals } from './event.ts';
 export type Vec3 = [number, number, number];
 export type Vec4 = [number, number, number, number];
 export type ColorType = [number, number, number] | [number, number, number, number];
-type Vec3Animation = Vec3 | Vec4[];
 
 /**
  * Allows you to filter through an array of objects with a min and max property.
@@ -124,11 +123,10 @@ export function lerpWrap(start: number, end: number, fraction: number, easing?: 
  */
 export function lerpRotation(start: Vec3, end: Vec3, fraction: number, easing?: EASE): Vec3 {
     if (easing !== undefined) fraction = lerpEasing(easing, fraction);
-    const q1 = new three.Quaternion().setFromEuler(new three.Euler(...toRadians(start), "YXZ"));
-    const q2 = new three.Quaternion().setFromEuler(new three.Euler(...toRadians(end), "YXZ"));
+    const q1 = new Quaternion().setFromEuler(new Euler(...(toRadians(start) as Vec3), "YXZ"));
+    const q2 = new Quaternion().setFromEuler(new Euler(...(toRadians(end) as Vec3), "YXZ"));
     q1.slerp(q2, fraction);
-    const output = toDegrees(new three.Euler().reorder("YXZ").setFromQuaternion(q1).toArray());
-    output.pop();
+    const output = toDegrees(new Euler().setFromQuaternion(q1, "YXZ").toArray() as Vec3);
     return output as Vec3;
 }
 
@@ -138,7 +136,7 @@ export function lerpRotation(start: Vec3, end: Vec3, fraction: number, easing?: 
  * @param {Number} value Progress of easing (0-1).
  * @returns {Number}
  */
- export function lerpEasing(easing: EASE, value: number) {
+export function lerpEasing(easing: EASE, value: number) {
     if (easing === "easeLinear" || easing === undefined) return value;
     if (easing === "easeStep") return value === 1 ? 1 : 0;
     return easings[easing](value, 0, 1, 1);
@@ -268,7 +266,7 @@ export function copy<T>(obj: T): T {
         (newObj as any)[x] = value;
     })
 
-    Object.setPrototypeOf(newObj, (obj as any).__proto__);
+    Object.setPrototypeOf(newObj, obj as any);
     return newObj as T;
 }
 
@@ -289,9 +287,9 @@ export function isEmptyObject(o: Record<string, any>) {
  * @param {Array} anchor Anchor of rotation.
  * @returns {Array}
  */
-export function rotatePoint(rotation: Vec3, point: Vec3, anchor: Vec3 = [0,0,0]) {
-    const mathRot = toRadians(rotation);
-    const vector = new three.Vector3(...arrAdd(point, arrMul(anchor, -1))).applyEuler(new three.Euler(...mathRot, "YXZ"));
+export function rotatePoint(rotation: Vec3, point: Vec3, anchor: Vec3 = [0, 0, 0]) {
+    const mathRot = toRadians(rotation) as Vec3;
+    const vector = new Vector3(...arrAdd(point, arrMul(anchor, -1))).applyEuler(new Euler(...mathRot, "YXZ"));
     return arrAdd([vector.x, vector.y, vector.z], anchor) as Vec3;
 }
 
@@ -361,7 +359,7 @@ export function jsonGet(obj: Record<string, any>, prop: string, init?: any) {
 
     // If the property doesn't exist, initialize it.
     if (init != null) jsonFill(obj, prop, init);
-    
+
     // Fetch the property based on the path/prop.
     const steps = prop.split('.')
     let currentObj = obj
@@ -387,9 +385,9 @@ export function jsonFill(obj: Record<string, any>, prop: string, value: any) {
     const nestedObject: any = [...steps]
         .reverse()
         .reduce((prev, current, i) => {
-            return i === 0? { [current]: value } : { [current]: prev };
+            return i === 0 ? { [current]: value } : { [current]: prev };
         }, {});
-    
+
     // Merge the original object into the nested object (if the original object is empty, it will just take the nested object)
     obj[steps[0]] = Object.assign({}, nestedObject[steps[0]], obj[steps[0]]);
 }
@@ -497,9 +495,9 @@ export function worldToWall(pos: Vec3, rot: Vec3, scale: Vec3) {
  * @param {Number} animFreq Frequency of keyframes in animation.
  */
 export function debugWall(pos?: KeyframesVec3, rot?: KeyframesVec3, scale?: KeyframesVec3, animStart?: number, animDur?: number, animFreq: number = 1 / 8) {
-    pos ??= [0,0,0];
-    rot ??= [0,0,0];
-    scale ??= [1,1,1];
+    pos ??= [0, 0, 0];
+    rot ??= [0, 0, 0];
+    scale ??= [1, 1, 1];
     animStart ??= 0;
     animDur ??= 0;
 
