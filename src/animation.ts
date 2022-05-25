@@ -372,7 +372,7 @@ export function isSimple(array: KeyframesAny) {
 export function getValuesAtTime(property: string, animation: KeyframesAny, time: number) {
     animation = complexifyArray(animation);
     const timeInfo = timeInKeyframes(time, animation);
-    if (timeInfo.interpolate) {
+    if (timeInfo.interpolate && timeInfo.r && timeInfo.l) {
         if (property === ANIM.ROTATION || property === ANIM.LOCAL_ROTATION) {
             return lerpRotation(timeInfo.l.values as Vec3, timeInfo.r.values as Vec3, timeInfo.normalTime);
         }
@@ -408,12 +408,11 @@ export function getValuesAtTime(property: string, animation: KeyframesAny, time:
             }
         }
     }
-    else return timeInfo.l.values;
+    else return (timeInfo.l as Keyframe).values;
 }
 
 function timeInKeyframes(time: number, animation: KeyframeArray) {
     let l: Keyframe;
-    let r: Keyframe;
     let normalTime = 0;
 
     if (animation.length === 0) return { interpolate: false };
@@ -443,7 +442,7 @@ function timeInKeyframes(time: number, animation: KeyframeArray) {
 
     l = new Keyframe(animation[leftIndex]);
     // eslint-disable-next-line prefer-const
-    r = new Keyframe(animation[rightIndex]);
+    const r = new Keyframe(animation[rightIndex]);
 
     normalTime = findFraction(l.time, r.time - l.time, time);
     if (r.easing) normalTime = lerpEasing(r.easing, normalTime);
