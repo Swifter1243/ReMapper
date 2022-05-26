@@ -312,7 +312,11 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
             if (forEnv !== undefined) forEnv(envObject, objects);
             envObject.push();
 
-            if (dataTrack === undefined) debugWall([x.rawPos[0][0], x.rawPos[0][1], x.rawPos[0][2]], rot, [x.rawScale[0][0], x.rawScale[0][1], x.rawScale[0][2]]);
+            if (dataTrack === undefined) debugWall({
+                pos: [x.rawPos[0][0], x.rawPos[0][1], x.rawPos[0][2]],
+                rot: rot,
+                scale: [x.rawScale[0][0], x.rawScale[0][1], x.rawScale[0][2]]
+            });
         })
 
         this.maxObjects = objects;
@@ -458,5 +462,5 @@ function createYeetDef() {
     if (noYeet === true) {
         noYeet = false;
         toPointDef([0, -69420, 0], "yeet");
-    } 
+    }
 }

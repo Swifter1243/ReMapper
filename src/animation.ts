@@ -43,7 +43,7 @@ export namespace AnimationInternals {
          */
         set(property: string, value: KeyframesAny) {
             if (typeof value === "string") this.json[property] = value;
-            else this.json[property] = simplifyArray(complexifyArray(value).sort((a: KeyframeValues, b: KeyframeValues) => new Keyframe(a).time - new Keyframe(b).time))
+            else this.json[property] = simplifyArray(this.convert(complexifyArray(value)).sort((a: KeyframeValues, b: KeyframeValues) => new Keyframe(a).time - new Keyframe(b).time))
         }
 
         /**

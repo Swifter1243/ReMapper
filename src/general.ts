@@ -127,7 +127,7 @@ export function lerpRotation(start: Vec3, end: Vec3, fraction: number, easing?: 
     const q1 = new Quaternion().setFromEuler(new Euler(...(toRadians(start) as Vec3), "YXZ"));
     const q2 = new Quaternion().setFromEuler(new Euler(...(toRadians(end) as Vec3), "YXZ"));
     q1.slerp(q2, fraction);
-    const output = toDegrees(new Euler().setFromQuaternion(q1, "YXZ").toArray() as Vec3);
+    const output = toDegrees(new Euler(0, 0, 0, "YXZ").setFromQuaternion(q1).toArray() as Vec3);
     return output as Vec3;
 }
 
@@ -500,7 +500,7 @@ export function worldToWall(pos: Vec3, rot: Vec3, scale: Vec3) {
     pos = pos.map((y, i) => y + offset[i]) as Vec3;
 
     pos[0] -= 0.5;
-    pos[1] -= 0.1 / 0.6;
+    pos[1] += 0.1 / 0.6;
     pos[2] -= 0.65 / 0.6;
 
     return pos;
@@ -508,14 +508,12 @@ export function worldToWall(pos: Vec3, rot: Vec3, scale: Vec3) {
 
 /**
  * Create a wall for debugging. Position, rotation, and scale are in world space and can be animations.
- * @param {Array} pos 
- * @param {Array} rot 
- * @param {Array} scale 
+ * @param {Object} transform
  * @param {Number} animStart When animation starts.
  * @param {Number} animDur How long animation lasts for.
  * @param {Number} animFreq Frequency of keyframes in animation.
  */
-export function debugWall(pos?: RawKeyframesVec3, rot?: RawKeyframesVec3, scale?: RawKeyframesVec3, animStart?: number, animDur?: number, animFreq: number = 1 / 8) {
+export function debugWall(transform: { pos?: RawKeyframesVec3, rot?: RawKeyframesVec3, scale?: RawKeyframesVec3}, animStart?: number, animDur?: number, animFreq: number = 1 / 32) {
     animStart ??= 0;
     animDur ??= 0;
 
@@ -524,18 +522,20 @@ export function debugWall(pos?: RawKeyframesVec3, rot?: RawKeyframesVec3, scale?
     wall.lifeStart = 0;
 
     const model = new Model();
+    model.optimizeSettings = undefined;
     model.importAnimation([{
-        pos: pos,
-        rot: rot,
-        scale: scale
+        pos: transform.pos,
+        rot: transform.rot,
+        scale: transform.scale
     }], keyframe => {
         keyframe.pos = worldToWall(keyframe.pos, keyframe.rot, keyframe.scale);
         keyframe.time = keyframe.time * (animDur as number) + (animStart as number);
     }, animFreq)
 
     wall.color = [0, 0, 0, 1];
-    wall.animate.position = model.data.cubes[0].pos;
-    wall.animate.rotation = model.data.cubes[0].rot;
+    wall.animate.length = wall.life;
+    wall.animate.definitePosition = model.data.cubes[0].pos;
+    wall.animate.localRotation = model.data.cubes[0].rot;
     wall.animate.scale = model.data.cubes[0].scale;
     wall.push();
 }

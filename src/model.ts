@@ -18,7 +18,7 @@ export class Model {
         cubes: []
     };
     trackingFile?: string;
-    optimizeSettings = new OptimizeSettings();
+    optimizeSettings? = new OptimizeSettings();
 
     constructor(input?: string | ModelData) {
         if (!input) return;
@@ -32,7 +32,7 @@ export class Model {
     importAnimation(
         cubes: { pos?: RawKeyframesVec3, rot?: RawKeyframesVec3, scale?: RawKeyframesVec3 }[],
         forKeyframe?: (transform: { pos: Vec3, rot: Vec3, scale: Vec3, time: number }) => void,
-        animFreq: number = 1 / 8) {
+        animFreq: number = 1 / 32) {
 
         cubes.forEach(cube => {
             let pos = cube.pos;

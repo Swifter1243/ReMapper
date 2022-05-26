@@ -331,7 +331,7 @@ export class Info {
 }
 
 export const info = new Info();
-export let activeDiff: Difficulty | undefined = undefined;
+export let activeDiff: Difficulty;
 export let forceJumpsForNoodle = true;
 
 /**
