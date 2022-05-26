@@ -9,6 +9,7 @@ import { activeDiffGet } from './beatmap.ts';
 import { Note } from './note.ts';
 import { EventInternals } from './event.ts';
 import { Model } from "./model.ts";
+import { OptimizeSettings } from "./anim_optimizer.ts";
 
 export type Vec3 = [number, number, number];
 export type Vec4 = [number, number, number, number];
@@ -269,7 +270,7 @@ export function setDecimals(input: number, decimals: number) {
  */
 export function getSeconds(decimals = 2) {
     return setDecimals(performance.now() / 1000, decimals);
-} 
+}
 
 /**
  * Creates a new instance of an object.
@@ -513,16 +514,17 @@ export function worldToWall(pos: Vec3, rot: Vec3, scale: Vec3) {
  * @param {Number} animDur How long animation lasts for.
  * @param {Number} animFreq Frequency of keyframes in animation.
  */
-export function debugWall(transform: { pos?: RawKeyframesVec3, rot?: RawKeyframesVec3, scale?: RawKeyframesVec3}, animStart?: number, animDur?: number, animFreq: number = 1 / 32) {
+export function debugWall(transform: { pos?: RawKeyframesVec3, rot?: RawKeyframesVec3, scale?: RawKeyframesVec3 }, animStart?: number, animDur?: number, animFreq?: number, animOptimizer = new OptimizeSettings()) {
     animStart ??= 0;
     animDur ??= 0;
+    animFreq ??= 1 / 32;
 
     const wall = new Wall();
     wall.life = animDur + 69420;
     wall.lifeStart = 0;
 
     const model = new Model();
-    model.optimizeSettings = undefined;
+    model.optimizeSettings = animOptimizer;
     model.importAnimation([{
         pos: transform.pos,
         rot: transform.rot,
