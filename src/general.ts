@@ -2,13 +2,12 @@
 const EPSILON = 1e-3;
 import * as easings from './easings.ts';
 import { Euler, Vector3, Quaternion } from "./math.ts"
-import { RawKeyframesVec3 } from './animation.ts';
+import { bakeAnimation, KeyframesVec3, RawKeyframesVec3 } from './animation.ts';
 import { Wall } from './wall.ts';
 import { EASE } from './constants.ts';
 import { activeDiffGet } from './beatmap.ts';
 import { Note } from './note.ts';
 import { EventInternals } from './event.ts';
-import { Model } from "./model.ts";
 import { OptimizeSettings } from "./anim_optimizer.ts";
 
 export type Vec3 = [number, number, number];
@@ -523,21 +522,15 @@ export function debugWall(transform: { pos?: RawKeyframesVec3, rot?: RawKeyframe
     wall.life = animDur + 69420;
     wall.lifeStart = 0;
 
-    const model = new Model();
-    model.optimizeSettings = animOptimizer;
-    model.importAnimation([{
-        pos: transform.pos,
-        rot: transform.rot,
-        scale: transform.scale
-    }], keyframe => {
+    transform = bakeAnimation(transform, keyframe => {
         keyframe.pos = worldToWall(keyframe.pos, keyframe.rot, keyframe.scale);
         keyframe.time = keyframe.time * (animDur as number) + (animStart as number);
-    }, animFreq)
+    }, animFreq, animOptimizer);
 
     wall.color = [0, 0, 0, 1];
     wall.animate.length = wall.life;
-    wall.animate.definitePosition = model.data.cubes[0].pos;
-    wall.animate.localRotation = model.data.cubes[0].rot;
-    wall.animate.scale = model.data.cubes[0].scale;
+    wall.animate.definitePosition = transform.pos as KeyframesVec3;
+    wall.animate.localRotation = transform.rot as KeyframesVec3;
+    wall.animate.scale = transform.scale as KeyframesVec3;
     wall.push();
 }

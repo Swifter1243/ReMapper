@@ -506,3 +506,79 @@ export function toPointDef(animation: KeyframesAny, name: string) {
         "_points": animation
     })
 }
+
+/**
+ * Generate keyframes from an animation.
+ * Useful for doing things such as having objects rotate around points other than their anchor.
+ * @param {Object} animation 
+ * @param {Function} forKeyframe Runs for each generated keyframe.
+ * @param {Number} animFreq The sampling rate of new keyframes.
+ * @param {OptimizeSettings} animOptimizer 
+ * @returns {Object}
+ */
+export function bakeAnimation(animation: { pos?: RawKeyframesVec3, rot?: RawKeyframesVec3, scale?: RawKeyframesVec3 },
+    forKeyframe?: (transform: { pos: Vec3, rot: Vec3, scale: Vec3, time: number }) => void,
+    animFreq?: number, animOptimizer?: OptimizeSettings) {
+    animFreq ??= 1 / 32,
+    animation.pos ??= [0, 0, 0];
+    animation.rot ??= [0, 0, 0];
+    animation.scale ??= [1, 1, 1];
+
+    const dataAnim = new Animation().abstract();
+    dataAnim.position = copy(animation.pos);
+    dataAnim.rotation = copy(animation.rot);
+    dataAnim.scale = copy(animation.scale);
+
+    const data = {
+        pos: <number[][]>[],
+        rot: <number[][]>[],
+        scale: <number[][]>[]
+    }
+
+    function getDomain(arr: KeyframesAny) {
+        let newArr = complexifyArray(arr);
+        newArr = newArr.sort((a, b) => new Keyframe(a).time - new Keyframe(b).time);
+        let min = 1;
+        let max = 0;
+        newArr.forEach(x => {
+            const time = new Keyframe(x).time;
+            if (time < min) min = time;
+            if (time > max) max = time;
+        })
+        return { min: min, max: max };
+    }
+
+    const posDomain = getDomain(animation.pos as KeyframesAny);
+    const rotDomain = getDomain(animation.rot as KeyframesAny);
+    const scaleDomain = getDomain(animation.scale as KeyframesAny);
+
+    const totalMin = getDomain([[posDomain.min], [rotDomain.min], [scaleDomain.min]]).min;
+    const totalMax = getDomain([[posDomain.max], [rotDomain.max], [scaleDomain.max]]).max;
+
+    for (let i = totalMin; i <= totalMax; i += animFreq) {
+        const keyframe = {
+            pos: dataAnim.get(ANIM.POSITION, i),
+            rot: dataAnim.get(ANIM.ROTATION, i),
+            scale: dataAnim.get(ANIM.SCALE, i),
+            time: i
+        };
+
+        if (forKeyframe) forKeyframe(keyframe);
+
+        data.pos.push([...keyframe.pos, keyframe.time]);
+        data.rot.push([...keyframe.rot, keyframe.time]);
+        data.scale.push([...keyframe.scale, keyframe.time]);
+    }
+
+    dataAnim.position = data.pos as KeyframesVec3;
+    dataAnim.rotation = data.rot as KeyframesVec3;
+    dataAnim.scale = data.scale as KeyframesVec3;
+
+    dataAnim.optimize(undefined, animOptimizer);
+
+    return {
+        pos: dataAnim.position as RawKeyframesVec3,
+        rot: dataAnim.rotation as RawKeyframesVec3,
+        scale: dataAnim.scale as RawKeyframesVec3
+    };
+} 
