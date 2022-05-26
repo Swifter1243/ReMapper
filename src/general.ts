@@ -1,4 +1,4 @@
-// deno-lint-ignore-file no-explicit-any
+// deno-lint-ignore-file no-explicit-any adjacent-overload-signatures
 const EPSILON = 1e-3;
 import * as easings from './easings.ts';
 import { Euler, Vector3, Quaternion } from "./math.ts"
@@ -9,10 +9,52 @@ import { activeDiffGet } from './beatmap.ts';
 import { Note } from './note.ts';
 import { EventInternals } from './event.ts';
 import { OptimizeSettings } from "./anim_optimizer.ts";
+import { fs } from "./deps.ts";
+import { ModelCube } from "./model.ts";
 
 export type Vec3 = [number, number, number];
 export type Vec4 = [number, number, number, number];
 export type ColorType = [number, number, number] | [number, number, number, number];
+
+type CachedModel = {
+    fileName: string,
+    mTime: string,
+    optimizer: string,
+    cubes: ModelCube[]
+};
+
+class ReMapperJson {
+    readonly fileName = "ReMapper.json";
+    private json = {
+        runs: 0,
+        cachedModels: <CachedModel[]>[]
+    }
+
+    constructor() {
+        if (!fs.existsSync(this.fileName)) this.save();
+        this.json = JSON.parse(Deno.readTextFileSync(this.fileName));
+        this.runs++;
+    }
+
+    save() {
+        Deno.writeTextFileSync(this.fileName, JSON.stringify(this.json, null, 2));
+    }
+
+    get runs() { return this.json.runs }
+    get cachedModels() { return this.json.cachedModels }
+
+    protected set runs(value: number) {
+        this.json.runs = value;
+        this.save();
+    }
+
+    protected set cachedModels(value: CachedModel[]) {
+        this.json.cachedModels = value;
+        this.save();
+    }
+}
+
+export const reMapperJson = new ReMapperJson();
 
 /**
  * Allows you to filter through an array of objects with a min and max property.
