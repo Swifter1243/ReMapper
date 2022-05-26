@@ -24,7 +24,7 @@ type CachedModel = {
 };
 
 class ReMapperJson {
-    readonly fileName = "ReMapper.json";
+    readonly fileName = "RM_Cache.json";
     private json = {
         runs: 0,
         cachedModels: <CachedModel[]>[]
@@ -37,7 +37,7 @@ class ReMapperJson {
     }
 
     save() {
-        Deno.writeTextFileSync(this.fileName, JSON.stringify(this.json, null, 2));
+        Deno.writeTextFileSync(this.fileName, JSON.stringify(this.json));
     }
 
     get runs() { return this.json.runs }
@@ -54,7 +54,7 @@ class ReMapperJson {
     }
 }
 
-export const reMapperJson = new ReMapperJson();
+export const RMJson = new ReMapperJson();
 
 /**
  * Allows you to filter through an array of objects with a min and max property.

@@ -14,8 +14,8 @@ export * from './anim_optimizer.ts';
 export * from './model.ts';
 
 /* TODO:
+- Get models to work with BlenderEnvironment
 - Get blender stuff working
 - Make texttowall stuff
 - Group blender "yeet" stuff into one event
-- Make decimal precision function global
 */

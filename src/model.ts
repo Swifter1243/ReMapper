@@ -1,6 +1,6 @@
-import { ColorType, reMapperJson } from "./general.ts";
+import { ColorType, RMJson } from "./general.ts";
 import { RawKeyframesVec3 } from "./animation.ts";
-import { path, fs } from "./deps.ts";
+import { path, fs, blender } from "./deps.ts";
 import { OptimizeSettings } from "./anim_optimizer.ts"
 
 export interface ModelCube {
@@ -11,8 +11,11 @@ export interface ModelCube {
     track?: string;
 }
 
+//! Reminder that BlenderEnvironment will need to bake keyframes if it wasn't imported from blender
+
 export class Model {
     cubes: ModelCube[] = [];
+    protected baked = false; 
 
     /**
      * Wrapper for model data.
@@ -28,7 +31,8 @@ export class Model {
                 rot: [0, 0, 0],
                 scale: [1, 1, 1]
             }];
-            // blender stuff would go here
+            // blender stuff goes here
+            thisKey.baked = true;
             thisKey.cubes = data;
             return data;
         }
@@ -42,7 +46,7 @@ export class Model {
             let cached = false;
             let found = false;
 
-            reMapperJson.cachedModels.forEach(x => {
+            RMJson.cachedModels.forEach(x => {
                 if (x.fileName === fileName) {
                     found = true;
                     cached = true;
@@ -55,20 +59,20 @@ export class Model {
                         x.mTime = mTime as string;
                         x.optimizer = optimizerJSON;
                         x.cubes = getData(this);
-                        reMapperJson.save();
+                        RMJson.save();
                     }
                     else this.cubes = x.cubes;
                 }
             })
 
             if (!cached && !found) {
-                reMapperJson.cachedModels.push({
+                RMJson.cachedModels.push({
                     fileName: fileName,
                     mTime: mTime as string,
                     optimizer: optimizerJSON,
                     cubes: getData(this)
                 })
-                reMapperJson.save();
+                RMJson.save();
             }
         }
         else this.addCubes(input);
@@ -82,4 +86,6 @@ export class Model {
         if (Array.isArray(input)) input.forEach(x => { this.cubes.push(x) });
         else this.cubes.push(input);
     }
+
+    get isBaked() { return this.baked }
 }

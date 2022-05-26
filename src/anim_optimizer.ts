@@ -1,5 +1,5 @@
 import { complexifyArray, Keyframe, KeyframesAny, simplifyArray } from "./animation.ts";
-import { copy } from "./general.ts";
+import { copy, setDecimals } from "./general.ts";
 
 function areArrayElementsIdentical<T>(enumerable1: T[], enumerable2: T[]): boolean {
     if (enumerable1.length !== enumerable2.length) {
@@ -154,31 +154,6 @@ function SlopeOfPoint(a: Keyframe, b: Keyframe, slopes: number[]) {
     }
 }
 
-function roundTo(n: number, digits: number) {
-    const multiplier = Math.pow(10, digits);
-
-    return Math.round(n * multiplier) / multiplier
-
-
-    // return parseFloat(n.toFixed(digits))
-
-    // let negative = false;
-    // if (digits === undefined) {
-    //     digits = 0;
-    // }
-    // if (n < 0) {
-    //     negative = true;
-    //     n = n * -1;
-    // }
-    // let multiplicator = Math.pow(10, digits);
-    // n = parseFloat((n * multiplicator).toFixed(11));
-    // n = (Math.round(n) / multiplicator).toFixed(digits);
-    // if (negative) {
-    //     n = (n * -1).toFixed(digits);
-    // }
-    // return n;
-}
-
 // pointC is undefined if array is size 2
 // return true to remove point
 export type OptimizeFunction = (pointA: Keyframe, pointB: Keyframe, pointC: Keyframe | undefined) => Keyframe | undefined;
@@ -188,8 +163,8 @@ function optimizeFloatingPoints(a: Keyframe, b: Keyframe, c: Keyframe | undefine
     [a, b, c].forEach((p) => {
         if (!p) return;
 
-        p.values = p.values.map(e => roundTo(e, optimizeFloatingPoints.decimals))
-        p.time = roundTo(p.time, optimizeFloatingPoints.decimals)
+        p.values = p.values.map(e => setDecimals(e, optimizeFloatingPoints.decimals))
+        p.time = setDecimals(p.time, optimizeFloatingPoints.decimals)
     })
 
     return undefined;
