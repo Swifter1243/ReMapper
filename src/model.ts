@@ -74,6 +74,8 @@ export function cacheModel(filePath: string, process: () => ModelCube[], process
         })
         RMJson.save();
     }
+
+    return outputData;
 }
 
 export function getModelCubesFromCollada(filePath: string) {

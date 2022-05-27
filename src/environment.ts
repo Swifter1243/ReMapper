@@ -1,10 +1,11 @@
 // deno-lint-ignore-file no-explicit-any adjacent-overload-signatures no-namespace
-import { combineAnimations, Keyframe, AnimationInternals, TrackValue, Track, toPointDef } from './animation.ts';
+import { combineAnimations, Keyframe, AnimationInternals, TrackValue, Track, toPointDef, complexifyArray, RawKeyframesVec3, KeyframesAny, KeyframeValues, KeyframeArray, bakeAnimation } from './animation.ts';
 import { activeDiffGet } from './beatmap.ts';
-import { Vec3, debugWall, copy, rotatePoint } from './general.ts';
+import { Vec3, debugWall, copy, rotatePoint, Vec4 } from './general.ts';
 import { CustomEvent, CustomEventInternals } from './custom_event.ts';
 import { LOOKUP } from './constants.ts';
-import { OptimizeSettings } from './anim_optimizer.ts';
+import { optimizeAnimation, OptimizeSettings } from './anim_optimizer.ts';
+import { cacheModel, getModelCubesFromCollada, ModelCube } from "./model.ts";
 
 let envCount = 0;
 let blenderEnvCount = 0;
@@ -90,6 +91,12 @@ export class Environment {
 
 const blenderShrink = 9 / 10; // For whatever reason.. this needs to be multiplied to all of the scales to make things look proper... who knows man.
 
+interface blenderEnvCube {
+    pos: Vec4[][];
+    rot: Vec4[][];
+    scale: Vec4[][];
+}
+
 export namespace BlenderEnvironmentInternals {
     export class BaseBlenderEnvironment {
         scale: [number, number, number];
@@ -98,77 +105,6 @@ export namespace BlenderEnvironmentInternals {
         constructor(scale: Vec3, anchor: Vec3) {
             this.scale = <Vec3>scale.map(x => (1 / x) / 0.6);
             this.anchor = anchor;
-        }
-
-        processData(trackData: any[] | string) {
-            const outputData: Record<string, any>[] = [];
-
-            if (typeof trackData === "string") trackData = getTrackData(trackData);
-
-            trackData.forEach(x => {
-                const data = {
-                    rawPos: <number[][]>[],
-                    rawScale: <number[][]>[],
-                    pos: <number[][]>[],
-                    rot: <number[][]>[],
-                    scale: <number[][]>[]
-                };
-
-                const posData = x._definitePosition;
-                const rotData = x._localRotation;
-                const scaleData = x._scale;
-
-                let longestArr = [];
-                const length = Math.max(posData.length, rotData.length, scaleData.length);
-                if (posData.length === length) longestArr = posData;
-                if (rotData.length === length) longestArr = rotData;
-                if (scaleData.length === length) longestArr = scaleData;
-
-                let posIndex = 0;
-                let rotIndex = 0;
-                let scaleIndex = 0;
-
-                for (let i = 0; i < length; i++) {
-                    let pos = new Keyframe(posData[posIndex]);
-                    let rot = new Keyframe(rotData[rotIndex]);
-                    let scale = new Keyframe(scaleData[scaleIndex]);
-                    const ref = new Keyframe(longestArr[i]);
-
-                    posIndex++;
-                    rotIndex++;
-                    scaleIndex++;
-
-                    if (pos.time !== ref.time) {
-                        posIndex--;
-                        pos = new Keyframe(posData[posIndex]);
-                    }
-                    if (rot.time !== ref.time) {
-                        rotIndex--;
-                        rot = new Keyframe(rotData[rotIndex]);
-                    }
-                    else data.rot.push(rot.values);
-                    if (scale.time !== ref.time) {
-                        scaleIndex--;
-                        scale = new Keyframe(scaleData[scaleIndex]);
-                    }
-                    else {
-                        data.rawScale.push([...scale.values.map(y => y * blenderShrink), ref.time]);
-                        data.scale.push([...scale.values.map((y, i) => y * this.scale[i] * blenderShrink), ref.time]);
-                    }
-
-                    const objPos = pos.values as Vec3;
-                    const objRot = rot.values as Vec3;
-                    const objScale = scale.values;
-
-                    data.rawPos.push([...objPos, ref.time]);
-                    const offset = rotatePoint(objRot, objScale.map((y, i) => y * -this.anchor[i] * blenderShrink) as Vec3);
-                    data.pos.push([...objPos.map((y, i) => y + offset[i]), ref.time]);
-                }
-
-                outputData.push(data);
-            })
-
-            return outputData;
         }
     }
 
@@ -184,15 +120,9 @@ export namespace BlenderEnvironmentInternals {
             this.disappearWhenAbsent = disappearWhenAbsent;
         }
 
-        getDataForTrack(dataTrack: string) {
-            return this.processData(`${dataTrack}_${this.track}`);
-        }
-
-        static(dataTrack: string, forEvents?: (moveEvent: CustomEventInternals.AnimateTrack) => void) {
-            const data = this.getDataForTrack(dataTrack);
-
-            if (data.length > 0) {
-                const x = data[0];
+        static(input: blenderEnvCube[], forEvents?: (moveEvent: CustomEventInternals.AnimateTrack) => void) {
+            if (input.length > 0) {
+                const x = input[0];
                 const objPos = [x.pos[0][0], x.pos[0][1], x.pos[0][2]];
                 const objRot = [x.rot[0][0], x.rot[0][1], x.rot[0][2]];
                 const objScale = [x.scale[0][0], x.scale[0][1], x.scale[0][2]];
@@ -206,7 +136,7 @@ export namespace BlenderEnvironmentInternals {
             }
         }
 
-        animate(dataTrack: string, time: number, duration: number, forEvents?: (moveEvent: CustomEventInternals.AnimateTrack) => void) {
+        animate(input: ModelCube[], time: number, duration: number, forEvents?: (moveEvent: CustomEventInternals.AnimateTrack) => void) {
             const data = this.getDataForTrack(dataTrack);
 
             if (data.length > 0) {
@@ -216,7 +146,6 @@ export namespace BlenderEnvironmentInternals {
                 moveEvent.animate.position = x.pos;
                 moveEvent.animate.rotation = x.rot;
                 moveEvent.animate.scale = x.scale;
-                if (this.parent.assignedOptimizeSettings) moveEvent.animate.optimize(undefined, this.parent.assignedOptimizeSettings);
                 moveEvent.duration = duration;
                 if (forEvents !== undefined) forEvents(moveEvent);
                 moveEvent.push();
@@ -237,8 +166,7 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
     assigned: BlenderEnvironmentInternals.BlenderAssigned[] = [];
     objectAmounts: number[][] = [];
     maxObjects = 0;
-    optimizeSettings: OptimizeSettings | undefined = new OptimizeSettings();
-    assignedOptimizeSettings: OptimizeSettings | undefined = new OptimizeSettings();
+    optimizeSettings: OptimizeSettings = new OptimizeSettings();
 
     /**
     * Tool for using model data from ScuffedWalls for environments.
@@ -282,6 +210,87 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
         return result;
     }
 
+    processInput(input: string | ModelCube[]) {
+        if (typeof input === "string") {
+            // If things in "processing" change, the cache will be re-calculated
+            const processing: any[] = [this.optimizeSettings, this.anchor, this.scale];
+            this.assigned.forEach(x => {
+                processing.push(x.anchor);
+                processing.push(x.scale);
+            })
+
+            return cacheModel(input, () => {
+                const fileCubes = getModelCubesFromCollada(input);
+                fileCubes.forEach(x => {
+                    // Making keyframes a consistent array format
+                    x.pos = complexifyArray(x.pos as KeyframesAny) as RawKeyframesVec3;
+                    x.rot = complexifyArray(x.rot as KeyframesAny) as RawKeyframesVec3;
+                    x.scale = complexifyArray(x.scale as KeyframesAny) as RawKeyframesVec3;
+
+                    // Getting relevant anchor & scale
+                    let anchor = this.anchor;
+                    let scale = this.scale;
+                    if (x.track) {
+                        this.assigned.forEach(y => {
+                            if (y.track === x.track) {
+                                anchor = y.anchor;
+                                scale = y.scale;
+                            }
+                        })
+                    }
+
+                    // Applying transformation to each keyframe
+                    for (let i = 0; i < x.pos.length; i++) {
+                        let objPos = x.pos[i] as KeyframeValues;
+                        let objRot = x.rot[i] as KeyframeValues;
+                        const objScale = x.scale[i] as KeyframeValues;
+                        objPos.pop();
+                        objRot.pop();
+                        objScale.pop();
+
+                        const appliedTransform = applyAnchorAndScale(objPos as Vec3, objRot as Vec3, objScale as Vec3, anchor, scale);
+                        objPos = appliedTransform.pos;
+                        objRot = appliedTransform.rot;
+                        (x.pos as KeyframeArray)[i] = [...(objPos as Vec3), (x.pos as KeyframeValues)[3]];
+                        (x.rot as KeyframeArray)[i] = [...(objRot as Vec3), (x.rot as KeyframeValues)[3]];
+                    }
+
+                    // Optimizing cube
+                    x.pos = optimizeAnimation(x.pos as KeyframesAny, this.optimizeSettings) as RawKeyframesVec3;
+                    x.rot = optimizeAnimation(x.rot as KeyframesAny, this.optimizeSettings) as RawKeyframesVec3;
+                    x.scale = optimizeAnimation(x.scale as KeyframesAny, this.optimizeSettings) as RawKeyframesVec3;
+                })
+                return fileCubes;
+            }, processing)
+        }
+        else {
+            const bakedCubes: ModelCube[] = [];
+
+            input.forEach(x => {
+                // Getting relevant anchor & scale
+                let anchor = this.anchor;
+                let scale = this.scale;
+                if (x.track) {
+                    this.assigned.forEach(y => {
+                        if (y.track === x.track) {
+                            anchor = y.anchor;
+                            scale = y.scale;
+                        }
+                    })
+                }
+
+                // Baking animation
+                bakedCubes.push(bakeAnimation({ pos: x.pos, rot: x.rot, scale: x.scale }, transform => {
+                    const appliedTransform = applyAnchorAndScale(transform.pos, transform.rot, transform.scale, anchor, scale);
+                    transform.pos = appliedTransform.pos;
+                    transform.scale = appliedTransform.scale;
+                }, undefined, this.optimizeSettings));
+            })
+
+            return bakedCubes;
+        }
+    }
+
     /**
      * Set the environment to be static. Should only be used once.
      * @param {String} dataTrack The track ScuffedWalls will output for this model's data.
@@ -289,10 +298,8 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
      * @param {Function} forEnv Runs for each environment object.
      * @param {Function} forAssigned Runs for each assigned object moving event.
      */
-    static(dataTrack?: string, forEnv?: (envObject: Environment, objects: number) => void, forAssigned?: (moveEvent: CustomEventInternals.AnimateTrack) => void) {
-        let data;
-        if (dataTrack === undefined) data = this.processData(debugData);
-        else data = this.processData(dataTrack);
+    static(input: string | ModelCube[], forEnv?: (envObject: Environment, objects: number) => void, forAssigned?: (moveEvent: CustomEventInternals.AnimateTrack) => void) {
+        const data = this.processInput(input);
         let objects = 0;
 
         data.forEach(x => {
@@ -310,12 +317,6 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
 
             if (forEnv !== undefined) forEnv(envObject, objects);
             envObject.push();
-
-            if (dataTrack === undefined) debugWall({
-                pos: [x.rawPos[0][0], x.rawPos[0][1], x.rawPos[0][2]],
-                rot: rot,
-                scale: [x.rawScale[0][0], x.rawScale[0][1], x.rawScale[0][2]]
-            });
         })
 
         this.maxObjects = objects;
@@ -353,7 +354,6 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
                 event.animate.position = x.pos;
                 event.animate.rotation = x.rot;
                 event.animate.scale = x.scale;
-                if (this.optimizeSettings) event.animate.optimize(undefined, this.optimizeSettings);
                 if (forEnv !== undefined) forEnv(event, objects);
                 event.push();
 
@@ -394,6 +394,22 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
     getPieceTrack(index: number) {
         return `blenderEnv${this.trackID}_${index}`;
     }
+}
+
+/**
+ * Used by BlenderEnvironment to transform cube data to represent an environment object.
+ * @param objPos 
+ * @param objRot 
+ * @param objScale 
+ * @param anchor 
+ * @param scale 
+ * @returns 
+ */
+export function applyAnchorAndScale(objPos: Vec3, objRot: Vec3, objScale: Vec3, anchor: Vec3, scale: Vec3) {
+    objScale = objScale.map((x, i) => x * scale[i] * blenderShrink) as Vec3;
+    const offset = rotatePoint(objRot, objScale.map((x, i) => x * -anchor[i] * blenderShrink) as Vec3);
+    objPos = objPos.map((x, i) => x + offset[i]) as Vec3;
+    return { pos: objPos, rot: objRot, scale: objScale };
 }
 
 /**
