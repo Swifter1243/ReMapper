@@ -1,7 +1,6 @@
 // deno-lint-ignore-file no-explicit-any adjacent-overload-signatures
 const EPSILON = 1e-3;
 import * as easings from './easings.ts';
-import { Euler, Vector3, Quaternion } from "./math.ts"
 import { bakeAnimation, KeyframesVec3, RawKeyframesVec3 } from './animation.ts';
 import { Wall } from './wall.ts';
 import { EASE } from './constants.ts';
@@ -9,7 +8,7 @@ import { activeDiffGet } from './beatmap.ts';
 import { Note } from './note.ts';
 import { EventInternals } from './event.ts';
 import { OptimizeSettings } from "./anim_optimizer.ts";
-import { fs } from "./deps.ts";
+import { fs, three } from "./deps.ts";
 import { ModelCube } from "./model.ts";
 
 export type Vec3 = [number, number, number];
@@ -166,11 +165,17 @@ export function lerpWrap(start: number, end: number, fraction: number, easing?: 
  */
 export function lerpRotation(start: Vec3, end: Vec3, fraction: number, easing?: EASE): Vec3 {
     if (easing !== undefined) fraction = lerpEasing(easing, fraction);
-    const q1 = new Quaternion().setFromEuler(new Euler(...(toRadians(start) as Vec3), "YXZ"));
-    const q2 = new Quaternion().setFromEuler(new Euler(...(toRadians(end) as Vec3), "YXZ"));
+    const q1 = new three.Quaternion().setFromEuler(new three.Euler(...(toRadians(start) as Vec3), "YXZ"));
+    const q2 = new three.Quaternion().setFromEuler(new three.Euler(...(toRadians(end) as Vec3), "YXZ"));
     q1.slerp(q2, fraction);
-    const output = toDegrees(new Euler(0, 0, 0, "YXZ").setFromQuaternion(q1).toArray() as Vec3);
-    return output as Vec3;
+    return eulerFromQuaternion(q1);
+}
+
+export function eulerFromQuaternion(q: three.Quaternion) {
+    let euler = new three.Euler(0, 0, 0, "YXZ").setFromQuaternion(q).toArray();
+    euler.pop();
+    euler = toDegrees(euler);
+    return euler as Vec3;
 }
 
 /**
@@ -352,7 +357,7 @@ export function isEmptyObject(o: Record<string, any>) {
  */
 export function rotatePoint(rotation: Vec3, point: Vec3, anchor: Vec3 = [0, 0, 0]) {
     const mathRot = toRadians(rotation) as Vec3;
-    const vector = new Vector3(...arrAdd(point, arrMul(anchor, -1))).applyEuler(new Euler(...mathRot, "YXZ"));
+    const vector = new three.Vector3(...arrAdd(point, arrMul(anchor, -1))).applyEuler(new three.Euler(...mathRot, "YXZ"));
     return arrAdd([vector.x, vector.y, vector.z], anchor) as Vec3;
 }
 

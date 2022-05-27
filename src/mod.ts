@@ -16,7 +16,7 @@ export * from './model.ts';
 /* TODO:
 - Get models to work with BlenderEnvironment
 - Get blender stuff working
+- Allow imports of animations to make a Model
 - Make texttowall stuff
 - Group blender "yeet" stuff into one event
-- Use fern's three import for math
 */

@@ -1,7 +1,7 @@
 // deno-lint-ignore-file no-explicit-any
-import { ColorType, getSeconds, RMJson } from "./general.ts";
+import { ColorType, eulerFromQuaternion, getSeconds, RMJson, toDegrees, Vec3 } from "./general.ts";
 import { RawKeyframesVec3 } from "./animation.ts";
-import { path, fs, blender } from "./deps.ts";
+import { path, fs, blender, three } from "./deps.ts";
 
 export interface ModelCube {
     pos: RawKeyframesVec3;
@@ -35,8 +35,8 @@ export function cacheModel(filePath: string, process: () => ModelCube[], process
     let outputData: ModelCube[] = [];
 
     function getData(fileName: string) {
-        console.log(`[ReMapper: ${getSeconds()}s] caching model data of ${fileName}`);
         outputData = process();
+        console.log(`[ReMapper: ${getSeconds()}s] cached model data of ${fileName}.`);
         return outputData;
     }
 
@@ -74,4 +74,34 @@ export function cacheModel(filePath: string, process: () => ModelCube[], process
         })
         RMJson.save();
     }
+}
+
+export function getModelCubesFromCollada(filePath: string) {
+    const collada = blender.GetColladaModelSync(filePath);
+    const cubes = blender.GetCubesCollada(collada);
+    const outputCubes: ModelCube[] = [];
+
+    cubes.forEach(x => {
+        console.log(x);
+
+        const cube: ModelCube = {
+            pos: [0, 0, 0],
+            rot: [0, 0, 0],
+            scale: [1, 1, 1]
+        }
+
+        if (x.color) {
+            if (x.color.a) cube.color = [x.color.r, x.color.g, x.color.b, x.color.a];
+            else cube.color = [x.color.r, x.color.g, x.color.b];
+        }
+        if (x.transformation) {
+            cube.pos = x.transformation.position.toArray();
+            cube.rot = eulerFromQuaternion(x.transformation.rotation);
+            cube.scale = x.transformation.scale.toArray();
+        }
+
+        outputCubes.push(cube);
+    })
+
+    return outputCubes;
 }
