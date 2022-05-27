@@ -19,7 +19,7 @@ export type ColorType = [number, number, number] | [number, number, number, numb
 type CachedModel = {
     fileName: string,
     mTime: string,
-    optimizer: string,
+    processing: string,
     cubes: ModelCube[]
 };
 

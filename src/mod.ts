@@ -18,4 +18,5 @@ export * from './model.ts';
 - Get blender stuff working
 - Make texttowall stuff
 - Group blender "yeet" stuff into one event
+- Use fern's three import for math
 */

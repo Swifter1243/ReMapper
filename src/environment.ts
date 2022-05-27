@@ -8,7 +8,6 @@ import { OptimizeSettings } from './anim_optimizer.ts';
 
 let envCount = 0;
 let blenderEnvCount = 0;
-const trackData: Record<string, any> = {};
 
 const debugData = [
     { _definitePosition: [[0, 1, 0, 0]], _localRotation: [[0, 0, 0, 0]], _scale: [[1, 1, 1, 0]] },
@@ -439,21 +438,6 @@ export function animateEnvTrack(track: string, time: number, duration: number, a
             new CustomEvent(time).animateTrack(track, duration, newAnimation, easing).push();
         }
     })
-}
-
-function getTrackData(track: string): any[] {
-    if (!trackData[track]) {
-        trackData[track] = [];
-        for (let i = 0; i < activeDiffGet().notes.length; i++) {
-            const note = activeDiffGet().notes[i];
-            if (note.track.has(track)) {
-                trackData[track].push(note.animation);
-                activeDiffGet().notes.splice(i, 1);
-                i--;
-            }
-        }
-    }
-    return trackData[track];
 }
 
 let noYeet = true;
