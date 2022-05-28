@@ -1,7 +1,7 @@
 // deno-lint-ignore-file no-explicit-any adjacent-overload-signatures no-namespace
-import { combineAnimations, Keyframe, AnimationInternals, TrackValue, Track, toPointDef, complexifyArray, RawKeyframesVec3, KeyframesAny, KeyframeValues, KeyframeArray, bakeAnimation } from './animation.ts';
+import { combineAnimations, AnimationInternals, TrackValue, Track, toPointDef, complexifyArray, RawKeyframesVec3, KeyframesAny, KeyframeValues, KeyframeArray, bakeAnimation } from './animation.ts';
 import { activeDiffGet } from './beatmap.ts';
-import { Vec3, debugWall, copy, rotatePoint, Vec4 } from './general.ts';
+import { Vec3, copy, rotatePoint, Vec4 } from './general.ts';
 import { CustomEvent, CustomEventInternals } from './custom_event.ts';
 import { LOOKUP } from './constants.ts';
 import { optimizeAnimation, OptimizeSettings } from './anim_optimizer.ts';
@@ -10,12 +10,12 @@ import { cacheModel, getModelCubesFromCollada, ModelCube } from "./model.ts";
 let envCount = 0;
 let blenderEnvCount = 0;
 
-const debugData = [
-    { _definitePosition: [[0, 1, 0, 0]], _localRotation: [[0, 0, 0, 0]], _scale: [[1, 1, 1, 0]] },
-    { _definitePosition: [[4, 1, 0, 0]], _localRotation: [[45, 0, 0, 0]], _scale: [[1, 1, 1, 0]] },
-    { _definitePosition: [[0, 5, 0, 0]], _localRotation: [[0, 45, 0, 0]], _scale: [[1, 1, 1, 0]] },
-    { _definitePosition: [[0, 1, 4, 0]], _localRotation: [[0, 0, 45, 0]], _scale: [[1, 1, 1, 0]] }
-];
+// const debugData = [
+//     { _definitePosition: [[0, 1, 0, 0]], _localRotation: [[0, 0, 0, 0]], _scale: [[1, 1, 1, 0]] },
+//     { _definitePosition: [[4, 1, 0, 0]], _localRotation: [[45, 0, 0, 0]], _scale: [[1, 1, 1, 0]] },
+//     { _definitePosition: [[0, 5, 0, 0]], _localRotation: [[0, 45, 0, 0]], _scale: [[1, 1, 1, 0]] },
+//     { _definitePosition: [[0, 1, 4, 0]], _localRotation: [[0, 0, 45, 0]], _scale: [[1, 1, 1, 0]] }
+// ];
 
 export class Environment {
     json: Record<string, any> = {};
@@ -102,6 +102,16 @@ export namespace BlenderEnvironmentInternals {
         scale: [number, number, number];
         anchor: [number, number, number];
 
+        protected getFirstTransform(pos: RawKeyframesVec3, rot: RawKeyframesVec3, scale: RawKeyframesVec3) {
+            const firstPos = complexifyArray(pos as KeyframesAny)[0];
+            const firstRot = complexifyArray(rot as KeyframesAny)[0];
+            const firstScale = complexifyArray(scale as KeyframesAny)[0];
+            firstPos.pop();
+            firstRot.pop();
+            firstScale.pop();
+            return { pos: firstPos as Vec3, rot: firstRot as Vec3, scale: firstScale as Vec3 };
+        }
+
         constructor(scale: Vec3, anchor: Vec3) {
             this.scale = <Vec3>scale.map(x => (1 / x) / 0.6);
             this.anchor = anchor;
@@ -120,32 +130,21 @@ export namespace BlenderEnvironmentInternals {
             this.disappearWhenAbsent = disappearWhenAbsent;
         }
 
-        static(input: blenderEnvCube[], forEvents?: (moveEvent: CustomEventInternals.AnimateTrack) => void) {
-            if (input.length > 0) {
-                const x = input[0];
-                const objPos = [x.pos[0][0], x.pos[0][1], x.pos[0][2]];
-                const objRot = [x.rot[0][0], x.rot[0][1], x.rot[0][2]];
-                const objScale = [x.scale[0][0], x.scale[0][1], x.scale[0][2]];
-
-                const moveEvent = new CustomEvent().animateTrack(this.track);
-                moveEvent.animate.position = objPos;
-                moveEvent.animate.rotation = objRot;
-                moveEvent.animate.scale = objScale;
-                if (forEvents !== undefined) forEvents(moveEvent);
-                moveEvent.push();
-            }
+        static(input: { pos: Vec3, rot: Vec3, scale: Vec3 }, forEvents?: (moveEvent: CustomEventInternals.AnimateTrack) => void) {
+            const moveEvent = new CustomEvent().animateTrack(this.track);
+            moveEvent.animate.position = input.pos;
+            moveEvent.animate.rotation = input.rot;
+            moveEvent.animate.scale = input.scale;
+            if (forEvents !== undefined) forEvents(moveEvent);
+            moveEvent.push();
         }
 
-        animate(input: ModelCube[], time: number, duration: number, forEvents?: (moveEvent: CustomEventInternals.AnimateTrack) => void) {
-            const data = this.getDataForTrack(dataTrack);
-
-            if (data.length > 0) {
-                const x = data[0];
-
+        animate(input: ModelCube | undefined, time: number, duration: number, forEvents?: (moveEvent: CustomEventInternals.AnimateTrack) => void) {
+            if (input) {
                 const moveEvent = new CustomEvent(time).animateTrack(this.track);
-                moveEvent.animate.position = x.pos;
-                moveEvent.animate.rotation = x.rot;
-                moveEvent.animate.scale = x.scale;
+                moveEvent.animate.position = input.pos;
+                moveEvent.animate.rotation = input.rot;
+                moveEvent.animate.scale = input.scale;
                 moveEvent.duration = duration;
                 if (forEvents !== undefined) forEvents(moveEvent);
                 moveEvent.push();
@@ -210,6 +209,11 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
         return result;
     }
 
+    /**
+     * Returns transformed cubes based on an input for a file or unbaked cubes.
+     * @param input 
+     * @returns 
+     */
     processInput(input: string | ModelCube[]) {
         if (typeof input === "string") {
             // If things in "processing" change, the cache will be re-calculated
@@ -303,26 +307,35 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
         let objects = 0;
 
         data.forEach(x => {
-            const pos = [x.pos[0][0], x.pos[0][1], x.pos[0][2]];
-            const rot = [x.rot[0][0], x.rot[0][1], x.rot[0][2]];
-            const scale = [x.scale[0][0], x.scale[0][1], x.scale[0][2]];
+            const transform = this.getFirstTransform(x.pos, x.rot, x.scale);
 
-            const envObject = new Environment(this.id, this.lookupMethod);
-            envObject.position = pos;
-            envObject.rotation = rot;
-            envObject.scale = scale;
-            envObject.duplicate = 1;
+            if (!x.track) {
+                const envObject = new Environment(this.id, this.lookupMethod);
+                envObject.position = transform.pos;
+                envObject.rotation = transform.rot;
+                envObject.scale = transform.scale;
+                envObject.duplicate = 1;
 
-            objects++;
+                objects++;
 
-            if (forEnv !== undefined) forEnv(envObject, objects);
-            envObject.push();
+                if (forEnv !== undefined) forEnv(envObject, objects);
+                envObject.push();
+            }
+            else {
+                let assigned: BlenderEnvironmentInternals.BlenderAssigned | undefined = undefined;
+
+                this.assigned.forEach(y => {
+                    if (y.track === x.track) {
+                        assigned = y;
+                    }
+                })
+
+                if (assigned) (assigned as BlenderEnvironmentInternals.BlenderAssigned).static(transform, forAssigned);
+            }
         })
 
         this.maxObjects = objects;
         this.objectAmounts = [[0, objects]];
-
-        if (dataTrack) this.assigned.forEach(x => { x.static(dataTrack, forAssigned) });
     }
 
     /**
@@ -333,7 +346,7 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
      * fifth element (optional) is a function to run per assigned object moving event.
      * @param {Function} forEnvSpawn function to run for each initial environment object.
      */
-    animate(switches: [string, number, number?,
+    animate(switches: [string | ModelCube[], number, number?,
         ((moveEvent: CustomEventInternals.AnimateTrack, objects: number) => void)?,
         ((moveEvent: CustomEventInternals.AnimateTrack) => void)?
     ][], forEnvSpawn?: (envObject: Environment) => void) {
@@ -341,29 +354,43 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
         switches.sort((a, b) => a[1] - b[1]);
 
         switches.forEach(x => {
-            const dataTrack = x[0];
+            const input = x[0];
             const time = x[1];
             const duration = x[2] ?? 0;
             const forEnv = x[3];
             const forAssigned = x[4];
-            const data = this.processData(dataTrack);
+            const data = this.processInput(input);
             let objects = 0;
 
-            data.forEach((x, i) => {
-                const event = new CustomEvent(time).animateTrack(this.getPieceTrack(i), duration);
-                event.animate.position = x.pos;
-                event.animate.rotation = x.rot;
-                event.animate.scale = x.scale;
-                if (forEnv !== undefined) forEnv(event, objects);
-                event.push();
+            const assignedCubes: ModelCube[] = [];
 
-                objects++;
+            data.forEach((x, i) => {
+                if (!x.track) {
+                    const event = new CustomEvent(time).animateTrack(this.getPieceTrack(i), duration);
+                    event.animate.position = x.pos;
+                    event.animate.rotation = x.rot;
+                    event.animate.scale = x.scale;
+                    if (forEnv !== undefined) forEnv(event, objects);
+                    event.push();
+
+                    objects++;
+                }
+                else assignedCubes.push(x);
+            })
+
+            this.assigned.forEach(x => {
+                let cube: ModelCube | undefined = undefined;
+
+                assignedCubes.forEach(y => {
+                    if (x.track === y.track) cube = y;
+                })
+
+                if (cube) x.animate(cube, time, duration, forAssigned);
+                else x.animate(undefined, time, duration, forAssigned);
             })
 
             if (objects > this.maxObjects) this.maxObjects = objects;
             this.objectAmounts.push([time, objects]);
-
-            this.assigned.forEach(x => { x.animate(dataTrack, time, duration, forAssigned) });
         })
 
         switches.forEach(x => {
