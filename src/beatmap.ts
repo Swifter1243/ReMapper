@@ -9,12 +9,15 @@ import { copy, isEmptyObject, jsonGet, jsonPrune, jsonRemove, jsonSet, sortObjec
 import { AnimationInternals } from './animation.ts';
 import { OptimizeSettings } from './anim_optimizer.ts';
 
+type PostProcessFn<T> = (object: T, diff: Difficulty) => void;
+
 export class Difficulty {
     json: Record<string, any> = {};
     diffSet: Record<string, any> = {};
     diffSetMap: Record<string, any> = {};
     mapFile: string;
     relativeMapFile: string;
+    private postProcesses = new Map<unknown, PostProcessFn<unknown>[]>();
 
     /**
      * Creates a difficulty. Can be used to access various information and the map data.
@@ -74,6 +77,39 @@ export class Difficulty {
         // TODO: Optimize point definitions
     }
 
+    /**
+     * 
+     * @param object The object to process. If undefined, will just process the difficulty
+     * @param fn 
+     */
+    addPostProcess<T>(object: T | undefined, fn: PostProcessFn<T>) {
+        let list = this.postProcesses.get(object)
+
+        if (!list) {
+            list = []
+            this.postProcesses.set(object, list);
+        }
+
+        // idc am lazy
+        list.push(fn as any);
+    }
+
+    /**
+     * 
+     * @param object The object to process. If undefined, will run all 
+     */
+    doPostProcess<T = unknown>(object: T | undefined = undefined) {
+        type Tuple = [unknown, PostProcessFn<unknown>[]];
+
+        const functionsMap: Tuple[] = object
+            ? Array.from(this.postProcesses.entries()) :
+            ([[object, this.postProcesses.get(object)]] as Tuple[])
+
+        functionsMap.forEach(tuple => {
+            tuple[1].forEach(fn => fn(tuple[0], this))
+        })
+    }
+
     /** 
      * Saves the difficulty.
      * @param {String} diffName Filename for the save. If left blank, the beatmap file name will be used for the save.
@@ -124,6 +160,9 @@ export class Difficulty {
                 outputJSON._customData._environment[i] = json;
             }
         }
+
+        // Finish up
+        this.doPostProcess(undefined)
 
         Deno.writeTextFileSync(diffName, JSON.stringify(outputJSON, null, 0));
         console.log(`[ReMapper: ${getSeconds()}s] ${this.fileName} successfully saved!`);
