@@ -17,7 +17,7 @@ export class Difficulty {
     diffSetMap: Record<string, any> = {};
     mapFile: string;
     relativeMapFile: string;
-    private postProcesses = new Map<unknown, PostProcessFn<unknown>[]>();
+    private postProcesses = new Map<unknown[] | undefined, PostProcessFn<unknown>[]>();
 
     /**
      * Creates a difficulty. Can be used to access various information and the map data.
@@ -82,7 +82,7 @@ export class Difficulty {
      * @param object The object to process. If undefined, will just process the difficulty
      * @param fn 
      */
-    addPostProcess<T>(object: T | undefined, fn: PostProcessFn<T>) {
+    addPostProcess<T>(object: T[] | undefined, fn: PostProcessFn<T>) {
         let list = this.postProcesses.get(object)
 
         if (!list) {
@@ -98,15 +98,22 @@ export class Difficulty {
      * 
      * @param object The object to process. If undefined, will run all 
      */
-    doPostProcess<T = unknown>(object: T | undefined = undefined) {
-        type Tuple = [unknown, PostProcessFn<unknown>[]];
+    doPostProcess<T = unknown>(object: T[] | undefined = undefined) {
+        type Tuple = [unknown[] | undefined, PostProcessFn<unknown>[]];
 
-        const functionsMap: Tuple[] = object
+        const functionsMap: Tuple[] = object === undefined
             ? Array.from(this.postProcesses.entries()) :
-            ([[object, this.postProcesses.get(object)]] as Tuple[])
+            [[object, this.postProcesses.get(object)!]]
 
         functionsMap.forEach(tuple => {
-            tuple[1].forEach(fn => fn(tuple[0], this))
+            const arr = tuple[0]
+            const functions = tuple[1]
+
+            if (arr === undefined) {
+                functions.forEach(fn => fn(undefined, this))
+            } else {
+                arr.forEach(i => functions.forEach(fn => fn(i, this)))
+            }
         })
     }
 
