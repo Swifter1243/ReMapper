@@ -151,6 +151,9 @@ export class Difficulty {
         }
         for (let i = 0; i < this.events.length; i++) outputJSON._events[i] = copy(this.events[i].json);
 
+        // Finish up
+        this.doPostProcess(undefined)
+
         sortObjects(outputJSON._events, "_time");
         sortObjects(outputJSON._notes, "_time");
         sortObjects(outputJSON._obstacles, "_time");
@@ -168,8 +171,7 @@ export class Difficulty {
             }
         }
 
-        // Finish up
-        this.doPostProcess(undefined)
+
 
         Deno.writeTextFileSync(diffName, JSON.stringify(outputJSON, null, 0));
         console.log(`[ReMapper: ${getSeconds()}s] ${this.fileName} successfully saved!`);
