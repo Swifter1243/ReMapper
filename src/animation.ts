@@ -7,16 +7,20 @@ import { lerpEasing, arrAdd, copy, arrMul, arrLast, findFraction, lerp, Vec3, Ve
 export type Interpolation = EASE | SPLINE;
 
 export type KeyframesLinear = [number] | [number, number, Interpolation?, SPLINE?][] | string;
+export type ComplexKeyframesLinear = [number, number, Interpolation?, SPLINE?][]
 
 export type KeyframesVec3 = Vec3 | [...Vec3, number, Interpolation?, SPLINE?][] | string;
 export type RawKeyframesVec3 = Vec3 | [...Vec3, number, Interpolation?, SPLINE?][];
 export type ComplexKeyframesVec3 = [...Vec3, number, Interpolation?, SPLINE?][];
 
 export type KeyframesVec4 = Vec4 | [...Vec4, number, Interpolation?, SPLINE?][] | string;
+export type ComplexKeyframesVec4 = [...Vec4, number, Interpolation?, SPLINE?][];
 
-export type KeyframesAny = number[] | KeyframeValues[] | string;
+
+export type SingleKeyframe = number[];
 export type KeyframeValues = (number | EASE | SPLINE)[];
 export type KeyframeArray = KeyframeValues[];
+export type KeyframesAny = SingleKeyframe | KeyframeArray | string;
 
 export type TrackValue = string | string[];
 export namespace AnimationInternals {

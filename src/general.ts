@@ -1,7 +1,7 @@
 // deno-lint-ignore-file no-explicit-any adjacent-overload-signatures
 const EPSILON = 1e-3;
 import * as easings from './easings.ts';
-import { bakeAnimation, KeyframesVec3, RawKeyframesVec3 } from './animation.ts';
+import { bakeAnimation, ComplexKeyframesLinear, ComplexKeyframesVec3, ComplexKeyframesVec4, KeyframeArray, KeyframesAny, KeyframesLinear, KeyframesVec3, KeyframesVec4, KeyframeValues, RawKeyframesVec3, SingleKeyframe } from './animation.ts';
 import { Wall } from './wall.ts';
 import { EASE } from './constants.ts';
 import { activeDiffGet } from './beatmap.ts';
@@ -580,4 +580,52 @@ export function debugWall(transform: { pos?: RawKeyframesVec3, rot?: RawKeyframe
     wall.animate.localRotation = transform.rot as KeyframesVec3;
     wall.animate.scale = transform.scale as KeyframesVec3;
     wall.push();
+}
+
+
+
+// type KeyframeTypes = {
+//     [key: symbol]: KeyframeValues,
+//     KeyframesLinear: ComplexKeyframesLinear,
+//     KeyframesVec3: ComplexKeyframesVec3,
+//     KeyframesVec4: ComplexKeyframesVec4
+// }
+
+// export function iterateKeyframes<T extends KeyframesAny, V = KeyframeTypes[T]>(keyframes: T, fn: (values: V) => void) {
+//     if (keyframes )
+// }
+
+// type Foo = KeyframeValues & keyof KeyframeTypes;
+
+// let an = new Note().animate.position;
+// iterateKeyframes <KeyframesVec3>(an, x => {
+
+// });
+
+// TODO: Learn how to be god programmer using TypeScript template tomfoolery
+// or wait for someone to PR it
+
+export function iterateKeyframesLinear(keyframes: KeyframesLinear, fn: (values: ComplexKeyframesLinear[0]) => void) {
+    return iterateKeyframesInternal(keyframes as KeyframesAny, v => fn(v as ComplexKeyframesLinear[0]));
+}
+
+export function iterateKeyframesVec3(keyframes: KeyframesVec3, fn: (values: ComplexKeyframesVec3[0]) => void) {
+    return iterateKeyframesInternal(keyframes as KeyframesAny, v => fn(v as ComplexKeyframesVec3[0]));
+}
+
+export function iterateKeyframesVec4(keyframes: KeyframesVec4, fn: (values: ComplexKeyframesVec4[0]) => void) {
+    return iterateKeyframesInternal(keyframes as KeyframesAny, v => fn(v as ComplexKeyframesVec4[0]));
+}
+
+function iterateKeyframesInternal(keyframes: KeyframesAny, fn: (values: KeyframeValues) => void) {
+    // TODO: Lookup point def
+    if (typeof keyframes === "string") return;
+
+    // single point def
+    if (typeof keyframes[0] === "number") {
+        fn(keyframes as SingleKeyframe);
+        return;
+    }
+
+    (keyframes as KeyframeArray).forEach(fn)
 }
