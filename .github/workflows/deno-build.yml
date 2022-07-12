@@ -1,30 +1,48 @@
-name: npm-build
+name: deno-build
 on:
   push:
   pull_request:
-    
+
 jobs:
+
+
   npm-publish:
-    name: npm-build
+    name: deno-build
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        deno-version: [1.3.0]
+
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
-    - uses: actions/setup-node@v1
+    - name: Use Deno Version Latest Stable
+    - uses: denoland/setup-deno@v1
       with:
-        node-version: 16
+        deno-version: vx.x.x
 
     - uses: actions/cache@v3
       with:
-        path: ~/.npm
-        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        path: ${{ env.DENO_DIR }}
+        key: ${{ runner.os }}-node-${{ hashFiles('**/deps.ts') }}
         restore-keys: |
           ${{ runner.os }}-node-
-    - run: npm install
-    - run: npm install -g typescript
-    - run: npm test
-    - run: tsc
-        
+    # Scan the code for syntax errors and style issues. If
+    # you want to use a custom linter configuration you can add a configuration file with --config <myconfig>
+    - name: Deno Lint
+    - run: deno lint
+
+    - name: Deno FMT Check Module
+      run: deno fmt --check
+      continue-on-error: true
+
+    - name: Build Deno Module
+      run: deno run --reload src/mod.ts --allow-read --allow-write
+
+      # TODO: NPM create
+
 
     # - name: Publish if version has been updated
     #   uses: pascalgn/npm-publish-action@1.3.9
