@@ -605,19 +605,14 @@ export function debugWall(transform: { pos?: RawKeyframesVec3, rot?: RawKeyframe
 // TODO: Learn how to be god programmer using TypeScript template tomfoolery
 // or wait for someone to PR it
 
-export function iterateKeyframesLinear(keyframes: KeyframesLinear, fn: (values: ComplexKeyframesLinear[0]) => void) {
-    return iterateKeyframesInternal(keyframes as KeyframesAny, v => fn(v as ComplexKeyframesLinear[0]));
+export function iterateKeyframes(keyframes: KeyframesLinear, fn: (values: ComplexKeyframesLinear[0]) => void): void;
+export function iterateKeyframes(keyframes: KeyframesVec3, fn: (values: ComplexKeyframesVec3[0]) => void): void;
+export function iterateKeyframes(keyframes: KeyframesVec4, fn: (values: ComplexKeyframesVec4[0]) => void): void;
+export function iterateKeyframes(keyframes: KeyframesAny, fn: (any: any) => void): void {
+    iterateKeyframesInternal(keyframes as KeyframesAny, fn)
 }
 
-export function iterateKeyframesVec3(keyframes: KeyframesVec3, fn: (values: ComplexKeyframesVec3[0]) => void) {
-    return iterateKeyframesInternal(keyframes as KeyframesAny, v => fn(v as ComplexKeyframesVec3[0]));
-}
-
-export function iterateKeyframesVec4(keyframes: KeyframesVec4, fn: (values: ComplexKeyframesVec4[0]) => void) {
-    return iterateKeyframesInternal(keyframes as KeyframesAny, v => fn(v as ComplexKeyframesVec4[0]));
-}
-
-function iterateKeyframesInternal(keyframes: KeyframesAny, fn: (values: KeyframeValues) => void) {
+export function iterateKeyframesInternal(keyframes: KeyframesAny, fn: (values: KeyframeValues) => void): void {
     // TODO: Lookup point def
     if (typeof keyframes === "string") return;
 
@@ -629,3 +624,16 @@ function iterateKeyframesInternal(keyframes: KeyframesAny, fn: (values: Keyframe
 
     (keyframes as KeyframeArray).forEach(fn)
 }
+
+// TODO: Remove
+let x: KeyframesAny = [] as unknown as KeyframesVec4;
+let y: KeyframesAny = [] as unknown as KeyframesVec3;
+let z: KeyframesAny = [] as unknown as KeyframesLinear;
+
+iterateKeyframes([] as unknown as Vec4, x => {
+    let t: ComplexKeyframesVec4[0] = x;
+})
+
+iterateKeyframes([] as unknown as Vec3, x => {
+    let a: ComplexKeyframesVec4[0] = x;
+})

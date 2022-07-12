@@ -5,20 +5,26 @@ import { ANIM, EASE, SPLINE } from "./constants.ts";
 import { lerpEasing, arrAdd, copy, arrMul, arrLast, findFraction, lerp, Vec3, Vec4, lerpRotation } from "./general.ts";
 
 export type Interpolation = EASE | SPLINE;
+export type TimeValue = number;
 
-export type KeyframesLinear = [number] | [number, number, Interpolation?, SPLINE?][] | string;
-export type ComplexKeyframesLinear = [number, number, Interpolation?, SPLINE?][]
+/// T is the singular point
+export type AbstractComplexKeyframeArray<T extends number[]> = [...T, TimeValue, Interpolation?, SPLINE?][] // [[T, time, spline, easing], [T, time, spline, easing]]
+export type AbstractRawKeyframeArray<T extends number[]> = AbstractComplexKeyframeArray<T> | T // [T] or [[T, time, spline, easing], [T, time, spline, easing]]
+export type AbstractKeyframeArray<T extends number[]> = AbstractRawKeyframeArray<T> | T | string // [T] or [[T, time, spline, easing], [T, time, spline, easing]] or string
 
-export type KeyframesVec3 = Vec3 | [...Vec3, number, Interpolation?, SPLINE?][] | string;
-export type RawKeyframesVec3 = Vec3 | [...Vec3, number, Interpolation?, SPLINE?][];
-export type ComplexKeyframesVec3 = [...Vec3, number, Interpolation?, SPLINE?][];
+export type KeyframesLinear = AbstractKeyframeArray<[number]>
+export type ComplexKeyframesLinear = AbstractComplexKeyframeArray<[number]>
 
-export type KeyframesVec4 = Vec4 | [...Vec4, number, Interpolation?, SPLINE?][] | string;
-export type ComplexKeyframesVec4 = [...Vec4, number, Interpolation?, SPLINE?][];
+export type KeyframesVec3 = AbstractKeyframeArray<Vec3>
+export type ComplexKeyframesVec3 = AbstractComplexKeyframeArray<Vec3>;
+export type RawKeyframesVec3 = AbstractRawKeyframeArray<Vec3>;
 
+export type KeyframesVec4 = AbstractKeyframeArray<Vec4>;
+export type ComplexKeyframesVec4 = AbstractComplexKeyframeArray<Vec4>;
+export type RawKeyframesVec4 = AbstractRawKeyframeArray<Vec4>;
 
-export type SingleKeyframe = number[];
-export type KeyframeValues = (number | EASE | SPLINE)[];
+export type SingleKeyframe = number[]; // [...]
+export type KeyframeValues = (number | (EASE | undefined) | (SPLINE | undefined))[]; // [[...], [...]]
 export type KeyframeArray = KeyframeValues[];
 export type KeyframesAny = SingleKeyframe | KeyframeArray | string;
 
