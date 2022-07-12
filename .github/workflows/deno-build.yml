@@ -42,7 +42,7 @@ jobs:
       continue-on-error: true
 
     - name: Build Deno Module
-      run: deno run --reload src/mod.ts --allow-read --allow-write
+      run: deno run --allow-read --allow-write --reload src/mod.ts 
 
       # TODO: NPM create
 
