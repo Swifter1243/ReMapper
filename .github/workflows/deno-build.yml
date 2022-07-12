@@ -35,6 +35,7 @@ jobs:
     # you want to use a custom linter configuration you can add a configuration file with --config <myconfig>
     - name: Deno Lint
       run: deno lint
+      continue-on-error: true
 
     - name: Deno FMT Check Module
       run: deno fmt --check
