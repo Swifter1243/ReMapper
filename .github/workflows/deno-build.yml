@@ -19,7 +19,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
     - name: Use Deno Version Latest Stable
-    - uses: denoland/setup-deno@v1
+      uses: denoland/setup-deno@v1
       with:
         deno-version: vx.x.x
 
@@ -32,7 +32,7 @@ jobs:
     # Scan the code for syntax errors and style issues. If
     # you want to use a custom linter configuration you can add a configuration file with --config <myconfig>
     - name: Deno Lint
-    - run: deno lint
+      run: deno lint
 
     - name: Deno FMT Check Module
       run: deno fmt --check
