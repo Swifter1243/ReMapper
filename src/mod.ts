@@ -12,12 +12,3 @@ export * from './regex.ts';
 export * from './light_remapper.ts';
 export * from './anim_optimizer.ts';
 export * from './model.ts';
-
-/* TODO:
-- Get models to work with BlenderEnvironment
-- Allow creation of debug environment
-- Get blender stuff working
-- Allow imports of animations to make a Model
-- Make texttowall stuff
-- Group blender "yeet" stuff into one event
-*/

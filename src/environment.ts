@@ -1,7 +1,7 @@
 // deno-lint-ignore-file no-explicit-any adjacent-overload-signatures no-namespace
 import { combineAnimations, AnimationInternals, TrackValue, Track, toPointDef, complexifyArray, RawKeyframesVec3, KeyframesAny, KeyframeValues, KeyframeArray, bakeAnimation } from './animation.ts';
 import { activeDiffGet } from './beatmap.ts';
-import { Vec3, copy, rotatePoint, Vec4 } from './general.ts';
+import { Vec3, copy, rotatePoint } from './general.ts';
 import { CustomEvent, CustomEventInternals } from './custom_event.ts';
 import { LOOKUP } from './constants.ts';
 import { optimizeAnimation, OptimizeSettings } from './anim_optimizer.ts';
@@ -91,12 +91,6 @@ export class Environment {
 
 const blenderShrink = 9 / 10; // For whatever reason.. this needs to be multiplied to all of the scales to make things look proper... who knows man.
 
-interface blenderEnvCube {
-    pos: Vec4[][];
-    rot: Vec4[][];
-    scale: Vec4[][];
-}
-
 export namespace BlenderEnvironmentInternals {
     export class BaseBlenderEnvironment {
         scale: [number, number, number];
@@ -166,6 +160,7 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
     objectAmounts: number[][] = [];
     maxObjects = 0;
     optimizeSettings: OptimizeSettings = new OptimizeSettings();
+    bakeAnimFreq = 1 / 32;
 
     /**
     * Tool for using model data from ScuffedWalls for environments.
@@ -284,11 +279,13 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
                 }
 
                 // Baking animation
-                bakedCubes.push(bakeAnimation({ pos: x.pos, rot: x.rot, scale: x.scale }, transform => {
+                const bakedCube: ModelCube = bakeAnimation({ pos: x.pos, rot: x.rot, scale: x.scale }, transform => {
                     const appliedTransform = applyAnchorAndScale(transform.pos, transform.rot, transform.scale, anchor, scale);
                     transform.pos = appliedTransform.pos;
                     transform.scale = appliedTransform.scale;
-                }, undefined, this.optimizeSettings));
+                }, this.bakeAnimFreq, this.optimizeSettings);
+                bakedCube.track = x.track;
+                bakedCubes.push(bakedCube);
             })
 
             return bakedCubes;
@@ -433,9 +430,9 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
  * @returns 
  */
 export function applyAnchorAndScale(objPos: Vec3, objRot: Vec3, objScale: Vec3, anchor: Vec3, scale: Vec3) {
-    objScale = objScale.map((x, i) => x * scale[i] * blenderShrink) as Vec3;
     const offset = rotatePoint(objRot, objScale.map((x, i) => x * -anchor[i] * blenderShrink) as Vec3);
     objPos = objPos.map((x, i) => x + offset[i]) as Vec3;
+    objScale = objScale.map((x, i) => x * scale[i] * blenderShrink) as Vec3;
     return { pos: objPos, rot: objRot, scale: objScale };
 }
 

@@ -84,7 +84,7 @@ export function getModelCubesFromCollada(filePath: string) {
     const outputCubes: ModelCube[] = [];
 
     cubes.forEach(x => {
-        console.log(x);
+        console.log(x.frames);
 
         const cube: ModelCube = {
             pos: [0, 0, 0],
