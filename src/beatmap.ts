@@ -9,12 +9,15 @@ import { copy, isEmptyObject, jsonGet, jsonPrune, jsonRemove, jsonSet, sortObjec
 import { AnimationInternals } from './animation.ts';
 import { OptimizeSettings } from './anim_optimizer.ts';
 
+type PostProcessFn<T> = (object: T, diff: Difficulty) => void;
+
 export class Difficulty {
     json: Record<string, any> = {};
     diffSet: Record<string, any> = {};
     diffSetMap: Record<string, any> = {};
     mapFile: string;
     relativeMapFile: string;
+    private postProcesses = new Map<unknown[] | undefined, PostProcessFn<unknown>[]>();
 
     /**
      * Creates a difficulty. Can be used to access various information and the map data.
@@ -74,6 +77,46 @@ export class Difficulty {
         // TODO: Optimize point definitions
     }
 
+    /**
+     * 
+     * @param object The object to process. If undefined, will just process the difficulty
+     * @param fn 
+     */
+    addPostProcess<T>(object: T[] | undefined, fn: PostProcessFn<T>) {
+        let list = this.postProcesses.get(object)
+
+        if (!list) {
+            list = []
+            this.postProcesses.set(object, list);
+        }
+
+        // idc am lazy
+        list.push(fn as any);
+    }
+
+    /**
+     * 
+     * @param object The object to process. If undefined, will run all 
+     */
+    doPostProcess<T = unknown>(object: T[] | undefined = undefined) {
+        type Tuple = [unknown[] | undefined, PostProcessFn<unknown>[]];
+
+        const functionsMap: Tuple[] = object === undefined
+            ? Array.from(this.postProcesses.entries()) :
+            [[object, this.postProcesses.get(object)!]]
+
+        functionsMap.forEach(tuple => {
+            const arr = tuple[0]
+            const functions = tuple[1]
+
+            if (arr === undefined) {
+                functions.forEach(fn => fn(undefined, this))
+            } else {
+                arr.forEach(i => functions.forEach(fn => fn(i, this)))
+            }
+        })
+    }
+
     /** 
      * Saves the difficulty.
      * @param {String} diffName Filename for the save. If left blank, the beatmap file name will be used for the save.
@@ -108,6 +151,9 @@ export class Difficulty {
         }
         for (let i = 0; i < this.events.length; i++) outputJSON._events[i] = copy(this.events[i].json);
 
+        // Finish up
+        this.doPostProcess(undefined)
+
         sortObjects(outputJSON._events, "_time");
         sortObjects(outputJSON._notes, "_time");
         sortObjects(outputJSON._obstacles, "_time");
@@ -124,6 +170,8 @@ export class Difficulty {
                 outputJSON._customData._environment[i] = json;
             }
         }
+
+
 
         Deno.writeTextFileSync(diffName, JSON.stringify(outputJSON, null, 0));
         console.log(`[ReMapper: ${getSeconds()}s] ${this.fileName} successfully saved!`);
