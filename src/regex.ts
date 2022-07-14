@@ -16,7 +16,7 @@ export class Regex {
     /**
      * Specifies the end of the entire string.
      */
-    end() { this.string += "$"; return this }
+    end() { return this.string + "$" }
 
     /**
      * Adds a string.
@@ -27,7 +27,7 @@ export class Regex {
      * Refers to seperation of gameObjects: ".[x]". E.X. "Thing.[0]Thing".
      * @param index Option to specify index of the seperator.
      */
-    seperate(index?: number) {
+    separate(index?: number) {
         if (index === undefined) this.string += "\\.\\[\\d*\\]";
         else this.string += `\\.\\[${index}\\]`;
         return this;

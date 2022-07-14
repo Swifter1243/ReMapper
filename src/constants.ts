@@ -293,12 +293,12 @@ export enum ANIM {
 export const ENV = {
     BTS: {
         PILLAR: {
-            ID: new Regex().start().add("PillarPair").seperate().add("PillarL").seperate().add("Pillar").end().string,
+            ID: new Regex().start().add("PillarPair").separate().add("PillarL").separate().add("Pillar").end(),
             SCALE: <Vec3>[10, 10 * (1 / 0.032), 10],
             ANCHOR: <Vec3>[0, -0.5, 0]
         },
         SOLID_LASER: {
-            ID: new Regex().add("SmallPillarPair").seperate().add("PillarL").seperate().add("LaserL").end().string,
+            ID: new Regex().add("SmallPillarPair").separate().add("PillarL").separate().add("LaserL").end(),
             SCALE: <Vec3>[1 / 3.5, 7000, 1 / 3.5],
             ANCHOR: <Vec3>[0, 0.5, 0]
         },
@@ -315,7 +315,7 @@ export const ENV = {
             ANCHOR: <Vec3>[0, -0.5, -0.5]
         },
         SECOND_AURORA: {
-            ID: new Regex().add("Aurora").seperate().add("AuroraSecondary").end().string,
+            ID: new Regex().add("Aurora").separate().add("AuroraSecondary").end(),
             SCALE: <Vec3>[900, 200, 1000],
             ANCHOR: <Vec3>[0, -0.25, 0]
         }
