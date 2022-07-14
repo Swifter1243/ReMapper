@@ -134,7 +134,7 @@ export class Difficulty {
 
         for (let i = 0; i < this.notes.length; i++) {
             const note = copy(this.notes[i]);
-            if (settings.forceJumpsForNoodle && note.isModded) {
+            if (settings.forceJumpsForNoodle && note.isGameplayModded) {
                 // deno-lint-ignore no-self-assign
                 note.NJS = note.NJS;
                 // deno-lint-ignore no-self-assign
@@ -145,7 +145,7 @@ export class Difficulty {
         }
         for (let i = 0; i < this.obstacles.length; i++) {
             const wall = copy(this.obstacles[i]);
-            if (settings.forceJumpsForNoodle && wall.isModded) {
+            if (settings.forceJumpsForNoodle && wall.isGameplayModded) {
                 // deno-lint-ignore no-self-assign
                 wall.NJS = wall.NJS;
                 // deno-lint-ignore no-self-assign

@@ -1,7 +1,7 @@
 // deno-lint-ignore-file no-explicit-any adjacent-overload-signatures
 import { activeDiffGet, info } from './beatmap.ts';
 import { Animation, AnimationInternals, Track } from './animation.ts';
-import { isEmptyObject, getJumps, copy, jsonPrune, ColorType } from './general.ts';
+import { isEmptyObject, getJumps, copy, jsonPrune, ColorType, jsonRemove } from './general.ts';
 import { NOTE } from './constants.ts';
 
 export class Note {
@@ -143,6 +143,16 @@ export class Note {
     get isModded() {
         if (this.customData === undefined) return false;
         const customData = copy(this.customData);
+        jsonPrune(customData);
+        return !isEmptyObject(customData);
+    }
+    
+    get isGameplayModded() {
+        if (this.customData === undefined) return false;
+        const customData = copy(this.customData);
+        jsonRemove(customData, "_color");
+        jsonRemove(customData, "_disableSpawnEffect");
+        jsonRemove(customData, "_animation._color");
         jsonPrune(customData);
         return !isEmptyObject(customData);
     }

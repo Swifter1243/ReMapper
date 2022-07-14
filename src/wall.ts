@@ -1,6 +1,6 @@
 // deno-lint-ignore-file adjacent-overload-signatures no-explicit-any
 import { activeDiffGet, info } from './beatmap.ts';
-import { copy, jsonPrune, isEmptyObject, getJumps, ColorType } from './general.ts';
+import { copy, jsonPrune, isEmptyObject, getJumps, ColorType, jsonRemove } from './general.ts';
 import { Animation, AnimationInternals, Track } from './animation.ts';
 import { WALL } from './constants.ts';
 
@@ -121,6 +121,15 @@ export class Wall {
     get isModded() {
         if (this.customData === undefined) return false;
         const customData = copy(this.customData);
+        jsonPrune(customData);
+        return !isEmptyObject(customData);
+    }
+
+    get isGameplayModded() {
+        if (this.customData === undefined) return false;
+        const customData = copy(this.customData);
+        jsonRemove(customData, "_color");
+        jsonRemove(customData, "_animation._color");
         jsonPrune(customData);
         return !isEmptyObject(customData);
     }
