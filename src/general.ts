@@ -269,10 +269,12 @@ export function arrEqual(arr1: number[], arr2: number[], lenience = 0) {
  * Gives a random number in the given range.
  * @param {Number} start
  * @param {Number} end
+ * @param roundResult
  * @returns {Number}
  */
-export function rand(start: number, end: number) {
-    return (Math.random() * (end - start)) + start;
+export function rand(start: number, end: number, roundResult?: number | undefined) {
+    const result = (Math.random() * (end - start)) + start;
+    return roundResult ? round(result, roundResult) : result;
 }
 
 /**
