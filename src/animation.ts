@@ -348,7 +348,7 @@ export class Track {
     }
 
     /**
-     * Safely add a track.
+     * Safely add tracks.
      * @param value
      */
     add(value: TrackValue) {
@@ -357,6 +357,10 @@ export class Track {
         this.value = this.simplifyArray(arrValue);
     }
 
+    /**
+     * Remove tracks.
+     * @param value 
+     */
     remove(value: TrackValue) {
         const removeValues = this.expandArray(value);
         const thisValue = this.expandArray(this.value);
@@ -375,6 +379,27 @@ export class Track {
             return
         }
         this.value = this.simplifyArray(returnArr);
+    }
+
+    /**
+     * Get the track value as an array.
+     */
+    array() {
+        return this.expandArray(this.value);
+    }
+
+    /**
+     * Check each track with a condition.
+     * @param condition Function to run for each track, must return boolean
+     */
+    check(condition: (track: string) => boolean) {
+        let passed = false;
+
+        this.expandArray(this.value).forEach(x => {
+            if (condition(x)) passed = true;
+        })
+
+        return passed;
     }
 }
 
