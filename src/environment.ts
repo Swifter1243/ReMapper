@@ -8,7 +8,7 @@ import { optimizeAnimation, OptimizeSettings } from './anim_optimizer.ts';
 import { cacheModel, getModelCubesFromCollada, ModelCube } from "./model.ts";
 
 let envCount = 0;
-let blenderEnvCount = 0;
+let modelEnvCount = 0;
 
 // const debugData = [
 //     { _definitePosition: [[0, 1, 0, 0]], _localRotation: [[0, 0, 0, 0]], _scale: [[1, 1, 1, 0]] },
@@ -91,8 +91,8 @@ export class Environment {
 
 const blenderShrink = 9 / 10; // For whatever reason.. this needs to be multiplied to all of the scales to make things look proper... who knows man.
 
-export namespace BlenderEnvironmentInternals {
-    export class BaseBlenderEnvironment {
+export namespace ModelEnvironmentInternals {
+    export class BaseModelEnvironment {
         scale: [number, number, number];
         anchor: [number, number, number];
 
@@ -112,12 +112,12 @@ export namespace BlenderEnvironmentInternals {
         }
     }
 
-    export class BlenderAssigned extends BaseBlenderEnvironment {
+    export class ModelAssigned extends BaseModelEnvironment {
         track: string;
         disappearWhenAbsent: boolean;
-        parent: BlenderEnvironment;
+        parent: ModelEnvironment;
 
-        constructor(parent: BlenderEnvironment, scale: Vec3, anchor: Vec3, track: string, disappearWhenAbsent: boolean) {
+        constructor(parent: ModelEnvironment, scale: Vec3, anchor: Vec3, track: string, disappearWhenAbsent: boolean) {
             super(scale, anchor);
             this.parent = parent;
             this.track = track;
@@ -152,11 +152,11 @@ export namespace BlenderEnvironmentInternals {
     }
 }
 
-export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderEnvironment {
+export class ModelEnvironment extends ModelEnvironmentInternals.BaseModelEnvironment {
     id?: string;
     trackID: number;
     lookupMethod?: LOOKUP;
-    assigned: BlenderEnvironmentInternals.BlenderAssigned[] = [];
+    assigned: ModelEnvironmentInternals.ModelAssigned[] = [];
     objectAmounts: number[][] = [];
     maxObjects = 0;
     optimizeSettings: OptimizeSettings = new OptimizeSettings();
@@ -171,8 +171,8 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
         super(scale, anchor)
         this.id = id;
         this.lookupMethod = lookupMethod;
-        this.trackID = blenderEnvCount;
-        blenderEnvCount++;
+        this.trackID = modelEnvCount;
+        modelEnvCount++;
     }
 
     /**
@@ -188,7 +188,7 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
         scale ??= [1, 1, 1];
         anchor ??= [0, 0, 0];
         if (typeof tracks === "string") tracks = [tracks];
-        tracks.forEach(x => { this.assigned.push(new BlenderEnvironmentInternals.BlenderAssigned(this, scale as Vec3, anchor as Vec3, x, disappearWhenAbsent)) })
+        tracks.forEach(x => { this.assigned.push(new ModelEnvironmentInternals.ModelAssigned(this, scale as Vec3, anchor as Vec3, x, disappearWhenAbsent)) })
     }
 
     /**
@@ -319,7 +319,7 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
                 envObject.push();
             }
             else {
-                let assigned: BlenderEnvironmentInternals.BlenderAssigned | undefined = undefined;
+                let assigned: ModelEnvironmentInternals.ModelAssigned | undefined = undefined;
 
                 this.assigned.forEach(y => {
                     if (y.track === x.track) {
@@ -327,7 +327,7 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
                     }
                 })
 
-                if (assigned) (assigned as BlenderEnvironmentInternals.BlenderAssigned).static(transform, forAssigned);
+                if (assigned) (assigned as ModelEnvironmentInternals.ModelAssigned).static(transform, forAssigned);
             }
         })
 
@@ -416,12 +416,12 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
      * @returns {Number}
      */
     getPieceTrack(index: number) {
-        return `blenderEnv${this.trackID}_${index}`;
+        return `modelEnv${this.trackID}_${index}`;
     }
 }
 
 /**
- * Used by BlenderEnvironment to transform cube data to represent an environment object.
+ * Used by ModelEnvironment to transform cube data to represent an environment object.
  * @param objPos 
  * @param objRot 
  * @param objScale 

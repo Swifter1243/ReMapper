@@ -150,7 +150,7 @@ animateEnvTrack("pillar", 3, animation.length, animation);
 The expected animation as a result of this would be: `[[0, 10, 0, 0], [0, 0, 0, 1, "easeInOutExpo"]]`
 
 You can also assign a `group`, and call `animateEnvGroup()` to do this for every object in a given group.
-# Blender Environment
+# Model Environment
 This is an improvement of my previous [BlenderToEnvironment](https://github.com/Swifter1243/BlenderToEnvironment) repo. 
 
 Just like before, you'll need a setup with ScuffedWalls in order to get this to work. The statements for these are available in [constants.ts](https://github.com/Swifter1243/ReMapper/blob/master/src/constants.ts) that you can copy and paste into your ScuffedWalls script to both get the script running from it and get the model exported. But I'm nice so I'll put them here since you're reading this:
@@ -175,7 +175,7 @@ You absolutely need ScuffedWalls to be running from your map directory, or else 
 
 This time the environments are in the form of a class, which stores the transformation data for the environment piece to get it fitting to the model, and also the data for creation of the environment pieces if you plan to use it to place them.
 ```js
-let blenderEnv = new BlenderEnvironment(ENV.BTS.PILLAR.SCALE, ENV.BTS.PILLAR.ANCHOR, ENV.BTS.PILLAR.ID, LOOKUP.REGEX);
+let modelEnv = new ModelEnvironment(ENV.BTS.PILLAR.SCALE, ENV.BTS.PILLAR.ANCHOR, ENV.BTS.PILLAR.ID, LOOKUP.REGEX);
 ```
 The point of the scale and anchor is to transform the given piece to fit to a cube, so you can represent it in blender. The transformations for a couple of pieces are available in `ENV`, but you are not limited to these, you can use ANY piece as long as you find the correct transformations.
 
@@ -185,13 +185,13 @@ Anchor is used to offset the position of an object relative to it's rotation so 
 
 When it comes to actually spawning in the objects, you have 2 options. The first is to use the `static()` method, which uses no animations and is intended to stay the same way the entire map.
 ```js
-blenderEnv.static("model"); // Needs to be the same track as the model!
+modelEnv.static("model"); // Needs to be the same track as the model!
 ```
 Tip: If you don't define a track for the model, a debug model will be spawned in with noodle unit sized walls to help you find the anchor and scale to fit your piece to a cube.
 
 The other option is to use the `animate()` method, which allows you to switch between models during the map, and supports animations. Environment pieces are recycled, so you aren't adding the count of each model's pieces to the map every time you switch. All animations will also be automatically optimized to cut down on points, since blender animation exports are notorious for keyframe spam.
 ```js
-blenderEnv.animate([
+modelEnv.animate([
     ["", 0], // Blank model, at time 0.
     ["model", 10, 20] // Model with an animation duration of 20, at time 10.
 ])
@@ -201,7 +201,7 @@ Alternatively, you can simply use `processData()` to get the raw math output fro
 You can also assign other tracks to be animated with this environment. For example if you assign a track called "cloud", if you were to then use a model with the track "model", you would represent the position of "cloud" in the model as an object with the track "model_cloud". You can add tracks to objects by renaming the second material on the object in blender. This object can also be animated.
 ```js
 // Reminder that you can still use your own anchor and scale if you wish!
-blenderEnv.assignObjects("cloud", ENV.BTS.LOW_CLOUDS.SCALE, ENV.BTS.LOW_CLOUDS.ANCHOR);
+modelEnv.assignObjects("cloud", ENV.BTS.LOW_CLOUDS.SCALE, ENV.BTS.LOW_CLOUDS.ANCHOR);
 ```
 This will also work with the static method, but it will use an animation event to reposition the object.
 # Color

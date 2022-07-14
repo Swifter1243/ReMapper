@@ -11,7 +11,7 @@ export interface ModelCube {
     track?: string;
 }
 
-//! Reminder that BlenderEnvironment will need to bake keyframes if it wasn't imported from blender
+//! Reminder that ModelEnvironment will need to bake keyframes if it wasn't imported from blender
 
 export class Model {
     cubes: ModelCube[] = [];
