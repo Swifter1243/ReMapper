@@ -1,7 +1,7 @@
 // deno-lint-ignore-file no-explicit-any
-import { ColorType, eulerFromQuaternion, getSeconds, RMJson, toDegrees, Vec3 } from "./general.ts";
+import { ColorType, eulerFromQuaternion, getSeconds, RMJson } from "./general.ts";
 import { RawKeyframesVec3 } from "./animation.ts";
-import { path, fs, blender, three } from "./deps.ts";
+import { path, fs, blender } from "./deps.ts";
 
 export interface ModelCube {
     pos: RawKeyframesVec3;

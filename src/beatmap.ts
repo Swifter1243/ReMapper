@@ -5,7 +5,7 @@ import { Wall } from './wall.ts';
 import { Event, EventInternals } from './event.ts';
 import { CustomEvent, CustomEventInternals } from './custom_event.ts';
 import { Environment } from './environment.ts';
-import { copy, isEmptyObject, jsonGet, jsonPrune, jsonRemove, jsonSet, sortObjects, Vec3, getSeconds } from './general.ts';
+import { copy, isEmptyObject, jsonGet, jsonPrune, jsonRemove, jsonSet, sortObjects, Vec3, getSeconds, setDecimals } from './general.ts';
 import { AnimationInternals } from './animation.ts';
 import { OptimizeSettings } from './anim_optimizer.ts';
 
@@ -18,6 +18,9 @@ export class Difficulty {
     mapFile: string;
     relativeMapFile: string;
     private postProcesses = new Map<unknown[] | undefined, PostProcessFn<unknown>[]>();
+    private registerProcessors() {
+        this.addPostProcess(undefined, reduceDecimalsPostProcess);
+    }
 
     /**
      * Creates a difficulty. Can be used to access various information and the map data.
@@ -63,6 +66,8 @@ export class Difficulty {
         if (this.version === undefined) this.version = "2.2.0";
 
         activeDiff = this;
+
+        this.registerProcessors();
     }
 
     optimize(optimize: OptimizeSettings = new OptimizeSettings()) {
@@ -129,7 +134,7 @@ export class Difficulty {
 
         for (let i = 0; i < this.notes.length; i++) {
             const note = copy(this.notes[i]);
-            if (forceJumpsForNoodle && note.isModded) {
+            if (settings.forceJumpsForNoodle && note.isModded) {
                 // deno-lint-ignore no-self-assign
                 note.NJS = note.NJS;
                 // deno-lint-ignore no-self-assign
@@ -140,7 +145,7 @@ export class Difficulty {
         }
         for (let i = 0; i < this.obstacles.length; i++) {
             const wall = copy(this.obstacles[i]);
-            if (forceJumpsForNoodle && wall.isModded) {
+            if (settings.forceJumpsForNoodle && wall.isModded) {
                 // deno-lint-ignore no-self-assign
                 wall.NJS = wall.NJS;
                 // deno-lint-ignore no-self-assign
@@ -152,7 +157,7 @@ export class Difficulty {
         for (let i = 0; i < this.events.length; i++) outputJSON._events[i] = copy(this.events[i].json);
 
         // Finish up
-        this.doPostProcess(undefined)
+        this.doPostProcess()
 
         sortObjects(outputJSON._events, "_time");
         sortObjects(outputJSON._notes, "_time");
@@ -380,7 +385,10 @@ export class Info {
 
 export const info = new Info();
 export let activeDiff: Difficulty;
-export let forceJumpsForNoodle = true;
+export const settings = {
+    forceJumpsForNoodle: true,
+    decimals: 7 as number | undefined
+}
 
 /**
  * Set the difficulty that objects are being created for.
@@ -397,12 +405,23 @@ export function activeDiffGet() {
     else throw new Error("There is currently no loaded difficulty.");
 }
 
-/**
- * Set whether exported walls and notes with custom data will have their NJS / Offset forced.
- * This helps avoid things like JDFixer breaking things. Should be set before your scripting.
- * @param {Boolean} value
- */
-export function forceJumpsForNoodleSet(value: boolean) { forceJumpsForNoodle = value; }
+function reduceDecimalsPostProcess(_: never, diff: Difficulty) {
+    if (!settings.decimals) return;
+    const mapJson = diff.json;
+    reduceDecimalsInObject(mapJson);
+
+    function reduceDecimalsInObject(json: Record<string, any>) {
+        for (const key in json) {
+            const element = json[key];
+    
+            if (typeof element === "number") {
+                json[key] = setDecimals(element, settings.decimals as number);
+            } else if (element instanceof Object) {
+                reduceDecimalsInObject(element)
+            }
+        }
+    }
+}
 
 /**
  * Automatically zip the map, including only necessary files.
