@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-explicit-any adjacent-overload-signatures
 import { activeDiffGet, info } from './beatmap.ts';
-import { Animation, AnimationInternals, Track, TrackValue } from './animation.ts';
+import { Animation, AnimationInternals, Track } from './animation.ts';
 import { isEmptyObject, getJumps, copy, jsonPrune, ColorType } from './general.ts';
 import { NOTE } from './constants.ts';
 
@@ -95,7 +95,7 @@ export class Note {
     get lifeStart() { return this.time - this.life / 2 }
     get fake() { return this.json._customData._fake }
     get interactable() { return this.json._customData._interactable }
-    get track() { return new Track(this.json._customData._track) }
+    get track() { return new Track(this.json._customData) }
     get color() { return this.json._customData._color }
     get animation() { return this.json._customData._animation }
 
@@ -137,7 +137,6 @@ export class Note {
     set lifeStart(value: number) { this.time = value + this.life / 2 }
     set fake(value: boolean) { this.json._customData._fake = value }
     set interactable(value: boolean) { this.json._customData._interactable = value }
-    set trackSet(value: TrackValue) { this.json._customData._track = value }
     set color(value: ColorType) { this.json._customData._color = value }
     set animation(value) { this.json._customData._animation = value }
 

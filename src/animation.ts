@@ -310,24 +310,71 @@ export class Keyframe {
     }
 }
 
+type TrackReference = {
+    _track: any;
+}
+
 export class Track {
-    value: TrackValue;
+    private reference: TrackReference;
 
     /**
      * Handler for the track property.
      * @param {TrackValue} value 
      */
-    constructor(value: TrackValue) { this.value = value }
+    constructor(reference: TrackReference) { 
+        this.reference = reference;
+    }
+
+    private expandArray(array: TrackValue) {
+        return typeof array === "string" ? [array] : array;
+    }
+
+    private simplifyArray(array: string[]) {
+        return array.length === 1 ? array[0] : array;
+    }
+
+    set value(value: TrackValue) { this.reference._track = value }
+    get value() { return this.reference._track }
 
     /**
-     * Safely check if either the array contains this value or the track is equal to this value.
+     * Safely check if the track contains this value.
      * @param {String} value 
      * @returns 
      */
     has(value: string) {
-        if (this.value === undefined) return false;
+        if (!this.value) return false;
         if (typeof this.value === "string") return this.value === value;
         else return this.value.some(x => x === value);
+    }
+
+    /**
+     * Safely add a track.
+     * @param value
+     */
+    add(value: TrackValue) {
+        if (!this.value) this.value = [];
+        const arrValue = this.expandArray(this.value).concat(this.expandArray(value));
+        this.value = this.simplifyArray(arrValue);
+    }
+
+    remove(value: TrackValue) {
+        const removeValues = this.expandArray(value);
+        const thisValue = this.expandArray(this.value);
+        const removed: Record<number, boolean> = {};
+
+        removeValues.forEach(x => {
+            thisValue.forEach((y, i) => {
+                if (y === x) removed[i] = true;
+            })
+        })
+
+        const returnArr = thisValue.filter((_x, i) => !removed[i]);
+
+        if (returnArr.length === 0) {
+            delete this.reference._track;
+            return
+        }
+        this.value = this.simplifyArray(returnArr);
     }
 }
 

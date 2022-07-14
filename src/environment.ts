@@ -1,5 +1,5 @@
 // deno-lint-ignore-file no-explicit-any adjacent-overload-signatures no-namespace
-import { combineAnimations, AnimationInternals, TrackValue, Track, toPointDef, complexifyArray, RawKeyframesVec3, KeyframesAny, KeyframeValues, KeyframeArray, bakeAnimation } from './animation.ts';
+import { combineAnimations, AnimationInternals, toPointDef, complexifyArray, RawKeyframesVec3, KeyframesAny, KeyframeValues, KeyframeArray, bakeAnimation } from './animation.ts';
 import { activeDiffGet } from './beatmap.ts';
 import { Vec3, copy, rotatePoint } from './general.ts';
 import { CustomEvent, CustomEventInternals } from './custom_event.ts';
@@ -46,7 +46,7 @@ export class Environment {
      * Push this environment object to the difficulty
      */
     push() {
-        if (this.track.value === undefined) this.trackSet = `environment${envCount}`;
+        if (this.track === undefined) this.track = `environment${envCount}`;
         envCount++;
         if (activeDiffGet().environment === undefined) activeDiffGet().environment = [];
         activeDiffGet().environment.push(copy(this));
@@ -63,7 +63,7 @@ export class Environment {
     get rotation() { return this.json._rotation }
     get localRotation() { return this.json._localRotation }
     get lightID() { return this.json._lightID }
-    get track() { return new Track(this.json._track) }
+    get track() { return this.json._track }
     get group() { return this.json._group }
     get animationProperties() {
         const returnObj: any = {};
@@ -85,7 +85,7 @@ export class Environment {
     set rotation(value: number[]) { this.json._rotation = value }
     set localRotation(value: number[]) { this.json._localRotation = value }
     set lightID(value: number) { this.json._lightID = value }
-    set trackSet(value: TrackValue) { this.json._track = value }
+    set track(value: string) { this.json._track = value }
     set group(value: string) { this.json._group = value }
 }
 
@@ -404,7 +404,7 @@ export class BlenderEnvironment extends BlenderEnvironmentInternals.BaseBlenderE
             const envObject = new Environment(this.id, this.lookupMethod);
             envObject.position = [0, -69420, 0];
             envObject.duplicate = 1;
-            envObject.trackSet = this.getPieceTrack(i);
+            envObject.track = this.getPieceTrack(i);
             if (forEnvSpawn !== undefined) forEnvSpawn(envObject);
             envObject.push();
         }
@@ -453,7 +453,7 @@ export function animateEnvGroup(group: string, time: number, duration: number, a
                 if (x.json[key]) newAnimation[key] = combineAnimations(newAnimation[key], x.json[key], key);
             })
 
-            new CustomEvent(time).animateTrack(x.track.value as string, duration, newAnimation, easing).push();
+            new CustomEvent(time).animateTrack(x.track, duration, newAnimation, easing).push();
         }
     })
 }
@@ -468,7 +468,7 @@ export function animateEnvGroup(group: string, time: number, duration: number, a
  */
 export function animateEnvTrack(track: string, time: number, duration: number, animation: AnimationInternals.BaseAnimation, easing?: string) {
     if (activeDiffGet().environment !== undefined) activeDiffGet().environment.forEach(x => {
-        if (x.track.has(track)) {
+        if (x.track === track) {
             const newAnimation = copy(animation.json);
 
             Object.keys(newAnimation).forEach(key => {
