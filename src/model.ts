@@ -153,10 +153,10 @@ export class ModelScene {
     }
 }
 
-const modelScene = new ModelScene(new EnvironmentGroup({
-    anchor: [0, 0, 0]
-}))
-console.log(modelScene.groups);
+// const modelScene = new ModelScene(new EnvironmentGroup({
+//     anchor: [0, 0, 0]
+// }))
+// console.log(modelScene.groups);
 
 /**
  * Used by ModelEnvironment to transform cube data to represent an environment object.

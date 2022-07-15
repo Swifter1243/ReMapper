@@ -333,6 +333,20 @@ export enum LOOKUP {
     EXACT = "Exact"
 }
 
+export enum GEO_TYPE {
+    SPHERE = "Sphere",
+    CAPSULE = "Capsule",
+    CYLINDER = "Cylinder",
+    CUBE = "Cube",
+    PLANE = "Plane",
+    QUAD = "Quad",
+    TRIANGLE = "Triangle"
+}
+
+export enum GEO_SHADER {
+    STANDARD = "Standard"
+}
+
 /*
 ScuffedWalls Script:
 0:Run

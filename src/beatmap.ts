@@ -4,7 +4,7 @@ import { Note } from './note.ts';
 import { Wall } from './wall.ts';
 import { Event, EventInternals } from './event.ts';
 import { CustomEvent, CustomEventInternals } from './custom_event.ts';
-import { Environment } from './environment.ts';
+import { EnvironmentInternals } from './environment.ts';
 import { copy, isEmptyObject, jsonGet, jsonPrune, jsonRemove, jsonSet, sortObjects, Vec3, getSeconds, setDecimals } from './general.ts';
 import { AnimationInternals } from './animation.ts';
 import { OptimizeSettings } from './anim_optimizer.ts';
@@ -61,7 +61,7 @@ export class Difficulty {
         if (this.customEvents !== undefined)
             for (let i = 0; i < this.customEvents.length; i++) this.customEvents[i] = new CustomEvent().import(this.customEvents[i] as Record<string, any>);
         if (this.environment !== undefined)
-            for (let i = 0; i < this.environment.length; i++) this.environment[i] = new Environment().import(this.environment[i] as Record<string, any>);
+            for (let i = 0; i < this.environment.length; i++) this.environment[i] = new EnvironmentInternals.BaseEnvironment().import(this.environment[i] as Record<string, any>);
 
         if (this.version === undefined) this.version = "2.2.0";
 
@@ -299,7 +299,7 @@ export class Difficulty {
     get customData() { return jsonGet(this.json, "_customData", {}) }
     get customEvents(): CustomEventInternals.BaseEvent[] { return jsonGet(this.json, "_customData._customEvents", []) }
     get pointDefinitions(): any[] { return jsonGet(this.json, "_customData._pointDefinitions", []) }
-    get environment(): Environment[] { return jsonGet(this.json, "_customData._environment", []) }
+    get environment(): EnvironmentInternals.BaseEnvironment[] { return jsonGet(this.json, "_customData._environment", []) }
 
     set version(value: string) { jsonSet(this.json, "_version", value) }
     set notes(value: Note[]) { jsonSet(this.json, "_notes", value) }
@@ -309,7 +309,7 @@ export class Difficulty {
     set customData(value) { jsonSet(this.json, "_customData", value) }
     set customEvents(value: CustomEventInternals.BaseEvent[]) { jsonSet(this.json, "_customData._customEvents", value) }
     set pointDefinitions(value: any[]) { jsonSet(this.json, "_customData._pointDefinitions", value) }
-    set environment(value: Environment[]) { jsonSet(this.json, "_customData._environment", value) }
+    set environment(value: EnvironmentInternals.BaseEnvironment[]) { jsonSet(this.json, "_customData._environment", value) }
 }
 
 export class Info {
