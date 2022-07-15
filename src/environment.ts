@@ -27,8 +27,7 @@ export namespace EnvironmentInternals {
         push() {
             if (this.track === undefined) this.track = `environment${envCount}`;
             envCount++;
-            if (activeDiffGet().environment === undefined) activeDiffGet().environment = [];
-            activeDiffGet().environment.push(copy(this));
+            activeDiffGet().rawEnvironment.push(copy(this));
             return this;
         }
 
@@ -126,7 +125,7 @@ export type GeometryMaterial = {
  * @param {String} easing 
  */
 export function animateEnvGroup(group: string, time: number, duration: number, animation: AnimationInternals.BaseAnimation, easing?: string) {
-    if (activeDiffGet().environment !== undefined) activeDiffGet().environment.forEach(x => {
+    if (activeDiffGet().rawEnvironment !== undefined) activeDiffGet().rawEnvironment.forEach(x => {
         if (x.group === group) {
             const newAnimation = copy(animation.json);
 
@@ -148,7 +147,7 @@ export function animateEnvGroup(group: string, time: number, duration: number, a
  * @param {String} easing 
  */
 export function animateEnvTrack(track: string, time: number, duration: number, animation: AnimationInternals.BaseAnimation, easing?: string) {
-    if (activeDiffGet().environment !== undefined) activeDiffGet().environment.forEach(x => {
+    if (activeDiffGet().rawEnvironment !== undefined) activeDiffGet().rawEnvironment.forEach(x => {
         if (x.track === track) {
             const newAnimation = copy(animation.json);
 

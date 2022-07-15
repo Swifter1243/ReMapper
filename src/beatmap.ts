@@ -4,7 +4,7 @@ import { Note } from './note.ts';
 import { Wall } from './wall.ts';
 import { Event, EventInternals } from './event.ts';
 import { CustomEvent, CustomEventInternals } from './custom_event.ts';
-import { EnvironmentInternals, GeometryMaterial } from './environment.ts';
+import { Environment, EnvironmentInternals, Geometry, GeometryMaterial } from './environment.ts';
 import { copy, isEmptyObject, jsonGet, jsonPrune, jsonRemove, jsonSet, sortObjects, Vec3, getSeconds, setDecimals } from './general.ts';
 import { AnimationInternals } from './animation.ts';
 import { OptimizeSettings } from './anim_optimizer.ts';
@@ -60,8 +60,8 @@ export class Difficulty {
         for (let i = 0; i < this.events.length; i++) this.events[i] = new Event().import(this.events[i] as Record<string, any>);
         if (this.customEvents !== undefined)
             for (let i = 0; i < this.customEvents.length; i++) this.customEvents[i] = new CustomEvent().import(this.customEvents[i] as Record<string, any>);
-        if (this.environment !== undefined)
-            for (let i = 0; i < this.environment.length; i++) this.environment[i] = new EnvironmentInternals.BaseEnvironment().import(this.environment[i] as Record<string, any>);
+        if (this.rawEnvironment !== undefined)
+            for (let i = 0; i < this.rawEnvironment.length; i++) this.rawEnvironment[i] = new EnvironmentInternals.BaseEnvironment().import(this.rawEnvironment[i] as Record<string, any>);
 
         if (this.version === undefined) this.version = "2.2.0";
 
@@ -168,9 +168,9 @@ export class Difficulty {
             sortObjects(outputJSON._customData._customEvents, "_time");
         }
 
-        if (this.environment !== undefined) {
-            for (let i = 0; i < this.environment.length; i++) {
-                const json = copy(this.environment[i].json);
+        if (this.rawEnvironment !== undefined) {
+            for (let i = 0; i < this.rawEnvironment.length; i++) {
+                const json = copy(this.rawEnvironment[i].json);
                 jsonRemove(json, "_group");
                 outputJSON._customData._environment[i] = json;
             }
@@ -300,7 +300,15 @@ export class Difficulty {
     get customEvents(): CustomEventInternals.BaseEvent[] { return jsonGet(this.json, "_customData._customEvents", []) }
     get pointDefinitions(): any[] { return jsonGet(this.json, "_customData._pointDefinitions", []) }
     get geoMaterials(): Record<string, GeometryMaterial>{ return jsonGet(this.json, "_customData._materials", {}) }
-    get environment(): EnvironmentInternals.BaseEnvironment[] { return jsonGet(this.json, "_customData._environment", []) }
+    get rawEnvironment(): EnvironmentInternals.BaseEnvironment[] { return jsonGet(this.json, "_customData._environment", []) }
+    get environment() { 
+        return (jsonGet(this.json, "_customData._environment", []) as EnvironmentInternals.BaseEnvironment[])
+        .filter(x => x instanceof Environment) as Environment[]
+    }
+    get geometry() { 
+        return (jsonGet(this.json, "_customData._environment", []) as EnvironmentInternals.BaseEnvironment[])
+        .filter(x => x instanceof Geometry) as Geometry[]
+    }
 
     set version(value: string) { jsonSet(this.json, "_version", value) }
     set notes(value: Note[]) { jsonSet(this.json, "_notes", value) }
@@ -311,7 +319,13 @@ export class Difficulty {
     set customEvents(value: CustomEventInternals.BaseEvent[]) { jsonSet(this.json, "_customData._customEvents", value) }
     set pointDefinitions(value: any[]) { jsonSet(this.json, "_customData._pointDefinitions", value) }
     set geoMaterials(value: Record<string, GeometryMaterial>) { jsonSet(this.json, "_customData._materials", value) }
-    set environment(value: EnvironmentInternals.BaseEnvironment[]) { jsonSet(this.json, "_customData._environment", value) }
+    set rawEnvironment(value: EnvironmentInternals.BaseEnvironment[]) { jsonSet(this.json, "_customData._environment", value) }
+    set environment(value: Environment[]) {
+        this.rawEnvironment = this.rawEnvironment.filter(x => !(x instanceof Environment)).concat(value);
+    }
+    set geometry(value: Geometry[]) {
+        this.rawEnvironment = this.rawEnvironment.filter(x => !(x instanceof Geometry)).concat(value);
+    }
 }
 
 export class Info {
@@ -498,7 +512,7 @@ export function transferVisuals(diffs: string[], forDiff?: (diff: Difficulty) =>
     diffs.forEach(x => {
         const workingDiff = new Difficulty(x);
 
-        workingDiff.environment = startActive.environment;
+        workingDiff.rawEnvironment = startActive.rawEnvironment;
         workingDiff.pointDefinitions = startActive.pointDefinitions;
         workingDiff.customEvents = startActive.customEvents;
         workingDiff.events = startActive.events;
