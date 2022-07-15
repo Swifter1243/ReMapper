@@ -96,7 +96,7 @@ export class Geometry extends EnvironmentInternals.BaseEnvironment {
         type ??= GEO_TYPE.CUBE;
         material ??= {
             color: [0, 0, 0, 0],
-            shader: GEO_SHADER.STANDARD
+            _shader: GEO_SHADER.STANDARD
         }
         this.type = type;
         this.material = material;
@@ -113,9 +113,9 @@ export class Geometry extends EnvironmentInternals.BaseEnvironment {
 
 export type GeometryMaterial = {
     color: ColorType,
-    shader: GEO_SHADER,
-    track?: string,
-    shaderKeywords?: string[]
+    _shader: GEO_SHADER,
+    _track?: string,
+    _shaderKeywords?: string[]
 } | string
 
 /**
