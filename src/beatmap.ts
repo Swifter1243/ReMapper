@@ -298,16 +298,48 @@ export class Difficulty {
     get waypoints(): any[] { return jsonGet(this.json, "_waypoints") }
     get customData() { return jsonGet(this.json, "_customData", {}) }
     get customEvents(): CustomEventInternals.BaseEvent[] { return jsonGet(this.json, "_customData._customEvents", []) }
+    animateTracks(fn: (arr: CustomEventInternals.AnimateTrack[]) => void) { 
+        const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.AnimateTrack) as CustomEventInternals.AnimateTrack[]
+        fn(arr);
+        this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.AnimateTrack)).concat(arr);
+    }
+    assignPathAnimations(fn: (arr: CustomEventInternals.AssignPathAnimation[]) => void) { 
+        const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.AssignPathAnimation) as CustomEventInternals.AssignPathAnimation[]
+        fn(arr);
+        this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.AssignPathAnimation)).concat(arr);
+    }
+    assignTrackParents(fn: (arr: CustomEventInternals.AssignTrackParent[]) => void) { 
+        const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.AssignTrackParent) as CustomEventInternals.AssignTrackParent[]
+        fn(arr);
+        this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.AssignTrackParent)).concat(arr);
+    }
+    assignPlayerToTracks(fn: (arr: CustomEventInternals.AssignPlayerToTrack[]) => void) { 
+        const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.AssignPlayerToTrack) as CustomEventInternals.AssignPlayerToTrack[]
+        fn(arr);
+        this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.AssignPlayerToTrack)).concat(arr);
+    }
+    assignFogTracks(fn: (arr: CustomEventInternals.AssignFogTrack[]) => void) { 
+        const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.AssignFogTrack) as CustomEventInternals.AssignFogTrack[]
+        fn(arr);
+        this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.AnimateTrack)).concat(arr);
+    }
+    abstractEvents(fn: (arr: CustomEventInternals.AbstractEvent[]) => void) { 
+        const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.AbstractEvent) as CustomEventInternals.AbstractEvent[]
+        fn(arr);
+        this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.AbstractEvent)).concat(arr);
+    }
     get pointDefinitions(): any[] { return jsonGet(this.json, "_customData._pointDefinitions", []) }
     get geoMaterials(): Record<string, GeometryMaterial>{ return jsonGet(this.json, "_customData._materials", {}) }
     get rawEnvironment(): EnvironmentInternals.BaseEnvironment[] { return jsonGet(this.json, "_customData._environment", []) }
-    get environment() { 
-        return (jsonGet(this.json, "_customData._environment", []) as EnvironmentInternals.BaseEnvironment[])
-        .filter(x => x instanceof Environment) as Environment[]
+    environment(fn: (arr: Environment[]) => void) { 
+        const arr = this.rawEnvironment.filter(x => x instanceof Environment) as Environment[]
+        fn(arr);
+        this.rawEnvironment = this.rawEnvironment.filter(x => !(x instanceof Environment)).concat(arr);
     }
-    get geometry() { 
-        return (jsonGet(this.json, "_customData._environment", []) as EnvironmentInternals.BaseEnvironment[])
-        .filter(x => x instanceof Geometry) as Geometry[]
+    geometry(fn: (arr: Geometry[]) => void) { 
+        const arr = this.rawEnvironment.filter(x => x instanceof Geometry) as Geometry[]
+        fn(arr);
+        this.rawEnvironment = this.rawEnvironment.filter(x => !(x instanceof Geometry)).concat(arr);
     }
 
     set version(value: string) { jsonSet(this.json, "_version", value) }
@@ -320,12 +352,6 @@ export class Difficulty {
     set pointDefinitions(value: any[]) { jsonSet(this.json, "_customData._pointDefinitions", value) }
     set geoMaterials(value: Record<string, GeometryMaterial>) { jsonSet(this.json, "_customData._materials", value) }
     set rawEnvironment(value: EnvironmentInternals.BaseEnvironment[]) { jsonSet(this.json, "_customData._environment", value) }
-    set environment(value: Environment[]) {
-        this.rawEnvironment = this.rawEnvironment.filter(x => !(x instanceof Environment)).concat(value);
-    }
-    set geometry(value: Geometry[]) {
-        this.rawEnvironment = this.rawEnvironment.filter(x => !(x instanceof Geometry)).concat(value);
-    }
 }
 
 export class Info {
