@@ -1,9 +1,9 @@
 // deno-lint-ignore-file no-explicit-any adjacent-overload-signatures no-namespace
 import { combineAnimations, AnimationInternals } from './animation.ts';
 import { activeDiffGet } from './beatmap.ts';
-import { copy, Vec3 } from './general.ts';
+import { copy, Vec3, ColorType } from './general.ts';
 import { CustomEvent } from './custom_event.ts';
-import { GEO_TYPE, LOOKUP } from './constants.ts';
+import { GEO_TYPE, LOOKUP, GEO_SHADER } from './constants.ts';
 
 let envCount = 0;
 
@@ -88,19 +88,18 @@ export class Environment extends EnvironmentInternals.BaseEnvironment {
 
 export class Geometry extends EnvironmentInternals.BaseEnvironment {
     json: Record<string, any> = {
-        _geometry: {
-            _type: GEO_TYPE,
-            _material: {
-                color: [1, 1, 1, 1],
-                _shader: "Standard"
-            }
-        }
+        _geometry: {}
     };
 
-    constructor(type?: GEO_TYPE) {
+    constructor(type?: GEO_TYPE, material?: GeometryMaterial) {
         super();
         type ??= GEO_TYPE.CUBE;
+        material ??= {
+            color: [0, 0, 0, 0],
+            shader: GEO_SHADER.STANDARD
+        }
         this.type = type;
+        this.material = material;
     }
 
     get type() { return this.json._geometry._type }
@@ -108,9 +107,16 @@ export class Geometry extends EnvironmentInternals.BaseEnvironment {
     get collision() { return this.json._geometry._collision }
 
     set type(value: GEO_TYPE) { this.json._geometry._type = value }
-    set material(value: any) { this.json._geometry._material = value }
-    set collision(value: any) { this.json._geometry._collision = value }
+    set material(value: GeometryMaterial) { this.json._geometry._material = value }
+    set collision(value: boolean) { this.json._geometry._collision = value }
 }
+
+export type GeometryMaterial = {
+    color: ColorType,
+    shader: GEO_SHADER,
+    track?: string,
+    shaderKeywords?: string[]
+} | string
 
 /**
  * Animate each environment piece in a given assigned group, with all of their individual transforms combined.
