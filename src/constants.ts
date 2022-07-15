@@ -344,7 +344,9 @@ export enum GEO_TYPE {
 }
 
 export enum GEO_SHADER {
-    STANDARD = "Standard"
+    STANDARD = "Standard",
+    OPAQUE_LIGHT = "OpaqueLight",
+    TRANSPARENT_LIGHT = "TransparentLight"
 }
 
 /*
