@@ -65,7 +65,9 @@ export class ModelScene {
 
     private getObjects(input: string | ModelObject[]) {
         if (typeof input === "string") {
-            const processing: any[] = [this.groups, this.optimizer];
+            if (!fs.existsSync(input)) throw new Error(`The file ${input} does not exist!`)
+            const mTime = Deno.statSync(input).mtime?.toString();
+            const processing: any[] = [this.groups, this.optimizer, mTime];
 
             return cacheData(input, () => {
                 const fileObjects = getObjectsFromCollada(input);
