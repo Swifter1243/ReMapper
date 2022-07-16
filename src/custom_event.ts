@@ -96,7 +96,7 @@ export namespace CustomEventInternals {
     export class AssignPathAnimation extends BaseEvent {
         animate: AnimationInternals.AbstractAnimation;
 
-        constructor(json: Record<string, any>, track: string, duration: number, animation: Record<string, any>, easing?: string) {
+        constructor(json: Record<string, any>, track: TrackValue, duration: number, animation: Record<string, any>, easing?: string) {
             super(json);
             this.type = "AssignPathAnimation";
             this.track.value = track;
@@ -278,7 +278,7 @@ export class CustomEvent extends CustomEventInternals.BaseEvent {
      * @param {String} easing 
      * @returns 
      */
-    animateTrack(track: string, duration?: number, animation: Record<string, any> = {}, easing?: string) {
+    animateTrack(track: TrackValue, duration?: number, animation: Record<string, any> = {}, easing?: string) {
         duration ??= 0;
         animation ??= {};
         return new CustomEventInternals.AnimateTrack(this.json, track, duration, animation, easing);
@@ -292,7 +292,7 @@ export class CustomEvent extends CustomEventInternals.BaseEvent {
      * @param {String} easing 
      * @returns 
      */
-    assignPathAnimation(track: string, duration?: number, animation: Record<string, any> = {}, easing?: string) {
+    assignPathAnimation(track: TrackValue, duration?: number, animation: Record<string, any> = {}, easing?: string) {
         duration ??= 0;
         animation ??= {};
         return new CustomEventInternals.AssignPathAnimation(this.json, track, duration, animation, easing);
