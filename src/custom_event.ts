@@ -40,15 +40,14 @@ export namespace CustomEventInternals {
     export class AnimateTrack extends BaseEvent {
         animate: AnimationInternals.AbstractAnimation;
 
-        constructor(json: Record<string, any>, track: TrackValue, duration: number, animation: Record<string, any>, easing?: string) {
+        constructor(json: Record<string, any>, track?: TrackValue, duration?: number, animation?: Record<string, any>, easing?: string) {
             super(json);
-            this.track.value = track;
-            this.duration = duration;
             this.type = "AnimateTrack";
-            this.setProperties(animation);
+            if (track) this.track.value = track;
+            if (duration) this.duration = duration;
+            if (animation) this.setProperties(animation);
+            if (easing) this.easing = easing;
             this.animate = new Animation().abstract(this.data);
-
-            if (easing !== undefined) this.easing = easing;
         }
 
         /**
@@ -96,15 +95,14 @@ export namespace CustomEventInternals {
     export class AssignPathAnimation extends BaseEvent {
         animate: AnimationInternals.AbstractAnimation;
 
-        constructor(json: Record<string, any>, track: TrackValue, duration: number, animation: Record<string, any>, easing?: string) {
+        constructor(json: Record<string, any>, track?: TrackValue, duration?: number, animation?: Record<string, any>, easing?: string) {
             super(json);
             this.type = "AssignPathAnimation";
-            this.track.value = track;
-            this.duration = duration;
-            this.setProperties(animation);
+            if (track) this.track.value = track;
+            if (duration) this.duration = duration;
+            if (animation) this.setProperties(animation);
+            if (easing) this.easing = easing;
             this.animate = new Animation().abstract(this.data);
-
-            if (easing !== undefined) this.easing = easing;
         }
 
         /**
@@ -175,10 +173,10 @@ export namespace CustomEventInternals {
     }
 
     export class AssignPlayerToTrack extends BaseEvent {
-        constructor(json: Record<string, any>, track: string) {
+        constructor(json: Record<string, any>, track?: string) {
             super(json);
             this.type = "AssignPlayerToTrack";
-            this.track.value = track;
+            if (track) this.track.value = track;
         }
 
         /**
@@ -191,10 +189,10 @@ export namespace CustomEventInternals {
     }
 
     export class AssignFogTrack extends BaseEvent {
-        constructor(json: Record<string, any>, track: string) {
+        constructor(json: Record<string, any>, track?: string) {
             super(json);
             this.type = "AssignFogTrack";
-            this.track.value = track;
+            if (track) this.track.value = track;
         }
 
         /**
@@ -278,11 +276,8 @@ export class CustomEvent extends CustomEventInternals.BaseEvent {
      * @param {String} easing 
      * @returns 
      */
-    animateTrack(track: TrackValue, duration?: number, animation: Record<string, any> = {}, easing?: string) {
-        duration ??= 0;
-        animation ??= {};
-        return new CustomEventInternals.AnimateTrack(this.json, track, duration, animation, easing);
-    }
+    animateTrack = (track?: TrackValue, duration?: number, animation?: Record<string, any>, easing?: string) =>
+        new CustomEventInternals.AnimateTrack(this.json, track, duration, animation, easing);
 
     /**
      * Animate objects on a track across their lifespan.
@@ -292,11 +287,8 @@ export class CustomEvent extends CustomEventInternals.BaseEvent {
      * @param {String} easing 
      * @returns 
      */
-    assignPathAnimation(track: TrackValue, duration?: number, animation: Record<string, any> = {}, easing?: string) {
-        duration ??= 0;
-        animation ??= {};
-        return new CustomEventInternals.AssignPathAnimation(this.json, track, duration, animation, easing);
-    }
+    assignPathAnimation = (track?: TrackValue, duration?: number, animation: Record<string, any> = {}, easing?: string) =>
+        new CustomEventInternals.AssignPathAnimation(this.json, track, duration, animation, easing);
 
     /**
      * Assign a parent to a track.
@@ -305,21 +297,22 @@ export class CustomEvent extends CustomEventInternals.BaseEvent {
      * @param {Boolean} worldPositionStays Object stays in the same place after being parented, false by default.
      * @returns 
      */
-    assignTrackParent(childrenTracks: string[], parentTrack: string, worldPositionStays?: boolean) {
-        return new CustomEventInternals.AssignTrackParent(this.json, childrenTracks, parentTrack, worldPositionStays);
-    }
+    assignTrackParent = (childrenTracks: string[], parentTrack: string, worldPositionStays?: boolean) =>
+        new CustomEventInternals.AssignTrackParent(this.json, childrenTracks, parentTrack, worldPositionStays);
 
     /**
      * Assign the player to a track.
      * @param {String} track 
      * @returns 
      */
-    assignPlayerToTrack(track: string) { return new CustomEventInternals.AssignPlayerToTrack(this.json, track) }
+    assignPlayerToTrack = (track?: string) =>
+        new CustomEventInternals.AssignPlayerToTrack(this.json, track)
 
     /**
      * Assign the fog to a track.
      * @param {String} track 
      * @returns 
      */
-    assignFogTrack(track: string) { return new CustomEventInternals.AssignFogTrack(this.json, track) }
+    assignFogTrack = (track: string) =>
+        new CustomEventInternals.AssignFogTrack(this.json, track)
 }
