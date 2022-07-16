@@ -27,6 +27,7 @@ export type SingleKeyframe = number[]; // [...]
 export type KeyframeValues = (number | (EASE | undefined) | (SPLINE | undefined))[]; // [[...], [...]]
 export type KeyframeArray = KeyframeValues[];
 export type KeyframesAny = SingleKeyframe | KeyframeArray | string;
+export type RawKeyframesAny = SingleKeyframe | KeyframeArray;
 
 export type TrackValue = string | string[];
 export namespace AnimationInternals {
