@@ -2,6 +2,7 @@
 import { ColorType, eulerFromQuaternion, getSeconds, RMJson, rotatePoint, Vec3 } from "./general.ts";
 import { RawKeyframesVec3, toPointDef } from "./animation.ts";
 import { path, fs, blender } from "./deps.ts";
+import { Environment, Geometry } from "./environment.ts";
 
 export interface ModelCube {
     pos: RawKeyframesVec3;
@@ -82,81 +83,56 @@ const blenderShrink = 9 / 10; // For whatever reason.. this needs to be multipli
 let modelEnvCount = 0;
 let noYeet = true;
 
-enum MODEL_GROUP_TYPE {
-    ENVIRONMENT = 0
-}
-
-type ModelGroupConfig = {
+type ModelGroup = {
+    object: GroupObjectTypes,
     anchor?: Vec3,
     scale?: Vec3,
     rotation?: Vec3,
-    type?: MODEL_GROUP_TYPE,
     track?: string,
-    spawn?: boolean
-    id?: string,
-    lookup?: string
+    assigned?: boolean,
     disappearWhenAbsent?: boolean
 }
 
-type GroupObjectTypes = EnvironmentGroup;
-
-export class EnvironmentGroup {
-    config: EnvironmentGroupType
-
-    constructor(config: EnvironmentGroupType = {}) {
-        this.config = config;
-    }
-}
-
-type EnvironmentGroupType = {
-    anchor?: Vec3
-    scale?: Vec3
-    rotation?: Vec3
-    id?: string
-    lookup?: string
-}
+type GroupObjectTypes = Environment | Geometry;
 
 export class ModelScene {
-    groups: ModelGroupConfig[] = []
+    private groups: ModelGroup[] = []
 
-    constructor(config: GroupObjectTypes) {
-        this.pushGroup(config);
+    constructor(object?: GroupObjectTypes, scale?: Vec3, anchor?: Vec3, rotation?: Vec3) {
+        if (object) this.pushGroup(object, scale, anchor, rotation)
         modelEnvCount++;
     }
 
-    private pushGroup(config: GroupObjectTypes, group?: (config: ModelGroupConfig) => void) {
-        const primaryConfig = config.config as ModelGroupConfig;
-        if (group) group(primaryConfig);
-
-        if (config instanceof EnvironmentGroup) primaryConfig.type = MODEL_GROUP_TYPE.ENVIRONMENT;
-
-        this.groups.push(primaryConfig);
+    private pushGroup(object: GroupObjectTypes, scale?: Vec3, anchor?: Vec3, rotation?: Vec3, changeGroup?: (group: ModelGroup) => void) {
+        const group: ModelGroup = {
+            object: object
+        }
+        if (scale) group.scale = scale;
+        if (anchor) group.anchor = anchor;
+        if (rotation) group.rotation = rotation;
+        if (changeGroup) changeGroup(group);
+        this.groups.push(group);
     }
 
-    addPrimaryGroups(track: string | string[], config: GroupObjectTypes) {
+    addPrimaryGroups(track: string | string[], object: GroupObjectTypes, scale?: Vec3, anchor?: Vec3, rotation?: Vec3) {
         const tracks = typeof track === "object" ? track : [track];
         tracks.forEach(t => {
-            this.pushGroup(config, x => {
+            this.pushGroup(object, scale, anchor, rotation, x => {
                 x.track = t;
             })
         })
     }
 
-    assignObjects(track: string | string[], config: GroupObjectTypes, disappearWhenAbsent = true) {
+    assignObjects(track: string | string[], object: GroupObjectTypes, scale?: Vec3, anchor?: Vec3, rotation?: Vec3, disappearWhenAbsent = true) {
         const tracks = typeof track === "object" ? track : [track];
         tracks.forEach(t => {
-            this.pushGroup(config, x => {
+            this.pushGroup(object, scale, anchor, rotation, x => {
                 x.track = t;
                 x.disappearWhenAbsent = disappearWhenAbsent;
             })
         })
     }
 }
-
-// const modelScene = new ModelScene(new EnvironmentGroup({
-//     anchor: [0, 0, 0]
-// }))
-// console.log(modelScene.groups);
 
 /**
  * Used by ModelEnvironment to transform cube data to represent an environment object.
