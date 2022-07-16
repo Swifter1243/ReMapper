@@ -5,7 +5,7 @@ import { Wall } from './wall.ts';
 import { Event, EventInternals } from './event.ts';
 import { CustomEvent, CustomEventInternals } from './custom_event.ts';
 import { Environment, EnvironmentInternals, Geometry, GeometryMaterial } from './environment.ts';
-import { copy, isEmptyObject, jsonGet, jsonPrune, jsonRemove, jsonSet, sortObjects, Vec3, getSeconds, setDecimals } from './general.ts';
+import { copy, isEmptyObject, jsonGet, jsonPrune, jsonRemove, jsonSet, sortObjects, Vec3, setDecimals, RMLog } from './general.ts';
 import { AnimationInternals } from './animation.ts';
 import { OptimizeSettings } from './anim_optimizer.ts';
 
@@ -179,7 +179,7 @@ export class Difficulty {
 
 
         Deno.writeTextFileSync(diffName, JSON.stringify(outputJSON, null, 0));
-        console.log(`[ReMapper: ${getSeconds()}s] ${this.fileName} successfully saved!`);
+        RMLog(` ${this.fileName} successfully saved!`);
     }
 
     /**
@@ -519,7 +519,7 @@ export function exportZip(excludeDiffs: string[] = [], zipName?: string) {
     compressZip();
     async function compressZip() {
         await compress(files, zipName, { overwrite: true });
-        console.log(`[ReMapper: ${getSeconds()}s] ${zipName} has been zipped!`);
+        RMLog(` ${zipName} has been zipped!`);
     }
 }
 

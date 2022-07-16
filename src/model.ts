@@ -1,8 +1,9 @@
 // deno-lint-ignore-file no-explicit-any
-import { ColorType, eulerFromQuaternion, getSeconds, RMJson, rotatePoint, Vec3 } from "./general.ts";
+import { ColorType, eulerFromQuaternion, RMJson, rotatePoint, Vec3 } from "./general.ts";
 import { RawKeyframesVec3, toPointDef } from "./animation.ts";
 import { path, fs, blender } from "./deps.ts";
 import { Environment, Geometry } from "./environment.ts";
+import { OptimizeSettings } from "./anim_optimizer.ts";
 
 export interface ModelCube {
     pos: RawKeyframesVec3;
@@ -32,52 +33,82 @@ export class Model {
     }
 }
 
-export function cacheModel(filePath: string, process: () => ModelCube[], processing: any[] = []) {
-    let outputData: ModelCube[] = [];
+export function cacheData<T>(name: string, process: () => T, processing: any[] = []): T {
+    let outputData: any;
+    const processingJSON = JSON.stringify(processing).replaceAll('"', "");
 
-    function getData(fileName: string) {
+    function getData() {
         outputData = process();
-        console.log(`[ReMapper: ${getSeconds()}s] cached model data of ${fileName}.`);
+        console.log(`cached ${processingJSON}`)
         return outputData;
     }
 
-    const fileName = path.parse(filePath).base;
-    if (!fs.existsSync(fileName)) throw new Error(`The file ${fileName} does not exist!`)
-    const mTime = Deno.statSync(filePath).mtime?.toString();
-    const processingJSON = JSON.stringify(processing).replaceAll('"', "");
-    let cached = false;
-    let found = false;
-
-    RMJson.cachedModels.forEach(x => {
-        if (x.fileName === fileName) {
-            found = true;
-            cached = true;
-            if (
-                processingJSON !== JSON.stringify(x.processing).replaceAll('"', "") ||
-                mTime !== x.mTime
-            ) {
-                x.fileName = fileName;
-                x.mTime = mTime as string;
-                x.processing = processingJSON;
-                x.cubes = getData(fileName);
-                RMJson.save();
-            }
-            else outputData = x.cubes;
+    const cachedData = RMJson.cachedData[name];
+    if (cachedData !== undefined) {
+        if (processingJSON !== cachedData.processing) {
+            cachedData.processing = processingJSON;
+            cachedData.data = getData();
+            RMJson.save();
         }
-    })
-
-    if (!cached && !found) {
-        RMJson.cachedModels.push({
-            fileName: fileName,
-            mTime: mTime as string,
+        else outputData = cachedData.data;
+    }
+    else {
+        RMJson.cachedData[name] = {
             processing: processingJSON,
-            cubes: getData(fileName)
-        })
+            data: getData()
+        }
         RMJson.save();
     }
 
-    return outputData;
+    return outputData as T;
 }
+
+// export function cacheModel(filePath: string, process: () => ModelCube[], processing: any[] = []) {
+//     let outputData: ModelCube[] = [];
+
+//     function getData(fileName: string) {
+//         outputData = process();
+//         console.log(`[ReMapper: ${getSeconds()}s] cached model data of ${fileName}.`);
+//         return outputData;
+//     }
+
+//     const fileName = path.parse(filePath).base;
+//     if (!fs.existsSync(fileName)) throw new Error(`The file ${fileName} does not exist!`)
+//     const mTime = Deno.statSync(filePath).mtime?.toString();
+//     const processingJSON = JSON.stringify(processing).replaceAll('"', "");
+//     let cached = false;
+//     let found = false;
+
+//     RMJson.cachedData.forEach(x => {
+//         if (x.fileName === fileName) {
+//             found = true;
+//             cached = true;
+//             if (
+//                 processingJSON !== JSON.stringify(x.processing).replaceAll('"', "") ||
+//                 mTime !== x.mTime
+//             ) {
+//                 x.fileName = fileName;
+//                 x.mTime = mTime as string;
+//                 x.processing = processingJSON;
+//                 x.cubes = getData(fileName);
+//                 RMJson.save();
+//             }
+//             else outputData = x.cubes;
+//         }
+//     })
+
+//     if (!cached && !found) {
+//         RMJson.cachedData.push({
+//             fileName: fileName,
+//             mTime: mTime as string,
+//             processing: processingJSON,
+//             cubes: getData(fileName)
+//         })
+//         RMJson.save();
+//     }
+
+//     return outputData;
+// }
 
 const blenderShrink = 9 / 10; // For whatever reason.. this needs to be multiplied to all of the scales to make things look proper... who knows man.
 let modelEnvCount = 0;
@@ -97,6 +128,8 @@ type GroupObjectTypes = Environment | Geometry;
 
 export class ModelScene {
     private groups: ModelGroup[] = []
+    optimizer = new OptimizeSettings();
+    bakeAnimFreq = 1 / 32;
 
     constructor(object?: GroupObjectTypes, scale?: Vec3, anchor?: Vec3, rotation?: Vec3) {
         if (object) this.pushGroup(object, scale, anchor, rotation)

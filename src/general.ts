@@ -9,24 +9,21 @@ import { Note } from './note.ts';
 import { EventInternals } from './event.ts';
 import { OptimizeSettings } from "./anim_optimizer.ts";
 import { fs, three } from "./deps.ts";
-import { ModelCube } from "./model.ts";
 
 export type Vec3 = [number, number, number];
 export type Vec4 = [number, number, number, number];
 export type ColorType = [number, number, number] | [number, number, number, number];
 
-type CachedModel = {
-    fileName: string,
-    mTime: string,
+type CachedData = {
     processing: string,
-    cubes: ModelCube[]
+    data: any
 };
 
 class ReMapperJson {
     readonly fileName = "RM_Cache.json";
     private json = {
         runs: 0,
-        cachedModels: <CachedModel[]>[]
+        cachedData: {} as Record<string, CachedData>
     }
 
     constructor() {
@@ -36,19 +33,19 @@ class ReMapperJson {
     }
 
     save() {
-        Deno.writeTextFileSync(this.fileName, JSON.stringify(this.json));
+        Deno.writeTextFileSync(this.fileName, JSON.stringify(this.json, undefined, 2));
     }
 
     get runs() { return this.json.runs }
-    get cachedModels() { return this.json.cachedModels }
+    get cachedData() { return this.json.cachedData }
 
     protected set runs(value: number) {
         this.json.runs = value;
         this.save();
     }
 
-    protected set cachedModels(value: CachedModel[]) {
-        this.json.cachedModels = value;
+    protected set cachedData(value: Record<string, CachedData>) {
+        this.json.cachedData = value;
         this.save();
     }
 }
@@ -584,7 +581,7 @@ export function debugWall(transform: { pos?: RawKeyframesVec3, rot?: RawKeyframe
     wall.push();
 }
 
-
+export const RMLog = (message: string) => console.log(`[ReMapper: ${getSeconds()}s]` + message);
 
 // type KeyframeTypes = {
 //     [key: symbol]: KeyframeValues,
