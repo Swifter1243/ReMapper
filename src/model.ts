@@ -1,12 +1,12 @@
 // deno-lint-ignore-file no-explicit-any
 import { cacheData, ColorType, eulerFromQuaternion, rotatePoint, Vec3 } from "./general.ts";
 import { bakeAnimation, complexifyArray, KeyframeArray, KeyframesAny, KeyframeValues, RawKeyframesVec3, toPointDef } from "./animation.ts";
-import { path, fs, blender } from "./deps.ts";
+import { fs, blender } from "./deps.ts";
 import { Environment, Geometry } from "./environment.ts";
 import { optimizeAnimation, OptimizeSettings } from "./anim_optimizer.ts";
 
 const blenderShrink = 9 / 10; // For whatever reason.. this needs to be multiplied to all of the scales to make things look proper... who knows man.
-let modelEnvCount = 0;
+let modelSceneCount = 0;
 let noYeet = true;
 
 type GroupObjectTypes = Environment | Geometry;
@@ -34,7 +34,7 @@ export class ModelScene {
 
     constructor(object?: GroupObjectTypes, scale?: Vec3, anchor?: Vec3, rotation?: Vec3) {
         if (object) this.pushGroup(undefined, object, scale, anchor, rotation)
-        modelEnvCount++;
+        modelSceneCount++;
     }
 
     private pushGroup(key: string | undefined, object?: GroupObjectTypes, scale?: Vec3, anchor?: Vec3, rotation?: Vec3, changeGroup?: (group: ModelGroup) => void) {
@@ -69,7 +69,7 @@ export class ModelScene {
             const mTime = Deno.statSync(input).mtime?.toString();
             const processing: any[] = [this.groups, this.optimizer, mTime];
 
-            return cacheData(input, () => {
+            return cacheData(`modelScene${modelSceneCount}_${input}`, () => {
                 const fileObjects = getObjectsFromCollada(input);
                 fileObjects.forEach(x => {
                     // Getting relevant object transforms

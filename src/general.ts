@@ -16,7 +16,8 @@ export type ColorType = [number, number, number] | [number, number, number, numb
 
 type CachedData = {
     processing: string,
-    data: any
+    data: any,
+    accessed?: boolean
 };
 
 class ReMapperJson {
@@ -30,10 +31,16 @@ class ReMapperJson {
         if (!fs.existsSync(this.fileName)) this.save();
         this.json = JSON.parse(Deno.readTextFileSync(this.fileName));
         this.runs++;
+        Object.keys(this.cachedData).forEach(x => {
+            const data = this.cachedData[x];
+            if (!data.accessed) delete this.cachedData[x];
+            else data.accessed = false;
+        })
+        this.save();
     }
 
     save() {
-        Deno.writeTextFileSync(this.fileName, JSON.stringify(this.json, undefined, 2));
+        Deno.writeTextFileSync(this.fileName, JSON.stringify(this.json));
     }
 
     get runs() { return this.json.runs }
@@ -51,6 +58,37 @@ class ReMapperJson {
 }
 
 export const RMJson = new ReMapperJson();
+
+export function cacheData<T>(name: string, process: () => T, processing: any[] = []): T {
+    let outputData: any;
+    const processingJSON = JSON.stringify(processing).replaceAll('"', "");
+
+    function getData() {
+        outputData = process();
+        RMLog(`cached ${name}`)
+        return outputData;
+    }
+
+    const cachedData = RMJson.cachedData[name];
+    if (cachedData !== undefined) {
+        if (processingJSON !== cachedData.processing) {
+            cachedData.processing = processingJSON;
+            cachedData.data = getData();
+        }
+        else outputData = cachedData.data;
+    }
+    else {
+        RMJson.cachedData[name] = {
+            processing: processingJSON,
+            data: getData()
+        }
+    }
+
+    RMJson.cachedData[name].accessed = true;
+    RMJson.save();
+
+    return outputData as T;
+}
 
 /**
  * Allows you to filter through an array of objects with a min and max property.
@@ -581,36 +619,7 @@ export function debugWall(transform: { pos?: RawKeyframesVec3, rot?: RawKeyframe
     wall.push();
 }
 
-export const RMLog = (message: string) => console.log(`[ReMapper: ${getSeconds()}s]` + message);
-
-export function cacheData<T>(name: string, process: () => T, processing: any[] = []): T {
-    let outputData: any;
-    const processingJSON = JSON.stringify(processing).replaceAll('"', "");
-
-    function getData() {
-        outputData = process();
-        return outputData;
-    }
-
-    const cachedData = RMJson.cachedData[name];
-    if (cachedData !== undefined) {
-        if (processingJSON !== cachedData.processing) {
-            cachedData.processing = processingJSON;
-            cachedData.data = getData();
-            RMJson.save();
-        }
-        else outputData = cachedData.data;
-    }
-    else {
-        RMJson.cachedData[name] = {
-            processing: processingJSON,
-            data: getData()
-        }
-        RMJson.save();
-    }
-
-    return outputData as T;
-}
+export const RMLog = (message: string) => console.log(`[ReMapper: ${getSeconds()}s] ` + message);
 
 // type KeyframeTypes = {
 //     [key: symbol]: KeyframeValues,

@@ -179,7 +179,7 @@ export class Difficulty {
 
 
         Deno.writeTextFileSync(diffName, JSON.stringify(outputJSON, null, 0));
-        RMLog(` ${this.fileName} successfully saved!`);
+        RMLog(`${this.fileName} successfully saved!`);
     }
 
     /**
@@ -519,7 +519,7 @@ export function exportZip(excludeDiffs: string[] = [], zipName?: string) {
     compressZip();
     async function compressZip() {
         await compress(files, zipName, { overwrite: true });
-        RMLog(` ${zipName} has been zipped!`);
+        RMLog(`${zipName} has been zipped!`);
     }
 }
 
