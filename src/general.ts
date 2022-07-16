@@ -583,6 +583,35 @@ export function debugWall(transform: { pos?: RawKeyframesVec3, rot?: RawKeyframe
 
 export const RMLog = (message: string) => console.log(`[ReMapper: ${getSeconds()}s]` + message);
 
+export function cacheData<T>(name: string, process: () => T, processing: any[] = []): T {
+    let outputData: any;
+    const processingJSON = JSON.stringify(processing).replaceAll('"', "");
+
+    function getData() {
+        outputData = process();
+        return outputData;
+    }
+
+    const cachedData = RMJson.cachedData[name];
+    if (cachedData !== undefined) {
+        if (processingJSON !== cachedData.processing) {
+            cachedData.processing = processingJSON;
+            cachedData.data = getData();
+            RMJson.save();
+        }
+        else outputData = cachedData.data;
+    }
+    else {
+        RMJson.cachedData[name] = {
+            processing: processingJSON,
+            data: getData()
+        }
+        RMJson.save();
+    }
+
+    return outputData as T;
+}
+
 // type KeyframeTypes = {
 //     [key: symbol]: KeyframeValues,
 //     KeyframesLinear: ComplexKeyframesLinear,

@@ -1,11 +1,25 @@
 // deno-lint-ignore-file no-explicit-any
-import { ColorType, eulerFromQuaternion, RMJson, rotatePoint, Vec3 } from "./general.ts";
-import { RawKeyframesVec3, toPointDef } from "./animation.ts";
+import { cacheData, ColorType, eulerFromQuaternion, rotatePoint, Vec3 } from "./general.ts";
+import { bakeAnimation, complexifyArray, KeyframeArray, KeyframesAny, KeyframeValues, RawKeyframesVec3, toPointDef } from "./animation.ts";
 import { path, fs, blender } from "./deps.ts";
 import { Environment, Geometry } from "./environment.ts";
-import { OptimizeSettings } from "./anim_optimizer.ts";
+import { optimizeAnimation, OptimizeSettings } from "./anim_optimizer.ts";
 
-export interface ModelCube {
+const blenderShrink = 9 / 10; // For whatever reason.. this needs to be multiplied to all of the scales to make things look proper... who knows man.
+let modelEnvCount = 0;
+let noYeet = true;
+
+type GroupObjectTypes = Environment | Geometry;
+
+type ModelGroup = {
+    object?: GroupObjectTypes,
+    anchor?: Vec3,
+    scale?: Vec3,
+    rotation?: Vec3,
+    disappearWhenAbsent?: boolean
+}
+
+export interface ModelObject {
     pos: RawKeyframesVec3;
     rot: RawKeyframesVec3;
     scale: RawKeyframesVec3;
@@ -13,162 +27,128 @@ export interface ModelCube {
     track?: string;
 }
 
-//! Reminder that ModelEnvironment will need to bake keyframes if it wasn't imported from blender
-
-export class Model {
-    cubes: ModelCube[] = [];
-
-    constructor(input?: ModelCube[] | ModelCube) {
-        if (!input) return;
-        else this.addCubes(input as ModelCube[] | ModelCube);
-    }
-
-    /**
-     * Add cubes to this model.
-     * @param input 
-     */
-    addCubes(input: ModelCube | ModelCube[]) {
-        if (Array.isArray(input)) input.forEach(x => { this.cubes.push(x) });
-        else this.cubes.push(input);
-    }
-}
-
-export function cacheData<T>(name: string, process: () => T, processing: any[] = []): T {
-    let outputData: any;
-    const processingJSON = JSON.stringify(processing).replaceAll('"', "");
-
-    function getData() {
-        outputData = process();
-        console.log(`cached ${processingJSON}`)
-        return outputData;
-    }
-
-    const cachedData = RMJson.cachedData[name];
-    if (cachedData !== undefined) {
-        if (processingJSON !== cachedData.processing) {
-            cachedData.processing = processingJSON;
-            cachedData.data = getData();
-            RMJson.save();
-        }
-        else outputData = cachedData.data;
-    }
-    else {
-        RMJson.cachedData[name] = {
-            processing: processingJSON,
-            data: getData()
-        }
-        RMJson.save();
-    }
-
-    return outputData as T;
-}
-
-// export function cacheModel(filePath: string, process: () => ModelCube[], processing: any[] = []) {
-//     let outputData: ModelCube[] = [];
-
-//     function getData(fileName: string) {
-//         outputData = process();
-//         console.log(`[ReMapper: ${getSeconds()}s] cached model data of ${fileName}.`);
-//         return outputData;
-//     }
-
-//     const fileName = path.parse(filePath).base;
-//     if (!fs.existsSync(fileName)) throw new Error(`The file ${fileName} does not exist!`)
-//     const mTime = Deno.statSync(filePath).mtime?.toString();
-//     const processingJSON = JSON.stringify(processing).replaceAll('"', "");
-//     let cached = false;
-//     let found = false;
-
-//     RMJson.cachedData.forEach(x => {
-//         if (x.fileName === fileName) {
-//             found = true;
-//             cached = true;
-//             if (
-//                 processingJSON !== JSON.stringify(x.processing).replaceAll('"', "") ||
-//                 mTime !== x.mTime
-//             ) {
-//                 x.fileName = fileName;
-//                 x.mTime = mTime as string;
-//                 x.processing = processingJSON;
-//                 x.cubes = getData(fileName);
-//                 RMJson.save();
-//             }
-//             else outputData = x.cubes;
-//         }
-//     })
-
-//     if (!cached && !found) {
-//         RMJson.cachedData.push({
-//             fileName: fileName,
-//             mTime: mTime as string,
-//             processing: processingJSON,
-//             cubes: getData(fileName)
-//         })
-//         RMJson.save();
-//     }
-
-//     return outputData;
-// }
-
-const blenderShrink = 9 / 10; // For whatever reason.. this needs to be multiplied to all of the scales to make things look proper... who knows man.
-let modelEnvCount = 0;
-let noYeet = true;
-
-type ModelGroup = {
-    object: GroupObjectTypes,
-    anchor?: Vec3,
-    scale?: Vec3,
-    rotation?: Vec3,
-    track?: string,
-    assigned?: boolean,
-    disappearWhenAbsent?: boolean
-}
-
-type GroupObjectTypes = Environment | Geometry;
-
 export class ModelScene {
-    private groups: ModelGroup[] = []
+    private groups = <Record<string, ModelGroup>>{};
     optimizer = new OptimizeSettings();
     bakeAnimFreq = 1 / 32;
 
     constructor(object?: GroupObjectTypes, scale?: Vec3, anchor?: Vec3, rotation?: Vec3) {
-        if (object) this.pushGroup(object, scale, anchor, rotation)
+        if (object) this.pushGroup(undefined, object, scale, anchor, rotation)
         modelEnvCount++;
     }
 
-    private pushGroup(object: GroupObjectTypes, scale?: Vec3, anchor?: Vec3, rotation?: Vec3, changeGroup?: (group: ModelGroup) => void) {
-        const group: ModelGroup = {
-            object: object
-        }
+    private pushGroup(key: string | undefined, object?: GroupObjectTypes, scale?: Vec3, anchor?: Vec3, rotation?: Vec3, changeGroup?: (group: ModelGroup) => void) {
+        const group: ModelGroup = {}
+        if (object) group.object = object;
         if (scale) group.scale = scale;
         if (anchor) group.anchor = anchor;
         if (rotation) group.rotation = rotation;
         if (changeGroup) changeGroup(group);
-        this.groups.push(group);
+        this.groups[key as string] = group;
     }
 
     addPrimaryGroups(track: string | string[], object: GroupObjectTypes, scale?: Vec3, anchor?: Vec3, rotation?: Vec3) {
         const tracks = typeof track === "object" ? track : [track];
         tracks.forEach(t => {
-            this.pushGroup(object, scale, anchor, rotation, x => {
-                x.track = t;
-            })
+            this.pushGroup(t, object, scale, anchor, rotation)
         })
     }
 
-    assignObjects(track: string | string[], object: GroupObjectTypes, scale?: Vec3, anchor?: Vec3, rotation?: Vec3, disappearWhenAbsent = true) {
+    assignObjects(track: string | string[], scale?: Vec3, anchor?: Vec3, rotation?: Vec3, disappearWhenAbsent = true) {
         const tracks = typeof track === "object" ? track : [track];
         tracks.forEach(t => {
-            this.pushGroup(object, scale, anchor, rotation, x => {
-                x.track = t;
+            this.pushGroup(t, undefined, scale, anchor, rotation, x => {
                 x.disappearWhenAbsent = disappearWhenAbsent;
             })
         })
     }
+
+    private getObjects(input: string | ModelObject[]) {
+        if (typeof input === "string") {
+            const processing: any[] = [this.groups, this.optimizer];
+
+            return cacheData(input, () => {
+                const fileObjects = getObjectsFromCollada(input);
+                fileObjects.forEach(x => {
+                    // Getting relevant object transforms
+                    let scale: Vec3 = [1, 1, 1];
+                    let anchor: Vec3 = [0, 0, 0];
+                    let rotation: Vec3 = [0, 0, 0];
+                    let isModified = false;
+
+                    const group = this.groups[x.track as string];
+                    if (group) {
+                        if (group.scale) { scale = group.scale; isModified = true }
+                        if (group.anchor) { anchor = group.anchor; isModified = true }
+                        if (group.rotation) { rotation = group.rotation; isModified = true }
+                    }
+
+                    if (isModified) {
+                        // Making keyframes a consistent array format
+                        x.pos = complexifyArray(x.pos as KeyframesAny) as RawKeyframesVec3;
+                        x.rot = complexifyArray(x.rot as KeyframesAny) as RawKeyframesVec3;
+                        x.scale = complexifyArray(x.scale as KeyframesAny) as RawKeyframesVec3;
+
+                        // Applying transformation to each keyframe
+                        for (let i = 0; i < x.pos.length; i++) {
+                            let objPos = x.pos[i] as KeyframeValues;
+                            let objRot = x.rot[i] as KeyframeValues;
+                            const objScale = x.scale[i] as KeyframeValues;
+                            objPos.pop();
+                            objRot.pop();
+                            objScale.pop();
+
+                            const appliedTransform = applyModelObjectTransform(objPos as Vec3, objRot as Vec3, objScale as Vec3, anchor, scale, rotation);
+                            objPos = appliedTransform.pos;
+                            objRot = appliedTransform.rot;
+                            (x.pos as KeyframeArray)[i] = [...(objPos as Vec3), (x.pos as KeyframeValues)[3]];
+                            (x.rot as KeyframeArray)[i] = [...(objRot as Vec3), (x.rot as KeyframeValues)[3]];
+                        }
+                    }
+
+                    // Optimizing object
+                    x.pos = optimizeAnimation(x.pos as KeyframesAny, this.optimizer) as RawKeyframesVec3;
+                    x.rot = optimizeAnimation(x.rot as KeyframesAny, this.optimizer) as RawKeyframesVec3;
+                    x.scale = optimizeAnimation(x.scale as KeyframesAny, this.optimizer) as RawKeyframesVec3;
+                })
+                return fileObjects;
+            }, processing)
+        }
+        else {
+            const bakedObjects: ModelObject[] = [];
+
+            input.forEach(x => {
+                // Getting relevant anchor & scale
+                let scale: Vec3 = [1, 1, 1];
+                let anchor: Vec3 = [0, 0, 0];
+                let rotation: Vec3 = [0, 0, 0];
+                let isModified = false;
+
+                const group = this.groups[x.track as string];
+                if (group) {
+                    if (group.scale) { scale = group.scale; isModified = true }
+                    if (group.anchor) { anchor = group.anchor; isModified = true }
+                    if (group.rotation) { rotation = group.rotation; isModified = true }
+                }
+
+                // Baking animation
+                const bakedCube: ModelObject = bakeAnimation({ pos: x.pos, rot: x.rot, scale: x.scale }, transform => {
+                    if (!isModified) return;
+                    const appliedTransform = applyModelObjectTransform(transform.pos, transform.rot, transform.scale, anchor, scale, rotation);
+                    transform.pos = appliedTransform.pos;
+                    transform.scale = appliedTransform.scale;
+                }, this.bakeAnimFreq, this.optimizer);
+                bakedCube.track = x.track;
+                bakedObjects.push(bakedCube);
+            })
+
+            return bakedObjects;
+        }
+    }
 }
 
 /**
- * Used by ModelEnvironment to transform cube data to represent an environment object.
+ * Used by ModelScene to transform object data to represent an environment object.
  * @param objPos 
  * @param objRot 
  * @param objScale 
@@ -176,7 +156,8 @@ export class ModelScene {
  * @param scale 
  * @returns 
  */
- export function applyAnchorAndScale(objPos: Vec3, objRot: Vec3, objScale: Vec3, anchor: Vec3, scale: Vec3) {
+export function applyModelObjectTransform(objPos: Vec3, objRot: Vec3, objScale: Vec3, anchor: Vec3, scale: Vec3, rotation?: Vec3) {
+    if (rotation) objRot = objRot.map((x, i) => (x += rotation[i]) % 360) as Vec3;
     const offset = rotatePoint(objRot, objScale.map((x, i) => x * -anchor[i] * blenderShrink) as Vec3);
     objPos = objPos.map((x, i) => x + offset[i]) as Vec3;
     objScale = objScale.map((x, i) => x * scale[i] * blenderShrink) as Vec3;
@@ -190,15 +171,15 @@ function createYeetDef() {
     }
 }
 
-export function getModelCubesFromCollada(filePath: string) {
+export function getObjectsFromCollada(filePath: string) {
     const collada = blender.GetColladaModelSync(filePath);
-    const cubes = blender.GetCubesCollada(collada);
-    const outputCubes: ModelCube[] = [];
+    const objects = blender.GetCubesCollada(collada);
+    const outputObjects: ModelObject[] = [];
 
-    cubes.forEach(x => {
+    objects.forEach(x => {
         console.log(x.frames);
 
-        const cube: ModelCube = {
+        const cube: ModelObject = {
             pos: [0, 0, 0],
             rot: [0, 0, 0],
             scale: [1, 1, 1]
@@ -214,8 +195,8 @@ export function getModelCubesFromCollada(filePath: string) {
             cube.scale = x.transformation.scale.toArray();
         }
 
-        outputCubes.push(cube);
+        outputObjects.push(cube);
     })
 
-    return outputCubes;
+    return outputObjects;
 }
