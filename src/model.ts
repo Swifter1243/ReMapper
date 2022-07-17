@@ -4,12 +4,15 @@ import { bakeAnimation, complexifyArray, KeyframeArray, KeyframesAny, KeyframeVa
 import { fs, blender } from "./deps.ts";
 import { Environment, Geometry } from "./environment.ts";
 import { optimizeAnimation, OptimizeSettings } from "./anim_optimizer.ts";
+import { CustomEvent, CustomEventInternals } from "./custom_event.ts";
 
+// TODO: figure out how to apply this to everything equally, and if it's even necessary
 const blenderShrink = 9 / 10; // For whatever reason.. this needs to be multiplied to all of the scales to make things look proper... who knows man.
 let modelSceneCount = 0;
 let noYeet = true;
 
 type GroupObjectTypes = Environment | Geometry;
+type ObjectInput = string | ModelObject[];
 
 type ModelGroup = {
     object?: GroupObjectTypes,
@@ -31,15 +34,25 @@ export class ModelScene {
     private groups = <Record<string, ModelGroup>>{};
     optimizer = new OptimizeSettings();
     bakeAnimFreq = 1 / 32;
+    trackID: number;
+    objectInfo = <Record<string, {
+        max: number,
+        perSwitch: Record<number, number>;
+    }>>{}
 
     constructor(object?: GroupObjectTypes, scale?: Vec3, anchor?: Vec3, rotation?: Vec3) {
-        if (object) this.pushGroup(undefined, object, scale, anchor, rotation)
+        if (object) this.pushGroup(undefined, object, scale, anchor, rotation);
+        this.trackID = modelSceneCount;
         modelSceneCount++;
     }
 
     private pushGroup(key: string | undefined, object?: GroupObjectTypes, scale?: Vec3, anchor?: Vec3, rotation?: Vec3, changeGroup?: (group: ModelGroup) => void) {
         const group: ModelGroup = {}
-        if (object) group.object = object;
+        if (object) {
+            if (object instanceof Environment) object.duplicate = 1;
+            object.position = [0, -69420, 0];
+            group.object = object
+        }
         if (scale) group.scale = scale;
         if (anchor) group.anchor = anchor;
         if (rotation) group.rotation = rotation;
@@ -63,13 +76,13 @@ export class ModelScene {
         })
     }
 
-    private getObjects(input: string | ModelObject[]) {
+    private getObjects(input: ObjectInput) {
         if (typeof input === "string") {
             if (!fs.existsSync(input)) throw new Error(`The file ${input} does not exist!`)
             const mTime = Deno.statSync(input).mtime?.toString();
             const processing: any[] = [this.groups, this.optimizer, mTime];
 
-            return cacheData(`modelScene${modelSceneCount}_${input}`, () => {
+            return cacheData(`modelScene${this.trackID}_${input}`, () => {
                 const fileObjects = getObjectsFromCollada(input);
                 fileObjects.forEach(x => {
                     // Getting relevant object transforms
@@ -117,10 +130,10 @@ export class ModelScene {
             }, processing)
         }
         else {
-            const bakedObjects: ModelObject[] = [];
+            const outputObjects: ModelObject[] = [];
 
             input.forEach(x => {
-                // Getting relevant anchor & scale
+                // Getting relevant object transforms
                 let scale: Vec3 = [1, 1, 1];
                 let anchor: Vec3 = [0, 0, 0];
                 let rotation: Vec3 = [0, 0, 0];
@@ -133,20 +146,104 @@ export class ModelScene {
                     if (group.rotation) { rotation = group.rotation; isModified = true }
                 }
 
-                // Baking animation
-                const bakedCube: ModelObject = bakeAnimation({ pos: x.pos, rot: x.rot, scale: x.scale }, transform => {
-                    if (!isModified) return;
-                    const appliedTransform = applyModelObjectTransform(transform.pos, transform.rot, transform.scale, anchor, scale, rotation);
-                    transform.pos = appliedTransform.pos;
-                    transform.scale = appliedTransform.scale;
-                }, this.bakeAnimFreq, this.optimizer);
-                bakedCube.track = x.track;
-                bakedObjects.push(bakedCube);
+                if (isModified) {
+                    // Baking animation
+                    const bakedCube: ModelObject = bakeAnimation({ pos: x.pos, rot: x.rot, scale: x.scale }, transform => {
+                        if (!isModified) return;
+                        const appliedTransform = applyModelObjectTransform(transform.pos, transform.rot, transform.scale, anchor, scale, rotation);
+                        transform.pos = appliedTransform.pos;
+                        transform.scale = appliedTransform.scale;
+                    }, this.bakeAnimFreq, this.optimizer);
+
+                    bakedCube.track = x.track;
+                    outputObjects.push(bakedCube);
+                }
+                else outputObjects.push(x);
             })
 
-            return bakedObjects;
+            return outputObjects;
         }
     }
+
+    animate(switches: [
+        ObjectInput,
+        number,
+        number?,
+        ((moveEvent: CustomEventInternals.AnimateTrack, objects: number) => void)?,
+    ][], forObject?: (envObject: GroupObjectTypes) => void) {
+        createYeetDef();
+        switches.sort((a, b) => a[1] - b[1]);
+
+        // Object animation
+        switches.forEach(x => {
+            const input = x[0];
+            const time = x[1];
+            const duration = x[2] ?? 0;
+            const forEvent = x[3];
+            const data = this.getObjects(input);
+
+            data.forEach(x => {
+                // Getting info about group
+                const key = x.track as string;
+                const group = this.groups[key];
+
+                // Registering data about object amounts
+                if (!this.objectInfo[key]) this.objectInfo[key] = {
+                    max: 0,
+                    perSwitch: {}
+                };
+                const objectInfo = this.objectInfo[key];
+                if (!objectInfo.perSwitch[time]) objectInfo.perSwitch[time] = 1;
+                else objectInfo.perSwitch[time]++;
+                if (objectInfo.perSwitch[time] > objectInfo.max) objectInfo.max = objectInfo.perSwitch[time];
+
+                const track = this.getPieceTrack(group.object, key, objectInfo.perSwitch[time] - 1);
+
+                // Creating event
+                const event = new CustomEvent(time).animateTrack(track, duration);
+                event.animate.position = x.pos;
+                event.animate.rotation = x.rot;
+                event.animate.scale = x.scale;
+                if (forEvent !== undefined) forEvent(event, objectInfo.perSwitch[time]);
+                event.push();
+            })
+        })
+
+        const yeetEvents: Record<number, CustomEventInternals.AnimateTrack> = {};
+
+        Object.keys(this.groups).forEach(groupKey => {
+            const group = this.groups[groupKey];
+            const objectInfo = this.objectInfo[groupKey];
+            if (!objectInfo) return;
+
+            Object.keys(objectInfo.perSwitch).forEach(switchTime => {
+                const numSwitchTime = parseInt(switchTime);
+                const amount = objectInfo.perSwitch[numSwitchTime];
+
+                if (group.disappearWhenAbsent || group.object) for (let i = amount; i < objectInfo.max; i++) {
+                    if (!yeetEvents[numSwitchTime]) {
+                        const event = new CustomEvent(numSwitchTime).animateTrack();
+                        event.animate.position = "yeet";
+                        yeetEvents[numSwitchTime] = event;
+                    }
+                    yeetEvents[numSwitchTime].track.add(this.getPieceTrack(group.object, groupKey, i));
+                }
+            })
+
+            if (group.object) {
+                for (let i = 0; i < objectInfo.max; i++) {
+                    group.object.track = this.getPieceTrack(group.object, groupKey, i);
+                    if (forObject) forObject(group.object);
+                    group.object.push();
+                }
+            }
+        })
+
+        Object.keys(yeetEvents).forEach(x => { yeetEvents[parseInt(x)].push() });
+    }
+
+    private getPieceTrack = (object: undefined | GroupObjectTypes, track: string, index: number) =>
+        object ? `modelScene${this.trackID}_${track}_${index}` : track
 }
 
 /**
@@ -160,7 +257,7 @@ export class ModelScene {
  */
 export function applyModelObjectTransform(objPos: Vec3, objRot: Vec3, objScale: Vec3, anchor: Vec3, scale: Vec3, rotation?: Vec3) {
     if (rotation) objRot = objRot.map((x, i) => (x += rotation[i]) % 360) as Vec3;
-    const offset = rotatePoint(objRot, objScale.map((x, i) => x * -anchor[i] * blenderShrink) as Vec3);
+    const offset = rotatePoint(objRot, objScale.map((x, i) => x * -anchor[i]) as Vec3);
     objPos = objPos.map((x, i) => x + offset[i]) as Vec3;
     objScale = objScale.map((x, i) => x * scale[i] * blenderShrink) as Vec3;
     return { pos: objPos, rot: objRot, scale: objScale };
