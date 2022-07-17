@@ -195,6 +195,7 @@ export class ModelScene {
 
             // Registering data about object amounts
             const objectInfo = this.objectInfo[key];
+            if (!objectInfo) return;
             objectInfo.perSwitch[0]++;
             if (objectInfo.perSwitch[0] > objectInfo.max) objectInfo.max = objectInfo.perSwitch[0];
 
@@ -275,6 +276,7 @@ export class ModelScene {
 
                 // Registering data about object amounts
                 const objectInfo = this.objectInfo[key];
+                if (!objectInfo) return;
                 objectInfo.perSwitch[time]++;
                 if (objectInfo.perSwitch[time] > objectInfo.max) objectInfo.max = objectInfo.perSwitch[time];
 
@@ -295,6 +297,7 @@ export class ModelScene {
         Object.keys(this.groups).forEach(groupKey => {
             const group = this.groups[groupKey];
             const objectInfo = this.objectInfo[groupKey];
+            if (!objectInfo) return;
 
             // Yeeting objects
             Object.keys(objectInfo.perSwitch).forEach(switchTime => {
