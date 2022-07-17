@@ -621,19 +621,19 @@ export function debugWall(transform: { pos?: RawKeyframesVec3, rot?: RawKeyframe
 
 export const RMLog = (message: string) => console.log(`[ReMapper: ${getSeconds()}s] ` + message);
 
-export function iterateKeyframes(keyframes: KeyframesLinear, fn: (values: ComplexKeyframesLinear[0]) => void): void;
-export function iterateKeyframes(keyframes: KeyframesVec3, fn: (values: ComplexKeyframesVec3[0]) => void): void;
-export function iterateKeyframes(keyframes: KeyframesVec4, fn: (values: ComplexKeyframesVec4[0]) => void): void;
-export function iterateKeyframes(keyframes: KeyframesAny, fn: (any: any) => void): void {
+export function iterateKeyframes(keyframes: KeyframesLinear, fn: (values: ComplexKeyframesLinear[0], index: number) => void): void;
+export function iterateKeyframes(keyframes: KeyframesVec3, fn: (values: ComplexKeyframesVec3[0], index: number) => void): void;
+export function iterateKeyframes(keyframes: KeyframesVec4, fn: (values: ComplexKeyframesVec4[0], index: number) => void): void;
+export function iterateKeyframes(keyframes: KeyframesAny, fn: (any: any, index: number) => void): void {
     iterateKeyframesInternal(keyframes as KeyframesAny, fn)
 }
 
-function iterateKeyframesInternal(keyframes: KeyframesAny, fn: (values: KeyframeValues) => void): void {
+function iterateKeyframesInternal(keyframes: KeyframesAny, fn: (values: KeyframeValues, index: number) => void): void {
     // TODO: Lookup point def
     if (typeof keyframes === "string") return;
 
     const newKeyframes = complexifyArray(copy(keyframes));
-    newKeyframes.forEach(x => fn(x));
+    newKeyframes.forEach((x, i) => fn(x, i));
     keyframes.length = 0;
     (simplifyArray(newKeyframes) as RawKeyframesAny).forEach(x => (keyframes as any).push(x));
 }
