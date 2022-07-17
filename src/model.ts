@@ -1,12 +1,11 @@
 // deno-lint-ignore-file no-explicit-any
-import { cacheData, ColorType, copy, eulerFromQuaternion, rotatePoint, Vec3 } from "./general.ts";
-import { bakeAnimation, complexifyArray, KeyframeArray, KeyframesAny, KeyframeValues, RawKeyframesVec3, toPointDef } from "./animation.ts";
-import { fs, blender } from "./deps.ts";
+import { cacheData, ColorType, copy, eulerFromQuaternion, iterateKeyframes, rotatePoint, Vec3 } from "./general.ts";
+import { bakeAnimation, complexifyArray, ComplexKeyframesVec3, KeyframeArray, KeyframesAny, KeyframeValues, RawKeyframesVec3, toPointDef } from "./animation.ts";
+import { fs, blender, three } from "./deps.ts";
 import { Environment, Geometry } from "./environment.ts";
 import { optimizeAnimation, OptimizeSettings } from "./anim_optimizer.ts";
 import { CustomEvent, CustomEventInternals } from "./custom_event.ts";
 
-const blenderShrink = 9 / 10; // For whatever reason.. this needs to be multiplied to all of the scales to make things look proper... who knows man.
 let modelSceneCount = 0;
 let noYeet = true;
 
@@ -85,41 +84,40 @@ export class ModelScene {
                 const fileObjects = getObjectsFromCollada(input);
                 fileObjects.forEach(x => {
                     // Getting relevant object transforms
-                    let scale: Vec3 = [1, 1, 1];
-                    let anchor: Vec3 = [0, 0, 0];
-                    let rotation: Vec3 = [0, 0, 0];
-                    let isModified = false;
+                    let scale: Vec3 | undefined
+                    let anchor: Vec3 | undefined;
+                    let rotation: Vec3 | undefined
 
                     const group = this.groups[x.track as string];
                     if (group) {
-                        if (group.scale) { scale = group.scale; isModified = true }
-                        if (group.anchor) { anchor = group.anchor; isModified = true }
-                        if (group.rotation) { rotation = group.rotation; isModified = true }
+                        if (group.scale) scale = group.scale
+                        if (group.anchor) anchor = group.anchor
+                        if (group.rotation) rotation = group.rotation
                     }
 
-                    if (isModified) {
-                        // Making keyframes a consistent array format
-                        x.pos = complexifyArray(x.pos as KeyframesAny) as RawKeyframesVec3;
-                        x.rot = complexifyArray(x.rot as KeyframesAny) as RawKeyframesVec3;
-                        x.scale = complexifyArray(x.scale as KeyframesAny) as RawKeyframesVec3;
+                    // Making keyframes a consistent array format
+                    x.pos = complexifyArray(x.pos as KeyframesAny) as RawKeyframesVec3;
+                    x.rot = complexifyArray(x.rot as KeyframesAny) as RawKeyframesVec3;
+                    x.scale = complexifyArray(x.scale as KeyframesAny) as RawKeyframesVec3;
 
-                        // Applying transformation to each keyframe
-                        for (let i = 0; i < x.pos.length; i++) {
-                            let objPos = x.pos[i] as KeyframeValues;
-                            let objRot = x.rot[i] as KeyframeValues;
-                            let objScale = x.scale[i] as KeyframeValues;
-                            objPos.pop();
-                            objRot.pop();
-                            objScale.pop();
+                    // Applying transformation to each keyframe
+                    for (let i = 0; i < x.pos.length; i++) {
+                        let objPos = x.pos[i] as KeyframeValues;
+                        let objRot = x.rot[i] as KeyframeValues;
+                        let objScale = x.scale[i] as KeyframeValues;
+                        objPos.pop();
+                        objRot.pop();
+                        objScale.pop();
 
-                            objScale = (objScale as Vec3).map(x => x * blenderShrink);
-                            const appliedTransform = applyModelObjectTransform(objPos as Vec3, objRot as Vec3, objScale as Vec3, anchor, scale, rotation);
-                            objPos = appliedTransform.pos;
-                            objRot = appliedTransform.rot;
-                            objScale = appliedTransform.scale;
-                            (x.pos as KeyframeArray)[i] = [...(objPos as Vec3), (x.pos as KeyframeValues)[3]];
-                            (x.rot as KeyframeArray)[i] = [...(objRot as Vec3), (x.rot as KeyframeValues)[3]];
-                        }
+                        objPos = (objPos as Vec3).map(x => x / 2);
+                        if (rotation) objRot = (objRot as Vec3).map((x, i) => (x + (rotation as Vec3)[i]) % 360);
+                        objScale = (objScale as Vec3).map(x => x * 0.6);
+                        if (anchor) objPos = applyAnchor(objPos as Vec3, objRot as Vec3, objScale as Vec3, anchor);
+                        if (scale) objScale = (objScale as Vec3).map((x, i) => x * (scale as Vec3)[i]);
+
+                        (x.pos as KeyframeArray)[i] = [...(objPos as Vec3), (x.pos as KeyframeValues)[3]];
+                        (x.rot as KeyframeArray)[i] = [...(objRot as Vec3), (x.rot as KeyframeValues)[3]];
+                        (x.scale as KeyframeArray)[i] = [...(objScale as Vec3), (x.scale as KeyframeValues)[3]];
                     }
 
                     // Optimizing object
@@ -135,32 +133,46 @@ export class ModelScene {
 
             input.forEach(x => {
                 // Getting relevant object transforms
-                let scale: Vec3 = [1, 1, 1];
-                let anchor: Vec3 = [0, 0, 0];
-                let rotation: Vec3 = [0, 0, 0];
-                let isModified = false;
+                let scale: Vec3 | undefined;
+                let anchor: Vec3 | undefined;
+                let rotation: Vec3 | undefined;
 
                 const group = this.groups[x.track as string];
                 if (group) {
-                    if (group.scale) { scale = group.scale; isModified = true }
-                    if (group.anchor) { anchor = group.anchor; isModified = true }
-                    if (group.rotation) { rotation = group.rotation; isModified = true }
+                    if (group.scale) scale = group.scale
+                    if (group.anchor) anchor = group.anchor
+                    if (group.rotation) rotation = group.rotation
                 }
 
-                if (isModified) {
+                if (rotation) iterateKeyframes(x.rot, y => {
+                    y[0] = (y[0] + (rotation as Vec3)[0]) % 360;
+                    y[1] = (y[1] + (rotation as Vec3)[1]) % 360;
+                    y[2] = (y[2] + (rotation as Vec3)[2]) % 360;
+                })
+
+                iterateKeyframes(x.scale, y => {
+                    y[0] *= 0.6;
+                    y[1] *= 0.6;
+                    y[2] *= 0.6;
+                })
+
+                if (anchor) {
                     // Baking animation
                     const bakedCube: ModelObject = bakeAnimation({ pos: x.pos, rot: x.rot, scale: x.scale }, transform => {
-                        if (!isModified) return;
-                        const appliedTransform = applyModelObjectTransform(transform.pos, transform.rot, transform.scale, anchor, scale, rotation);
-                        transform.pos = appliedTransform.pos;
-                        transform.rot = appliedTransform.rot;
-                        transform.scale = appliedTransform.scale;
+                        transform.pos = applyAnchor(transform.pos, transform.rot, transform.scale, anchor as Vec3);
                     }, this.bakeAnimFreq, this.optimizer);
 
                     bakedCube.track = x.track;
-                    outputObjects.push(bakedCube);
+                    x = bakedCube;
                 }
-                else outputObjects.push(x);
+
+                if (scale) iterateKeyframes(x.scale, y => {
+                    y[0] *= (scale as Vec3)[0];
+                    y[1] *= (scale as Vec3)[1];
+                    y[2] *= (scale as Vec3)[2];
+                })
+
+                outputObjects.push(x);
             })
 
             return outputObjects;
@@ -329,21 +341,9 @@ export class ModelScene {
     }
 }
 
-/**
- * Used by ModelScene to transform object data to represent an environment object.
- * @param objPos 
- * @param objRot 
- * @param objScale 
- * @param anchor 
- * @param scale 
- * @returns 
- */
-export function applyModelObjectTransform(objPos: Vec3, objRot: Vec3, objScale: Vec3, anchor: Vec3, scale: Vec3, rotation?: Vec3) {
-    if (rotation) objRot = objRot.map((x, i) => (x += rotation[i]) % 360) as Vec3;
-    const offset = rotatePoint(objRot, objScale.map((x, i) => x * -anchor[i]) as Vec3);
-    objPos = objPos.map((x, i) => x + offset[i]) as Vec3;
-    objScale = objScale.map((x, i) => x * scale[i]) as Vec3;
-    return { pos: objPos, rot: objRot, scale: objScale };
+export function applyAnchor(objPos: Vec3, objRot: Vec3, objScale: Vec3, anchor: Vec3) {
+    const offset = rotatePoint(objRot, objScale.map((x, i) => x * anchor[i] / 0.6) as Vec3);
+    return objPos.map((x, i) => x + offset[i]) as Vec3;
 }
 
 function createYeetDef() {
@@ -358,24 +358,47 @@ export function getObjectsFromCollada(filePath: string) {
     const objects = blender.GetCubesCollada(collada);
     const outputObjects: ModelObject[] = [];
 
-    objects.forEach(x => {
-        console.log(x.frames);
+    function parseMatrix(matrix: three.Matrix4) {
+        const pos = [matrix.elements[3], matrix.elements[7], matrix.elements[11]]
+        const rot = eulerFromQuaternion(new three.Quaternion().setFromRotationMatrix(matrix))
+        const scale = new three.Vector3().setFromMatrixScale(matrix).toArray()
+        return {
+            pos: [pos[0], pos[1], pos[2]] as Vec3,
+            rot: [rot[0], rot[1], rot[2]] as Vec3,
+            scale: [scale[0], scale[1], scale[2]] as Vec3,
+        }
+    }
 
+    objects.forEach(x => {
         const cube: ModelObject = {
-            pos: [0, 0, 0],
-            rot: [0, 0, 0],
-            scale: [1, 1, 1]
+            pos: [],
+            rot: [],
+            scale: []
         }
 
         if (x.color) {
             if (x.color.a) cube.color = [x.color.r, x.color.g, x.color.b, x.color.a];
             else cube.color = [x.color.r, x.color.g, x.color.b];
         }
-        if (x.transformation) {
-            cube.pos = x.transformation.position.toArray();
-            cube.rot = eulerFromQuaternion(x.transformation.rotation);
-            cube.scale = x.transformation.scale.toArray();
+
+        if (x.frames && x.frames.length > 0) {
+            const duration = x.frameSpan[1] - 1;
+            x.frames.forEach(f => {
+                const time = f.frameId / duration;
+                const transform = parseMatrix(f.matrix);
+                (cube.pos as ComplexKeyframesVec3).push([...transform.pos, time]);
+                (cube.rot as ComplexKeyframesVec3).push([...transform.rot, time]);
+                (cube.scale as ComplexKeyframesVec3).push([...transform.scale, time]);
+            })
         }
+        else {
+            const transform = parseMatrix(x.matrix);
+            cube.pos = transform.pos;
+            cube.rot = transform.rot;
+            cube.scale = transform.scale;
+        }
+
+        if (x.track) cube.track = x.track;
 
         outputObjects.push(cube);
     })
