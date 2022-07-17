@@ -176,19 +176,22 @@ export class ModelScene {
     static(input: ObjectInput, forObject?: (object: GroupObjectTypes) => void, forAssigned?: (event: CustomEventInternals.AnimateTrack) => void) {
         const data = this.getObjects(input);
 
+        // Initialize info
+        Object.keys(this.groups).forEach(x => {
+            this.objectInfo[x] = {
+                max: 0,
+                perSwitch: {
+                    0: 0
+                }
+            }
+        })
+
         data.forEach(x => {
             // Getting info about group
             const key = x.track as string;
             const group = this.groups[key];
 
             // Registering data about object amounts
-            this.objectInfo[key] = {
-                max: 0,
-                perSwitch: {
-                    0: 0
-                }
-            };
-
             const objectInfo = this.objectInfo[key];
             objectInfo.perSwitch[0]++;
             if (objectInfo.perSwitch[0] > objectInfo.max) objectInfo.max = objectInfo.perSwitch[0];
@@ -219,6 +222,18 @@ export class ModelScene {
                 event.push();
             }
         })
+
+        Object.keys(this.groups).forEach(x => {
+            const objectInfo = this.objectInfo[x];
+            const group = this.groups[x];
+
+            if (objectInfo.max === 0 && !group.object && group.disappearWhenAbsent) {
+                createYeetDef();
+                const event = new CustomEvent().animateTrack(x);
+                event.animate.position = "yeet";
+                event.push();
+            }
+        })
     }
 
     animate(switches: [
@@ -230,6 +245,15 @@ export class ModelScene {
         createYeetDef();
         switches.sort((a, b) => a[1] - b[1]);
 
+        // Initialize info
+        Object.keys(this.groups).forEach(x => {
+            this.objectInfo[x] = {
+                max: 0,
+                perSwitch: {}
+            }
+            if (!this.groups[x].object) this.objectInfo[x].max = 1;
+        })
+
         // Object animation
         switches.forEach(x => {
             const input = x[0];
@@ -238,19 +262,18 @@ export class ModelScene {
             const forEvent = x[3];
             const data = this.getObjects(input);
 
+            Object.keys(this.groups).forEach(x => {
+                this.objectInfo[x].perSwitch[time] = 0;
+            })
+
             data.forEach(x => {
                 // Getting info about group
                 const key = x.track as string;
                 const group = this.groups[key];
 
                 // Registering data about object amounts
-                if (!this.objectInfo[key]) this.objectInfo[key] = {
-                    max: 0,
-                    perSwitch: {}
-                };
                 const objectInfo = this.objectInfo[key];
-                if (!objectInfo.perSwitch[time]) objectInfo.perSwitch[time] = 1;
-                else objectInfo.perSwitch[time]++;
+                objectInfo.perSwitch[time]++;
                 if (objectInfo.perSwitch[time] > objectInfo.max) objectInfo.max = objectInfo.perSwitch[time];
 
                 const track = this.getPieceTrack(group.object, key, objectInfo.perSwitch[time] - 1);
@@ -270,8 +293,8 @@ export class ModelScene {
         Object.keys(this.groups).forEach(groupKey => {
             const group = this.groups[groupKey];
             const objectInfo = this.objectInfo[groupKey];
-            if (!objectInfo) return;
 
+            // Yeeting objects
             Object.keys(objectInfo.perSwitch).forEach(switchTime => {
                 const numSwitchTime = parseInt(switchTime);
                 const amount = objectInfo.perSwitch[numSwitchTime];
@@ -286,6 +309,7 @@ export class ModelScene {
                 }
             })
 
+            // Spawning objects
             if (group.object) {
                 for (let i = 0; i < objectInfo.max; i++) {
                     const object = copy(group.object)
