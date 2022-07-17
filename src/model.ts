@@ -116,6 +116,7 @@ export class ModelScene {
                             const appliedTransform = applyModelObjectTransform(objPos as Vec3, objRot as Vec3, objScale as Vec3, anchor, scale, rotation);
                             objPos = appliedTransform.pos;
                             objRot = appliedTransform.rot;
+                            objScale = appliedTransform.scale;
                             (x.pos as KeyframeArray)[i] = [...(objPos as Vec3), (x.pos as KeyframeValues)[3]];
                             (x.rot as KeyframeArray)[i] = [...(objRot as Vec3), (x.rot as KeyframeValues)[3]];
                         }
@@ -152,6 +153,7 @@ export class ModelScene {
                         if (!isModified) return;
                         const appliedTransform = applyModelObjectTransform(transform.pos, transform.rot, transform.scale, anchor, scale, rotation);
                         transform.pos = appliedTransform.pos;
+                        transform.rot = appliedTransform.rot;
                         transform.scale = appliedTransform.scale;
                     }, this.bakeAnimFreq, this.optimizer);
 
@@ -337,7 +339,7 @@ export function applyModelObjectTransform(objPos: Vec3, objRot: Vec3, objScale: 
     if (rotation) objRot = objRot.map((x, i) => (x += rotation[i]) % 360) as Vec3;
     const offset = rotatePoint(objRot, objScale.map((x, i) => x * -anchor[i]) as Vec3);
     objPos = objPos.map((x, i) => x + offset[i]) as Vec3;
-    objScale = objScale.map((x, i) => x * scale[i] * blenderShrink) as Vec3;
+    objScale = objScale.map((x, i) => x * scale[i]) as Vec3;
     return { pos: objPos, rot: objRot, scale: objScale };
 }
 
