@@ -1,5 +1,5 @@
 // deno-lint-ignore-file no-explicit-any
-import { cacheData, ColorType, eulerFromQuaternion, rotatePoint, Vec3 } from "./general.ts";
+import { cacheData, ColorType, copy, eulerFromQuaternion, rotatePoint, Vec3 } from "./general.ts";
 import { bakeAnimation, complexifyArray, KeyframeArray, KeyframesAny, KeyframeValues, RawKeyframesVec3, toPointDef } from "./animation.ts";
 import { fs, blender } from "./deps.ts";
 import { Environment, Geometry } from "./environment.ts";
@@ -165,12 +165,68 @@ export class ModelScene {
         }
     }
 
+    private getPieceTrack = (object: undefined | GroupObjectTypes, track: string, index: number) =>
+        object ? `modelScene${this.trackID}_${track}_${index}` : track
+
+    private getFirstTransform(transform: RawKeyframesVec3) {
+        const complexTransform = complexifyArray(copy(transform))[0];
+        return [complexTransform[0], complexTransform[1], complexTransform[2]] as Vec3;
+    }
+
+    static(input: ObjectInput, forObject?: (object: GroupObjectTypes) => void, forAssigned?: (event: CustomEventInternals.AnimateTrack) => void) {
+        const data = this.getObjects(input);
+
+        data.forEach(x => {
+            // Getting info about group
+            const key = x.track as string;
+            const group = this.groups[key];
+
+            // Registering data about object amounts
+            this.objectInfo[key] = {
+                max: 0,
+                perSwitch: {
+                    0: 0
+                }
+            };
+
+            const objectInfo = this.objectInfo[key];
+            objectInfo.perSwitch[0]++;
+            if (objectInfo.perSwitch[0] > objectInfo.max) objectInfo.max = objectInfo.perSwitch[0];
+
+            const track = this.getPieceTrack(group.object, key, objectInfo.perSwitch[0] - 1);
+
+            // Get transforms
+            const pos = this.getFirstTransform(x.pos);
+            const rot = this.getFirstTransform(x.rot);
+            const scale = this.getFirstTransform(x.scale);
+
+            // Creating event
+            if (group.object) {
+                const object = copy(group.object)
+                object.track = track;
+                object.position = pos;
+                object.rotation = rot;
+                object.scale = scale;
+                if (forObject) forObject(object);
+                object.push();
+            }
+            else {
+                const event = new CustomEvent().animateTrack(track);
+                event.animate.position = pos;
+                event.animate.rotation = rot;
+                event.animate.scale = scale;
+                if (forAssigned) forAssigned(event);
+                event.push();
+            }
+        })
+    }
+
     animate(switches: [
         ObjectInput,
         number,
         number?,
-        ((moveEvent: CustomEventInternals.AnimateTrack, objects: number) => void)?,
-    ][], forObject?: (envObject: GroupObjectTypes) => void) {
+        ((event: CustomEventInternals.AnimateTrack, objects: number) => void)?,
+    ][], forObject?: (object: GroupObjectTypes) => void) {
         createYeetDef();
         switches.sort((a, b) => a[1] - b[1]);
 
@@ -204,7 +260,7 @@ export class ModelScene {
                 event.animate.position = x.pos;
                 event.animate.rotation = x.rot;
                 event.animate.scale = x.scale;
-                if (forEvent !== undefined) forEvent(event, objectInfo.perSwitch[time]);
+                if (forEvent) forEvent(event, objectInfo.perSwitch[time]);
                 event.push();
             })
         })
@@ -232,18 +288,16 @@ export class ModelScene {
 
             if (group.object) {
                 for (let i = 0; i < objectInfo.max; i++) {
-                    group.object.track = this.getPieceTrack(group.object, groupKey, i);
-                    if (forObject) forObject(group.object);
-                    group.object.push();
+                    const object = copy(group.object)
+                    object.track = this.getPieceTrack(group.object, groupKey, i);
+                    if (forObject) forObject(object);
+                    object.push();
                 }
             }
         })
 
         Object.keys(yeetEvents).forEach(x => { yeetEvents[parseInt(x)].push() });
     }
-
-    private getPieceTrack = (object: undefined | GroupObjectTypes, track: string, index: number) =>
-        object ? `modelScene${this.trackID}_${track}_${index}` : track
 }
 
 /**
