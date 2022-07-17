@@ -6,7 +6,6 @@ import { Environment, Geometry } from "./environment.ts";
 import { optimizeAnimation, OptimizeSettings } from "./anim_optimizer.ts";
 import { CustomEvent, CustomEventInternals } from "./custom_event.ts";
 
-// TODO: figure out how to apply this to everything equally, and if it's even necessary
 const blenderShrink = 9 / 10; // For whatever reason.. this needs to be multiplied to all of the scales to make things look proper... who knows man.
 let modelSceneCount = 0;
 let noYeet = true;
@@ -108,11 +107,12 @@ export class ModelScene {
                         for (let i = 0; i < x.pos.length; i++) {
                             let objPos = x.pos[i] as KeyframeValues;
                             let objRot = x.rot[i] as KeyframeValues;
-                            const objScale = x.scale[i] as KeyframeValues;
+                            let objScale = x.scale[i] as KeyframeValues;
                             objPos.pop();
                             objRot.pop();
                             objScale.pop();
 
+                            objScale = (objScale as Vec3).map(x => x * blenderShrink);
                             const appliedTransform = applyModelObjectTransform(objPos as Vec3, objRot as Vec3, objScale as Vec3, anchor, scale, rotation);
                             objPos = appliedTransform.pos;
                             objRot = appliedTransform.rot;
