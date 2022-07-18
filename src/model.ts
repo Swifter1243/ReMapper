@@ -78,7 +78,7 @@ export class ModelScene {
         if (typeof input === "string") {
             if (!fs.existsSync(input)) throw new Error(`The file ${input} does not exist!`)
             const mTime = Deno.statSync(input).mtime?.toString();
-            const processing: any[] = [this.groups, this.optimizer, mTime];
+            const processing: any[] = [this.groups, this.optimizer, mTime, Math.random()];
 
             return cacheData(`modelScene${this.trackID}_${input}`, () => {
                 const fileObjects = getObjectsFromCollada(input);
@@ -102,9 +102,9 @@ export class ModelScene {
 
                     // Applying transformation to each keyframe
                     for (let i = 0; i < x.pos.length; i++) {
-                        let objPos = x.pos[i] as KeyframeValues;
-                        let objRot = x.rot[i] as KeyframeValues;
-                        let objScale = x.scale[i] as KeyframeValues;
+                        let objPos = copy(x.pos[i]) as KeyframeValues;
+                        let objRot = copy(x.rot[i]) as KeyframeValues;
+                        let objScale = copy(x.scale[i]) as KeyframeValues;
                         objPos.pop();
                         objRot.pop();
                         objScale.pop();
@@ -115,9 +115,9 @@ export class ModelScene {
                         if (anchor) objPos = applyAnchor(objPos as Vec3, objRot as Vec3, objScale as Vec3, anchor);
                         if (scale) objScale = (objScale as Vec3).map((x, i) => x * (scale as Vec3)[i]);
 
-                        (x.pos as KeyframeArray)[i] = [...(objPos as Vec3), (x.pos as KeyframeValues)[3]];
-                        (x.rot as KeyframeArray)[i] = [...(objRot as Vec3), (x.rot as KeyframeValues)[3]];
-                        (x.scale as KeyframeArray)[i] = [...(objScale as Vec3), (x.scale as KeyframeValues)[3]];
+                        (x.pos as KeyframeArray)[i] = [...(objPos as Vec3), (x.pos as ComplexKeyframesVec3)[i][3]];
+                        (x.rot as KeyframeArray)[i] = [...(objRot as Vec3), (x.rot as ComplexKeyframesVec3)[i][3]];
+                        (x.scale as KeyframeArray)[i] = [...(objScale as Vec3), (x.scale as ComplexKeyframesVec3)[i][3]];
                     }
 
                     // Optimizing object
