@@ -292,10 +292,10 @@ export enum ANIM {
 // Known objects that work. Feel free to PR your own!
 export const ENV = {
     BTS: {
-        PILLAR: {
+        PILLAR: { //! This is currently the only updated one
             ID: new Regex().start().add("PillarPair").separate().add("PillarL").separate().add("Pillar").end(),
-            SCALE: <Vec3>[10, 10 * (1 / 0.032), 10],
-            ANCHOR: <Vec3>[0, -0.5, 0]
+            SCALE: <Vec3>[0.2855, 0.2855 * 0.032, 0.2855],
+            ANCHOR: <Vec3>[0, 0.5, 0]
         },
         SOLID_LASER: {
             ID: new Regex().add("SmallPillarPair").separate().add("PillarL").separate().add("LaserL").end(),
