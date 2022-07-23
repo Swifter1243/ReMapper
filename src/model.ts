@@ -1,7 +1,7 @@
 // deno-lint-ignore-file no-explicit-any
-import { cacheData, ColorType, copy, eulerFromQuaternion, iterateKeyframes, rotatePoint, Vec3 } from "./general.ts";
+import { cacheData, ColorType, copy, iterateKeyframes, rotatePoint, Vec3 } from "./general.ts";
 import { bakeAnimation, complexifyArray, ComplexKeyframesVec3, KeyframeArray, KeyframesAny, KeyframeValues, RawKeyframesVec3, toPointDef } from "./animation.ts";
-import { fs, blender, three } from "./deps.ts";
+import { fs, path } from "./deps.ts";
 import { Environment, Geometry } from "./environment.ts";
 import { optimizeAnimation, OptimizeSettings } from "./anim_optimizer.ts";
 import { CustomEvent, CustomEventInternals } from "./custom_event.ts";
@@ -76,12 +76,13 @@ export class ModelScene {
 
     private getObjects(input: ObjectInput) {
         if (typeof input === "string") {
+            if (!path.isAbsolute(input)) input = `models/${input}.rmmodel`
             if (!fs.existsSync(input)) throw new Error(`The file ${input} does not exist!`)
             const mTime = Deno.statSync(input).mtime?.toString();
             const processing: any[] = [this.groups, this.optimizer, mTime];
 
             return cacheData(`modelScene${this.trackID}_${input}`, () => {
-                const fileObjects = getObjectsFromCollada(input);
+                const fileObjects = getModel(input as string);
                 fileObjects.forEach(x => {
                     // Getting relevant object transforms
                     let scale: Vec3 | undefined
@@ -353,55 +354,7 @@ function createYeetDef() {
     }
 }
 
-export function getObjectsFromCollada(filePath: string) {
-    const collada = blender.GetColladaModelSync(filePath);
-    const objects = blender.GetCubesCollada(collada);
-    const outputObjects: ModelObject[] = [];
-
-    function parseMatrix(matrix: three.Matrix4) {
-        const pos = [matrix.elements[3], matrix.elements[7], matrix.elements[11]]
-        const rot = eulerFromQuaternion(new three.Quaternion().setFromRotationMatrix(matrix))
-        const scale = new three.Vector3().setFromMatrixScale(matrix).toArray()
-        return {
-            pos: [pos[0], pos[1], pos[2]] as Vec3,
-            rot: [rot[0], rot[1], rot[2]] as Vec3,
-            scale: [scale[0], scale[1], scale[2]] as Vec3,
-        }
-    }
-
-    objects.forEach(x => {
-        const cube: ModelObject = {
-            pos: [],
-            rot: [],
-            scale: []
-        }
-
-        if (x.color) {
-            if (x.color.a) cube.color = [x.color.r, x.color.g, x.color.b, x.color.a];
-            else cube.color = [x.color.r, x.color.g, x.color.b];
-        }
-
-        if (x.frames && x.frames.length > 0) {
-            const duration = x.frameSpan[1] - 1;
-            x.frames.forEach(f => {
-                const time = f.frameId / duration;
-                const transform = parseMatrix(f.matrix);
-                (cube.pos as ComplexKeyframesVec3).push([...transform.pos, time]);
-                (cube.rot as ComplexKeyframesVec3).push([...transform.rot, time]);
-                (cube.scale as ComplexKeyframesVec3).push([...transform.scale, time]);
-            })
-        }
-        else {
-            const transform = parseMatrix(x.matrix);
-            cube.pos = transform.pos;
-            cube.rot = transform.rot;
-            cube.scale = transform.scale;
-        }
-
-        if (x.track) cube.track = x.track;
-
-        outputObjects.push(cube);
-    })
-
-    return outputObjects;
+export function getModel(filePath: string) {
+    const data = JSON.parse(Deno.readTextFileSync(filePath));
+    return data.objects as ModelObject[];
 }
