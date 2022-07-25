@@ -90,12 +90,11 @@ export class Geometry extends EnvironmentInternals.BaseEnvironment {
         _geometry: {}
     };
 
-    constructor(type?: GEO_TYPE, material?: GeometryMaterial) {
+    constructor(type?: GEO_TYPE, material?: GeometryMaterial | string) {
         super();
         type ??= GEO_TYPE.CUBE;
         material ??= {
-            _shader: GEO_SHADER.STANDARD,
-            color: [0.35, 0.35, 0.35]
+            _shader: GEO_SHADER.STANDARD
         }
         this.type = type;
         this.material = material;
@@ -106,13 +105,13 @@ export class Geometry extends EnvironmentInternals.BaseEnvironment {
     get collision() { return this.json._geometry._collision }
 
     set type(value: GEO_TYPE) { this.json._geometry._type = value }
-    set material(value: GeometryMaterial) { this.json._geometry._material = value }
+    set material(value: GeometryMaterial | string) { this.json._geometry._material = value }
     set collision(value: boolean) { this.json._geometry._collision = value }
 }
 
 export type GeometryMaterial = {
     _shader: GEO_SHADER,
-    color?: ColorType,
+    _color?: ColorType,
     _track?: string,
     _shaderKeywords?: string[]
 } | string
