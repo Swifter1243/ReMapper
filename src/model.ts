@@ -5,6 +5,7 @@ import { fs, path } from "./deps.ts";
 import { Environment, Geometry } from "./environment.ts";
 import { optimizeAnimation, OptimizeSettings } from "./anim_optimizer.ts";
 import { CustomEvent, CustomEventInternals } from "./custom_event.ts";
+import { ANIM } from "./constants.ts";
 
 let modelSceneCount = 0;
 let noYeet = true;
@@ -76,7 +77,7 @@ export class ModelScene {
 
     private getObjects(input: ObjectInput) {
         if (typeof input === "string") {
-            if (!path.isAbsolute(input)) input = `models/${input}.rmmodel`
+            if (!path.isAbsolute(input)) input = `${input}.rmmodel`
             if (!fs.existsSync(input)) throw new Error(`The file ${input} does not exist!`)
             const mTime = Deno.statSync(input).mtime?.toString();
             const processing: any[] = [this.groups, this.optimizer, mTime];
@@ -231,9 +232,9 @@ export class ModelScene {
             }
             else {
                 const event = new CustomEvent().animateTrack(track);
-                event.animate.position = pos;
-                event.animate.rotation = rot;
-                event.animate.scale = scale;
+                event.animate.set(ANIM.POSITION, x.pos, false);
+                event.animate.set(ANIM.ROTATION, x.rot, false);
+                event.animate.set(ANIM.SCALE, x.scale, false);
                 if (forAssigned) forAssigned(event);
                 event.push();
             }
@@ -297,9 +298,9 @@ export class ModelScene {
 
                 // Creating event
                 const event = new CustomEvent(time).animateTrack(track, duration);
-                event.animate.position = x.pos;
-                event.animate.rotation = x.rot;
-                event.animate.scale = x.scale;
+                event.animate.set(ANIM.POSITION, x.pos, false);
+                event.animate.set(ANIM.ROTATION, x.rot, false);
+                event.animate.set(ANIM.SCALE, x.scale, false);
                 if (forEvent) forEvent(event, objectInfo.perSwitch[time]);
                 event.push();
             })
