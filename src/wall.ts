@@ -1,7 +1,8 @@
-import { activeDiff, info } from './beatmap';
-import { copy, jsonPrune, isEmptyObject, getJumps, ColorType } from './general';
-import { Animation, AnimationInternals, Track, TrackValue } from './animation';
-import { WALL } from './constants';
+// deno-lint-ignore-file adjacent-overload-signatures no-explicit-any
+import { activeDiffGet, info } from './beatmap.ts';
+import { copy, jsonPrune, isEmptyObject, getJumps, ColorType, jsonRemove } from './general.ts';
+import { Animation, AnimationInternals, Track } from './animation.ts';
+import { WALL } from './constants.ts';
 
 export class Wall {
     json: any = {
@@ -24,7 +25,7 @@ export class Wall {
      * @param {Number} lineIndex 
      * @param {Number} width
      */
-    constructor(time: number = undefined, duration: number = undefined, type: WALL = undefined, lineIndex: number = undefined, width: number = undefined) {
+    constructor(time?: number, duration?: number, type?: WALL, lineIndex?: number, width?: number) {
         if (time !== undefined) this.time = time;
         if (duration !== undefined) this.duration = duration;
         if (type !== undefined) this.type = type;
@@ -44,7 +45,7 @@ export class Wall {
      * @param {Object} json 
      * @returns {Note}
      */
-    import(json) {
+    import(json: Record<string, any>) {
         this.json = json;
         if (this.customData === undefined) this.customData = {};
         if (this.animation === undefined) this.animation = {};
@@ -55,8 +56,8 @@ export class Wall {
     /**
      * Push this wall to the difficulty
      */
-     push() {
-        activeDiff.obstacles.push(copy(this));
+    push() {
+        activeDiffGet().obstacles.push(copy(this));
         return this;
     }
 
@@ -82,11 +83,11 @@ export class Wall {
     get localRotation() { return this.json._customData._localRotation }
     get NJS() {
         if (this.json._customData._noteJumpMovementSpeed) return this.json._customData._noteJumpMovementSpeed;
-        else return activeDiff.NJS;
+        else return activeDiffGet().NJS;
     }
     get offset() {
         if (this.json._customData._noteJumpStartBeatOffset) return this.json._customData._noteJumpStartBeatOffset;
-        else return activeDiff.offset;
+        else return activeDiffGet().offset;
     }
     get halfJumpDur() { return getJumps(this.NJS, this.offset, info.BPM).halfDur }
     get jumpDist() { return getJumps(this.NJS, this.offset, info.BPM).dist }
@@ -94,7 +95,7 @@ export class Wall {
     get lifeStart() { return this.time - this.halfJumpDur }
     get fake() { return this.json._customData._fake }
     get interactable() { return this.json._customData._interactable }
-    get track() { return new Track(this.json._customData._track) }
+    get track() { return new Track(this.json._customData) }
     get color() { return this.json._customData._color }
     get animation() { return this.json._customData._animation }
 
@@ -114,13 +115,21 @@ export class Wall {
     set lifeStart(value: number) { this.time = value + this.halfJumpDur }
     set fake(value: boolean) { this.json._customData._fake = value }
     set interactable(value: boolean) { this.json._customData._interactable = value }
-    set trackSet(value: TrackValue) { this.json._customData._track = value }
     set color(value: ColorType) { this.json._customData._color = value }
     set animation(value) { this.json._customData._animation = value }
 
     get isModded() {
         if (this.customData === undefined) return false;
         const customData = copy(this.customData);
+        jsonPrune(customData);
+        return !isEmptyObject(customData);
+    }
+
+    get isGameplayModded() {
+        if (this.customData === undefined) return false;
+        const customData = copy(this.customData);
+        jsonRemove(customData, "_color");
+        jsonRemove(customData, "_animation._color");
         jsonPrune(customData);
         return !isEmptyObject(customData);
     }

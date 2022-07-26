@@ -1,22 +1,26 @@
-import path from 'path';
-import seven from 'node-7z';
-import sevenBin from '7zip-bin';
-import * as fs from 'fs';
-import { Note } from './note';
-import { Wall } from './wall';
-import { Event, EventInternals } from './event';
-import { CustomEvent, CustomEventInternals } from './custom_event';
-import { Environment } from './environment';
-import { copy, isEmptyObject, jsonGet, jsonPrune, jsonRemove, jsonSet, rand, sortObjects, Vec3 } from './general';
-import { AnimationInternals } from './animation';
-import { OptimizeSettings } from './anim_optimizer';
+// deno-lint-ignore-file no-explicit-any adjacent-overload-signatures
+import { path, fs, compress } from './deps.ts';
+import { Note } from './note.ts';
+import { Wall } from './wall.ts';
+import { Event, EventInternals } from './event.ts';
+import { CustomEvent, CustomEventInternals } from './custom_event.ts';
+import { Environment, EnvironmentInternals, Geometry, GeometryMaterial } from './environment.ts';
+import { copy, isEmptyObject, jsonGet, jsonPrune, jsonRemove, jsonSet, sortObjects, Vec3, setDecimals, RMLog } from './general.ts';
+import { AnimationInternals } from './animation.ts';
+import { OptimizeSettings } from './anim_optimizer.ts';
+
+type PostProcessFn<T> = (object: T, diff: Difficulty) => void;
 
 export class Difficulty {
-    json;
-    diffSet;
-    diffSetMap;
-    mapFile;
+    json: Record<string, any> = {};
+    diffSet: Record<string, any> = {};
+    diffSetMap: Record<string, any> = {};
+    mapFile: string;
     relativeMapFile: string;
+    private postProcesses = new Map<unknown[] | undefined, PostProcessFn<unknown>[]>();
+    private registerProcessors() {
+        this.addPostProcess(undefined, reduceDecimalsPostProcess);
+    }
 
     /**
      * Creates a difficulty. Can be used to access various information and the map data.
@@ -24,7 +28,7 @@ export class Difficulty {
      * @param {String} input Filename for the input.
      * @param {String} input Filename for the output. If left blank, input will be used.
      */
-    constructor(input: string, output: string = undefined) {
+    constructor(input: string, output?: string) {
 
         // If the path contains a separator of any kind, use it instead of the default "Info.dat"
         info.load((input.includes('\\') || input.includes('/')) ? path.join(path.dirname(input), "Info.dat") : undefined);
@@ -38,10 +42,10 @@ export class Difficulty {
         }
 
         if (!fs.existsSync(input)) throw new Error(`The file ${input} does not exist`)
-        this.json = JSON.parse(fs.readFileSync(input, "utf-8"));
+        this.json = JSON.parse(Deno.readTextFileSync(input));
 
-        info.json._difficultyBeatmapSets.forEach(set => {
-            set._difficultyBeatmaps.forEach(setmap => {
+        info.json._difficultyBeatmapSets.forEach((set: Record<string, any>) => {
+            set._difficultyBeatmaps.forEach((setmap: Record<string, any>) => {
                 if (this.relativeMapFile === setmap._beatmapFilename) {
                     this.diffSet = set;
                     this.diffSetMap = setmap;
@@ -51,31 +55,71 @@ export class Difficulty {
 
         if (this.diffSet === undefined) throw new Error(`The difficulty ${input} does not exist in your Info.dat`)
 
-        for (let i = 0; i < this.notes.length; i++) this.notes[i] = new Note().import(this.notes[i]);
-        for (let i = 0; i < this.obstacles.length; i++) this.obstacles[i] = new Wall().import(this.obstacles[i]);
-        for (let i = 0; i < this.events.length; i++) this.events[i] = new Event().import(this.events[i]);
+        for (let i = 0; i < this.notes.length; i++) this.notes[i] = new Note().import(this.notes[i] as Record<string, any>);
+        for (let i = 0; i < this.obstacles.length; i++) this.obstacles[i] = new Wall().import(this.obstacles[i] as Record<string, any>);
+        for (let i = 0; i < this.events.length; i++) this.events[i] = new Event().import(this.events[i] as Record<string, any>);
         if (this.customEvents !== undefined)
-            for (let i = 0; i < this.customEvents.length; i++) this.customEvents[i] = new CustomEvent().import(this.customEvents[i]);
-        if (this.environment !== undefined)
-            for (let i = 0; i < this.environment.length; i++) this.environment[i] = new Environment().import(this.environment[i]);
+            for (let i = 0; i < this.customEvents.length; i++) this.customEvents[i] = new CustomEvent().import(this.customEvents[i] as Record<string, any>);
+        if (this.rawEnvironment !== undefined)
+            for (let i = 0; i < this.rawEnvironment.length; i++) this.rawEnvironment[i] = new EnvironmentInternals.BaseEnvironment().import(this.rawEnvironment[i] as Record<string, any>);
 
         if (this.version === undefined) this.version = "2.2.0";
 
         activeDiff = this;
+
+        this.registerProcessors();
     }
 
     optimize(optimize: OptimizeSettings = new OptimizeSettings()) {
-
         const optimizeAnimation = (animation: AnimationInternals.BaseAnimation) => {
             animation.optimize(undefined, optimize)
         };
 
-
-        this.notes.forEach(e => optimizeAnimation(e.animate)),
-        this.obstacles.forEach(e => optimizeAnimation(e.animate)),
+        this.notes.forEach(e => optimizeAnimation(e.animate));
+        this.obstacles.forEach(e => optimizeAnimation(e.animate));
         this.customEvents.filter(e => e instanceof CustomEventInternals.AnimateTrack).forEach(e => optimizeAnimation((e as CustomEventInternals.AnimateTrack).animate));
 
         // TODO: Optimize point definitions
+    }
+
+    /**
+     * 
+     * @param object The object to process. If undefined, will just process the difficulty
+     * @param fn 
+     */
+    addPostProcess<T>(object: T[] | undefined, fn: PostProcessFn<T>) {
+        let list = this.postProcesses.get(object)
+
+        if (!list) {
+            list = []
+            this.postProcesses.set(object, list);
+        }
+
+        // idc am lazy
+        list.push(fn as any);
+    }
+
+    /**
+     * 
+     * @param object The object to process. If undefined, will run all 
+     */
+    doPostProcess<T = unknown>(object: T[] | undefined = undefined) {
+        type Tuple = [unknown[] | undefined, PostProcessFn<unknown>[]];
+
+        const functionsMap: Tuple[] = object === undefined
+            ? Array.from(this.postProcesses.entries()) :
+            [[object, this.postProcesses.get(object)!]]
+
+        functionsMap.forEach(tuple => {
+            const arr = tuple[0]
+            const functions = tuple[1]
+
+            if (arr === undefined) {
+                functions.forEach(fn => fn(undefined, this))
+            } else {
+                arr.forEach(i => functions.forEach(fn => fn(i, this)))
+            }
+        })
     }
 
     /** 
@@ -90,8 +134,10 @@ export class Difficulty {
 
         for (let i = 0; i < this.notes.length; i++) {
             const note = copy(this.notes[i]);
-            if (forceJumpsForNoodle && note.isModded) {
+            if (settings.forceJumpsForNoodle && note.isGameplayModded) {
+                // deno-lint-ignore no-self-assign
                 note.NJS = note.NJS;
+                // deno-lint-ignore no-self-assign
                 note.offset = note.offset;
             }
             jsonPrune(note.json);
@@ -99,14 +145,19 @@ export class Difficulty {
         }
         for (let i = 0; i < this.obstacles.length; i++) {
             const wall = copy(this.obstacles[i]);
-            if (forceJumpsForNoodle && wall.isModded) {
+            if (settings.forceJumpsForNoodle && wall.isGameplayModded) {
+                // deno-lint-ignore no-self-assign
                 wall.NJS = wall.NJS;
+                // deno-lint-ignore no-self-assign
                 wall.offset = wall.offset;
             }
             jsonPrune(wall.json);
             outputJSON._obstacles[i] = wall.json;
         }
         for (let i = 0; i < this.events.length; i++) outputJSON._events[i] = copy(this.events[i].json);
+
+        // Finish up
+        this.doPostProcess()
 
         sortObjects(outputJSON._events, "_time");
         sortObjects(outputJSON._notes, "_time");
@@ -117,15 +168,18 @@ export class Difficulty {
             sortObjects(outputJSON._customData._customEvents, "_time");
         }
 
-        if (this.environment !== undefined) {
-            for (let i = 0; i < this.environment.length; i++) {
-                const json = copy(this.environment[i].json);
+        if (this.rawEnvironment !== undefined) {
+            for (let i = 0; i < this.rawEnvironment.length; i++) {
+                const json = copy(this.rawEnvironment[i].json);
                 jsonRemove(json, "_group");
                 outputJSON._customData._environment[i] = json;
             }
         }
 
-        fs.writeFileSync(diffName, JSON.stringify(outputJSON, null, 0));
+
+
+        Deno.writeTextFileSync(diffName, JSON.stringify(outputJSON, null, 0));
+        RMLog(`${this.fileName} successfully saved!`);
     }
 
     /**
@@ -134,7 +188,7 @@ export class Difficulty {
      * @param {Boolean} required True by default, set to false to remove the requirement.
      */
     require(requirement: string, required = true) {
-        const requirements = {};
+        const requirements: Record<string, any> = {};
 
         let requirementsArr = this.requirements;
         if (requirementsArr === undefined) requirementsArr = [];
@@ -157,7 +211,7 @@ export class Difficulty {
      * @param {Boolean} suggested True by default, set to false to remove the suggestion.
      */
     suggest(suggestion: string, suggested = true) {
-        const suggestions = {};
+        const suggestions: Record<string, any> = {};
 
         let suggestionsArr = this.suggestions;
         if (suggestionsArr === undefined) suggestionsArr = [];
@@ -183,7 +237,7 @@ export class Difficulty {
         this.updateSets(this.settings, setting, value);
     }
 
-    private updateSets(object, property: string, value) {
+    private updateSets(object: Record<string, any>, property: string, value: any) {
         jsonSet(object, property, value);
         if (!isEmptyObject(value)) jsonPrune(this.diffSetMap);
         info.save();
@@ -244,8 +298,49 @@ export class Difficulty {
     get waypoints(): any[] { return jsonGet(this.json, "_waypoints") }
     get customData() { return jsonGet(this.json, "_customData", {}) }
     get customEvents(): CustomEventInternals.BaseEvent[] { return jsonGet(this.json, "_customData._customEvents", []) }
+    animateTracks(fn: (arr: CustomEventInternals.AnimateTrack[]) => void) { 
+        const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.AnimateTrack) as CustomEventInternals.AnimateTrack[]
+        fn(arr);
+        this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.AnimateTrack)).concat(arr);
+    }
+    assignPathAnimations(fn: (arr: CustomEventInternals.AssignPathAnimation[]) => void) { 
+        const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.AssignPathAnimation) as CustomEventInternals.AssignPathAnimation[]
+        fn(arr);
+        this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.AssignPathAnimation)).concat(arr);
+    }
+    assignTrackParents(fn: (arr: CustomEventInternals.AssignTrackParent[]) => void) { 
+        const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.AssignTrackParent) as CustomEventInternals.AssignTrackParent[]
+        fn(arr);
+        this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.AssignTrackParent)).concat(arr);
+    }
+    assignPlayerToTracks(fn: (arr: CustomEventInternals.AssignPlayerToTrack[]) => void) { 
+        const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.AssignPlayerToTrack) as CustomEventInternals.AssignPlayerToTrack[]
+        fn(arr);
+        this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.AssignPlayerToTrack)).concat(arr);
+    }
+    assignFogTracks(fn: (arr: CustomEventInternals.AssignFogTrack[]) => void) { 
+        const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.AssignFogTrack) as CustomEventInternals.AssignFogTrack[]
+        fn(arr);
+        this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.AnimateTrack)).concat(arr);
+    }
+    abstractEvents(fn: (arr: CustomEventInternals.AbstractEvent[]) => void) { 
+        const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.AbstractEvent) as CustomEventInternals.AbstractEvent[]
+        fn(arr);
+        this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.AbstractEvent)).concat(arr);
+    }
     get pointDefinitions(): any[] { return jsonGet(this.json, "_customData._pointDefinitions", []) }
-    get environment(): Environment[] { return jsonGet(this.json, "_customData._environment", []) }
+    get geoMaterials(): Record<string, GeometryMaterial>{ return jsonGet(this.json, "_customData._materials", {}) }
+    get rawEnvironment(): EnvironmentInternals.BaseEnvironment[] { return jsonGet(this.json, "_customData._environment", []) }
+    environment(fn: (arr: Environment[]) => void) { 
+        const arr = this.rawEnvironment.filter(x => x instanceof Environment) as Environment[]
+        fn(arr);
+        this.rawEnvironment = this.rawEnvironment.filter(x => !(x instanceof Environment)).concat(arr);
+    }
+    geometry(fn: (arr: Geometry[]) => void) { 
+        const arr = this.rawEnvironment.filter(x => x instanceof Geometry) as Geometry[]
+        fn(arr);
+        this.rawEnvironment = this.rawEnvironment.filter(x => !(x instanceof Geometry)).concat(arr);
+    }
 
     set version(value: string) { jsonSet(this.json, "_version", value) }
     set notes(value: Note[]) { jsonSet(this.json, "_notes", value) }
@@ -255,17 +350,18 @@ export class Difficulty {
     set customData(value) { jsonSet(this.json, "_customData", value) }
     set customEvents(value: CustomEventInternals.BaseEvent[]) { jsonSet(this.json, "_customData._customEvents", value) }
     set pointDefinitions(value: any[]) { jsonSet(this.json, "_customData._pointDefinitions", value) }
-    set environment(value: Environment[]) { jsonSet(this.json, "_customData._environment", value) }
+    set geoMaterials(value: Record<string, GeometryMaterial>) { jsonSet(this.json, "_customData._materials", value) }
+    set rawEnvironment(value: EnvironmentInternals.BaseEnvironment[]) { jsonSet(this.json, "_customData._environment", value) }
 }
 
 export class Info {
-    json;
+    json: Record<string, any> = {};
     fileName = "Info.dat";
 
     load(path?: string) {
         const fileName = path ?? this.fileName;
         if (fs.existsSync(fileName)) {
-            this.json = JSON.parse(fs.readFileSync(fileName, "utf-8"));
+            this.json = JSON.parse(Deno.readTextFileSync(fileName));
             this.fileName = fileName;
         }
         else {
@@ -278,10 +374,10 @@ export class Info {
      */
     save() {
         if (!this.json) throw new Error("The Info object has not been loaded.");
-        fs.writeFileSync(this.fileName, JSON.stringify(this.json, null, 2));
+        Deno.writeTextFileSync(this.fileName, JSON.stringify(this.json, null, 2));
     }
 
-    private updateInfo(object, property, value) {
+    private updateInfo(object: Record<string, any>, property: string, value: any) {
         jsonSet(object, property, value);
         info.save();
     }
@@ -331,7 +427,10 @@ export class Info {
 
 export const info = new Info();
 export let activeDiff: Difficulty;
-export let forceJumpsForNoodle = true;
+export const settings = {
+    forceJumpsForNoodle: true,
+    decimals: 7 as number | undefined
+}
 
 /**
  * Set the difficulty that objects are being created for.
@@ -340,11 +439,31 @@ export let forceJumpsForNoodle = true;
 export function activeDiffSet(diff: Difficulty) { activeDiff = diff }
 
 /**
- * Set whether exported walls and notes with custom data will have their NJS / Offset forced.
- * This helps avoid things like JDFixer breaking things. Should be set before your scripting.
- * @param {Boolean} value
+ * Get the active difficulty, ensuring that it is indeed active.
+ * @returns {Object}
  */
-export function forceJumpsForNoodleSet(value: boolean) { forceJumpsForNoodle = value; }
+export function activeDiffGet() {
+    if (activeDiff) return activeDiff;
+    else throw new Error("There is currently no loaded difficulty.");
+}
+
+function reduceDecimalsPostProcess(_: never, diff: Difficulty) {
+    if (!settings.decimals) return;
+    const mapJson = diff.json;
+    reduceDecimalsInObject(mapJson);
+
+    function reduceDecimalsInObject(json: Record<string, any>) {
+        for (const key in json) {
+            const element = json[key];
+    
+            if (typeof element === "number") {
+                json[key] = setDecimals(element, settings.decimals as number);
+            } else if (element instanceof Object) {
+                reduceDecimalsInObject(element)
+            }
+        }
+    }
+}
 
 /**
  * Automatically zip the map, including only necessary files.
@@ -354,10 +473,10 @@ export function forceJumpsForNoodleSet(value: boolean) { forceJumpsForNoodle = v
 export function exportZip(excludeDiffs: string[] = [], zipName?: string) {
     if (!info.json) throw new Error("The Info object has not been loaded.");
 
-    const absoluteInfoFileName = info.fileName === "Info.dat" ? process.cwd() + `\\${info.fileName}` : info.fileName;
+    const absoluteInfoFileName = info.fileName === "Info.dat" ? Deno.cwd() + `\\${info.fileName}` : info.fileName;
     const workingDir = path.parse(absoluteInfoFileName).dir;
     const exportInfo = copy(info.json);
-    const files: string[] = [];
+    let files: string[] = [];
     function pushFile(file: string) {
         const dir = workingDir + `\\${file}`;
         if (fs.existsSync(dir)) files.push(dir);
@@ -389,22 +508,19 @@ export function exportZip(excludeDiffs: string[] = [], zipName?: string) {
     }
 
     zipName ??= `${path.parse(workingDir).name}`;
-    zipName = workingDir + `\\${zipName}.zip`;
-    if (!fs.existsSync(zipName)) fs.writeFileSync(zipName, "");
-    const tempInfo = workingDir + `\\TEMPINFO.dat`;
+    zipName = `${zipName}.zip`;
+    const tempDir = Deno.makeTempDirSync();
+    const tempInfo = tempDir + `\\Info.dat`;
     files.push(tempInfo);
-    fs.writeFileSync(tempInfo, JSON.stringify(exportInfo, null, 0));
-    fs.unlinkSync(zipName);
+    Deno.writeTextFileSync(tempInfo, JSON.stringify(exportInfo, null, 0));
 
-    const zip = seven.add(zipName, files, { $bin: sevenBin.path7za });
-    zip.on('end', function () {
-        const zip2 = seven.rename(zipName, [
-            ["TEMPINFO.dat", path.parse(info.fileName).base]
-        ], { $bin: sevenBin.path7za })
-        zip2.on('end', function () {
-            fs.unlinkSync(tempInfo);
-        })
-    });
+    files = files.map(x => x = `"${x}"`);
+    zipName = zipName.replaceAll(" ", "_");
+    compressZip();
+    async function compressZip() {
+        await compress(files, zipName, { overwrite: true });
+        RMLog(`${zipName} has been zipped!`);
+    }
 }
 
 /**
@@ -417,12 +533,12 @@ export function exportZip(excludeDiffs: string[] = [], zipName?: string) {
  * so new pushed notes for example may not be cleared on the next run and would build up.
  */
 export function transferVisuals(diffs: string[], forDiff?: (diff: Difficulty) => void) {
-    const startActive = activeDiff;
+    const startActive = activeDiff as Difficulty;
 
     diffs.forEach(x => {
         const workingDiff = new Difficulty(x);
 
-        workingDiff.environment = startActive.environment;
+        workingDiff.rawEnvironment = startActive.rawEnvironment;
         workingDiff.pointDefinitions = startActive.pointDefinitions;
         workingDiff.customEvents = startActive.customEvents;
         workingDiff.events = startActive.events;

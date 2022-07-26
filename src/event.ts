@@ -1,6 +1,7 @@
-import { EASE, EVENT } from './constants';
-import { activeDiff } from './beatmap';
-import { copy, jsonPrune, isEmptyObject, jsonGet, jsonSet, ColorType } from './general';
+// deno-lint-ignore-file no-explicit-any no-namespace adjacent-overload-signatures
+import { EASE, EVENT } from './constants.ts';
+import { activeDiffGet } from './beatmap.ts';
+import { copy, jsonPrune, isEmptyObject, jsonGet, jsonSet, ColorType } from './general.ts';
 
 export namespace EventInternals {
     export class BaseEvent {
@@ -10,7 +11,7 @@ export namespace EventInternals {
             _value: 0
         };
 
-        constructor(time: number | object) {
+        constructor(time: number | Record<string, any>) {
             if (time instanceof Object) {
                 this.json = time;
                 return;
@@ -22,7 +23,7 @@ export namespace EventInternals {
         * Push this event to the difficulty
         */
         push() {
-            activeDiff.events.push(copy(this) as any);
+            activeDiffGet().events.push(copy(this) as any);
             return this;
         }
 
@@ -47,11 +48,11 @@ export namespace EventInternals {
     }
 
     export class LightEvent extends EventInternals.BaseEvent {
-        constructor(json: object, type: EVENT) {
+        constructor(json: Record<string, any>, type: number) {
             super(json);
             this.type = type;
         }
-    
+
         /**
          * Create an event that turns lights off.
          * @returns 
@@ -60,27 +61,27 @@ export namespace EventInternals {
             this.value = EVENT.OFF;
             return this;
         }
-    
+
         /**
          * Create an event that turns lights on.
          * @param {Array} color Can be boolean to determine if the light is blue (true), or a color.
          * @param {Number | Array} lightID 
          * @returns 
          */
-        on(color: ColorType | boolean, lightID: number | number[] = undefined) {
+        on(color: ColorType | boolean, lightID?: number | number[]) {
             this.value = (typeof color === "boolean" && color) ? EVENT.BLUE_ON : EVENT.RED_ON;
             if (typeof color !== "boolean") this.color = color;
             if (lightID !== undefined) this.lightID = lightID;
             return this;
         }
-    
+
         /**
          * Create an event that flashes the lights.
          * @param {Array} color Can be boolean to determine if the light is blue (true), or a color.
          * @param {Number | Array} lightID 
          * @returns 
          */
-        flash(color: ColorType | boolean, lightID: number | number[] = undefined) {
+        flash(color: ColorType | boolean, lightID?: number | number[]) {
             this.value = (typeof color === "boolean" && color) ? EVENT.BLUE_FLASH : EVENT.RED_FLASH;
             if (typeof color !== "boolean") this.color = color;
             if (lightID !== undefined) this.lightID = lightID;
@@ -93,26 +94,26 @@ export namespace EventInternals {
          * @param {Number | Array} lightID 
          * @returns 
          */
-        fade(color: ColorType | boolean, lightID: number | number[] = undefined) {
+        fade(color: ColorType | boolean, lightID?: number | number[]) {
             this.value = (typeof color === "boolean" && color) ? EVENT.BLUE_FADE : EVENT.RED_FADE;
             if (typeof color !== "boolean") this.color = color;
             if (lightID !== undefined) this.lightID = lightID;
             return this;
         }
-    
+
         /**
          * Create an event that makes the lights fade in to this color from the previous.
          * @param {Array} color Can be boolean to determine if the light is blue (true), or a color.
          * @param {Number | Array} lightID 
          * @returns 
          */
-        in(color: ColorType | boolean, lightID: number | number[] = undefined) {
+        in(color: ColorType | boolean, lightID?: number | number[]) {
             this.value = (typeof color === "boolean" && color) ? EVENT.BLUE_IN : EVENT.RED_IN;
             if (typeof color !== "boolean") this.color = color;
             if (lightID !== undefined) this.lightID = lightID;
             return this;
         }
-    
+
         /**
          * Create a light gradient between 2 colors. This feature is deprecated in Chroma.
          * @param {Array} startColor 
@@ -121,7 +122,7 @@ export namespace EventInternals {
          * @param {String} easing 
          * @returns 
          */
-        gradient(startColor: ColorType, endColor: ColorType, duration: number, easing: EASE = undefined) {
+        gradient(startColor: ColorType, endColor: ColorType, duration: number, easing?: EASE) {
             this.startColor = startColor;
             this.endColor = endColor;
             this.duration = duration;
@@ -129,13 +130,13 @@ export namespace EventInternals {
             if (easing !== undefined) this.gradientEasing = easing;
             return this;
         }
-    
+
         /**
         * Remove the subclass of the event, giving access to all properties, but can allow for invalid data.
         * @returns {AbstractEvent}
         */
         abstract() { return new Event().import(this.json) }
-    
+
         get lightID() { return jsonGet(this.json, "_customData._lightID") }
         get color() { return jsonGet(this.json, "_customData._color") }
         get easing() { return jsonGet(this.json, "_customData._easing") }
@@ -145,7 +146,7 @@ export namespace EventInternals {
         get endColor() { return jsonGet(this.json, "_customData._lightGradient._endColor") }
         get duration() { return jsonGet(this.json, "_customData._lightGradient._duration") }
         get gradientEasing() { return jsonGet(this.json, "_customData._lightGradient._easing") }
-    
+
         set lightID(value: number | number[]) { jsonSet(this.json, "_customData._lightID", value) }
         set color(value: ColorType) { jsonSet(this.json, "_customData._color", value) }
         set easing(value: EASE) { jsonSet(this.json, "_customData._easing", value) }
@@ -156,60 +157,60 @@ export namespace EventInternals {
         set duration(value: number) { jsonSet(this.json, "_customData._lightGradient._duration", value) }
         set gradientEasing(value: EASE) { jsonSet(this.json, "_customData._lightGradient._easing", value) }
     }
-    
+
     export class LaserSpeedEvent extends EventInternals.BaseEvent {
-        constructor(json: object, type: EVENT, speed: number, direction: number = undefined, lockPosition: boolean = undefined) {
+        constructor(json: Record<string, any>, type: number, speed: number, direction?: number, lockPosition?: boolean) {
             super(json);
             this.type = type;
-    
+
             if (speed % 1 === 0) this.value = speed;
             else this.speed = speed;
             if (direction !== undefined) this.direction = direction;
             if (lockPosition !== undefined) this.lockPosition = lockPosition;
         }
-    
+
         /**
         * Remove the subclass of the event, giving access to all properties, but can allow for invalid data.
         * @returns {AbstractEvent}
         */
         abstract() { return new Event().import(this.json) }
-    
+
         get lockPosition() { return jsonGet(this.json, "_customData._lockPosition") }
         get speed() { return jsonGet(this.json, "_customData._speed") }
         get direction() { return jsonGet(this.json, "_customData._direction") }
-    
+
         set lockPosition(value: boolean) { jsonSet(this.json, "_customData._lockPosition", value) }
         set speed(value: number) { jsonSet(this.json, "_customData._speed", value) }
         set direction(value: number) { jsonSet(this.json, "_customData._direction", value) }
     }
-    
+
     export class RingZoomEvent extends EventInternals.BaseEvent {
-        constructor(json: object, step: number = undefined, speed: number = undefined) {
+        constructor(json: Record<string, any>, step?: number, speed?: number) {
             super(json);
             this.type = EVENT.RING_ZOOM;
-    
+
             if (step !== undefined) this.step = step;
             if (speed !== undefined) this.speed = speed;
         }
-    
+
         /**
         * Remove the subclass of the event, giving access to all properties, but can allow for invalid data.
         * @returns {AbstractEvent}
         */
         abstract() { return new Event().import(this.json) }
-    
+
         get step() { return jsonGet(this.json, "_customData._step") }
         get speed() { return jsonGet(this.json, "_customData._speed") }
-    
+
         set step(value: number) { jsonSet(this.json, "_customData._step", value) }
         set speed(value: number) { jsonSet(this.json, "_customData._speed", value) }
     }
-    
+
     export class RingSpinEvent extends EventInternals.BaseEvent {
-        constructor(json: object, rotation: number = undefined, direction: number = undefined, step: number = undefined, speed: number = undefined, prop: number = undefined, reset: boolean = undefined, nameFilter: string = undefined, counterSpin: boolean = undefined) {
+        constructor(json: Record<string, any>, rotation?: number, direction?: number, step?: number, speed?: number, prop?: number, reset?: boolean, nameFilter?: string, counterSpin?: boolean) {
             super(json);
             this.type = EVENT.RING_SPIN;
-    
+
             if (rotation !== undefined) this.rotation = rotation;
             if (direction !== undefined) this.direction = direction;
             if (step !== undefined) this.step = step;
@@ -219,13 +220,13 @@ export namespace EventInternals {
             if (nameFilter !== undefined) this.nameFilter = nameFilter;
             if (counterSpin !== undefined) this.counterSpin = counterSpin;
         }
-    
+
         /**
         * Remove the subclass of the event, giving access to all properties, but can allow for invalid data.
         * @returns {AbstractEvent}
         */
         abstract() { return new Event().import(this.json) }
-    
+
         get speed() { return jsonGet(this.json, "_customData._speed") }
         get direction() { return jsonGet(this.json, "_customData._direction") }
         get nameFilter() { return jsonGet(this.json, "_customData._nameFilter") }
@@ -234,7 +235,7 @@ export namespace EventInternals {
         get step() { return jsonGet(this.json, "_customData._step") }
         get prop() { return jsonGet(this.json, "_customData._prop") }
         get counterSpin() { return jsonGet(this.json, "_customData._counterSpin") }
-    
+
         set speed(value: number) { jsonSet(this.json, "_customData._speed", value) }
         set direction(value: number) { jsonSet(this.json, "_customData._direction", value) }
         set nameFilter(value: string) { jsonSet(this.json, "_customData._nameFilter", value) }
@@ -244,26 +245,26 @@ export namespace EventInternals {
         set prop(value: number) { jsonSet(this.json, "_customData._prop", value) }
         set counterSpin(value: boolean) { jsonSet(this.json, "_customData._counterSpin", value) }
     }
-    
+
     export class RotationEvent extends EventInternals.BaseEvent {
-        constructor(json: object, type: EVENT, rotation: number = undefined) {
+        constructor(json: Record<string, any>, type: number, rotation: number) {
             super(json);
             this.type = type;
-    
+
             if (EVENT[`CW_${Math.abs(rotation)}`]) this.value = EVENT[`${(rotation < 0 ? "CCW_" : "CW_") + Math.abs(rotation)}`];
             else this.rotation = rotation;
         }
-    
+
         /**
         * Remove the subclass of the event, giving access to all properties, but can allow for invalid data.
         * @returns {AbstractEvent}
         */
         abstract() { return new Event().import(this.json) }
-    
+
         get rotation() { return jsonGet(this.json, "_customData._rotation") }
         set rotation(value) { jsonSet(this.json, "_customData._rotation", value) }
     }
-    
+
     export class AbstractEvent extends EventInternals.BaseEvent {
         get lockPosition() { return jsonGet(this.json, "_customData._lockPosition") }
         get lightID() { return jsonGet(this.json, "_customData._lightID") }
@@ -283,7 +284,7 @@ export namespace EventInternals {
         get step() { return jsonGet(this.json, "_customData._step") }
         get prop() { return jsonGet(this.json, "_customData._prop") }
         get counterSpin() { return jsonGet(this.json, "_customData._counterSpin") }
-    
+
         set lockPosition(value: boolean) { jsonSet(this.json, "_customData._lockPosition", value) }
         set speed(value: number) { jsonSet(this.json, "_customData._speed", value) }
         set direction(value: number) { jsonSet(this.json, "_customData._direction", value) }
@@ -371,7 +372,7 @@ export class Event extends EventInternals.BaseEvent {
      * @param {Object} json 
      * @returns {AbstractEvent}
      */
-    import(json: object) { return new EventInternals.AbstractEvent(json) }
+    import(json: Record<string, any>) { return new EventInternals.AbstractEvent(json) }
 
     /**
      * Create an event with no particular identity.
@@ -395,7 +396,7 @@ export class Event extends EventInternals.BaseEvent {
      * @param {Number} value 
      * @returns 
      */
-    moveCars(value: EVENT) {
+    moveCars(value: number) {
         this.type = EVENT.RING_SPIN;
         this.value = value;
         return new EventInternals.BaseEvent(this.json);
@@ -432,14 +433,14 @@ export class Event extends EventInternals.BaseEvent {
      * @returns 
      */
     ringSpin(
-        rotation: number = undefined,
-        direction: number = undefined,
-        step: number = undefined,
-        speed: number = undefined,
-        prop: number = undefined,
-        reset: boolean = undefined,
-        nameFilter: string = undefined,
-        counterSpin: boolean = undefined) {
+        rotation?: number,
+        direction?: number,
+        step?: number,
+        speed?: number,
+        prop?: number,
+        reset?: boolean,
+        nameFilter?: string,
+        counterSpin?: boolean) {
         return new EventInternals.RingSpinEvent(this.json, rotation, direction, step, speed, prop, reset, nameFilter, counterSpin);
     }
 
@@ -449,7 +450,7 @@ export class Event extends EventInternals.BaseEvent {
      * @param {Number} speed 
      * @returns 
      */
-    ringZoom(step: number = undefined, speed: number = undefined) { return new EventInternals.RingZoomEvent(this.json, step, speed) }
+    ringZoom(step?: number, speed?: number) { return new EventInternals.RingZoomEvent(this.json, step, speed) }
 
     /**
      * Control the movement speed of the left lasers.
@@ -458,7 +459,7 @@ export class Event extends EventInternals.BaseEvent {
      * @param {Boolean} lockPosition 
      * @returns 
      */
-    leftLaserSpeed(speed: number, direction: number = undefined, lockPosition: boolean = undefined) {
+    leftLaserSpeed(speed: number, direction?: number, lockPosition?: boolean) {
         return new EventInternals.LaserSpeedEvent(this.json, EVENT.LEFT_SPEED, speed, direction, lockPosition);
     }
 
@@ -469,7 +470,7 @@ export class Event extends EventInternals.BaseEvent {
      * @param {Boolean} lockPosition 
      * @returns 
      */
-    rightLaserSpeed(speed: number, direction: number = undefined, lockPosition: boolean = undefined) {
+    rightLaserSpeed(speed: number, direction?: number, lockPosition?: boolean) {
         return new EventInternals.LaserSpeedEvent(this.json, EVENT.RIGHT_SPEED, speed, direction, lockPosition);
     }
 
@@ -478,12 +479,12 @@ export class Event extends EventInternals.BaseEvent {
      * @param {Number} rotation 
      * @returns 
      */
-    earlyRotation(rotation: EVENT) { return new EventInternals.RotationEvent(this.json, EVENT.EARLY_ROTATION, rotation) }
+    earlyRotation(rotation: number) { return new EventInternals.RotationEvent(this.json, EVENT.EARLY_ROTATION, rotation) }
 
     /**
      * Used for 360 mode, rotates future objects only.
      * @param {Number} rotation 
      * @returns 
      */
-    lateRotation(rotation: EVENT) { return new EventInternals.RotationEvent(this.json, EVENT.LATE_ROTATION, rotation) }
+    lateRotation(rotation: number) { return new EventInternals.RotationEvent(this.json, EVENT.LATE_ROTATION, rotation) }
 }

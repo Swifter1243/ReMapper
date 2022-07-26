@@ -1,10 +1,11 @@
-import { activeDiff, info } from './beatmap';
-import { Animation, AnimationInternals, Track, TrackValue } from './animation';
-import { isEmptyObject, getJumps, copy, jsonPrune, ColorType } from './general';
-import { NOTE } from './constants';
+// deno-lint-ignore-file no-explicit-any adjacent-overload-signatures
+import { activeDiffGet, info } from './beatmap.ts';
+import { Animation, AnimationInternals, Track } from './animation.ts';
+import { isEmptyObject, getJumps, copy, jsonPrune, ColorType, jsonRemove } from './general.ts';
+import { NOTE } from './constants.ts';
 
 export class Note {
-    json: any = {
+    json: Record<string, any> = {
         _time: 0,
         _type: 0,
         _cutDirection: 0,
@@ -24,7 +25,7 @@ export class Note {
      * @param {Number} direction 
      * @param {Array} position Array for x and y of the note. If an additional boolean of true is added, it will be converted to a noodle position instead of the vanilla grid.
      */
-    constructor(time: number = undefined, type: NOTE = undefined, direction: NOTE = undefined, position: [number, number, boolean?] = undefined) {
+    constructor(time?: number, type?: NOTE, direction?: NOTE, position?: [number, number, boolean?]) {
         if (time !== undefined) this.time = time;
         if (type !== undefined) this.type = type;
         if (direction !== undefined) this.direction = direction;
@@ -36,7 +37,7 @@ export class Note {
      * @param {Object} json 
      * @returns {Note}
      */
-    import(json) {
+    import(json: Record<number, any>) {
         this.json = json;
         if (this.customData === undefined) this.customData = {};
         if (this.animation === undefined) this.animation = {};
@@ -48,7 +49,7 @@ export class Note {
      * Push this note to the difficulty
      */
     push() {
-        activeDiff.notes.push(copy(this));
+        activeDiffGet().notes.push(copy(this));
         return this;
     }
 
@@ -82,11 +83,11 @@ export class Note {
     get localRotation() { return this.json._customData._localRotation }
     get NJS() {
         if (this.json._customData._noteJumpMovementSpeed) return this.json._customData._noteJumpMovementSpeed;
-        else return activeDiff.NJS;
+        else return activeDiffGet().NJS;
     }
     get offset() {
         if (this.json._customData._noteJumpStartBeatOffset) return this.json._customData._noteJumpStartBeatOffset;
-        else return activeDiff.offset;
+        else return activeDiffGet().offset;
     }
     get halfJumpDur() { return getJumps(this.NJS, this.offset, info.BPM).halfDur }
     get jumpDist() { return getJumps(this.NJS, this.offset, info.BPM).dist }
@@ -94,7 +95,7 @@ export class Note {
     get lifeStart() { return this.time - this.life / 2 }
     get fake() { return this.json._customData._fake }
     get interactable() { return this.json._customData._interactable }
-    get track() { return new Track(this.json._customData._track) }
+    get track() { return new Track(this.json._customData) }
     get color() { return this.json._customData._color }
     get animation() { return this.json._customData._animation }
 
@@ -136,13 +137,22 @@ export class Note {
     set lifeStart(value: number) { this.time = value + this.life / 2 }
     set fake(value: boolean) { this.json._customData._fake = value }
     set interactable(value: boolean) { this.json._customData._interactable = value }
-    set trackSet(value: TrackValue) { this.json._customData._track = value }
     set color(value: ColorType) { this.json._customData._color = value }
     set animation(value) { this.json._customData._animation = value }
 
     get isModded() {
         if (this.customData === undefined) return false;
         const customData = copy(this.customData);
+        jsonPrune(customData);
+        return !isEmptyObject(customData);
+    }
+    
+    get isGameplayModded() {
+        if (this.customData === undefined) return false;
+        const customData = copy(this.customData);
+        jsonRemove(customData, "_color");
+        jsonRemove(customData, "_disableSpawnEffect");
+        jsonRemove(customData, "_animation._color");
         jsonPrune(customData);
         return !isEmptyObject(customData);
     }

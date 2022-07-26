@@ -1,5 +1,5 @@
-import { complexifyArray, Keyframe, KeyframesAny, simplifyArray } from "./animation";
-import { copy } from "./general";
+import { complexifyArray, Keyframe, KeyframesAny, simplifyArray } from "./animation.ts";
+import { copy } from "./general.ts";
 
 function areArrayElementsIdentical<T>(enumerable1: T[], enumerable2: T[]): boolean {
     if (enumerable1.length !== enumerable2.length) {
@@ -154,49 +154,9 @@ function SlopeOfPoint(a: Keyframe, b: Keyframe, slopes: number[]) {
     }
 }
 
-function roundTo(n: number, digits: number) {
-    const multiplier = Math.pow(10, digits);
-
-    return Math.round(n * multiplier) / multiplier
-
-
-    // return parseFloat(n.toFixed(digits))
-
-    // let negative = false;
-    // if (digits === undefined) {
-    //     digits = 0;
-    // }
-    // if (n < 0) {
-    //     negative = true;
-    //     n = n * -1;
-    // }
-    // let multiplicator = Math.pow(10, digits);
-    // n = parseFloat((n * multiplicator).toFixed(11));
-    // n = (Math.round(n) / multiplicator).toFixed(digits);
-    // if (negative) {
-    //     n = (n * -1).toFixed(digits);
-    // }
-    // return n;
-}
-
 // pointC is undefined if array is size 2
 // return true to remove point
 export type OptimizeFunction = (pointA: Keyframe, pointB: Keyframe, pointC: Keyframe | undefined) => Keyframe | undefined;
-
-// Probably not necessary but whatever
-function optimizeFloatingPoints(a: Keyframe, b: Keyframe, c: Keyframe, optimizeFloatingPoints: OptimizeFloatingPointsSettings): Keyframe | undefined {
-    [a, b, c].forEach((p) => {
-        if (!p) return;
-
-        p.values = p.values.map(e => roundTo(e, optimizeFloatingPoints.decimals))
-        p.time = roundTo(p.time, optimizeFloatingPoints.decimals)
-    })
-
-    return undefined;
-
-}
-
-
 
 // https://github.com/ErisApps/OhHeck/blob/ae8d02bf6bf2ec8545c2a07546c6844185b97f1c/OhHeck.Core/Analyzer/Lints/Animation/DuplicatePointData.cs
 function optimizeDuplicates(pointA: Keyframe, pointB: Keyframe, pointC: Keyframe | undefined): Keyframe | undefined {
@@ -286,14 +246,8 @@ function optimizeSimilarPointsSlope(pointA: Keyframe, pointB: Keyframe, pointC: 
 /**
  * Settings for the "optimizeSimilarPoints" optimizing function, starts at default values.
  */
-export class OptimizeFloatingPointsSettings {
-    decimals = 5
-}
-
-/**
- * Settings for the "optimizeSimilarPoints" optimizing function, starts at default values.
- */
 export class OptimizeSimilarPointsSettings {
+    active = true;
     differenceThreshold = 1;
     timeDifferenceThreshold = 0.001;
 }
@@ -305,6 +259,7 @@ export class OptimizeSimilarPointsSlopeSettings {
     // The minimum difference for considering not similar
     // These numbers at quick glance seem to be fairly reliable, nice
     // however they should be configurable or looked at later
+    active = true;
     differenceThreshold = 0.03;
     timeDifferenceThreshold = 0.025;
     yInterceptDifferenceThreshold = 0.5;
@@ -315,24 +270,24 @@ export class OptimizeSimilarPointsSlopeSettings {
  */
 export class OptimizeSettings {
     // false or undefined to disable these settings
+    active = true;
     passes = 5;
     performance_log = false;
-    optimizeDuplicates: boolean | undefined = true; // false or undefined to disable
-    optimizeFloatingPoints: OptimizeFloatingPointsSettings | undefined = new OptimizeFloatingPointsSettings() 
-    optimizeSimilarPoints: OptimizeSimilarPointsSettings | undefined = new OptimizeSimilarPointsSettings();
-    optimizeSimilarPointsSlope: OptimizeSimilarPointsSlopeSettings | undefined = new OptimizeSimilarPointsSlopeSettings();
+    optimizeDuplicates = true; // false or undefined to disable
+    optimizeSimilarPoints: OptimizeSimilarPointsSettings = new OptimizeSimilarPointsSettings();
+    optimizeSimilarPointsSlope: OptimizeSimilarPointsSlopeSettings = new OptimizeSimilarPointsSlopeSettings();
     additionalOptimizers: OptimizeFunction[] | undefined = undefined;
 }
 
 function optimizeKeyframes(keyframes: Keyframe[], optimizeSettings: OptimizeSettings): Keyframe[] {
+    if (!optimizeSettings.active) return keyframes;
     const sortedKeyframes = keyframes.sort((a, b) => a.time - b.time);
 
     const optimizers: OptimizeFunction[] = [...optimizeSettings.additionalOptimizers ?? []]
 
-    if (optimizeSettings.optimizeFloatingPoints) optimizers.push((a, b, c) => optimizeFloatingPoints(a, b, c, optimizeSettings.optimizeFloatingPoints))
     if (optimizeSettings.optimizeDuplicates) optimizers.push(optimizeDuplicates);
-    if (optimizeSettings.optimizeSimilarPoints) optimizers.push((a, b, c) => optimizeSimilarPoints(a, b, c, optimizeSettings.optimizeSimilarPoints))
-    if (optimizeSettings.optimizeSimilarPointsSlope) optimizers.push((a, b, c) => optimizeSimilarPointsSlope(a, b, c, optimizeSettings.optimizeSimilarPointsSlope))
+    if (optimizeSettings.optimizeSimilarPoints.active) optimizers.push((a, b, c) => optimizeSimilarPoints(a, b, c, optimizeSettings.optimizeSimilarPoints))
+    if (optimizeSettings.optimizeSimilarPointsSlope.active) optimizers.push((a, b, c) => optimizeSimilarPointsSlope(a, b, c, optimizeSettings.optimizeSimilarPointsSlope))
 
     if (optimizeSettings.performance_log) {
         console.log(`Optimizing ${keyframes.length} points`)

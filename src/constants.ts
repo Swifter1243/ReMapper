@@ -1,5 +1,5 @@
-import { Vec3 } from "./general"
-import { Regex } from "./regex"
+import { Vec3 } from "./general.ts"
+import { Regex } from "./regex.ts"
 
 export enum MODS {
     NOODLE_EXTENSIONS = "Noodle Extensions",
@@ -214,61 +214,61 @@ export enum WALL {
     CROUCH = 1
 }
 
-export enum EVENT {
+export const EVENT: Record<string, number> = {
     // Type
-    BACK_LASERS = 0,
-    RING_LIGHTS = 1,
-    LEFT_LASERS = 2,
-    RIGHT_LASERS = 3,
-    CENTER_LASERS = 4,
-    BOOST = 5,
-    LEFT_EXTRA = 6,
-    RIGHT_EXTRA = 7,
-    RING_SPIN = 8,
-    RING_ZOOM = 9,
-    BILLIE_LEFT = 10,
-    BILLIE_RIGHT = 11,
-    LEFT_SPEED = 12,
-    RIGHT_SPEED = 13,
-    EARLY_ROTATION = 14,
-    LATE_ROTATION = 15,
-    LOWER_HYDRAULICS = 16,
-    RAISE_HYDRAULICS = 17,
+    BACK_LASERS: 0,
+    RING_LIGHTS: 1,
+    LEFT_LASERS: 2,
+    RIGHT_LASERS: 3,
+    CENTER_LASERS: 4,
+    BOOST: 5,
+    LEFT_EXTRA: 6,
+    RIGHT_EXTRA: 7,
+    RING_SPIN: 8,
+    RING_ZOOM: 9,
+    BILLIE_LEFT: 10,
+    BILLIE_RIGHT: 11,
+    LEFT_SPEED: 12,
+    RIGHT_SPEED: 13,
+    EARLY_ROTATION: 14,
+    LATE_ROTATION: 15,
+    LOWER_HYDRAULICS: 16,
+    RAISE_HYDRAULICS: 17,
 
     // Regular Action
-    OFF = 0,
-    BLUE_ON = 1,
-    BLUE_FLASH = 2,
-    BLUE_FADE = 3,
-    BLUE_IN = 4,
-    RED_ON = 5,
-    RED_FLASH = 6,
-    RED_FADE = 7,
-    RED_IN = 8,
+    OFF: 0,
+    BLUE_ON: 1,
+    BLUE_FLASH: 2,
+    BLUE_FADE: 3,
+    BLUE_IN: 4,
+    RED_ON: 5,
+    RED_FLASH: 6,
+    RED_FADE: 7,
+    RED_IN: 8,
 
     // Boost Action
-    BOOST_OFF = 0,
-    BOOST_ON = 1,
+    BOOST_OFF: 0,
+    BOOST_ON: 1,
 
     // Interscope Action
-    NO_HYDRAULICS = 0,
-    ALL_CARS = 1,
-    LEFT_CARS = 2,
-    RIGHT_CARS = 3,
-    FRONT_CARS = 4,
-    FRONT_MIDDLE_CARS = 5,
-    BACK_MIDDLE_CARS = 6,
-    BACK_CARS = 7,
+    NO_HYDRAULICS: 0,
+    ALL_CARS: 1,
+    LEFT_CARS: 2,
+    RIGHT_CARS: 3,
+    FRONT_CARS: 4,
+    FRONT_MIDDLE_CARS: 5,
+    BACK_MIDDLE_CARS: 6,
+    BACK_CARS: 7,
 
     // Rotation Action
-    CCW_60 = 0,
-    CCW_45 = 1,
-    CCW_30 = 2,
-    CCW_15 = 3,
-    CW_15 = 4,
-    CW_30 = 5,
-    CW_45 = 6,
-    CW_60 = 7
+    CCW_60: 0,
+    CCW_45: 1,
+    CCW_30: 2,
+    CCW_15: 3,
+    CW_15: 4,
+    CW_30: 5,
+    CW_45: 6,
+    CW_60: 7
 }
 
 export enum ANIM {
@@ -293,31 +293,43 @@ export enum ANIM {
 export const ENV = {
     BTS: {
         PILLAR: {
-            ID: new Regex().start().add("PillarPair").seperate().add("PillarL").seperate().add("Pillar").end().string,
-            SCALE: <Vec3>[10, 10 * (1 / 0.032), 10],
-            ANCHOR: <Vec3>[0, -0.5, 0]
+            ID: new Regex().start().add("PillarPair").separate().add("PillarL").separate().add("Pillar").end(),
+            SCALE: <Vec3>[0.285714, 0.008868, 0.285714],
+            ANCHOR: <Vec3>[0, 0.4999, 0]
         },
         SOLID_LASER: {
-            ID: new Regex().add("SmallPillarPair").seperate().add("PillarL").seperate().add("LaserL").end().string,
-            SCALE: <Vec3>[1 / 3.5, 7000, 1 / 3.5],
-            ANCHOR: <Vec3>[0, 0.5, 0]
+            ID: new Regex().add("SmallPillarPair").separate().add("PillarL").separate().add("LaserL").end(),
+            SCALE: <Vec3>[10, 1 / 2500, 10],
+            ANCHOR: <Vec3>[0, -0.5, 0]
         },
         LOW_CLOUDS: {
             ID: "LowCloudsGenerator$",
-            SCALE: <Vec3>[425, 40, 425],
-            ANCHOR: <Vec3>[0, -0.25, 0]
+            SCALE: <Vec3>[0.0064, 0.06, 0.0064],
+            ANCHOR: <Vec3>[0, 0.22, 0]
+        },
+        HIGH_CLOUDS: {
+            ID: "HighCloudsGenerator$",
+            SCALE: <Vec3>[0.0025, 0.0425, 0.0025],
+            ANCHOR: <Vec3>[0, -0.218, 0]
         }
     },
     GAGA: {
         CUBE: {
             ID: "BackCube$",
-            SCALE: <Vec3>[16, 7 / 10, 14 / 10],
-            ANCHOR: <Vec3>[0, -0.5, -0.5]
+            SCALE: <Vec3>[1 / 5.5, 4, 2],
+            ANCHOR: <Vec3>[0, 0.5, 0.5]
         },
         SECOND_AURORA: {
-            ID: new Regex().add("Aurora").seperate().add("AuroraSecondary").end().string,
-            SCALE: <Vec3>[900, 200, 1000],
-            ANCHOR: <Vec3>[0, -0.25, 0]
+            ID: new Regex().add("Aurora").separate().add("AuroraSecondary").end(),
+            SCALE: <Vec3>[0.0025, 0.02, 0.012],
+            ANCHOR: <Vec3>[0, 0.6, 0.05]
+        }
+    },
+    BILLIE: {
+        CUBE: {
+            ID: "LeftFarRail1$",
+            SCALE: <Vec3>[10, 10, 0.02306],
+            ANCHOR: <Vec3>[0, 0, -0.4974]
         }
     }
 }
@@ -333,16 +345,18 @@ export enum LOOKUP {
     EXACT = "Exact"
 }
 
-/*
-ScuffedWalls Script:
-0:Run
-  Script:script.ts
-  RunBefore: false
-  RefreshOnSave: true`
+export enum GEO_TYPE {
+    SPHERE = "Sphere",
+    CAPSULE = "Capsule",
+    CYLINDER = "Cylinder",
+    CUBE = "Cube",
+    PLANE = "Plane",
+    QUAD = "Quad",
+    TRIANGLE = "Triangle"
+}
 
-ScuffedWalls Model:
-0:ModelToWall
-  Path:model.dae
-  Track:model
-  Type:3
-  */
+export enum GEO_SHADER {
+    STANDARD = "Standard",
+    OPAQUE_LIGHT = "OpaqueLight",
+    TRANSPARENT_LIGHT = "TransparentLight"
+}

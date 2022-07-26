@@ -1,16 +1,94 @@
+// deno-lint-ignore-file no-explicit-any adjacent-overload-signatures
 const EPSILON = 1e-3;
-import * as jseasingfunctions from 'js-easing-functions';
-import { Animation, complexifyArray, Keyframe, KeyframesVec3 } from './animation';
-import { Wall } from './wall';
-import * as three from 'three';
-import { ANIM, EASE } from './constants';
-import { activeDiff } from './beatmap';
-import { Note } from './note';
-import { EventInternals } from './event';
+import * as easings from './easings.ts';
+import { bakeAnimation, complexifyArray, ComplexKeyframesLinear, ComplexKeyframesVec3, ComplexKeyframesVec4, KeyframesAny, KeyframesLinear, KeyframesVec3, KeyframesVec4, KeyframeValues, RawKeyframesAny, RawKeyframesVec3, simplifyArray } from './animation.ts';
+import { Wall } from './wall.ts';
+import { EASE } from './constants.ts';
+import { activeDiffGet } from './beatmap.ts';
+import { Note } from './note.ts';
+import { EventInternals } from './event.ts';
+import { OptimizeSettings } from "./anim_optimizer.ts";
+import { fs, three } from "./deps.ts";
 
 export type Vec3 = [number, number, number];
 export type Vec4 = [number, number, number, number];
 export type ColorType = [number, number, number] | [number, number, number, number];
+
+type CachedData = {
+    processing: string,
+    data: any,
+    accessed?: boolean
+};
+
+class ReMapperJson {
+    readonly fileName = "RM_Cache.json";
+    private json = {
+        runs: 0,
+        cachedData: {} as Record<string, CachedData>
+    }
+
+    constructor() {
+        if (!fs.existsSync(this.fileName)) this.save();
+        this.json = JSON.parse(Deno.readTextFileSync(this.fileName));
+        this.runs++;
+        Object.keys(this.cachedData).forEach(x => {
+            const data = this.cachedData[x];
+            if (!data.accessed) delete this.cachedData[x];
+            else data.accessed = false;
+        })
+        this.save();
+    }
+
+    save() {
+        Deno.writeTextFileSync(this.fileName, JSON.stringify(this.json));
+    }
+
+    get runs() { return this.json.runs }
+    get cachedData() { return this.json.cachedData }
+
+    protected set runs(value: number) {
+        this.json.runs = value;
+        this.save();
+    }
+
+    protected set cachedData(value: Record<string, CachedData>) {
+        this.json.cachedData = value;
+        this.save();
+    }
+}
+
+export const RMJson = new ReMapperJson();
+
+export function cacheData<T>(name: string, process: () => T, processing: any[] = []): T {
+    let outputData: any;
+    const processingJSON = JSON.stringify(processing).replaceAll('"', "");
+
+    function getData() {
+        outputData = process();
+        RMLog(`cached ${name}`)
+        return outputData;
+    }
+
+    const cachedData = RMJson.cachedData[name];
+    if (cachedData !== undefined) {
+        if (processingJSON !== cachedData.processing) {
+            cachedData.processing = processingJSON;
+            cachedData.data = getData();
+        }
+        else outputData = cachedData.data;
+    }
+    else {
+        RMJson.cachedData[name] = {
+            processing: processingJSON,
+            data: getData()
+        }
+    }
+
+    RMJson.cachedData[name].accessed = true;
+    RMJson.save();
+
+    return outputData as T;
+}
 
 /**
  * Allows you to filter through an array of objects with a min and max property.
@@ -20,8 +98,8 @@ export type ColorType = [number, number, number] | [number, number, number, numb
  * @param {String} property What property to check for.
  * @returns {Array}
  */
-export function filterObjects(objects: object[], min: number, max: number, property: string) {
-    const passedObjects = [];
+export function filterObjects(objects: any[], min: number, max: number, property: string) {
+    const passedObjects: any[] = [];
 
     objects.forEach(obj => {
         if (obj[property] + EPSILON >= min && obj[property] + EPSILON < max) passedObjects.push(obj);
@@ -36,7 +114,7 @@ export function filterObjects(objects: object[], min: number, max: number, prope
  * @param {String} property What property to sort.
  * @param {Boolean} smallestToLargest Whether to sort smallest to largest. True by default.
  */
-export function sortObjects(objects: object[], property: string, smallestToLargest = true) {
+export function sortObjects(objects: Record<string, any>[], property: string, smallestToLargest = true) {
     if (objects === undefined) return;
 
     objects.sort((a, b) => smallestToLargest ?
@@ -52,7 +130,7 @@ export function sortObjects(objects: object[], property: string, smallestToLarge
  * @returns {Array}
  */
 export function notesBetween(min: number, max: number, forEach: (note: Note) => void) {
-    filterObjects(activeDiff.notes, min, max, "time").forEach(x => { forEach(x) });
+    filterObjects(activeDiffGet().notes, min, max, "time").forEach(x => { forEach(x) });
 }
 
 /**
@@ -63,7 +141,7 @@ export function notesBetween(min: number, max: number, forEach: (note: Note) => 
  * @returns {Array}
  */
 export function wallsBetween(min: number, max: number, forEach: (note: Wall) => void) {
-    filterObjects(activeDiff.obstacles, min, max, "time").forEach(x => { forEach(x) });
+    filterObjects(activeDiffGet().obstacles, min, max, "time").forEach(x => { forEach(x) });
 }
 
 /**
@@ -74,7 +152,7 @@ export function wallsBetween(min: number, max: number, forEach: (note: Wall) => 
  * @returns {Array}
  */
 export function eventsBetween(min: number, max: number, forEach: (note: EventInternals.AbstractEvent) => void) {
-    filterObjects(activeDiff.events, min, max, "time").forEach(x => { forEach(x) });
+    filterObjects(activeDiffGet().events, min, max, "time").forEach(x => { forEach(x) });
 }
 
 /**
@@ -85,7 +163,7 @@ export function eventsBetween(min: number, max: number, forEach: (note: EventInt
  * @param {String} easing Optional easing
  * @returns {Number}
  */
-export function lerp(start: number, end: number, fraction: number, easing: EASE = undefined) {
+export function lerp(start: number, end: number, fraction: number, easing?: EASE) {
     if (easing !== undefined) fraction = lerpEasing(easing, fraction);
     return start + (end - start) * fraction;
 }
@@ -98,7 +176,7 @@ export function lerp(start: number, end: number, fraction: number, easing: EASE 
  * @param {String} easing Optional easing 
  * @returns 
  */
-export function lerpWrap(start: number, end: number, fraction: number, easing: EASE = undefined) {
+export function lerpWrap(start: number, end: number, fraction: number, easing?: EASE) {
     if (easing !== undefined) fraction = lerpEasing(easing, fraction);
     const distance = Math.abs(end - start);
 
@@ -120,14 +198,19 @@ export function lerpWrap(start: number, end: number, fraction: number, easing: E
  * @param {EASE} easing 
  * @returns
  */
-export function lerpRotation(start: Vec3, end: Vec3, fraction: number, easing: EASE = undefined): Vec3 {
+export function lerpRotation(start: Vec3, end: Vec3, fraction: number, easing?: EASE): Vec3 {
     if (easing !== undefined) fraction = lerpEasing(easing, fraction);
-    const q1 = new three.Quaternion().setFromEuler(new three.Euler(...toRadians(start), "YXZ"));
-    const q2 = new three.Quaternion().setFromEuler(new three.Euler(...toRadians(end), "YXZ"));
+    const q1 = new three.Quaternion().setFromEuler(new three.Euler(...(toRadians(start) as Vec3), "YXZ"));
+    const q2 = new three.Quaternion().setFromEuler(new three.Euler(...(toRadians(end) as Vec3), "YXZ"));
     q1.slerp(q2, fraction);
-    const output = toDegrees(new three.Euler().reorder("YXZ").setFromQuaternion(q1).toArray());
-    output.pop();
-    return output as Vec3;
+    return eulerFromQuaternion(q1);
+}
+
+export function eulerFromQuaternion(q: three.Quaternion) {
+    let euler = new three.Euler(0, 0, 0, "YXZ").setFromQuaternion(q).toArray();
+    euler.pop();
+    euler = toDegrees(euler);
+    return euler as Vec3;
 }
 
 /**
@@ -136,10 +219,10 @@ export function lerpRotation(start: Vec3, end: Vec3, fraction: number, easing: E
  * @param {Number} value Progress of easing (0-1).
  * @returns {Number}
  */
- export function lerpEasing(easing: EASE, value: number) {
+export function lerpEasing(easing: EASE, value: number) {
     if (easing === "easeLinear" || easing === undefined) return value;
     if (easing === "easeStep") return value === 1 ? 1 : 0;
-    return jseasingfunctions[easing](value, 0, 1, 1);
+    return easings[easing](value, 0, 1, 1);
 }
 
 /**
@@ -221,10 +304,12 @@ export function arrEqual(arr1: number[], arr2: number[], lenience = 0) {
  * Gives a random number in the given range.
  * @param {Number} start
  * @param {Number} end
+ * @param roundResult
  * @returns {Number}
  */
-export function rand(start: number, end: number) {
-    return (Math.random() * (end - start)) + start;
+export function rand(start: number, end: number, roundResult?: number | undefined) {
+    const result = (Math.random() * (end - start)) + start;
+    return roundResult ? round(result, roundResult) : result;
 }
 
 /**
@@ -244,10 +329,30 @@ export function round(input: number, number: number) {
  * @param {Number} max Can be left undefined to ignore.
  * @returns {Number}
  */
-export function clamp(input: number, min: number = undefined, max: number = undefined) {
+export function clamp(input: number, min?: number, max?: number) {
     if (max !== undefined && input > max) input = max;
     else if (min !== undefined && input < min) input = min;
     return input;
+}
+
+/**
+ * Sets the decimals on a number.
+ * @param {Number} input 
+ * @param {Number} decimals 
+ * @returns {Number}
+ */
+export function setDecimals(input: number, decimals: number) {
+    const multiplier = Math.pow(10, decimals);
+    return Math.round(input * multiplier) / multiplier;
+}
+
+/**
+ * Get the amount of seconds in the script.
+ * @param {Number} decimals 
+ * @returns {Number}
+ */
+export function getSeconds(decimals = 2) {
+    return setDecimals(performance.now() / 1000, decimals);
 }
 
 /**
@@ -256,17 +361,17 @@ export function clamp(input: number, min: number = undefined, max: number = unde
  * @returns
  */
 export function copy<T>(obj: T): T {
-    if (obj == null || typeof obj !== "object") { return obj; }
+    if (obj === null || typeof obj !== "object") { return obj; }
 
     const newObj = Array.isArray(obj) ? [] : {};
     const keys = Object.getOwnPropertyNames(obj);
 
     keys.forEach(x => {
-        const value = copy(obj[x]);
-        newObj[x] = value;
+        const value = copy((obj as any)[x]);
+        (newObj as any)[x] = value;
     })
 
-    Object.setPrototypeOf(newObj, (obj as any).__proto__);
+    Object.setPrototypeOf(newObj, obj as any);
     return newObj as T;
 }
 
@@ -275,7 +380,7 @@ export function copy<T>(obj: T): T {
  * @param {Object} o 
  * @returns {Boolean}
  */
-export function isEmptyObject(o: object) {
+export function isEmptyObject(o: Record<string, any>) {
     if (typeof o !== "object") return false;
     return Object.keys(o).length === 0;
 }
@@ -287,8 +392,8 @@ export function isEmptyObject(o: object) {
  * @param {Array} anchor Anchor of rotation.
  * @returns {Array}
  */
-export function rotatePoint(rotation: Vec3, point: Vec3, anchor: Vec3 = [0,0,0]) {
-    const mathRot = toRadians(rotation);
+export function rotatePoint(rotation: Vec3, point: Vec3, anchor: Vec3 = [0, 0, 0]) {
+    const mathRot = toRadians(rotation) as Vec3;
     const vector = new three.Vector3(...arrAdd(point, arrMul(anchor, -1))).applyEuler(new three.Euler(...mathRot, "YXZ"));
     return arrAdd([vector.x, vector.y, vector.z], anchor) as Vec3;
 }
@@ -325,7 +430,7 @@ export function toDegrees(values: number[]) {
  * Delete empty objects/arrays from an object recursively.
  * @param {Object} obj 
  */
-export function jsonPrune(obj: object) {
+export function jsonPrune(obj: Record<string, any>) {
     for (const prop in obj) {
         if (obj[prop] == null) {
             delete obj[prop];
@@ -355,11 +460,11 @@ export function jsonPrune(obj: object) {
 * @param {String} prop
 * @param {Any?} init Optional value to initialize the property if it doesn't exist yet.
 */
-export function jsonGet(obj: object, prop: string, init?: any) {
+export function jsonGet(obj: Record<string, any>, prop: string, init?: any) {
 
     // If the property doesn't exist, initialize it.
     if (init != null) jsonFill(obj, prop, init);
-    
+
     // Fetch the property based on the path/prop.
     const steps = prop.split('.')
     let currentObj = obj
@@ -378,16 +483,16 @@ export function jsonGet(obj: object, prop: string, init?: any) {
 * @param {String} prop
 * @param {Any} value
 */
-export function jsonFill(obj: object, prop: string, value: any) {
+export function jsonFill(obj: Record<string, any>, prop: string, value: any) {
     const steps = prop.split('.');
 
     // Create empty objects along the path
-    const nestedObject = [...steps]
+    const nestedObject: any = [...steps]
         .reverse()
         .reduce((prev, current, i) => {
-            return i === 0? { [current]: value } : { [current]: prev };
+            return i === 0 ? { [current]: value } : { [current]: prev };
         }, {});
-    
+
     // Merge the original object into the nested object (if the original object is empty, it will just take the nested object)
     obj[steps[0]] = Object.assign({}, nestedObject[steps[0]], obj[steps[0]]);
 }
@@ -398,7 +503,7 @@ export function jsonFill(obj: object, prop: string, value: any) {
  * @param {String} prop 
  * @param {*} value
  */
-export function jsonSet(obj: object, prop: string, value) {
+export function jsonSet(obj: Record<string, any>, prop: string, value: any) {
     const steps = prop.split('.');
     let currentObj = obj;
     for (let i = 0; i < steps.length - 1; i++) {
@@ -416,7 +521,7 @@ export function jsonSet(obj: object, prop: string, value) {
  * @param {String} prop 
  * @returns {Boolean}
  */
-export function jsonCheck(obj: object, prop: string) {
+export function jsonCheck(obj: Record<string, any>, prop: string) {
     const value = jsonGet(obj, prop);
     if (value != null) return true;
     return false;
@@ -427,7 +532,7 @@ export function jsonCheck(obj: object, prop: string) {
 * @param {Object} obj 
 * @param {String} prop 
 */
-export function jsonRemove(obj: object, prop: string) {
+export function jsonRemove(obj: Record<string, any>, prop: string) {
     const steps = prop.split('.')
     let currentObj = obj
     for (let i = 0; i < steps.length - 1; i++) {
@@ -471,7 +576,7 @@ export function getJumps(NJS: number, offset: number, BPM: number) {
  * @param {Array} pos 
  * @param {Array} rot 
  * @param {Array} scale 
- * @returns 
+ * @returns {Vec3}
  */
 export function worldToWall(pos: Vec3, rot: Vec3, scale: Vec3) {
     const wallOffset = [0, -0.5, -0.5];
@@ -479,7 +584,7 @@ export function worldToWall(pos: Vec3, rot: Vec3, scale: Vec3) {
     pos = pos.map((y, i) => y + offset[i]) as Vec3;
 
     pos[0] -= 0.5;
-    pos[1] -= 0.1 / 0.6;
+    pos[1] += 0.1 / 0.6;
     pos[2] -= 0.65 / 0.6;
 
     return pos;
@@ -487,74 +592,50 @@ export function worldToWall(pos: Vec3, rot: Vec3, scale: Vec3) {
 
 /**
  * Create a wall for debugging. Position, rotation, and scale are in world space and can be animations.
- * @param {Array} pos 
- * @param {Array} rot 
- * @param {Array} scale 
+ * @param {Object} transform
  * @param {Number} animStart When animation starts.
  * @param {Number} animDur How long animation lasts for.
  * @param {Number} animFreq Frequency of keyframes in animation.
  */
-export function debugWall(pos: KeyframesVec3 = undefined, rot: KeyframesVec3 = undefined, scale: KeyframesVec3 = undefined, animStart: number = undefined, animDur: number = undefined, animFreq: number = 1 / 8) {
-    pos ??= [0,0,0];
-    rot ??= [0,0,0];
-    scale ??= [1,1,1];
+export function debugWall(transform: { pos?: RawKeyframesVec3, rot?: RawKeyframesVec3, scale?: RawKeyframesVec3 }, animStart?: number, animDur?: number, animFreq?: number, animOptimizer = new OptimizeSettings()) {
     animStart ??= 0;
     animDur ??= 0;
+    animFreq ??= 1 / 32;
 
     const wall = new Wall();
     wall.life = animDur + 69420;
     wall.lifeStart = 0;
-    const wallAnim = new Animation(wall.life).wallAnimation();
-    const dataAnim = new Animation().wallAnimation();
-    dataAnim.position = copy(pos);
-    dataAnim.rotation = copy(rot);
-    dataAnim.scale = copy(scale);
 
-    const data = {
-        pos: [],
-        rot: [],
-        scale: []
-    }
-
-    function getDomain(arr) {
-        arr = complexifyArray(arr);
-        arr = arr.sort((a, b) => new Keyframe(a).time - new Keyframe(b).time);
-        let min = 1;
-        let max = 0;
-        arr.forEach(x => {
-            const time = new Keyframe(x).time;
-            if (time < min) min = time;
-            if (time > max) max = time;
-        })
-        return { min: min, max: max };
-    }
-
-    const posDomain = getDomain(pos);
-    const rotDomain = getDomain(rot);
-    const scaleDomain = getDomain(scale);
-
-    const totalMin = getDomain([[posDomain.min], [rotDomain.min], [scaleDomain.min]]).min;
-    const totalMax = getDomain([[posDomain.max], [rotDomain.max], [scaleDomain.max]]).max;
-
-    for (let i = totalMin; i <= totalMax; i += animFreq / animDur) {
-        const time = i * animDur + animStart;
-        let objPos = dataAnim.get(ANIM.POSITION, i);
-        const objRot = dataAnim.get(ANIM.ROTATION, i);
-        const objScale = dataAnim.get(ANIM.SCALE, i);
-
-        objPos = worldToWall(objPos, objRot, objScale);
-
-        data.pos.push([...objPos, time]);
-        data.rot.push([...objRot, time]);
-        data.scale.push([...objScale, time])
-    }
-
-    wallAnim.add(ANIM.DEFINITE_POSITION, data.pos);
-    wallAnim.add(ANIM.LOCAL_ROTATION, data.rot);
-    wallAnim.add(ANIM.SCALE, data.scale);
-    wallAnim.optimize();
+    transform = bakeAnimation(transform, keyframe => {
+        keyframe.pos = worldToWall(keyframe.pos, keyframe.rot, keyframe.scale);
+        keyframe.time = keyframe.time * (animDur as number) + (animStart as number);
+    }, animFreq, animOptimizer);
 
     wall.color = [0, 0, 0, 1];
-    wall.importAnimation(wallAnim);
+    wall.animate.length = wall.life;
+    wall.animate.definitePosition = transform.pos as KeyframesVec3;
+    wall.animate.localRotation = transform.rot as KeyframesVec3;
+    wall.animate.scale = transform.scale as KeyframesVec3;
     wall.push();
 }
+
+export const RMLog = (message: string) => console.log(`[ReMapper: ${getSeconds()}s] ` + message);
+
+export function iterateKeyframes(keyframes: KeyframesLinear, fn: (values: ComplexKeyframesLinear[0], index: number) => void): void;
+export function iterateKeyframes(keyframes: KeyframesVec3, fn: (values: ComplexKeyframesVec3[0], index: number) => void): void;
+export function iterateKeyframes(keyframes: KeyframesVec4, fn: (values: ComplexKeyframesVec4[0], index: number) => void): void;
+export function iterateKeyframes(keyframes: KeyframesAny, fn: (any: any, index: number) => void): void {
+    iterateKeyframesInternal(keyframes as KeyframesAny, fn)
+}
+
+function iterateKeyframesInternal(keyframes: KeyframesAny, fn: (values: KeyframeValues, index: number) => void): void {
+    // TODO: Lookup point def
+    if (typeof keyframes === "string") return;
+
+    const newKeyframes = complexifyArray(copy(keyframes));
+    newKeyframes.forEach((x, i) => fn(x, i));
+    keyframes.length = 0;
+    (simplifyArray(newKeyframes) as RawKeyframesAny).forEach(x => (keyframes as any).push(x));
+}
+
+// TODO: Make complexifyArray and simplifyArray only take in raw types
