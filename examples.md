@@ -19,20 +19,13 @@ detail is crucial and can apply to multiple places.
 
 # Importing
 
-Firstly, you'll need the link to the `mod.ts` to import ReMapper. It should look
-something like `import {} from "https://deno.land/x/remapper@2.0.0/src/mod.ts"`,
-where the version is whatever the latest release of ReMapper is.
-
-Deno will tell you that the dependancy couldn't be resolved, but all you have to
-do is hold alt over the link, press `Quick Fix`, and cache the dependency.
-
 In order for your script to include functions, classes, or whatever else from
 ReMapper, you'll need to import them. If you know exactly what you want to
 import, as you're typing it, press tab, and it'll be added to the import
 statement at the top like so:
 
 ```js
-import { Difficulty, info } from "https://deno.land/x/remapper@2.0.0/src/mod.ts";
+import { Difficulty, info } from "https://deno.land/x/remapper/src/mod.ts";
 
 info; // press tab while typing to import
 ```
@@ -42,7 +35,7 @@ so use arrow keys to select the import that's actually coming from ReMapper. You
 can tell it's correct if it gets added to the top import statement.
 
 If you want to explore what's in this package, you can add
-`import * as r from "https://deno.land/x/remapper@2.0.0/src/mod.ts";` and then type
+`import * as r from "https://deno.land/x/remapper/src/mod.ts";` and then type
 `r` anywhere, add a period, and see what comes up. It is preferred that
 you still autocomplete the imports, though. As otherwise you'll have to prefix
 everything with `r.`
