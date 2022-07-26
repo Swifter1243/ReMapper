@@ -20,7 +20,7 @@ detail is crucial and can apply to multiple places.
 # Importing
 
 Firstly, you'll need the link to the `mod.ts` to import ReMapper. It should look
-something like `import {} from "https://deno.land/x/remapper@v2.0.0/mod.ts"`,
+something like `import {} from "https://deno.land/x/remapper@2.0.0/src/mod.ts"`,
 where the version is whatever the latest release of ReMapper is.
 
 Deno will tell you that the dependancy couldn't be resolved, but all you have to
