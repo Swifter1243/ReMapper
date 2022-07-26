@@ -1,11 +1,14 @@
 // deno-lint-ignore-file no-explicit-any
-import { cacheData, ColorType, copy, iterateKeyframes, rotatePoint, Vec3 } from "./general.ts";
+import { arrAdd, cacheData, ColorType, copy, iterateKeyframes, rotatePoint, Vec3 } from "./general.ts";
 import { bakeAnimation, complexifyArray, ComplexKeyframesVec3, KeyframeArray, KeyframesAny, KeyframeValues, RawKeyframesVec3, toPointDef } from "./animation.ts";
 import { fs, path } from "./deps.ts";
 import { Environment, Geometry } from "./environment.ts";
 import { optimizeAnimation, OptimizeSettings } from "./anim_optimizer.ts";
 import { CustomEvent, CustomEventInternals } from "./custom_event.ts";
-import { ANIM } from "./constants.ts";
+import { ANIM, GEO_SHADER, LOOKUP } from "./constants.ts";
+import { activeDiff } from "./beatmap.ts";
+import { Regex } from "./regex.ts";
+import { Event } from "./event.ts";
 
 let modelSceneCount = 0;
 let noYeet = true;
@@ -358,4 +361,89 @@ function createYeetDef() {
 export function getModel(filePath: string) {
     const data = JSON.parse(Deno.readTextFileSync(filePath));
     return data.objects as ModelObject[];
+}
+
+/**
+ * Debug the transformations necessary to fit an object to a cube.
+ * Use the axis
+ * @param input 
+ * @param resolution The scale of the object for each axis.
+ * @param scale 
+ * @param anchor 
+ * @param rotation 
+ */
+export function debugObject(input: GroupObjectTypes, resolution: number, scale?: Vec3, anchor?: Vec3, rotation?: Vec3) {
+    activeDiff.notes = [];
+    activeDiff.obstacles = [];
+    activeDiff.customEvents = [];
+    activeDiff.rawEnvironment = [];
+
+    new Event().backLasers().on([3, 3, 3, 1]).push();
+
+    const removeUI = new Environment(new Regex().add("NarrowGameHUD").end(), LOOKUP.REGEX);
+    removeUI.active = false;
+    removeUI.push();
+    
+    activeDiff.geoMaterials["debugCubeX"] = {
+        _shader: GEO_SHADER.STANDARD,
+        _color: [1, 0, 0],
+        _shaderKeywords: []
+    }
+
+    activeDiff.geoMaterials["debugCubeY"] = {
+        _shader: GEO_SHADER.STANDARD,
+        _color: [0, 1, 0],
+        _shaderKeywords: []
+    }
+
+    activeDiff.geoMaterials["debugCubeZ"] = {
+        _shader: GEO_SHADER.STANDARD,
+        _color: [0, 0, 1],
+        _shaderKeywords: []
+    }
+
+    const modelData: ModelObject[] = [];
+
+    function addCubes(transforms: [Vec3, Vec3?, string?][], track?: string) {
+        transforms.forEach(transform => {
+            const data: ModelObject = {
+                pos: arrAdd(transform[0], [0, 10, 0]) as Vec3,
+                rot: [0, 0, 0],
+                scale: transform[1] ?? [1, 1, 1]
+            }
+
+            if (track) data.track = track;
+            if (transform[2]) data.track = transform[2];
+
+            modelData.push(data);
+        })
+    }
+
+    const axisDist = 5;
+
+    // Debug
+    addCubes([
+        [[0, axisDist, 0], [2, 0.0001, 2], "debugCubeY"],
+        [[0, -axisDist, 0], [2, 0.0001, 2], "debugCubeY"],
+        [[axisDist, 0, 0], [0.0001, 2, 2], "debugCubeX"],
+        [[-axisDist, 0, 0], [0.0001, 2, 2], "debugCubeX"],
+        [[0, 0, axisDist], [2, 2, 0.0001], "debugCubeZ"],
+        [[0, 0, -axisDist], [2, 2, 0.0001], "debugCubeZ"]
+    ]);
+
+    // Object
+    addCubes([
+        [[0, resolution / 2 + axisDist, 0], [1, resolution, 1]],
+        [[0, -resolution / 2 - axisDist, 0], [1, resolution, 1]],
+        [[resolution / 2 + axisDist, 0, 0], [resolution, 1, 1]],
+        [[-resolution / 2 - axisDist, 0, 0], [resolution, 1, 1]],
+        [[0, 0, resolution / 2 + axisDist], [1, 1, resolution]],
+        [[0, 0, -resolution / 2 - axisDist], [1, 1, resolution]]
+    ]);
+
+    const scene = new ModelScene(input, scale, anchor, rotation);
+    scene.addPrimaryGroups("debugCubeX", new Geometry(undefined, "debugCubeX"))
+    scene.addPrimaryGroups("debugCubeY", new Geometry(undefined, "debugCubeY"))
+    scene.addPrimaryGroups("debugCubeZ", new Geometry(undefined, "debugCubeZ"))
+    scene.static(modelData);
 }
