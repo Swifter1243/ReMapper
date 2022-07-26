@@ -46,16 +46,17 @@ thoroughly read the descriptions of what different things do.
 Install [Deno](https://deno.land/).
 
 Next, you'll need to setup your map. In a terminal run
-`deno install --allow-all -f --reload https://raw.githubusercontent.com/Swifter1243/ReMapper-Setup/master/setup/rm_template.ts`
+`deno install --allow-all -f --reload https://raw.githubusercontent.com/Swifter1243/ReMapper-Setup/master/setup/rm_setup.ts`
 to install the template tool.
 
 You can either open a terminal by pressing `Terminal > New Terminal` in your
 VSCode window, or by pressing the Windows key and typing `cmd`, then running
 `cd "your directory here"` to navigate to your map directory.
 
-From there, you can run `rm_template .` inside of your map directory to add the
-necessary files for scripting. If you want to create a new map, then run the
-terminal from `CustomWIPLevels` and run `rm_template MapName --map`.
+From there, you can run `rm_setup` inside of your map directory to add the
+necessary files for scripting. If you want to create a new map, add `--map` to
+the end of the command, or run the terminal from `CustomWIPLevels` and run
+`rm_setup "Map Name"` to create a folder too.
 
 When opening the script, deno will tell you that the dependency at the top
 couldn't be resolved, but all you have to do is hold alt over the link, press
@@ -84,5 +85,5 @@ If you are running your script with Deno, run
 
 If you're running it with Denon, run `denon rm`.
 
-Of course replace `script.ts` with the actual name of your script if it differs (in the
-scripts.json too).
+Of course replace `script.ts` with the actual name of your script if it differs
+(in the scripts.json too).
