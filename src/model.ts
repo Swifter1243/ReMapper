@@ -380,10 +380,16 @@ export function debugObject(input: GroupObjectTypes, resolution: number, scale?:
 
     new Event().backLasers().on([3, 3, 3, 1]).push();
 
+    new CustomEvent().assignFogTrack("fog").push();
+    const fogEvent = new CustomEvent().animateTrack("fog");
+    fogEvent.animate.attenuation = [0.000001];
+    fogEvent.animate.startY = [-69420]
+    fogEvent.push();
+
     const removeUI = new Environment(new Regex().add("NarrowGameHUD").end(), LOOKUP.REGEX);
     removeUI.active = false;
     removeUI.push();
-    
+
     activeDiff.geoMaterials["debugCubeX"] = {
         _shader: GEO_SHADER.STANDARD,
         _color: [1, 0, 0],
@@ -423,12 +429,12 @@ export function debugObject(input: GroupObjectTypes, resolution: number, scale?:
 
     // Debug
     addCubes([
-        [[0, axisDist, 0], [2, 0.0001, 2], "debugCubeY"],
-        [[0, -axisDist, 0], [2, 0.0001, 2], "debugCubeY"],
-        [[axisDist, 0, 0], [0.0001, 2, 2], "debugCubeX"],
-        [[-axisDist, 0, 0], [0.0001, 2, 2], "debugCubeX"],
-        [[0, 0, axisDist], [2, 2, 0.0001], "debugCubeZ"],
-        [[0, 0, -axisDist], [2, 2, 0.0001], "debugCubeZ"]
+        [[0, axisDist, 0], [1, 0.0001, 1], "debugCubeY"],
+        [[0, -axisDist, 0], [1, 0.0001, 1], "debugCubeY"],
+        [[axisDist, 0, 0], [0.0001, 1, 1], "debugCubeX"],
+        [[-axisDist, 0, 0], [0.0001, 1, 1], "debugCubeX"],
+        [[0, 0, axisDist], [1, 1, 0.0001], "debugCubeZ"],
+        [[0, 0, -axisDist], [1, 1, 0.0001], "debugCubeZ"]
     ]);
 
     // Object

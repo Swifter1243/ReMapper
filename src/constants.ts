@@ -292,32 +292,44 @@ export enum ANIM {
 // Known objects that work. Feel free to PR your own!
 export const ENV = {
     BTS: {
-        PILLAR: { //! This is currently the only updated one
+        PILLAR: {
             ID: new Regex().start().add("PillarPair").separate().add("PillarL").separate().add("Pillar").end(),
-            SCALE: <Vec3>[0.2855, 0.2855 * 0.032, 0.2855],
-            ANCHOR: <Vec3>[0, 0.5, 0]
+            SCALE: <Vec3>[0.285714, 0.008868, 0.285714],
+            ANCHOR: <Vec3>[0, 0.4999, 0]
         },
         SOLID_LASER: {
             ID: new Regex().add("SmallPillarPair").separate().add("PillarL").separate().add("LaserL").end(),
-            SCALE: <Vec3>[1 / 3.5, 7000, 1 / 3.5],
-            ANCHOR: <Vec3>[0, 0.5, 0]
+            SCALE: <Vec3>[10, 1 / 2500, 10],
+            ANCHOR: <Vec3>[0, -0.5, 0]
         },
         LOW_CLOUDS: {
             ID: "LowCloudsGenerator$",
-            SCALE: <Vec3>[425, 40, 425],
-            ANCHOR: <Vec3>[0, -0.25, 0]
+            SCALE: <Vec3>[0.0064, 0.06, 0.0064],
+            ANCHOR: <Vec3>[0, 0.22, 0]
+        },
+        HIGH_CLOUDS: {
+            ID: "HighCloudsGenerator$",
+            SCALE: <Vec3>[0.0025, 0.0425, 0.0025],
+            ANCHOR: <Vec3>[0, -0.218, 0]
         }
     },
     GAGA: {
         CUBE: {
             ID: "BackCube$",
-            SCALE: <Vec3>[16, 7 / 10, 14 / 10],
-            ANCHOR: <Vec3>[0, -0.5, -0.5]
+            SCALE: <Vec3>[1 / 5.5, 4, 2],
+            ANCHOR: <Vec3>[0, 0.5, 0.5]
         },
         SECOND_AURORA: {
             ID: new Regex().add("Aurora").separate().add("AuroraSecondary").end(),
-            SCALE: <Vec3>[900, 200, 1000],
-            ANCHOR: <Vec3>[0, -0.25, 0]
+            SCALE: <Vec3>[0.0025, 0.02, 0.012],
+            ANCHOR: <Vec3>[0, 0.6, 0.05]
+        }
+    },
+    BILLIE: {
+        CUBE: {
+            ID: "LeftFarRail1$",
+            SCALE: <Vec3>[10, 10, 0.02306],
+            ANCHOR: <Vec3>[0, 0, -0.4974]
         }
     }
 }
@@ -348,17 +360,3 @@ export enum GEO_SHADER {
     OPAQUE_LIGHT = "OpaqueLight",
     TRANSPARENT_LIGHT = "TransparentLight"
 }
-
-/*
-ScuffedWalls Script:
-0:Run
-  Script:script.ts
-  RunBefore: false
-  RefreshOnSave: true`
-
-ScuffedWalls Model:
-0:ModelToWall
-  Path:model.dae
-  Track:model
-  Type:3
-  */

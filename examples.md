@@ -417,9 +417,7 @@ Offset - A local (based on rotation) offset to the object.
 
 Rotation - An addition to the rotation of the object.
 
-Adjust these parameters until you get something that fits to a unit cube, you
-can these use these parameters when providing the object in a model scene to
-tell it how to transform the object to fit the data.
+The squares represent where the object should line up with. Play with the "resolution" argument in the function and pay attention to how things line up on each axis. Your goal is to have the object be flush with all the squares regardless of the resolution. If you can't find the exact values, I would say about 6 decimal places is good enough.
 
 Some of the more common objects that are used for environments already have
 their transformations pre-found, stored in `ENV`.
