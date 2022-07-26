@@ -20,7 +20,7 @@ detail is crucial and can apply to multiple places.
 # Importing
 
 Firstly, you'll need the link to the `mod.ts` to import ReMapper. It should look
-something like `import {} from "https://deno.land/x/remapper@v1.1.0/mod.ts"`,
+something like `import {} from "https://deno.land/x/remapper@v2.0.0/mod.ts"`,
 where the version is whatever the latest release of ReMapper is.
 
 Deno will tell you that the dependancy couldn't be resolved, but all you have to
@@ -32,7 +32,7 @@ import, as you're typing it, press tab, and it'll be added to the import
 statement at the top like so:
 
 ```js
-import { Difficulty, info } from "https://deno.land/x/remapper@v1.1.0/mod.ts";
+import { Difficulty, info } from "https://deno.land/x/remapper@v2.0.0/mod.ts";
 
 info; // press tab while typing to import
 ```
@@ -42,8 +42,8 @@ so use arrow keys to select the import that's actually coming from ReMapper. You
 can tell it's correct if it gets added to the top import statement.
 
 If you want to explore what's in this package, you can add
-`import * as r from "https://deno.land/x/remapper@v1.1.0/mod.ts";` and then type
-`remapper` anywhere, add a period, and see what comes up. It is preferred that
+`import * as r from "https://deno.land/x/remapper@v2.0.0/mod.ts";` and then type
+`r` anywhere, add a period, and see what comes up. It is preferred that
 you still autocomplete the imports, though. As otherwise you'll have to prefix
 everything with `r.`
 
