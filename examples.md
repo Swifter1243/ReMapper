@@ -32,7 +32,7 @@ import, as you're typing it, press tab, and it'll be added to the import
 statement at the top like so:
 
 ```js
-import { Difficulty, info } from "https://deno.land/x/remapper@v2.0.0/mod.ts";
+import { Difficulty, info } from "https://deno.land/x/remapper@2.0.0/src/mod.ts";
 
 info; // press tab while typing to import
 ```
@@ -42,7 +42,7 @@ so use arrow keys to select the import that's actually coming from ReMapper. You
 can tell it's correct if it gets added to the top import statement.
 
 If you want to explore what's in this package, you can add
-`import * as r from "https://deno.land/x/remapper@v2.0.0/mod.ts";` and then type
+`import * as r from "https://deno.land/x/remapper@2.0.0/src/mod.ts";` and then type
 `r` anywhere, add a period, and see what comes up. It is preferred that
 you still autocomplete the imports, though. As otherwise you'll have to prefix
 everything with `r.`
