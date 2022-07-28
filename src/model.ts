@@ -1,8 +1,8 @@
 // deno-lint-ignore-file no-explicit-any
-import { arrAdd, cacheData, ColorType, copy, iterateKeyframes, rotatePoint, Vec3 } from "./general.ts";
+import { arrAdd, cacheData, ColorType, copy, iterateKeyframes, rotatePoint, Vec3, Vec4 } from "./general.ts";
 import { bakeAnimation, complexifyArray, ComplexKeyframesVec3, KeyframeArray, KeyframesAny, KeyframeValues, RawKeyframesVec3, toPointDef } from "./animation.ts";
 import { fs, path } from "./deps.ts";
-import { Environment, Geometry } from "./environment.ts";
+import { Environment, Geometry, RawGeometryMaterial } from "./environment.ts";
 import { optimizeAnimation, OptimizeSettings } from "./anim_optimizer.ts";
 import { CustomEvent, CustomEventInternals } from "./custom_event.ts";
 import { ANIM, GEO_SHADER, LOOKUP } from "./constants.ts";
@@ -223,9 +223,17 @@ export class ModelScene {
             const rot = this.getFirstTransform(x.rot);
             const scale = this.getFirstTransform(x.scale);
 
-            // Creating event
+            // Creating objects
             if (group.object) {
                 const object = copy(group.object)
+
+                if (
+                    object instanceof Geometry &&
+                    typeof object.material !== "string" &&
+                    !object.material._color &&
+                    x.color
+                ) object.material._color = x.color;
+
                 object.track = track;
                 object.position = pos;
                 object.rotation = rot;
@@ -233,6 +241,7 @@ export class ModelScene {
                 if (forObject) forObject(object);
                 object.push();
             }
+            // Creating event for assigned
             else {
                 const event = new CustomEvent().animateTrack(track);
                 event.animate.set(ANIM.POSITION, x.pos, false);
@@ -266,6 +275,8 @@ export class ModelScene {
         switches.sort((a, b) => a[1] - b[1]);
 
         // Initialize info
+        const animatedMaterials: string[] = [];
+
         Object.keys(this.groups).forEach(x => {
             this.objectInfo[x] = {
                 max: 0,
@@ -300,6 +311,21 @@ export class ModelScene {
                 const track = this.getPieceTrack(group.object, key, objectInfo.perSwitch[time] - 1);
 
                 // Creating event
+                if (
+                    group.object &&
+                    group.object instanceof Geometry &&
+                    typeof group.object.material !== "string" &&
+                    !group.object.material._color &&
+                    x.color
+                ) {
+                    x.color[3] ??= 1;
+                    animatedMaterials.push(track);
+
+                    const event = new CustomEvent(time).animateTrack(track + "_material");
+                    event.animate.color = x.color as Vec4;
+                    event.push();
+                }
+
                 const event = new CustomEvent(time).animateTrack(track, duration);
                 event.animate.set(ANIM.POSITION, x.pos, false);
                 event.animate.set(ANIM.ROTATION, x.rot, false);
@@ -336,6 +362,10 @@ export class ModelScene {
                 for (let i = 0; i < objectInfo.max; i++) {
                     const object = copy(group.object)
                     object.track = this.getPieceTrack(group.object, groupKey, i);
+
+                    if (animatedMaterials.some(x => x === object.track))
+                        ((object as Geometry).material as RawGeometryMaterial)._track = object.track + "_material";
+
                     if (forObject) forObject(object);
                     object.push();
                 }

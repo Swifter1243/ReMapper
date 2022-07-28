@@ -109,12 +109,13 @@ export class Geometry extends EnvironmentInternals.BaseEnvironment {
     set collision(value: boolean) { this.json._geometry._collision = value }
 }
 
-export type GeometryMaterial = {
+export type GeometryMaterial = RawGeometryMaterial | string
+export type RawGeometryMaterial = {
     _shader: GEO_SHADER,
     _color?: ColorType,
     _track?: string,
     _shaderKeywords?: string[]
-} | string
+}
 
 /**
  * Animate each environment piece in a given assigned group, with all of their individual transforms combined.
