@@ -250,19 +250,21 @@ original transforms specified in the environment statement combined to the
 animation's.
 
 ```js
-const animation = new Animation(5).environmentAnimation();
-animation.position = [[0, 0, 0, 0], [0, -10, 0, 5, EASE.IN_OUT_EXPO]];
-
+// Make sure your object has the track specified
 env.track.value = "pillar";
 env.push();
-animateEnvTrack("pillar", 3, animation.length, animation);
+
+animateEnvTrack("pillar", 3, animation => {
+    animation.length = 5;
+    animation.position = [[0, 0, 0, 0], [0, -10, 0, 5, EASE.IN_OUT_EXPO]];
+}, 5);
 ```
 
 The expected animation as a result of this would be:
 `[[0, 10, 0, 0], [0, 0, 0, 1, "easeInOutExpo"]]`
 
 You can also assign a `group`, and call `animateEnvGroup()` to do this for every
-object in a given group.
+object in that given group.
 
 # Geometry
 

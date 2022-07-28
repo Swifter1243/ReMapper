@@ -25,8 +25,6 @@ export namespace EnvironmentInternals {
          * Push this environment object to the difficulty
          */
         push() {
-            if (this.track === undefined) this.track = `environment${envCount}`;
-            envCount++;
             activeDiffGet().rawEnvironment.push(copy(this));
             return this;
         }
@@ -117,46 +115,47 @@ export type RawGeometryMaterial = {
     _shaderKeywords?: string[]
 }
 
-/**
- * Animate each environment piece in a given assigned group, with all of their individual transforms combined.
- * @param {String} group 
- * @param {Number} time 
- * @param {Number} duration 
- * @param {Object} animation
- * @param {String} easing 
- */
-export function animateEnvGroup(group: string, time: number, duration: number, animation: AnimationInternals.BaseAnimation, easing?: string) {
+export function animateEnvGroup(group: string, time: number, animation: (animation: AnimationInternals.EnvironmentAnimation) => void, duration?: number, easing?: string) {
     if (activeDiffGet().rawEnvironment !== undefined) activeDiffGet().rawEnvironment.forEach(x => {
         if (x.group === group) {
-            const newAnimation = copy(animation.json);
+            const newAnimation = new AnimationInternals.AbstractAnimation;
+            animation(newAnimation);
 
-            Object.keys(newAnimation).forEach(key => {
-                if (x.json[key]) newAnimation[key] = combineAnimations(newAnimation[key], x.json[key], key);
+            if (!x.track) {
+                x.track = `environment_${envCount}`;
+                envCount++
+            }
+
+            const event = new CustomEvent(time).animateTrack(x.track);
+            if (duration) event.duration = duration;
+            if (easing) event.easing = easing;
+
+            Object.keys(newAnimation.json).forEach(key => {
+                event.animate.json[key] = newAnimation.json[key]
+                if (x.json[key]) event.animate.json[key] = combineAnimations(event.animate.json[key], x.json[key], key);
             })
 
-            new CustomEvent(time).animateTrack(x.track, duration, newAnimation, easing).push();
+            event.push();
         }
     })
 }
 
-/**
- * Animate an environment piece with a track, with all of it's initial transforms combined.
- * @param {String} group 
- * @param {Number} time 
- * @param {Number} duration 
- * @param {Object} animation
- * @param {String} easing 
- */
-export function animateEnvTrack(track: string, time: number, duration: number, animation: AnimationInternals.BaseAnimation, easing?: string) {
+export function animateEnvTrack(group: string, time: number, animation: (animation: AnimationInternals.EnvironmentAnimation) => void, duration?: number, easing?: string) {
     if (activeDiffGet().rawEnvironment !== undefined) activeDiffGet().rawEnvironment.forEach(x => {
-        if (x.track === track) {
-            const newAnimation = copy(animation.json);
+        if (x.track === group) {
+            const newAnimation = new AnimationInternals.AbstractAnimation;
+            animation(newAnimation);
 
-            Object.keys(newAnimation).forEach(key => {
-                if (x.json[key]) newAnimation[key] = combineAnimations(newAnimation[key], x.json[key], key);
+            const event = new CustomEvent(time).animateTrack(x.track);
+            if (duration) event.duration = duration;
+            if (easing) event.easing = easing;
+
+            Object.keys(newAnimation.json).forEach(key => {
+                event.animate.json[key] = newAnimation.json[key]
+                if (x.json[key]) event.animate.json[key] = combineAnimations(event.animate.json[key], x.json[key], key);
             })
 
-            new CustomEvent(time).animateTrack(track, duration, newAnimation, easing).push();
+            event.push();
         }
     })
 }
