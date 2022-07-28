@@ -36,8 +36,8 @@ can tell it's correct if it gets added to the top import statement.
 
 If you want to explore what's in this package, you can add
 `import * as r from "https://deno.land/x/remapper/src/mod.ts";` and then type
-`r` anywhere, add a period, and see what comes up. It is preferred that
-you still autocomplete the imports, though. As otherwise you'll have to prefix
+`r` anywhere, add a period, and see what comes up. It is preferred that you
+still autocomplete the imports, though. As otherwise you'll have to prefix
 everything with `r.`
 
 # Difficulties
@@ -254,9 +254,9 @@ animation's.
 env.track.value = "pillar";
 env.push();
 
-animateEnvTrack("pillar", 3, animation => {
-    animation.length = 5;
-    animation.position = [[0, 0, 0, 0], [0, -10, 0, 5, EASE.IN_OUT_EXPO]];
+animateEnvTrack("pillar", 3, (animation) => {
+  animation.length = 5;
+  animation.position = [[0, 0, 0, 0], [0, -10, 0, 5, EASE.IN_OUT_EXPO]];
 }, 5);
 ```
 
@@ -294,8 +294,7 @@ new Geometry(GEO_TYPE.CUBE, "cube").push();
 
 NOTE: At this point in time, the standard shader for geometry has issues that
 make it fairly unusable because of it's visibility. At some point there will
-hopefully be a way to attach additional materials. The material color also only
-animates with actual lighting events on type `-1`.
+hopefully be a way to attach additional materials.
 
 # Model Scene
 
@@ -307,8 +306,8 @@ entirely and pooling objects.
 
 Said model data is in the form of `ModelObject`s, which give information about
 the position of an object, and the `track` of which is used to identify the type
-of object. It also has a `color` field, but this is currently not used with the
-model scene.
+of object. It also has a `color` field, which will color primary geometry
+objects only.
 
 ```js
 {
@@ -323,7 +322,7 @@ model scene.
 A `ModelObject` can either be created by your script, or imported from a model
 exported from blender. In the case of blender, `track` will be taken from the
 name of the first material on the object, and `color` will be taken from the
-`Base Color` of the second material on the object.
+viewport color.
 
 Model scene works by having "primary" and "assigned" objects. Primary objects
 will be spawned in depending on how much the model scene requires, while
@@ -340,18 +339,19 @@ The `object` field will determine which object is spawned, currently
 `Environment` and `Geometry` are supported.
 
 ```js
-const scene = new ModelScene(new Geometry(GEO_TYPE.CUBE, "cube"));
+const scene = new ModelScene(new Geometry(GEO_TYPE.CUBE));
 ```
 
 You can add new primary objects with `addPrimaryGroups`, which takes the
-track(s) you want to represent this object with, and then the information about the object.
+track(s) you want to represent this object with, and then the information about
+the object.
 
 ```js
 scene.addPrimaryGroups(
   "red sphere",
   new Geometry(GEO_TYPE.SPHERE, {
     _shader: GEO_SHADER.STANDARD,
-    _color: [1, 0, 0],
+    _color: [1, 0, 0], // Note: This overrides colors from the model data.
   }),
 );
 ```
@@ -412,7 +412,11 @@ Offset - A local (based on rotation) offset to the object.
 
 Rotation - An addition to the rotation of the object.
 
-The squares represent where the object should line up with. Play with the "resolution" argument in the function and pay attention to how things line up on each axis. Your goal is to have the object be flush with all the squares regardless of the resolution. If you can't find the exact values, I would say about 6 decimal places is good enough.
+The squares represent where the object should line up with. Play with the
+"resolution" argument in the function and pay attention to how things line up on
+each axis. Your goal is to have the object be flush with all the squares
+regardless of the resolution. If you can't find the exact values, I would say
+about 6 decimal places is good enough.
 
 Some of the more common objects that are used for environments already have
 their transformations pre-found, stored in `ENV`.
