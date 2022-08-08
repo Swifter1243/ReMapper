@@ -176,8 +176,6 @@ export class Difficulty {
             }
         }
 
-
-
         Deno.writeTextFileSync(diffName, JSON.stringify(outputJSON, null, 0));
         RMLog(`${this.fileName} successfully saved!`);
     }
@@ -454,6 +452,8 @@ function reduceDecimalsPostProcess(_: never, diff: Difficulty) {
 
     function reduceDecimalsInObject(json: Record<string, any>) {
         for (const key in json) {
+            // deno-lint-ignore no-prototype-builtins
+            if (!json.hasOwnProperty(key)) return;
             const element = json[key];
     
             if (typeof element === "number") {
