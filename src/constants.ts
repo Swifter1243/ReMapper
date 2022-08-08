@@ -214,7 +214,7 @@ export enum WALL {
     CROUCH = 1
 }
 
-export const EVENT: Record<string, number> = {
+export const EVENT = {
     // Type
     BACK_LASERS: 0,
     RING_LIGHTS: 1,
