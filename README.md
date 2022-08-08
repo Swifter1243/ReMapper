@@ -1,8 +1,6 @@
 # Welcome to ReMapper!
 
-This is a [TypeScript](https://www.typescriptlang.org/) library designed to help
-with making Beat Saber modcharts. It is designed to optimize the scripting
-experience, and reduce code to be very minimal, and sometimes single lines.
+This is a [TypeScript](https://www.typescriptlang.org/) library designed to help with making Beat Saber modcharts. It is designed to optimize the scripting experience, and reduce code to be very minimal, and sometimes single lines.
 
 Normal way:
 
@@ -47,7 +45,7 @@ Install [Deno](https://deno.land/).
 
 Next, you'll need to setup your map. In a terminal run
 `deno install --allow-all -f --reload https://raw.githubusercontent.com/Swifter1243/ReMapper-Setup/master/setup/rm_setup.ts`
-to install the template tool.
+to install the template tool. This only needs to be run once per system.
 
 You can either open a terminal by pressing `Terminal > New Terminal` in your
 VSCode window, or by pressing the Windows key and typing `cmd`, then running
@@ -60,9 +58,7 @@ the end of the command, or run the terminal from `CustomWIPLevels` and run
 
 When opening the script, you'll first of all need to install the (verified) Deno extension in VScode. After that, if you get an error on the import saying that your import must end with `.js`, you'll need to tell VScode that your workspace is using deno. Press `Ctrl + Shift + P` and search for `Deno Initialize Workspace Configuration` and say yes to everything.
 
-Deno will tell you that the dependency at the top
-couldn't be resolved, but all you have to do is hold alt over the link, press
-`Quick Fix`, and cache the dependency.
+Deno will tell you that the dependency at the top couldn't be resolved, but all you have to do is hold alt over the link, press `Quick Fix`, and cache the dependency.
 
 If you want your script to reload when you save or when key files change
 (**HIGHLY RECOMMENDED**), install [Denon](https://deno.land/x/denon). This will
@@ -74,11 +70,11 @@ If you are planning to use Blender, you will need
 Go to releases, download the `script.py` from the latest release and put it
 somewhere in your computer.
 
-In Blender, open `Edit > Preferences > Add-ons > Install` and navigate to the
-`script.py`.
+In Blender, open `Edit > Preferences > Add-ons > Install` and navigate to the `script.py`.
 
-Make sure to enable the plugin after installing. A tab should show up on the
-right side called `RM Exporter`.
+Make sure to enable the plugin after installing. After expanding a part of the UI on the side, a tab should show up called `RM Exporter`.
+
+<img src="https://user-images.githubusercontent.com/61858676/183328172-f9cb8533-6dc3-4363-a5cc-70340d3cb1bf.jpg" alt="screenshot" width="500"/>
 
 # Running
 
