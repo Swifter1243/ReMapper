@@ -330,7 +330,14 @@ export const ENV = {
             ID: "LeftFarRail1$",
             SCALE: <Vec3>[10, 10, 0.02306],
             ANCHOR: <Vec3>[0, 0, -0.4974]
+        },
+    UNIVERSAL: {
+        MIRROR: { // Mirror does not work with the "Spooky" environment, but it does work with everything else!
+            ID: new Regex().add("PlayersPlace").separate().add("Mirror").end(),
+            SCALE: <Vec3>[1/3,0,0.5],
+            ANCHOR: <Vec3>[0,0,0],
         }
+    }
     }
 }
 
