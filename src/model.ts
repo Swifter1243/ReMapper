@@ -114,9 +114,9 @@ export class ModelScene {
                         objScale.pop();
 
                         objPos = (objPos as Vec3).map(x => x / 2);
-                        if (rotation) objRot = (objRot as Vec3).map((x, i) => (x + (rotation as Vec3)[i]) % 360);
                         objScale = (objScale as Vec3).map(x => x * 0.6);
                         if (anchor) objPos = applyAnchor(objPos as Vec3, objRot as Vec3, objScale as Vec3, anchor);
+                        if (rotation) objRot = (objRot as Vec3).map((x, i) => (x + (rotation as Vec3)[i]) % 360);
                         if (scale) objScale = (objScale as Vec3).map((x, i) => x * (scale as Vec3)[i]);
 
                         (x.pos as KeyframeArray)[i] = [...(objPos as Vec3), (x.pos as ComplexKeyframesVec3)[i][3]];
@@ -148,12 +148,6 @@ export class ModelScene {
                     if (group.rotation) rotation = group.rotation
                 }
 
-                if (rotation) iterateKeyframes(x.rot, y => {
-                    y[0] = (y[0] + (rotation as Vec3)[0]) % 360;
-                    y[1] = (y[1] + (rotation as Vec3)[1]) % 360;
-                    y[2] = (y[2] + (rotation as Vec3)[2]) % 360;
-                })
-
                 iterateKeyframes(x.scale, y => {
                     y[0] *= 0.6;
                     y[1] *= 0.6;
@@ -169,6 +163,12 @@ export class ModelScene {
                     bakedCube.track = x.track;
                     x = bakedCube;
                 }
+
+                if (rotation) iterateKeyframes(x.rot, y => {
+                    y[0] = (y[0] + (rotation as Vec3)[0]) % 360;
+                    y[1] = (y[1] + (rotation as Vec3)[1]) % 360;
+                    y[2] = (y[2] + (rotation as Vec3)[2]) % 360;
+                })
 
                 if (scale) iterateKeyframes(x.scale, y => {
                     y[0] *= (scale as Vec3)[0];
