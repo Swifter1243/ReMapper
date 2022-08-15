@@ -401,26 +401,26 @@ export class Info {
     get customEnvironment() { return jsonGet(this.json, "_customData._customEnvironment") }
     get customEnvironmentHash() { return jsonGet(this.json, "_customData._customEnvironmentHash") }
 
-    set version(value) { this.updateInfo(this.json, "_version", value) }
-    set name(value) { this.updateInfo(this.json, "_songName", value) }
-    set subName(value) { this.updateInfo(this.json, "_songSubName", value) }
-    set authorName(value) { this.updateInfo(this.json, "_songAuthorName", value) }
-    set mapper(value) { this.updateInfo(this.json, "_levelAuthorName", value) }
-    set BPM(value) { this.updateInfo(this.json, "_beatsPerMinute", value) }
-    set previewStart(value) { this.updateInfo(this.json, "_previewStartTime", value) }
-    set previewDuration(value) { this.updateInfo(this.json, "_previewDuration", value) }
-    set songOffset(value) { this.updateInfo(this.json, "_songTimeOffset", value) }
-    set shuffle(value) { this.updateInfo(this.json, "_shuffle", value) }
-    set shufflePeriod(value) { this.updateInfo(this.json, "_shufflePeriod", value) }
-    set coverFileName(value) { this.updateInfo(this.json, "_coverImageFilename", value) }
-    set songFileName(value) { this.updateInfo(this.json, "_songFilename", value) }
-    set environment(value) { this.updateInfo(this.json, "_environmentName", value) }
-    set environment360(value) { this.updateInfo(this.json, "_allDirectionsEnvironmentName", value) }
-    set customData(value) { this.updateInfo(this.json, "_customData", value) }
-    set editors(value) { this.updateInfo(this.json, "_customData._editors", value) }
-    set contributors(value) { this.updateInfo(this.json, "_customData._contributors", value) }
-    set customEnvironment(value) { this.updateInfo(this.json, "_customData._customEnvironment", value) }
-    set customEnvironmentHash(value) { this.updateInfo(this.json, "_customData._customEnvironmentHash", value) }
+    set version(value: string) { this.updateInfo(this.json, "_version", value) }
+    set name(value: string) { this.updateInfo(this.json, "_songName", value) }
+    set subName(value: string) { this.updateInfo(this.json, "_songSubName", value) }
+    set authorName(value: string) { this.updateInfo(this.json, "_songAuthorName", value) }
+    set mapper(value: string) { this.updateInfo(this.json, "_levelAuthorName", value) }
+    set BPM(value: number) { this.updateInfo(this.json, "_beatsPerMinute", value) }
+    set previewStart(value: number) { this.updateInfo(this.json, "_previewStartTime", value) }
+    set previewDuration(value: number) { this.updateInfo(this.json, "_previewDuration", value) }
+    set songOffset(value: number) { this.updateInfo(this.json, "_songTimeOffset", value) }
+    set shuffle(value: boolean) { this.updateInfo(this.json, "_shuffle", value) }
+    set shufflePeriod(value: number) { this.updateInfo(this.json, "_shufflePeriod", value) }
+    set coverFileName(value: string) { this.updateInfo(this.json, "_coverImageFilename", value) }
+    set songFileName(value: string) { this.updateInfo(this.json, "_songFilename", value) }
+    set environment(value: string) { this.updateInfo(this.json, "_environmentName", value) }
+    set environment360(value: string) { this.updateInfo(this.json, "_allDirectionsEnvironmentName", value) }
+    set customData(value: Record<string, any>) { this.updateInfo(this.json, "_customData", value) }
+    set editors(value: Record<string, any>) { this.updateInfo(this.json, "_customData._editors", value) }
+    set contributors(value: Record<string, any>[]) { this.updateInfo(this.json, "_customData._contributors", value) }
+    set customEnvironment(value: string) { this.updateInfo(this.json, "_customData._customEnvironment", value) }
+    set customEnvironmentHash(value: string) { this.updateInfo(this.json, "_customData._customEnvironmentHash", value) }
 }
 
 export const info = new Info();
