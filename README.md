@@ -1,3 +1,5 @@
+![ReMapperBanner](https://user-images.githubusercontent.com/86539501/184691427-0e8853fc-878a-4c0b-b976-970f7dac8818.png)
+
 # Welcome to ReMapper!
 
 This is a [TypeScript](https://www.typescriptlang.org/) library designed to help with making Beat Saber modcharts. It is designed to optimize the scripting experience, and reduce code to be very minimal, and sometimes single lines.
