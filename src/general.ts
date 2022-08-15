@@ -95,7 +95,7 @@ export function filterObjects(objects: any[], min: number, max: number, property
     const passedObjects: any[] = [];
 
     objects.forEach(obj => {
-        if (obj[property] + EPSILON >= min && obj[property] + EPSILON < max) passedObjects.push(obj);
+        if (obj[property] + EPSILON >= min && obj[property] < max) passedObjects.push(obj);
     })
 
     return passedObjects;
