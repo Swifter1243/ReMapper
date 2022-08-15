@@ -5,7 +5,6 @@ import { fs, path } from "./deps.ts";
 import { Environment, Geometry, RawGeometryMaterial } from "./environment.ts";
 import { optimizeAnimation, OptimizeSettings } from "./anim_optimizer.ts";
 import { CustomEvent, CustomEventInternals } from "./custom_event.ts";
-import { GEO_SHADER, LOOKUP } from "./constants.ts";
 import { activeDiff } from "./beatmap.ts";
 import { Regex } from "./regex.ts";
 import { Event } from "./event.ts";
@@ -416,24 +415,24 @@ export function debugObject(input: GroupObjectTypes, resolution: number, scale?:
     fogEvent.animate.startY = [-69420]
     fogEvent.push();
 
-    const removeUI = new Environment(new Regex().add("NarrowGameHUD").end(), LOOKUP.REGEX);
+    const removeUI = new Environment(new Regex().add("NarrowGameHUD").end(), "Regex");
     removeUI.active = false;
     removeUI.push();
 
     activeDiff.geoMaterials["debugCubeX"] = {
-        _shader: GEO_SHADER.STANDARD,
+        _shader: "Standard",
         _color: [1, 0, 0],
         _shaderKeywords: []
     }
 
     activeDiff.geoMaterials["debugCubeY"] = {
-        _shader: GEO_SHADER.STANDARD,
+        _shader: "Standard",
         _color: [0, 1, 0],
         _shaderKeywords: []
     }
 
     activeDiff.geoMaterials["debugCubeZ"] = {
-        _shader: GEO_SHADER.STANDARD,
+        _shader: "Standard",
         _color: [0, 0, 1],
         _shaderKeywords: []
     }

@@ -75,27 +75,12 @@ console.log(info.version);
 # Constants
 
 Constants are an important part of this package, they provide lookups for
-certain values that might not be easy to remember. For example, previously you
-might have to look up the ID for the type of an event that activates center
-lasers, but with constants you can use `EVENT.CENTER_LASERS` and that is equal
-to 4.
+certain values that might not be easy to remember. 
 
-In most situations like this where the options for parameters might not be
-obvious, the use of constants are enforced to keep things nice and clean. This
-is because it is easier to see all the options for constants. It is recommended
-that you explore constants until they end, as there are some cases where it
-might not be obvious you need to dive further:
+For example, you may be trying to spawn a note, but can't remember what number corresponds to a top right note. You could use the `NOTE` constant to see all of the options, and whatever property you access will be the equivalent of the correct number.
 
 ```js
-SETTINGS.NO_HUD; // This provides the JSON path for the setting relative to _settings.
-
-// The only thing provided here is a path, as it's easily inferencable that you input a boolean.
-
-SETTINGS.ENERGY_TYPE.VALUE; // JSON path.
-SETTINGS.ENERGY_TYPE.BAR; // One of the options for this setting, a string called "Bar".
-SETTINGS.ENERGY_TYPE.BATTERY; // The other option "Battery".
-
-// Multiple options are provided here, since it's not as easy to inference the inputs.
+new Note(10, NOTE.UP_RIGHT).push();
 ```
 
 # Objects (Notes, Walls)
@@ -158,7 +143,7 @@ wall.animate.definitePosition = [0, 0, 0];
 You can add to an animation by using the add method and ANIM constant.
 
 ```js
-wall.animate.add(_definitePosition, [0, 1, 0, 4, EASE.OUT_EXPO]); // Easings and splines work too!
+wall.animate.add(_definitePosition, [0, 1, 0, 4, "easeInOutExpo"]); // Easings and splines work too!
 ```
 
 You can use a negative number for time to return to a range of 0-1, it will be
@@ -256,7 +241,7 @@ env.push();
 
 animateEnvTrack("pillar", 3, (animation) => {
   animation.length = 5;
-  animation.position = [[0, 0, 0, 0], [0, -10, 0, 5, EASE.IN_OUT_EXPO]];
+  animation.position = [[0, 0, 0, 0], [0, -10, 0, 5, "easeInOutExpo"]];
 }, 5);
 ```
 
@@ -274,8 +259,8 @@ duplicating/moving existing pieces, it spawns in entirely new ones.
 Geometry uses materials, which can either be initialized with the object:
 
 ```js
-new Geometry(GEO_TYPE.CUBE, {
-  _shader: GEO_SHADER.STANDARD,
+new Geometry("Cube", {
+  _shader: "Standard",
   _color: [1, 1, 1, 1],
   _track: "cube",
 }).push();
@@ -284,12 +269,12 @@ new Geometry(GEO_TYPE.CUBE, {
 Or added to the `geoMaterials` object in the map:
 
 ```js
-map.geoMaterials["cube"] = {
-  _shader: GEO_SHADER.STANDARD,
+map.geoMaterials["white"] = {
+  _shader: "Standard",
   _color: [1, 1, 1, 1],
   _track: "cube",
 };
-new Geometry(GEO_TYPE.CUBE, "cube").push();
+new Geometry("Cube", "white").push();
 ```
 
 NOTE: At this point in time, the standard shader for geometry has issues that
@@ -339,7 +324,7 @@ The `object` field will determine which object is spawned, currently
 `Environment` and `Geometry` are supported.
 
 ```js
-const scene = new ModelScene(new Geometry(GEO_TYPE.CUBE));
+const scene = new ModelScene(new Geometry()) // Defaults to Cube type;
 ```
 
 You can add new primary objects with `addPrimaryGroups`, which takes the
@@ -349,8 +334,8 @@ the object.
 ```js
 scene.addPrimaryGroups(
   "red sphere",
-  new Geometry(GEO_TYPE.SPHERE, {
-    _shader: GEO_SHADER.STANDARD,
+  new Geometry("Sphere", {
+    _shader: "Standard",
     _color: [1, 0, 0], // Note: This overrides colors from the model data.
   }),
 );

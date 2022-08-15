@@ -3,70 +3,70 @@ import { Vec3 } from "./general.ts"
 import { Regex } from "./regex.ts"
 
 export type MODS =
-"Chroma" |
-"Noodle Extensions"
+    "Chroma" |
+    "Noodle Extensions"
 
-export type ENV_NAMES = 
-"BTSEnvironment" |
-"BigMirrorEnvironment" |
-"BillieEnvironment" |
-"CrabRaveEnvironment" |
-"DefaultEnvironment" |
-"DragonsEnvironment" |
-"FitBeatEnvironment" |
-"GagaEnvironment" |
-"GreenDayEnvironment" |
-"GreenDayGrenadeEnvironment" |
-"InterscopeEnvironment" |
-"KDAEnvironment" |
-"KaleidoscopeEnvironment" |
-"LinkinParkEnvironment" |
-"MonstercatEnvironment" |
-"NiceEnvironment" |
-"OriginsEnvironment" |
-"PanicEnvironment" |
-"RocketEnvironment" |
-"SkrillexEnvironment" |
-"HalloweenEnvironment" |
-"TimbalandEnvironment" |
-"TriangleEnvironment"
+export type ENV_NAMES =
+    "BTSEnvironment" |
+    "BigMirrorEnvironment" |
+    "BillieEnvironment" |
+    "CrabRaveEnvironment" |
+    "DefaultEnvironment" |
+    "DragonsEnvironment" |
+    "FitBeatEnvironment" |
+    "GagaEnvironment" |
+    "GreenDayEnvironment" |
+    "GreenDayGrenadeEnvironment" |
+    "InterscopeEnvironment" |
+    "KDAEnvironment" |
+    "KaleidoscopeEnvironment" |
+    "LinkinParkEnvironment" |
+    "MonstercatEnvironment" |
+    "NiceEnvironment" |
+    "OriginsEnvironment" |
+    "PanicEnvironment" |
+    "RocketEnvironment" |
+    "SkrillexEnvironment" |
+    "HalloweenEnvironment" |
+    "TimbalandEnvironment" |
+    "TriangleEnvironment"
 
-export type EASE = 
-"easeLinear" |
-"easeStep" |
-"easeInQuad" |
-"easeOutQuad" |
-"easeInOutQuad" |
-"easeInCubic" |
-"easeOutCubic" |
-"easeInOutCubic" |
-"easeInQuart" |
-"easeOutQuart" |
-"easeInOutQuart" |
-"easeInQuint" |
-"easeOutQuint" |
-"easeInOutQuint" |
-"easeInSine" |
-"easeOutSine" |
-"easeInOutSine" |
-"easeInExpo" |
-"easeOutExpo" |
-"easeInOutExpo" |
-"easeInCirc" |
-"easeOutCirc" |
-"easeInOutCirc" |
-"easeInElastic" |
-"easeOutElastic" |
-"easeInOutElastic" |
-"easeInBack" |
-"easeOutBack" |
-"easeInOutBack" |
-"easeInBounce" |
-"easeOutBounce" |
-"easeInOutBounce"
+export type EASE =
+    "easeLinear" |
+    "easeStep" |
+    "easeInQuad" |
+    "easeOutQuad" |
+    "easeInOutQuad" |
+    "easeInCubic" |
+    "easeOutCubic" |
+    "easeInOutCubic" |
+    "easeInQuart" |
+    "easeOutQuart" |
+    "easeInOutQuart" |
+    "easeInQuint" |
+    "easeOutQuint" |
+    "easeInOutQuint" |
+    "easeInSine" |
+    "easeOutSine" |
+    "easeInOutSine" |
+    "easeInExpo" |
+    "easeOutExpo" |
+    "easeInOutExpo" |
+    "easeInCirc" |
+    "easeOutCirc" |
+    "easeInOutCirc" |
+    "easeInElastic" |
+    "easeOutElastic" |
+    "easeInOutElastic" |
+    "easeInBack" |
+    "easeOutBack" |
+    "easeInOutBack" |
+    "easeInBounce" |
+    "easeOutBounce" |
+    "easeInOutBounce"
 
-export type SPLINE = 
-"splineCatmullRom"
+export type SPLINE =
+    "splineCatmullRom"
 
 export class settingsHandler {
     private diff: Difficulty;
@@ -255,22 +255,22 @@ export const EVENT = {
     CW_60: 7
 }
 
-export type ANIM = 
-"_position" |
-"_definitePosition" |
-"_localPosition" |
-"_rotation" |
-"_localRotation" |
-"_scale" |
-"_dissolve" |
-"_dissolveArrow" |
-"_color" |
-"_interactable" |
-"_attenuation" |
-"_offset" |
-"_startY" |
-"_height" |
-"_time"
+export type ANIM =
+    "_position" |
+    "_definitePosition" |
+    "_localPosition" |
+    "_rotation" |
+    "_localRotation" |
+    "_scale" |
+    "_dissolve" |
+    "_dissolveArrow" |
+    "_color" |
+    "_interactable" |
+    "_attenuation" |
+    "_offset" |
+    "_startY" |
+    "_height" |
+    "_time"
 
 // Known objects that work. Feel free to PR your own!
 export const ENV = {
@@ -317,29 +317,27 @@ export const ENV = {
     }
 }
 
-export enum COLOR {
-    RGB = "RGB",
-    HSV = "HSV"
-}
+export type COLOR =
+    "RGB" |
+    "HSV"
 
-export enum LOOKUP {
-    CONTAINS = "Contains",
-    REGEX = "Regex",
-    EXACT = "Exact"
-}
+export type LOOKUP =
+    "Contains" |
+    "Regex" |
+    "Exact" |
+    "StartsWith" |
+    "EndsWith"
 
-export enum GEO_TYPE {
-    SPHERE = "Sphere",
-    CAPSULE = "Capsule",
-    CYLINDER = "Cylinder",
-    CUBE = "Cube",
-    PLANE = "Plane",
-    QUAD = "Quad",
-    TRIANGLE = "Triangle"
-}
+export type GEO_TYPE =
+"Sphere" |
+"Capsule" |
+"Cylinder" |
+"Cube" |
+"Plane" |
+"Quad" |
+"Triangle"
 
-export enum GEO_SHADER {
-    STANDARD = "Standard",
-    OPAQUE_LIGHT = "OpaqueLight",
-    TRANSPARENT_LIGHT = "TransparentLight"
-}
+export type GEO_SHADER = 
+"Standard" |
+"OpaqueLight" |
+"TransparentLight"

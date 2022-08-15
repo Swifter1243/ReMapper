@@ -71,7 +71,7 @@ export class Environment extends EnvironmentInternals.BaseEnvironment {
     constructor(id?: string, lookupMethod: LOOKUP | undefined = undefined) {
         super();
         id ??= "";
-        lookupMethod ??= LOOKUP.CONTAINS;
+        lookupMethod ??= "Contains";
         this.id = id;
         this.lookupMethod = lookupMethod;
     }
@@ -90,9 +90,9 @@ export class Geometry extends EnvironmentInternals.BaseEnvironment {
 
     constructor(type?: GEO_TYPE, material?: GeometryMaterial | string) {
         super();
-        type ??= GEO_TYPE.CUBE;
+        type ??= "Cube";
         material ??= {
-            _shader: GEO_SHADER.STANDARD
+            _shader: "Standard"
         }
         this.type = type;
         this.material = material;
