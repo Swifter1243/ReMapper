@@ -255,23 +255,22 @@ export const EVENT = {
     CW_60: 7
 }
 
-export enum ANIM {
-    POSITION = "_position",
-    DEFINITE_POSITION = "_definitePosition",
-    LOCAL_POSITION = "_localPosition",
-    ROTATION = "_rotation",
-    LOCAL_ROTATION = "_localRotation",
-    SCALE = "_scale",
-    DISSOLVE = "_dissolve",
-    DISSOLVE_ARROW = "_dissolveArrow",
-    COLOR = "_color",
-    INTERACTABLE = "_interactable",
-    ATTENUATION = "_attenuation",
-    OFFSET = "_offset",
-    STARTY = "_startY",
-    HEIGHT = "_height",
-    TIME = "_time"
-}
+export type ANIM = 
+"_position" |
+"_definitePosition" |
+"_localPosition" |
+"_rotation" |
+"_localRotation" |
+"_scale" |
+"_dissolve" |
+"_dissolveArrow" |
+"_color" |
+"_interactable" |
+"_attenuation" |
+"_offset" |
+"_startY" |
+"_height" |
+"_time"
 
 // Known objects that work. Feel free to PR your own!
 export const ENV = {

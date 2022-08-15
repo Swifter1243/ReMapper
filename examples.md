@@ -158,14 +158,14 @@ wall.animate.definitePosition = [0, 0, 0];
 You can add to an animation by using the add method and ANIM constant.
 
 ```js
-wall.animate.add(ANIM.DEFINITE_POSITION, [0, 1, 0, 4, EASE.OUT_EXPO]); // Easings and splines work too!
+wall.animate.add(_definitePosition, [0, 1, 0, 4, EASE.OUT_EXPO]); // Easings and splines work too!
 ```
 
 You can use a negative number for time to return to a range of 0-1, it will be
 converted to positive internally.
 
 ```js
-wall.animate.add(ANIM.DEFINITE_POSITION, [0, 2, 0, -0.5]);
+wall.animate.add(_definitePosition, [0, 2, 0, -0.5]);
 ```
 
 This wrapper also allows you to grab what the values of a property would be at a
@@ -173,7 +173,7 @@ certain time. It accounts for easings, splines, and what the property actually
 is (rotations interpolate differently than positions, for example).
 
 ```js
-console.log(wall.animate.get(ANIM.DEFINITE_POSITION, 3)); // Get values at time 3, which is also divided by the length.
+console.log(wall.animate.get(_definitePosition, 3)); // Get values at time 3, which is also divided by the length.
 ```
 
 So far this animation would end up as:

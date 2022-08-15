@@ -55,7 +55,7 @@ export namespace AnimationInternals {
          * @param {String} property 
          * @param {*} value 
          */
-        set(property: string, value: KeyframesAny, process = true) {
+        set(property: ANIM, value: KeyframesAny, process = true) {
             if (typeof value === "string" || !process) this.json[property] = value;
             else this.json[property] = simplifyArray(this.convert(complexifyArray(value)).sort((a: KeyframeValues, b: KeyframeValues) => new Keyframe(a).time - new Keyframe(b).time))
         }
@@ -67,7 +67,7 @@ export namespace AnimationInternals {
          * Time can be in length of animation or between 0 and 1 if negative.
          * @returns {*}
          */
-        get(property: string, time?: number) {
+        get(property: ANIM, time?: number) {
             if (time === undefined || typeof time === "string") return this.json[property];
             else {
                 time = this.convertTime(time);
@@ -95,9 +95,9 @@ export namespace AnimationInternals {
          * @param {String} property Optimize only a single property, or set to undefined to optimize all.
          * @param {OptimizeSettings} property Options for the optimizer. Optional.
          */
-        optimize(property?: string, settings: OptimizeSettings = new OptimizeSettings()) {
+        optimize(property?: ANIM, settings: OptimizeSettings = new OptimizeSettings()) {
             if (property === undefined) {
-                Object.keys(this.json).forEach(key => {
+                (Object.keys(this.json) as ANIM[]).forEach(key => {
                     if (Array.isArray(this.json[key])) {
                         const oldArray = this.get(key);
                         const oldCount = oldArray.length;
@@ -136,92 +136,92 @@ export namespace AnimationInternals {
 
 
     class ObjectAnimation extends BaseAnimation {
-        get position() { return this.get(ANIM.POSITION) }
-        get definitePosition() { return this.get(ANIM.DEFINITE_POSITION) }
-        get rotation() { return this.get(ANIM.ROTATION) }
-        get localRotation() { return this.get(ANIM.LOCAL_ROTATION) }
-        get scale() { return this.get(ANIM.SCALE) }
-        get dissolve() { return this.get(ANIM.DISSOLVE) }
-        get color() { return this.get(ANIM.COLOR) }
-        get interactable() { return this.get(ANIM.INTERACTABLE) }
-        get time() { return this.get(ANIM.TIME) }
+        get position() { return this.get("_position") }
+        get definitePosition() { return this.get("_definitePosition") }
+        get rotation() { return this.get("_rotation") }
+        get localRotation() { return this.get("_localRotation") }
+        get scale() { return this.get("_scale") }
+        get dissolve() { return this.get("_dissolve") }
+        get color() { return this.get("_color") }
+        get interactable() { return this.get("_interactable") }
+        get time() { return this.get("_time") }
 
-        set position(value: KeyframesVec3) { this.set(ANIM.POSITION, value as KeyframesAny) }
-        set definitePosition(value: KeyframesVec3) { this.set(ANIM.DEFINITE_POSITION, value as KeyframesAny) }
-        set rotation(value: KeyframesVec3) { this.set(ANIM.ROTATION, value as KeyframesAny) }
-        set localRotation(value: KeyframesVec3) { this.set(ANIM.LOCAL_ROTATION, value as KeyframesAny) }
-        set scale(value: KeyframesVec3) { this.set(ANIM.SCALE, value as KeyframesAny) }
-        set dissolve(value: KeyframesLinear) { this.set(ANIM.DISSOLVE, value as KeyframesAny) }
-        set color(value: KeyframesVec4) { this.set(ANIM.COLOR, value as KeyframesAny) }
-        set interactable(value: KeyframesLinear) { this.set(ANIM.INTERACTABLE, value as KeyframesAny) }
-        set time(value: KeyframesLinear) { this.set(ANIM.TIME, value as KeyframesAny) }
+        set position(value: KeyframesVec3) { this.set("_position", value as KeyframesAny) }
+        set definitePosition(value: KeyframesVec3) { this.set("_definitePosition", value as KeyframesAny) }
+        set rotation(value: KeyframesVec3) { this.set("_rotation", value as KeyframesAny) }
+        set localRotation(value: KeyframesVec3) { this.set("_localRotation", value as KeyframesAny) }
+        set scale(value: KeyframesVec3) { this.set("_scale", value as KeyframesAny) }
+        set dissolve(value: KeyframesLinear) { this.set("_dissolve", value as KeyframesAny) }
+        set color(value: KeyframesVec4) { this.set("_color", value as KeyframesAny) }
+        set interactable(value: KeyframesLinear) { this.set("_interactable", value as KeyframesAny) }
+        set time(value: KeyframesLinear) { this.set("_time", value as KeyframesAny) }
     }
 
     export class NoteAnimation extends ObjectAnimation {
-        get dissolveArrow() { return this.get(ANIM.DISSOLVE_ARROW) }
-        set dissolveArrow(value: KeyframesLinear) { this.set(ANIM.DISSOLVE_ARROW, value as KeyframesAny) }
+        get dissolveArrow() { return this.get("_dissolveArrow") }
+        set dissolveArrow(value: KeyframesLinear) { this.set("_dissolveArrow", value as KeyframesAny) }
     }
 
     export class WallAnimation extends ObjectAnimation { }
 
     export class EnvironmentAnimation extends BaseAnimation {
-        get position() { return this.get(ANIM.POSITION) }
-        get rotation() { return this.get(ANIM.ROTATION) }
-        get localPosition() { return this.get(ANIM.LOCAL_POSITION) }
-        get localRotation() { return this.get(ANIM.LOCAL_ROTATION) }
-        get scale() { return this.get(ANIM.SCALE) }
+        get position() { return this.get("_position") }
+        get rotation() { return this.get("_rotation") }
+        get localPosition() { return this.get("_localPosition") }
+        get localRotation() { return this.get("_localRotation") }
+        get scale() { return this.get("_scale") }
 
-        set position(value: KeyframesVec3) { this.set(ANIM.POSITION, value as KeyframesAny) }
-        set rotation(value: KeyframesVec3) { this.set(ANIM.ROTATION, value as KeyframesAny) }
-        set localPosition(value: KeyframesVec3) { this.set(ANIM.LOCAL_POSITION, value as KeyframesAny) }
-        set localRotation(value: KeyframesVec3) { this.set(ANIM.LOCAL_ROTATION, value as KeyframesAny) }
-        set scale(value: KeyframesVec3) { this.set(ANIM.SCALE, value as KeyframesAny) }
+        set position(value: KeyframesVec3) { this.set("_position", value as KeyframesAny) }
+        set rotation(value: KeyframesVec3) { this.set("_rotation", value as KeyframesAny) }
+        set localPosition(value: KeyframesVec3) { this.set("_localPosition", value as KeyframesAny) }
+        set localRotation(value: KeyframesVec3) { this.set("_localRotation", value as KeyframesAny) }
+        set scale(value: KeyframesVec3) { this.set("_scale", value as KeyframesAny) }
     }
 
     export class FogAnimation extends BaseAnimation {
-        get attenuation() { return this.get(ANIM.ATTENUATION) }
-        get offset() { return this.get(ANIM.OFFSET) }
-        get startY() { return this.get(ANIM.STARTY) }
-        get height() { return this.get(ANIM.HEIGHT) }
+        get attenuation() { return this.get("_attenuation") }
+        get offset() { return this.get("_offset") }
+        get startY() { return this.get("_startY") }
+        get height() { return this.get("_height") }
 
-        set attenuation(value: KeyframesLinear) { this.set(ANIM.ATTENUATION, value as KeyframesAny) }
-        set offset(value: KeyframesLinear) { this.set(ANIM.OFFSET, value as KeyframesAny) }
-        set startY(value: KeyframesLinear) { this.set(ANIM.STARTY, value as KeyframesAny) }
-        set height(value: KeyframesLinear) { this.set(ANIM.HEIGHT, value as KeyframesAny) }
+        set attenuation(value: KeyframesLinear) { this.set("_attenuation", value as KeyframesAny) }
+        set offset(value: KeyframesLinear) { this.set("_offset", value as KeyframesAny) }
+        set startY(value: KeyframesLinear) { this.set("_startY", value as KeyframesAny) }
+        set height(value: KeyframesLinear) { this.set("_height", value as KeyframesAny) }
     }
 
     export class AbstractAnimation extends ObjectAnimation {
-        get position() { return this.get(ANIM.POSITION) }
-        get localPosition() { return this.get(ANIM.LOCAL_POSITION) }
-        get definitePosition() { return this.get(ANIM.DEFINITE_POSITION) }
-        get rotation() { return this.get(ANIM.ROTATION) }
-        get localRotation() { return this.get(ANIM.LOCAL_ROTATION) }
-        get scale() { return this.get(ANIM.SCALE) }
-        get dissolve() { return this.get(ANIM.DISSOLVE) }
-        get dissolveArrow() { return this.get(ANIM.DISSOLVE_ARROW) }
-        get color() { return this.get(ANIM.COLOR) }
-        get interactable() { return this.get(ANIM.INTERACTABLE) }
-        get time() { return this.get(ANIM.TIME) }
-        get attenuation() { return this.get(ANIM.ATTENUATION) }
-        get offset() { return this.get(ANIM.OFFSET) }
-        get startY() { return this.get(ANIM.STARTY) }
-        get height() { return this.get(ANIM.HEIGHT) }
+        get position() { return this.get("_position") }
+        get localPosition() { return this.get("_localPosition") }
+        get definitePosition() { return this.get("_definitePosition") }
+        get rotation() { return this.get("_rotation") }
+        get localRotation() { return this.get("_localRotation") }
+        get scale() { return this.get("_scale") }
+        get dissolve() { return this.get("_dissolve") }
+        get dissolveArrow() { return this.get("_dissolveArrow") }
+        get color() { return this.get("_color") }
+        get interactable() { return this.get("_interactable") }
+        get time() { return this.get("_time") }
+        get attenuation() { return this.get("_attenuation") }
+        get offset() { return this.get("_offset") }
+        get startY() { return this.get("_startY") }
+        get height() { return this.get("_height") }
 
-        set position(value: KeyframesVec3) { this.set(ANIM.POSITION, value as KeyframesAny) }
-        set localPosition(value: KeyframesVec3) { this.set(ANIM.LOCAL_POSITION, value as KeyframesAny) }
-        set definitePosition(value: KeyframesVec3) { this.set(ANIM.DEFINITE_POSITION, value as KeyframesAny) }
-        set rotation(value: KeyframesVec3) { this.set(ANIM.ROTATION, value as KeyframesAny) }
-        set localRotation(value: KeyframesVec3) { this.set(ANIM.LOCAL_ROTATION, value as KeyframesAny) }
-        set scale(value: KeyframesVec3) { this.set(ANIM.SCALE, value as KeyframesAny) }
-        set dissolve(value: KeyframesLinear) { this.set(ANIM.DISSOLVE, value as KeyframesAny) }
-        set dissolveArrow(value: KeyframesLinear) { this.set(ANIM.DISSOLVE_ARROW, value as KeyframesAny) }
-        set color(value: KeyframesVec4) { this.set(ANIM.COLOR, value as KeyframesAny) }
-        set interactable(value: KeyframesLinear) { this.set(ANIM.INTERACTABLE, value as KeyframesAny) }
-        set time(value: KeyframesLinear) { this.set(ANIM.TIME, value as KeyframesAny) }
-        set attenuation(value: KeyframesLinear) { this.set(ANIM.ATTENUATION, value as KeyframesAny) }
-        set offset(value: KeyframesLinear) { this.set(ANIM.OFFSET, value as KeyframesAny) }
-        set startY(value: KeyframesLinear) { this.set(ANIM.STARTY, value as KeyframesAny) }
-        set height(value: KeyframesLinear) { this.set(ANIM.HEIGHT, value as KeyframesAny) }
+        set position(value: KeyframesVec3) { this.set("_position", value as KeyframesAny) }
+        set localPosition(value: KeyframesVec3) { this.set("_localPosition", value as KeyframesAny) }
+        set definitePosition(value: KeyframesVec3) { this.set("_definitePosition", value as KeyframesAny) }
+        set rotation(value: KeyframesVec3) { this.set("_rotation", value as KeyframesAny) }
+        set localRotation(value: KeyframesVec3) { this.set("_localRotation", value as KeyframesAny) }
+        set scale(value: KeyframesVec3) { this.set("_scale", value as KeyframesAny) }
+        set dissolve(value: KeyframesLinear) { this.set("_dissolve", value as KeyframesAny) }
+        set dissolveArrow(value: KeyframesLinear) { this.set("_dissolveArrow", value as KeyframesAny) }
+        set color(value: KeyframesVec4) { this.set("_color", value as KeyframesAny) }
+        set interactable(value: KeyframesLinear) { this.set("_interactable", value as KeyframesAny) }
+        set time(value: KeyframesLinear) { this.set("_time", value as KeyframesAny) }
+        set attenuation(value: KeyframesLinear) { this.set("_attenuation", value as KeyframesAny) }
+        set offset(value: KeyframesLinear) { this.set("_offset", value as KeyframesAny) }
+        set startY(value: KeyframesLinear) { this.set("_startY", value as KeyframesAny) }
+        set height(value: KeyframesLinear) { this.set("_height", value as KeyframesAny) }
     }
 }
 
@@ -460,7 +460,7 @@ export function getValuesAtTime(property: string, animation: KeyframesAny, time:
     animation = complexifyArray(animation);
     const timeInfo = timeInKeyframes(time, animation);
     if (timeInfo.interpolate && timeInfo.r && timeInfo.l) {
-        if (property === ANIM.ROTATION || property === ANIM.LOCAL_ROTATION) {
+        if (property === "_rotation" || property === "_localRotation") {
             return lerpRotation(timeInfo.l.values as Vec3, timeInfo.r.values as Vec3, timeInfo.normalTime);
         }
         else {
@@ -568,9 +568,9 @@ export function combineAnimations(anim1: KeyframesAny, anim2: KeyframesAny, prop
     }
 
     const editElem = function (e: number, e2: number) {
-        if (property === (ANIM.POSITION || ANIM.LOCAL_POSITION)) e += e2;
-        if (property === (ANIM.ROTATION || ANIM.LOCAL_ROTATION)) e = (e + e2) % 360;
-        if (property === (ANIM.SCALE)) e *= e2;
+        if (property === ("_position" || "_localPosition")) e += e2;
+        if (property === ("_rotation" || "_localRotation")) e = (e + e2) % 360;
+        if (property === ("_scale")) e *= e2;
         return e;
     }
 
@@ -643,9 +643,9 @@ export function bakeAnimation(animation: { pos?: RawKeyframesVec3, rot?: RawKeyf
 
     for (let i = totalMin; i <= totalMax; i += animFreq) {
         const keyframe = {
-            pos: dataAnim.get(ANIM.POSITION, i),
-            rot: dataAnim.get(ANIM.ROTATION, i),
-            scale: dataAnim.get(ANIM.SCALE, i),
+            pos: dataAnim.get("_position", i),
+            rot: dataAnim.get("_rotation", i),
+            scale: dataAnim.get("_scale", i),
             time: i
         };
 

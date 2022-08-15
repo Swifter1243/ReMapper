@@ -5,7 +5,7 @@ import { fs, path } from "./deps.ts";
 import { Environment, Geometry, RawGeometryMaterial } from "./environment.ts";
 import { optimizeAnimation, OptimizeSettings } from "./anim_optimizer.ts";
 import { CustomEvent, CustomEventInternals } from "./custom_event.ts";
-import { ANIM, GEO_SHADER, LOOKUP } from "./constants.ts";
+import { GEO_SHADER, LOOKUP } from "./constants.ts";
 import { activeDiff } from "./beatmap.ts";
 import { Regex } from "./regex.ts";
 import { Event } from "./event.ts";
@@ -244,9 +244,9 @@ export class ModelScene {
             // Creating event for assigned
             else {
                 const event = new CustomEvent().animateTrack(track);
-                event.animate.set(ANIM.POSITION, x.pos, false);
-                event.animate.set(ANIM.ROTATION, x.rot, false);
-                event.animate.set(ANIM.SCALE, x.scale, false);
+                event.animate.set("_position", x.pos, false);
+                event.animate.set("_rotation", x.rot, false);
+                event.animate.set("_scale", x.scale, false);
                 if (forAssigned) forAssigned(event);
                 event.push();
             }
@@ -327,9 +327,9 @@ export class ModelScene {
                 }
 
                 const event = new CustomEvent(time).animateTrack(track, duration);
-                event.animate.set(ANIM.POSITION, x.pos, false);
-                event.animate.set(ANIM.ROTATION, x.rot, false);
-                event.animate.set(ANIM.SCALE, x.scale, false);
+                event.animate.set("_position", x.pos, false);
+                event.animate.set("_rotation", x.rot, false);
+                event.animate.set("_scale", x.scale, false);
                 if (forEvent) forEvent(event, objectInfo.perSwitch[time]);
                 event.push();
             })
