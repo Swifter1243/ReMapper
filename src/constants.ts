@@ -32,44 +32,42 @@ export type ENV_NAMES =
 "TimbalandEnvironment" |
 "TriangleEnvironment"
 
-export enum EASE {
-    LINEAR = "easeLinear",
-    STEP = "easeStep",
-    IN_QUAD = "easeInQuad",
-    OUT_QUAD = "easeOutQuad",
-    IN_OUT_QUAD = "easeInOutQuad",
-    IN_CUBIC = "easeInCubic",
-    OUT_CUBIC = "easeOutCubic",
-    IN_OUT_CUBIC = "easeInOutCubic",
-    IN_QUART = "easeInQuart",
-    OUT_QUART = "easeOutQuart",
-    IN_OUT_QUART = "easeInOutQuart",
-    IN_QUINT = "easeInQuint",
-    OUT_QUINT = "easeOutQuint",
-    IN_OUT_QUINT = "easeInOutQuint",
-    IN_SINE = "easeInSine",
-    OUT_SINE = "easeOutSine",
-    IN_OUT_SINE = "easeInOutSine",
-    IN_EXPO = "easeInExpo",
-    OUT_EXPO = "easeOutExpo",
-    IN_OUT_EXPO = "easeInOutExpo",
-    IN_CIRC = "easeInCirc",
-    OUT_CIRC = "easeOutCirc",
-    IN_OUT_CIRC = "easeInOutCirc",
-    IN_ELASTIC = "easeInElastic",
-    OUT_ELASTIC = "easeOutElastic",
-    IN_OUT_ELASTIC = "easeInOutElastic",
-    IN_BACK = "easeInBack",
-    OUT_BACK = "easeOutBack",
-    IN_OUT_BACK = "easeInOutBack",
-    IN_BOUNCE = "easeInBounce",
-    OUT_BOUNCE = "easeOutBounce",
-    IN_OUT_BOUNCE = "easeInOutBounce"
-}
+export type EASE = 
+"easeLinear" |
+"easeStep" |
+"easeInQuad" |
+"easeOutQuad" |
+"easeInOutQuad" |
+"easeInCubic" |
+"easeOutCubic" |
+"easeInOutCubic" |
+"easeInQuart" |
+"easeOutQuart" |
+"easeInOutQuart" |
+"easeInQuint" |
+"easeOutQuint" |
+"easeInOutQuint" |
+"easeInSine" |
+"easeOutSine" |
+"easeInOutSine" |
+"easeInExpo" |
+"easeOutExpo" |
+"easeInOutExpo" |
+"easeInCirc" |
+"easeOutCirc" |
+"easeInOutCirc" |
+"easeInElastic" |
+"easeOutElastic" |
+"easeInOutElastic" |
+"easeInBack" |
+"easeOutBack" |
+"easeInOutBack" |
+"easeInBounce" |
+"easeOutBounce" |
+"easeInOutBounce"
 
-export enum SPLINE {
-    CATMULLROM = "splineCatmullRom"
-}
+export type SPLINE = 
+"splineCatmullRom"
 
 export class settingsHandler {
     private diff: Difficulty;
