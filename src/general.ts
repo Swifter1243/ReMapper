@@ -46,15 +46,9 @@ class ReMapperJson {
     get runs() { return this.json.runs }
     get cachedData() { return this.json.cachedData }
 
-    protected set runs(value: number) {
-        this.json.runs = value;
-        this.save();
-    }
+    protected set runs(value: number) { this.json.runs = value }
 
-    protected set cachedData(value: Record<string, CachedData>) {
-        this.json.cachedData = value;
-        this.save();
-    }
+    protected set cachedData(value: Record<string, CachedData>) { this.json.cachedData = value }
 }
 
 export const RMJson = new ReMapperJson();
