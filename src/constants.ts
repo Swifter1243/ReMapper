@@ -329,15 +329,15 @@ export type LOOKUP =
     "EndsWith"
 
 export type GEO_TYPE =
-"Sphere" |
-"Capsule" |
-"Cylinder" |
-"Cube" |
-"Plane" |
-"Quad" |
-"Triangle"
+    "Sphere" |
+    "Capsule" |
+    "Cylinder" |
+    "Cube" |
+    "Plane" |
+    "Quad" |
+    "Triangle"
 
-export type GEO_SHADER = 
-"Standard" |
-"OpaqueLight" |
-"TransparentLight"
+export type GEO_SHADER =
+    "Standard" |
+    "OpaqueLight" |
+    "TransparentLight"
