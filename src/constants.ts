@@ -291,6 +291,13 @@ export enum ANIM {
 
 // Known objects that work. Feel free to PR your own!
 export const ENV = {
+    GREEN_DAY: {
+        SOLID_LASER: {
+            ID: new Regex().add("RotatingLasersPair").separate().add("BaseL").separate().add("Laser").end(),
+            SCALE: <Vec3>[20, 1 / 500, 20],
+            ANCHOR: <Vec3>[0, 0, 0]
+        }
+    },
     BTS: {
         PILLAR: {
             ID: new Regex().start().add("PillarPair").separate().add("PillarL").separate().add("Pillar").end(),
@@ -335,8 +342,8 @@ export const ENV = {
     UNIVERSAL: {
         MIRROR: { // Mirror does not work with the "Spooky" environment, but it does work with everything else!
             ID: new Regex().add("PlayersPlace").separate().add("Mirror").end(),
-            SCALE: <Vec3>[1/3,0,0.5],
-            ANCHOR: <Vec3>[0,0,0],
+            SCALE: <Vec3>[1 / 3, 0, 0.5],
+            ANCHOR: <Vec3>[0, 0, 0],
         }
     }
 }
