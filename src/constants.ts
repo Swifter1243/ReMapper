@@ -291,13 +291,6 @@ export enum ANIM {
 
 // Known objects that work. Feel free to PR your own!
 export const ENV = {
-    GREEN_DAY: {
-        SOLID_LASER: {
-            ID: new Regex().add("RotatingLasersPair").separate().add("BaseL").separate().add("Laser").end(),
-            SCALE: <Vec3>[20, 1 / 500, 20],
-            ANCHOR: <Vec3>[0, 0, 0]
-        }
-    },
     BTS: {
         PILLAR: {
             ID: new Regex().start().add("PillarPair").separate().add("PillarL").separate().add("Pillar").end(),
@@ -337,6 +330,13 @@ export const ENV = {
             ID: "LeftFarRail1$",
             SCALE: <Vec3>[10, 10, 0.02306],
             ANCHOR: <Vec3>[0, 0, -0.4974]
+        }
+    },
+    GREEN_DAY: {
+        SOLID_LASER: {
+            ID: new Regex().add("RotatingLasersPair").separate().add("BaseL").separate().add("Laser").end(),
+            SCALE: <Vec3>[20, 1 / 500, 20],
+            ANCHOR: <Vec3>[0, 0, 0]
         }
     },
     UNIVERSAL: {
