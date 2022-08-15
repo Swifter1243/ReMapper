@@ -251,7 +251,8 @@ export namespace EventInternals {
             super(json);
             this.type = type;
 
-            if (EVENT[`CW_${Math.abs(rotation)}`]) this.value = EVENT[`${(rotation < 0 ? "CCW_" : "CW_") + Math.abs(rotation)}`];
+            if ((EVENT as Record<string, any>)[`CW_${Math.abs(rotation)}`]) 
+            this.value = (EVENT as Record<string, any>)[`${(rotation < 0 ? "CCW_" : "CW_") + Math.abs(rotation)}`];
             else this.rotation = rotation;
         }
 
