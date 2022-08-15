@@ -1,157 +1,141 @@
+import { Difficulty } from "./beatmap.ts"
 import { Vec3 } from "./general.ts"
 import { Regex } from "./regex.ts"
 
-export enum MODS {
-    NOODLE_EXTENSIONS = "Noodle Extensions",
-    CHROMA = "Chroma"
-}
+export type MODS =
+    "Chroma" |
+    "Noodle Extensions"
 
-export enum ENV_NAMES {
-    BTS = "BTSEnvironment",
-    BIG_MIRROR = "BigMirrorEnvironment",
-    BILLIE = "BillieEnvironment",
-    CRAB_RAVE = "CrabRaveEnvironment",
-    DEFAULT = "DefaultEnvironment",
-    DRAGONS = "DragonsEnvironment",
-    FITBEAT = "FitBeatEnvironment",
-    GAGA = "GagaEnvironment",
-    GREENDAY = "GreenDayEnvironment",
-    GREENDAY_GRENADE = "GreenDayGrenadeEnvironment",
-    INTERSCOPE = "InterscopeEnvironment",
-    KDA = "KDAEnvironment",
-    KALEIDOSCOPE = "KaleidoscopeEnvironment",
-    LINKIN_PARK = "LinkinParkEnvironment",
-    MONSTERCAT = "MonstercatEnvironment",
-    NICE = "NiceEnvironment",
-    ORIGINS = "OriginsEnvironment",
-    PANIC = "PanicEnvironment",
-    ROCKET_LEAGUE = "RocketEnvironment",
-    SKRILLEX = "SkrillexEnvironment",
-    SPOOKY = "HalloweenEnvironment",
-    TIMBALAND = "TimbalandEnvironment",
-    TRIANGLE = "TriangleEnvironment"
-}
+export type ENV_NAMES =
+    "BTSEnvironment" |
+    "BigMirrorEnvironment" |
+    "BillieEnvironment" |
+    "CrabRaveEnvironment" |
+    "DefaultEnvironment" |
+    "DragonsEnvironment" |
+    "FitBeatEnvironment" |
+    "GagaEnvironment" |
+    "GreenDayEnvironment" |
+    "GreenDayGrenadeEnvironment" |
+    "InterscopeEnvironment" |
+    "KDAEnvironment" |
+    "KaleidoscopeEnvironment" |
+    "LinkinParkEnvironment" |
+    "MonstercatEnvironment" |
+    "NiceEnvironment" |
+    "OriginsEnvironment" |
+    "PanicEnvironment" |
+    "RocketEnvironment" |
+    "SkrillexEnvironment" |
+    "HalloweenEnvironment" |
+    "TimbalandEnvironment" |
+    "TriangleEnvironment"
 
-export enum EASE {
-    LINEAR = "easeLinear",
-    STEP = "easeStep",
-    IN_QUAD = "easeInQuad",
-    OUT_QUAD = "easeOutQuad",
-    IN_OUT_QUAD = "easeInOutQuad",
-    IN_CUBIC = "easeInCubic",
-    OUT_CUBIC = "easeOutCubic",
-    IN_OUT_CUBIC = "easeInOutCubic",
-    IN_QUART = "easeInQuart",
-    OUT_QUART = "easeOutQuart",
-    IN_OUT_QUART = "easeInOutQuart",
-    IN_QUINT = "easeInQuint",
-    OUT_QUINT = "easeOutQuint",
-    IN_OUT_QUINT = "easeInOutQuint",
-    IN_SINE = "easeInSine",
-    OUT_SINE = "easeOutSine",
-    IN_OUT_SINE = "easeInOutSine",
-    IN_EXPO = "easeInExpo",
-    OUT_EXPO = "easeOutExpo",
-    IN_OUT_EXPO = "easeInOutExpo",
-    IN_CIRC = "easeInCirc",
-    OUT_CIRC = "easeOutCirc",
-    IN_OUT_CIRC = "easeInOutCirc",
-    IN_ELASTIC = "easeInElastic",
-    OUT_ELASTIC = "easeOutElastic",
-    IN_OUT_ELASTIC = "easeInOutElastic",
-    IN_BACK = "easeInBack",
-    OUT_BACK = "easeOutBack",
-    IN_OUT_BACK = "easeInOutBack",
-    IN_BOUNCE = "easeInBounce",
-    OUT_BOUNCE = "easeOutBounce",
-    IN_OUT_BOUNCE = "easeInOutBounce"
-}
+export type EASE =
+    "easeLinear" |
+    "easeStep" |
+    "easeInQuad" |
+    "easeOutQuad" |
+    "easeInOutQuad" |
+    "easeInCubic" |
+    "easeOutCubic" |
+    "easeInOutCubic" |
+    "easeInQuart" |
+    "easeOutQuart" |
+    "easeInOutQuart" |
+    "easeInQuint" |
+    "easeOutQuint" |
+    "easeInOutQuint" |
+    "easeInSine" |
+    "easeOutSine" |
+    "easeInOutSine" |
+    "easeInExpo" |
+    "easeOutExpo" |
+    "easeInOutExpo" |
+    "easeInCirc" |
+    "easeOutCirc" |
+    "easeInOutCirc" |
+    "easeInElastic" |
+    "easeOutElastic" |
+    "easeInOutElastic" |
+    "easeInBack" |
+    "easeOutBack" |
+    "easeInOutBack" |
+    "easeInBounce" |
+    "easeOutBounce" |
+    "easeInOutBounce"
 
-export enum SPLINE {
-    CATMULLROM = "splineCatmullRom"
-}
+export type SPLINE =
+    "splineCatmullRom"
 
-export const SETTINGS = {
-    LEFT_HANDED: "_playerOptions._leftHanded",
-    PLAYER_HEIGHT: "_playerOptions._playerHeight",
-    AUTOMATIC_PLAYER_HEIGHT: "_playerOptions._automaticPlayerHeight",
-    SFX_VOLUME: "_playerOptions._sfxVolume",
-    REDUCE_DEBRIS: "_playerOptions._reduceDebris",
-    NO_HUD: "_playerOptions._noTextsAndHuds",
-    HIDE_MISSES: "_playerOptions._noFailEffects",
-    ADVANCED_HUD: "_playerOptions._advancedHud",
-    AUTO_RESTART: "_playerOptions._autoRestart",
-    TRAIL_INTENSITY: "_playerOptions._saberTrailIntensity",
-    NJS: "_playerOptions._noteJumpStartBeatOffset",
-    HIDE_SPAWN_LIGHT: "_playerOptions._hideNoteSpawnEffect",
-    ADAPTIVE_SFX: "_playerOptions._adaptiveSfx",
-    LIGHTS: {
-        VALUE: "_playerOptions._environmentEffectsFilterDefaultPreset",
-        ALL_EFFECTS: "AllEffects",
-        NO_FLICKERING: "Strobefilter",
-        NO_EFFECTS: "NoEffects"
-    },
-    LIGHTS_EXPLUS: {
-        VALUE: "_playerOptions._environmentEffectsFilterExpertPlusPreset",
-        ALL_EFFECTS: "AllEffects",
-        NO_FLICKERING: "Strobefilter",
-        NO_EFFECTS: "NoEffects"
-    },
-    ENERGY_TYPE: {
-        VALUE: "_modifiers._energyType",
-        BAR: "Bar",
-        BATTERY: "Battery"
-    },
-    NO_FAIL: "_modifiers._noFailOn0Energy",
-    INSTA_FAIL: "_modifiers._instaFail",
-    SABER_CLASH_FAIL: "_modifiers._failOnSaberClash",
-    ENABLED_OBSTACLES: {
-        VALUE: "_modifiers._enabledObstacleType",
-        ALL: "All",
-        FULL_ONLY: "FullHeightOnly",
-        NONE: "NoObstacles"
-    },
-    FAST_NOTES: "_modifiers._fastNotes",
-    STRICT_ANGLES: "_modifiers._strictAngles",
-    DISAPPEARING_ARROWS: "_modifiers._disappearingArrows",
-    GHOST_NOTES: "_modifiers._ghostNotes",
-    NO_BOMBS: "_modifiers._noBombs",
-    SONG_SPEED: {
-        VALUE: "_modifiers._songSpeed",
-        NORMAL: "Normal",
-        FASTER: "Faster",
-        SLOWER: "Slower",
-        SUPER_FAST: "SuperFast"
-    },
-    NO_ARROWS: "_modifiers._noArrows",
-    PRO_MODE: "_modifiers._proMode",
-    ZEN_MODE: "_modifiers._zenMode",
-    SMALL_CUBES: "_modifiers._smallCubes",
-    OVERRIDE_ENVIRONMENTS: "_environments._overrideEnvironments",
-    OVERRIDE_DEFAULT_COLORS: "_colors._overrideDefaultColors",
-    MIRROR_QUALITY: {
-        VALUE: "_graphics._mirrorGraphicsSettings",
+export class settingsHandler {
+    private diff: Difficulty;
+    constructor(diff: Difficulty) { this.diff = diff }
+
+    leftHanded = "_playerOptions._leftHanded" as unknown as boolean;
+    playerHeight = "_playerOptions._playerHeight" as unknown as number;
+    automaticPlayerHeight = "_playerOptions._automaticPlayerHeight" as unknown as boolean;
+    sfxVolume = "_playerOptions._sfxVolume" as unknown as number;
+    reduceDebris = "_playerOptions._reduceDebris" as unknown as boolean;
+    noHud = "_playerOptions._noTextsAndHuds" as unknown as boolean;
+    hideMisses = "_playerOptions._noFailEffects" as unknown as boolean;
+    advancedHud = "_playerOptions._advancedHud" as unknown as boolean;
+    autoRestart = "_playerOptions._autoRestart" as unknown as boolean;
+    trailIntensity = "_playerOptions._saberTrailIntensity" as unknown as number;
+    JDtype = "_playerOptions._noteJumpDurationTypeSettings" as unknown as "Dynamic" | "Static";
+    hideSpawnEffect = "_playerOptions._hideNoteSpawnEffect" as unknown as boolean;
+    adaptiveSfx = "_playerOptions._adaptiveSfx" as unknown as boolean;
+    lights = ["_playerOptions._environmentEffectsFilterDefaultPreset", {
+        All: "AllEffects",
+        NoFlicker: "Strobefilter",
+        None: "NoEffects"
+    }] as unknown as "All" | "NoFlicker" | "None";
+    lightsExPlus = ["_playerOptions._environmentEffectsFilterExpertPlusPreset", {
+        All: "AllEffects",
+        NoFlicker: "Strobefilter",
+        None: "NoEffects"
+    }] as unknown as "All" | "NoFlicker" | "None";
+    energyType = "_modifiers._energyType" as unknown as "Bar" | "Battery";
+    noFail = "_modifiers._noFailOn0Energy" as unknown as boolean;
+    instaFail = "_modifiers._instaFail" as unknown as boolean;
+    saberClashFail = "_modifiers._failOnSaberClash" as unknown as boolean;
+    enabledObstacles = ["_modifiers._enabledObstacleType", {
+        All: "All",
+        FullOnly: "FullHeightOnly",
+        None: "NoObstacles"
+    }] as unknown as "All" | "FullOnly" | "None";
+    fastNotes = "_modifiers._fastNotes" as unknown as boolean;
+    strictAngles = "_modifiers._strictAngles" as unknown as boolean;
+    disappearingArrows = "_modifiers._disappearingArrows" as unknown as boolean;
+    ghostNotes = "_modifiers._ghostNotes" as unknown as boolean;
+    noBombs = "_modifiers._noBombs" as unknown as boolean;
+    songSpeed = "_modifiers._songSpeed" as unknown as "Slower" | "Normal" | "Faster" | "SuperFast";
+    noArrows = "_modifiers._noArrows" as unknown as boolean;
+    proMode = "_modifiers._proMode" as unknown as boolean;
+    zenMode = "_modifiers._proMode" as unknown as boolean;
+    smallCubes = "_modifiers._smallCubes" as unknown as boolean;
+    overrideEnvironments = "_environments._overrideEnvironments" as unknown as boolean;
+    overrideColors = "_environments._overrideDefaultColors" as unknown as boolean;
+    mirrorQuality = ["_graphics._mirrorGraphicsSettings", {
         OFF: 0,
         LOW: 1,
         MEDIUM: 2,
         HIGH: 3
-    },
-    BLOOM: {
-        VALUE: "_graphics._mainEffectGraphicsSettings",
-        ON: 1,
-        OFF: 0
-    },
-    SMOKE: {
-        VALUE: "_graphics._smokeGraphicsSettings",
-        ON: 1,
-        OFF: 0
-    },
-    BURN_MARKS: "_graphics._burnMarkTrailsEnabled",
-    SCREEN_DISTORTION: "_graphics._screenDisplacementEffectsEnabled",
-    MAX_SHOCKWAVE_PARTICLES: "_graphics._maxShockwaveParticles",
-    DISABLE_CHROMA: "_chroma._disableChromaEvents",
-    DISABLE_ENVIRONMENT_ENHANCEMENTS: "_chroma._disableEnvironmentEnhancements",
-    ZEN_MODE_WALLS: "_chroma._forceZenModeWalls"
+    }] as unknown as "OFF" | "LOW" | "MEDIUM" | "HIGH";
+    bloom = ["_graphics._mainEffectGraphicsSettings", {
+        false: 0,
+        true: 1
+    }] as unknown as boolean;
+    smoke = ["_graphics._smokeGraphicsSettings", {
+        false: 0,
+        true: 1
+    }] as unknown as boolean;
+    burnMarks = "_graphics._burnMarkTrailsEnabled" as unknown as boolean;
+    screenDistortion = "_graphics._screenDisplacementEffectsEnabled" as unknown as boolean;
+    maxShockwaveParticles = "_graphics._maxShockwaveParticles" as unknown as number;
+    disableChroma = "_chroma._disableChromaEvents" as unknown as boolean;
+    disableEnvironmentEnhancements = "_chroma._disableEnvironmentEnhancements" as unknown as boolean;
+    zenModeWalls = "_chroma._forceZenModeWalls" as unknown as boolean;
 }
 
 export const PRESET = {
@@ -271,23 +255,22 @@ export const EVENT = {
     CW_60: 7
 }
 
-export enum ANIM {
-    POSITION = "_position",
-    DEFINITE_POSITION = "_definitePosition",
-    LOCAL_POSITION = "_localPosition",
-    ROTATION = "_rotation",
-    LOCAL_ROTATION = "_localRotation",
-    SCALE = "_scale",
-    DISSOLVE = "_dissolve",
-    DISSOLVE_ARROW = "_dissolveArrow",
-    COLOR = "_color",
-    INTERACTABLE = "_interactable",
-    ATTENUATION = "_attenuation",
-    OFFSET = "_offset",
-    STARTY = "_startY",
-    HEIGHT = "_height",
-    TIME = "_time"
-}
+export type ANIM =
+    "_position" |
+    "_definitePosition" |
+    "_localPosition" |
+    "_rotation" |
+    "_localRotation" |
+    "_scale" |
+    "_dissolve" |
+    "_dissolveArrow" |
+    "_color" |
+    "_interactable" |
+    "_attenuation" |
+    "_offset" |
+    "_startY" |
+    "_height" |
+    "_time"
 
 // Known objects that work. Feel free to PR your own!
 export const ENV = {
@@ -348,29 +331,27 @@ export const ENV = {
     }
 }
 
-export enum COLOR {
-    RGB = "RGB",
-    HSV = "HSV"
-}
+export type COLOR =
+    "RGB" |
+    "HSV"
 
-export enum LOOKUP {
-    CONTAINS = "Contains",
-    REGEX = "Regex",
-    EXACT = "Exact"
-}
+export type LOOKUP =
+    "Contains" |
+    "Regex" |
+    "Exact" |
+    "StartsWith" |
+    "EndsWith"
 
-export enum GEO_TYPE {
-    SPHERE = "Sphere",
-    CAPSULE = "Capsule",
-    CYLINDER = "Cylinder",
-    CUBE = "Cube",
-    PLANE = "Plane",
-    QUAD = "Quad",
-    TRIANGLE = "Triangle"
-}
+export type GEO_TYPE =
+    "Sphere" |
+    "Capsule" |
+    "Cylinder" |
+    "Cube" |
+    "Plane" |
+    "Quad" |
+    "Triangle"
 
-export enum GEO_SHADER {
-    STANDARD = "Standard",
-    OPAQUE_LIGHT = "OpaqueLight",
-    TRANSPARENT_LIGHT = "TransparentLight"
-}
+export type GEO_SHADER =
+    "Standard" |
+    "OpaqueLight" |
+    "TransparentLight"

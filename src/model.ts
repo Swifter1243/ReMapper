@@ -5,7 +5,6 @@ import { fs, path } from "./deps.ts";
 import { Environment, Geometry, RawGeometryMaterial } from "./environment.ts";
 import { optimizeAnimation, OptimizeSettings } from "./anim_optimizer.ts";
 import { CustomEvent, CustomEventInternals } from "./custom_event.ts";
-import { ANIM, GEO_SHADER, LOOKUP } from "./constants.ts";
 import { activeDiff } from "./beatmap.ts";
 import { Regex } from "./regex.ts";
 import { Event } from "./event.ts";
@@ -115,9 +114,9 @@ export class ModelScene {
                         objScale.pop();
 
                         objPos = (objPos as Vec3).map(x => x / 2);
-                        if (rotation) objRot = (objRot as Vec3).map((x, i) => (x + (rotation as Vec3)[i]) % 360);
                         objScale = (objScale as Vec3).map(x => x * 0.6);
                         if (anchor) objPos = applyAnchor(objPos as Vec3, objRot as Vec3, objScale as Vec3, anchor);
+                        if (rotation) objRot = (objRot as Vec3).map((x, i) => (x + (rotation as Vec3)[i]) % 360);
                         if (scale) objScale = (objScale as Vec3).map((x, i) => x * (scale as Vec3)[i]);
 
                         (x.pos as KeyframeArray)[i] = [...(objPos as Vec3), (x.pos as ComplexKeyframesVec3)[i][3]];
@@ -149,12 +148,6 @@ export class ModelScene {
                     if (group.rotation) rotation = group.rotation
                 }
 
-                if (rotation) iterateKeyframes(x.rot, y => {
-                    y[0] = (y[0] + (rotation as Vec3)[0]) % 360;
-                    y[1] = (y[1] + (rotation as Vec3)[1]) % 360;
-                    y[2] = (y[2] + (rotation as Vec3)[2]) % 360;
-                })
-
                 iterateKeyframes(x.scale, y => {
                     y[0] *= 0.6;
                     y[1] *= 0.6;
@@ -170,6 +163,12 @@ export class ModelScene {
                     bakedCube.track = x.track;
                     x = bakedCube;
                 }
+
+                if (rotation) iterateKeyframes(x.rot, y => {
+                    y[0] = (y[0] + (rotation as Vec3)[0]) % 360;
+                    y[1] = (y[1] + (rotation as Vec3)[1]) % 360;
+                    y[2] = (y[2] + (rotation as Vec3)[2]) % 360;
+                })
 
                 if (scale) iterateKeyframes(x.scale, y => {
                     y[0] *= (scale as Vec3)[0];
@@ -244,9 +243,9 @@ export class ModelScene {
             // Creating event for assigned
             else {
                 const event = new CustomEvent().animateTrack(track);
-                event.animate.set(ANIM.POSITION, x.pos, false);
-                event.animate.set(ANIM.ROTATION, x.rot, false);
-                event.animate.set(ANIM.SCALE, x.scale, false);
+                event.animate.set("_position", x.pos, false);
+                event.animate.set("_rotation", x.rot, false);
+                event.animate.set("_scale", x.scale, false);
                 if (forAssigned) forAssigned(event);
                 event.push();
             }
@@ -327,9 +326,9 @@ export class ModelScene {
                 }
 
                 const event = new CustomEvent(time).animateTrack(track, duration);
-                event.animate.set(ANIM.POSITION, x.pos, false);
-                event.animate.set(ANIM.ROTATION, x.rot, false);
-                event.animate.set(ANIM.SCALE, x.scale, false);
+                event.animate.set("_position", x.pos, false);
+                event.animate.set("_rotation", x.rot, false);
+                event.animate.set("_scale", x.scale, false);
                 if (forEvent) forEvent(event, objectInfo.perSwitch[time]);
                 event.push();
             })
@@ -416,24 +415,24 @@ export function debugObject(input: GroupObjectTypes, resolution: number, scale?:
     fogEvent.animate.startY = [-69420]
     fogEvent.push();
 
-    const removeUI = new Environment(new Regex().add("NarrowGameHUD").end(), LOOKUP.REGEX);
+    const removeUI = new Environment(new Regex().add("NarrowGameHUD").end(), "Regex");
     removeUI.active = false;
     removeUI.push();
 
     activeDiff.geoMaterials["debugCubeX"] = {
-        _shader: GEO_SHADER.STANDARD,
+        _shader: "Standard",
         _color: [1, 0, 0],
         _shaderKeywords: []
     }
 
     activeDiff.geoMaterials["debugCubeY"] = {
-        _shader: GEO_SHADER.STANDARD,
+        _shader: "Standard",
         _color: [0, 1, 0],
         _shaderKeywords: []
     }
 
     activeDiff.geoMaterials["debugCubeZ"] = {
-        _shader: GEO_SHADER.STANDARD,
+        _shader: "Standard",
         _color: [0, 0, 1],
         _shaderKeywords: []
     }

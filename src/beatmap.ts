@@ -8,6 +8,8 @@ import { Environment, EnvironmentInternals, Geometry, GeometryMaterial } from '.
 import { copy, isEmptyObject, jsonGet, jsonPrune, jsonRemove, jsonSet, sortObjects, Vec3, setDecimals, RMLog } from './general.ts';
 import { AnimationInternals } from './animation.ts';
 import { OptimizeSettings } from './anim_optimizer.ts';
+import { ENV_NAMES, MODS, settingsHandler } from './constants.ts';
+import { RMJson } from './mod.ts';
 
 type PostProcessFn<T> = (object: T, diff: Difficulty) => void;
 
@@ -176,6 +178,8 @@ export class Difficulty {
             }
         }
 
+        info.save();
+        RMJson.save();
         Deno.writeTextFileSync(diffName, JSON.stringify(outputJSON, null, 0));
         RMLog(`${this.fileName} successfully saved!`);
     }
@@ -185,7 +189,7 @@ export class Difficulty {
      * @param {String} requirement 
      * @param {Boolean} required True by default, set to false to remove the requirement.
      */
-    require(requirement: string, required = true) {
+    require(requirement: MODS, required = true) {
         const requirements: Record<string, any> = {};
 
         let requirementsArr = this.requirements;
@@ -200,7 +204,6 @@ export class Difficulty {
             if (requirements[key] === true) requirementsArr.push(key);
         }
         this.requirements = requirementsArr;
-        info.save();
     }
 
     /**
@@ -208,7 +211,7 @@ export class Difficulty {
      * @param {String} suggestion 
      * @param {Boolean} suggested True by default, set to false to remove the suggestion.
      */
-    suggest(suggestion: string, suggested = true) {
+    suggest(suggestion: MODS, suggested = true) {
         const suggestions: Record<string, any> = {};
 
         let suggestionsArr = this.suggestions;
@@ -223,22 +226,31 @@ export class Difficulty {
             if (suggestions[key] === true) suggestionsArr.push(key);
         }
         this.suggestions = suggestionsArr;
-        info.save();
     }
 
-    /**
-     * Set a setting.
-     * @param {String} setting The path of the setting.
-     * @param {Any} value The value of the setting, leave blank to remove setting.
-     */
-    setSetting(setting: string, value: any = undefined) {
-        this.updateSets(this.settings, setting, value);
-    }
+    readonly settings = new Proxy(new settingsHandler(this), {
+        get(object, property) {
+            const objValue = (object as any)[property] as string | [string, Record<string, any>];
+            const path = typeof objValue === "string" ? objValue : objValue[0];
+            const diff = (object as any)["diff"] as Difficulty;
 
-    private updateSets(object: Record<string, any>, property: string, value: any) {
+            return diff.rawSettings[path];
+        },
+
+        set(object, property, value) {
+            const objValue = (object as any)[property] as string | [string, Record<string, any>];
+            const path = typeof objValue === "string" ? objValue : objValue[0];
+            const diff = (object as any)["diff"] as Difficulty;
+
+            if (typeof objValue !== "string") value = objValue[1][value];
+            diff.pruneInput(diff.rawSettings, path, value);
+            return true;
+        }
+    });
+
+    private pruneInput(object: Record<string, any>, property: string, value: any) {
         jsonSet(object, property, value);
         if (!isEmptyObject(value)) jsonPrune(this.diffSetMap);
-        info.save();
     }
 
     private colorArrayToTuple(array: Vec3) { return { r: array[0], g: array[1], b: array[2] } }
@@ -252,7 +264,7 @@ export class Difficulty {
     get diffRank(): number { return jsonGet(this.diffSetMap, "_difficultyRank") }
     get requirements(): string[] { return jsonGet(this.diffSetMap, "_customData._requirements", []) }
     get suggestions(): string[] { return jsonGet(this.diffSetMap, "_customData._suggestions", []) }
-    get settings(): Record<string, any> { return jsonGet(this.diffSetMap, "_customData._settings", {}) }
+    get rawSettings(): Record<string, any> { return jsonGet(this.diffSetMap, "_customData._settings", {}) }
     get warnings(): string[] { return jsonGet(this.diffSetMap, "_customData._warnings") }
     get information(): string[] { return jsonGet(this.diffSetMap, "_customData._information") }
     get label(): string { return jsonGet(this.diffSetMap, "_customData._difficultyLabel") }
@@ -266,27 +278,27 @@ export class Difficulty {
     get boostColorRight(): Vec3 { return jsonGet(this.diffSetMap, "_customData._envColorRightBoost") }
     get obstacleColor(): Vec3 { return jsonGet(this.diffSetMap, "_customData._obstacleColor") }
 
-    set NJS(value: number) { this.updateSets(this.diffSetMap, "_noteJumpMovementSpeed", value) }
-    set offset(value: number) { this.updateSets(this.diffSetMap, "_noteJumpStartBeatOffset", value) }
-    set fileName(value: string) { this.updateSets(this.diffSetMap, "_beatmapFilename", value) }
-    set diffSetName(value: string) { this.updateSets(this.diffSet, "_beatmapCharacteristicName", value) }
-    set name(value: string) { this.updateSets(this.diffSetMap, "_difficulty", value) }
-    set diffRank(value: number) { this.updateSets(this.diffSetMap, "_difficultyRank", value) }
-    set requirements(value: string[]) { this.updateSets(this.diffSetMap, "_customData._requirements", value) }
-    set suggestions(value: string[]) { this.updateSets(this.diffSetMap, "_customData._suggestions", value) }
-    set settings(value: Record<string, any>) { this.updateSets(this.diffSetMap, "_customData._settings", value) }
-    set warnings(value: string[]) { this.updateSets(this.diffSetMap, "_customData._warnings", value) }
-    set information(value: string[]) { this.updateSets(this.diffSetMap, "_customData._information", value) }
-    set label(value: string) { this.updateSets(this.diffSetMap, "_customData._difficultyLabel", value) }
-    set editorOffset(value: number) { this.updateSets(this.diffSetMap, "_customData._editorOffset", value) }
-    set editorOldOffset(value: number) { this.updateSets(this.diffSetMap, "_customData._editorOldOffset", value) }
-    set colorLeft(value: Vec3) { this.updateSets(this.diffSetMap, "_customData._colorLeft", this.colorArrayToTuple(value)) }
-    set colorRight(value: Vec3) { this.updateSets(this.diffSetMap, "_customData._colorRight", this.colorArrayToTuple(value)) }
-    set lightColorLeft(value: Vec3) { this.updateSets(this.diffSetMap, "_customData._envColorLeft", this.colorArrayToTuple(value)) }
-    set lightColorRight(value: Vec3) { this.updateSets(this.diffSetMap, "_customData._envColorRight", this.colorArrayToTuple(value)) }
-    set boostColorLeft(value: Vec3) { this.updateSets(this.diffSetMap, "_customData._envColorLeftBoost", this.colorArrayToTuple(value)) }
-    set boostColorRight(value: Vec3) { this.updateSets(this.diffSetMap, "_customData._envColorRightBoost", this.colorArrayToTuple(value)) }
-    set obstacleColor(value: Vec3) { this.updateSets(this.diffSetMap, "_customData._obstacleColor", this.colorArrayToTuple(value)) }
+    set NJS(value: number) { this.pruneInput(this.diffSetMap, "_noteJumpMovementSpeed", value) }
+    set offset(value: number) { this.pruneInput(this.diffSetMap, "_noteJumpStartBeatOffset", value) }
+    set fileName(value: string) { this.pruneInput(this.diffSetMap, "_beatmapFilename", value) }
+    set diffSetName(value: string) { this.pruneInput(this.diffSet, "_beatmapCharacteristicName", value) }
+    set name(value: string) { this.pruneInput(this.diffSetMap, "_difficulty", value) }
+    set diffRank(value: number) { this.pruneInput(this.diffSetMap, "_difficultyRank", value) }
+    set requirements(value: string[]) { this.pruneInput(this.diffSetMap, "_customData._requirements", value) }
+    set suggestions(value: string[]) { this.pruneInput(this.diffSetMap, "_customData._suggestions", value) }
+    set rawSettings(value: Record<string, any>) { this.pruneInput(this.diffSetMap, "_customData._settings", value) }
+    set warnings(value: string[]) { this.pruneInput(this.diffSetMap, "_customData._warnings", value) }
+    set information(value: string[]) { this.pruneInput(this.diffSetMap, "_customData._information", value) }
+    set label(value: string) { this.pruneInput(this.diffSetMap, "_customData._difficultyLabel", value) }
+    set editorOffset(value: number) { this.pruneInput(this.diffSetMap, "_customData._editorOffset", value) }
+    set editorOldOffset(value: number) { this.pruneInput(this.diffSetMap, "_customData._editorOldOffset", value) }
+    set colorLeft(value: Vec3) { this.pruneInput(this.diffSetMap, "_customData._colorLeft", this.colorArrayToTuple(value)) }
+    set colorRight(value: Vec3) { this.pruneInput(this.diffSetMap, "_customData._colorRight", this.colorArrayToTuple(value)) }
+    set lightColorLeft(value: Vec3) { this.pruneInput(this.diffSetMap, "_customData._envColorLeft", this.colorArrayToTuple(value)) }
+    set lightColorRight(value: Vec3) { this.pruneInput(this.diffSetMap, "_customData._envColorRight", this.colorArrayToTuple(value)) }
+    set boostColorLeft(value: Vec3) { this.pruneInput(this.diffSetMap, "_customData._envColorLeftBoost", this.colorArrayToTuple(value)) }
+    set boostColorRight(value: Vec3) { this.pruneInput(this.diffSetMap, "_customData._envColorRightBoost", this.colorArrayToTuple(value)) }
+    set obstacleColor(value: Vec3) { this.pruneInput(this.diffSetMap, "_customData._obstacleColor", this.colorArrayToTuple(value)) }
 
     // Map
     get version(): string { return jsonGet(this.json, "_version") }
@@ -296,45 +308,45 @@ export class Difficulty {
     get waypoints(): any[] { return jsonGet(this.json, "_waypoints") }
     get customData() { return jsonGet(this.json, "_customData", {}) }
     get customEvents(): CustomEventInternals.BaseEvent[] { return jsonGet(this.json, "_customData._customEvents", []) }
-    animateTracks(fn: (arr: CustomEventInternals.AnimateTrack[]) => void) { 
+    animateTracks(fn: (arr: CustomEventInternals.AnimateTrack[]) => void) {
         const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.AnimateTrack) as CustomEventInternals.AnimateTrack[]
         fn(arr);
         this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.AnimateTrack)).concat(arr);
     }
-    assignPathAnimations(fn: (arr: CustomEventInternals.AssignPathAnimation[]) => void) { 
+    assignPathAnimations(fn: (arr: CustomEventInternals.AssignPathAnimation[]) => void) {
         const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.AssignPathAnimation) as CustomEventInternals.AssignPathAnimation[]
         fn(arr);
         this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.AssignPathAnimation)).concat(arr);
     }
-    assignTrackParents(fn: (arr: CustomEventInternals.AssignTrackParent[]) => void) { 
+    assignTrackParents(fn: (arr: CustomEventInternals.AssignTrackParent[]) => void) {
         const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.AssignTrackParent) as CustomEventInternals.AssignTrackParent[]
         fn(arr);
         this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.AssignTrackParent)).concat(arr);
     }
-    assignPlayerToTracks(fn: (arr: CustomEventInternals.AssignPlayerToTrack[]) => void) { 
+    assignPlayerToTracks(fn: (arr: CustomEventInternals.AssignPlayerToTrack[]) => void) {
         const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.AssignPlayerToTrack) as CustomEventInternals.AssignPlayerToTrack[]
         fn(arr);
         this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.AssignPlayerToTrack)).concat(arr);
     }
-    assignFogTracks(fn: (arr: CustomEventInternals.AssignFogTrack[]) => void) { 
+    assignFogTracks(fn: (arr: CustomEventInternals.AssignFogTrack[]) => void) {
         const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.AssignFogTrack) as CustomEventInternals.AssignFogTrack[]
         fn(arr);
         this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.AnimateTrack)).concat(arr);
     }
-    abstractEvents(fn: (arr: CustomEventInternals.AbstractEvent[]) => void) { 
+    abstractEvents(fn: (arr: CustomEventInternals.AbstractEvent[]) => void) {
         const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.AbstractEvent) as CustomEventInternals.AbstractEvent[]
         fn(arr);
         this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.AbstractEvent)).concat(arr);
     }
     get pointDefinitions(): Record<string, any>[] { return jsonGet(this.json, "_customData._pointDefinitions", []) }
-    get geoMaterials(): Record<string, GeometryMaterial>{ return jsonGet(this.json, "_customData._materials", {}) }
+    get geoMaterials(): Record<string, GeometryMaterial> { return jsonGet(this.json, "_customData._materials", {}) }
     get rawEnvironment(): EnvironmentInternals.BaseEnvironment[] { return jsonGet(this.json, "_customData._environment", []) }
-    environment(fn: (arr: Environment[]) => void) { 
+    environment(fn: (arr: Environment[]) => void) {
         const arr = this.rawEnvironment.filter(x => x instanceof Environment) as Environment[]
         fn(arr);
         this.rawEnvironment = this.rawEnvironment.filter(x => !(x instanceof Environment)).concat(arr);
     }
-    geometry(fn: (arr: Geometry[]) => void) { 
+    geometry(fn: (arr: Geometry[]) => void) {
         const arr = this.rawEnvironment.filter(x => x instanceof Geometry) as Geometry[]
         fn(arr);
         this.rawEnvironment = this.rawEnvironment.filter(x => !(x instanceof Geometry)).concat(arr);
@@ -375,11 +387,6 @@ export class Info {
         Deno.writeTextFileSync(this.fileName, JSON.stringify(this.json, null, 2));
     }
 
-    private updateInfo(object: Record<string, any>, property: string, value: any) {
-        jsonSet(object, property, value);
-        info.save();
-    }
-
     get version() { return jsonGet(this.json, "_version") }
     get name() { return jsonGet(this.json, "_songName") }
     get subName() { return jsonGet(this.json, "_songSubName") }
@@ -401,26 +408,26 @@ export class Info {
     get customEnvironment() { return jsonGet(this.json, "_customData._customEnvironment") }
     get customEnvironmentHash() { return jsonGet(this.json, "_customData._customEnvironmentHash") }
 
-    set version(value: string) { this.updateInfo(this.json, "_version", value) }
-    set name(value: string) { this.updateInfo(this.json, "_songName", value) }
-    set subName(value: string) { this.updateInfo(this.json, "_songSubName", value) }
-    set authorName(value: string) { this.updateInfo(this.json, "_songAuthorName", value) }
-    set mapper(value: string) { this.updateInfo(this.json, "_levelAuthorName", value) }
-    set BPM(value: number) { this.updateInfo(this.json, "_beatsPerMinute", value) }
-    set previewStart(value: number) { this.updateInfo(this.json, "_previewStartTime", value) }
-    set previewDuration(value: number) { this.updateInfo(this.json, "_previewDuration", value) }
-    set songOffset(value: number) { this.updateInfo(this.json, "_songTimeOffset", value) }
-    set shuffle(value: boolean) { this.updateInfo(this.json, "_shuffle", value) }
-    set shufflePeriod(value: number) { this.updateInfo(this.json, "_shufflePeriod", value) }
-    set coverFileName(value: string) { this.updateInfo(this.json, "_coverImageFilename", value) }
-    set songFileName(value: string) { this.updateInfo(this.json, "_songFilename", value) }
-    set environment(value: string) { this.updateInfo(this.json, "_environmentName", value) }
-    set environment360(value: string) { this.updateInfo(this.json, "_allDirectionsEnvironmentName", value) }
-    set customData(value: Record<string, any>) { this.updateInfo(this.json, "_customData", value) }
-    set editors(value: Record<string, any>) { this.updateInfo(this.json, "_customData._editors", value) }
-    set contributors(value: Record<string, any>[]) { this.updateInfo(this.json, "_customData._contributors", value) }
-    set customEnvironment(value: string) { this.updateInfo(this.json, "_customData._customEnvironment", value) }
-    set customEnvironmentHash(value: string) { this.updateInfo(this.json, "_customData._customEnvironmentHash", value) }
+    set version(value: string) { jsonSet(this.json, "_version", value) }
+    set name(value: string) { jsonSet(this.json, "_songName", value) }
+    set subName(value: string) { jsonSet(this.json, "_songSubName", value) }
+    set authorName(value: string) { jsonSet(this.json, "_songAuthorName", value) }
+    set mapper(value: string) { jsonSet(this.json, "_levelAuthorName", value) }
+    set BPM(value: number) { jsonSet(this.json, "_beatsPerMinute", value) }
+    set previewStart(value: number) { jsonSet(this.json, "_previewStartTime", value) }
+    set previewDuration(value: number) { jsonSet(this.json, "_previewDuration", value) }
+    set songOffset(value: number) { jsonSet(this.json, "_songTimeOffset", value) }
+    set shuffle(value: boolean) { jsonSet(this.json, "_shuffle", value) }
+    set shufflePeriod(value: number) { jsonSet(this.json, "_shufflePeriod", value) }
+    set coverFileName(value: string) { jsonSet(this.json, "_coverImageFilename", value) }
+    set songFileName(value: string) { jsonSet(this.json, "_songFilename", value) }
+    set environment(value: ENV_NAMES) { jsonSet(this.json, "_environmentName", value) }
+    set environment360(value: string) { jsonSet(this.json, "_allDirectionsEnvironmentName", value) }
+    set customData(value: Record<string, any>) { jsonSet(this.json, "_customData", value) }
+    set editors(value: Record<string, any>) { jsonSet(this.json, "_customData._editors", value) }
+    set contributors(value: Record<string, any>[]) { jsonSet(this.json, "_customData._contributors", value) }
+    set customEnvironment(value: string) { jsonSet(this.json, "_customData._customEnvironment", value) }
+    set customEnvironmentHash(value: string) { jsonSet(this.json, "_customData._customEnvironmentHash", value) }
 }
 
 export const info = new Info();
@@ -455,7 +462,7 @@ function reduceDecimalsPostProcess(_: never, diff: Difficulty) {
             // deno-lint-ignore no-prototype-builtins
             if (!json.hasOwnProperty(key)) return;
             const element = json[key];
-    
+
             if (typeof element === "number") {
                 json[key] = setDecimals(element, settings.decimals as number);
             } else if (element instanceof Object) {
