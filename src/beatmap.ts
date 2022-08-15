@@ -8,6 +8,7 @@ import { Environment, EnvironmentInternals, Geometry, GeometryMaterial } from '.
 import { copy, isEmptyObject, jsonGet, jsonPrune, jsonRemove, jsonSet, sortObjects, Vec3, setDecimals, RMLog } from './general.ts';
 import { AnimationInternals } from './animation.ts';
 import { OptimizeSettings } from './anim_optimizer.ts';
+import { settingsHandler } from './constants.ts';
 
 type PostProcessFn<T> = (object: T, diff: Difficulty) => void;
 
@@ -226,14 +227,25 @@ export class Difficulty {
         info.save();
     }
 
-    /**
-     * Set a setting.
-     * @param {String} setting The path of the setting.
-     * @param {Any} value The value of the setting, leave blank to remove setting.
-     */
-    setSetting(setting: string, value: any = undefined) {
-        this.updateSets(this.settings, setting, value);
-    }
+    readonly settings = new Proxy(new settingsHandler(this), {
+        get(object, property) {
+            const objValue = (object as any)[property] as string | [string, Record<string, any>];
+            const path = typeof objValue === "string" ? objValue : objValue[0];
+            const diff = (object as any)["diff"] as Difficulty;
+
+            return diff.rawSettings[path];
+        },
+
+        set(object, property, value) {
+            const objValue = (object as any)[property] as string | [string, Record<string, any>];
+            const path = typeof objValue === "string" ? objValue : objValue[0];
+            const diff = (object as any)["diff"] as Difficulty;
+            
+            if (typeof objValue !== "string") value = objValue[1][value];
+            diff.updateSets(diff.rawSettings, path, value);
+            return true;
+        }
+    });
 
     private updateSets(object: Record<string, any>, property: string, value: any) {
         jsonSet(object, property, value);
@@ -252,7 +264,7 @@ export class Difficulty {
     get diffRank(): number { return jsonGet(this.diffSetMap, "_difficultyRank") }
     get requirements(): string[] { return jsonGet(this.diffSetMap, "_customData._requirements", []) }
     get suggestions(): string[] { return jsonGet(this.diffSetMap, "_customData._suggestions", []) }
-    get settings(): Record<string, any> { return jsonGet(this.diffSetMap, "_customData._settings", {}) }
+    get rawSettings(): Record<string, any> { return jsonGet(this.diffSetMap, "_customData._settings", {}) }
     get warnings(): string[] { return jsonGet(this.diffSetMap, "_customData._warnings") }
     get information(): string[] { return jsonGet(this.diffSetMap, "_customData._information") }
     get label(): string { return jsonGet(this.diffSetMap, "_customData._difficultyLabel") }
@@ -274,7 +286,7 @@ export class Difficulty {
     set diffRank(value: number) { this.updateSets(this.diffSetMap, "_difficultyRank", value) }
     set requirements(value: string[]) { this.updateSets(this.diffSetMap, "_customData._requirements", value) }
     set suggestions(value: string[]) { this.updateSets(this.diffSetMap, "_customData._suggestions", value) }
-    set settings(value: Record<string, any>) { this.updateSets(this.diffSetMap, "_customData._settings", value) }
+    set rawSettings(value: Record<string, any>) { this.updateSets(this.diffSetMap, "_customData._settings", value) }
     set warnings(value: string[]) { this.updateSets(this.diffSetMap, "_customData._warnings", value) }
     set information(value: string[]) { this.updateSets(this.diffSetMap, "_customData._information", value) }
     set label(value: string) { this.updateSets(this.diffSetMap, "_customData._difficultyLabel", value) }
@@ -296,45 +308,45 @@ export class Difficulty {
     get waypoints(): any[] { return jsonGet(this.json, "_waypoints") }
     get customData() { return jsonGet(this.json, "_customData", {}) }
     get customEvents(): CustomEventInternals.BaseEvent[] { return jsonGet(this.json, "_customData._customEvents", []) }
-    animateTracks(fn: (arr: CustomEventInternals.AnimateTrack[]) => void) { 
+    animateTracks(fn: (arr: CustomEventInternals.AnimateTrack[]) => void) {
         const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.AnimateTrack) as CustomEventInternals.AnimateTrack[]
         fn(arr);
         this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.AnimateTrack)).concat(arr);
     }
-    assignPathAnimations(fn: (arr: CustomEventInternals.AssignPathAnimation[]) => void) { 
+    assignPathAnimations(fn: (arr: CustomEventInternals.AssignPathAnimation[]) => void) {
         const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.AssignPathAnimation) as CustomEventInternals.AssignPathAnimation[]
         fn(arr);
         this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.AssignPathAnimation)).concat(arr);
     }
-    assignTrackParents(fn: (arr: CustomEventInternals.AssignTrackParent[]) => void) { 
+    assignTrackParents(fn: (arr: CustomEventInternals.AssignTrackParent[]) => void) {
         const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.AssignTrackParent) as CustomEventInternals.AssignTrackParent[]
         fn(arr);
         this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.AssignTrackParent)).concat(arr);
     }
-    assignPlayerToTracks(fn: (arr: CustomEventInternals.AssignPlayerToTrack[]) => void) { 
+    assignPlayerToTracks(fn: (arr: CustomEventInternals.AssignPlayerToTrack[]) => void) {
         const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.AssignPlayerToTrack) as CustomEventInternals.AssignPlayerToTrack[]
         fn(arr);
         this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.AssignPlayerToTrack)).concat(arr);
     }
-    assignFogTracks(fn: (arr: CustomEventInternals.AssignFogTrack[]) => void) { 
+    assignFogTracks(fn: (arr: CustomEventInternals.AssignFogTrack[]) => void) {
         const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.AssignFogTrack) as CustomEventInternals.AssignFogTrack[]
         fn(arr);
         this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.AnimateTrack)).concat(arr);
     }
-    abstractEvents(fn: (arr: CustomEventInternals.AbstractEvent[]) => void) { 
+    abstractEvents(fn: (arr: CustomEventInternals.AbstractEvent[]) => void) {
         const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.AbstractEvent) as CustomEventInternals.AbstractEvent[]
         fn(arr);
         this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.AbstractEvent)).concat(arr);
     }
     get pointDefinitions(): Record<string, any>[] { return jsonGet(this.json, "_customData._pointDefinitions", []) }
-    get geoMaterials(): Record<string, GeometryMaterial>{ return jsonGet(this.json, "_customData._materials", {}) }
+    get geoMaterials(): Record<string, GeometryMaterial> { return jsonGet(this.json, "_customData._materials", {}) }
     get rawEnvironment(): EnvironmentInternals.BaseEnvironment[] { return jsonGet(this.json, "_customData._environment", []) }
-    environment(fn: (arr: Environment[]) => void) { 
+    environment(fn: (arr: Environment[]) => void) {
         const arr = this.rawEnvironment.filter(x => x instanceof Environment) as Environment[]
         fn(arr);
         this.rawEnvironment = this.rawEnvironment.filter(x => !(x instanceof Environment)).concat(arr);
     }
-    geometry(fn: (arr: Geometry[]) => void) { 
+    geometry(fn: (arr: Geometry[]) => void) {
         const arr = this.rawEnvironment.filter(x => x instanceof Geometry) as Geometry[]
         fn(arr);
         this.rawEnvironment = this.rawEnvironment.filter(x => !(x instanceof Geometry)).concat(arr);
@@ -455,7 +467,7 @@ function reduceDecimalsPostProcess(_: never, diff: Difficulty) {
             // deno-lint-ignore no-prototype-builtins
             if (!json.hasOwnProperty(key)) return;
             const element = json[key];
-    
+
             if (typeof element === "number") {
                 json[key] = setDecimals(element, settings.decimals as number);
             } else if (element instanceof Object) {

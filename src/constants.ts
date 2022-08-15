@@ -1,3 +1,4 @@
+import { Difficulty } from "./beatmap.ts"
 import { Vec3 } from "./general.ts"
 import { Regex } from "./regex.ts"
 
@@ -71,87 +72,74 @@ export enum SPLINE {
     CATMULLROM = "splineCatmullRom"
 }
 
-export const SETTINGS = {
-    LEFT_HANDED: "_playerOptions._leftHanded",
-    PLAYER_HEIGHT: "_playerOptions._playerHeight",
-    AUTOMATIC_PLAYER_HEIGHT: "_playerOptions._automaticPlayerHeight",
-    SFX_VOLUME: "_playerOptions._sfxVolume",
-    REDUCE_DEBRIS: "_playerOptions._reduceDebris",
-    NO_HUD: "_playerOptions._noTextsAndHuds",
-    HIDE_MISSES: "_playerOptions._noFailEffects",
-    ADVANCED_HUD: "_playerOptions._advancedHud",
-    AUTO_RESTART: "_playerOptions._autoRestart",
-    TRAIL_INTENSITY: "_playerOptions._saberTrailIntensity",
-    NJS: "_playerOptions._noteJumpStartBeatOffset",
-    HIDE_SPAWN_LIGHT: "_playerOptions._hideNoteSpawnEffect",
-    ADAPTIVE_SFX: "_playerOptions._adaptiveSfx",
-    LIGHTS: {
-        VALUE: "_playerOptions._environmentEffectsFilterDefaultPreset",
-        ALL_EFFECTS: "AllEffects",
-        NO_FLICKERING: "Strobefilter",
-        NO_EFFECTS: "NoEffects"
-    },
-    LIGHTS_EXPLUS: {
-        VALUE: "_playerOptions._environmentEffectsFilterExpertPlusPreset",
-        ALL_EFFECTS: "AllEffects",
-        NO_FLICKERING: "Strobefilter",
-        NO_EFFECTS: "NoEffects"
-    },
-    ENERGY_TYPE: {
-        VALUE: "_modifiers._energyType",
-        BAR: "Bar",
-        BATTERY: "Battery"
-    },
-    NO_FAIL: "_modifiers._noFailOn0Energy",
-    INSTA_FAIL: "_modifiers._instaFail",
-    SABER_CLASH_FAIL: "_modifiers._failOnSaberClash",
-    ENABLED_OBSTACLES: {
-        VALUE: "_modifiers._enabledObstacleType",
-        ALL: "All",
-        FULL_ONLY: "FullHeightOnly",
-        NONE: "NoObstacles"
-    },
-    FAST_NOTES: "_modifiers._fastNotes",
-    STRICT_ANGLES: "_modifiers._strictAngles",
-    DISAPPEARING_ARROWS: "_modifiers._disappearingArrows",
-    GHOST_NOTES: "_modifiers._ghostNotes",
-    NO_BOMBS: "_modifiers._noBombs",
-    SONG_SPEED: {
-        VALUE: "_modifiers._songSpeed",
-        NORMAL: "Normal",
-        FASTER: "Faster",
-        SLOWER: "Slower",
-        SUPER_FAST: "SuperFast"
-    },
-    NO_ARROWS: "_modifiers._noArrows",
-    PRO_MODE: "_modifiers._proMode",
-    ZEN_MODE: "_modifiers._zenMode",
-    SMALL_CUBES: "_modifiers._smallCubes",
-    OVERRIDE_ENVIRONMENTS: "_environments._overrideEnvironments",
-    OVERRIDE_DEFAULT_COLORS: "_colors._overrideDefaultColors",
-    MIRROR_QUALITY: {
-        VALUE: "_graphics._mirrorGraphicsSettings",
+export class settingsHandler {
+    private diff: Difficulty;
+    constructor(diff: Difficulty) { this.diff = diff }
+
+    leftHanded = "_playerOptions._leftHanded" as unknown as boolean;
+    playerHeight = "_playerOptions._playerHeight" as unknown as number;
+    automaticPlayerHeight = "_playerOptions._automaticPlayerHeight" as unknown as boolean;
+    sfxVolume = "_playerOptions._sfxVolume" as unknown as number;
+    reduceDebris = "_playerOptions._reduceDebris" as unknown as boolean;
+    noHud = "_playerOptions._noTextsAndHuds" as unknown as boolean;
+    hideMisses = "_playerOptions._noFailEffects" as unknown as boolean;
+    advancedHud = "_playerOptions._advancedHud" as unknown as boolean;
+    autoRestart = "_playerOptions._autoRestart" as unknown as boolean;
+    trailIntensity = "_playerOptions._saberTrailIntensity" as unknown as number;
+    JDtype = "_playerOptions._noteJumpDurationTypeSettings" as unknown as "Dynamic" | "Static";
+    hideSpawnEffect = "_playerOptions._hideNoteSpawnEffect" as unknown as boolean;
+    adaptiveSfx = "_playerOptions._adaptiveSfx" as unknown as boolean;
+    lights = ["_playerOptions._environmentEffectsFilterDefaultPreset", {
+        All: "AllEffects",
+        NoFlicker: "Strobefilter",
+        None: "NoEffects"
+    }] as unknown as "All" | "NoFlicker" | "None";
+    lightsExPlus = ["_playerOptions._environmentEffectsFilterExpertPlusPreset", {
+        All: "AllEffects",
+        NoFlicker: "Strobefilter",
+        None: "NoEffects"
+    }] as unknown as "All" | "NoFlicker" | "None";
+    energyType = "_modifiers._energyType" as unknown as "Bar" | "Battery";
+    noFail = "_modifiers._noFailOn0Energy" as unknown as boolean;
+    instaFail = "_modifiers._instaFail" as unknown as boolean;
+    saberClashFail = "_modifiers._failOnSaberClash" as unknown as boolean;
+    enabledObstacles = ["_modifiers._enabledObstacleType", {
+        All: "All",
+        FullOnly: "FullHeightOnly",
+        None: "NoObstacles"
+    }] as unknown as "All" | "FullOnly" | "None";
+    fastNotes = "_modifiers._fastNotes" as unknown as boolean;
+    strictAngles = "_modifiers._strictAngles" as unknown as boolean;
+    disappearingArrows = "_modifiers._disappearingArrows" as unknown as boolean;
+    ghostNotes = "_modifiers._ghostNotes" as unknown as boolean;
+    noBombs = "_modifiers._noBombs" as unknown as boolean;
+    songSpeed = "_modifiers._songSpeed" as unknown as "Slower" | "Normal" | "Faster" | "SuperFast";
+    noArrows = "_modifiers._noArrows" as unknown as boolean;
+    proMode = "_modifiers._proMode" as unknown as boolean;
+    zenMode = "_modifiers._proMode" as unknown as boolean;
+    smallCubes = "_modifiers._smallCubes" as unknown as boolean;
+    overrideEnvironments = "_environments._overrideEnvironments" as unknown as boolean;
+    overrideColors = "_environments._overrideDefaultColors" as unknown as boolean;
+    mirrorQuality = ["_graphics._mirrorGraphicsSettings", {
         OFF: 0,
         LOW: 1,
         MEDIUM: 2,
         HIGH: 3
-    },
-    BLOOM: {
-        VALUE: "_graphics._mainEffectGraphicsSettings",
-        ON: 1,
-        OFF: 0
-    },
-    SMOKE: {
-        VALUE: "_graphics._smokeGraphicsSettings",
-        ON: 1,
-        OFF: 0
-    },
-    BURN_MARKS: "_graphics._burnMarkTrailsEnabled",
-    SCREEN_DISTORTION: "_graphics._screenDisplacementEffectsEnabled",
-    MAX_SHOCKWAVE_PARTICLES: "_graphics._maxShockwaveParticles",
-    DISABLE_CHROMA: "_chroma._disableChromaEvents",
-    DISABLE_ENVIRONMENT_ENHANCEMENTS: "_chroma._disableEnvironmentEnhancements",
-    ZEN_MODE_WALLS: "_chroma._forceZenModeWalls"
+    }] as unknown as "OFF" | "LOW" | "MEDIUM" | "HIGH";
+    bloom = ["_graphics._mainEffectGraphicsSettings", {
+        false: 0,
+        true: 1
+    }] as unknown as boolean;
+    smoke = ["_graphics._smokeGraphicsSettings", {
+        false: 0,
+        true: 1
+    }] as unknown as boolean;
+    burnMarks = "_graphics._burnMarkTrailsEnabled" as unknown as boolean;
+    screenDistortion = "_graphics._screenDisplacementEffectsEnabled" as unknown as boolean;
+    maxShockwaveParticles = "_graphics._maxShockwaveParticles" as unknown as number;
+    disableChroma = "_chroma._disableChromaEvents" as unknown as boolean;
+    disableEnvironmentEnhancements = "_chroma._disableEnvironmentEnhancements" as unknown as boolean;
+    zenModeWalls = "_chroma._forceZenModeWalls" as unknown as boolean;
 }
 
 export const PRESET = {
