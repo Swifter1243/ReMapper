@@ -252,7 +252,7 @@ export class Difficulty {
     get diffRank(): number { return jsonGet(this.diffSetMap, "_difficultyRank") }
     get requirements(): string[] { return jsonGet(this.diffSetMap, "_customData._requirements", []) }
     get suggestions(): string[] { return jsonGet(this.diffSetMap, "_customData._suggestions", []) }
-    get settings(): any { return jsonGet(this.diffSetMap, "_customData._settings", {}) }
+    get settings(): Record<string, any> { return jsonGet(this.diffSetMap, "_customData._settings", {}) }
     get warnings(): string[] { return jsonGet(this.diffSetMap, "_customData._warnings") }
     get information(): string[] { return jsonGet(this.diffSetMap, "_customData._information") }
     get label(): string { return jsonGet(this.diffSetMap, "_customData._difficultyLabel") }
@@ -274,7 +274,7 @@ export class Difficulty {
     set diffRank(value: number) { this.updateSets(this.diffSetMap, "_difficultyRank", value) }
     set requirements(value: string[]) { this.updateSets(this.diffSetMap, "_customData._requirements", value) }
     set suggestions(value: string[]) { this.updateSets(this.diffSetMap, "_customData._suggestions", value) }
-    set settings(value: any) { this.updateSets(this.diffSetMap, "_customData._settings", value) }
+    set settings(value: Record<string, any>) { this.updateSets(this.diffSetMap, "_customData._settings", value) }
     set warnings(value: string[]) { this.updateSets(this.diffSetMap, "_customData._warnings", value) }
     set information(value: string[]) { this.updateSets(this.diffSetMap, "_customData._information", value) }
     set label(value: string) { this.updateSets(this.diffSetMap, "_customData._difficultyLabel", value) }
@@ -326,7 +326,7 @@ export class Difficulty {
         fn(arr);
         this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.AbstractEvent)).concat(arr);
     }
-    get pointDefinitions(): any[] { return jsonGet(this.json, "_customData._pointDefinitions", []) }
+    get pointDefinitions(): Record<string, any>[] { return jsonGet(this.json, "_customData._pointDefinitions", []) }
     get geoMaterials(): Record<string, GeometryMaterial>{ return jsonGet(this.json, "_customData._materials", {}) }
     get rawEnvironment(): EnvironmentInternals.BaseEnvironment[] { return jsonGet(this.json, "_customData._environment", []) }
     environment(fn: (arr: Environment[]) => void) { 
@@ -347,7 +347,7 @@ export class Difficulty {
     set waypoints(value: any[]) { jsonSet(this.json, "_waypoints", value) }
     set customData(value) { jsonSet(this.json, "_customData", value) }
     set customEvents(value: CustomEventInternals.BaseEvent[]) { jsonSet(this.json, "_customData._customEvents", value) }
-    set pointDefinitions(value: any[]) { jsonSet(this.json, "_customData._pointDefinitions", value) }
+    set pointDefinitions(value: Record<string, any>[]) { jsonSet(this.json, "_customData._pointDefinitions", value) }
     set geoMaterials(value: Record<string, GeometryMaterial>) { jsonSet(this.json, "_customData._materials", value) }
     set rawEnvironment(value: EnvironmentInternals.BaseEnvironment[]) { jsonSet(this.json, "_customData._environment", value) }
 }
@@ -401,26 +401,26 @@ export class Info {
     get customEnvironment() { return jsonGet(this.json, "_customData._customEnvironment") }
     get customEnvironmentHash() { return jsonGet(this.json, "_customData._customEnvironmentHash") }
 
-    set version(value) { this.updateInfo(this.json, "_version", value) }
-    set name(value) { this.updateInfo(this.json, "_songName", value) }
-    set subName(value) { this.updateInfo(this.json, "_songSubName", value) }
-    set authorName(value) { this.updateInfo(this.json, "_songAuthorName", value) }
-    set mapper(value) { this.updateInfo(this.json, "_levelAuthorName", value) }
-    set BPM(value) { this.updateInfo(this.json, "_beatsPerMinute", value) }
-    set previewStart(value) { this.updateInfo(this.json, "_previewStartTime", value) }
-    set previewDuration(value) { this.updateInfo(this.json, "_previewDuration", value) }
-    set songOffset(value) { this.updateInfo(this.json, "_songTimeOffset", value) }
-    set shuffle(value) { this.updateInfo(this.json, "_shuffle", value) }
-    set shufflePeriod(value) { this.updateInfo(this.json, "_shufflePeriod", value) }
-    set coverFileName(value) { this.updateInfo(this.json, "_coverImageFilename", value) }
-    set songFileName(value) { this.updateInfo(this.json, "_songFilename", value) }
-    set environment(value) { this.updateInfo(this.json, "_environmentName", value) }
-    set environment360(value) { this.updateInfo(this.json, "_allDirectionsEnvironmentName", value) }
-    set customData(value) { this.updateInfo(this.json, "_customData", value) }
-    set editors(value) { this.updateInfo(this.json, "_customData._editors", value) }
-    set contributors(value) { this.updateInfo(this.json, "_customData._contributors", value) }
-    set customEnvironment(value) { this.updateInfo(this.json, "_customData._customEnvironment", value) }
-    set customEnvironmentHash(value) { this.updateInfo(this.json, "_customData._customEnvironmentHash", value) }
+    set version(value: string) { this.updateInfo(this.json, "_version", value) }
+    set name(value: string) { this.updateInfo(this.json, "_songName", value) }
+    set subName(value: string) { this.updateInfo(this.json, "_songSubName", value) }
+    set authorName(value: string) { this.updateInfo(this.json, "_songAuthorName", value) }
+    set mapper(value: string) { this.updateInfo(this.json, "_levelAuthorName", value) }
+    set BPM(value: number) { this.updateInfo(this.json, "_beatsPerMinute", value) }
+    set previewStart(value: number) { this.updateInfo(this.json, "_previewStartTime", value) }
+    set previewDuration(value: number) { this.updateInfo(this.json, "_previewDuration", value) }
+    set songOffset(value: number) { this.updateInfo(this.json, "_songTimeOffset", value) }
+    set shuffle(value: boolean) { this.updateInfo(this.json, "_shuffle", value) }
+    set shufflePeriod(value: number) { this.updateInfo(this.json, "_shufflePeriod", value) }
+    set coverFileName(value: string) { this.updateInfo(this.json, "_coverImageFilename", value) }
+    set songFileName(value: string) { this.updateInfo(this.json, "_songFilename", value) }
+    set environment(value: string) { this.updateInfo(this.json, "_environmentName", value) }
+    set environment360(value: string) { this.updateInfo(this.json, "_allDirectionsEnvironmentName", value) }
+    set customData(value: Record<string, any>) { this.updateInfo(this.json, "_customData", value) }
+    set editors(value: Record<string, any>) { this.updateInfo(this.json, "_customData._editors", value) }
+    set contributors(value: Record<string, any>[]) { this.updateInfo(this.json, "_customData._contributors", value) }
+    set customEnvironment(value: string) { this.updateInfo(this.json, "_customData._customEnvironment", value) }
+    set customEnvironmentHash(value: string) { this.updateInfo(this.json, "_customData._customEnvironmentHash", value) }
 }
 
 export const info = new Info();
