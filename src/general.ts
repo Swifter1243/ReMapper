@@ -36,7 +36,6 @@ class ReMapperJson {
             if (!data.accessed) delete this.cachedData[x];
             else data.accessed = false;
         })
-        this.save();
     }
 
     save() {

@@ -8,7 +8,7 @@ import { Environment, EnvironmentInternals, Geometry, GeometryMaterial } from '.
 import { copy, isEmptyObject, jsonGet, jsonPrune, jsonRemove, jsonSet, sortObjects, Vec3, setDecimals, RMLog } from './general.ts';
 import { AnimationInternals } from './animation.ts';
 import { OptimizeSettings } from './anim_optimizer.ts';
-import { ENV_NAMES, settingsHandler } from './constants.ts';
+import { ENV_NAMES, MODS, settingsHandler } from './constants.ts';
 import { RMJson } from './mod.ts';
 
 type PostProcessFn<T> = (object: T, diff: Difficulty) => void;
@@ -189,7 +189,7 @@ export class Difficulty {
      * @param {String} requirement 
      * @param {Boolean} required True by default, set to false to remove the requirement.
      */
-    require(requirement: string, required = true) {
+    require(requirement: MODS, required = true) {
         const requirements: Record<string, any> = {};
 
         let requirementsArr = this.requirements;
@@ -204,7 +204,6 @@ export class Difficulty {
             if (requirements[key] === true) requirementsArr.push(key);
         }
         this.requirements = requirementsArr;
-        info.save();
     }
 
     /**
@@ -212,7 +211,7 @@ export class Difficulty {
      * @param {String} suggestion 
      * @param {Boolean} suggested True by default, set to false to remove the suggestion.
      */
-    suggest(suggestion: string, suggested = true) {
+    suggest(suggestion: MODS, suggested = true) {
         const suggestions: Record<string, any> = {};
 
         let suggestionsArr = this.suggestions;
@@ -227,7 +226,6 @@ export class Difficulty {
             if (suggestions[key] === true) suggestionsArr.push(key);
         }
         this.suggestions = suggestionsArr;
-        info.save();
     }
 
     readonly settings = new Proxy(new settingsHandler(this), {
