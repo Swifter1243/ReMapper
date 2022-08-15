@@ -7,31 +7,30 @@ export enum MODS {
     CHROMA = "Chroma"
 }
 
-export enum ENV_NAMES {
-    BTS = "BTSEnvironment",
-    BIG_MIRROR = "BigMirrorEnvironment",
-    BILLIE = "BillieEnvironment",
-    CRAB_RAVE = "CrabRaveEnvironment",
-    DEFAULT = "DefaultEnvironment",
-    DRAGONS = "DragonsEnvironment",
-    FITBEAT = "FitBeatEnvironment",
-    GAGA = "GagaEnvironment",
-    GREENDAY = "GreenDayEnvironment",
-    GREENDAY_GRENADE = "GreenDayGrenadeEnvironment",
-    INTERSCOPE = "InterscopeEnvironment",
-    KDA = "KDAEnvironment",
-    KALEIDOSCOPE = "KaleidoscopeEnvironment",
-    LINKIN_PARK = "LinkinParkEnvironment",
-    MONSTERCAT = "MonstercatEnvironment",
-    NICE = "NiceEnvironment",
-    ORIGINS = "OriginsEnvironment",
-    PANIC = "PanicEnvironment",
-    ROCKET_LEAGUE = "RocketEnvironment",
-    SKRILLEX = "SkrillexEnvironment",
-    SPOOKY = "HalloweenEnvironment",
-    TIMBALAND = "TimbalandEnvironment",
-    TRIANGLE = "TriangleEnvironment"
-}
+export type ENV_NAMES = 
+"BTSEnvironment" |
+"BigMirrorEnvironment" |
+"BillieEnvironment" |
+"CrabRaveEnvironment" |
+"DefaultEnvironment" |
+"DragonsEnvironment" |
+"FitBeatEnvironment" |
+"GagaEnvironment" |
+"GreenDayEnvironment" |
+"GreenDayGrenadeEnvironment" |
+"InterscopeEnvironment" |
+"KDAEnvironment" |
+"KaleidoscopeEnvironment" |
+"LinkinParkEnvironment" |
+"MonstercatEnvironment" |
+"NiceEnvironment" |
+"OriginsEnvironment" |
+"PanicEnvironment" |
+"RocketEnvironment" |
+"SkrillexEnvironment" |
+"HalloweenEnvironment" |
+"TimbalandEnvironment" |
+"TriangleEnvironment"
 
 export enum EASE {
     LINEAR = "easeLinear",

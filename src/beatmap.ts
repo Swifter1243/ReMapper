@@ -8,7 +8,7 @@ import { Environment, EnvironmentInternals, Geometry, GeometryMaterial } from '.
 import { copy, isEmptyObject, jsonGet, jsonPrune, jsonRemove, jsonSet, sortObjects, Vec3, setDecimals, RMLog } from './general.ts';
 import { AnimationInternals } from './animation.ts';
 import { OptimizeSettings } from './anim_optimizer.ts';
-import { settingsHandler } from './constants.ts';
+import { ENV_NAMES, settingsHandler } from './constants.ts';
 
 type PostProcessFn<T> = (object: T, diff: Difficulty) => void;
 
@@ -240,7 +240,7 @@ export class Difficulty {
             const objValue = (object as any)[property] as string | [string, Record<string, any>];
             const path = typeof objValue === "string" ? objValue : objValue[0];
             const diff = (object as any)["diff"] as Difficulty;
-            
+
             if (typeof objValue !== "string") value = objValue[1][value];
             diff.updateSets(diff.rawSettings, path, value);
             return true;
@@ -426,7 +426,7 @@ export class Info {
     set shufflePeriod(value: number) { this.updateInfo(this.json, "_shufflePeriod", value) }
     set coverFileName(value: string) { this.updateInfo(this.json, "_coverImageFilename", value) }
     set songFileName(value: string) { this.updateInfo(this.json, "_songFilename", value) }
-    set environment(value: string) { this.updateInfo(this.json, "_environmentName", value) }
+    set environment(value: ENV_NAMES) { this.updateInfo(this.json, "_environmentName", value) }
     set environment360(value: string) { this.updateInfo(this.json, "_allDirectionsEnvironmentName", value) }
     set customData(value: Record<string, any>) { this.updateInfo(this.json, "_customData", value) }
     set editors(value: Record<string, any>) { this.updateInfo(this.json, "_customData._editors", value) }
