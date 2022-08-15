@@ -2,10 +2,9 @@ import { Difficulty } from "./beatmap.ts"
 import { Vec3 } from "./general.ts"
 import { Regex } from "./regex.ts"
 
-export enum MODS {
-    NOODLE_EXTENSIONS = "Noodle Extensions",
-    CHROMA = "Chroma"
-}
+export type MODS =
+"Chroma" |
+"Noodle Extensions"
 
 export type ENV_NAMES = 
 "BTSEnvironment" |
