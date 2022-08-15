@@ -6,7 +6,7 @@ export class Regex {
      * String together methods to make a statement.
      * You'll want to access the "string" property after.
      */
-    constructor() { /* stop telling me it's empty sonarlint */ }
+    constructor(initial?: string) { if (initial) this.string = initial }
 
     /**
      * Specifies the start with the end of a previous seperator: "]".
