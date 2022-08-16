@@ -163,14 +163,30 @@ export class LightRemapper extends LightRemapperInternals.BaseLightRemapper {
             if (initialize) x.lightID = [];
             else return;
         }
-        
+
         this.complexifyLightIDs(lightID, ids1 => {
             x.lightID = this.complexifyLightIDs(x.lightID, ids2 => {
                 return ids2.concat(ids1);
             })
             return ids1;
         })
-    }) 
+    })
+
+    /**
+     * Initialize lightIDs if event has none.
+     * @param lightID 
+     * @param spread If true, use lightID field as min and max to fill lightIDs in between.
+     * @returns 
+     */
+    initIDs = (lightID: LightID, spread = false) => this.returnAddProcess(x => {
+        let output: LightID = [];
+
+        if (spread && typeof lightID === "object" && lightID.length === 2)
+            for (let i = lightID[0]; i <= lightID[1]; i++) output.push(i);
+        else output = lightID;
+
+        if (!x.lightID) x.lightID = output;
+    })
 
     /**
      * Normalizes a sequence of lightIDs to a sequence of: 1, 2, 3, 4, 5... etc.
