@@ -294,6 +294,14 @@ export function arrEqual(arr1: number[], arr2: number[], lenience = 0) {
 }
 
 /**
+ * Check if an array contains a value.
+ * @param arr 
+ * @param value 
+ * @returns 
+ */
+export const arrHas = (arr: any[], value: any) => arr.some(x => x === value);
+
+/**
  * Gives a random number in the given range.
  * @param {Number} start
  * @param {Number} end

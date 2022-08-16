@@ -1,7 +1,7 @@
 // deno-lint-ignore-file no-namespace
 import { activeDiff } from "./beatmap.ts";
 import { Event, EventInternals, LightID } from "./event.ts";
-import { copy } from "./general.ts";
+import { arrHas, copy } from "./general.ts";
 
 type Condition = (event: EventInternals.AbstractEvent) => boolean;
 type Process = (event: EventInternals.AbstractEvent) => void;
@@ -13,20 +13,27 @@ export namespace LightRemapperInternals {
 
         constructor(condition?: Condition) { if (condition) this.conditions.push(condition) }
 
+        /**
+         * A condition that events must pass.
+         * @param condition 
+         * @returns 
+         */
         addCondition = (condition: Condition) => this.conditions.push(condition);
+
+        /**
+         * A function to edit the event.
+         * @param process 
+         * @returns 
+         */
         addProcess = (process: Process) => this.processes.push(process);
 
-        filter(type: number, range?: number | number[]) {
-            this.addCondition(x => {
-                if (x.type !== type) return false;
+        protected returnAddCondition = (condition: Condition) => {
+            this.addCondition(condition);
+            return this;
+        }
 
-                if (range) {
-                    if (typeof range === "number") range = [range, range];
-                    if (!isInID(x.lightID, range[0], range[1])) return false;
-                }
-
-                return true;
-            })
+        protected returnAddProcess = (process: Process) => {
+            this.addProcess(process);
             return this;
         }
 
@@ -35,12 +42,7 @@ export namespace LightRemapperInternals {
          * @param {Number} type 
          * @returns 
          */
-        setType(type: number) {
-            this.addProcess(x => {
-                x.type = type;
-            })
-            return this;
-        }
+        setType = (type: number) => this.returnAddProcess(x => { x.type = type });
 
         /**
          * Multiplies the colors of the event. Applies to gradients too.
@@ -48,17 +50,14 @@ export namespace LightRemapperInternals {
          * @param {Number} alpha 
          * @returns 
          */
-        multiplyColor(rgb: number, alpha = 1) {
-            this.addProcess(x => {
-                if (x.color) {
-                    x.color[0] *= rgb;
-                    x.color[1] *= rgb;
-                    x.color[2] *= rgb;
-                    if (x.color[3]) x.color[3] *= alpha;
-                }
-            })
-            return this;
-        }
+        multiplyColor = (rgb: number, alpha = 1) => this.returnAddProcess(x => {
+            if (x.color) {
+                x.color[0] *= rgb;
+                x.color[1] *= rgb;
+                x.color[2] *= rgb;
+                if (x.color[3]) x.color[3] *= alpha;
+            }
+        })
 
         /**
          * Test the algorithm with some lightIDs which will be logged.
@@ -100,6 +99,43 @@ export class LightRemapper extends LightRemapperInternals.BaseLightRemapper {
     }
 
     /**
+     * Events will pass if they have this type.
+     * @param type 
+     * @returns 
+     */
+    type = (type: number) => this.returnAddCondition(x => x.type === type);
+
+    /**
+     * Checks if any lightIDs on this event are in this range.
+     * @param range Min and max, or use one number to be both.
+     * @returns 
+     */
+    range = (range: number | [number, number]) => this.returnAddCondition(x => {
+        if (typeof range === "number") range = [range, range];
+        return isInID(x.lightID, range[0], range[1]);
+    })
+
+    /**
+     * Events will pass if they have lightIDs, or contain one of the lightIDs you specify.
+     * @param lightIDs 
+     * @returns 
+     */
+    IDs = (lightIDs?: number[]) => this.returnAddCondition(x => {
+        if (x.lightID) {
+            if (lightIDs) {
+                let passed = false;
+                this.complexifyLightIDs(x.lightID, ids => {
+                    if (ids.some(i => arrHas(lightIDs, i))) passed = true;
+                    return ids;
+                })
+                return passed;
+            }
+            else return true;
+        }
+        return false;
+    })
+
+    /**
      * Sets the lightID of the event.
      * Removes some (now redundant) functions.
      * @param {Number | Array} lightID 
@@ -122,14 +158,11 @@ export class LightRemapper extends LightRemapperInternals.BaseLightRemapper {
      * @param {Number} start Start of the sequence.
      * @returns 
      */
-    normalizeLinear(step: number, start = 1) {
-        this.addProcess(x => {
-            if (x.lightID) {
-                x.lightID = this.complexifyLightIDs(x.lightID, ids => solveLightMap([[start, step]], ids))
-            }
-        })
-        return this;
-    }
+    normalizeLinear = (step: number, start = 1) => this.returnAddProcess(x => {
+        if (x.lightID) {
+            x.lightID = this.complexifyLightIDs(x.lightID, ids => solveLightMap([[start, step]], ids))
+        }
+    })
 
     /**
      * Normalizes a sequence of lightIDs to a sequence of: 1, 2, 3, 4, 5... etc.
@@ -144,14 +177,11 @@ export class LightRemapper extends LightRemapperInternals.BaseLightRemapper {
      * So map would look like: [[1, 2], [3, 1]]
      * @returns 
      */
-    normalizeWithChanges(map: number[][]) {
-        this.addProcess(x => {
-            if (x.lightID) {
-                x.lightID = this.complexifyLightIDs(x.lightID, ids => solveLightMap(map, ids))
-            }
-        })
-        return this;
-    }
+    normalizeWithChanges = (map: number[][]) => this.returnAddProcess(x => {
+        if (x.lightID) {
+            x.lightID = this.complexifyLightIDs(x.lightID, ids => solveLightMap(map, ids))
+        }
+    })
 
     /**
      * Effects the ending sequence of lightIDs.
@@ -159,19 +189,16 @@ export class LightRemapper extends LightRemapperInternals.BaseLightRemapper {
      * @param {Number} step Changes the differences between each lightID.
      * @returns 
      */
-    addToEnd(offset: number, step?: number) {
-        this.addProcess(x => {
-            if (x.lightID) {
-                x.lightID = this.complexifyLightIDs(x.lightID, ids => {
-                    return ids.map(i => {
-                        if (step) i = (i - 1) * step + 1;
-                        return i + offset;
-                    });
-                })
-            }
-        })
-        return this;
-    }
+    addToEnd = (offset: number, step?: number) => this.returnAddProcess(x => {
+        if (x.lightID) {
+            x.lightID = this.complexifyLightIDs(x.lightID, ids => {
+                return ids.map(i => {
+                    if (step) i = (i - 1) * step + 1;
+                    return i + offset;
+                });
+            })
+        }
+    })
 
     /**
      * Remap lightIDs assuming the output is a sequence of 1, 2, 3, 4, 5...
@@ -179,17 +206,14 @@ export class LightRemapper extends LightRemapperInternals.BaseLightRemapper {
      * @param {Number} offset Adds a number to each lightID.
      * @returns 
      */
-    remapEnd(map: number[][], offset = 0) {
-        this.addProcess(x => {
-            if (x.lightID) {
-                x.lightID = this.complexifyLightIDs(x.lightID, ids => {
-                    applyLightMap([offset, ...map], ids);
-                    return ids;
-                })
-            }
-        })
-        return this;
-    }
+    remapEnd = (map: number[][], offset = 0) => this.returnAddProcess(x => {
+        if (x.lightID) {
+            x.lightID = this.complexifyLightIDs(x.lightID, ids => {
+                applyLightMap([offset, ...map], ids);
+                return ids;
+            })
+        }
+    })
 }
 
 // Made by Rabbit cause I'm too dumb! :)
