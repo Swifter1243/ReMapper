@@ -57,7 +57,7 @@ export class Wall {
      * Push this wall to the difficulty
      */
     push() {
-        activeDiffGet().obstacles.push(copy(this));
+        activeDiffGet().walls.push(copy(this));
         return this;
     }
 

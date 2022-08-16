@@ -58,7 +58,7 @@ export class Difficulty {
         if (this.diffSet === undefined) throw new Error(`The difficulty ${input} does not exist in your Info.dat`)
 
         for (let i = 0; i < this.notes.length; i++) this.notes[i] = new Note().import(this.notes[i] as Record<string, any>);
-        for (let i = 0; i < this.obstacles.length; i++) this.obstacles[i] = new Wall().import(this.obstacles[i] as Record<string, any>);
+        for (let i = 0; i < this.walls.length; i++) this.walls[i] = new Wall().import(this.walls[i] as Record<string, any>);
         for (let i = 0; i < this.events.length; i++) this.events[i] = new Event().import(this.events[i] as Record<string, any>);
         if (this.customEvents !== undefined)
             for (let i = 0; i < this.customEvents.length; i++) this.customEvents[i] = new CustomEvent().import(this.customEvents[i] as Record<string, any>);
@@ -78,7 +78,7 @@ export class Difficulty {
         };
 
         this.notes.forEach(e => optimizeAnimation(e.animate));
-        this.obstacles.forEach(e => optimizeAnimation(e.animate));
+        this.walls.forEach(e => optimizeAnimation(e.animate));
         this.customEvents.filter(e => e instanceof CustomEventInternals.AnimateTrack).forEach(e => optimizeAnimation((e as CustomEventInternals.AnimateTrack).animate));
 
         // TODO: Optimize point definitions
@@ -145,8 +145,8 @@ export class Difficulty {
             jsonPrune(note.json);
             outputJSON._notes[i] = note.json;
         }
-        for (let i = 0; i < this.obstacles.length; i++) {
-            const wall = copy(this.obstacles[i]);
+        for (let i = 0; i < this.walls.length; i++) {
+            const wall = copy(this.walls[i]);
             if (settings.forceJumpsForNoodle && wall.isGameplayModded) {
                 // deno-lint-ignore no-self-assign
                 wall.NJS = wall.NJS;
@@ -303,7 +303,7 @@ export class Difficulty {
     // Map
     get version(): string { return jsonGet(this.json, "_version") }
     get notes(): Note[] { return jsonGet(this.json, "_notes") }
-    get obstacles(): Wall[] { return jsonGet(this.json, "_obstacles") }
+    get walls(): Wall[] { return jsonGet(this.json, "_obstacles") }
     get events(): EventInternals.AbstractEvent[] { return jsonGet(this.json, "_events") }
     get waypoints(): any[] { return jsonGet(this.json, "_waypoints") }
     get customData() { return jsonGet(this.json, "_customData", {}) }
@@ -354,7 +354,7 @@ export class Difficulty {
 
     set version(value: string) { jsonSet(this.json, "_version", value) }
     set notes(value: Note[]) { jsonSet(this.json, "_notes", value) }
-    set obstacles(value: Wall[]) { jsonSet(this.json, "_obstacles", value) }
+    set walls(value: Wall[]) { jsonSet(this.json, "_obstacles", value) }
     set events(value: EventInternals.AbstractEvent[]) { jsonSet(this.json, "_events", value) }
     set waypoints(value: any[]) { jsonSet(this.json, "_waypoints", value) }
     set customData(value) { jsonSet(this.json, "_customData", value) }
@@ -550,15 +550,15 @@ export function transferVisuals(diffs: string[], forDiff?: (diff: Difficulty) =>
         workingDiff.customEvents = startActive.customEvents;
         workingDiff.events = startActive.events;
 
-        for (let y = 0; y < workingDiff.obstacles.length; y++) {
-            const obstacle = workingDiff.obstacles[y];
+        for (let y = 0; y < workingDiff.walls.length; y++) {
+            const obstacle = workingDiff.walls[y];
             if (obstacle.isModded) {
-                workingDiff.obstacles.splice(y, 1);
+                workingDiff.walls.splice(y, 1);
                 y--;
             }
         }
 
-        startActive.obstacles.forEach(y => { if (y.isModded) workingDiff.obstacles.push(y) })
+        startActive.walls.forEach(y => { if (y.isModded) workingDiff.walls.push(y) })
 
         if (forDiff !== undefined) forDiff(workingDiff);
         workingDiff.save();

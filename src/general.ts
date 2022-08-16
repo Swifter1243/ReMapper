@@ -134,7 +134,7 @@ export function notesBetween(min: number, max: number, forEach: (note: Note) => 
  * @returns {Array}
  */
 export function wallsBetween(min: number, max: number, forEach: (note: Wall) => void) {
-    filterObjects(activeDiffGet().obstacles, min, max, "time").forEach(x => { forEach(x) });
+    filterObjects(activeDiffGet().walls, min, max, "time").forEach(x => { forEach(x) });
 }
 
 /**

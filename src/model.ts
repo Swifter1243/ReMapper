@@ -403,7 +403,7 @@ export function getModel(filePath: string) {
  */
 export function debugObject(input: GroupObjectTypes, resolution: number, scale?: Vec3, anchor?: Vec3, rotation?: Vec3) {
     activeDiff.notes = [];
-    activeDiff.obstacles = [];
+    activeDiff.walls = [];
     activeDiff.customEvents = [];
     activeDiff.rawEnvironment = [];
 
