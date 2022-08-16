@@ -141,7 +141,7 @@ export class LightRemapper extends LightRemapperInternals.BaseLightRemapper {
      * @param {Number | Array} lightID 
      * @returns 
      */
-    setLightID(lightID: LightID) {
+    setIDs(lightID: LightID) {
         this.addProcess(x => {
             x.lightID = lightID;
         })
@@ -151,6 +151,26 @@ export class LightRemapper extends LightRemapperInternals.BaseLightRemapper {
         lightOverrider.processes = this.processes;
         return lightOverrider;
     }
+
+    /**
+     * Adds lightIDs to the event.
+     * @param lightID 
+     * @param initialize If false and event has no lightIDs, skip.
+     * @returns 
+     */
+    appendIDs = (lightID: LightID, initialize = false) => this.returnAddProcess(x => {
+        if (!x.lightID) {
+            if (initialize) x.lightID = [];
+            else return;
+        }
+        
+        this.complexifyLightIDs(lightID, ids1 => {
+            x.lightID = this.complexifyLightIDs(x.lightID, ids2 => {
+                return ids2.concat(ids1);
+            })
+            return ids1;
+        })
+    }) 
 
     /**
      * Normalizes a sequence of lightIDs to a sequence of: 1, 2, 3, 4, 5... etc.
