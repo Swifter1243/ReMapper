@@ -3,6 +3,8 @@ import { EASE, EVENT } from './constants.ts';
 import { activeDiffGet } from './beatmap.ts';
 import { copy, jsonPrune, isEmptyObject, jsonGet, jsonSet, ColorType } from './general.ts';
 
+export type LightID = number | number[];
+
 export namespace EventInternals {
     export class BaseEvent {
         json: any = {
@@ -57,8 +59,9 @@ export namespace EventInternals {
          * Create an event that turns lights off.
          * @returns 
          */
-        off() {
+        off(lightID?: LightID) {
             this.value = EVENT.OFF;
+            if (lightID) this.lightID = lightID;
             return this;
         }
 
@@ -68,10 +71,10 @@ export namespace EventInternals {
          * @param {Number | Array} lightID 
          * @returns 
          */
-        on(color: ColorType | boolean, lightID?: number | number[]) {
+        on(color: ColorType | boolean, lightID?: LightID) {
             this.value = (typeof color === "boolean" && color) ? EVENT.BLUE_ON : EVENT.RED_ON;
             if (typeof color !== "boolean") this.color = color;
-            if (lightID !== undefined) this.lightID = lightID;
+            if (lightID) this.lightID = lightID;
             return this;
         }
 
@@ -81,10 +84,10 @@ export namespace EventInternals {
          * @param {Number | Array} lightID 
          * @returns 
          */
-        flash(color: ColorType | boolean, lightID?: number | number[]) {
+        flash(color: ColorType | boolean, lightID?: LightID) {
             this.value = (typeof color === "boolean" && color) ? EVENT.BLUE_FLASH : EVENT.RED_FLASH;
             if (typeof color !== "boolean") this.color = color;
-            if (lightID !== undefined) this.lightID = lightID;
+            if (lightID) this.lightID = lightID;
             return this;
         }
 
@@ -94,10 +97,10 @@ export namespace EventInternals {
          * @param {Number | Array} lightID 
          * @returns 
          */
-        fade(color: ColorType | boolean, lightID?: number | number[]) {
+        fade(color: ColorType | boolean, lightID?: LightID) {
             this.value = (typeof color === "boolean" && color) ? EVENT.BLUE_FADE : EVENT.RED_FADE;
             if (typeof color !== "boolean") this.color = color;
-            if (lightID !== undefined) this.lightID = lightID;
+            if (lightID) this.lightID = lightID;
             return this;
         }
 
@@ -107,7 +110,7 @@ export namespace EventInternals {
          * @param {Number | Array} lightID 
          * @returns 
          */
-        in(color: ColorType | boolean, lightID?: number | number[]) {
+        in(color: ColorType | boolean, lightID?: LightID) {
             this.value = (typeof color === "boolean" && color) ? EVENT.BLUE_IN : EVENT.RED_IN;
             if (typeof color !== "boolean") this.color = color;
             if (lightID !== undefined) this.lightID = lightID;
@@ -147,7 +150,7 @@ export namespace EventInternals {
         get duration() { return jsonGet(this.json, "_customData._lightGradient._duration") }
         get gradientEasing() { return jsonGet(this.json, "_customData._lightGradient._easing") }
 
-        set lightID(value: number | number[]) { jsonSet(this.json, "_customData._lightID", value) }
+        set lightID(value: LightID) { jsonSet(this.json, "_customData._lightID", value) }
         set color(value: ColorType) { jsonSet(this.json, "_customData._color", value) }
         set easing(value: EASE) { jsonSet(this.json, "_customData._easing", value) }
         set lerpType(value: string) { jsonSet(this.json, "_customData._lerpType", value) }
@@ -295,7 +298,7 @@ export namespace EventInternals {
         set step(value: number) { jsonSet(this.json, "_customData._step", value) }
         set prop(value: number) { jsonSet(this.json, "_customData._prop", value) }
         set counterSpin(value: boolean) { jsonSet(this.json, "_customData._counterSpin", value) }
-        set lightID(value: number | number[]) { jsonSet(this.json, "_customData._lightID", value) }
+        set lightID(value: LightID) { jsonSet(this.json, "_customData._lightID", value) }
         set color(value: ColorType) { jsonSet(this.json, "_customData._color", value) }
         set easing(value: EASE) { jsonSet(this.json, "_customData._easing", value) }
         set lerpType(value: string) { jsonSet(this.json, "_customData._lerpType", value) }

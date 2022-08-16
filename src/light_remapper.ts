@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-namespace
 import { activeDiff } from "./beatmap.ts";
-import { Event, EventInternals } from "./event.ts";
+import { Event, EventInternals, LightID } from "./event.ts";
 import { copy } from "./general.ts";
 
 type Condition = (event: EventInternals.AbstractEvent) => boolean;
@@ -93,7 +93,7 @@ export namespace LightRemapperInternals {
 }
 
 export class LightRemapper extends LightRemapperInternals.BaseLightRemapper {
-    private complexifyLightIDs(lightID: number | number[], callback: (ids: number[]) => number[]) {
+    private complexifyLightIDs(lightID: LightID, callback: (ids: number[]) => number[]) {
         let ids = typeof lightID === "number" ? [lightID] : lightID;
         ids = callback(ids);
         return ids.length === 1 ? ids[0] : ids;
@@ -105,7 +105,7 @@ export class LightRemapper extends LightRemapperInternals.BaseLightRemapper {
      * @param {Number | Array} lightID 
      * @returns 
      */
-    setLightID(lightID: number | number[]) {
+    setLightID(lightID: LightID) {
         this.addProcess(x => {
             x.lightID = lightID;
         })
@@ -283,7 +283,7 @@ function applyLightMap(map: (number | number[])[], ids: number[]) {
     }
 }
 
-function isInID(lightID: number | number[], start: number, end: number) {
+function isInID(lightID: LightID, start: number, end: number) {
     if (lightID === undefined) return false;
     if (typeof lightID === "object") {
         let passed = false;
