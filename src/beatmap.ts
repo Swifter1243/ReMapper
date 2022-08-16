@@ -132,51 +132,72 @@ export class Difficulty {
         diffName ??= this.mapFile;
         if (!fs.existsSync(diffName)) throw new Error(`The file ${diffName} does not exist and cannot be saved`);
 
-        const outputJSON = copy(this.json);
+        this.doPostProcess()
 
-        for (let i = 0; i < this.notes.length; i++) {
-            const note = copy(this.notes[i]);
-            if (settings.forceJumpsForNoodle && note.isGameplayModded) {
-                // deno-lint-ignore no-self-assign
-                note.NJS = note.NJS;
-                // deno-lint-ignore no-self-assign
-                note.offset = note.offset;
+        const outputJSON = {} as Record<string, any>;
+
+        Object.keys(this.json).forEach(x => {
+            if (
+                x === "_notes" ||
+                x === "_obstacles" ||
+                x === "_events"
+            ) {
+                outputJSON[x] = [];
+            }
+            else if (x === "_customData") Object.keys(this.json[x]).forEach(y => {
+                if (!outputJSON[x]) outputJSON[x] = {};
+                if (
+                    y === "_environment" ||
+                    y === "_customEvents"
+                ) {
+                    outputJSON[x][y] = [];
+                }
+                else outputJSON[x][y] = copy(this.json[x][y]);
+            })
+            else outputJSON[x] = copy(this.json[x]);
+        })
+
+        // Notes
+        this.notes.forEach(x => {
+            const note = copy(x);
+            if (settings.forceJumpsForNoodle && x.isGameplayModded) {
+                note.NJS = x.NJS;
+                note.offset = x.offset;
             }
             jsonPrune(note.json);
-            outputJSON._notes[i] = note.json;
-        }
-        for (let i = 0; i < this.walls.length; i++) {
-            const wall = copy(this.walls[i]);
+            outputJSON._notes.push(note.json);
+        })
+
+        // Walls
+        this.walls.forEach(x => {
+            const wall = copy(x);
             if (settings.forceJumpsForNoodle && wall.isGameplayModded) {
-                // deno-lint-ignore no-self-assign
-                wall.NJS = wall.NJS;
-                // deno-lint-ignore no-self-assign
-                wall.offset = wall.offset;
+                wall.NJS = x.NJS;
+                wall.offset = x.offset;
             }
             jsonPrune(wall.json);
-            outputJSON._obstacles[i] = wall.json;
-        }
-        for (let i = 0; i < this.events.length; i++) outputJSON._events[i] = copy(this.events[i].json);
+            outputJSON._obstacles.push(wall.json);
+        })
 
-        // Finish up
-        this.doPostProcess()
+        // Events
+        this.events.forEach(x => { outputJSON._events.push(copy(x.json)) });
+
+        // Custom Events
+        if (this.customEvents) {
+            this.customEvents.forEach(x => outputJSON._customData._customEvents.push(copy(x.json)));
+            sortObjects(outputJSON._customData._customEvents, "_time");
+        }
+
+        // Environment
+        if (this.rawEnvironment) this.rawEnvironment.forEach(x => {
+            const json = copy(x.json);
+            jsonRemove(json, "_group");
+            outputJSON._customData._environment.push(json);
+        })
 
         sortObjects(outputJSON._events, "_time");
         sortObjects(outputJSON._notes, "_time");
         sortObjects(outputJSON._obstacles, "_time");
-
-        if (this.customEvents !== undefined) {
-            for (let i = 0; i < this.customEvents.length; i++) outputJSON._customData._customEvents[i] = copy(this.customEvents[i].json);
-            sortObjects(outputJSON._customData._customEvents, "_time");
-        }
-
-        if (this.rawEnvironment !== undefined) {
-            for (let i = 0; i < this.rawEnvironment.length; i++) {
-                const json = copy(this.rawEnvironment[i].json);
-                jsonRemove(json, "_group");
-                outputJSON._customData._environment[i] = json;
-            }
-        }
 
         info.save();
         RMJson.save();
