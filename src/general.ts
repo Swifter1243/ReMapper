@@ -8,7 +8,7 @@ import { activeDiffGet } from './beatmap.ts';
 import { Note } from './note.ts';
 import { EventInternals } from './event.ts';
 import { OptimizeSettings } from "./anim_optimizer.ts";
-import { fs, three } from "./deps.ts";
+import { fs, path, three } from "./deps.ts";
 
 export type Vec3 = [number, number, number];
 export type Vec4 = [number, number, number, number];
@@ -640,3 +640,23 @@ function iterateKeyframesInternal(keyframes: KeyframesAny, fn: (values: Keyframe
 }
 
 // TODO: Make complexifyArray and simplifyArray only take in raw types
+
+export function parseFilePath(input: string, ext?: string) {
+    const fileExt = path.extname(input);
+
+    // Forcing correct extension
+    if (ext && fileExt !== ext) {
+        if (!fileExt) input += ext;
+        else input = (path.dirname(input) !== "." ? path.dirname(input) + "/" : "") + path.parse(input).name + ext;
+    }
+
+    const output: { name: string, path: string, dir?: string } = {
+        name: path.basename(input),
+        path: input
+    };
+
+    const dir = path.dirname(input);
+    if (dir !== ".") output.dir = dir;
+
+    return output
+}

@@ -9,7 +9,7 @@ import { copy, isEmptyObject, jsonGet, jsonPrune, jsonRemove, jsonSet, sortObjec
 import { AnimationInternals } from './animation.ts';
 import { OptimizeSettings } from './anim_optimizer.ts';
 import { ENV_NAMES, MODS, settingsHandler } from './constants.ts';
-import { RMJson } from './mod.ts';
+import { parseFilePath, RMJson } from './mod.ts';
 
 type PostProcessFn<T> = (object: T, diff: Difficulty) => void;
 
@@ -31,20 +31,18 @@ export class Difficulty {
      * @param {String} input Filename for the output. If left blank, input will be used.
      */
     constructor(input: string, output?: string) {
+        const parsedInput = parseFilePath(input, ".dat");
+        const parsedOutput = parseFilePath(output ?? input, ".dat");
 
         // If the path contains a separator of any kind, use it instead of the default "Info.dat"
-        info.load((input.includes('\\') || input.includes('/')) ? path.join(path.dirname(input), "Info.dat") : undefined);
+        info.load(parsedInput.dir ? path.join(parsedInput.dir, "Info.dat") : undefined);
 
-        this.mapFile = input;
-        this.relativeMapFile = path.parse(output ?? input).base;
+        this.mapFile = parsedInput.path;
+        this.relativeMapFile = parsedOutput.name;
 
-        if (output !== undefined) {
-            if (!fs.existsSync(output)) throw new Error(`The file ${output} does not exist`)
-            this.mapFile = output;
-        }
-
-        if (!fs.existsSync(input)) throw new Error(`The file ${input} does not exist`)
-        this.json = JSON.parse(Deno.readTextFileSync(input));
+        if (!fs.existsSync(parsedInput.path)) throw new Error(`The file ${parsedInput.path} does not exist`)
+        if (!fs.existsSync(parsedOutput.path)) throw new Error(`The file ${parsedOutput.path} does not exist`)
+        this.json = JSON.parse(Deno.readTextFileSync(parsedInput.path));
 
         info.json._difficultyBeatmapSets.forEach((set: Record<string, any>) => {
             set._difficultyBeatmaps.forEach((setmap: Record<string, any>) => {
@@ -129,7 +127,8 @@ export class Difficulty {
      * @param {String} diffName Filename for the save. If left blank, the beatmap file name will be used for the save.
      */
     save(diffName?: string) {
-        diffName ??= this.mapFile;
+        if (diffName) diffName = parseFilePath(diffName, ".dat").path;
+        else diffName = this.mapFile;
         if (!fs.existsSync(diffName)) throw new Error(`The file ${diffName} does not exist and cannot be saved`);
 
         this.doPostProcess()
@@ -202,7 +201,7 @@ export class Difficulty {
         info.save();
         RMJson.save();
         Deno.writeTextFileSync(diffName, JSON.stringify(outputJSON, null, 0));
-        RMLog(`${this.fileName} successfully saved!`);
+        RMLog(`${diffName} successfully saved!`);
     }
 
     /**
