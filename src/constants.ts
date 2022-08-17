@@ -278,9 +278,14 @@ export const ENV = {
             ANCHOR: <Vec3>[0, 0.4999, 0]
         },
         SOLID_LASER: {
-            ID: new Regex().add("SmallPillarPair").separate().add("PillarL").separate().add("LaserL").end(),
+            ID: new Regex("SmallPillarPair").separate().add("PillarL").separate().add("LaserL").end(),
             SCALE: <Vec3>[10, 1 / 2500, 10],
             ANCHOR: <Vec3>[0, -0.5, 0]
+        },
+        BLOOM_LIGHT:{
+            ID: new Regex("Environment").separate().add("LaserR").end(),
+            SCALE: <Vec3>[1, 0.00025, 1],
+            ANCHOR: <Vec3>[0, -0.25, 0]
         },
         LOW_CLOUDS: {
             ID: "LowCloudsGenerator$",
@@ -300,7 +305,7 @@ export const ENV = {
             ANCHOR: <Vec3>[0, 0.5, 0.5]
         },
         SECOND_AURORA: {
-            ID: new Regex().add("Aurora").separate().add("AuroraSecondary").end(),
+            ID: new Regex("Aurora").separate().add("AuroraSecondary").end(),
             SCALE: <Vec3>[0.0025, 0.02, 0.012],
             ANCHOR: <Vec3>[0, 0.6, 0.05]
         }
@@ -314,16 +319,19 @@ export const ENV = {
     },
     GREEN_DAY: {
         SOLID_LASER: {
-            ID: new Regex().add("RotatingLasersPair").separate().add("BaseL").separate().add("Laser").end(),
-            SCALE: <Vec3>[20, 1 / 500, 20],
-            ANCHOR: <Vec3>[0, 0, 0]
+            ID: "GlowLineR$",
+            SCALE: <Vec3>[50, 0.002, 50]
+        },
+        BLOOM_LASER: {
+            ID: "FrontLight$",
+            SCALE: <Vec3>[1, 0.001, 1],
+            ANCHOR: <Vec3>[0, -0.5, 0]
         }
     },
     UNIVERSAL: {
         MIRROR: { // Mirror does not work with the "Spooky" environment, but it does work with everything else!
-            ID: new Regex().add("PlayersPlace").separate().add("Mirror").end(),
-            SCALE: <Vec3>[1 / 3, 0, 0.5],
-            ANCHOR: <Vec3>[0, 0, 0],
+            ID: new Regex("PlayersPlace").separate().add("Mirror").end(),
+            SCALE: <Vec3>[1 / 3, 0, 0.5]
         }
     }
 }
