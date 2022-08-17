@@ -1,19 +1,21 @@
 // deno-lint-ignore-file no-explicit-any
 import { arrAdd, cacheData, ColorType, copy, iterateKeyframes, rotatePoint, Vec3, Vec4 } from "./general.ts";
 import { bakeAnimation, complexifyArray, ComplexKeyframesVec3, KeyframeArray, KeyframesAny, KeyframeValues, RawKeyframesVec3, toPointDef } from "./animation.ts";
-import { fs, path } from "./deps.ts";
+import { fs } from "./deps.ts";
 import { Environment, Geometry, RawGeometryMaterial } from "./environment.ts";
 import { optimizeAnimation, OptimizeSettings } from "./anim_optimizer.ts";
 import { CustomEvent, CustomEventInternals } from "./custom_event.ts";
 import { activeDiff } from "./beatmap.ts";
 import { Regex } from "./regex.ts";
 import { Event } from "./event.ts";
+import { FILEPATH } from "./constants.ts";
+import { parseFilePath } from "./mod.ts";
 
 let modelSceneCount = 0;
 let noYeet = true;
 
 type GroupObjectTypes = Environment | Geometry;
-type ObjectInput = string | ModelObject[];
+type ObjectInput = FILEPATH | ModelObject[];
 
 type ModelGroup = {
     object?: GroupObjectTypes,
@@ -79,13 +81,13 @@ export class ModelScene {
 
     private getObjects(input: ObjectInput) {
         if (typeof input === "string") {
-            if (!path.isAbsolute(input)) input = `${input}.rmmodel`
-            if (!fs.existsSync(input)) throw new Error(`The file ${input} does not exist!`)
-            const mTime = Deno.statSync(input).mtime?.toString();
+            const inputPath = parseFilePath(input).path;
+            if (!fs.existsSync(inputPath)) throw new Error(`The file ${inputPath} does not exist!`)
+            const mTime = Deno.statSync(inputPath).mtime?.toString();
             const processing: any[] = [this.groups, this.optimizer, mTime];
 
-            return cacheData(`modelScene${this.trackID}_${input}`, () => {
-                const fileObjects = getModel(input as string);
+            return cacheData(`modelScene${this.trackID}_${inputPath}`, () => {
+                const fileObjects = getModel(inputPath);
                 fileObjects.forEach(x => {
                     // Getting relevant object transforms
                     let scale: Vec3 | undefined
@@ -387,8 +389,8 @@ function createYeetDef() {
     }
 }
 
-export function getModel(filePath: string) {
-    const data = JSON.parse(Deno.readTextFileSync(filePath));
+export function getModel(filePath: FILEPATH) {
+    const data = JSON.parse(Deno.readTextFileSync(parseFilePath(filePath, ".rmmodel").path));
     return data.objects as ModelObject[];
 }
 

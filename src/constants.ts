@@ -2,22 +2,20 @@ import { Difficulty } from "./beatmap.ts"
 import { Vec3 } from "./general.ts"
 import { Regex } from "./regex.ts"
 
+// TODO: If possible, try to figure out a way to default to a string with no extension or path
+export type FILENAME<T extends string = string> = T | `${T}.${string}`;
+export type FILEPATH<T extends string = string> = FILENAME<T> | `${string}/${FILENAME<T>}`;
+
 type DiffNameBase<T extends string> = `Easy${T}` | `Normal${T}` | `Hard${T}` | `Expert${T}` | `ExpertPlus${T}`
 
-type FileNameBase<T extends string> =
-DiffNameBase<T> |
-`${string}/${DiffNameBase<T>}` |
-`${string}/${DiffNameBase<T>}.${string}` |
-`${DiffNameBase<T>}.${string}`
-
-export type FILENAME = 
-FileNameBase<"Standard"> |
-FileNameBase<"NoArrows"> |
-FileNameBase<"OneSaber"> |
-FileNameBase<"360Degree"> |
-FileNameBase<"90Degree"> |
-FileNameBase<"Lightshow"> |
-FileNameBase<"Lawless">
+export type DIFFS =
+DiffNameBase<"Standard"> |
+DiffNameBase<"NoArrows"> |
+DiffNameBase<"OneSaber"> |
+DiffNameBase<"360Degree"> |
+DiffNameBase<"90Degree"> |
+DiffNameBase<"Lightshow"> |
+DiffNameBase<"Lawless">
 
 export type MODS =
     "Chroma" |

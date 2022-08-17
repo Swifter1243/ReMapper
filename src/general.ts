@@ -3,7 +3,7 @@ const EPSILON = 1e-3;
 import * as easings from './easings.ts';
 import { bakeAnimation, complexifyArray, ComplexKeyframesLinear, ComplexKeyframesVec3, ComplexKeyframesVec4, KeyframesAny, KeyframesLinear, KeyframesVec3, KeyframesVec4, KeyframeValues, RawKeyframesAny, RawKeyframesVec3, simplifyArray } from './animation.ts';
 import { Wall } from './wall.ts';
-import { EASE } from './constants.ts';
+import { EASE, FILENAME, FILEPATH } from './constants.ts';
 import { activeDiffGet } from './beatmap.ts';
 import { Note } from './note.ts';
 import { EventInternals } from './event.ts';
@@ -641,10 +641,10 @@ function iterateKeyframesInternal(keyframes: KeyframesAny, fn: (values: Keyframe
 
 // TODO: Make complexifyArray and simplifyArray only take in raw types
 
-export function parseFilePath(input: string, ext?: `.${string}`) {
+export function parseFilePath(input: FILEPATH, ext?: `.${string}`) {
     if (ext && !path.extname(input)) input += ext;
 
-    const output: { name: string, path: string, dir?: string } = {
+    const output: { name: FILENAME, path: FILEPATH, dir?: string } = {
         name: path.basename(input),
         path: input
     };

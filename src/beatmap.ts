@@ -5,20 +5,21 @@ import { Wall } from './wall.ts';
 import { Event, EventInternals } from './event.ts';
 import { CustomEvent, CustomEventInternals } from './custom_event.ts';
 import { Environment, EnvironmentInternals, Geometry, GeometryMaterial } from './environment.ts';
-import { copy, isEmptyObject, jsonGet, jsonPrune, jsonRemove, jsonSet, sortObjects, Vec3, setDecimals, RMLog } from './general.ts';
+import { copy, isEmptyObject, jsonGet, jsonPrune, jsonRemove, jsonSet, sortObjects, Vec3, setDecimals, RMLog, parseFilePath, RMJson } from './general.ts';
 import { AnimationInternals } from './animation.ts';
 import { OptimizeSettings } from './anim_optimizer.ts';
-import { ENV_NAMES, FILENAME, MODS, settingsHandler } from './constants.ts';
-import { parseFilePath, RMJson } from './mod.ts';
+import { ENV_NAMES, MODS, settingsHandler, DIFFS, FILENAME, FILEPATH } from './constants.ts';
 
 type PostProcessFn<T> = (object: T, diff: Difficulty) => void;
+type DIFFPATH = FILEPATH<DIFFS>
+type DIFFNAME = FILENAME<DIFFS>
 
 export class Difficulty {
     json: Record<string, any> = {};
     diffSet: Record<string, any> = {};
     diffSetMap: Record<string, any> = {};
-    mapFile: string;
-    relativeMapFile: string;
+    mapFile: DIFFPATH;
+    relativeMapFile: DIFFNAME;
     private postProcesses = new Map<unknown[] | undefined, PostProcessFn<unknown>[]>();
     private registerProcessors() {
         this.addPostProcess(undefined, reduceDecimalsPostProcess);
@@ -30,18 +31,18 @@ export class Difficulty {
      * @param {String} input Filename for the input.
      * @param {String} input Filename for the output. If left blank, input will be used.
      */
-    constructor(input: FILENAME, output?: FILENAME) {
+    constructor(input: DIFFPATH, output?: DIFFPATH) {
         const parsedInput = parseFilePath(input, ".dat");
         const parsedOutput = parseFilePath(output ?? input, ".dat");
+
+        if (!fs.existsSync(parsedInput.path)) throw new Error(`The file ${parsedInput.path} does not exist`)
+        if (!fs.existsSync(parsedOutput.path)) throw new Error(`The file ${parsedOutput.path} does not exist`)
 
         // If the path contains a separator of any kind, use it instead of the default "Info.dat"
         info.load(parsedInput.dir ? path.join(parsedInput.dir, "Info.dat") : undefined);
 
-        this.mapFile = parsedInput.path;
-        this.relativeMapFile = parsedOutput.name;
-
-        if (!fs.existsSync(parsedInput.path)) throw new Error(`The file ${parsedInput.path} does not exist`)
-        if (!fs.existsSync(parsedOutput.path)) throw new Error(`The file ${parsedOutput.path} does not exist`)
+        this.mapFile = parsedInput.path as DIFFPATH;
+        this.relativeMapFile = parsedOutput.name as DIFFNAME;
         this.json = JSON.parse(Deno.readTextFileSync(parsedInput.path));
 
         info.json._difficultyBeatmapSets.forEach((set: Record<string, any>) => {
@@ -126,8 +127,8 @@ export class Difficulty {
      * Saves the difficulty.
      * @param {String} diffName Filename for the save. If left blank, the beatmap file name will be used for the save.
      */
-    save(diffName?: string) {
-        if (diffName) diffName = parseFilePath(diffName, ".dat").path;
+    save(diffName?: DIFFPATH) {
+        if (diffName) diffName = parseFilePath(diffName, ".dat").path as DIFFPATH;
         else diffName = this.mapFile;
         if (!fs.existsSync(diffName)) throw new Error(`The file ${diffName} does not exist and cannot be saved`);
 
@@ -389,14 +390,12 @@ export class Info {
     fileName = "Info.dat";
 
     load(path?: string) {
-        const fileName = path ?? this.fileName;
+        const fileName = path ? parseFilePath(path, ".dat").path : this.fileName;
         if (fs.existsSync(fileName)) {
             this.json = JSON.parse(Deno.readTextFileSync(fileName));
             this.fileName = fileName;
         }
-        else {
-            throw new Error(`The file "${fileName}" does not exist.`)
-        }
+        else throw new Error(`The file "${fileName}" does not exist.`)
     }
 
     /**
@@ -497,7 +496,7 @@ function reduceDecimalsPostProcess(_: never, diff: Difficulty) {
  * @param {String[]} excludeDiffs Difficulties to exclude.
  * @param {String} zipName Name of the zip (don't include ".zip"). Uses folder name if undefined.
  */
-export function exportZip(excludeDiffs: string[] = [], zipName?: string) {
+export function exportZip(excludeDiffs: FILENAME<DIFFS>[] = [], zipName?: string) {
     if (!info.json) throw new Error("The Info object has not been loaded.");
 
     const absoluteInfoFileName = info.fileName === "Info.dat" ? Deno.cwd() + `\\${info.fileName}` : info.fileName;
@@ -518,7 +517,7 @@ export function exportZip(excludeDiffs: string[] = [], zipName?: string) {
             const map = set._difficultyBeatmaps[m];
             let passed = true;
             excludeDiffs.forEach(d => {
-                if (map._beatmapFilename === d) {
+                if (map._beatmapFilename === parseFilePath(d, ".dat").path) {
                     set._difficultyBeatmaps.splice(m, 1);
                     m--;
                     passed = false;
@@ -559,11 +558,11 @@ export function exportZip(excludeDiffs: string[] = [], zipName?: string) {
  * Be mindful that the external difficulties don't have an input/output structure,
  * so new pushed notes for example may not be cleared on the next run and would build up.
  */
-export function transferVisuals(diffs: FILENAME[], forDiff?: (diff: Difficulty) => void) {
+export function transferVisuals(diffs: DIFFPATH[], forDiff?: (diff: Difficulty) => void) {
     const startActive = activeDiff as Difficulty;
 
     diffs.forEach(x => {
-        const workingDiff = new Difficulty(parseFilePath(x, ".dat").path as FILENAME);
+        const workingDiff = new Difficulty(parseFilePath(x, ".dat").path as DIFFPATH);
 
         workingDiff.rawEnvironment = startActive.rawEnvironment;
         workingDiff.pointDefinitions = startActive.pointDefinitions;
