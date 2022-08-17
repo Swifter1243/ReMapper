@@ -20,12 +20,16 @@ detail is crucial and can apply to multiple places.
 # Importing
 
 In order for your script to include functions, classes, or whatever else from
-ReMapper, you'll need to import them. If you know exactly what you want to
-import, as you're typing it, press tab, and it'll be added to the import
-statement at the top like so:
+ReMapper, you'll need to import them. Initialize an import statement like so:
 
 ```js
-import { Difficulty, info } from "https://deno.land/x/remapper/src/mod.ts";
+import {} from "https://deno.land/x/remapper@2.0.0/src/mod.ts" // BUMP TO LATEST
+```
+
+If you know exactly what you want to import, as you're typing it, press tab, and it'll be added to the import statement at the top like so:
+
+```js
+import { Difficulty, info } from "https://deno.land/x/remapper@2.0.0/src/mod.ts"
 
 info; // press tab while typing to import
 ```
@@ -46,10 +50,7 @@ In order to get started, you'll need a difficulty. Here you'll enter your input
 and output files. Input will be used as output if the output isn't specified.
 
 ```js
-const map = new Difficulty(
-  "ExpertPlusStandard_Old.dat",
-  "ExpertPlusStandard.dat",
-);
+const map = new Difficulty("ExpertPlusLawless", "ExpertPlusStandard");
 // "map" isn't reassigned, so we use const to save on resources
 ```
 
@@ -426,19 +427,23 @@ for (let i = 0; i <= 1; i++) {
 
 # Light Remapper
 
-This is a class mostly focused on refactoring the order of lightIDs in a given
-range. The reason this might be needed is if for example you have duplicated
-lights, and would like to light them in the editor, and have the events
-automatically carry over.
+This is a class that is focused on iterating and changing lighting events. The usefulness comes in being able to light in an editor like normal, and then being able to transform those lights to work with any complexities such as moving lightIDs or boosting the lights.
+
+The main components are conditions and processes. Conditions are a collection of conditions that each event will need to pass. There are some built in such as `type` or `IDs`, or you can add your own.
 
 ```js
-const lightRemapper = new LightRemapper(EVENT.RING_LIGHTS); // This will target the events in the ring lights.
+new LightRemapper().type(EVENT.RING_LIGHTS).run();
+// This will target the events in the ring lights.
 ```
 
-It can do a couple basic things like let you multiply the colors by a value, or
-override the lightID and type, but where it really shines is the things to do
-with editing lightIDs. From here on out whenever I show a sequence of lightIDs,
-I'm basically providing examples of possible input lightIDs.
+Processes are a chain of functions that will run on each event. Again some are build in, such as `setType` or `setIDs`, or you can add your own.
+
+```js
+new LightRemapper().type(EVENT.RING_LIGHTS).setType(EVENT.CENTER_LASERS).run();
+// This will convert ring lights to center lights.
+```
+
+There may be instances where you will need to move lightIDs to something like duplicated lights for example, and there are lots of nuances with that process. It can be something as simple as adding to all lightIDs, to changing the differences between them, to changing the differences at different points.
 
 In the most basic example, you can simply add a number to the end of all the
 lightIDs.
@@ -484,5 +489,4 @@ lightRemapper.normalizeWithChanges([[1, 2], [3, 1]]); // [1, 3, 5, 6, 7] --> [1,
 
 You can run this algorithm through with a sequence of test IDs using `test()`,
 or use `run()` to actually search the real event array. You also have the option
-to log the output of each processed event, and an option to run a function for
-each event.
+to log the output of each processed event.
