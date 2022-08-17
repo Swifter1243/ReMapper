@@ -31,7 +31,7 @@ If you know exactly what you want to import, as you're typing it, press tab, and
 ```js
 import { Difficulty, info } from "https://deno.land/x/remapper@2.0.0/src/mod.ts"
 
-info; // press tab while typing to import
+info // press tab while typing to import
 ```
 
 Keep in mind that some things may already exist in JS/TS (such as CustomEvent),
@@ -223,9 +223,7 @@ Regex classes also exist to easily generate regex statements for environment
 stuff.
 
 ```js
-const regex =
-  new Regex().start().add("PillarPair").vary(4).seperate().add("PillarL").end()
-    .string;
+const regex = new Regex().start().add("PillarPair").vary(4).seperate().add("PillarL").end().string;
 ```
 
 This would result in `\\]PillarPair \\(4\\)\\.\\[\\d*\\]PillarL$`. You can also
