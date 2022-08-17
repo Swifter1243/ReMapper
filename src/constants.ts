@@ -311,6 +311,20 @@ export const ENV = {
             SCALE: <Vec3>[10, 10, 0.02306],
             ANCHOR: <Vec3>[0, 0, -0.4974]
         }
+    },
+    GREEN_DAY: {
+        SOLID_LASER: {
+            ID: new Regex().add("RotatingLasersPair").separate().add("BaseL").separate().add("Laser").end(),
+            SCALE: <Vec3>[20, 1 / 500, 20],
+            ANCHOR: <Vec3>[0, 0, 0]
+        }
+    },
+    UNIVERSAL: {
+        MIRROR: { // Mirror does not work with the "Spooky" environment, but it does work with everything else!
+            ID: new Regex().add("PlayersPlace").separate().add("Mirror").end(),
+            SCALE: <Vec3>[1 / 3, 0, 0.5],
+            ANCHOR: <Vec3>[0, 0, 0],
+        }
     }
 }
 
