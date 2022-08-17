@@ -58,7 +58,9 @@ necessary files for scripting. If you want to create a new map, add `--map` to
 the end of the command, or run the terminal from `CustomWIPLevels` and run
 `rm_setup "Map Name"` to create a folder too.
 
-When opening the script, you'll first of all need to install the (verified) Deno extension in VScode. After that, if you get an error on the import saying that your import must end with `.js`, you'll need to tell VScode that your workspace is using deno. Press `Ctrl + Shift + P` and search for `Deno Initialize Workspace Configuration` and say yes to everything.
+When opening the script, you'll first of all need to install the (verified) Deno extension in VScode. You'll also need to open your file in a folder so that it is part of a workspace, it should tell you to do this on the left side. Preferably save the workspace too.
+
+After that, if you get an error on the import saying that your import must end with `.js`, you'll need to tell VScode that your workspace is using deno. Press `Ctrl + Shift + P` and search for `Deno Initialize Workspace Configuration` and say yes to everything.
 
 Deno will tell you that the dependency at the top couldn't be resolved, but all you have to do is hold alt over the link, press `Quick Fix`, and cache the dependency.
 
