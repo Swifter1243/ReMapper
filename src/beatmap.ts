@@ -36,9 +36,9 @@ export class Difficulty {
         const parsedOutput = parseFilePath(output ?? input, ".dat");
 
         // If the path contains a separator of any kind, use it instead of the default "Info.dat"
-        info.load(parsedInput.dir ? path.join(parsedInput.dir, "Info.dat") : undefined);
+        info.load(parsedOutput.dir ? path.join(parsedOutput.dir, "Info.dat") : undefined);
 
-        this.mapFile = parsedInput.path as DIFFPATH;
+        this.mapFile = parsedOutput.path as DIFFPATH;
         this.relativeMapFile = parsedOutput.name as DIFFNAME;
         this.json = JSON.parse(Deno.readTextFileSync(parsedInput.path));
 
@@ -51,7 +51,7 @@ export class Difficulty {
             })
         })
 
-        if (this.diffSet === undefined) throw new Error(`The difficulty ${parsedInput.name} does not exist in your Info.dat`)
+        if (this.diffSet === undefined) throw new Error(`The difficulty ${parsedOutput.name} does not exist in your Info.dat`)
 
         for (let i = 0; i < this.notes.length; i++) this.notes[i] = new Note().import(this.notes[i] as Record<string, any>);
         for (let i = 0; i < this.walls.length; i++) this.walls[i] = new Wall().import(this.walls[i] as Record<string, any>);
