@@ -35,9 +35,6 @@ export class Difficulty {
         const parsedInput = parseFilePath(input, ".dat");
         const parsedOutput = parseFilePath(output ?? input, ".dat");
 
-        if (!fs.existsSync(parsedInput.path)) throw new Error(`The file ${parsedInput.path} does not exist`)
-        if (!fs.existsSync(parsedOutput.path)) throw new Error(`The file ${parsedOutput.path} does not exist`)
-
         // If the path contains a separator of any kind, use it instead of the default "Info.dat"
         info.load(parsedInput.dir ? path.join(parsedInput.dir, "Info.dat") : undefined);
 
@@ -130,7 +127,6 @@ export class Difficulty {
     save(diffName?: DIFFPATH) {
         if (diffName) diffName = parseFilePath(diffName, ".dat").path as DIFFPATH;
         else diffName = this.mapFile;
-        if (!fs.existsSync(diffName)) throw new Error(`The file ${diffName} does not exist and cannot be saved`);
 
         this.doPostProcess()
 
@@ -391,11 +387,8 @@ export class Info {
 
     load(path?: string) {
         const fileName = path ? parseFilePath(path, ".dat").path : this.fileName;
-        if (fs.existsSync(fileName)) {
-            this.json = JSON.parse(Deno.readTextFileSync(fileName));
-            this.fileName = fileName;
-        }
-        else throw new Error(`The file "${fileName}" does not exist.`)
+        this.json = JSON.parse(Deno.readTextFileSync(fileName));
+        this.fileName = fileName;
     }
 
     /**

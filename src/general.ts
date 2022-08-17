@@ -641,8 +641,10 @@ function iterateKeyframesInternal(keyframes: KeyframesAny, fn: (values: Keyframe
 
 // TODO: Make complexifyArray and simplifyArray only take in raw types
 
-export function parseFilePath(input: FILEPATH, ext?: `.${string}`) {
+export function parseFilePath(input: FILEPATH, ext?: `.${string}`, error = true) {
     if (ext && !path.extname(input)) input += ext;
+
+    if (error && !fs.existsSync(input)) throw new Error(`The file "${input}" does not exist`);
 
     const output: { name: FILENAME, path: FILEPATH, dir?: string } = {
         name: path.basename(input),

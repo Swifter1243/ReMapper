@@ -1,7 +1,6 @@
 // deno-lint-ignore-file no-explicit-any
-import { arrAdd, cacheData, ColorType, copy, iterateKeyframes, rotatePoint, Vec3, Vec4 } from "./general.ts";
+import { arrAdd, cacheData, ColorType, copy, iterateKeyframes, rotatePoint, Vec3, Vec4, parseFilePath } from "./general.ts";
 import { bakeAnimation, complexifyArray, ComplexKeyframesVec3, KeyframeArray, KeyframesAny, KeyframeValues, RawKeyframesVec3, toPointDef } from "./animation.ts";
-import { fs } from "./deps.ts";
 import { Environment, Geometry, RawGeometryMaterial } from "./environment.ts";
 import { optimizeAnimation, OptimizeSettings } from "./anim_optimizer.ts";
 import { CustomEvent, CustomEventInternals } from "./custom_event.ts";
@@ -9,7 +8,6 @@ import { activeDiff } from "./beatmap.ts";
 import { Regex } from "./regex.ts";
 import { Event } from "./event.ts";
 import { FILEPATH } from "./constants.ts";
-import { parseFilePath } from "./mod.ts";
 
 let modelSceneCount = 0;
 let noYeet = true;
@@ -82,7 +80,6 @@ export class ModelScene {
     private getObjects(input: ObjectInput) {
         if (typeof input === "string") {
             const inputPath = parseFilePath(input).path;
-            if (!fs.existsSync(inputPath)) throw new Error(`The file ${inputPath} does not exist!`)
             const mTime = Deno.statSync(inputPath).mtime?.toString();
             const processing: any[] = [this.groups, this.optimizer, mTime];
 
