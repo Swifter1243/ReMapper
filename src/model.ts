@@ -287,7 +287,7 @@ export class ModelScene {
                 event.animate.set("_rotation", x.rot, false);
                 event.animate.set("_scale", x.scale, false);
                 if (forAssigned) forAssigned(event);
-                event.push();
+                activeDiff.customEvents.push(event);
             }
         })
 
@@ -370,7 +370,7 @@ export class ModelScene {
                 event.animate.set("_rotation", x.rot, false);
                 event.animate.set("_scale", x.scale, false);
                 if (forEvent) forEvent(event, objectInfo.perSwitch[time]);
-                event.push();
+                activeDiff.customEvents.push(event);
             })
         })
 
@@ -411,7 +411,7 @@ export class ModelScene {
             }
         })
 
-        Object.keys(yeetEvents).forEach(x => { yeetEvents[parseInt(x)].push() });
+        Object.keys(yeetEvents).forEach(x => { activeDiff.customEvents.push(yeetEvents[parseInt(x)]) });
     }
 }
 
