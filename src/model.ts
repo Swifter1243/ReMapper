@@ -12,8 +12,21 @@ import { FILEPATH } from "./constants.ts";
 let modelSceneCount = 0;
 let noYeet = true;
 
-type GroupObjectTypes = Environment | Geometry;
-type ObjectInput = FILEPATH | ModelObject[];
+export type GroupObjectTypes = Environment | Geometry;
+export type ObjectInput = FILEPATH | ModelObject[];
+
+export type StaticOptions = {
+    input: ObjectInput,
+    objects?: (arr: ModelObject[]) => void,
+    processing?: any
+}
+export type AnimatedOptions = StaticOptions & {
+    bake?: boolean,
+    static?: boolean
+}
+
+export type StaticObjectInput = ObjectInput | StaticOptions
+export type AnimatedObjectInput = ObjectInput | AnimatedOptions
 
 type ModelGroup = {
     object?: GroupObjectTypes,
@@ -77,15 +90,34 @@ export class ModelScene {
         })
     }
 
-    private getObjects(input: ObjectInput) {
-        if (typeof input === "string") {
-            const inputPath = parseFilePath(input).path;
+    private getObjects(input: AnimatedObjectInput) {
+        let objectInput = input as ObjectInput;
+        let options = {} as AnimatedOptions;
+
+        if (typeof input === "object" && !Array.isArray(input)) {
+            objectInput = input.input;
+            options = input;
+        }
+
+        if (typeof objectInput === "string") {
+            const inputPath = parseFilePath(objectInput, ".rmmodel").path;
             const mTime = Deno.statSync(inputPath).mtime?.toString();
-            const processing: any[] = [this.groups, this.optimizer, mTime];
+            const objects = options.objects ? options.objects.toString() : undefined;
+            const processing: any[] = [options, objects, this.groups, this.optimizer, mTime];
 
             return cacheData(`modelScene${this.trackID}_${inputPath}`, () => {
                 const fileObjects = getModel(inputPath);
+                if (options.objects) options.objects(fileObjects);
                 fileObjects.forEach(x => {
+                    if (options.static) {
+                        const makeStatic = (k: RawKeyframesVec3) =>
+                            typeof k[0] === "object" ? [k[0][0], k[0][1], k[0][2]] as Vec3 : k as Vec3
+
+                        x.pos = makeStatic(x.pos);
+                        x.rot = makeStatic(x.rot);
+                        x.scale = makeStatic(x.scale);
+                    }
+
                     // Getting relevant object transforms
                     let scale: Vec3 | undefined
                     let anchor: Vec3 | undefined;
@@ -133,8 +165,17 @@ export class ModelScene {
         }
         else {
             const outputObjects: ModelObject[] = [];
+            if (options.objects) options.objects(objectInput);
+            objectInput.forEach(x => {
+                if (options.static) {
+                    const makeStatic = (k: RawKeyframesVec3) =>
+                        typeof k[0] === "object" ? [k[0][0], k[0][1], k[0][2]] as Vec3 : k as Vec3
 
-            input.forEach(x => {
+                    x.pos = makeStatic(x.pos);
+                    x.rot = makeStatic(x.rot);
+                    x.scale = makeStatic(x.scale);
+                }
+
                 // Getting relevant object transforms
                 let scale: Vec3 | undefined;
                 let anchor: Vec3 | undefined;
@@ -153,10 +194,10 @@ export class ModelScene {
                     y[2] *= 0.6;
                 })
 
-                if (anchor) {
+                if ((anchor && options.bake !== false && !options.static) || options.bake) {
                     // Baking animation
                     const bakedCube: ModelObject = bakeAnimation({ pos: x.pos, rot: x.rot, scale: x.scale }, transform => {
-                        transform.pos = applyAnchor(transform.pos, transform.rot, transform.scale, anchor as Vec3);
+                        transform.pos = applyAnchor(transform.pos, transform.rot, transform.scale, anchor ?? [0, 0, 0] as Vec3);
                     }, this.bakeAnimFreq, this.optimizer);
 
                     bakedCube.track = x.track;
@@ -190,7 +231,7 @@ export class ModelScene {
         return [complexTransform[0], complexTransform[1], complexTransform[2]] as Vec3;
     }
 
-    static(input: ObjectInput, forObject?: (object: GroupObjectTypes) => void, forAssigned?: (event: CustomEventInternals.AnimateTrack) => void) {
+    static(input: StaticObjectInput, forObject?: (object: GroupObjectTypes) => void, forAssigned?: (event: CustomEventInternals.AnimateTrack) => void) {
         const data = this.getObjects(input);
 
         // Initialize info
@@ -264,7 +305,7 @@ export class ModelScene {
     }
 
     animate(switches: [
-        ObjectInput,
+        AnimatedObjectInput,
         number,
         number?,
         ((event: CustomEventInternals.AnimateTrack, objects: number) => void)?,
