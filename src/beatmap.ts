@@ -14,7 +14,7 @@ type PostProcessFn<T> = (object: T, diff: Difficulty) => void;
 type DIFFPATH = FILEPATH<DIFFS>
 type DIFFNAME = FILENAME<DIFFS>
 
-type WrappedClass = Note | CustomEventInternals.BaseEvent
+type WrappedClass = Note | Wall | CustomEventInternals.BaseEvent
 
 export function getClassFromJson<T extends WrappedClass>(json: Record<string, any>, target: { new(): T }) {
     const proto = Object.getPrototypeOf(json);
@@ -52,6 +52,7 @@ export class Difficulty {
     relativeMapFile: DIFFNAME;
 
     private internalNotes: Note[];
+    private internalWalls: Wall[];
     private internalCustomEvents: CustomEventInternals.BaseEvent[] | undefined;
 
     private postProcesses = new Map<unknown[] | undefined, PostProcessFn<unknown>[]>();
@@ -98,7 +99,7 @@ export class Difficulty {
         if (this.diffSet === undefined) throw new Error(`The difficulty ${parsedOutput.name} does not exist in your Info.dat`)
 
         this.internalNotes = wrapClassArray(this.notesJson, Note);
-        for (let i = 0; i < this.walls.length; i++) this.walls[i] = new Wall().import(this.walls[i] as Record<string, any>);
+        this.internalWalls = wrapClassArray(this.wallsJson, Wall);
         for (let i = 0; i < this.events.length; i++) this.events[i] = new Event().import(this.events[i] as Record<string, any>);
         if (this.customEventsJson) this.internalCustomEvents = wrapClassArray(this.customEventsJson, CustomEventInternals.BaseEvent)
         if (this.rawEnvironment !== undefined)
@@ -175,7 +176,6 @@ export class Difficulty {
 
         Object.keys(this.json).forEach(x => {
             if (
-                x === "_obstacles" ||
                 x === "_events"
             ) {
                 outputJSON[x] = [];
@@ -193,7 +193,7 @@ export class Difficulty {
         })
 
         // this.doPostProcess()
-        
+
         outputJSON._notes.forEach((x: Record<string, any>) => {
             const note = getClassFromJson(x, Note);
             if (settings.forceJumpsForNoodle && note.isGameplayModded) {
@@ -204,14 +204,13 @@ export class Difficulty {
         })
 
         // Walls
-        this.walls.forEach(x => {
-            const wall = copy(x);
+        outputJSON._obstacles.forEach((x: Record<string, any>) => {
+            const wall = getClassFromJson(x, Wall);
             if (settings.forceJumpsForNoodle && wall.isGameplayModded) {
                 wall.NJS = x.NJS;
                 wall.offset = x.offset;
             }
             jsonPrune(wall.json);
-            outputJSON._obstacles.push(wall.json);
         })
 
         // Events
@@ -355,7 +354,8 @@ export class Difficulty {
     get version(): string { return jsonGet(this.json, "_version") }
     get notes(): Note[] { return this.internalNotes }
     get notesJson(): Record<string, any>[] { return jsonGet(this.json, "_notes") }
-    get walls(): Wall[] { return jsonGet(this.json, "_obstacles") }
+    get walls(): Wall[] { return this.internalWalls }
+    get wallsJson(): Record<string, any>[] { return jsonGet(this.json, "_obstacles" )}
     get events(): EventInternals.AbstractEvent[] { return jsonGet(this.json, "_events") }
     get waypoints(): any[] { return jsonGet(this.json, "_waypoints") }
     get customData(): Record<string, any> { return jsonGet(this.json, "_customData", {}) }
@@ -411,7 +411,8 @@ export class Difficulty {
     set version(value) { jsonSet(this.json, "_version", value) }
     set notesJson(value) { this.setJsonWrapperArr(Note, "_notes", "internalNotes", value) }
     set notes(value) { this.setWrapperArr(Note, "_notes", "internalNotes", value) }
-    set walls(value) { jsonSet(this.json, "_obstacles", value) }
+    set wallsJson(value) { this.setJsonWrapperArr(Wall, "_obstacles", "internalWalls", value) }
+    set walls(value) { this.setWrapperArr(Wall, "_obstacles", "internalWalls", value) }
     set events(value) { jsonSet(this.json, "_events", value) }
     set waypoints(value) { jsonSet(this.json, "_waypoints", value) }
     set customData(value) { jsonSet(this.json, "_customData", value) }

@@ -1,5 +1,5 @@
 // deno-lint-ignore-file adjacent-overload-signatures no-explicit-any
-import { activeDiffGet, info } from './beatmap.ts';
+import { activeDiff, activeDiffGet, info } from './beatmap.ts';
 import { copy, jsonPrune, isEmptyObject, getJumps, ColorType, jsonRemove } from './general.ts';
 import { Animation, AnimationInternals, Track } from './animation.ts';
 import { WALL } from './constants.ts';
@@ -54,10 +54,12 @@ export class Wall {
     }
 
     /**
-     * Push this wall to the difficulty
+     * Push this Wall to the difficulty
+     * @param clone
+     * @returns 
      */
-    push() {
-        activeDiffGet().walls.push(copy(this));
+     push(clone = false) {
+        activeDiff.wallsJson.push(clone ? copy(this.json) : this.json);
         return this;
     }
 
