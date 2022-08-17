@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-namespace no-explicit-any adjacent-overload-signatures
 import { copy } from './general.ts';
-import { activeDiff } from './beatmap.ts';
+import { activeDiffGet } from './beatmap.ts';
 import { AnimationInternals, Animation, TrackValue, Track } from './animation.ts';
 
 export namespace CustomEventInternals {
@@ -11,7 +11,7 @@ export namespace CustomEventInternals {
             _data: {}
         };
 
-        constructor(time: number | Record<string, any> = 0) {
+        constructor(time: number | Record<string, any>) {
             if (typeof time === "object") {
                 Object.assign(this.json, time);
                 return;
@@ -20,18 +20,10 @@ export namespace CustomEventInternals {
         }
 
         /**
-        * Create a custom event using JSON.
-        * @param {Object} json 
-        * @returns
-        */
-        import(json: Record<string, any>) { return new CustomEventInternals.BaseEvent(json) }
-
-        /**
         * Push this event to the difficulty
         */
-        push(clone = false) {
-            if (!activeDiff.customEventsJson) activeDiff.customEvents = [];
-            activeDiff.customEventsJson.push(clone ? copy(this.json) : this.json);
+        push() {
+            activeDiffGet().customEvents.push(copy(this));
             return this;
         }
 
