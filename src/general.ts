@@ -642,13 +642,7 @@ function iterateKeyframesInternal(keyframes: KeyframesAny, fn: (values: Keyframe
 // TODO: Make complexifyArray and simplifyArray only take in raw types
 
 export function parseFilePath(input: string, ext?: string) {
-    const fileExt = path.extname(input);
-
-    // Forcing correct extension
-    if (ext && fileExt !== ext) {
-        if (!fileExt) input += ext;
-        else input = (path.dirname(input) !== "." ? path.dirname(input) + "/" : "") + path.parse(input).name + ext;
-    }
+    if (ext && !path.extname(input)) input += ext;
 
     const output: { name: string, path: string, dir?: string } = {
         name: path.basename(input),

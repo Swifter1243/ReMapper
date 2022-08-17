@@ -53,7 +53,7 @@ export class Difficulty {
             })
         })
 
-        if (this.diffSet === undefined) throw new Error(`The difficulty ${input} does not exist in your Info.dat`)
+        if (this.diffSet === undefined) throw new Error(`The difficulty ${parsedInput.name} does not exist in your Info.dat`)
 
         for (let i = 0; i < this.notes.length; i++) this.notes[i] = new Note().import(this.notes[i] as Record<string, any>);
         for (let i = 0; i < this.walls.length; i++) this.walls[i] = new Wall().import(this.walls[i] as Record<string, any>);
