@@ -3,7 +3,7 @@ import { path, fs, compress } from './deps.ts';
 import { Note } from './note.ts';
 import { Wall } from './wall.ts';
 import { Event, EventInternals } from './event.ts';
-import { CustomEvent, CustomEventInternals } from './custom_event.ts';
+import { CustomEventInternals } from './custom_event.ts';
 import { Environment, EnvironmentInternals, Geometry, GeometryMaterial } from './environment.ts';
 import { copy, isEmptyObject, jsonGet, jsonPrune, jsonRemove, jsonSet, sortObjects, Vec3, setDecimals, RMLog, parseFilePath, RMJson } from './general.ts';
 import { AnimationInternals } from './animation.ts';
@@ -14,7 +14,7 @@ type PostProcessFn<T> = (object: T, diff: Difficulty) => void;
 type DIFFPATH = FILEPATH<DIFFS>
 type DIFFNAME = FILENAME<DIFFS>
 
-type WrappedClass = Note
+type WrappedClass = Note | CustomEventInternals.BaseEvent
 
 export function getClassFromJson<T extends WrappedClass>(json: Record<string, any>, target: { new(): T }) {
     const proto = Object.getPrototypeOf(json);
@@ -52,19 +52,20 @@ export class Difficulty {
     relativeMapFile: DIFFNAME;
 
     private internalNotes: Note[];
+    private internalCustomEvents: CustomEventInternals.BaseEvent[] | undefined;
 
     private postProcesses = new Map<unknown[] | undefined, PostProcessFn<unknown>[]>();
     private registerProcessors() {
         this.addPostProcess(undefined, reduceDecimalsPostProcess);
     }
 
-    private setRawWrapperArr<T extends WrappedClass>(obj: { new(): T }, jsonPath: string, internalPath: string, value: any) {
+    private setJsonWrapperArr<T extends WrappedClass>(obj: { new(): T }, jsonPath: string, internalPath: string, value: any) {
         jsonSet(this.json, jsonPath, value);
         (this as any)[internalPath] = wrapClassArray(jsonGet(this.json, jsonPath), obj);
     }
 
     private setWrapperArr<T extends WrappedClass>(obj: { new(): T }, jsonPath: string, internalPath: string, value: T[]) {
-        this.setRawWrapperArr(obj, jsonPath, internalPath, [])
+        this.setJsonWrapperArr(obj, jsonPath, internalPath, [])
         value.forEach((x, i) => (this as any)[internalPath][i] = x );
     }
 
@@ -96,11 +97,10 @@ export class Difficulty {
 
         if (this.diffSet === undefined) throw new Error(`The difficulty ${parsedOutput.name} does not exist in your Info.dat`)
 
-        this.internalNotes = wrapClassArray(this.json._notes, Note);
+        this.internalNotes = wrapClassArray(this.notesJson, Note);
         for (let i = 0; i < this.walls.length; i++) this.walls[i] = new Wall().import(this.walls[i] as Record<string, any>);
         for (let i = 0; i < this.events.length; i++) this.events[i] = new Event().import(this.events[i] as Record<string, any>);
-        if (this.customEvents !== undefined)
-            for (let i = 0; i < this.customEvents.length; i++) this.customEvents[i] = new CustomEvent().import(this.customEvents[i] as Record<string, any>);
+        if (this.customEventsJson) this.internalCustomEvents = wrapClassArray(this.customEventsJson, CustomEventInternals.BaseEvent)
         if (this.rawEnvironment !== undefined)
             for (let i = 0; i < this.rawEnvironment.length; i++) this.rawEnvironment[i] = new EnvironmentInternals.BaseEnvironment().import(this.rawEnvironment[i] as Record<string, any>);
 
@@ -183,8 +183,7 @@ export class Difficulty {
             else if (x === "_customData") Object.keys(this.json[x]).forEach(y => {
                 if (!outputJSON[x]) outputJSON[x] = {};
                 if (
-                    y === "_environment" ||
-                    y === "_customEvents"
+                    y === "_environment"
                 ) {
                     outputJSON[x][y] = [];
                 }
@@ -194,6 +193,7 @@ export class Difficulty {
         })
 
         // this.doPostProcess()
+        
         outputJSON._notes.forEach((x: Record<string, any>) => {
             const note = getClassFromJson(x, Note);
             if (settings.forceJumpsForNoodle && note.isGameplayModded) {
@@ -217,12 +217,6 @@ export class Difficulty {
         // Events
         this.events.forEach(x => { outputJSON._events.push(copy(x.json)) });
 
-        // Custom Events
-        if (this.customEvents) {
-            this.customEvents.forEach(x => outputJSON._customData._customEvents.push(copy(x.json)));
-            sortObjects(outputJSON._customData._customEvents, "_time");
-        }
-
         // Environment
         if (this.rawEnvironment) this.rawEnvironment.forEach(x => {
             const json = copy(x.json);
@@ -233,6 +227,7 @@ export class Difficulty {
         sortObjects(outputJSON._events, "_time");
         sortObjects(outputJSON._notes, "_time");
         sortObjects(outputJSON._obstacles, "_time");
+        if (this.customEventsJson) sortObjects(outputJSON._customData._customEvents, "_time");
 
         info.save();
         RMJson.save();
@@ -359,12 +354,16 @@ export class Difficulty {
     // Map
     get version(): string { return jsonGet(this.json, "_version") }
     get notes(): Note[] { return this.internalNotes }
-    get rawNotes(): Record<string, any> { return jsonGet(this.json, "_notes") }
+    get notesJson(): Record<string, any>[] { return jsonGet(this.json, "_notes") }
     get walls(): Wall[] { return jsonGet(this.json, "_obstacles") }
     get events(): EventInternals.AbstractEvent[] { return jsonGet(this.json, "_events") }
     get waypoints(): any[] { return jsonGet(this.json, "_waypoints") }
     get customData(): Record<string, any> { return jsonGet(this.json, "_customData", {}) }
-    get customEvents(): CustomEventInternals.BaseEvent[] { return jsonGet(this.json, "_customData._customEvents", []) }
+    get customEvents() { 
+        if (!this.internalCustomEvents) this.customEvents = [];
+        return this.internalCustomEvents as CustomEventInternals.BaseEvent[];
+    }
+    get customEventsJson(): CustomEventInternals.BaseEvent[] { return jsonGet(this.json, "_customData._customEvents") }
     animateTracks(fn: (arr: CustomEventInternals.AnimateTrack[]) => void) {
         const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.AnimateTrack) as CustomEventInternals.AnimateTrack[]
         fn(arr);
@@ -410,13 +409,14 @@ export class Difficulty {
     }
 
     set version(value) { jsonSet(this.json, "_version", value) }
-    set rawNotes(value) { this.setRawWrapperArr(Note, "_notes", "internalNotes", value) }
+    set notesJson(value) { this.setJsonWrapperArr(Note, "_notes", "internalNotes", value) }
     set notes(value) { this.setWrapperArr(Note, "_notes", "internalNotes", value) }
     set walls(value) { jsonSet(this.json, "_obstacles", value) }
     set events(value) { jsonSet(this.json, "_events", value) }
     set waypoints(value) { jsonSet(this.json, "_waypoints", value) }
     set customData(value) { jsonSet(this.json, "_customData", value) }
-    set customEvents(value) { jsonSet(this.json, "_customData._customEvents", value) }
+    set customEventsJson(value) { this.setJsonWrapperArr(CustomEventInternals.BaseEvent, "_customData._customEvents", "internalCustomEvents", value) }
+    set customEvents(value) { this.setWrapperArr(CustomEventInternals.BaseEvent, "_customData._customEvents", "internalCustomEvents", value) }
     set pointDefinitions(value) { jsonSet(this.json, "_customData._pointDefinitions", value) }
     set geoMaterials(value) { jsonSet(this.json, "_customData._materials", value) }
     set rawEnvironment(value) { jsonSet(this.json, "_customData._environment", value) }

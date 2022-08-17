@@ -287,7 +287,7 @@ export class ModelScene {
                 event.animate.set("_rotation", x.rot, false);
                 event.animate.set("_scale", x.scale, false);
                 if (forAssigned) forAssigned(event);
-                activeDiff.customEvents.push(event);
+                event.push(false);
             }
         })
 
@@ -299,7 +299,7 @@ export class ModelScene {
                 createYeetDef();
                 const event = new CustomEvent().animateTrack(x);
                 event.animate.position = "yeet";
-                event.push();
+                event.push(false);
             }
         })
     }
@@ -362,7 +362,7 @@ export class ModelScene {
 
                     const event = new CustomEvent(time).animateTrack(track + "_material");
                     event.animate.color = x.color as Vec4;
-                    event.push();
+                    event.push(false);
                 }
 
                 const event = new CustomEvent(time).animateTrack(track, duration);
@@ -370,7 +370,7 @@ export class ModelScene {
                 event.animate.set("_rotation", x.rot, false);
                 event.animate.set("_scale", x.scale, false);
                 if (forEvent) forEvent(event, objectInfo.perSwitch[time]);
-                activeDiff.customEvents.push(event);
+                event.push(false)
             })
         })
 

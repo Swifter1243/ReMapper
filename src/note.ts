@@ -50,7 +50,7 @@ export class Note {
      * @returns 
      */
     push(clone = false) {
-        activeDiff.rawNotes.push(clone ? copy(this.json) : this.json);
+        activeDiff.notesJson.push(clone ? copy(this.json) : this.json);
         return this;
     }
 
