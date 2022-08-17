@@ -8,7 +8,7 @@ import { Environment, EnvironmentInternals, Geometry, GeometryMaterial } from '.
 import { copy, isEmptyObject, jsonGet, jsonPrune, jsonRemove, jsonSet, sortObjects, Vec3, setDecimals, RMLog } from './general.ts';
 import { AnimationInternals } from './animation.ts';
 import { OptimizeSettings } from './anim_optimizer.ts';
-import { ENV_NAMES, MODS, settingsHandler } from './constants.ts';
+import { ENV_NAMES, FILENAME, MODS, settingsHandler } from './constants.ts';
 import { parseFilePath, RMJson } from './mod.ts';
 
 type PostProcessFn<T> = (object: T, diff: Difficulty) => void;
@@ -30,7 +30,7 @@ export class Difficulty {
      * @param {String} input Filename for the input.
      * @param {String} input Filename for the output. If left blank, input will be used.
      */
-    constructor(input: string, output?: string) {
+    constructor(input: FILENAME, output?: FILENAME) {
         const parsedInput = parseFilePath(input, ".dat");
         const parsedOutput = parseFilePath(output ?? input, ".dat");
 
@@ -559,11 +559,11 @@ export function exportZip(excludeDiffs: string[] = [], zipName?: string) {
  * Be mindful that the external difficulties don't have an input/output structure,
  * so new pushed notes for example may not be cleared on the next run and would build up.
  */
-export function transferVisuals(diffs: string[], forDiff?: (diff: Difficulty) => void) {
+export function transferVisuals(diffs: FILENAME[], forDiff?: (diff: Difficulty) => void) {
     const startActive = activeDiff as Difficulty;
 
     diffs.forEach(x => {
-        const workingDiff = new Difficulty(x);
+        const workingDiff = new Difficulty(parseFilePath(x, ".dat").path as FILENAME);
 
         workingDiff.rawEnvironment = startActive.rawEnvironment;
         workingDiff.pointDefinitions = startActive.pointDefinitions;

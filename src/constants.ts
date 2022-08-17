@@ -2,6 +2,23 @@ import { Difficulty } from "./beatmap.ts"
 import { Vec3 } from "./general.ts"
 import { Regex } from "./regex.ts"
 
+type DiffNameBase<T extends string> = `Easy${T}` | `Normal${T}` | `Hard${T}` | `Expert${T}` | `ExpertPlus${T}`
+
+type FileNameBase<T extends string> =
+DiffNameBase<T> |
+`${string}/${DiffNameBase<T>}` |
+`${string}/${DiffNameBase<T>}.${string}` |
+`${DiffNameBase<T>}.${string}`
+
+export type FILENAME = 
+FileNameBase<"Standard"> |
+FileNameBase<"NoArrows"> |
+FileNameBase<"OneSaber"> |
+FileNameBase<"360Degree"> |
+FileNameBase<"90Degree"> |
+FileNameBase<"Lightshow"> |
+FileNameBase<"Lawless">
+
 export type MODS =
     "Chroma" |
     "Noodle Extensions"
@@ -31,39 +48,21 @@ export type ENV_NAMES =
     "TimbalandEnvironment" |
     "TriangleEnvironment"
 
+
+type EaseBase<T extends string> = `easeIn${T}` | `easeOut${T}` | `easeInOut${T}`;
 export type EASE =
     "easeLinear" |
     "easeStep" |
-    "easeInQuad" |
-    "easeOutQuad" |
-    "easeInOutQuad" |
-    "easeInCubic" |
-    "easeOutCubic" |
-    "easeInOutCubic" |
-    "easeInQuart" |
-    "easeOutQuart" |
-    "easeInOutQuart" |
-    "easeInQuint" |
-    "easeOutQuint" |
-    "easeInOutQuint" |
-    "easeInSine" |
-    "easeOutSine" |
-    "easeInOutSine" |
-    "easeInExpo" |
-    "easeOutExpo" |
-    "easeInOutExpo" |
-    "easeInCirc" |
-    "easeOutCirc" |
-    "easeInOutCirc" |
-    "easeInElastic" |
-    "easeOutElastic" |
-    "easeInOutElastic" |
-    "easeInBack" |
-    "easeOutBack" |
-    "easeInOutBack" |
-    "easeInBounce" |
-    "easeOutBounce" |
-    "easeInOutBounce"
+    EaseBase<"Quad"> |
+    EaseBase<"Cubic"> |
+    EaseBase<"Quart"> |
+    EaseBase<"Quint"> |
+    EaseBase<"Sine"> |
+    EaseBase<"Expo"> |
+    EaseBase<"Circ"> |
+    EaseBase<"Elastic"> |
+    EaseBase<"Back"> |
+    EaseBase<"Bounce">
 
 export type SPLINE =
     "splineCatmullRom"
