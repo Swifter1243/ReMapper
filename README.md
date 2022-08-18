@@ -36,11 +36,6 @@ While this library was designed for TypeScript, it is _technically_ useable with
 JavaScript, but types will save you a lot of time in the long run, and makes
 everything feel secure.
 
-You'll likely need to do some exploring with this package to get comfortable.
-Check out
-[examples](https://github.com/Swifter1243/ReMapper/blob/master/examples.md) and
-thoroughly read the descriptions of what different things do.
-
 # Installation
 
 Install [Deno](https://deno.land/). If you have VSCode open during installing this you'll need to restart it.
