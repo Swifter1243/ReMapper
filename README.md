@@ -83,4 +83,4 @@ Of course replace `script.ts` with the actual name of your script if it differs
 
 Have fun using **ReMapper**!
 
-Make sure to check out [examples](https://github.com/Swifter1243/ReMapper/blob/master/examples.md) or [existing scripts](https://github.com/Swifter1243/MapScripts/tree/main/ReMapper) to get started.
+Make sure to check out [documentation](https://github.com/Swifter1243/ReMapper/blob/master/DOCS.md) or [existing scripts](https://github.com/Swifter1243/MapScripts/tree/main/ReMapper) to get started.
