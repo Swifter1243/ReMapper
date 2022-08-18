@@ -11,7 +11,7 @@ them.
 
 If seeing the structure of a completed map helps, you can check out my
 [Map Scripts](https://github.com/Swifter1243/MapScripts/tree/main/ReMapper) that
-use ReMapper.
+use ReMapper. Keep in mind some of these may be outdated, you can see the version that it was made on at the top of the script.
 
 I would recommend reading all the way up to the end of
 [Environment](#environment), and pay attention to as much as possible. Every
@@ -23,7 +23,7 @@ In order for your script to include functions, classes, or whatever else from
 ReMapper, you'll need to import them. Initialize an import statement like so:
 
 ```js
-import {} from "https://deno.land/x/remapper@2.0.0/src/mod.ts" // BUMP TO LATEST
+import {} from "https://deno.land/x/remapper@2.0.0/src/mod.ts" // MAKE SURE TO USE THE LATEST REMAPPER VERSION HERE
 ```
 
 If you know exactly what you want to import, as you're typing it, press tab, and it'll be added to the import statement at the top like so:
