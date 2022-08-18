@@ -20,7 +20,7 @@ detail is crucial and can apply to multiple places.
 # Importing
 
 In order for your script to include functions, classes, or whatever else from
-ReMapper, you'll need to import them. Initialize an import statement like so:
+ReMapper, you'll need to import them. Initialize an import statement like so (the setup tool would have already done this for you):
 
 ```js
 import {} from "https://deno.land/x/remapper@2.0.0/src/mod.ts" // MAKE SURE TO USE THE LATEST REMAPPER VERSION HERE
