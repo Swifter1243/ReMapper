@@ -85,3 +85,7 @@ If you're running it with Denon, run `denon rm`.
 
 Of course replace `script.ts` with the actual name of your script if it differs
 (in the scripts.json too).
+
+Have fun using **ReMapper**!
+
+Make sure to check out [examples](https://github.com/Swifter1243/ReMapper/blob/master/examples.md) or [existing scripts](https://github.com/Swifter1243/MapScripts/tree/main/ReMapper) to get started.
