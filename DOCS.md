@@ -23,7 +23,7 @@ In order for your script to include functions, classes, or whatever else from
 ReMapper, you'll need to import them. Initialize an import statement like so (the setup tool would have already done this for you):
 
 ```js
-import {} from "deno.land/x/remapper@2.1.0/src/mod.ts" 
+import {} from "https://deno.land/x/remapper@2.1.0/src/mod.ts" 
 ```
 
 Make sure to use the latest ReMapper version; found [Here](https://deno.land/x/remapper/src/mod.ts)
