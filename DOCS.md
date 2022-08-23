@@ -434,7 +434,7 @@ new LightRemapper().type(EVENT.RING_LIGHTS).run();
 // This will target the events in the ring lights.
 ```
 
-Processes are a chain of functions that will run on each event. Again some are build in, such as `setType` or `setIDs`, or you can add your own.
+Processes are a chain of functions that will run on each event. Again some are built in, such as `setType` or `setIDs`, or you can add your own.
 
 ```js
 new LightRemapper().type(EVENT.RING_LIGHTS).setType(EVENT.CENTER_LASERS).run();
