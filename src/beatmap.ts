@@ -58,6 +58,7 @@ export class Difficulty {
     private postProcesses = new Map<unknown[] | undefined, PostProcessFn<unknown>[]>();
     private registerProcessors() {
         this.addPostProcess(undefined, reduceDecimalsPostProcess);
+        this.addPostProcess(undefined, materialPoolPostProcess);
     }
 
     private setJsonWrapperArr<T extends WrappedClass>(obj: { new(): T }, jsonPath: string, internalPath: string, value: any) {
@@ -488,7 +489,8 @@ export const info = new Info();
 export let activeDiff: Difficulty;
 export const settings = {
     forceJumpsForNoodle: true,
-    decimals: 7 as number | undefined
+    decimals: 7 as number | undefined,
+    materialReuse: true
 }
 
 /**
@@ -524,6 +526,60 @@ function reduceDecimalsPostProcess(_: never, diff: Difficulty) {
             }
         }
     }
+}
+
+function materialPoolPostProcess(_: never, diff: Difficulty) {
+    if (!settings.materialReuse) return;
+
+    type MaterialJSON = string
+    type MaterialName = string
+
+    const materials: Record<MaterialName, GeometryMaterial> = {}
+    const materialJSONMap: Record<MaterialJSON, MaterialName> = {}
+    
+    // https://www.kindacode.com/article/how-to-easily-generate-a-random-string-in-node-js/
+    const generateRandomString = (myLength: number) => {
+        const chars =
+            "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz";
+        const randomArray = Array.from(
+            { length: myLength },
+            (v, k) => chars[Math.floor(Math.random() * chars.length)]
+        );
+
+        const randomString = randomArray.join("");
+        return randomString;
+    };
+
+    diff.rawEnvironment.forEach(env => {
+        const geoEnv = env as Geometry;  
+        const material = geoEnv.material
+        if (!material) return;
+
+        if (typeof material === "string") return;
+
+        const materialJSON = JSON.stringify(material)
+
+        // Material is identical, reuse
+        if (Object.hasOwn(materialJSONMap, materialJSON)) {
+            geoEnv.material = materialJSONMap[materialJSON]
+            return
+        }
+
+        // Create new material
+        let newMaterialString: string | undefined = undefined;
+        while (!newMaterialString || Object.hasOwn(materialJSONMap, newMaterialString)) {
+            newMaterialString = generateRandomString(10)
+        }
+
+        materialJSONMap[materialJSON] = newMaterialString
+        materials[newMaterialString] = { ...material }
+    });
+
+    Object.entries(materials).forEach(m => {
+        const materialName = m[0]
+        const material = m[1]
+        diff.geoMaterials[materialName] = material
+    })
 }
 
 /**
