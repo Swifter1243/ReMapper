@@ -16,7 +16,10 @@ map._notes.push({
 });
 ```
 
-ReMapper: `new Note(20, NOTE.RED, NOTE.RIGHT, [1, 1]).push();`
+ReMapper: 
+```js
+new Note(20, NOTE.RED, NOTE.RIGHT, [1, 1]).push();
+```
 
 Here are some notable features:
 
