@@ -1,5 +1,5 @@
 // deno-lint-ignore-file no-explicit-any adjacent-overload-signatures
-import { activeDiff, activeDiffGet, info } from './beatmap.ts';
+import { activeDiffGet, info } from './beatmap.ts';
 import { Animation, AnimationInternals, Track } from './animation.ts';
 import { isEmptyObject, getJumps, copy, jsonPrune, ColorType, jsonRemove } from './general.ts';
 import { NOTE } from './constants.ts';
@@ -15,6 +15,7 @@ export class Note {
             _animation: {}
         }
     };
+    /// NOOO DON'T DO THIS PLEASE USE A CONSTRUCTOR
     animate = new Animation().noteAnimation(this.animation);
 
     /**
@@ -46,11 +47,9 @@ export class Note {
 
     /**
      * Push this note to the difficulty
-     * @param clone
-     * @returns 
      */
-    push(clone = false) {
-        activeDiff.notesJson.push(clone ? copy(this.json) : this.json);
+    push() {
+        activeDiffGet().notes.push(copy(this));
         return this;
     }
 
