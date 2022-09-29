@@ -432,10 +432,10 @@ export function toDegrees(values: number[]) {
  * @param {Object} obj 
  */
 export function jsonPrune(obj: Record<string, any>) {
-    for (const prop in obj) {
+    Object.keys(obj).forEach(prop => {
         if (obj[prop] == null) {
             delete obj[prop];
-            continue;
+            return;
         }
         const type = typeof obj[prop];
         if (type === "object") {
@@ -452,7 +452,7 @@ export function jsonPrune(obj: Record<string, any>) {
         } else if (type === "string" && obj[prop].length === 0) {
             delete obj[prop];
         }
-    }
+    })
 }
 
 /**

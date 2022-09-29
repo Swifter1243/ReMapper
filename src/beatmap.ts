@@ -3,7 +3,7 @@ import { path, fs, compress } from './deps.ts';
 import { Note } from './note.ts';
 import { Wall } from './wall.ts';
 import { Event, EventInternals } from './event.ts';
-import { CustomEvent, CustomEventInternals } from './custom_event.ts';
+import { CustomEventInternals } from './custom_event.ts';
 import { Environment, EnvironmentInternals, Geometry, GeometryMaterial } from './environment.ts';
 import { copy, isEmptyObject, jsonGet, jsonPrune, jsonRemove, jsonSet, sortObjects, Vec3, setDecimals, RMLog, parseFilePath, RMJson } from './general.ts';
 import { AnimationInternals } from './animation.ts';
@@ -14,15 +14,60 @@ type PostProcessFn<T> = (object: T, diff: Difficulty) => void;
 type DIFFPATH = FILEPATH<DIFFS>
 type DIFFNAME = FILENAME<DIFFS>
 
+type WrappedClass = Note | Wall | CustomEventInternals.BaseEvent
+
+export function getClassFromJson<T extends WrappedClass>(json: Record<string, any>, target: { new(): T }) {
+    const proto = Object.getPrototypeOf(json);
+
+    if (proto instanceof target) return proto;
+    else {
+        const obj = new target().import(json) as T;
+        Object.setPrototypeOf(json, obj);
+        return obj
+    }
+}
+
+function wrapClassArray<T extends WrappedClass>(source: Record<string, any>[], target: { new(): T }) {
+    return new Proxy(source, {
+        get(object, prop) {
+            if (!isNaN(parseInt(prop as any))) return getClassFromJson(object[prop as any], target);
+            else return object[prop as any];
+        },
+
+        set(object, prop, value) {
+            if (!isNaN(parseInt(prop as any))) {
+                object[parseInt(prop as any)] = value.json;
+            }
+            else object[prop as any] = value;
+            return true;
+        }
+    }) as T[]
+}
+
 export class Difficulty {
     json: Record<string, any> = {};
     diffSet: Record<string, any> = {};
     diffSetMap: Record<string, any> = {};
     mapFile: DIFFPATH;
     relativeMapFile: DIFFNAME;
+
+    private internalNotes: Note[];
+    private internalWalls: Wall[];
+    private internalCustomEvents: CustomEventInternals.BaseEvent[] | undefined;
+
     private postProcesses = new Map<unknown[] | undefined, PostProcessFn<unknown>[]>();
     private registerProcessors() {
         this.addPostProcess(undefined, reduceDecimalsPostProcess);
+    }
+
+    private setJsonWrapperArr<T extends WrappedClass>(obj: { new(): T }, jsonPath: string, internalPath: string, value: any) {
+        jsonSet(this.json, jsonPath, value);
+        (this as any)[internalPath] = wrapClassArray(jsonGet(this.json, jsonPath), obj);
+    }
+
+    private setWrapperArr<T extends WrappedClass>(obj: { new(): T }, jsonPath: string, internalPath: string, value: T[]) {
+        this.setJsonWrapperArr(obj, jsonPath, internalPath, [])
+        value.forEach((x, i) => (this as any)[internalPath][i] = x );
     }
 
     /**
@@ -53,11 +98,10 @@ export class Difficulty {
 
         if (this.diffSet === undefined) throw new Error(`The difficulty ${parsedOutput.name} does not exist in your Info.dat`)
 
-        for (let i = 0; i < this.notes.length; i++) this.notes[i] = new Note().import(this.notes[i] as Record<string, any>);
-        for (let i = 0; i < this.walls.length; i++) this.walls[i] = new Wall().import(this.walls[i] as Record<string, any>);
+        this.internalNotes = wrapClassArray(this.notesJson, Note);
+        this.internalWalls = wrapClassArray(this.wallsJson, Wall);
         for (let i = 0; i < this.events.length; i++) this.events[i] = new Event().import(this.events[i] as Record<string, any>);
-        if (this.customEvents !== undefined)
-            for (let i = 0; i < this.customEvents.length; i++) this.customEvents[i] = new CustomEvent().import(this.customEvents[i] as Record<string, any>);
+        if (this.customEventsJson) this.internalCustomEvents = wrapClassArray(this.customEventsJson, CustomEventInternals.BaseEvent)
         if (this.rawEnvironment !== undefined)
             for (let i = 0; i < this.rawEnvironment.length; i++) this.rawEnvironment[i] = new EnvironmentInternals.BaseEnvironment().import(this.rawEnvironment[i] as Record<string, any>);
 
@@ -128,14 +172,10 @@ export class Difficulty {
         if (diffName) diffName = parseFilePath(diffName, ".dat").path as DIFFPATH;
         else diffName = this.mapFile;
 
-        this.doPostProcess()
-
         const outputJSON = {} as Record<string, any>;
 
         Object.keys(this.json).forEach(x => {
             if (
-                x === "_notes" ||
-                x === "_obstacles" ||
                 x === "_events"
             ) {
                 outputJSON[x] = [];
@@ -143,8 +183,7 @@ export class Difficulty {
             else if (x === "_customData") Object.keys(this.json[x]).forEach(y => {
                 if (!outputJSON[x]) outputJSON[x] = {};
                 if (
-                    y === "_environment" ||
-                    y === "_customEvents"
+                    y === "_environment"
                 ) {
                     outputJSON[x][y] = [];
                 }
@@ -153,36 +192,29 @@ export class Difficulty {
             else outputJSON[x] = copy(this.json[x]);
         })
 
-        // Notes
-        this.notes.forEach(x => {
-            const note = copy(x);
-            if (settings.forceJumpsForNoodle && x.isGameplayModded) {
+        // this.doPostProcess()
+
+        outputJSON._notes.forEach((x: Record<string, any>) => {
+            const note = getClassFromJson(x, Note);
+            if (settings.forceJumpsForNoodle && note.isGameplayModded) {
                 note.NJS = x.NJS;
                 note.offset = x.offset;
             }
             jsonPrune(note.json);
-            outputJSON._notes.push(note.json);
         })
 
         // Walls
-        this.walls.forEach(x => {
-            const wall = copy(x);
+        outputJSON._obstacles.forEach((x: Record<string, any>) => {
+            const wall = getClassFromJson(x, Wall);
             if (settings.forceJumpsForNoodle && wall.isGameplayModded) {
                 wall.NJS = x.NJS;
                 wall.offset = x.offset;
             }
             jsonPrune(wall.json);
-            outputJSON._obstacles.push(wall.json);
         })
 
         // Events
         this.events.forEach(x => { outputJSON._events.push(copy(x.json)) });
-
-        // Custom Events
-        if (this.customEvents) {
-            this.customEvents.forEach(x => outputJSON._customData._customEvents.push(copy(x.json)));
-            sortObjects(outputJSON._customData._customEvents, "_time");
-        }
 
         // Environment
         if (this.rawEnvironment) this.rawEnvironment.forEach(x => {
@@ -194,6 +226,7 @@ export class Difficulty {
         sortObjects(outputJSON._events, "_time");
         sortObjects(outputJSON._notes, "_time");
         sortObjects(outputJSON._obstacles, "_time");
+        if (this.customEventsJson) sortObjects(outputJSON._customData._customEvents, "_time");
 
         info.save();
         RMJson.save();
@@ -295,36 +328,42 @@ export class Difficulty {
     get boostColorRight(): Vec3 { return jsonGet(this.diffSetMap, "_customData._envColorRightBoost") }
     get obstacleColor(): Vec3 { return jsonGet(this.diffSetMap, "_customData._obstacleColor") }
 
-    set NJS(value: number) { this.pruneInput(this.diffSetMap, "_noteJumpMovementSpeed", value) }
-    set offset(value: number) { this.pruneInput(this.diffSetMap, "_noteJumpStartBeatOffset", value) }
-    set fileName(value: string) { this.pruneInput(this.diffSetMap, "_beatmapFilename", value) }
-    set diffSetName(value: string) { this.pruneInput(this.diffSet, "_beatmapCharacteristicName", value) }
-    set name(value: string) { this.pruneInput(this.diffSetMap, "_difficulty", value) }
-    set diffRank(value: number) { this.pruneInput(this.diffSetMap, "_difficultyRank", value) }
-    set requirements(value: string[]) { this.pruneInput(this.diffSetMap, "_customData._requirements", value) }
-    set suggestions(value: string[]) { this.pruneInput(this.diffSetMap, "_customData._suggestions", value) }
-    set rawSettings(value: Record<string, any>) { this.pruneInput(this.diffSetMap, "_customData._settings", value) }
-    set warnings(value: string[]) { this.pruneInput(this.diffSetMap, "_customData._warnings", value) }
-    set information(value: string[]) { this.pruneInput(this.diffSetMap, "_customData._information", value) }
-    set label(value: string) { this.pruneInput(this.diffSetMap, "_customData._difficultyLabel", value) }
-    set editorOffset(value: number) { this.pruneInput(this.diffSetMap, "_customData._editorOffset", value) }
-    set editorOldOffset(value: number) { this.pruneInput(this.diffSetMap, "_customData._editorOldOffset", value) }
-    set colorLeft(value: Vec3) { this.pruneInput(this.diffSetMap, "_customData._colorLeft", this.colorArrayToTuple(value)) }
-    set colorRight(value: Vec3) { this.pruneInput(this.diffSetMap, "_customData._colorRight", this.colorArrayToTuple(value)) }
-    set lightColorLeft(value: Vec3) { this.pruneInput(this.diffSetMap, "_customData._envColorLeft", this.colorArrayToTuple(value)) }
-    set lightColorRight(value: Vec3) { this.pruneInput(this.diffSetMap, "_customData._envColorRight", this.colorArrayToTuple(value)) }
-    set boostColorLeft(value: Vec3) { this.pruneInput(this.diffSetMap, "_customData._envColorLeftBoost", this.colorArrayToTuple(value)) }
-    set boostColorRight(value: Vec3) { this.pruneInput(this.diffSetMap, "_customData._envColorRightBoost", this.colorArrayToTuple(value)) }
-    set obstacleColor(value: Vec3) { this.pruneInput(this.diffSetMap, "_customData._obstacleColor", this.colorArrayToTuple(value)) }
+    set NJS(value) { this.pruneInput(this.diffSetMap, "_noteJumpMovementSpeed", value) }
+    set offset(value) { this.pruneInput(this.diffSetMap, "_noteJumpStartBeatOffset", value) }
+    set fileName(value) { this.pruneInput(this.diffSetMap, "_beatmapFilename", value) }
+    set diffSetName(value) { this.pruneInput(this.diffSet, "_beatmapCharacteristicName", value) }
+    set name(value) { this.pruneInput(this.diffSetMap, "_difficulty", value) }
+    set diffRank(value) { this.pruneInput(this.diffSetMap, "_difficultyRank", value) }
+    set requirements(value) { this.pruneInput(this.diffSetMap, "_customData._requirements", value) }
+    set suggestions(value) { this.pruneInput(this.diffSetMap, "_customData._suggestions", value) }
+    set rawSettings(value) { this.pruneInput(this.diffSetMap, "_customData._settings", value) }
+    set warnings(value) { this.pruneInput(this.diffSetMap, "_customData._warnings", value) }
+    set information(value) { this.pruneInput(this.diffSetMap, "_customData._information", value) }
+    set label(value) { this.pruneInput(this.diffSetMap, "_customData._difficultyLabel", value) }
+    set editorOffset(value) { this.pruneInput(this.diffSetMap, "_customData._editorOffset", value) }
+    set editorOldOffset(value) { this.pruneInput(this.diffSetMap, "_customData._editorOldOffset", value) }
+    set colorLeft(value) { this.pruneInput(this.diffSetMap, "_customData._colorLeft", this.colorArrayToTuple(value)) }
+    set colorRight(value) { this.pruneInput(this.diffSetMap, "_customData._colorRight", this.colorArrayToTuple(value)) }
+    set lightColorLeft(value) { this.pruneInput(this.diffSetMap, "_customData._envColorLeft", this.colorArrayToTuple(value)) }
+    set lightColorRight(value) { this.pruneInput(this.diffSetMap, "_customData._envColorRight", this.colorArrayToTuple(value)) }
+    set boostColorLeft(value) { this.pruneInput(this.diffSetMap, "_customData._envColorLeftBoost", this.colorArrayToTuple(value)) }
+    set boostColorRight(value) { this.pruneInput(this.diffSetMap, "_customData._envColorRightBoost", this.colorArrayToTuple(value)) }
+    set obstacleColor(value) { this.pruneInput(this.diffSetMap, "_customData._obstacleColor", this.colorArrayToTuple(value)) }
 
     // Map
     get version(): string { return jsonGet(this.json, "_version") }
-    get notes(): Note[] { return jsonGet(this.json, "_notes") }
-    get walls(): Wall[] { return jsonGet(this.json, "_obstacles") }
+    get notes(): Note[] { return this.internalNotes }
+    get notesJson(): Record<string, any>[] { return jsonGet(this.json, "_notes") }
+    get walls(): Wall[] { return this.internalWalls }
+    get wallsJson(): Record<string, any>[] { return jsonGet(this.json, "_obstacles" )}
     get events(): EventInternals.AbstractEvent[] { return jsonGet(this.json, "_events") }
     get waypoints(): any[] { return jsonGet(this.json, "_waypoints") }
-    get customData() { return jsonGet(this.json, "_customData", {}) }
-    get customEvents(): CustomEventInternals.BaseEvent[] { return jsonGet(this.json, "_customData._customEvents", []) }
+    get customData(): Record<string, any> { return jsonGet(this.json, "_customData", {}) }
+    get customEvents() { 
+        if (!this.internalCustomEvents) this.customEvents = [];
+        return this.internalCustomEvents as CustomEventInternals.BaseEvent[];
+    }
+    get customEventsJson(): CustomEventInternals.BaseEvent[] { return jsonGet(this.json, "_customData._customEvents") }
     animateTracks(fn: (arr: CustomEventInternals.AnimateTrack[]) => void) {
         const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.AnimateTrack) as CustomEventInternals.AnimateTrack[]
         fn(arr);
@@ -369,16 +408,19 @@ export class Difficulty {
         this.rawEnvironment = this.rawEnvironment.filter(x => !(x instanceof Geometry)).concat(arr);
     }
 
-    set version(value: string) { jsonSet(this.json, "_version", value) }
-    set notes(value: Note[]) { jsonSet(this.json, "_notes", value) }
-    set walls(value: Wall[]) { jsonSet(this.json, "_obstacles", value) }
-    set events(value: EventInternals.AbstractEvent[]) { jsonSet(this.json, "_events", value) }
-    set waypoints(value: any[]) { jsonSet(this.json, "_waypoints", value) }
+    set version(value) { jsonSet(this.json, "_version", value) }
+    set notesJson(value) { this.setJsonWrapperArr(Note, "_notes", "internalNotes", value) }
+    set notes(value) { this.setWrapperArr(Note, "_notes", "internalNotes", value) }
+    set wallsJson(value) { this.setJsonWrapperArr(Wall, "_obstacles", "internalWalls", value) }
+    set walls(value) { this.setWrapperArr(Wall, "_obstacles", "internalWalls", value) }
+    set events(value) { jsonSet(this.json, "_events", value) }
+    set waypoints(value) { jsonSet(this.json, "_waypoints", value) }
     set customData(value) { jsonSet(this.json, "_customData", value) }
-    set customEvents(value: CustomEventInternals.BaseEvent[]) { jsonSet(this.json, "_customData._customEvents", value) }
-    set pointDefinitions(value: Record<string, any>[]) { jsonSet(this.json, "_customData._pointDefinitions", value) }
-    set geoMaterials(value: Record<string, GeometryMaterial>) { jsonSet(this.json, "_customData._materials", value) }
-    set rawEnvironment(value: EnvironmentInternals.BaseEnvironment[]) { jsonSet(this.json, "_customData._environment", value) }
+    set customEventsJson(value) { this.setJsonWrapperArr(CustomEventInternals.BaseEvent, "_customData._customEvents", "internalCustomEvents", value) }
+    set customEvents(value) { this.setWrapperArr(CustomEventInternals.BaseEvent, "_customData._customEvents", "internalCustomEvents", value) }
+    set pointDefinitions(value) { jsonSet(this.json, "_customData._pointDefinitions", value) }
+    set geoMaterials(value) { jsonSet(this.json, "_customData._materials", value) }
+    set rawEnvironment(value) { jsonSet(this.json, "_customData._environment", value) }
 }
 
 export class Info {
