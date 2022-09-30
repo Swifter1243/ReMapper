@@ -1,19 +1,17 @@
 // deno-lint-ignore-file no-explicit-any no-namespace adjacent-overload-signatures
 import { EASE, EVENT } from './constants.ts';
 import { activeDiffGet } from './beatmap.ts';
-import { copy, jsonPrune, isEmptyObject, jsonGet, jsonSet, ColorType } from './general.ts';
+import { copy, jsonGet, jsonSet, ColorType } from './general.ts';
+import { BaseObject } from './object.ts';
 
 export type LightID = number | number[];
 
 export namespace EventInternals {
-    export class BaseEvent {
-        json: any = {
-            _time: 0,
-            _type: 0,
-            _value: 0
-        };
+    export class BaseEvent extends BaseObject {
 
         constructor(time: number | Record<string, any>) {
+            super()
+            this.value = 0;
             if (time instanceof Object) {
                 this.json = time;
                 return;
@@ -29,24 +27,11 @@ export namespace EventInternals {
             return this;
         }
 
-        get time() { return this.json._time }
-        get type() { return this.json._type }
-        get value() { return this.json._value }
-        get floatValue() { return this.json._floatValue }
-        get customData() { return jsonGet(this.json, "_customData") }
+        get value() { return this.json._value as number }
+        get floatValue() { return this.json._floatValue as number }
 
-        set time(value: number) { this.json._time = value }
-        set type(value: number) { this.json._type = value }
         set value(value: number) { this.json._value = value }
         set floatValue(value: number) { this.json._floatValue = value }
-        set customData(value) { jsonSet(this.json, "_customData", value) }
-
-        get isModded() {
-            if (this.customData === undefined) return false;
-            const customData = copy(this.customData);
-            jsonPrune(customData);
-            return !isEmptyObject(customData);
-        }
     }
 
     export class LightEvent extends EventInternals.BaseEvent {
