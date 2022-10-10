@@ -1,14 +1,16 @@
 import { clamp, ColorType, lerp, lerpEasing, lerpWrap } from "./general.ts";
 
+export type ColorFormat = "RGB" | "HSV";
+
 export class Color {
   private internalValue: ColorType = [0, 0, 0, 1];
-  format = "RGB";
+  format: ColorFormat = "RGB";
 
   /**
    * @param {Array} value The value of the color.
    * @param {String} format The format of the color. Defaults to RGB.
    */
-  constructor(value: ColorType, format: string) {
+  constructor(value: ColorType, format: ColorFormat) {
     if (value === undefined) value = this.internalValue;
     if (format === undefined) format = this.format;
     this.internalValue = this.processValue(value);
@@ -148,7 +150,7 @@ export function lerpColor(
   end: Color,
   fraction: number,
   easing = undefined,
-  format?: string,
+  format?: ColorFormat,
 ) {
   if (format !== "RGB" && format !== "HSV") format = "RGB";
 
