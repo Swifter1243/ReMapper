@@ -10,6 +10,7 @@ import { EventInternals } from './event.ts';
 import { OptimizeSettings } from "./anim_optimizer.ts";
 import { fs, path, three } from "./deps.ts";
 
+export type Vec2 = [number, number];
 export type Vec3 = [number, number, number];
 export type Vec4 = [number, number, number, number];
 export type ColorType = [number, number, number] | [number, number, number, number];
