@@ -21,11 +21,11 @@ export class Note extends BaseGameplayObject {
     /**
      * Note object for ease of creation
      */
-    constructor(time?: number, type?: NOTE, direction?: NOTE, x = 0, y = 0) {
+    constructor(time = 0, type = NOTE.BLUE, direction = NOTE.DOWN, x = 0, y = 0) {
         super();
-        if (time !== undefined) this.time = time;
-        if (type !== undefined) this.type = type;
-        if (direction !== undefined) this.direction = direction;
+        this.time = time;
+        this.type = type;
+        this.direction = direction;
         this.x = x;
         this.y = y;
     }

@@ -21,13 +21,13 @@ export class Wall extends BaseGameplayObject {
     /**
      * Wall object for ease of creation.
      */
-    constructor(time?: number, duration?: number, type?: WALL, x = 0, width?: number) {
+    constructor(time = 0, duration = 1, type = WALL.FULL, x = 0, width = 1) {
         super();
-        if (time !== undefined) this.time = time;
-        if (duration !== undefined) this.duration = duration;
-        if (type !== undefined) this.type = type;
+        this.time = time;
+        this.duration = duration;
+        this.type = type;
         this.x = x;
-        if (width !== undefined) this.width = width;
+        this.width = width;
     }
 
     /**
