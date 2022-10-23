@@ -53,15 +53,17 @@ export class Difficulty {
 
         if (this.diffSet === undefined) throw new Error(`The difficulty ${parsedOutput.name} does not exist in your Info.dat`)
 
-        for (let i = 0; i < this.notes.length; i++) this.notes[i] = new Note().import(this.notes[i] as Record<string, any>);
-        for (let i = 0; i < this.walls.length; i++) this.walls[i] = new Wall().import(this.walls[i] as Record<string, any>);
-        for (let i = 0; i < this.events.length; i++) this.events[i] = new Event().import(this.events[i] as Record<string, any>);
-        if (this.customEvents !== undefined)
-            for (let i = 0; i < this.customEvents.length; i++) this.customEvents[i] = new CustomEvent().import(this.customEvents[i] as Record<string, any>);
-        if (this.rawEnvironment !== undefined)
-            for (let i = 0; i < this.rawEnvironment.length; i++) this.rawEnvironment[i] = new EnvironmentInternals.BaseEnvironment().import(this.rawEnvironment[i] as Record<string, any>);
+        function convertToClass<T>(array: T[], target: { new(): T; }) {
+            if (array === undefined) return;
+            for (let i = 0; i < array.length; i++)
+                array[i] = (new target() as any).import(array[i]);
+        }
 
-        if (this.version === undefined) this.version = "2.2.0";
+        convertToClass(this.notes, Note);
+        convertToClass(this.walls, Wall);
+        convertToClass(this.events, Event as any);
+        convertToClass(this.customEvents, CustomEvent);
+        convertToClass(this.rawEnvironment, EnvironmentInternals.BaseEnvironment);
 
         activeDiff = this;
 
