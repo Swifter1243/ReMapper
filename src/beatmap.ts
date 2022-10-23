@@ -136,9 +136,9 @@ export class Difficulty {
 
         Object.keys(this.json).forEach(x => {
             if (
-                x === "_notes" ||
-                x === "_obstacles" ||
-                x === "_events"
+                x === "colorNotes" ||
+                x === "obstacles" ||
+                x === "basicBeatmapEvents"
             ) {
                 outputJSON[x] = [];
             }
@@ -163,7 +163,7 @@ export class Difficulty {
                 note.offset = x.offset;
             }
             jsonPrune(note.json);
-            outputJSON._notes.push(note.json);
+            outputJSON.colorNotes.push(note.json);
         })
 
         // Walls
@@ -174,16 +174,16 @@ export class Difficulty {
                 wall.offset = x.offset;
             }
             jsonPrune(wall.json);
-            outputJSON._obstacles.push(wall.json);
+            outputJSON.obstacles.push(wall.json);
         })
 
         // Events
-        this.events.forEach(x => { outputJSON._events.push(copy(x.json)) });
+        this.events.forEach(x => { outputJSON.basicBeatmapEvents.push(copy(x.json)) });
 
         // Custom Events
         if (this.customEvents) {
             this.customEvents.forEach(x => outputJSON._customData._customEvents.push(copy(x.json)));
-            sortObjects(outputJSON._customData._customEvents, "_time");
+            sortObjects(outputJSON._customData._customEvents, "b");
         }
 
         // Environment
@@ -193,9 +193,9 @@ export class Difficulty {
             outputJSON._customData._environment.push(json);
         })
 
-        sortObjects(outputJSON._events, "_time");
-        sortObjects(outputJSON._notes, "_time");
-        sortObjects(outputJSON._obstacles, "_time");
+        sortObjects(outputJSON.basicBeatmapEvents, "b");
+        sortObjects(outputJSON.colorNotes, "b");
+        sortObjects(outputJSON.obstacles, "b");
 
         info.save();
         RMJson.save();
@@ -321,8 +321,8 @@ export class Difficulty {
 
     // Map
     get version(): string { return jsonGet(this.json, "_version") }
-    get notes(): Note[] { return jsonGet(this.json, "_notes") }
-    get walls(): Wall[] { return jsonGet(this.json, "_obstacles") }
+    get notes(): Note[] { return jsonGet(this.json, "colorNotes") }
+    get walls(): Wall[] { return jsonGet(this.json, "obstacles") }
     get events(): EventInternals.AbstractEvent[] { return jsonGet(this.json, "_events") }
     get waypoints(): any[] { return jsonGet(this.json, "_waypoints") }
     get customData() { return jsonGet(this.json, "_customData", {}) }
@@ -372,8 +372,8 @@ export class Difficulty {
     }
 
     set version(value: string) { jsonSet(this.json, "_version", value) }
-    set notes(value: Note[]) { jsonSet(this.json, "_notes", value) }
-    set walls(value: Wall[]) { jsonSet(this.json, "_obstacles", value) }
+    set notes(value: Note[]) { jsonSet(this.json, "notes", value) }
+    set walls(value: Wall[]) { jsonSet(this.json, "obstacles", value) }
     set events(value: EventInternals.AbstractEvent[]) { jsonSet(this.json, "_events", value) }
     set waypoints(value: any[]) { jsonSet(this.json, "_waypoints", value) }
     set customData(value) { jsonSet(this.json, "_customData", value) }
