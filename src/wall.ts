@@ -2,16 +2,16 @@
 import { activeDiffGet } from './beatmap.ts';
 import { copy, Vec3 } from './general.ts';
 import { Animation, AnimationInternals } from './animation.ts';
-import { WALL } from './constants.ts';
 import { BaseGameplayObject } from './object.ts';
 
 export class Wall extends BaseGameplayObject {
     json: Record<string, any> = {
-        _time: 0,
-        _type: 0,
-        _lineIndex: 0,
-        _duration: 1,
-        _width: 1,
+        b: 0,
+        x: 0,
+        y: 0,
+        d: 0,
+        w: 1,
+        h: 1,
         _customData: {
             _animation: {}
         }
@@ -21,12 +21,13 @@ export class Wall extends BaseGameplayObject {
     /**
      * Wall object for ease of creation.
      */
-    constructor(time = 0, duration = 1, type = WALL.FULL, x = 0, width = 1) {
+    constructor(time = 0, duration = 1, x = 0, y = 0, height = 1, width = 1) {
         super();
         this.time = time;
         this.duration = duration;
-        this.type = type;
         this.x = x;
+        this.y = y;
+        this.height = height;
         this.width = width;
     }
 
@@ -61,14 +62,16 @@ export class Wall extends BaseGameplayObject {
         return this;
     }
 
-    get duration() { return this.json._duration }
-    get width() { return this.json._width }
+    get duration() { return this.json.d }
+    get height() { return this.json.h }
+    get width() { return this.json.w }
     get scale() { return this.json._customData._scale }
     get life() { return this.halfJumpDur * 2 + this.duration }
     get lifeStart() { return this.time - this.halfJumpDur }
 
-    set duration(value: number) { this.json._duration = value }
-    set width(value: number) { this.json._width = value }
+    set duration(value: number) { this.json.d = value }
+    set height(value: number) { this.json.h = value }
+    set width(value: number) { this.json.w = value }
     set scale(value: Vec3) { this.json._customData._scale = value }
     set life(value: number) { this.duration = value - (this.halfJumpDur * 2) }
     set lifeStart(value: number) { this.time = value + this.halfJumpDur }

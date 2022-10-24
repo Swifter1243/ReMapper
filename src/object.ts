@@ -6,12 +6,10 @@ import { ColorType, copy, getJumps, isEmptyObject, jsonCheck, jsonGet, jsonPrune
 export class BaseObject {
     json: Record<string, any> = {};
 
-    get time() { return this.json._time }
-    get type() { return this.json._type }
+    get time() { return this.json.b }
     get customData() { return this.json._customData }
 
-    set time(value: number) { this.json._time = value }
-    set type(value: number) { this.json._type = value }
+    set time(value: number) { this.json.b = value }
     set customData(value: Record<string, unknown>) { this.json._customData = value }
 
     get isModded() {
@@ -23,7 +21,8 @@ export class BaseObject {
 }
 
 export class BaseGameplayObject extends BaseObject {
-    get x() { return this.json._lineIndex }
+    get x() { return this.json.x }
+    get y() { return this.json.y }
     get position() { return this.json._customData._position }
     get rotation() { return this.json._customData._rotation }
     get localRotation() { return this.json._customData._localRotation }
@@ -47,7 +46,8 @@ export class BaseGameplayObject extends BaseObject {
     get color() { return this.json._customData._color }
     get animation() { return this.json._customData._animation }
 
-    set x(value: number) { this.json._lineIndex = value }
+    set x(value: number) { this.json.x = value }
+    set y(value: number) { this.json.y = value }
     set position(value: Vec2) { this.json._customData._position = value }
     set rotation(value: Vec3) { this.json._customData._rotation = value }
     set localRotation(value: Vec3) { this.json._customData._localRotation = value }

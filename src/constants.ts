@@ -188,12 +188,6 @@ export enum CUT {
     DOT = 8
 }
 
-export enum WALL {
-    // Type
-    FULL = 0,
-    CROUCH = 1
-}
-
 export const EVENT = {
     // Type
     BACK_LASERS: 0,

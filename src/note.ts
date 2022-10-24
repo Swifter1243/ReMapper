@@ -62,7 +62,6 @@ export class Note extends BaseGameplayObject {
         return this;
     }
 
-    get y() { return this.json.y }
     get type() { return this.json.c }
     get direction() { return this.json.d }
     get angleOffset() { return this.json.a }
@@ -71,7 +70,6 @@ export class Note extends BaseGameplayObject {
     get noteLook() { return !this.json._customData._disableNoteLook }
     get spawnEffect() { return !this.json._customData._disableSpawnEffect }
 
-    set y(value: number) { this.json.y = value }
     set type(value: NOTE) { this.json.c = value }
     set direction(value: CUT) { this.json.d = value }
     set angleOffset(value: number) { this.json.a = value }
