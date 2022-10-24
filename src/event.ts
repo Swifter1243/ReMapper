@@ -8,7 +8,6 @@ export type LightID = number | number[];
 
 export namespace EventInternals {
     export class BaseEvent extends BaseObject {
-
         constructor(time: number | Record<string, any>) {
             super()
             this.value = 0;
@@ -27,9 +26,11 @@ export namespace EventInternals {
             return this;
         }
 
-        get value() { return this.json._value as number }
-        get floatValue() { return this.json._floatValue as number }
+        get type() { return this.json.et }
+        get value() { return this.json._value }
+        get floatValue() { return this.json._floatValue }
 
+        set type(value: number) { this.json.et = value }
         set value(value: number) { this.json._value = value }
         set floatValue(value: number) { this.json._floatValue = value }
     }
@@ -239,8 +240,8 @@ export namespace EventInternals {
             super(json);
             this.type = type;
 
-            if ((EVENT as Record<string, any>)[`CW_${Math.abs(rotation)}`]) 
-            this.value = (EVENT as Record<string, any>)[`${(rotation < 0 ? "CCW_" : "CW_") + Math.abs(rotation)}`];
+            if ((EVENT as Record<string, any>)[`CW_${Math.abs(rotation)}`])
+                this.value = (EVENT as Record<string, any>)[`${(rotation < 0 ? "CCW_" : "CW_") + Math.abs(rotation)}`];
             else this.rotation = rotation;
         }
 
@@ -368,17 +369,6 @@ export class Event extends EventInternals.BaseEvent {
     * @returns {AbstractEvent};
     */
     abstract() { return this.import({}) }
-
-    /**
-     * Make this event change boost colors.
-     * @param {Boolean} on 
-     * @returns 
-     */
-    boost(on: boolean) {
-        this.type = EVENT.BOOST;
-        this.value = on ? EVENT.BOOST_ON : EVENT.BOOST_OFF;
-        return new EventInternals.BaseEvent(this.json);
-    }
 
     /**
      * Move cars in the interscope environment.

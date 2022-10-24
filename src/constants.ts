@@ -195,7 +195,6 @@ export const EVENT = {
     LEFT_LASERS: 2,
     RIGHT_LASERS: 3,
     CENTER_LASERS: 4,
-    BOOST: 5,
     LEFT_EXTRA: 6,
     RIGHT_EXTRA: 7,
     RING_SPIN: 8,
@@ -219,10 +218,6 @@ export const EVENT = {
     RED_FLASH: 6,
     RED_FADE: 7,
     RED_IN: 8,
-
-    // Boost Action
-    BOOST_OFF: 0,
-    BOOST_ON: 1,
 
     // Interscope Action
     NO_HYDRAULICS: 0,
