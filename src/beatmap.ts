@@ -9,6 +9,7 @@ import { copy, isEmptyObject, jsonGet, jsonPrune, jsonRemove, jsonSet, sortObjec
 import { AnimationInternals } from './animation.ts';
 import { OptimizeSettings } from './anim_optimizer.ts';
 import { ENV_NAMES, MODS, settingsHandler, DIFFS, FILENAME, FILEPATH } from './constants.ts';
+import { Bomb } from './mod.ts';
 
 type PostProcessFn<T> = (object: T, diff: Difficulty) => void;
 type DIFFPATH = FILEPATH<DIFFS>
@@ -60,6 +61,7 @@ export class Difficulty {
         }
 
         convertToClass(this.notes, Note);
+        convertToClass(this.bombs, Bomb);
         convertToClass(this.walls, Wall);
         convertToClass(this.events, Event as any);
         convertToClass(this.customEvents, CustomEvent);
@@ -137,6 +139,7 @@ export class Difficulty {
         Object.keys(this.json).forEach(x => {
             if (
                 x === "colorNotes" ||
+                x === "bombNotes" ||
                 x === "obstacles" ||
                 x === "basicBeatmapEvents"
             ) {
@@ -166,6 +169,17 @@ export class Difficulty {
             outputJSON.colorNotes.push(note.json);
         })
 
+        // Bombs
+        this.bombs.forEach(x => {
+            const bomb = copy(x);
+            if (settings.forceJumpsForNoodle && x.isGameplayModded) {
+                bomb.NJS = x.NJS;
+                bomb.offset = x.offset;
+            }
+            jsonPrune(bomb.json);
+            outputJSON.bombNotes.push(bomb.json);
+        })
+
         // Walls
         this.walls.forEach(x => {
             const wall = copy(x);
@@ -193,9 +207,10 @@ export class Difficulty {
             outputJSON._customData._environment.push(json);
         })
 
-        sortObjects(outputJSON.basicBeatmapEvents, "b");
         sortObjects(outputJSON.colorNotes, "b");
+        sortObjects(outputJSON.bombNotes, "b");
         sortObjects(outputJSON.obstacles, "b");
+        sortObjects(outputJSON.basicBeatmapEvents, "b");
 
         info.save();
         RMJson.save();
@@ -320,11 +335,12 @@ export class Difficulty {
     set obstacleColor(value: Vec3) { this.pruneInput(this.diffSetMap, "_customData._obstacleColor", this.colorArrayToTuple(value)) }
 
     // Map
-    get version(): string { return jsonGet(this.json, "version") }
-    get notes(): Note[] { return jsonGet(this.json, "colorNotes") }
-    get walls(): Wall[] { return jsonGet(this.json, "obstacles") }
-    get events(): EventInternals.AbstractEvent[] { return jsonGet(this.json, "basicBeatmapEvents") }
-    get waypoints(): any[] { return jsonGet(this.json, "waypoints") }
+    get version(): string { return this.json.version }
+    get notes(): Note[] { return this.json.colorNotes }
+    get bombs(): Bomb[] { return this.json.bombNotes }
+    get walls(): Wall[] { return this.json.obstacles }
+    get events(): EventInternals.AbstractEvent[] { return this.json.basicBeatmapEvents }
+    get waypoints(): any[] { return this.json.waypoints }
     get customData() { return jsonGet(this.json, "_customData", {}) }
     get customEvents(): CustomEventInternals.BaseEvent[] { return jsonGet(this.json, "_customData._customEvents", []) }
     animateTracks(fn: (arr: CustomEventInternals.AnimateTrack[]) => void) {
@@ -371,11 +387,12 @@ export class Difficulty {
         this.rawEnvironment = this.rawEnvironment.filter(x => !(x instanceof Geometry)).concat(arr);
     }
 
-    set version(value: string) { jsonSet(this.json, "version", value) }
-    set notes(value: Note[]) { jsonSet(this.json, "notes", value) }
-    set walls(value: Wall[]) { jsonSet(this.json, "obstacles", value) }
-    set events(value: EventInternals.AbstractEvent[]) { jsonSet(this.json, "basicBeatmapEvents", value) }
-    set waypoints(value: any[]) { jsonSet(this.json, "waypoints", value) }
+    set version(value: string) { this.json.version = value }
+    set notes(value: Note[]) { this.json.colorNotes = value }
+    set bombs(value: Bomb[]) { this.json.bombNotes = value }
+    set walls(value: Wall[]) { this.json.obstacles = value }
+    set events(value: EventInternals.AbstractEvent[]) { this.json.basicBeatmapEvents = value }
+    set waypoints(value: any[]) { this.json.waypoints = value }
     set customData(value) { jsonSet(this.json, "_customData", value) }
     set customEvents(value: CustomEventInternals.BaseEvent[]) { jsonSet(this.json, "_customData._customEvents", value) }
     set pointDefinitions(value: Record<string, any>[]) { jsonSet(this.json, "_customData._pointDefinitions", value) }

@@ -12,7 +12,7 @@ export class Note extends BaseGameplayObject {
         y: 0,
         c: 0,
         d: 0,
-        a: 0, 
+        a: 0,
         _customData: {
             _animation: {}
         }
@@ -77,4 +77,57 @@ export class Note extends BaseGameplayObject {
     set noteGravity(value: boolean) { this.json._customData._disableNoteGravity = !value }
     set noteLook(value: boolean) { this.json._customData._disableNoteLook = !value }
     set spawnEffect(value: boolean) { this.json._customData._disableSpawnEffect = !value }
+}
+
+export class Bomb extends BaseGameplayObject {
+    json: Record<string, any> = {
+        b: 0,
+        x: 0,
+        y: 0,
+        _customData: {
+            _animation: {}
+        }
+    };
+    animate = new Animation().noteAnimation(this.animation);
+
+    /**
+    * Bomb object for ease of creation
+    */
+    constructor(time = 0, x = 0, y = 0) {
+        super();
+        this.time = time;
+        this.x = x;
+        this.y = y;
+    }
+
+    /**
+     * Create a bomb using JSON.
+     * @param {Object} json 
+     * @returns {Note}
+     */
+    import(json: Record<number, any>) {
+        this.json = json;
+        if (this.customData === undefined) this.customData = {};
+        if (this.animation === undefined) this.animation = {};
+        this.animate = new Animation().noteAnimation(this.animation);
+        return this;
+    }
+
+    /**
+     * Push this bomb to the difficulty
+     */
+    push() {
+        activeDiffGet().bombs.push(copy(this));
+        return this;
+    }
+
+    /**
+     * Apply an animation through the Animation class.
+     * @param {Animation} animation 
+     */
+    importAnimation(animation: AnimationInternals.BaseAnimation) {
+        this.animation = animation.json;
+        this.animate = new Animation().noteAnimation(this.animation);
+        return this;
+    }
 }
