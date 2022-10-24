@@ -27,12 +27,12 @@ export namespace EventInternals {
         }
 
         get type() { return this.json.et }
-        get value() { return this.json._value }
-        get floatValue() { return this.json._floatValue }
+        get value() { return this.json.i }
+        get floatValue() { return this.json.f }
 
         set type(value: number) { this.json.et = value }
-        set value(value: number) { this.json._value = value }
-        set floatValue(value: number) { this.json._floatValue = value }
+        set value(value: number) { this.json.i = value }
+        set floatValue(value: number) { this.json.f = value }
     }
 
     export class LightEvent extends EventInternals.BaseEvent {
