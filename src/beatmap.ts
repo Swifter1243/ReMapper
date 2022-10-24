@@ -320,11 +320,11 @@ export class Difficulty {
     set obstacleColor(value: Vec3) { this.pruneInput(this.diffSetMap, "_customData._obstacleColor", this.colorArrayToTuple(value)) }
 
     // Map
-    get version(): string { return jsonGet(this.json, "_version") }
+    get version(): string { return jsonGet(this.json, "version") }
     get notes(): Note[] { return jsonGet(this.json, "colorNotes") }
     get walls(): Wall[] { return jsonGet(this.json, "obstacles") }
-    get events(): EventInternals.AbstractEvent[] { return jsonGet(this.json, "_events") }
-    get waypoints(): any[] { return jsonGet(this.json, "_waypoints") }
+    get events(): EventInternals.AbstractEvent[] { return jsonGet(this.json, "basicBeatmapEvents") }
+    get waypoints(): any[] { return jsonGet(this.json, "waypoints") }
     get customData() { return jsonGet(this.json, "_customData", {}) }
     get customEvents(): CustomEventInternals.BaseEvent[] { return jsonGet(this.json, "_customData._customEvents", []) }
     animateTracks(fn: (arr: CustomEventInternals.AnimateTrack[]) => void) {
@@ -371,11 +371,11 @@ export class Difficulty {
         this.rawEnvironment = this.rawEnvironment.filter(x => !(x instanceof Geometry)).concat(arr);
     }
 
-    set version(value: string) { jsonSet(this.json, "_version", value) }
+    set version(value: string) { jsonSet(this.json, "version", value) }
     set notes(value: Note[]) { jsonSet(this.json, "notes", value) }
     set walls(value: Wall[]) { jsonSet(this.json, "obstacles", value) }
-    set events(value: EventInternals.AbstractEvent[]) { jsonSet(this.json, "_events", value) }
-    set waypoints(value: any[]) { jsonSet(this.json, "_waypoints", value) }
+    set events(value: EventInternals.AbstractEvent[]) { jsonSet(this.json, "basicBeatmapEvents", value) }
+    set waypoints(value: any[]) { jsonSet(this.json, "waypoints", value) }
     set customData(value) { jsonSet(this.json, "_customData", value) }
     set customEvents(value: CustomEventInternals.BaseEvent[]) { jsonSet(this.json, "_customData._customEvents", value) }
     set pointDefinitions(value: Record<string, any>[]) { jsonSet(this.json, "_customData._pointDefinitions", value) }
