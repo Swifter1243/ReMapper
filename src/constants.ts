@@ -176,6 +176,12 @@ export enum NOTETYPE {
     BLUE = 1
 }
 
+export enum ANCHORMODE {
+    STRAIGHT = 0,
+    CW = 1,
+    CCW = 2
+}
+
 export enum CUT {
     UP = 0,
     DOWN = 1,

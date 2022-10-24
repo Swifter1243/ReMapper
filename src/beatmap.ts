@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-explicit-any adjacent-overload-signatures
 import { path, fs, compress } from './deps.ts';
-import { Note } from './note.ts';
+import { Arc, Note, Bomb, Chain } from './note.ts';
 import { Wall } from './wall.ts';
 import { Event, EventInternals } from './event.ts';
 import { CustomEvent, CustomEventInternals } from './custom_event.ts';
@@ -9,7 +9,6 @@ import { copy, isEmptyObject, jsonGet, jsonPrune, jsonRemove, jsonSet, sortObjec
 import { AnimationInternals } from './animation.ts';
 import { OptimizeSettings } from './anim_optimizer.ts';
 import { ENV_NAMES, MODS, settingsHandler, DIFFS, FILENAME, FILEPATH } from './constants.ts';
-import { Bomb, Chain } from './mod.ts';
 
 type PostProcessFn<T> = (object: T, diff: Difficulty) => void;
 type DIFFPATH = FILEPATH<DIFFS>
@@ -62,6 +61,7 @@ export class Difficulty {
 
         convertToClass(this.notes, Note);
         convertToClass(this.bombs, Bomb);
+        convertToClass(this.arcs, Arc);
         convertToClass(this.chains, Chain);
         convertToClass(this.walls, Wall);
         convertToClass(this.events, Event as any);
@@ -141,6 +141,7 @@ export class Difficulty {
             if (
                 x === "colorNotes" ||
                 x === "bombNotes" ||
+                x === "sliders" ||
                 x === "burstSliders" ||
                 x === "obstacles" ||
                 x === "basicBeatmapEvents"
@@ -178,6 +179,7 @@ export class Difficulty {
 
         gameplayObjectsToJson(this.notes, "colorNotes");
         gameplayObjectsToJson(this.bombs, "bombNotes");
+        gameplayObjectsToJson(this.arcs, "sliders");
         gameplayObjectsToJson(this.chains, "burstSliders");
         gameplayObjectsToJson(this.walls, "obstacles");
 
@@ -324,6 +326,7 @@ export class Difficulty {
     get version() { return this.json.version }
     get notes() { return this.json.colorNotes }
     get bombs() { return this.json.bombNotes }
+    get arcs() { return this.json.sliders }
     get chains() { return this.json.burstSliders }
     get walls() { return this.json.obstacles }
     get events() { return this.json.basicBeatmapEvents }
@@ -377,6 +380,7 @@ export class Difficulty {
     set version(value: string) { this.json.version = value }
     set notes(value: Note[]) { this.json.colorNotes = value }
     set bombs(value: Bomb[]) { this.json.bombNotes = value }
+    set arcs(value: Arc[]) { this.json.sliders = value }
     set chains(value: Chain[]) { this.json.burstSliders = value }
     set walls(value: Wall[]) { this.json.obstacles = value }
     set events(value: EventInternals.AbstractEvent[]) { this.json.basicBeatmapEvents = value }

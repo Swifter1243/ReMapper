@@ -1,6 +1,7 @@
 // deno-lint-ignore-file
 import { Track } from "./animation.ts";
 import { activeDiffGet, info } from "./beatmap.ts";
+import { NOTETYPE } from "./constants.ts";
 import { ColorType, copy, getJumps, isEmptyObject, jsonCheck, jsonGet, jsonPrune, jsonRemove, jsonSet, Vec2, Vec3 } from "./general.ts";
 
 export class BaseObject {
@@ -80,4 +81,18 @@ export class BaseGameplayObject extends BaseObject {
         jsonPrune(customData);
         return !isEmptyObject(customData);
     }
+}
+
+export class BaseSliderObject extends BaseGameplayObject {
+    get type() { return this.json.c }
+    get headDirection() { return this.json.d }
+    get tailTime() { return this.json.tb }
+    get tailX() { return this.json.tx }
+    get tailY() { return this.json.ty }
+
+    set type(value: NOTETYPE) { this.json.c = value }
+    set headDirection(value: number) { this.json.d = value }
+    set tailTime(value: number) { this.json.tb = value }
+    set tailX(value: number) { this.json.tx = value }
+    set tailY(value: number) { this.json.ty = value }
 }
