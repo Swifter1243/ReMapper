@@ -171,7 +171,7 @@ export const PRESET = {
     }
 }
 
-export enum NOTE {
+export enum NOTETYPE {
     RED = 0,
     BLUE = 1
 }
