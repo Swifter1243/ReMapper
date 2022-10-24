@@ -1,17 +1,18 @@
 // deno-lint-ignore-file no-explicit-any adjacent-overload-signatures
 import { activeDiffGet } from './beatmap.ts';
 import { Animation, AnimationInternals } from './animation.ts';
-import { NOTE } from './constants.ts';
+import { CUT, NOTE } from './constants.ts';
 import { BaseGameplayObject } from './object.ts';
 import { copy } from './general.ts';
 
 export class Note extends BaseGameplayObject {
     json: Record<string, any> = {
-        _time: 0,
-        _type: 0,
-        _cutDirection: 0,
-        _lineIndex: 0,
-        _lineLayer: 0,
+        b: 0,
+        x: 0,
+        y: 0,
+        c: 0,
+        d: 0,
+        a: 0, 
         _customData: {
             _animation: {}
         }
@@ -21,7 +22,7 @@ export class Note extends BaseGameplayObject {
     /**
      * Note object for ease of creation
      */
-    constructor(time = 0, type = NOTE.BLUE, direction = NOTE.DOWN, x = 0, y = 0) {
+    constructor(time = 0, type = NOTE.BLUE, direction = CUT.DOWN, x = 0, y = 0) {
         super();
         this.time = time;
         this.type = type;
@@ -61,17 +62,19 @@ export class Note extends BaseGameplayObject {
         return this;
     }
 
-    get y() { return this.json._lineLayer }
-    get direction() { return this.json._cutDirection }
-    get preciseDirection() { return this.json._customData._cutDirection }
+    get y() { return this.json.y }
+    get type() { return this.json.c }
+    get direction() { return this.json.d }
+    get angleOffset() { return this.json.a }
     get flip() { return this.json._customData._flip }
     get noteGravity() { return !this.json._customData._disableNoteGravity }
     get noteLook() { return !this.json._customData._disableNoteLook }
     get spawnEffect() { return !this.json._customData._disableSpawnEffect }
 
-    set y(value: number) { this.json._lineLayer = value }
-    set direction(value: number) { this.json._cutDirection = value }
-    set preciseDirection(value: number) { this.json._customData._cutDirection = value }
+    set y(value: number) { this.json.y = value }
+    set type(value: NOTE) { this.json.c = value }
+    set direction(value: CUT) { this.json.d = value }
+    set angleOffset(value: number) { this.json.a = value }
     set flip(value: boolean) { this.json._customData._flip = value }
     set noteGravity(value: boolean) { this.json._customData._disableNoteGravity = !value }
     set noteLook(value: boolean) { this.json._customData._disableNoteLook = !value }

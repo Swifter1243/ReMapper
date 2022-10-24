@@ -172,12 +172,11 @@ export const PRESET = {
 }
 
 export enum NOTE {
-    // Type
     RED = 0,
-    BLUE = 1,
-    BOMB = 3,
+    BLUE = 1
+}
 
-    // Direction
+export enum CUT {
     UP = 0,
     DOWN = 1,
     LEFT = 2,
