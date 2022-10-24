@@ -6,7 +6,7 @@ import { Wall } from './wall.ts';
 import { EASE, FILENAME, FILEPATH } from './constants.ts';
 import { activeDiffGet } from './beatmap.ts';
 import { Note } from './note.ts';
-import { EventInternals } from './event.ts';
+import { EventInternals } from './basicEvent.ts';
 import { OptimizeSettings } from "./anim_optimizer.ts";
 import { fs, path, three } from "./deps.ts";
 

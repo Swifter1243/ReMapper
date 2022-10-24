@@ -2,13 +2,14 @@
 import { path, fs, compress } from './deps.ts';
 import { Arc, Note, Bomb, Chain } from './note.ts';
 import { Wall } from './wall.ts';
-import { Event, EventInternals } from './event.ts';
+import { Event, EventInternals } from './basicEvent.ts';
 import { CustomEvent, CustomEventInternals } from './custom_event.ts';
 import { Environment, EnvironmentInternals, Geometry, GeometryMaterial } from './environment.ts';
-import { copy, isEmptyObject, jsonGet, jsonPrune, jsonRemove, jsonSet, sortObjects, Vec3, setDecimals, RMLog, parseFilePath, RMJson } from './general.ts';
+import { copy, isEmptyObject, jsonGet, jsonPrune, jsonSet, sortObjects, Vec3, setDecimals, RMLog, parseFilePath, RMJson, jsonRemove } from './general.ts';
 import { AnimationInternals } from './animation.ts';
 import { OptimizeSettings } from './anim_optimizer.ts';
 import { ENV_NAMES, MODS, settingsHandler, DIFFS, FILENAME, FILEPATH } from './constants.ts';
+import { BPMChange, RotationEvent } from './event.ts';
 
 type PostProcessFn<T> = (object: T, diff: Difficulty) => void;
 type DIFFPATH = FILEPATH<DIFFS>
@@ -67,6 +68,8 @@ export class Difficulty {
         convertToClass(this.events, Event as any);
         convertToClass(this.customEvents, CustomEvent);
         convertToClass(this.rawEnvironment, EnvironmentInternals.BaseEnvironment);
+        convertToClass(this.BPMChanges, BPMChange);
+        convertToClass(this.rotationEvents, RotationEvent);
 
         activeDiff = this;
 
@@ -144,7 +147,9 @@ export class Difficulty {
                 x === "sliders" ||
                 x === "burstSliders" ||
                 x === "obstacles" ||
-                x === "basicBeatmapEvents"
+                x === "basicBeatmapEvents" ||
+                x === "bpmEvents" ||
+                x === "rotationEvents"
             ) {
                 outputJSON[x] = [];
             }
@@ -161,43 +166,44 @@ export class Difficulty {
             else outputJSON[x] = copy(this.json[x]);
         })
 
-        function gameplayObjectsToJson<T>(arr: T[], prop: string) {
-            arr.forEach(x => {
-                const obj = copy(x) as any;
-                if (settings.forceJumpsForNoodle && obj.isGameplayModded) {
+        function classesToJson<T>(arr: T[], prop: string, callback?: (obj: any) => void) {
+            const jsonArr = jsonGet(outputJSON, prop);
+            if (jsonArr === undefined) return;
+
+            if (callback) {
+                arr.forEach(x => {
+                    const obj = copy(x) as any;
+                    callback(obj);
+                    jsonArr.push(obj.json);
+                })
+            }
+            else arr.forEach(x => jsonArr.push((x as any).json));
+
+            sortObjects(jsonArr, "b");
+        }
+
+        function gameplayClassesToJson<T>(arr: T[], prop: string) {
+            classesToJson(arr, prop, x => {
+                if (settings.forceJumpsForNoodle && x.isGameplayModded) {
                     // deno-lint-ignore no-self-assign
-                    obj.NJS = obj.NJS;
+                    x.NJS = x.NJS;
                     // deno-lint-ignore no-self-assign
-                    obj.offset = obj.offset;
+                    x.offset = x.offset;
                 }
-                jsonPrune(obj.json);
-                outputJSON[prop].push(obj.json);
+                jsonPrune(x.json);
             })
-
-            sortObjects(outputJSON[prop], "b");
         }
 
-        gameplayObjectsToJson(this.notes, "colorNotes");
-        gameplayObjectsToJson(this.bombs, "bombNotes");
-        gameplayObjectsToJson(this.arcs, "sliders");
-        gameplayObjectsToJson(this.chains, "burstSliders");
-        gameplayObjectsToJson(this.walls, "obstacles");
-
-        // Events
-        this.events.forEach(x => { outputJSON.basicBeatmapEvents.push(copy(x.json)) });
-        sortObjects(outputJSON.basicBeatmapEvents, "b");
-
-        // Custom Events
-        if (this.customEvents) {
-            this.customEvents.forEach(x => outputJSON._customData._customEvents.push(copy(x.json)));
-            sortObjects(outputJSON._customData._customEvents, "b");
-        }
-
-        // Environment
-        if (this.rawEnvironment) this.rawEnvironment.forEach(x => {
-            const json = copy(x.json);
-            jsonRemove(json, "_group");
-            outputJSON._customData._environment.push(json);
+        gameplayClassesToJson(this.notes, "colorNotes");
+        gameplayClassesToJson(this.bombs, "bombNotes");
+        gameplayClassesToJson(this.arcs, "sliders");
+        gameplayClassesToJson(this.chains, "burstSliders");
+        gameplayClassesToJson(this.walls, "obstacles");
+        classesToJson(this.events, "basicBeatmapEvents");
+        classesToJson(this.BPMChanges, "bpmEvents");
+        classesToJson(this.customEvents, "_customData._customEvents");
+        classesToJson(this.rawEnvironment, "_customData._environment", x => {
+            jsonRemove(x.json, "_group");
         })
 
         info.save();
@@ -330,9 +336,31 @@ export class Difficulty {
     get chains() { return this.json.burstSliders }
     get walls() { return this.json.obstacles }
     get events() { return this.json.basicBeatmapEvents }
+    get BPMChanges() { return this.json.bpmEvents }
+    get rotationEvents() { return this.json.rotationEvents }
     get waypoints() { return this.json.waypoints }
     get customData() { return jsonGet(this.json, "_customData", {}) }
     get customEvents() { return jsonGet(this.json, "_customData._customEvents", []) }
+    get pointDefinitions() { return jsonGet(this.json, "_customData._pointDefinitions", []) }
+    get geoMaterials() { return jsonGet(this.json, "_customData._materials", {}) }
+    get rawEnvironment() { return jsonGet(this.json, "_customData._environment", []) }
+
+    set version(value: string) { this.json.version = value }
+    set notes(value: Note[]) { this.json.colorNotes = value }
+    set bombs(value: Bomb[]) { this.json.bombNotes = value }
+    set arcs(value: Arc[]) { this.json.sliders = value }
+    set chains(value: Chain[]) { this.json.burstSliders = value }
+    set walls(value: Wall[]) { this.json.obstacles = value }
+    set events(value: EventInternals.AbstractEvent[]) { this.json.basicBeatmapEvents = value }
+    set BPMChanges(value: BPMChange[]) { this.json.bpmEvents = value }
+    set rotationEvents(value: RotationEvent[]) { this.json.rotationEvents = value }
+    set waypoints(value: any[]) { this.json.waypoints = value }
+    set customData(value) { jsonSet(this.json, "_customData", value) }
+    set customEvents(value: CustomEventInternals.BaseEvent[]) { jsonSet(this.json, "_customData._customEvents", value) }
+    set pointDefinitions(value: Record<string, any>[]) { jsonSet(this.json, "_customData._pointDefinitions", value) }
+    set geoMaterials(value: Record<string, GeometryMaterial>) { jsonSet(this.json, "_customData._materials", value) }
+    set rawEnvironment(value: EnvironmentInternals.BaseEnvironment[]) { jsonSet(this.json, "_customData._environment", value) }
+
     animateTracks(fn: (arr: CustomEventInternals.AnimateTrack[]) => void) {
         const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.AnimateTrack) as CustomEventInternals.AnimateTrack[]
         fn(arr);
@@ -363,9 +391,7 @@ export class Difficulty {
         fn(arr);
         this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.AbstractEvent)).concat(arr);
     }
-    get pointDefinitions() { return jsonGet(this.json, "_customData._pointDefinitions", []) }
-    get geoMaterials() { return jsonGet(this.json, "_customData._materials", {}) }
-    get rawEnvironment() { return jsonGet(this.json, "_customData._environment", []) }
+
     environment(fn: (arr: Environment[]) => void) {
         const arr = this.rawEnvironment.filter(x => x instanceof Environment) as Environment[]
         fn(arr);
@@ -376,20 +402,6 @@ export class Difficulty {
         fn(arr);
         this.rawEnvironment = this.rawEnvironment.filter(x => !(x instanceof Geometry)).concat(arr);
     }
-
-    set version(value: string) { this.json.version = value }
-    set notes(value: Note[]) { this.json.colorNotes = value }
-    set bombs(value: Bomb[]) { this.json.bombNotes = value }
-    set arcs(value: Arc[]) { this.json.sliders = value }
-    set chains(value: Chain[]) { this.json.burstSliders = value }
-    set walls(value: Wall[]) { this.json.obstacles = value }
-    set events(value: EventInternals.AbstractEvent[]) { this.json.basicBeatmapEvents = value }
-    set waypoints(value: any[]) { this.json.waypoints = value }
-    set customData(value) { jsonSet(this.json, "_customData", value) }
-    set customEvents(value: CustomEventInternals.BaseEvent[]) { jsonSet(this.json, "_customData._customEvents", value) }
-    set pointDefinitions(value: Record<string, any>[]) { jsonSet(this.json, "_customData._pointDefinitions", value) }
-    set geoMaterials(value: Record<string, GeometryMaterial>) { jsonSet(this.json, "_customData._materials", value) }
-    set rawEnvironment(value: EnvironmentInternals.BaseEnvironment[]) { jsonSet(this.json, "_customData._environment", value) }
 }
 
 export class Info {

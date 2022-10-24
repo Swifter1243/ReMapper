@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-namespace
 import { activeDiff } from "./beatmap.ts";
-import { Event, EventInternals, LightID } from "./event.ts";
+import { Event, EventInternals, LightID } from "./basicEvent.ts";
 import { arrHas, copy } from "./general.ts";
 
 type Condition = (event: EventInternals.AbstractEvent) => boolean;

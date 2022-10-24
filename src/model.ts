@@ -6,7 +6,7 @@ import { optimizeAnimation, OptimizeSettings } from "./anim_optimizer.ts";
 import { CustomEvent, CustomEventInternals } from "./custom_event.ts";
 import { activeDiff } from "./beatmap.ts";
 import { Regex } from "./regex.ts";
-import { Event } from "./event.ts";
+import { Event } from "./basicEvent.ts";
 import { FILEPATH } from "./constants.ts";
 
 let modelSceneCount = 0;

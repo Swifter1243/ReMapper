@@ -235,7 +235,7 @@ export class Arc extends BaseSliderObject {
     animate = new Animation().noteAnimation(this.animation);
 
     /**
-    * Chain object for ease of creation
+    * Arc object for ease of creation
     */
     constructor(
         time = 0,
@@ -260,7 +260,7 @@ export class Arc extends BaseSliderObject {
     }
 
     /**
-     * Create a chain using JSON.
+     * Create an arc using JSON.
      * @param {Object} json 
      * @returns {Note}
      */
@@ -273,7 +273,7 @@ export class Arc extends BaseSliderObject {
     }
 
     /**
-     * Push this chain to the difficulty
+     * Push this arc to the difficulty
      */
     push() {
         activeDiffGet().arcs.push(copy(this));
