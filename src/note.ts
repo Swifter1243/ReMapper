@@ -153,15 +153,21 @@ export class Chain extends BaseGameplayObject {
     /**
     * Chain object for ease of creation
     */
-    constructor(time = 0, x = 0, y = 0) {
+    constructor(time = 0, x = 0, y = 0, tailTime = 0, tailX = 0, tailY = 0, direction = CUT.DOWN, type = NOTETYPE.BLUE, links = 4) {
         super();
         this.time = time;
         this.x = x;
         this.y = y;
+        this.tailTime = tailTime;
+        this.tailX = tailX;
+        this.tailY = tailY;
+        this.direction = direction;
+        this.type = type;
+        this.links = links;
     }
 
     /**
-     * Create a bomb using JSON.
+     * Create a chain using JSON.
      * @param {Object} json 
      * @returns {Note}
      */
@@ -174,7 +180,7 @@ export class Chain extends BaseGameplayObject {
     }
 
     /**
-     * Push this bomb to the difficulty
+     * Push this chain to the difficulty
      */
     push() {
         activeDiffGet().chains.push(copy(this));
