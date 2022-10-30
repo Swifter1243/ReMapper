@@ -158,6 +158,18 @@ export class LightEventBoxGroup {
         e: []
     }
 
+    /**
+    * Create a light event box group using JSON.
+    * @param {Object} json 
+    * @returns {Note}
+    */
+    import(json: Record<number, any>) {
+        this.json = json;
+        return this;
+    }
+
+    push = (array: LightEventBoxGroup[]) => array.push(copy(this));
+
     get filter() { return this.json.f }
     get filterType() { return this.json.f.f }
     get filterParam0() { return this.json.f.p }
@@ -205,6 +217,18 @@ export class LightEvent {
         s: 1,
         f: 0
     }
+
+    /**
+    * Create a light event using JSON.
+    * @param {Object} json 
+    * @returns {Note}
+    */
+    import(json: Record<number, any>) {
+        this.json = json;
+        return this;
+    }
+
+    push = (array: LightEvent[]) => array.push(copy(this));
 
     get addedBeat() { return this.json.b }
     get transition() { return this.json.i }

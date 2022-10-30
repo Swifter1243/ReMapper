@@ -9,16 +9,18 @@ import { copy, isEmptyObject, jsonGet, jsonPrune, jsonSet, sortObjects, Vec3, se
 import { AnimationInternals } from './animation.ts';
 import { OptimizeSettings } from './anim_optimizer.ts';
 import { ENV_NAMES, MODS, settingsHandler, DIFFS, FILENAME, FILEPATH } from './constants.ts';
-import { BoostEvent, BPMChange, LightEventBox, RotationEvent } from './event.ts';
+import { BoostEvent, BPMChange, LightEvent, LightEventBox, LightEventBoxGroup, RotationEvent } from './event.ts';
 
 type PostProcessFn<T> = (object: T, diff: Difficulty) => void;
 type DIFFPATH = FILEPATH<DIFFS>
 type DIFFNAME = FILENAME<DIFFS>
 
-export function arrJsonToClass<T>(array: T[], target: { new(): T; }) {
+export function arrJsonToClass<T>(array: T[], target: { new(): T; }, callback?: (obj: T) => void) {
     if (array === undefined) return;
-    for (let i = 0; i < array.length; i++)
+    for (let i = 0; i < array.length; i++) {
         array[i] = (new target() as any).import(array[i]);
+        if (callback) callback(array[i]);
+    }
 }
 
 export function arrClassToJson<T>(arr: T[], outputJSON: Record<string, any>, prop: string, callback?: (obj: any) => void) {
@@ -87,6 +89,12 @@ export class Difficulty {
         arrJsonToClass(this.BPMChanges, BPMChange);
         arrJsonToClass(this.rotationEvents, RotationEvent);
         arrJsonToClass(this.boostEvents, BoostEvent);
+
+        arrJsonToClass(this.lightEventBoxes, LightEventBox, b => {
+            arrJsonToClass(b.boxGroups, LightEventBoxGroup, g => {
+                arrJsonToClass(g.events, LightEvent);
+            })
+        })
 
         activeDiff = this;
 
