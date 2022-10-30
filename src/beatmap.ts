@@ -9,7 +9,7 @@ import { copy, isEmptyObject, jsonGet, jsonPrune, jsonSet, sortObjects, Vec3, se
 import { AnimationInternals } from './animation.ts';
 import { OptimizeSettings } from './anim_optimizer.ts';
 import { ENV_NAMES, MODS, settingsHandler, DIFFS, FILENAME, FILEPATH } from './constants.ts';
-import { BPMChange, RotationEvent } from './event.ts';
+import { BoostEvent, BPMChange, RotationEvent } from './event.ts';
 
 type PostProcessFn<T> = (object: T, diff: Difficulty) => void;
 type DIFFPATH = FILEPATH<DIFFS>
@@ -70,6 +70,7 @@ export class Difficulty {
         convertToClass(this.rawEnvironment, EnvironmentInternals.BaseEnvironment);
         convertToClass(this.BPMChanges, BPMChange);
         convertToClass(this.rotationEvents, RotationEvent);
+        convertToClass(this.boostEvents, BoostEvent);
 
         activeDiff = this;
 
@@ -149,7 +150,8 @@ export class Difficulty {
                 x === "obstacles" ||
                 x === "basicBeatmapEvents" ||
                 x === "bpmEvents" ||
-                x === "rotationEvents"
+                x === "rotationEvents" ||
+                x === "colorBoostBeatmapEvents"
             ) {
                 outputJSON[x] = [];
             }
@@ -201,6 +203,8 @@ export class Difficulty {
         gameplayClassesToJson(this.walls, "obstacles");
         classesToJson(this.events, "basicBeatmapEvents");
         classesToJson(this.BPMChanges, "bpmEvents");
+        classesToJson(this.rotationEvents, "rotationEvents");
+        classesToJson(this.boostEvents, "colorBoostBeatmapEvents");
         classesToJson(this.customEvents, "_customData._customEvents");
         classesToJson(this.rawEnvironment, "_customData._environment", x => {
             jsonRemove(x.json, "_group");
@@ -338,6 +342,7 @@ export class Difficulty {
     get events() { return this.json.basicBeatmapEvents }
     get BPMChanges() { return this.json.bpmEvents }
     get rotationEvents() { return this.json.rotationEvents }
+    get boostEvents() { return this.json.colorBoostBeatmapEvents }
     get waypoints() { return this.json.waypoints }
     get customData() { return jsonGet(this.json, "_customData", {}) }
     get customEvents() { return jsonGet(this.json, "_customData._customEvents", []) }
@@ -354,6 +359,7 @@ export class Difficulty {
     set events(value: EventInternals.AbstractEvent[]) { this.json.basicBeatmapEvents = value }
     set BPMChanges(value: BPMChange[]) { this.json.bpmEvents = value }
     set rotationEvents(value: RotationEvent[]) { this.json.rotationEvents = value }
+    set boostEvents(value: BoostEvent[]) { this.json.colorBoostBeatmapEvents = value }
     set waypoints(value: any[]) { this.json.waypoints = value }
     set customData(value) { jsonSet(this.json, "_customData", value) }
     set customEvents(value: CustomEventInternals.BaseEvent[]) { jsonSet(this.json, "_customData._customEvents", value) }

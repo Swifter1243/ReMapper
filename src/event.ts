@@ -45,7 +45,7 @@ export class RotationEvent {
     }
 
     /**
-     * Create a BPM change using JSON.
+     * Create a rotation event using JSON.
      * @param {Object} json 
      * @returns {Note}
      */
@@ -55,18 +55,51 @@ export class RotationEvent {
     }
 
     /**
-     * Push this BPM change to the difficulty
+     * Push this rotation event to the difficulty
      */
     push() {
         activeDiff.rotationEvents.push(copy(this));
         return this;
     }
 
-    get beat(): number { return this.json.b }
-    get rotation(): number { return this.json.r }
-    get early(): boolean { return this.json.e === 0 }
+    get beat() { return this.json.b }
+    get rotation() { return this.json.r }
+    get early() { return this.json.e === 0 }
 
     set beat(value: number) { this.json.b = value }
     set rotation(value: number) { this.json.r = value }
     set early(value: boolean) { this.json.e = value ? 0 : 1 }
+}
+
+export class BoostEvent {
+    json: Record<string, any> = {};
+
+    constructor(beat = 0, on = false) {
+        this.beat = beat;
+        this.on = on;
+    }
+
+    /**
+     * Create a boost event using JSON.
+     * @param {Object} json 
+     * @returns {Note}
+     */
+    import(json: Record<number, any>) {
+        this.json = json;
+        return this;
+    }
+
+    /**
+     * Push this boost event to the difficulty
+     */
+    push() {
+        activeDiff.boostEvents.push(copy(this));
+        return this;
+    }
+
+    get beat() { return this.json.b }
+    get on() { return this.json.o }
+
+    set beat(value: number) { this.json.b = value }
+    set on(value: boolean) { this.json.o = value }
 }
