@@ -44,7 +44,11 @@ export type ENV_NAMES =
     "SkrillexEnvironment" |
     "HalloweenEnvironment" |
     "TimbalandEnvironment" |
-    "TriangleEnvironment"
+    "TriangleEnvironment" |
+    "WeaveEnvironment" |
+    "PyroEnvironment" |
+    "TheSecondEnvironment" |
+    "EDMEnvironment"
 
 
 type EaseBase<T extends string> = `easeIn${T}` | `easeOut${T}` | `easeInOut${T}`;
@@ -180,6 +184,28 @@ export enum ANCHORMODE {
     STRAIGHT = 0,
     CW = 1,
     CCW = 2
+}
+
+export enum DISTTYPE {
+    WAVE = 1,
+    STEP
+}
+
+export enum FILTERTYPE {
+    SECTIONS = 1,
+    STEPANDOFFSET
+}
+
+export enum TRANSITIONTYPE {
+    INSTANT,
+    TRANSITION,
+    EXTEND
+}
+
+export enum LIGHTCOLOR {
+    RED,
+    BLUE,
+    WHITE
 }
 
 export enum CUT {

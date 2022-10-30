@@ -9,11 +9,33 @@ import { copy, isEmptyObject, jsonGet, jsonPrune, jsonSet, sortObjects, Vec3, se
 import { AnimationInternals } from './animation.ts';
 import { OptimizeSettings } from './anim_optimizer.ts';
 import { ENV_NAMES, MODS, settingsHandler, DIFFS, FILENAME, FILEPATH } from './constants.ts';
-import { BoostEvent, BPMChange, RotationEvent } from './event.ts';
+import { BoostEvent, BPMChange, LightEventBox, RotationEvent } from './event.ts';
 
 type PostProcessFn<T> = (object: T, diff: Difficulty) => void;
 type DIFFPATH = FILEPATH<DIFFS>
 type DIFFNAME = FILENAME<DIFFS>
+
+export function arrJsonToClass<T>(array: T[], target: { new(): T; }) {
+    if (array === undefined) return;
+    for (let i = 0; i < array.length; i++)
+        array[i] = (new target() as any).import(array[i]);
+}
+
+export function arrClassToJson<T>(arr: T[], outputJSON: Record<string, any>, prop: string, callback?: (obj: any) => void) {
+    const jsonArr = jsonGet(outputJSON, prop);
+    if (jsonArr === undefined) return;
+
+    if (callback) {
+        arr.forEach(x => {
+            const obj = copy(x) as any;
+            callback(obj);
+            jsonArr.push(obj.json);
+        })
+    }
+    else arr.forEach(x => jsonArr.push((x as any).json));
+
+    sortObjects(jsonArr, "b");
+}
 
 export class Difficulty {
     json: Record<string, any> = {};
@@ -54,23 +76,17 @@ export class Difficulty {
 
         if (this.diffSet === undefined) throw new Error(`The difficulty ${parsedOutput.name} does not exist in your Info.dat`)
 
-        function convertToClass<T>(array: T[], target: { new(): T; }) {
-            if (array === undefined) return;
-            for (let i = 0; i < array.length; i++)
-                array[i] = (new target() as any).import(array[i]);
-        }
-
-        convertToClass(this.notes, Note);
-        convertToClass(this.bombs, Bomb);
-        convertToClass(this.arcs, Arc);
-        convertToClass(this.chains, Chain);
-        convertToClass(this.walls, Wall);
-        convertToClass(this.events, Event as any);
-        convertToClass(this.customEvents, CustomEvent);
-        convertToClass(this.rawEnvironment, EnvironmentInternals.BaseEnvironment);
-        convertToClass(this.BPMChanges, BPMChange);
-        convertToClass(this.rotationEvents, RotationEvent);
-        convertToClass(this.boostEvents, BoostEvent);
+        arrJsonToClass(this.notes, Note);
+        arrJsonToClass(this.bombs, Bomb);
+        arrJsonToClass(this.arcs, Arc);
+        arrJsonToClass(this.chains, Chain);
+        arrJsonToClass(this.walls, Wall);
+        arrJsonToClass(this.events, Event as any);
+        arrJsonToClass(this.customEvents, CustomEvent);
+        arrJsonToClass(this.rawEnvironment, EnvironmentInternals.BaseEnvironment);
+        arrJsonToClass(this.BPMChanges, BPMChange);
+        arrJsonToClass(this.rotationEvents, RotationEvent);
+        arrJsonToClass(this.boostEvents, BoostEvent);
 
         activeDiff = this;
 
@@ -151,7 +167,8 @@ export class Difficulty {
                 x === "basicBeatmapEvents" ||
                 x === "bpmEvents" ||
                 x === "rotationEvents" ||
-                x === "colorBoostBeatmapEvents"
+                x === "colorBoostBeatmapEvents" ||
+                x === "lightColorEventBoxGroups"
             ) {
                 outputJSON[x] = [];
             }
@@ -168,24 +185,11 @@ export class Difficulty {
             else outputJSON[x] = copy(this.json[x]);
         })
 
-        function classesToJson<T>(arr: T[], prop: string, callback?: (obj: any) => void) {
-            const jsonArr = jsonGet(outputJSON, prop);
-            if (jsonArr === undefined) return;
+        const diffArrClassToJson = <T>(arr: T[], prop: string, callback?: (obj: any) => void) =>
+            arrClassToJson(arr, outputJSON, prop, callback);
 
-            if (callback) {
-                arr.forEach(x => {
-                    const obj = copy(x) as any;
-                    callback(obj);
-                    jsonArr.push(obj.json);
-                })
-            }
-            else arr.forEach(x => jsonArr.push((x as any).json));
-
-            sortObjects(jsonArr, "b");
-        }
-
-        function gameplayClassesToJson<T>(arr: T[], prop: string) {
-            classesToJson(arr, prop, x => {
+        function gameplayArrClassToJson<T>(arr: T[], prop: string) {
+            diffArrClassToJson(arr, prop, x => {
                 if (settings.forceJumpsForNoodle && x.isGameplayModded) {
                     // deno-lint-ignore no-self-assign
                     x.NJS = x.NJS;
@@ -196,18 +200,46 @@ export class Difficulty {
             })
         }
 
-        gameplayClassesToJson(this.notes, "colorNotes");
-        gameplayClassesToJson(this.bombs, "bombNotes");
-        gameplayClassesToJson(this.arcs, "sliders");
-        gameplayClassesToJson(this.chains, "burstSliders");
-        gameplayClassesToJson(this.walls, "obstacles");
-        classesToJson(this.events, "basicBeatmapEvents");
-        classesToJson(this.BPMChanges, "bpmEvents");
-        classesToJson(this.rotationEvents, "rotationEvents");
-        classesToJson(this.boostEvents, "colorBoostBeatmapEvents");
-        classesToJson(this.customEvents, "_customData._customEvents");
-        classesToJson(this.rawEnvironment, "_customData._environment", x => {
+        gameplayArrClassToJson(this.notes, "colorNotes");
+        gameplayArrClassToJson(this.bombs, "bombNotes");
+        gameplayArrClassToJson(this.arcs, "sliders");
+        gameplayArrClassToJson(this.chains, "burstSliders");
+        gameplayArrClassToJson(this.walls, "obstacles");
+        diffArrClassToJson(this.events, "basicBeatmapEvents");
+        diffArrClassToJson(this.BPMChanges, "bpmEvents");
+        diffArrClassToJson(this.rotationEvents, "rotationEvents");
+        diffArrClassToJson(this.boostEvents, "colorBoostBeatmapEvents");
+        diffArrClassToJson(this.customEvents, "_customData._customEvents");
+        diffArrClassToJson(this.rawEnvironment, "_customData._environment", x => {
             jsonRemove(x.json, "_group");
+        })
+
+        function safeCloneJSON(json: Record<string, any>) {
+            const output: Record<string, any> = {};
+
+            Object.keys(json).forEach(k => {
+                if (typeof json[k] !== "object") output[k] = json[k];
+                else output[k] = [];
+            })
+
+            return output;
+        }
+
+        this.lightEventBoxes.forEach(b => {
+            const json = safeCloneJSON(b.json);
+
+            b.boxGroups.forEach(g => {
+                const groupJson = safeCloneJSON(g.json);
+                groupJson.f = copy(g.json.f);
+
+                g.events.forEach(e => {
+                    groupJson.e.push(e.json);
+                })
+
+                json.e.push(groupJson);
+            })
+
+            outputJSON.lightColorEventBoxGroups.push(json);
         })
 
         info.save();
@@ -343,6 +375,7 @@ export class Difficulty {
     get BPMChanges() { return this.json.bpmEvents }
     get rotationEvents() { return this.json.rotationEvents }
     get boostEvents() { return this.json.colorBoostBeatmapEvents }
+    get lightEventBoxes() { return this.json.lightColorEventBoxGroups }
     get waypoints() { return this.json.waypoints }
     get customData() { return jsonGet(this.json, "_customData", {}) }
     get customEvents() { return jsonGet(this.json, "_customData._customEvents", []) }
@@ -360,6 +393,7 @@ export class Difficulty {
     set BPMChanges(value: BPMChange[]) { this.json.bpmEvents = value }
     set rotationEvents(value: RotationEvent[]) { this.json.rotationEvents = value }
     set boostEvents(value: BoostEvent[]) { this.json.colorBoostBeatmapEvents = value }
+    set lightEventBoxes(value: LightEventBox[]) { this.json.lightColorEventBoxGroups = value }
     set waypoints(value: any[]) { this.json.waypoints = value }
     set customData(value) { jsonSet(this.json, "_customData", value) }
     set customEvents(value: CustomEventInternals.BaseEvent[]) { jsonSet(this.json, "_customData._customEvents", value) }
