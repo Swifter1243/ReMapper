@@ -391,6 +391,8 @@ export class Difficulty {
     get lightEventBoxes() { return this.json.lightColorEventBoxGroups }
     get lightRotationBoxes() { return this.json.lightRotationEventBoxGroups }
     get waypoints() { return this.json.waypoints }
+    get basicEventTypesKeywords() { return this.json.basicEventTypesWithKeywords }
+    get useBasicEvent() { return this.json.useNormalEventsAsCompatibleEvents }
     get customData() { return jsonGet(this.json, "_customData", {}) }
     get customEvents() { return jsonGet(this.json, "_customData._customEvents", []) }
     get pointDefinitions() { return jsonGet(this.json, "_customData._pointDefinitions", []) }
@@ -409,7 +411,9 @@ export class Difficulty {
     set boostEvents(value: BoostEvent[]) { this.json.colorBoostBeatmapEvents = value }
     set lightEventBoxes(value: LightEventBox[]) { this.json.lightColorEventBoxGroups = value }
     set lightRotationBoxes(value: LightRotationBox[]) { this.json.lightRotationEventBoxGroups = value }
-    set waypoints(value: any[]) { this.json.waypoints = value }
+    set waypoints(value: Record<string, any>[]) { this.json.waypoints = value }
+    set basicEventTypesKeywords(value: Record<string, any>) { this.json.basicEventTypesWithKeywords = value }
+    set useBasicEvents(value: boolean) { this.json.useNormalEventsAsCompatibleEvents = value }
     set customData(value) { jsonSet(this.json, "_customData", value) }
     set customEvents(value: CustomEventInternals.BaseEvent[]) { jsonSet(this.json, "_customData._customEvents", value) }
     set pointDefinitions(value: Record<string, any>[]) { jsonSet(this.json, "_customData._pointDefinitions", value) }
