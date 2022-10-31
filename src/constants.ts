@@ -196,28 +196,52 @@ export enum FILTERTYPE {
     STEPANDOFFSET
 }
 
-export enum TRANSITIONTYPE {
+export enum LIGHTTRANS {
     INSTANT,
     TRANSITION,
     EXTEND
 }
 
-export enum LIGHTCOLOR {
+export enum ROTTRANS {
+    TRANSITION,
+    EXTEND
+}
+
+export enum LIGHTCOL {
     RED,
     BLUE,
     WHITE
 }
 
+export enum AXIS {
+    X,
+    Y
+}
+
+export enum ROTEASE {
+    NONE = -1,
+    LINEAR,
+    EASEINQUAD,
+    EASEOUTQUAD,
+    EASEINOUTQUAD
+}
+
+export enum ROTDIR {
+    AUTOMATIC,
+    CLOCKWISE,
+    COUNTERCLOCKWISE
+}
+
 export enum CUT {
-    UP = 0,
-    DOWN = 1,
-    LEFT = 2,
-    RIGHT = 3,
-    UP_LEFT = 4,
-    UP_RIGHT = 5,
-    DOWN_LEFT = 6,
-    DOWN_RIGHT = 7,
-    DOT = 8
+    UP,
+    DOWN,
+    LEFT,
+    RIGHT,
+    UP_LEFT,
+    UP_RIGHT,
+    DOWN_LEFT,
+    DOWN_RIGHT,
+    DOT
 }
 
 export const EVENT = {

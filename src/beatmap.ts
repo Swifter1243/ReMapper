@@ -9,7 +9,7 @@ import { copy, isEmptyObject, jsonGet, jsonPrune, jsonSet, sortObjects, Vec3, se
 import { AnimationInternals } from './animation.ts';
 import { OptimizeSettings } from './anim_optimizer.ts';
 import { ENV_NAMES, MODS, settingsHandler, DIFFS, FILENAME, FILEPATH } from './constants.ts';
-import { BoostEvent, BPMChange, LightEvent, LightEventBox, LightEventBoxGroup, RotationEvent } from './event.ts';
+import { BoostEvent, BPMChange, LightEvent, LightEventBox, LightEventBoxGroup, LightRotation, LightRotationBox, LightRotationBoxGroup, RotationEvent } from './event.ts';
 
 type PostProcessFn<T> = (object: T, diff: Difficulty) => void;
 type DIFFPATH = FILEPATH<DIFFS>
@@ -96,6 +96,12 @@ export class Difficulty {
             })
         })
 
+        arrJsonToClass(this.lightRotationBoxes, LightRotationBox, b => {
+            arrJsonToClass(b.boxGroups, LightRotationBoxGroup, g => {
+                arrJsonToClass(g.events, LightRotation);
+            })
+        })
+
         activeDiff = this;
 
         this.registerProcessors();
@@ -166,28 +172,10 @@ export class Difficulty {
         const outputJSON = {} as Record<string, any>;
 
         Object.keys(this.json).forEach(x => {
-            if (
-                x === "colorNotes" ||
-                x === "bombNotes" ||
-                x === "sliders" ||
-                x === "burstSliders" ||
-                x === "obstacles" ||
-                x === "basicBeatmapEvents" ||
-                x === "bpmEvents" ||
-                x === "rotationEvents" ||
-                x === "colorBoostBeatmapEvents" ||
-                x === "lightColorEventBoxGroups"
-            ) {
-                outputJSON[x] = [];
-            }
+            if (Array.isArray(this.json[x])) outputJSON[x] = [];
             else if (x === "_customData") Object.keys(this.json[x]).forEach(y => {
                 if (!outputJSON[x]) outputJSON[x] = {};
-                if (
-                    y === "_environment" ||
-                    y === "_customEvents"
-                ) {
-                    outputJSON[x][y] = [];
-                }
+                if (Array.isArray(this.json[x][y])) outputJSON[x][y] = [];
                 else outputJSON[x][y] = copy(this.json[x][y]);
             })
             else outputJSON[x] = copy(this.json[x]);
@@ -248,6 +236,23 @@ export class Difficulty {
             })
 
             outputJSON.lightColorEventBoxGroups.push(json);
+        })
+
+        this.lightRotationBoxes.forEach(b => {
+            const json = safeCloneJSON(b.json);
+
+            b.boxGroups.forEach(g => {
+                const groupJson = safeCloneJSON(g.json);
+                groupJson.f = copy(g.json.f);
+
+                g.events.forEach(e => {
+                    groupJson.l.push(e.json);
+                })
+
+                json.e.push(groupJson);
+            })
+
+            outputJSON.lightRotationEventBoxGroups.push(json);
         })
 
         info.save();
@@ -384,6 +389,7 @@ export class Difficulty {
     get rotationEvents() { return this.json.rotationEvents }
     get boostEvents() { return this.json.colorBoostBeatmapEvents }
     get lightEventBoxes() { return this.json.lightColorEventBoxGroups }
+    get lightRotationBoxes() { return this.json.lightRotationEventBoxGroups }
     get waypoints() { return this.json.waypoints }
     get customData() { return jsonGet(this.json, "_customData", {}) }
     get customEvents() { return jsonGet(this.json, "_customData._customEvents", []) }
@@ -402,6 +408,7 @@ export class Difficulty {
     set rotationEvents(value: RotationEvent[]) { this.json.rotationEvents = value }
     set boostEvents(value: BoostEvent[]) { this.json.colorBoostBeatmapEvents = value }
     set lightEventBoxes(value: LightEventBox[]) { this.json.lightColorEventBoxGroups = value }
+    set lightRotationBoxes(value: LightRotationBox[]) { this.json.lightRotationEventBoxGroups = value }
     set waypoints(value: any[]) { this.json.waypoints = value }
     set customData(value) { jsonSet(this.json, "_customData", value) }
     set customEvents(value: CustomEventInternals.BaseEvent[]) { jsonSet(this.json, "_customData._customEvents", value) }
