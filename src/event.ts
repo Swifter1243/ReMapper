@@ -24,8 +24,8 @@ export class BPMChange extends BaseObject {
     /**
      * Push this BPM change to the difficulty
      */
-    push() {
-        activeDiff.BPMChanges.push(copy(this));
+    push(clone = true) {
+        activeDiff.BPMChanges.push(clone ? copy(this) : this);
         return this;
     }
 
@@ -55,8 +55,8 @@ export class RotationEvent extends BaseObject {
     /**
      * Push this rotation event to the difficulty
      */
-    push() {
-        activeDiff.rotationEvents.push(copy(this));
+    push(clone = true) {
+        activeDiff.rotationEvents.push(clone ? copy(this) : this);
         return this;
     }
 
@@ -87,8 +87,8 @@ export class BoostEvent extends BaseObject {
     /**
      * Push this boost event to the difficulty
      */
-    push() {
-        activeDiff.boostEvents.push(copy(this));
+    push(clone = true) {
+        activeDiff.boostEvents.push(clone ? copy(this) : this);
         return this;
     }
 
@@ -129,8 +129,8 @@ export class LightEventBox extends EventBox {
     /**
      * Push this boost event to the difficulty
      */
-    push() {
-        activeDiff.lightEventBoxes.push(copy(this));
+    push(clone = true) {
+        activeDiff.lightEventBoxes.push(clone ? copy(this) : this);
         return this;
     }
 
@@ -143,8 +143,8 @@ export class LightRotationBox extends EventBox {
     /**
     * Push this boost event to the difficulty
     */
-    push() {
-        activeDiff.lightRotationBoxes.push(copy(this));
+    push(clone = true) {
+        activeDiff.lightRotationBoxes.push(clone ? copy(this) : this);
         return this;
     }
 
@@ -223,7 +223,7 @@ export class LightEventBoxGroup extends EventBoxGroup {
     push(box: LightEventBox) {
         box.boxGroups.push(copy(this));
         return this;
-    } 
+    }
 
     get brightnessDistribution() { return this.json.r }
     get brightnessDistributionType() { return this.json.t }
@@ -296,7 +296,7 @@ export class LightEvent {
     push(group: LightEventBoxGroup) {
         group.events.push(copy(this));
         return this;
-    } 
+    }
 
     get addedBeat() { return this.json.b }
     get transition() { return this.json.i }

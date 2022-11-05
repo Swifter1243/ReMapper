@@ -21,8 +21,8 @@ export namespace EventInternals {
         /**
         * Push this event to the difficulty
         */
-        push() {
-            activeDiffGet().events.push(copy(this) as any);
+        push(clone = true) {
+            activeDiffGet().events.push((clone ? copy(this) : this) as any);
             return this;
         }
 
@@ -127,7 +127,7 @@ export namespace EventInternals {
         abstract() { return new Event().import(this.json) }
 
         get lightID() { return jsonGet(this.json, "customData._lightID") }
-        get color() { return jsonGet(this.json, "customData._color") }
+        get color() { return jsonGet(this.json, "customData.color") }
         get easing() { return jsonGet(this.json, "customData._easing") }
         get lerpType() { return jsonGet(this.json, "customData._lerpType") }
         get lightGradient() { return jsonGet(this.json, "customData._lightGradient") }
@@ -137,7 +137,7 @@ export namespace EventInternals {
         get gradientEasing() { return jsonGet(this.json, "customData._lightGradient._easing") }
 
         set lightID(value: LightID) { jsonSet(this.json, "customData._lightID", value) }
-        set color(value: ColorType) { jsonSet(this.json, "customData._color", value) }
+        set color(value: ColorType) { jsonSet(this.json, "customData.color", value) }
         set easing(value: EASE) { jsonSet(this.json, "customData._easing", value) }
         set lerpType(value: string) { jsonSet(this.json, "customData._lerpType", value) }
         set lightGradient(value) { jsonSet(this.json, "customData._lightGradient", value) }
@@ -258,7 +258,7 @@ export namespace EventInternals {
     export class AbstractEvent extends EventInternals.BaseEvent {
         get lockPosition() { return jsonGet(this.json, "customData._lockPosition") }
         get lightID() { return jsonGet(this.json, "customData._lightID") }
-        get color() { return jsonGet(this.json, "customData._color") }
+        get color() { return jsonGet(this.json, "customData.color") }
         get easing() { return jsonGet(this.json, "customData._easing") }
         get lerpType() { return jsonGet(this.json, "customData._lerpType") }
         get lightGradient() { return jsonGet(this.json, "customData._lightGradient") }
@@ -285,7 +285,7 @@ export namespace EventInternals {
         set prop(value: number) { jsonSet(this.json, "customData._prop", value) }
         set counterSpin(value: boolean) { jsonSet(this.json, "customData._counterSpin", value) }
         set lightID(value: LightID) { jsonSet(this.json, "customData._lightID", value) }
-        set color(value: ColorType) { jsonSet(this.json, "customData._color", value) }
+        set color(value: ColorType) { jsonSet(this.json, "customData.color", value) }
         set easing(value: EASE) { jsonSet(this.json, "customData._easing", value) }
         set lerpType(value: string) { jsonSet(this.json, "customData._lerpType", value) }
         set lightGradient(value) { jsonSet(this.json, "customData._lightGradient", value) }

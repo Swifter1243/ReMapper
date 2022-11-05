@@ -102,6 +102,11 @@ export class Difficulty {
             })
         })
 
+        arrJsonToClass(this.fakeNotes, Note);
+        arrJsonToClass(this.fakeBombs, Bomb);
+        arrJsonToClass(this.fakeWalls, Wall);
+        arrJsonToClass(this.fakeChains, Chain);
+
         activeDiff = this;
 
         this.registerProcessors();
@@ -209,6 +214,10 @@ export class Difficulty {
         diffArrClassToJson(this.rawEnvironment, "customData.environment", x => {
             jsonRemove(x.json, "group");
         })
+        gameplayArrClassToJson(this.fakeNotes, "fakeColorNotes");
+        gameplayArrClassToJson(this.fakeBombs, "fakeBombNotes");
+        gameplayArrClassToJson(this.fakeWalls, "fakeObstacles");
+        gameplayArrClassToJson(this.fakeChains, "fakeBurstSliders");
 
         function safeCloneJSON(json: Record<string, any>) {
             const output: Record<string, any> = {};
@@ -333,8 +342,8 @@ export class Difficulty {
     private colorArrayToTuple(array: Vec3) { return { r: array[0], g: array[1], b: array[2] } }
 
     // Info.dat
-    get NJS() { return jsonGet(this.diffSetMap, "_noteJumpMovementSpeed") }
-    get offset() { return jsonGet(this.diffSetMap, "_noteJumpStartBeatOffset") }
+    get NJS() { return jsonGet(this.diffSetMap, "noteJumpMovementSpeed") }
+    get offset() { return jsonGet(this.diffSetMap, "noteJumpStartBeatOffset") }
     get fileName() { return jsonGet(this.diffSetMap, "_beatmapFilename") }
     get diffSetName() { return jsonGet(this.diffSet, "_beatmapCharacteristicName") }
     get name() { return jsonGet(this.diffSetMap, "_difficulty") }
@@ -355,8 +364,8 @@ export class Difficulty {
     get boostColorRight() { return jsonGet(this.diffSetMap, "_customData._envColorRightBoost") }
     get obstacleColor() { return jsonGet(this.diffSetMap, "_customData._obstacleColor") }
 
-    set NJS(value: number) { this.pruneInput(this.diffSetMap, "_noteJumpMovementSpeed", value) }
-    set offset(value: number) { this.pruneInput(this.diffSetMap, "_noteJumpStartBeatOffset", value) }
+    set NJS(value: number) { this.pruneInput(this.diffSetMap, "noteJumpMovementSpeed", value) }
+    set offset(value: number) { this.pruneInput(this.diffSetMap, "noteJumpStartBeatOffset", value) }
     set fileName(value: string) { this.pruneInput(this.diffSetMap, "_beatmapFilename", value) }
     set diffSetName(value: string) { this.pruneInput(this.diffSet, "_beatmapCharacteristicName", value) }
     set name(value: string) { this.pruneInput(this.diffSetMap, "_difficulty", value) }
@@ -398,6 +407,10 @@ export class Difficulty {
     get pointDefinitions() { return jsonGet(this.json, "customData.pointDefinitions", {}) }
     get geoMaterials() { return jsonGet(this.json, "customData.materials", {}) }
     get rawEnvironment() { return jsonGet(this.json, "customData.environment", []) }
+    get fakeNotes() { return jsonGet(this.json, "customData.fakeColorNotes", []) }
+    get fakeBombs() { return jsonGet(this.json, "customData.fakeBombNotes", []) }
+    get fakeWalls() { return jsonGet(this.json, "customData.fakeObstacles", []) }
+    get fakeChains() { return jsonGet(this.json, "customData.fakeBurstSliders", []) }
 
     set version(value: string) { this.json.version = value }
     set notes(value: Note[]) { this.json.colorNotes = value }
@@ -419,6 +432,10 @@ export class Difficulty {
     set pointDefinitions(value: Record<string, RawKeyframesAny>) { jsonSet(this.json, "customData.pointDefinitions", value) }
     set geoMaterials(value: Record<string, GeometryMaterial>) { jsonSet(this.json, "customData.materials", value) }
     set rawEnvironment(value: EnvironmentInternals.BaseEnvironment[]) { jsonSet(this.json, "customData.environment", value) }
+    set fakeNotes(value: Note[]) { jsonSet(this.json, "customData.fakeColorNotes", value) }
+    set fakeBombs(value: Bomb[]) { jsonSet(this.json, "customData.fakeBombNotes", value) }
+    set fakeWalls(value: Wall[]) { jsonSet(this.json, "customData.fakeObstacles", value) }
+    set fakeChains(value: Chain[]) { jsonSet(this.json, "customData.fakeBurstSliders", value) }
 
     animateTracks(fn: (arr: CustomEventInternals.AnimateTrack[]) => void) {
         const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.AnimateTrack) as CustomEventInternals.AnimateTrack[]

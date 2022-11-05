@@ -24,8 +24,8 @@ export namespace EnvironmentInternals {
         /**
          * Push this environment object to the difficulty
          */
-        push() {
-            activeDiffGet().rawEnvironment.push(copy(this));
+        push(clone = true) {
+            activeDiffGet().rawEnvironment.push(clone ? copy(this) : this);
             return this;
         }
 

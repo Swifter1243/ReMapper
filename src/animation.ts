@@ -142,7 +142,7 @@ export namespace AnimationInternals {
         get localRotation() { return this.get("_localRotation") }
         get scale() { return this.get("_scale") }
         get dissolve() { return this.get("_dissolve") }
-        get color() { return this.get("_color") }
+        get color() { return this.get("color") }
         get interactable() { return this.get("_interactable") }
         get time() { return this.get("_time") }
 
@@ -152,7 +152,7 @@ export namespace AnimationInternals {
         set localRotation(value: KeyframesVec3) { this.set("_localRotation", value as KeyframesAny) }
         set scale(value: KeyframesVec3) { this.set("_scale", value as KeyframesAny) }
         set dissolve(value: KeyframesLinear) { this.set("_dissolve", value as KeyframesAny) }
-        set color(value: KeyframesVec4) { this.set("_color", value as KeyframesAny) }
+        set color(value: KeyframesVec4) { this.set("color", value as KeyframesAny) }
         set interactable(value: KeyframesLinear) { this.set("_interactable", value as KeyframesAny) }
         set time(value: KeyframesLinear) { this.set("_time", value as KeyframesAny) }
     }
@@ -199,7 +199,7 @@ export namespace AnimationInternals {
         get scale() { return this.get("_scale") }
         get dissolve() { return this.get("_dissolve") }
         get dissolveArrow() { return this.get("_dissolveArrow") }
-        get color() { return this.get("_color") }
+        get color() { return this.get("color") }
         get interactable() { return this.get("_interactable") }
         get time() { return this.get("_time") }
         get attenuation() { return this.get("_attenuation") }
@@ -215,7 +215,7 @@ export namespace AnimationInternals {
         set scale(value: KeyframesVec3) { this.set("_scale", value as KeyframesAny) }
         set dissolve(value: KeyframesLinear) { this.set("_dissolve", value as KeyframesAny) }
         set dissolveArrow(value: KeyframesLinear) { this.set("_dissolveArrow", value as KeyframesAny) }
-        set color(value: KeyframesVec4) { this.set("_color", value as KeyframesAny) }
+        set color(value: KeyframesVec4) { this.set("color", value as KeyframesAny) }
         set interactable(value: KeyframesLinear) { this.set("_interactable", value as KeyframesAny) }
         set time(value: KeyframesLinear) { this.set("_time", value as KeyframesAny) }
         set attenuation(value: KeyframesLinear) { this.set("_attenuation", value as KeyframesAny) }

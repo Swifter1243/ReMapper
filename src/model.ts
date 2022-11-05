@@ -269,9 +269,9 @@ export class ModelScene {
                 if (
                     object instanceof Geometry &&
                     typeof object.material !== "string" &&
-                    !object.material._color &&
+                    !object.material.color &&
                     x.color
-                ) object.material._color = x.color;
+                ) object.material.color = x.color;
 
                 object.track = track;
                 object.position = pos;
@@ -354,7 +354,7 @@ export class ModelScene {
                     group.object &&
                     group.object instanceof Geometry &&
                     typeof group.object.material !== "string" &&
-                    !group.object.material._color &&
+                    !group.object.material.color &&
                     x.color
                 ) {
                     x.color[3] ??= 1;
@@ -403,7 +403,7 @@ export class ModelScene {
                     object.track = this.getPieceTrack(group.object, groupKey, i);
 
                     if (animatedMaterials.some(x => x === object.track))
-                        ((object as Geometry).material as RawGeometryMaterial)._track = object.track + "_material";
+                        ((object as Geometry).material as RawGeometryMaterial).track = object.track + "_material";
 
                     if (forObject) forObject(object);
                     object.push();
@@ -460,21 +460,21 @@ export function debugObject(input: GroupObjectTypes, resolution: number, scale?:
     removeUI.push();
 
     activeDiff.geoMaterials["debugCubeX"] = {
-        _shader: "Standard",
-        _color: [1, 0, 0],
-        _shaderKeywords: []
+        shader: "Standard",
+        color: [1, 0, 0],
+        shaderKeywords: []
     }
 
     activeDiff.geoMaterials["debugCubeY"] = {
-        _shader: "Standard",
-        _color: [0, 1, 0],
-        _shaderKeywords: []
+        shader: "Standard",
+        color: [0, 1, 0],
+        shaderKeywords: []
     }
 
     activeDiff.geoMaterials["debugCubeZ"] = {
-        _shader: "Standard",
-        _color: [0, 0, 1],
-        _shaderKeywords: []
+        shader: "Standard",
+        color: [0, 0, 1],
+        shaderKeywords: []
     }
 
     const modelData: ModelObject[] = [];

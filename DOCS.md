@@ -87,7 +87,7 @@ new Note(10, NOTE.UP_RIGHT).push();
 # Objects (Notes, Walls)
 
 Wrappers are essentially a more user friendly way for you to create object data.
-You don't have to worry about checking if `customData` and `_animation` exist,
+You don't have to worry about checking if `customData` and `animation` exist,
 all of that is dealt with for you. When accessing these wrappers, you'll be able
 to access a bunch of useful properties.
 
@@ -125,7 +125,7 @@ new Note(3, NOTE.BLUE, NOTE.LEFT, [0, 1, true]).push();
 This wrapper is useful for easily creating animations. It also has some nice
 tools. Notes, Walls, and animation events all contain an animation manager
 `animate`. Not to be confused with `animation`, which is equal to
-`customData._animation`.
+`customData.animation`.
 
 Firstly, you can set the length of the animation to divide each keyframe's time.
 In this case we're using the wall from before with a lifetime of 4 beats.
@@ -260,7 +260,7 @@ Geometry uses materials, which can either be initialized with the object:
 ```js
 new Geometry("Cube", {
   _shader: "Standard",
-  _color: [1, 1, 1, 1],
+  color: [1, 1, 1, 1],
   _track: "cube",
 }).push();
 ```
@@ -270,7 +270,7 @@ Or added to the `geoMaterials` object in the map:
 ```js
 map.geoMaterials["white"] = {
   _shader: "Standard",
-  _color: [1, 1, 1, 1],
+  color: [1, 1, 1, 1],
   _track: "cube",
 };
 new Geometry("Cube", "white").push();
@@ -335,7 +335,7 @@ scene.addPrimaryGroups(
   "red sphere",
   new Geometry("Sphere", {
     _shader: "Standard",
-    _color: [1, 0, 0], // Note: This overrides colors from the model data.
+    color: [1, 0, 0], // Note: This overrides colors from the model data.
   }),
 );
 ```

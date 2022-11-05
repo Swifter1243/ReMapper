@@ -14,7 +14,7 @@ export class Note extends BaseGameplayObject {
         d: 0,
         a: 0,
         customData: {
-            _animation: {}
+            animation: {}
         }
     };
     animate = new Animation().noteAnimation(this.animation);
@@ -47,8 +47,9 @@ export class Note extends BaseGameplayObject {
     /**
      * Push this note to the difficulty
      */
-    push() {
-        activeDiffGet().notes.push(copy(this));
+    push(fake = false, clone = true) {
+        if (fake) activeDiffGet().fakeNotes.push(clone ? copy(this) : this);
+        else activeDiffGet().notes.push(clone ? copy(this) : this);
         return this;
     }
 
@@ -85,7 +86,7 @@ export class Bomb extends BaseGameplayObject {
         x: 0,
         y: 0,
         customData: {
-            _animation: {}
+            animation: {}
         }
     };
     animate = new Animation().noteAnimation(this.animation);
@@ -116,8 +117,9 @@ export class Bomb extends BaseGameplayObject {
     /**
      * Push this bomb to the difficulty
      */
-    push() {
-        activeDiffGet().bombs.push(copy(this));
+    push(fake = false, clone = true) {
+        if (fake) activeDiffGet().fakeBombs.push(clone ? copy(this) : this);
+        else activeDiffGet().bombs.push(clone ? copy(this) : this);
         return this;
     }
 
@@ -145,7 +147,7 @@ export class Chain extends BaseSliderObject {
         sc: 4,
         s: 1,
         customData: {
-            _animation: {}
+            animation: {}
         }
     };
     animate = new Animation().noteAnimation(this.animation);
@@ -154,16 +156,16 @@ export class Chain extends BaseSliderObject {
     * Chain object for ease of creation
     */
     constructor(
-        time = 0, 
-        type = NOTETYPE.BLUE, 
-        x = 0, 
-        y = 0, 
-        tailTime = 0, 
-        tailX = 0, 
-        tailY = 0, 
+        time = 0,
+        type = NOTETYPE.BLUE,
+        x = 0,
+        y = 0,
+        tailTime = 0,
+        tailX = 0,
+        tailY = 0,
         direction = CUT.DOWN,
         links = 4
-        ) {
+    ) {
         super();
         this.time = time;
         this.x = x;
@@ -192,8 +194,9 @@ export class Chain extends BaseSliderObject {
     /**
      * Push this chain to the difficulty
      */
-    push() {
-        activeDiffGet().chains.push(copy(this));
+    push(fake = false, clone = true) {
+        if (fake) activeDiffGet().fakeChains.push(clone ? copy(this) : this);
+        else activeDiffGet().chains.push(clone ? copy(this) : this);
         return this;
     }
 
@@ -229,7 +232,7 @@ export class Arc extends BaseSliderObject {
         tmu: 0,
         m: 0,
         customData: {
-            _animation: {}
+            animation: {}
         }
     };
     animate = new Animation().noteAnimation(this.animation);
@@ -246,7 +249,7 @@ export class Arc extends BaseSliderObject {
         tailTime = 0, tailX = 0,
         tailY = 0,
         tailDirection = CUT.DOWN
-        ) {
+    ) {
         super();
         this.time = time;
         this.type = type;
@@ -275,8 +278,8 @@ export class Arc extends BaseSliderObject {
     /**
      * Push this arc to the difficulty
      */
-    push() {
-        activeDiffGet().arcs.push(copy(this));
+    push(clone = true) {
+        activeDiffGet().arcs.push(clone ? copy(this) : this);
         return this;
     }
 

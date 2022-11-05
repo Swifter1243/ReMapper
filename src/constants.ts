@@ -305,7 +305,7 @@ export type ANIM =
     "_scale" |
     "_dissolve" |
     "_dissolveArrow" |
-    "_color" |
+    "color" |
     "_interactable" |
     "_attenuation" |
     "_offset" |

@@ -24,46 +24,44 @@ export class BaseObject {
 export class BaseGameplayObject extends BaseObject {
     get x() { return this.json.x }
     get y() { return this.json.y }
-    get position() { return this.json.customData._position }
-    get rotation() { return this.json.customData._rotation }
-    get localRotation() { return this.json.customData._localRotation }
+    get position() { return this.json.customData.coordinates }
+    get rotation() { return this.json.customData.worldRotation }
+    get localRotation() { return this.json.customData.localRotation }
     get NJS() {
-        if (this.json.customData._noteJumpMovementSpeed)
-            return this.json.customData._noteJumpMovementSpeed;
+        if (this.json.customData.noteJumpMovementSpeed)
+            return this.json.customData.noteJumpMovementSpeed;
         else return activeDiffGet().NJS;
     }
     get offset() {
-        if (this.json.customData._noteJumpStartBeatOffset)
-            return this.json.customData._noteJumpStartBeatOffset;
+        if (this.json.customData.noteJumpStartBeatOffset)
+            return this.json.customData.noteJumpStartBeatOffset;
         else return activeDiffGet().offset;
     }
     get halfJumpDur() { return getJumps(this.NJS, this.offset, info.BPM).halfDur }
     get jumpDist() { return getJumps(this.NJS, this.offset, info.BPM).dist }
     get life() { return this.halfJumpDur * 2 }
     get lifeStart() { return this.time - this.life / 2 }
-    get fake() { return this.json.customData._fake }
-    get interactable() { return this.json.customData._interactable }
-    get track() { return new Track(this.json.customData._track) }
-    get color() { return this.json.customData._color }
-    get animation() { return this.json.customData._animation }
+    get interactable() { return !this.json.customData.uninteractable }
+    get track() { return new Track(this.json.customData.track) }
+    get color() { return this.json.customData.color }
+    get animation() { return this.json.customData.animation }
 
     set x(value: number) { this.json.x = value }
     set y(value: number) { this.json.y = value }
-    set position(value: Vec2) { this.json.customData._position = value }
-    set rotation(value: Vec3) { this.json.customData._rotation = value }
-    set localRotation(value: Vec3) { this.json.customData._localRotation = value }
-    set NJS(value: number) { this.json.customData._noteJumpMovementSpeed = value }
-    set offset(value: number) { this.json.customData._noteJumpStartBeatOffset = value }
+    set position(value: Vec2) { this.json.customData.coordinates = value }
+    set rotation(value: Vec3) { this.json.customData.worldRotation = value }
+    set localRotation(value: Vec3) { this.json.customData.localRotation = value }
+    set NJS(value: number) { this.json.customData.noteJumpMovementSpeed = value }
+    set offset(value: number) { this.json.customData.noteJumpStartBeatOffset = value }
     set life(value: number) {
         if (value < 2) console.log("Warning: The lifespan of a note has a minimum of 2 beats.");
         const defaultJumps = getJumps(this.NJS, 0, info.BPM);
         this.offset = (value - (2 * defaultJumps.halfDur)) / 2;
     }
     set lifeStart(value: number) { this.time = value + this.life / 2 }
-    set fake(value: boolean) { this.json.customData._fake = value }
-    set interactable(value: boolean) { this.json.customData._interactable = value }
-    set color(value: ColorType) { this.json.customData._color = value }
-    set animation(value) { this.json.customData._animation = value }
+    set interactable(value: boolean) { this.json.customData.uninteractable = !value }
+    set color(value: ColorType) { this.json.customData.color = value }
+    set animation(value) { this.json.customData.animation = value }
 
     get isModded() {
         if (this.customData === undefined) return false;
@@ -75,9 +73,9 @@ export class BaseGameplayObject extends BaseObject {
     get isGameplayModded() {
         if (this.customData === undefined) return false;
         const customData = copy(this.customData);
-        jsonRemove(customData, "_color");
-        jsonRemove(customData, "_disableSpawnEffect");
-        jsonRemove(customData, "_animation._color");
+        jsonRemove(customData, "color");
+        jsonRemove(customData, "spawnEffect");
+        jsonRemove(customData, "animation.color");
         jsonPrune(customData);
         return !isEmptyObject(customData);
     }

@@ -13,7 +13,7 @@ export class Wall extends BaseGameplayObject {
         w: 1,
         h: 1,
         customData: {
-            _animation: {}
+            animation: {}
         }
     };
     animate = new Animation().wallAnimation(this.animation);
@@ -47,8 +47,9 @@ export class Wall extends BaseGameplayObject {
     /**
      * Push this wall to the difficulty
      */
-    push() {
-        activeDiffGet().walls.push(copy(this));
+    push(fake = false, clone = true) {
+        if (fake) activeDiffGet().fakeWalls.push(clone ? copy(this) : this);
+        else activeDiffGet().walls.push(clone ? copy(this) : this);
         return this;
     }
 

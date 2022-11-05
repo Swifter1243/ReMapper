@@ -22,8 +22,8 @@ export namespace CustomEventInternals {
         /**
         * Push this event to the difficulty
         */
-        push() {
-            activeDiffGet().customEvents.push(copy(this));
+        push(clone = true) {
+            activeDiffGet().customEvents.push(clone ? copy(this) : this);
             return this;
         }
 
