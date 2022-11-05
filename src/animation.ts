@@ -1,6 +1,5 @@
 // deno-lint-ignore-file no-namespace no-explicit-any adjacent-overload-signatures
 import { optimizeAnimation, OptimizeSettings } from "./anim_optimizer.ts";
-import { activeDiffGet } from "./beatmap.ts";
 import { ANIM, EASE, SPLINE } from "./constants.ts";
 import { lerpEasing, arrAdd, copy, arrMul, arrLast, findFraction, lerp, Vec3, Vec4, lerpRotation } from "./general.ts";
 
@@ -578,19 +577,6 @@ export function combineAnimations(anim1: KeyframesAny, anim2: KeyframesAny, prop
         complexArr[j][i] = editElem(complexArr[j][i] as number, simpleArr[i] as number);
     }
     return complexArr;
-}
-
-/**
- * Export keyframes to a point definition.
- * @param {Array} animation 
- * @param {String} name 
- */
-export function toPointDef(animation: KeyframesAny, name: string) {
-    if (activeDiffGet().pointDefinitions === undefined) activeDiffGet().pointDefinitions = [];
-    activeDiffGet().pointDefinitions.push({
-        "_name": name,
-        "_points": animation
-    })
 }
 
 /**

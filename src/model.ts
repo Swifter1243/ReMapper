@@ -1,10 +1,10 @@
 // deno-lint-ignore-file no-explicit-any
 import { arrAdd, cacheData, ColorType, copy, iterateKeyframes, rotatePoint, Vec3, Vec4, parseFilePath } from "./general.ts";
-import { bakeAnimation, complexifyArray, ComplexKeyframesVec3, KeyframeArray, KeyframesAny, KeyframeValues, RawKeyframesVec3, toPointDef } from "./animation.ts";
+import { bakeAnimation, complexifyArray, ComplexKeyframesVec3, KeyframeArray, KeyframesAny, KeyframeValues, RawKeyframesVec3 } from "./animation.ts";
 import { Environment, Geometry, RawGeometryMaterial } from "./environment.ts";
 import { optimizeAnimation, OptimizeSettings } from "./anim_optimizer.ts";
 import { CustomEvent, CustomEventInternals } from "./custom_event.ts";
-import { activeDiff } from "./beatmap.ts";
+import { activeDiff, activeDiffGet } from "./beatmap.ts";
 import { Regex } from "./regex.ts";
 import { Event } from "./basicEvent.ts";
 import { FILEPATH } from "./constants.ts";
@@ -423,7 +423,7 @@ export function applyAnchor(objPos: Vec3, objRot: Vec3, objScale: Vec3, anchor: 
 function createYeetDef() {
     if (noYeet === true) {
         noYeet = false;
-        toPointDef([0, -69420, 0], "yeet");
+        activeDiffGet().pointDefinitions.yeet = [0, -69420, 0];
     }
 }
 

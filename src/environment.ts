@@ -29,35 +29,35 @@ export namespace EnvironmentInternals {
             return this;
         }
 
-        get duplicate() { return this.json._duplicate }
-        get active() { return this.json._active }
-        get scale() { return this.json._scale }
-        get position() { return this.json._position }
-        get localPosition() { return this.json._localPosition }
-        get rotation() { return this.json._rotation }
-        get localRotation() { return this.json._localRotation }
-        get lightID() { return this.json._lightID }
-        get track() { return this.json._track }
+        get duplicate() { return this.json.duplicate }
+        get active() { return this.json.active }
+        get scale() { return this.json.scale }
+        get position() { return this.json.position }
+        get localPosition() { return this.json.localPosition }
+        get rotation() { return this.json.rotation }
+        get localRotation() { return this.json.localRotation }
+        get lightID() { return this.json.lightID }
+        get track() { return this.json.track }
         get group() { return this.json.group }
         get animationProperties() {
             const returnObj: any = {};
-            if (this.position !== undefined) returnObj._position = this.position;
-            if (this.localPosition !== undefined) returnObj._localPosition = this.localPosition;
-            if (this.rotation !== undefined) returnObj._rotation = this.rotation;
-            if (this.localRotation !== undefined) returnObj._localRotation = this.localRotation;
-            if (this.scale !== undefined) returnObj._scale = this.scale
+            if (this.position !== undefined) returnObj.position = this.position;
+            if (this.localPosition !== undefined) returnObj.localPosition = this.localPosition;
+            if (this.rotation !== undefined) returnObj.rotation = this.rotation;
+            if (this.localRotation !== undefined) returnObj.localRotation = this.localRotation;
+            if (this.scale !== undefined) returnObj.scale = this.scale
             return returnObj;
         }
 
-        set duplicate(value: number) { this.json._duplicate = value }
-        set active(value: boolean) { this.json._active = value }
-        set scale(value: Vec3) { this.json._scale = value }
-        set position(value: Vec3) { this.json._position = value }
-        set localPosition(value: Vec3) { this.json._localPosition = value }
-        set rotation(value: Vec3) { this.json._rotation = value }
-        set localRotation(value: Vec3) { this.json._localRotation = value }
-        set lightID(value: number) { this.json._lightID = value }
-        set track(value: string) { this.json._track = value }
+        set duplicate(value: number) { this.json.duplicate = value }
+        set active(value: boolean) { this.json.active = value }
+        set scale(value: Vec3) { this.json.scale = value }
+        set position(value: Vec3) { this.json.position = value }
+        set localPosition(value: Vec3) { this.json.localPosition = value }
+        set rotation(value: Vec3) { this.json.rotation = value }
+        set localRotation(value: Vec3) { this.json.localRotation = value }
+        set lightID(value: number) { this.json.lightID = value }
+        set track(value: string) { this.json.track = value }
         set group(value: string) { this.json.group = value }
     }
 }
@@ -85,7 +85,7 @@ export class Environment extends EnvironmentInternals.BaseEnvironment {
 
 export class Geometry extends EnvironmentInternals.BaseEnvironment {
     json: Record<string, any> = {
-        _geometry: {}
+        geometry: {}
     };
 
     constructor(type?: GEO_TYPE, material?: GeometryMaterial | string) {
@@ -98,13 +98,13 @@ export class Geometry extends EnvironmentInternals.BaseEnvironment {
         this.material = material;
     }
 
-    get type() { return this.json._geometry._type }
-    get material() { return this.json._geometry._material }
-    get collision() { return this.json._geometry._collision }
+    get type() { return this.json.geometry.type }
+    get material() { return this.json.geometry.material }
+    get collision() { return this.json.geometry.collision }
 
-    set type(value: GEO_TYPE) { this.json._geometry._type = value }
-    set material(value: GeometryMaterial | string) { this.json._geometry._material = value }
-    set collision(value: boolean) { this.json._geometry._collision = value }
+    set type(value: GEO_TYPE) { this.json.geometry.type = value }
+    set material(value: GeometryMaterial | string) { this.json.geometry.material = value }
+    set collision(value: boolean) { this.json.geometry.collision = value }
 }
 
 export type GeometryMaterial = RawGeometryMaterial | string
