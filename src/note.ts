@@ -13,7 +13,7 @@ export class Note extends BaseGameplayObject {
         c: 0,
         d: 0,
         a: 0,
-        _customData: {
+        customData: {
             _animation: {}
         }
     };
@@ -65,18 +65,18 @@ export class Note extends BaseGameplayObject {
     get type() { return this.json.c }
     get direction() { return this.json.d }
     get angleOffset() { return this.json.a }
-    get flip() { return this.json._customData._flip }
-    get noteGravity() { return !this.json._customData._disableNoteGravity }
-    get noteLook() { return !this.json._customData._disableNoteLook }
-    get spawnEffect() { return !this.json._customData._disableSpawnEffect }
+    get flip() { return this.json.customData._flip }
+    get noteGravity() { return !this.json.customData._disableNoteGravity }
+    get noteLook() { return !this.json.customData._disableNoteLook }
+    get spawnEffect() { return !this.json.customData._disableSpawnEffect }
 
     set type(value: NOTETYPE) { this.json.c = value }
     set direction(value: CUT) { this.json.d = value }
     set angleOffset(value: number) { this.json.a = value }
-    set flip(value: boolean) { this.json._customData._flip = value }
-    set noteGravity(value: boolean) { this.json._customData._disableNoteGravity = !value }
-    set noteLook(value: boolean) { this.json._customData._disableNoteLook = !value }
-    set spawnEffect(value: boolean) { this.json._customData._disableSpawnEffect = !value }
+    set flip(value: boolean) { this.json.customData._flip = value }
+    set noteGravity(value: boolean) { this.json.customData._disableNoteGravity = !value }
+    set noteLook(value: boolean) { this.json.customData._disableNoteLook = !value }
+    set spawnEffect(value: boolean) { this.json.customData._disableSpawnEffect = !value }
 }
 
 export class Bomb extends BaseGameplayObject {
@@ -84,7 +84,7 @@ export class Bomb extends BaseGameplayObject {
         b: 0,
         x: 0,
         y: 0,
-        _customData: {
+        customData: {
             _animation: {}
         }
     };
@@ -144,7 +144,7 @@ export class Chain extends BaseSliderObject {
         ty: 0,
         sc: 4,
         s: 1,
-        _customData: {
+        customData: {
             _animation: {}
         }
     };
@@ -228,7 +228,7 @@ export class Arc extends BaseSliderObject {
         tc: 0,
         tmu: 0,
         m: 0,
-        _customData: {
+        customData: {
             _animation: {}
         }
     };

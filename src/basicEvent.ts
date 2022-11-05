@@ -126,25 +126,25 @@ export namespace EventInternals {
         */
         abstract() { return new Event().import(this.json) }
 
-        get lightID() { return jsonGet(this.json, "_customData._lightID") }
-        get color() { return jsonGet(this.json, "_customData._color") }
-        get easing() { return jsonGet(this.json, "_customData._easing") }
-        get lerpType() { return jsonGet(this.json, "_customData._lerpType") }
-        get lightGradient() { return jsonGet(this.json, "_customData._lightGradient") }
-        get startColor() { return jsonGet(this.json, "_customData._lightGradient._startColor") }
-        get endColor() { return jsonGet(this.json, "_customData._lightGradient._endColor") }
-        get duration() { return jsonGet(this.json, "_customData._lightGradient._duration") }
-        get gradientEasing() { return jsonGet(this.json, "_customData._lightGradient._easing") }
+        get lightID() { return jsonGet(this.json, "customData._lightID") }
+        get color() { return jsonGet(this.json, "customData._color") }
+        get easing() { return jsonGet(this.json, "customData._easing") }
+        get lerpType() { return jsonGet(this.json, "customData._lerpType") }
+        get lightGradient() { return jsonGet(this.json, "customData._lightGradient") }
+        get startColor() { return jsonGet(this.json, "customData._lightGradient._startColor") }
+        get endColor() { return jsonGet(this.json, "customData._lightGradient._endColor") }
+        get duration() { return jsonGet(this.json, "customData._lightGradient._duration") }
+        get gradientEasing() { return jsonGet(this.json, "customData._lightGradient._easing") }
 
-        set lightID(value: LightID) { jsonSet(this.json, "_customData._lightID", value) }
-        set color(value: ColorType) { jsonSet(this.json, "_customData._color", value) }
-        set easing(value: EASE) { jsonSet(this.json, "_customData._easing", value) }
-        set lerpType(value: string) { jsonSet(this.json, "_customData._lerpType", value) }
-        set lightGradient(value) { jsonSet(this.json, "_customData._lightGradient", value) }
-        set startColor(value: ColorType) { jsonSet(this.json, "_customData._lightGradient._startColor", value) }
-        set endColor(value: ColorType) { jsonSet(this.json, "_customData._lightGradient._endColor", value) }
-        set duration(value: number) { jsonSet(this.json, "_customData._lightGradient._duration", value) }
-        set gradientEasing(value: EASE) { jsonSet(this.json, "_customData._lightGradient._easing", value) }
+        set lightID(value: LightID) { jsonSet(this.json, "customData._lightID", value) }
+        set color(value: ColorType) { jsonSet(this.json, "customData._color", value) }
+        set easing(value: EASE) { jsonSet(this.json, "customData._easing", value) }
+        set lerpType(value: string) { jsonSet(this.json, "customData._lerpType", value) }
+        set lightGradient(value) { jsonSet(this.json, "customData._lightGradient", value) }
+        set startColor(value: ColorType) { jsonSet(this.json, "customData._lightGradient._startColor", value) }
+        set endColor(value: ColorType) { jsonSet(this.json, "customData._lightGradient._endColor", value) }
+        set duration(value: number) { jsonSet(this.json, "customData._lightGradient._duration", value) }
+        set gradientEasing(value: EASE) { jsonSet(this.json, "customData._lightGradient._easing", value) }
     }
 
     export class LaserSpeedEvent extends EventInternals.BaseEvent {
@@ -164,13 +164,13 @@ export namespace EventInternals {
         */
         abstract() { return new Event().import(this.json) }
 
-        get lockPosition() { return jsonGet(this.json, "_customData._lockPosition") }
-        get speed() { return jsonGet(this.json, "_customData._speed") }
-        get direction() { return jsonGet(this.json, "_customData._direction") }
+        get lockPosition() { return jsonGet(this.json, "customData._lockPosition") }
+        get speed() { return jsonGet(this.json, "customData._speed") }
+        get direction() { return jsonGet(this.json, "customData._direction") }
 
-        set lockPosition(value: boolean) { jsonSet(this.json, "_customData._lockPosition", value) }
-        set speed(value: number) { jsonSet(this.json, "_customData._speed", value) }
-        set direction(value: number) { jsonSet(this.json, "_customData._direction", value) }
+        set lockPosition(value: boolean) { jsonSet(this.json, "customData._lockPosition", value) }
+        set speed(value: number) { jsonSet(this.json, "customData._speed", value) }
+        set direction(value: number) { jsonSet(this.json, "customData._direction", value) }
     }
 
     export class RingZoomEvent extends EventInternals.BaseEvent {
@@ -188,11 +188,11 @@ export namespace EventInternals {
         */
         abstract() { return new Event().import(this.json) }
 
-        get step() { return jsonGet(this.json, "_customData._step") }
-        get speed() { return jsonGet(this.json, "_customData._speed") }
+        get step() { return jsonGet(this.json, "customData._step") }
+        get speed() { return jsonGet(this.json, "customData._speed") }
 
-        set step(value: number) { jsonSet(this.json, "_customData._step", value) }
-        set speed(value: number) { jsonSet(this.json, "_customData._speed", value) }
+        set step(value: number) { jsonSet(this.json, "customData._step", value) }
+        set speed(value: number) { jsonSet(this.json, "customData._speed", value) }
     }
 
     export class RingSpinEvent extends EventInternals.BaseEvent {
@@ -216,23 +216,23 @@ export namespace EventInternals {
         */
         abstract() { return new Event().import(this.json) }
 
-        get speed() { return jsonGet(this.json, "_customData._speed") }
-        get direction() { return jsonGet(this.json, "_customData._direction") }
-        get nameFilter() { return jsonGet(this.json, "_customData._nameFilter") }
-        get reset() { return jsonGet(this.json, "_customData._reset") }
-        get rotation() { return jsonGet(this.json, "_customData._rotation") }
-        get step() { return jsonGet(this.json, "_customData._step") }
-        get prop() { return jsonGet(this.json, "_customData._prop") }
-        get counterSpin() { return jsonGet(this.json, "_customData._counterSpin") }
+        get speed() { return jsonGet(this.json, "customData._speed") }
+        get direction() { return jsonGet(this.json, "customData._direction") }
+        get nameFilter() { return jsonGet(this.json, "customData._nameFilter") }
+        get reset() { return jsonGet(this.json, "customData._reset") }
+        get rotation() { return jsonGet(this.json, "customData._rotation") }
+        get step() { return jsonGet(this.json, "customData._step") }
+        get prop() { return jsonGet(this.json, "customData._prop") }
+        get counterSpin() { return jsonGet(this.json, "customData._counterSpin") }
 
-        set speed(value: number) { jsonSet(this.json, "_customData._speed", value) }
-        set direction(value: number) { jsonSet(this.json, "_customData._direction", value) }
-        set nameFilter(value: string) { jsonSet(this.json, "_customData._nameFilter", value) }
-        set reset(value: boolean) { jsonSet(this.json, "_customData._reset", value) }
-        set rotation(value: number) { jsonSet(this.json, "_customData._rotation", value) }
-        set step(value: number) { jsonSet(this.json, "_customData._step", value) }
-        set prop(value: number) { jsonSet(this.json, "_customData._prop", value) }
-        set counterSpin(value: boolean) { jsonSet(this.json, "_customData._counterSpin", value) }
+        set speed(value: number) { jsonSet(this.json, "customData._speed", value) }
+        set direction(value: number) { jsonSet(this.json, "customData._direction", value) }
+        set nameFilter(value: string) { jsonSet(this.json, "customData._nameFilter", value) }
+        set reset(value: boolean) { jsonSet(this.json, "customData._reset", value) }
+        set rotation(value: number) { jsonSet(this.json, "customData._rotation", value) }
+        set step(value: number) { jsonSet(this.json, "customData._step", value) }
+        set prop(value: number) { jsonSet(this.json, "customData._prop", value) }
+        set counterSpin(value: boolean) { jsonSet(this.json, "customData._counterSpin", value) }
     }
 
     export class RotationEvent extends EventInternals.BaseEvent {
@@ -251,48 +251,48 @@ export namespace EventInternals {
         */
         abstract() { return new Event().import(this.json) }
 
-        get rotation() { return jsonGet(this.json, "_customData._rotation") }
-        set rotation(value) { jsonSet(this.json, "_customData._rotation", value) }
+        get rotation() { return jsonGet(this.json, "customData._rotation") }
+        set rotation(value) { jsonSet(this.json, "customData._rotation", value) }
     }
 
     export class AbstractEvent extends EventInternals.BaseEvent {
-        get lockPosition() { return jsonGet(this.json, "_customData._lockPosition") }
-        get lightID() { return jsonGet(this.json, "_customData._lightID") }
-        get color() { return jsonGet(this.json, "_customData._color") }
-        get easing() { return jsonGet(this.json, "_customData._easing") }
-        get lerpType() { return jsonGet(this.json, "_customData._lerpType") }
-        get lightGradient() { return jsonGet(this.json, "_customData._lightGradient") }
-        get startColor() { return jsonGet(this.json, "_customData._lightGradient._startColor") }
-        get endColor() { return jsonGet(this.json, "_customData._lightGradient._endColor") }
-        get duration() { return jsonGet(this.json, "_customData._lightGradient._duration") }
-        get gradientEasing() { return jsonGet(this.json, "_customData._lightGradient._easing") }
-        get speed() { return jsonGet(this.json, "_customData._speed") }
-        get direction() { return jsonGet(this.json, "_customData._direction") }
-        get nameFilter() { return jsonGet(this.json, "_customData._nameFilter") }
-        get reset() { return jsonGet(this.json, "_customData._reset") }
-        get rotation() { return jsonGet(this.json, "_customData._rotation") }
-        get step() { return jsonGet(this.json, "_customData._step") }
-        get prop() { return jsonGet(this.json, "_customData._prop") }
-        get counterSpin() { return jsonGet(this.json, "_customData._counterSpin") }
+        get lockPosition() { return jsonGet(this.json, "customData._lockPosition") }
+        get lightID() { return jsonGet(this.json, "customData._lightID") }
+        get color() { return jsonGet(this.json, "customData._color") }
+        get easing() { return jsonGet(this.json, "customData._easing") }
+        get lerpType() { return jsonGet(this.json, "customData._lerpType") }
+        get lightGradient() { return jsonGet(this.json, "customData._lightGradient") }
+        get startColor() { return jsonGet(this.json, "customData._lightGradient._startColor") }
+        get endColor() { return jsonGet(this.json, "customData._lightGradient._endColor") }
+        get duration() { return jsonGet(this.json, "customData._lightGradient._duration") }
+        get gradientEasing() { return jsonGet(this.json, "customData._lightGradient._easing") }
+        get speed() { return jsonGet(this.json, "customData._speed") }
+        get direction() { return jsonGet(this.json, "customData._direction") }
+        get nameFilter() { return jsonGet(this.json, "customData._nameFilter") }
+        get reset() { return jsonGet(this.json, "customData._reset") }
+        get rotation() { return jsonGet(this.json, "customData._rotation") }
+        get step() { return jsonGet(this.json, "customData._step") }
+        get prop() { return jsonGet(this.json, "customData._prop") }
+        get counterSpin() { return jsonGet(this.json, "customData._counterSpin") }
 
-        set lockPosition(value: boolean) { jsonSet(this.json, "_customData._lockPosition", value) }
-        set speed(value: number) { jsonSet(this.json, "_customData._speed", value) }
-        set direction(value: number) { jsonSet(this.json, "_customData._direction", value) }
-        set nameFilter(value: string) { jsonSet(this.json, "_customData._nameFilter", value) }
-        set reset(value: boolean) { jsonSet(this.json, "_customData._reset", value) }
-        set rotation(value: number) { jsonSet(this.json, "_customData._rotation", value) }
-        set step(value: number) { jsonSet(this.json, "_customData._step", value) }
-        set prop(value: number) { jsonSet(this.json, "_customData._prop", value) }
-        set counterSpin(value: boolean) { jsonSet(this.json, "_customData._counterSpin", value) }
-        set lightID(value: LightID) { jsonSet(this.json, "_customData._lightID", value) }
-        set color(value: ColorType) { jsonSet(this.json, "_customData._color", value) }
-        set easing(value: EASE) { jsonSet(this.json, "_customData._easing", value) }
-        set lerpType(value: string) { jsonSet(this.json, "_customData._lerpType", value) }
-        set lightGradient(value) { jsonSet(this.json, "_customData._lightGradient", value) }
-        set startColor(value: ColorType) { jsonSet(this.json, "_customData._lightGradient._startColor", value) }
-        set endColor(value: ColorType) { jsonSet(this.json, "_customData._lightGradient._endColor", value) }
-        set duration(value: number) { jsonSet(this.json, "_customData._lightGradient._duration", value) }
-        set gradientEasing(value: EASE) { jsonSet(this.json, "_customData._lightGradient._easing", value) }
+        set lockPosition(value: boolean) { jsonSet(this.json, "customData._lockPosition", value) }
+        set speed(value: number) { jsonSet(this.json, "customData._speed", value) }
+        set direction(value: number) { jsonSet(this.json, "customData._direction", value) }
+        set nameFilter(value: string) { jsonSet(this.json, "customData._nameFilter", value) }
+        set reset(value: boolean) { jsonSet(this.json, "customData._reset", value) }
+        set rotation(value: number) { jsonSet(this.json, "customData._rotation", value) }
+        set step(value: number) { jsonSet(this.json, "customData._step", value) }
+        set prop(value: number) { jsonSet(this.json, "customData._prop", value) }
+        set counterSpin(value: boolean) { jsonSet(this.json, "customData._counterSpin", value) }
+        set lightID(value: LightID) { jsonSet(this.json, "customData._lightID", value) }
+        set color(value: ColorType) { jsonSet(this.json, "customData._color", value) }
+        set easing(value: EASE) { jsonSet(this.json, "customData._easing", value) }
+        set lerpType(value: string) { jsonSet(this.json, "customData._lerpType", value) }
+        set lightGradient(value) { jsonSet(this.json, "customData._lightGradient", value) }
+        set startColor(value: ColorType) { jsonSet(this.json, "customData._lightGradient._startColor", value) }
+        set endColor(value: ColorType) { jsonSet(this.json, "customData._lightGradient._endColor", value) }
+        set duration(value: number) { jsonSet(this.json, "customData._lightGradient._duration", value) }
+        set gradientEasing(value: EASE) { jsonSet(this.json, "customData._lightGradient._easing", value) }
     }
 }
 

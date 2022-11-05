@@ -38,7 +38,7 @@ export namespace EnvironmentInternals {
         get localRotation() { return this.json._localRotation }
         get lightID() { return this.json._lightID }
         get track() { return this.json._track }
-        get group() { return this.json._group }
+        get group() { return this.json.group }
         get animationProperties() {
             const returnObj: any = {};
             if (this.position !== undefined) returnObj._position = this.position;
@@ -58,7 +58,7 @@ export namespace EnvironmentInternals {
         set localRotation(value: Vec3) { this.json._localRotation = value }
         set lightID(value: number) { this.json._lightID = value }
         set track(value: string) { this.json._track = value }
-        set group(value: string) { this.json._group = value }
+        set group(value: string) { this.json.group = value }
     }
 }
 
@@ -92,7 +92,7 @@ export class Geometry extends EnvironmentInternals.BaseEnvironment {
         super();
         type ??= "Cube";
         material ??= {
-            _shader: "Standard"
+            shader: "Standard"
         }
         this.type = type;
         this.material = material;
@@ -109,10 +109,10 @@ export class Geometry extends EnvironmentInternals.BaseEnvironment {
 
 export type GeometryMaterial = RawGeometryMaterial | string
 export type RawGeometryMaterial = {
-    _shader: GEO_SHADER,
-    _color?: ColorType,
-    _track?: string,
-    _shaderKeywords?: string[]
+    shader: GEO_SHADER,
+    color?: ColorType,
+    track?: string,
+    shaderKeywords?: string[]
 }
 
 export function animateEnvGroup(group: string, time: number, animation: (animation: AnimationInternals.EnvironmentAnimation) => void, duration?: number, easing?: string) {

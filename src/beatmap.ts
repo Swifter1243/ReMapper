@@ -6,7 +6,7 @@ import { Event, EventInternals } from './basicEvent.ts';
 import { CustomEvent, CustomEventInternals } from './custom_event.ts';
 import { Environment, EnvironmentInternals, Geometry, GeometryMaterial } from './environment.ts';
 import { copy, isEmptyObject, jsonGet, jsonPrune, jsonSet, sortObjects, Vec3, setDecimals, RMLog, parseFilePath, RMJson, jsonRemove } from './general.ts';
-import { AnimationInternals } from './animation.ts';
+import { AnimationInternals, RawKeyframesAny } from './animation.ts';
 import { OptimizeSettings } from './anim_optimizer.ts';
 import { ENV_NAMES, MODS, settingsHandler, DIFFS, FILENAME, FILEPATH } from './constants.ts';
 import { BoostEvent, BPMChange, LightEvent, LightEventBox, LightEventBoxGroup, LightRotation, LightRotationBox, LightRotationBoxGroup, RotationEvent } from './event.ts';
@@ -173,7 +173,7 @@ export class Difficulty {
 
         Object.keys(this.json).forEach(x => {
             if (Array.isArray(this.json[x])) outputJSON[x] = [];
-            else if (x === "_customData") Object.keys(this.json[x]).forEach(y => {
+            else if (x === "customData") Object.keys(this.json[x]).forEach(y => {
                 if (!outputJSON[x]) outputJSON[x] = {};
                 if (Array.isArray(this.json[x][y])) outputJSON[x][y] = [];
                 else outputJSON[x][y] = copy(this.json[x][y]);
@@ -205,9 +205,9 @@ export class Difficulty {
         diffArrClassToJson(this.BPMChanges, "bpmEvents");
         diffArrClassToJson(this.rotationEvents, "rotationEvents");
         diffArrClassToJson(this.boostEvents, "colorBoostBeatmapEvents");
-        diffArrClassToJson(this.customEvents, "_customData._customEvents");
-        diffArrClassToJson(this.rawEnvironment, "_customData._environment", x => {
-            jsonRemove(x.json, "_group");
+        diffArrClassToJson(this.customEvents, "customData.customEvents");
+        diffArrClassToJson(this.rawEnvironment, "customData.environment", x => {
+            jsonRemove(x.json, "group");
         })
 
         function safeCloneJSON(json: Record<string, any>) {
@@ -393,11 +393,11 @@ export class Difficulty {
     get waypoints() { return this.json.waypoints }
     get basicEventTypesKeywords() { return this.json.basicEventTypesWithKeywords }
     get useBasicEvent() { return this.json.useNormalEventsAsCompatibleEvents }
-    get customData() { return jsonGet(this.json, "_customData", {}) }
-    get customEvents() { return jsonGet(this.json, "_customData._customEvents", []) }
-    get pointDefinitions() { return jsonGet(this.json, "_customData._pointDefinitions", []) }
-    get geoMaterials() { return jsonGet(this.json, "_customData._materials", {}) }
-    get rawEnvironment() { return jsonGet(this.json, "_customData._environment", []) }
+    get customData() { return jsonGet(this.json, "customData", {}) }
+    get customEvents() { return jsonGet(this.json, "customData.customEvents", []) }
+    get pointDefinitions() { return jsonGet(this.json, "customData.pointDefinitions", {}) }
+    get geoMaterials() { return jsonGet(this.json, "customData.materials", {}) }
+    get rawEnvironment() { return jsonGet(this.json, "customData.environment", []) }
 
     set version(value: string) { this.json.version = value }
     set notes(value: Note[]) { this.json.colorNotes = value }
@@ -414,11 +414,11 @@ export class Difficulty {
     set waypoints(value: Record<string, any>[]) { this.json.waypoints = value }
     set basicEventTypesKeywords(value: Record<string, any>) { this.json.basicEventTypesWithKeywords = value }
     set useBasicEvents(value: boolean) { this.json.useNormalEventsAsCompatibleEvents = value }
-    set customData(value) { jsonSet(this.json, "_customData", value) }
-    set customEvents(value: CustomEventInternals.BaseEvent[]) { jsonSet(this.json, "_customData._customEvents", value) }
-    set pointDefinitions(value: Record<string, any>[]) { jsonSet(this.json, "_customData._pointDefinitions", value) }
-    set geoMaterials(value: Record<string, GeometryMaterial>) { jsonSet(this.json, "_customData._materials", value) }
-    set rawEnvironment(value: EnvironmentInternals.BaseEnvironment[]) { jsonSet(this.json, "_customData._environment", value) }
+    set customData(value) { jsonSet(this.json, "customData", value) }
+    set customEvents(value: CustomEventInternals.BaseEvent[]) { jsonSet(this.json, "customData.customEvents", value) }
+    set pointDefinitions(value: Record<string, RawKeyframesAny>) { jsonSet(this.json, "customData.pointDefinitions", value) }
+    set geoMaterials(value: Record<string, GeometryMaterial>) { jsonSet(this.json, "customData.materials", value) }
+    set rawEnvironment(value: EnvironmentInternals.BaseEnvironment[]) { jsonSet(this.json, "customData.environment", value) }
 
     animateTracks(fn: (arr: CustomEventInternals.AnimateTrack[]) => void) {
         const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.AnimateTrack) as CustomEventInternals.AnimateTrack[]

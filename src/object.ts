@@ -8,10 +8,10 @@ export class BaseObject {
     json: Record<string, any> = {};
 
     get time() { return this.json.b }
-    get customData() { return this.json._customData }
+    get customData() { return this.json.customData }
 
     set time(value: number) { this.json.b = value }
-    set customData(value: Record<string, unknown>) { this.json._customData = value }
+    set customData(value: Record<string, unknown>) { this.json.customData = value }
 
     get isModded() {
         if (this.customData === undefined) return false;
@@ -24,46 +24,46 @@ export class BaseObject {
 export class BaseGameplayObject extends BaseObject {
     get x() { return this.json.x }
     get y() { return this.json.y }
-    get position() { return this.json._customData._position }
-    get rotation() { return this.json._customData._rotation }
-    get localRotation() { return this.json._customData._localRotation }
+    get position() { return this.json.customData._position }
+    get rotation() { return this.json.customData._rotation }
+    get localRotation() { return this.json.customData._localRotation }
     get NJS() {
-        if (this.json._customData._noteJumpMovementSpeed)
-            return this.json._customData._noteJumpMovementSpeed;
+        if (this.json.customData._noteJumpMovementSpeed)
+            return this.json.customData._noteJumpMovementSpeed;
         else return activeDiffGet().NJS;
     }
     get offset() {
-        if (this.json._customData._noteJumpStartBeatOffset)
-            return this.json._customData._noteJumpStartBeatOffset;
+        if (this.json.customData._noteJumpStartBeatOffset)
+            return this.json.customData._noteJumpStartBeatOffset;
         else return activeDiffGet().offset;
     }
     get halfJumpDur() { return getJumps(this.NJS, this.offset, info.BPM).halfDur }
     get jumpDist() { return getJumps(this.NJS, this.offset, info.BPM).dist }
     get life() { return this.halfJumpDur * 2 }
     get lifeStart() { return this.time - this.life / 2 }
-    get fake() { return this.json._customData._fake }
-    get interactable() { return this.json._customData._interactable }
-    get track() { return new Track(this.json._customData._track) }
-    get color() { return this.json._customData._color }
-    get animation() { return this.json._customData._animation }
+    get fake() { return this.json.customData._fake }
+    get interactable() { return this.json.customData._interactable }
+    get track() { return new Track(this.json.customData._track) }
+    get color() { return this.json.customData._color }
+    get animation() { return this.json.customData._animation }
 
     set x(value: number) { this.json.x = value }
     set y(value: number) { this.json.y = value }
-    set position(value: Vec2) { this.json._customData._position = value }
-    set rotation(value: Vec3) { this.json._customData._rotation = value }
-    set localRotation(value: Vec3) { this.json._customData._localRotation = value }
-    set NJS(value: number) { this.json._customData._noteJumpMovementSpeed = value }
-    set offset(value: number) { this.json._customData._noteJumpStartBeatOffset = value }
+    set position(value: Vec2) { this.json.customData._position = value }
+    set rotation(value: Vec3) { this.json.customData._rotation = value }
+    set localRotation(value: Vec3) { this.json.customData._localRotation = value }
+    set NJS(value: number) { this.json.customData._noteJumpMovementSpeed = value }
+    set offset(value: number) { this.json.customData._noteJumpStartBeatOffset = value }
     set life(value: number) {
         if (value < 2) console.log("Warning: The lifespan of a note has a minimum of 2 beats.");
         const defaultJumps = getJumps(this.NJS, 0, info.BPM);
         this.offset = (value - (2 * defaultJumps.halfDur)) / 2;
     }
     set lifeStart(value: number) { this.time = value + this.life / 2 }
-    set fake(value: boolean) { this.json._customData._fake = value }
-    set interactable(value: boolean) { this.json._customData._interactable = value }
-    set color(value: ColorType) { this.json._customData._color = value }
-    set animation(value) { this.json._customData._animation = value }
+    set fake(value: boolean) { this.json.customData._fake = value }
+    set interactable(value: boolean) { this.json.customData._interactable = value }
+    set color(value: ColorType) { this.json.customData._color = value }
+    set animation(value) { this.json.customData._animation = value }
 
     get isModded() {
         if (this.customData === undefined) return false;

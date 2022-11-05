@@ -12,7 +12,7 @@ export class Wall extends BaseGameplayObject {
         d: 0,
         w: 1,
         h: 1,
-        _customData: {
+        customData: {
             _animation: {}
         }
     };
@@ -65,14 +65,14 @@ export class Wall extends BaseGameplayObject {
     get duration() { return this.json.d }
     get height() { return this.json.h }
     get width() { return this.json.w }
-    get scale() { return this.json._customData._scale }
+    get scale() { return this.json.customData._scale }
     get life() { return this.halfJumpDur * 2 + this.duration }
     get lifeStart() { return this.time - this.halfJumpDur }
 
     set duration(value: number) { this.json.d = value }
     set height(value: number) { this.json.h = value }
     set width(value: number) { this.json.w = value }
-    set scale(value: Vec3) { this.json._customData._scale = value }
+    set scale(value: Vec3) { this.json.customData._scale = value }
     set life(value: number) { this.duration = value - (this.halfJumpDur * 2) }
     set lifeStart(value: number) { this.time = value + this.halfJumpDur }
 }
