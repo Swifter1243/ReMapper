@@ -6,9 +6,9 @@ import { AnimationInternals, Animation, TrackValue, Track } from './animation.ts
 export namespace CustomEventInternals {
     export class BaseEvent {
         json: any = {
-            _time: 0,
-            _type: "",
-            _data: {}
+            b: 0,
+            t: "",
+            d: {}
         };
 
         constructor(time: number | Record<string, any>) {
@@ -27,13 +27,13 @@ export namespace CustomEventInternals {
             return this;
         }
 
-        get time() { return this.json._time }
-        get type() { return this.json._type }
-        get data() { return this.json._data }
+        get time() { return this.json.b }
+        get type() { return this.json.t }
+        get data() { return this.json.d }
 
-        set time(value) { this.json._time = value }
-        set type(value) { this.json._type = value }
-        set data(value) { this.json._data = value }
+        set time(value) { this.json.b = value }
+        set type(value) { this.json.t = value }
+        set data(value) { this.json.d = value }
     }
 
 
@@ -58,9 +58,9 @@ export namespace CustomEventInternals {
             const oldData = copy(this.data);
 
             Object.keys(this.data).forEach(key => { delete this.data[key] });
-            this.track.value = oldData._track;
-            this.duration = oldData._duration;
-            if (oldData._easing) this.easing = oldData._easing;
+            this.track.value = oldData.track;
+            this.duration = oldData.duration;
+            if (oldData.easing) this.easing = oldData.easing;
 
             Object.keys(data).forEach(x => {
                 this.json._data[x] = data[x];
@@ -85,11 +85,11 @@ export namespace CustomEventInternals {
         abstract() { return new CustomEvent().import(this.json) }
 
         get track() { return new Track(this.data) }
-        get duration() { return this.data._duration }
-        get easing() { return this.data._easing }
+        get duration() { return this.data.duration }
+        get easing() { return this.data.easing }
 
-        set duration(value) { this.data._duration = value }
-        set easing(value) { this.data._easing = value }
+        set duration(value) { this.data.duration = value }
+        set easing(value) { this.data.easing = value }
     }
 
     export class AssignPathAnimation extends BaseEvent {
@@ -113,9 +113,9 @@ export namespace CustomEventInternals {
             const oldData = copy(this.data);
 
             Object.keys(this.data).forEach(key => { delete this.data[key] });
-            this.track.value = oldData._track;
-            this.duration = oldData._duration;
-            if (oldData._easing) this.easing = oldData._easing;
+            this.track.value = oldData.track;
+            this.duration = oldData.duration;
+            if (oldData.easing) this.easing = oldData.easing;
 
             Object.keys(data).forEach(x => {
                 this.json._data[x] = data[x];
@@ -140,11 +140,11 @@ export namespace CustomEventInternals {
         abstract() { return new CustomEvent().import(this.json) }
 
         get track() { return new Track(this.data) }
-        get duration() { return this.data._duration }
-        get easing() { return this.data._easing }
+        get duration() { return this.data.duration }
+        get easing() { return this.data.easing }
 
-        set duration(value) { this.data._duration = value }
-        set easing(value) { this.data._easing = value }
+        set duration(value) { this.data.duration = value }
+        set easing(value) { this.data.easing = value }
     }
 
     export class AssignTrackParent extends BaseEvent {
@@ -163,13 +163,13 @@ export namespace CustomEventInternals {
         */
         abstract() { return new CustomEvent().import(this.json) }
 
-        get childrenTracks() { return this.data._childrenTracks }
-        get parentTrack() { return this.data._parentTrack }
-        get worldPositionStays() { return this.data._worldPositionStays }
+        get childrenTracks() { return this.data.childrenTracks }
+        get parentTrack() { return this.data.parentTrack }
+        get worldPositionStays() { return this.data.worldPositionStays }
 
-        set childrenTracks(value) { this.data._childrenTracks = value }
-        set parentTrack(value) { this.data._parentTrack = value }
-        set worldPositionStays(value) { this.data._worldPositionStays = value }
+        set childrenTracks(value) { this.data.childrenTracks = value }
+        set parentTrack(value) { this.data.parentTrack = value }
+        set worldPositionStays(value) { this.data.worldPositionStays = value }
     }
 
     export class AssignPlayerToTrack extends BaseEvent {
@@ -234,17 +234,17 @@ export namespace CustomEventInternals {
         }
 
         get track() { return new Track(this.data) }
-        get duration() { return this.data._duration }
-        get easing() { return this.data._easing }
-        get childrenTracks() { return this.data._childrenTracks }
-        get parentTrack() { return this.data._parentTrack }
-        get worldPositionStays() { return this.data._worldPositionStays }
+        get duration() { return this.data.duration }
+        get easing() { return this.data.easing }
+        get childrenTracks() { return this.data.childrenTracks }
+        get parentTrack() { return this.data.parentTrack }
+        get worldPositionStays() { return this.data.worldPositionStays }
 
-        set duration(value) { this.data._duration = value }
-        set easing(value) { this.data._easing = value }
-        set childrenTracks(value) { this.data._childrenTracks = value }
-        set parentTrack(value) { this.data._parentTrack = value }
-        set worldPositionStays(value) { this.data._worldPositionStays = value }
+        set duration(value) { this.data.duration = value }
+        set easing(value) { this.data.easing = value }
+        set childrenTracks(value) { this.data.childrenTracks = value }
+        set parentTrack(value) { this.data.parentTrack = value }
+        set worldPositionStays(value) { this.data.worldPositionStays = value }
     }
 }
 
