@@ -66,18 +66,18 @@ export class Note extends BaseGameplayObject {
     get type() { return this.json.c }
     get direction() { return this.json.d }
     get angleOffset() { return this.json.a }
-    get flip() { return this.json.customData._flip }
-    get noteGravity() { return !this.json.customData._disableNoteGravity }
-    get noteLook() { return !this.json.customData._disableNoteLook }
-    get spawnEffect() { return !this.json.customData._disableSpawnEffect }
+    get flip() { return this.json.customData.flip }
+    get noteGravity() { return !this.json.customData.disableNoteGravity }
+    get noteLook() { return !this.json.customData.disableNoteLook }
+    get spawnEffect() { return this.json.customData.spawnEffect }
 
     set type(value: NOTETYPE) { this.json.c = value }
     set direction(value: CUT) { this.json.d = value }
     set angleOffset(value: number) { this.json.a = value }
-    set flip(value: boolean) { this.json.customData._flip = value }
-    set noteGravity(value: boolean) { this.json.customData._disableNoteGravity = !value }
-    set noteLook(value: boolean) { this.json.customData._disableNoteLook = !value }
-    set spawnEffect(value: boolean) { this.json.customData._disableSpawnEffect = !value }
+    set flip(value: boolean) { this.json.customData.flip = value }
+    set noteGravity(value: boolean) { this.json.customData.disableNoteGravity = !value }
+    set noteLook(value: boolean) { this.json.customData.disableNoteLook = !value }
+    set spawnEffect(value: boolean) { this.json.customData.spawnEffect = value }
 }
 
 export class Bomb extends BaseGameplayObject {
@@ -132,6 +132,16 @@ export class Bomb extends BaseGameplayObject {
         this.animate = new Animation().noteAnimation(this.animation);
         return this;
     }
+
+    get flip() { return this.json.customData.flip }
+    get noteGravity() { return !this.json.customData.disableNoteGravity }
+    get noteLook() { return !this.json.customData.disableNoteLook }
+    get spawnEffect() { return this.json.customData.spawnEffect }
+
+    set flip(value: boolean) { this.json.customData.flip = value }
+    set noteGravity(value: boolean) { this.json.customData.disableNoteGravity = !value }
+    set noteLook(value: boolean) { this.json.customData.disableNoteLook = !value }
+    set spawnEffect(value: boolean) { this.json.customData.spawnEffect = value }
 }
 
 export class Chain extends BaseSliderObject {
@@ -212,9 +222,17 @@ export class Chain extends BaseSliderObject {
 
     get links() { return this.json.sc }
     get squish() { return this.json.s }
+    get flip() { return this.json.customData.flip }
+    get noteGravity() { return !this.json.customData.disableNoteGravity }
+    get noteLook() { return !this.json.customData.disableNoteLook }
+    get spawnEffect() { return this.json.customData.spawnEffect }
 
     set links(value: number) { this.json.sc = value }
     set squish(value: number) { this.json.s = value }
+    set flip(value: boolean) { this.json.customData.flip = value }
+    set noteGravity(value: boolean) { this.json.customData.disableNoteGravity = !value }
+    set noteLook(value: boolean) { this.json.customData.disableNoteLook = !value }
+    set spawnEffect(value: boolean) { this.json.customData.spawnEffect = value }
 }
 
 export class Arc extends BaseSliderObject {
@@ -297,9 +315,17 @@ export class Arc extends BaseSliderObject {
     get headLength() { return this.json.mu }
     get tailLength() { return this.json.tmu }
     get anchorMode() { return this.json.m }
+    get flip() { return this.json.customData.flip }
+    get noteGravity() { return !this.json.customData.disableNoteGravity }
+    get noteLook() { return !this.json.customData.disableNoteLook }
+    get spawnEffect() { return this.json.customData.spawnEffect }
 
     set tailDirection(value: CUT) { this.json.tc = value }
     set headLength(value: number) { this.json.mu = value }
     set tailLength(value: number) { this.json.tmu = value }
     set anchorMode(value: ANCHORMODE) { this.json.m = value }
+    set flip(value: boolean) { this.json.customData.flip = value }
+    set noteGravity(value: boolean) { this.json.customData.disableNoteGravity = !value }
+    set noteLook(value: boolean) { this.json.customData.disableNoteLook = !value }
+    set spawnEffect(value: boolean) { this.json.customData.spawnEffect = value }
 }
