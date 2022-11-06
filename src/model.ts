@@ -145,7 +145,6 @@ export class ModelScene {
                         objScale.pop();
 
                         objPos = (objPos as Vec3).map(x => x / 2);
-                        objScale = (objScale as Vec3).map(x => x * 0.6);
                         if (anchor) objPos = applyAnchor(objPos as Vec3, objRot as Vec3, objScale as Vec3, anchor);
                         if (rotation) objRot = (objRot as Vec3).map((x, i) => (x + (rotation as Vec3)[i]) % 360);
                         if (scale) objScale = (objScale as Vec3).map((x, i) => x * (scale as Vec3)[i]);
@@ -187,12 +186,6 @@ export class ModelScene {
                     if (group.anchor) anchor = group.anchor
                     if (group.rotation) rotation = group.rotation
                 }
-
-                iterateKeyframes(x.scale, y => {
-                    y[0] *= 0.6;
-                    y[1] *= 0.6;
-                    y[2] *= 0.6;
-                })
 
                 if ((anchor && options.bake !== false && !options.static) || options.bake) {
                     // Baking animation
@@ -416,7 +409,7 @@ export class ModelScene {
 }
 
 export function applyAnchor(objPos: Vec3, objRot: Vec3, objScale: Vec3, anchor: Vec3) {
-    const offset = rotatePoint(objRot, objScale.map((x, i) => x * anchor[i] / 0.6) as Vec3);
+    const offset = rotatePoint(objRot, objScale.map((x, i) => x * anchor[i]) as Vec3);
     return objPos.map((x, i) => x + offset[i]) as Vec3;
 }
 
