@@ -401,7 +401,7 @@ export class Difficulty {
     get lightRotationBoxes() { return this.json.lightRotationEventBoxGroups }
     get waypoints() { return this.json.waypoints }
     get basicEventTypesKeywords() { return this.json.basicEventTypesWithKeywords }
-    get useBasicEvent() { return this.json.useNormalEventsAsCompatibleEvents }
+    get useBasicEvents() { return this.json.useNormalEventsAsCompatibleEvents }
     get customData() { return jsonGet(this.json, "customData", {}) }
     get customEvents() { return jsonGet(this.json, "customData.customEvents", []) }
     get pointDefinitions() { return jsonGet(this.json, "customData.pointDefinitions", {}) }
