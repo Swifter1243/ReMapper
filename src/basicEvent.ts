@@ -251,6 +251,8 @@ export class Event extends EventInternals.BaseEvent {
      */
     constructor(time = 0) { super(time) }
 
+    setType(type: number) { return new EventInternals.LightEvent(this.json, type) }
+
     /**
      * Controls the back lasers.
      * @returns 
