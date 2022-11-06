@@ -237,9 +237,7 @@ export function findFraction(beginning: number, length: number, time: number) {
  * @param {Array} arr 
  * @returns {*}
  */
-export function arrLast(arr: any[]) {
-    return arr[arr.length - 1];
-}
+export const arrLast = (arr: any[]) => arr[arr.length - 1];
 
 /**
  * Add either a number or another array to an array.
@@ -250,6 +248,11 @@ export function arrLast(arr: any[]) {
 export function arrAdd(arr: number[], value: number[] | number) {
     if (typeof value === "number") return arr.map(x => x + value);
     else return arr.map((x, i) => x + (value[i] !== undefined ? value[i] : 0));
+}
+
+export function arrSubtract(arr: number[], value: number[] | number) {
+    if (typeof value === "number") return arr.map(x => x + value);
+    else return arr.map((x, i) => x - (value[i] !== undefined ? value[i] : 0));
 }
 
 /**
