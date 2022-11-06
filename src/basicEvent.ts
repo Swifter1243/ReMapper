@@ -58,7 +58,7 @@ export namespace EventInternals {
          * @param {Number | Array} lightID 
          * @returns 
          */
-        on(color: ColorType | boolean, lightID?: LightID) {
+        on(color: ColorType | boolean = true, lightID?: LightID) {
             this.value = (typeof color === "boolean" && color) ? EVENT.BLUE_ON : EVENT.RED_ON;
             if (typeof color !== "boolean") this.color = color;
             if (lightID) this.lightID = lightID;
@@ -71,7 +71,7 @@ export namespace EventInternals {
          * @param {Number | Array} lightID 
          * @returns 
          */
-        flash(color: ColorType | boolean, lightID?: LightID) {
+        flash(color: ColorType | boolean = true, lightID?: LightID) {
             this.value = (typeof color === "boolean" && color) ? EVENT.BLUE_FLASH : EVENT.RED_FLASH;
             if (typeof color !== "boolean") this.color = color;
             if (lightID) this.lightID = lightID;
@@ -84,7 +84,7 @@ export namespace EventInternals {
          * @param {Number | Array} lightID 
          * @returns 
          */
-        fade(color: ColorType | boolean, lightID?: LightID) {
+        fade(color: ColorType | boolean = true, lightID?: LightID) {
             this.value = (typeof color === "boolean" && color) ? EVENT.BLUE_FADE : EVENT.RED_FADE;
             if (typeof color !== "boolean") this.color = color;
             if (lightID) this.lightID = lightID;
@@ -97,7 +97,7 @@ export namespace EventInternals {
          * @param {Number | Array} lightID 
          * @returns 
          */
-        in(color: ColorType | boolean, lightID?: LightID) {
+        in(color: ColorType | boolean = true, lightID?: LightID) {
             this.value = (typeof color === "boolean" && color) ? EVENT.BLUE_IN : EVENT.RED_IN;
             if (typeof color !== "boolean") this.color = color;
             if (lightID !== undefined) this.lightID = lightID;
