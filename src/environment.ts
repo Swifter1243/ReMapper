@@ -3,7 +3,7 @@ import { combineAnimations, AnimationInternals } from './animation.ts';
 import { activeDiffGet } from './beatmap.ts';
 import { copy, Vec3, ColorType } from './general.ts';
 import { CustomEvent } from './custom_event.ts';
-import { GEO_TYPE, LOOKUP, GEO_SHADER } from './constants.ts';
+import { GEO_TYPE, LOOKUP, GEO_SHADER, ANIM } from './constants.ts';
 
 let envCount = 0;
 
@@ -132,7 +132,7 @@ export function animateEnvGroup(group: string, time: number, animation: (animati
 
             Object.keys(newAnimation.json).forEach(key => {
                 event.animate.json[key] = newAnimation.json[key]
-                if (x.json[key]) event.animate.json[key] = combineAnimations(event.animate.json[key], x.json[key], key);
+                if (x.json[key]) event.animate.json[key] = combineAnimations(event.animate.json[key], x.json[key], key as ANIM);
             })
 
             event.push();
@@ -152,7 +152,7 @@ export function animateEnvTrack(group: string, time: number, animation: (animati
 
             Object.keys(newAnimation.json).forEach(key => {
                 event.animate.json[key] = newAnimation.json[key]
-                if (x.json[key]) event.animate.json[key] = combineAnimations(event.animate.json[key], x.json[key], key);
+                if (x.json[key]) event.animate.json[key] = combineAnimations(event.animate.json[key], x.json[key], key as ANIM);
             })
 
             event.push();

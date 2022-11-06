@@ -297,21 +297,23 @@ export const EVENT = {
 }
 
 export type ANIM =
-    "_position" |
-    "_definitePosition" |
-    "_localPosition" |
-    "_rotation" |
-    "_localRotation" |
-    "_scale" |
-    "_dissolve" |
-    "_dissolveArrow" |
+    "position" |
+    "offsetPosition" |
+    "definitePosition" |
+    "localPosition" |
+    "rotation" |
+    "offsetWorldRotation" |
+    "localRotation" |
+    "scale" |
+    "dissolve" |
+    "dissolveArrow" |
     "color" |
-    "_interactable" |
-    "_attenuation" |
-    "_offset" |
-    "_startY" |
-    "_height" |
-    "_time"
+    "interactable" |
+    "attenuation" |
+    "offset" |
+    "startY" |
+    "height" |
+    "time"
 
 // Known objects that work. Feel free to PR your own!
 export const ENV = {

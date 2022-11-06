@@ -135,92 +135,96 @@ export namespace AnimationInternals {
 
 
     class ObjectAnimation extends BaseAnimation {
-        get position() { return this.get("_position") }
-        get definitePosition() { return this.get("_definitePosition") }
-        get rotation() { return this.get("_rotation") }
-        get localRotation() { return this.get("_localRotation") }
-        get scale() { return this.get("_scale") }
-        get dissolve() { return this.get("_dissolve") }
+        get position() { return this.get("offsetPosition") }
+        get definitePosition() { return this.get("definitePosition") }
+        get rotation() { return this.get("offsetWorldRotation") }
+        get localRotation() { return this.get("localRotation") }
+        get scale() { return this.get("scale") }
+        get dissolve() { return this.get("dissolve") }
         get color() { return this.get("color") }
-        get interactable() { return this.get("_interactable") }
-        get time() { return this.get("_time") }
+        get interactable() { return this.get("interactable") }
+        get time() { return this.get("time") }
 
-        set position(value: KeyframesVec3) { this.set("_position", value as KeyframesAny) }
-        set definitePosition(value: KeyframesVec3) { this.set("_definitePosition", value as KeyframesAny) }
-        set rotation(value: KeyframesVec3) { this.set("_rotation", value as KeyframesAny) }
-        set localRotation(value: KeyframesVec3) { this.set("_localRotation", value as KeyframesAny) }
-        set scale(value: KeyframesVec3) { this.set("_scale", value as KeyframesAny) }
-        set dissolve(value: KeyframesLinear) { this.set("_dissolve", value as KeyframesAny) }
+        set position(value: KeyframesVec3) { this.set("offsetPosition", value as KeyframesAny) }
+        set definitePosition(value: KeyframesVec3) { this.set("definitePosition", value as KeyframesAny) }
+        set rotation(value: KeyframesVec3) { this.set("offsetWorldRotation", value as KeyframesAny) }
+        set localRotation(value: KeyframesVec3) { this.set("localRotation", value as KeyframesAny) }
+        set scale(value: KeyframesVec3) { this.set("scale", value as KeyframesAny) }
+        set dissolve(value: KeyframesLinear) { this.set("dissolve", value as KeyframesAny) }
         set color(value: KeyframesVec4) { this.set("color", value as KeyframesAny) }
-        set interactable(value: KeyframesLinear) { this.set("_interactable", value as KeyframesAny) }
-        set time(value: KeyframesLinear) { this.set("_time", value as KeyframesAny) }
+        set interactable(value: KeyframesLinear) { this.set("interactable", value as KeyframesAny) }
+        set time(value: KeyframesLinear) { this.set("time", value as KeyframesAny) }
     }
 
     export class NoteAnimation extends ObjectAnimation {
-        get dissolveArrow() { return this.get("_dissolveArrow") }
-        set dissolveArrow(value: KeyframesLinear) { this.set("_dissolveArrow", value as KeyframesAny) }
+        get dissolveArrow() { return this.get("dissolveArrow") }
+        set dissolveArrow(value: KeyframesLinear) { this.set("dissolveArrow", value as KeyframesAny) }
     }
 
     export class WallAnimation extends ObjectAnimation { }
 
     export class EnvironmentAnimation extends BaseAnimation {
-        get position() { return this.get("_position") }
-        get rotation() { return this.get("_rotation") }
-        get localPosition() { return this.get("_localPosition") }
-        get localRotation() { return this.get("_localRotation") }
-        get scale() { return this.get("_scale") }
+        get position() { return this.get("position") }
+        get rotation() { return this.get("rotation") }
+        get localPosition() { return this.get("localPosition") }
+        get localRotation() { return this.get("localRotation") }
+        get scale() { return this.get("scale") }
 
-        set position(value: KeyframesVec3) { this.set("_position", value as KeyframesAny) }
-        set rotation(value: KeyframesVec3) { this.set("_rotation", value as KeyframesAny) }
-        set localPosition(value: KeyframesVec3) { this.set("_localPosition", value as KeyframesAny) }
-        set localRotation(value: KeyframesVec3) { this.set("_localRotation", value as KeyframesAny) }
-        set scale(value: KeyframesVec3) { this.set("_scale", value as KeyframesAny) }
+        set position(value: KeyframesVec3) { this.set("position", value as KeyframesAny) }
+        set rotation(value: KeyframesVec3) { this.set("rotation", value as KeyframesAny) }
+        set localPosition(value: KeyframesVec3) { this.set("localPosition", value as KeyframesAny) }
+        set localRotation(value: KeyframesVec3) { this.set("localRotation", value as KeyframesAny) }
+        set scale(value: KeyframesVec3) { this.set("scale", value as KeyframesAny) }
     }
 
     export class FogAnimation extends BaseAnimation {
-        get attenuation() { return this.get("_attenuation") }
-        get offset() { return this.get("_offset") }
-        get startY() { return this.get("_startY") }
-        get height() { return this.get("_height") }
+        get attenuation() { return this.get("attenuation") }
+        get offset() { return this.get("offset") }
+        get startY() { return this.get("startY") }
+        get height() { return this.get("height") }
 
-        set attenuation(value: KeyframesLinear) { this.set("_attenuation", value as KeyframesAny) }
-        set offset(value: KeyframesLinear) { this.set("_offset", value as KeyframesAny) }
-        set startY(value: KeyframesLinear) { this.set("_startY", value as KeyframesAny) }
-        set height(value: KeyframesLinear) { this.set("_height", value as KeyframesAny) }
+        set attenuation(value: KeyframesLinear) { this.set("attenuation", value as KeyframesAny) }
+        set offset(value: KeyframesLinear) { this.set("offset", value as KeyframesAny) }
+        set startY(value: KeyframesLinear) { this.set("startY", value as KeyframesAny) }
+        set height(value: KeyframesLinear) { this.set("height", value as KeyframesAny) }
     }
 
-    export class AbstractAnimation extends ObjectAnimation {
-        get position() { return this.get("_position") }
-        get localPosition() { return this.get("_localPosition") }
-        get definitePosition() { return this.get("_definitePosition") }
-        get rotation() { return this.get("_rotation") }
-        get localRotation() { return this.get("_localRotation") }
-        get scale() { return this.get("_scale") }
-        get dissolve() { return this.get("_dissolve") }
-        get dissolveArrow() { return this.get("_dissolveArrow") }
+    export class AbstractAnimation extends BaseAnimation {
+        get position() { return this.get("position") }
+        get rotation() { return this.get("rotation") }
+        get localPosition() { return this.get("localPosition") }
+        get localRotation() { return this.get("localRotation") }
+        get offsetPosition() { return this.get("offsetPosition") }
+        get offsetRotation() { return this.get("offsetWorldRotation") }
+        get definitePosition() { return this.get("definitePosition") }
+        get scale() { return this.get("scale") }
+        get attenuation() { return this.get("attenuation") }
+        get offset() { return this.get("offset") }
+        get startY() { return this.get("startY") }
+        get height() { return this.get("height") }
+        get dissolve() { return this.get("dissolve") }
+        get dissolveArrow() { return this.get("dissolveArrow") }
         get color() { return this.get("color") }
-        get interactable() { return this.get("_interactable") }
-        get time() { return this.get("_time") }
-        get attenuation() { return this.get("_attenuation") }
-        get offset() { return this.get("_offset") }
-        get startY() { return this.get("_startY") }
-        get height() { return this.get("_height") }
+        get interactable() { return this.get("interactable") }
+        get time() { return this.get("time") }
 
-        set position(value: KeyframesVec3) { this.set("_position", value as KeyframesAny) }
-        set localPosition(value: KeyframesVec3) { this.set("_localPosition", value as KeyframesAny) }
-        set definitePosition(value: KeyframesVec3) { this.set("_definitePosition", value as KeyframesAny) }
-        set rotation(value: KeyframesVec3) { this.set("_rotation", value as KeyframesAny) }
-        set localRotation(value: KeyframesVec3) { this.set("_localRotation", value as KeyframesAny) }
-        set scale(value: KeyframesVec3) { this.set("_scale", value as KeyframesAny) }
-        set dissolve(value: KeyframesLinear) { this.set("_dissolve", value as KeyframesAny) }
-        set dissolveArrow(value: KeyframesLinear) { this.set("_dissolveArrow", value as KeyframesAny) }
+        set position(value: KeyframesVec3) { this.set("position", value as KeyframesAny) }
+        set rotation(value: KeyframesVec3) { this.set("rotation", value as KeyframesAny) }
+        set localPosition(value: KeyframesVec3) { this.set("localPosition", value as KeyframesAny) }
+        set localRotation(value: KeyframesVec3) { this.set("localRotation", value as KeyframesAny) }
+        set offsetPosition(value: KeyframesVec3) { this.set("offsetPosition", value as KeyframesAny) }
+        set offsetRotation(value: KeyframesVec3) { this.set("offsetWorldRotation", value as KeyframesAny) }
+        set definitePosition(value: KeyframesVec3) { this.set("definitePosition", value as KeyframesAny) }
+        set scale(value: KeyframesVec3) { this.set("scale", value as KeyframesAny) }
+        set attenuation(value: KeyframesLinear) { this.set("attenuation", value as KeyframesAny) }
+        set offset(value: KeyframesLinear) { this.set("offset", value as KeyframesAny) }
+        set startY(value: KeyframesLinear) { this.set("startY", value as KeyframesAny) }
+        set height(value: KeyframesLinear) { this.set("height", value as KeyframesAny) }
+        set dissolve(value: KeyframesLinear) { this.set("dissolve", value as KeyframesAny) }
+        set dissolveArrow(value: KeyframesLinear) { this.set("dissolveArrow", value as KeyframesAny) }
         set color(value: KeyframesVec4) { this.set("color", value as KeyframesAny) }
-        set interactable(value: KeyframesLinear) { this.set("_interactable", value as KeyframesAny) }
-        set time(value: KeyframesLinear) { this.set("_time", value as KeyframesAny) }
-        set attenuation(value: KeyframesLinear) { this.set("_attenuation", value as KeyframesAny) }
-        set offset(value: KeyframesLinear) { this.set("_offset", value as KeyframesAny) }
-        set startY(value: KeyframesLinear) { this.set("_startY", value as KeyframesAny) }
-        set height(value: KeyframesLinear) { this.set("_height", value as KeyframesAny) }
+        set interactable(value: KeyframesLinear) { this.set("interactable", value as KeyframesAny) }
+        set time(value: KeyframesLinear) { this.set("time", value as KeyframesAny) }
     }
 }
 
@@ -321,7 +325,7 @@ export class Keyframe {
 }
 
 type TrackReference = {
-    _track: any;
+    track: any;
 }
 
 export class Track {
@@ -331,7 +335,7 @@ export class Track {
      * Handler for the track property.
      * @param {TrackValue} value 
      */
-    constructor(reference: TrackReference) { 
+    constructor(reference: TrackReference) {
         this.reference = reference;
     }
 
@@ -343,8 +347,8 @@ export class Track {
         return array.length === 1 ? array[0] : array;
     }
 
-    set value(value: TrackValue) { this.reference._track = value }
-    get value() { return this.reference._track }
+    set value(value: TrackValue) { this.reference.track = value }
+    get value() { return this.reference.track }
 
     /**
      * Safely check if the track contains this value.
@@ -385,7 +389,7 @@ export class Track {
         const returnArr = thisValue.filter((_x, i) => !removed[i]);
 
         if (returnArr.length === 0) {
-            delete this.reference._track;
+            delete this.reference.track;
             return
         }
         this.value = this.simplifyArray(returnArr);
@@ -455,11 +459,11 @@ export function isSimple(array: KeyframesAny) {
  * @param {Time} time 
  * @returns {Array}
  */
-export function getValuesAtTime(property: string, animation: KeyframesAny, time: number) {
+export function getValuesAtTime(property: ANIM, animation: KeyframesAny, time: number) {
     animation = complexifyArray(animation);
     const timeInfo = timeInKeyframes(time, animation);
     if (timeInfo.interpolate && timeInfo.r && timeInfo.l) {
-        if (property === "_rotation" || property === "_localRotation") {
+        if (property === "rotation" || property === "localRotation" || property === "offsetWorldRotation") {
             return lerpRotation(timeInfo.l.values as Vec3, timeInfo.r.values as Vec3, timeInfo.normalTime);
         }
         else {
@@ -550,7 +554,7 @@ function timeInKeyframes(time: number, animation: KeyframeArray) {
  * @param {String} property Property that the animation originated from, important to determine how to combine.
  * @returns {Array}
  */
-export function combineAnimations(anim1: KeyframesAny, anim2: KeyframesAny, property: string) {
+export function combineAnimations(anim1: KeyframesAny, anim2: KeyframesAny, property: ANIM) {
     let simpleArr = copy(anim1);
     let complexArr: KeyframeArray = [];
 
@@ -567,9 +571,18 @@ export function combineAnimations(anim1: KeyframesAny, anim2: KeyframesAny, prop
     }
 
     const editElem = function (e: number, e2: number) {
-        if (property === ("_position" || "_localPosition")) e += e2;
-        if (property === ("_rotation" || "_localRotation")) e = (e + e2) % 360;
-        if (property === ("_scale")) e *= e2;
+        if (
+            property === "position" ||
+            property === "localPosition" ||
+            property === "definitePosition" ||
+            property === "offsetPosition"
+        ) e += e2;
+        if (
+            property === "rotation" ||
+            property === "localRotation" ||
+            property === "offsetWorldRotation"
+        ) e = (e + e2) % 360;
+        if (property === "scale") e *= e2;
         return e;
     }
 
@@ -592,7 +605,7 @@ export function bakeAnimation(animation: { pos?: RawKeyframesVec3, rot?: RawKeyf
     forKeyframe?: (transform: { pos: Vec3, rot: Vec3, scale: Vec3, time: number }) => void,
     animFreq?: number, animOptimizer?: OptimizeSettings) {
     animFreq ??= 1 / 32,
-    animation.pos ??= [0, 0, 0];
+        animation.pos ??= [0, 0, 0];
     animation.rot ??= [0, 0, 0];
     animation.scale ??= [1, 1, 1];
 
@@ -629,9 +642,9 @@ export function bakeAnimation(animation: { pos?: RawKeyframesVec3, rot?: RawKeyf
 
     for (let i = totalMin; i <= totalMax; i += animFreq) {
         const keyframe = {
-            pos: dataAnim.get("_position", i),
-            rot: dataAnim.get("_rotation", i),
-            scale: dataAnim.get("_scale", i),
+            pos: dataAnim.get("position", i),
+            rot: dataAnim.get("rotation", i),
+            scale: dataAnim.get("scale", i),
             time: i
         };
 
