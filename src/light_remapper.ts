@@ -116,12 +116,13 @@ export class LightRemapper extends LightRemapperInternals.BaseLightRemapper {
      * @param lightIDs 
      * @returns 
      */
-    IDs = (lightIDs?: number[]) => this.addCondition(x => {
+    IDs = (lightIDs?: LightID) => this.addCondition(x => {
         if (x.lightID) {
             if (lightIDs) {
+                const arrIDs = typeof lightIDs === "object" ? lightIDs : [lightIDs]
                 let passed = false;
                 this.complexifyLightIDs(x.lightID, ids => {
-                    if (ids.some(i => arrHas(lightIDs, i))) passed = true;
+                    if (ids.some(i => arrHas(arrIDs, i))) passed = true;
                     return ids;
                 })
                 return passed;
