@@ -89,9 +89,11 @@ export namespace CustomEventInternals {
         get track() { return new Track(this.data) }
         get duration() { return this.data.duration }
         get easing() { return this.data.easing }
+        get repeat() {return this.data.repeat}
 
         set duration(value: number) { this.data.duration = value }
         set easing(value: EASE) { this.data.easing = value }
+        set repeat(value: number) { this.data.repeat = value }
     }
 
     export class AssignPathAnimation extends BaseEvent {

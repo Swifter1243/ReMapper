@@ -308,7 +308,7 @@ export type ANIM =
     "dissolve" |
     "dissolveArrow" |
     "color" |
-    "interactable" |
+    "uninteractable" |
     "attenuation" |
     "offset" |
     "startY" |

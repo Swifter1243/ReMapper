@@ -142,7 +142,7 @@ export namespace AnimationInternals {
         get scale() { return this.get("scale") }
         get dissolve() { return this.get("dissolve") }
         get color() { return this.get("color") }
-        get interactable() { return this.get("interactable") }
+        get uninteractable() { return this.get("uninteractable") }
         get time() { return this.get("time") }
 
         set position(value: KeyframesVec3) { this.set("offsetPosition", value as KeyframesAny) }
@@ -152,7 +152,7 @@ export namespace AnimationInternals {
         set scale(value: KeyframesVec3) { this.set("scale", value as KeyframesAny) }
         set dissolve(value: KeyframesLinear) { this.set("dissolve", value as KeyframesAny) }
         set color(value: KeyframesVec4) { this.set("color", value as KeyframesAny) }
-        set interactable(value: KeyframesLinear) { this.set("interactable", value as KeyframesAny) }
+        set uninteractable(value: KeyframesLinear) { this.set("uninteractable", value as KeyframesAny) }
         set time(value: KeyframesLinear) { this.set("time", value as KeyframesAny) }
     }
 
@@ -205,7 +205,7 @@ export namespace AnimationInternals {
         get dissolve() { return this.get("dissolve") }
         get dissolveArrow() { return this.get("dissolveArrow") }
         get color() { return this.get("color") }
-        get interactable() { return this.get("interactable") }
+        get uninteractable() { return this.get("uninteractable") }
         get time() { return this.get("time") }
 
         set position(value: KeyframesVec3) { this.set("position", value as KeyframesAny) }
@@ -223,7 +223,7 @@ export namespace AnimationInternals {
         set dissolve(value: KeyframesLinear) { this.set("dissolve", value as KeyframesAny) }
         set dissolveArrow(value: KeyframesLinear) { this.set("dissolveArrow", value as KeyframesAny) }
         set color(value: KeyframesVec4) { this.set("color", value as KeyframesAny) }
-        set interactable(value: KeyframesLinear) { this.set("interactable", value as KeyframesAny) }
+        set uninteractable(value: KeyframesLinear) { this.set("uninteractable", value as KeyframesAny) }
         set time(value: KeyframesLinear) { this.set("time", value as KeyframesAny) }
     }
 }

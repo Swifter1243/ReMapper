@@ -87,10 +87,12 @@ export class BaseSliderObject extends BaseGameplayObject {
     get tailTime() { return this.json.tb }
     get tailX() { return this.json.tx }
     get tailY() { return this.json.ty }
+    get tailPos() { return this.json.customData.tailCoordinates }
 
     set type(value: NOTETYPE) { this.json.c = value }
     set headDirection(value: number) { this.json.d = value }
     set tailTime(value: number) { this.json.tb = value }
     set tailX(value: number) { this.json.tx = value }
     set tailY(value: number) { this.json.ty = value }
+    set tailPos(value: Vec2) { this.json.customData.tailCoordinates = value }
 }

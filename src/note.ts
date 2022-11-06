@@ -225,14 +225,12 @@ export class Chain extends BaseSliderObject {
     get flip() { return this.json.customData.flip }
     get noteGravity() { return !this.json.customData.disableNoteGravity }
     get noteLook() { return !this.json.customData.disableNoteLook }
-    get spawnEffect() { return this.json.customData.spawnEffect }
 
     set links(value: number) { this.json.sc = value }
     set squish(value: number) { this.json.s = value }
     set flip(value: boolean) { this.json.customData.flip = value }
     set noteGravity(value: boolean) { this.json.customData.disableNoteGravity = !value }
     set noteLook(value: boolean) { this.json.customData.disableNoteLook = !value }
-    set spawnEffect(value: boolean) { this.json.customData.spawnEffect = value }
 }
 
 export class Arc extends BaseSliderObject {
@@ -317,8 +315,6 @@ export class Arc extends BaseSliderObject {
     get anchorMode() { return this.json.m }
     get flip() { return this.json.customData.flip }
     get noteGravity() { return !this.json.customData.disableNoteGravity }
-    get noteLook() { return !this.json.customData.disableNoteLook }
-    get spawnEffect() { return this.json.customData.spawnEffect }
 
     set tailDirection(value: CUT) { this.json.tc = value }
     set headLength(value: number) { this.json.mu = value }
@@ -326,6 +322,4 @@ export class Arc extends BaseSliderObject {
     set anchorMode(value: ANCHORMODE) { this.json.m = value }
     set flip(value: boolean) { this.json.customData.flip = value }
     set noteGravity(value: boolean) { this.json.customData.disableNoteGravity = !value }
-    set noteLook(value: boolean) { this.json.customData.disableNoteLook = !value }
-    set spawnEffect(value: boolean) { this.json.customData.spawnEffect = value }
 }
