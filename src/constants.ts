@@ -9,13 +9,13 @@ export type FILEPATH<T extends string = string> = FILENAME<T> | `${string}/${FIL
 type DiffNameBase<T extends string> = `Easy${T}` | `Normal${T}` | `Hard${T}` | `Expert${T}` | `ExpertPlus${T}`
 
 export type DIFFS =
-DiffNameBase<"Standard"> |
-DiffNameBase<"NoArrows"> |
-DiffNameBase<"OneSaber"> |
-DiffNameBase<"360Degree"> |
-DiffNameBase<"90Degree"> |
-DiffNameBase<"Lightshow"> |
-DiffNameBase<"Lawless">
+    DiffNameBase<"Standard"> |
+    DiffNameBase<"NoArrows"> |
+    DiffNameBase<"OneSaber"> |
+    DiffNameBase<"360Degree"> |
+    DiffNameBase<"90Degree"> |
+    DiffNameBase<"Lightshow"> |
+    DiffNameBase<"Lawless">
 
 export type MODS =
     "Chroma" |
@@ -320,64 +320,86 @@ export const ENV = {
     BTS: {
         PILLAR: {
             ID: new Regex().start().add("PillarPair").separate().add("PillarL").separate().add("Pillar").end(),
-            SCALE: <Vec3>[0.285714, 0.008868, 0.285714],
-            ANCHOR: <Vec3>[0, 0.4999, 0]
+            TRANSFORM: <Vec3[]>[
+                [0.285714, 0.008868, 0.285714], //? SCALE
+                [0, 0.4999, 0] //? ANCHOR
+            ]
         },
         SOLID_LASER: {
             ID: new Regex("SmallPillarPair").separate().add("PillarL").separate().add("LaserL").end(),
-            SCALE: <Vec3>[10, 1 / 2500, 10],
-            ANCHOR: <Vec3>[0, -0.5, 0]
+            TRANSFORM: <Vec3[]>[
+                [10, 1 / 2500, 10], //? SCALE
+                [0, -0.5, 0] //? ANCHOR
+            ]
         },
-        BLOOM_LIGHT:{
+        BLOOM_LIGHT: {
             ID: new Regex("Environment").separate().add("LaserR").end(),
-            SCALE: <Vec3>[1, 0.00025, 1],
-            ANCHOR: <Vec3>[0, -0.25, 0]
+            TRANSFORM: <Vec3[]>[
+                [1, 0.00025, 1], //? SCALE
+                [0, -0.25, 0] //? ANCHOR
+            ]
         },
         LOW_CLOUDS: {
             ID: "LowCloudsGenerator$",
-            SCALE: <Vec3>[0.0064, 0.06, 0.0064],
-            ANCHOR: <Vec3>[0, 0.22, 0]
+            TRANSFORM: <Vec3[]>[
+                [0.0064, 0.06, 0.0064], //? SCALE
+                [0, 0.22, 0] //? ANCHOR
+            ]
         },
         HIGH_CLOUDS: {
             ID: "HighCloudsGenerator$",
-            SCALE: <Vec3>[0.0025, 0.0425, 0.0025],
-            ANCHOR: <Vec3>[0, -0.218, 0]
+            TRANSFORM: <Vec3[]>[
+                [0.0025, 0.0425, 0.0025], //? SCALE
+                [0, -0.218, 0] //? ANCHOR
+            ]
         }
     },
     GAGA: {
         CUBE: {
             ID: "BackCube$",
-            SCALE: <Vec3>[1 / 5.5, 4, 2],
-            ANCHOR: <Vec3>[0, 0.5, 0.5]
+            TRANSFORM: <Vec3[]>[
+                [1 / 5.5, 4, 2], //? SCALE
+                [0, 0.5, 0.5] //? ANCHOR
+            ]
         },
         SECOND_AURORA: {
             ID: new Regex("Aurora").separate().add("AuroraSecondary").end(),
-            SCALE: <Vec3>[0.0025, 0.02, 0.012],
-            ANCHOR: <Vec3>[0, 0.6, 0.05]
+            TRANSFORM: <Vec3[]>[
+                [0.0025, 0.02, 0.012], //? SCALE
+                [0, 0.6, 0.05] //? ANCHOR
+            ]
         }
     },
     BILLIE: {
         CUBE: {
             ID: "LeftFarRail1$",
-            SCALE: <Vec3>[10, 10, 0.02306],
-            ANCHOR: <Vec3>[0, 0, -0.4974]
+            TRANSFORM: <Vec3[]>[
+                [10, 10, 0.02306], //? SCALE
+                [0, 0, -0.4974] //? ANCHOR
+            ]
         }
     },
     GREEN_DAY: {
         SOLID_LASER: {
             ID: "GlowLineR$",
-            SCALE: <Vec3>[50, 0.002, 50]
+            TRANSFORM: <Vec3[]>[
+                [50, 0.002, 50], //? SCALE
+            ]
         },
         BLOOM_LASER: {
             ID: "FrontLight$",
-            SCALE: <Vec3>[1, 0.001, 1],
-            ANCHOR: <Vec3>[0, -0.5, 0]
+            TRANSFORM: <Vec3[]>[
+                [1, 0.001, 1], //? SCALE
+                [0, -0.5, 0] //? ANCHOR
+            ]
         }
     },
     UNIVERSAL: {
         MIRROR: { // Mirror does not work with the "Spooky" environment, but it does work with everything else!
             ID: new Regex("PlayersPlace").separate().add("Mirror").end(),
-            SCALE: <Vec3>[1 / 3, 0, 0.5]
+            TRANSFORM: <Vec3[]>[
+                [1 / 3, 0, 0.5], //? SCALE
+            ]
         }
     }
 }
