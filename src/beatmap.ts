@@ -79,6 +79,21 @@ export class Difficulty {
 
         if (this.diffSet === undefined) throw new Error(`The difficulty ${parsedOutput.name} does not exist in your Info.dat`)
 
+        function transferKey(obj: Json, old: string, value: string) {
+            if (obj[old] === undefined) return;
+            obj[value] = obj[old];
+            delete obj[old];
+        }
+
+        this.json.basicBeatmapEvents.forEach((x: Json) => {
+            if (x.customData) {
+                transferKey(x.customData, "_lightID", "lightID");
+                transferKey(x.customData, "_color", "color");
+                transferKey(x.customData, "_easing", "easing");
+                transferKey(x.customData, "_lerpType", "lerpType");
+            }
+        })
+
         arrJsonToClass(this.notes, Note);
         arrJsonToClass(this.bombs, Bomb);
         arrJsonToClass(this.arcs, Arc);
