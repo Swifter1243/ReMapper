@@ -1,7 +1,7 @@
 // deno-lint-ignore-file no-explicit-any adjacent-overload-signatures no-namespace
-import { combineAnimations, AnimationInternals, Track, KeyframesLinear } from './animation.ts';
+import { combineAnimations, AnimationInternals, Track, KeyframesLinear, KeyframesVec3 } from './animation.ts';
 import { activeDiffGet } from './beatmap.ts';
-import { copy, Vec3, ColorType, jsonGet } from './general.ts';
+import { copy, Vec3, ColorType, jsonGet, jsonSet } from './general.ts';
 import { CustomEvent } from './custom_event.ts';
 import { GEO_TYPE, LOOKUP, GEO_SHADER, ANIM, EASE } from './constants.ts';
 
@@ -36,19 +36,26 @@ export namespace EnvironmentInternals {
         get localPosition() { return this.json.localPosition }
         get rotation() { return this.json.rotation }
         get localRotation() { return this.json.localRotation }
-        get lightID() { return this.json.lightID }
         get track() { return new Track(this.json) }
         get group() { return this.json.group }
         get animationProperties() {
-            const returnObj: any = {};
-            if (this.position !== undefined) returnObj.position = this.position;
-            if (this.localPosition !== undefined) returnObj.localPosition = this.localPosition;
-            if (this.rotation !== undefined) returnObj.rotation = this.rotation;
-            if (this.localRotation !== undefined) returnObj.localRotation = this.localRotation;
-            if (this.scale !== undefined) returnObj.scale = this.scale
+            const returnObj: {
+                position?: KeyframesVec3,
+                localPosition?: KeyframesVec3,
+                rotation?: KeyframesVec3,
+                localRotation?: KeyframesVec3,
+                scale?: KeyframesVec3
+            } = {};
+            if (this.position) returnObj.position = this.position;
+            if (this.localPosition) returnObj.localPosition = this.localPosition;
+            if (this.rotation) returnObj.rotation = this.rotation;
+            if (this.localRotation) returnObj.localRotation = this.localRotation;
+            if (this.scale) returnObj.scale = this.scale
             return returnObj;
         }
         get components() { return jsonGet(this.json, "components", {}) }
+        get lightID() { return jsonGet(jsonGet(this.components, "ILightWithId", {}), "lightID") }
+        get lightType() { return jsonGet(jsonGet(this.components, "ILightWithId", {}), "type") }
 
         set duplicate(value: number) { this.json.duplicate = value }
         set active(value: boolean) { this.json.active = value }
@@ -57,9 +64,10 @@ export namespace EnvironmentInternals {
         set localPosition(value: Vec3) { this.json.localPosition = value }
         set rotation(value: Vec3) { this.json.rotation = value }
         set localRotation(value: Vec3) { this.json.localRotation = value }
-        set lightID(value: number) { this.json.lightID = value }
         set group(value: string) { this.json.group = value }
         set components(value: Components) { this.json.components = value }
+        set lightID(value: number) {jsonSet(jsonGet(this.components, "ILightWithId", {}), "lightID", value)}
+        set lightType(value: number) {jsonSet(jsonGet(this.components, "ILightWithId", {}), "type", value)}
     }
 }
 
