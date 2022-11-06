@@ -409,7 +409,7 @@ export class ModelScene {
 }
 
 export function applyAnchor(objPos: Vec3, objRot: Vec3, objScale: Vec3, anchor: Vec3) {
-    const offset = rotatePoint(objRot, objScale.map((x, i) => x * anchor[i]) as Vec3);
+    const offset = rotatePoint(objScale.map((x, i) => x * anchor[i]) as Vec3, objRot);
     return objPos.map((x, i) => x + offset[i]) as Vec3;
 }
 

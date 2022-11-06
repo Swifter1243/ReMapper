@@ -396,14 +396,8 @@ export function getDist(A: Vec3, B: Vec3) {
     return Math.sqrt(sum);
 }
 
-/**
- * Rotate a point around 0,0,0.
- * @param {Array} rotation
- * @param {Array} point
- * @param {Array} anchor Anchor of rotation.
- * @returns {Array}
- */
-export function rotatePoint(rotation: Vec3, point: Vec3, anchor: Vec3 = [0, 0, 0]) {
+
+export function rotatePoint(point: Vec3, rotation: Vec3, anchor: Vec3 = [0, 0, 0]) {
     const mathRot = toRadians(rotation) as Vec3;
     const vector = new three.Vector3(...arrAdd(point, arrMul(anchor, -1))).applyEuler(new three.Euler(...mathRot, "YXZ"));
     return arrAdd([vector.x, vector.y, vector.z], anchor) as Vec3;
@@ -416,7 +410,7 @@ export function rotatePoint(rotation: Vec3, point: Vec3, anchor: Vec3 = [0, 0, 0
  * @returns {Array}
  */
 export function rotateVector(rotation: Vec3, length: number) {
-    return rotatePoint(rotation, [0, -length, 0]);
+    return rotatePoint([0, -length, 0], rotation);
 }
 
 /**
@@ -591,7 +585,7 @@ export function getJumps(NJS: number, offset: number, BPM: number) {
  */
 export function worldToWall(pos: Vec3, rot: Vec3, scale: Vec3) {
     const wallOffset = [0, -0.5, -0.5];
-    const offset = rotatePoint(rot, scale.map((y, i) => y * wallOffset[i]) as Vec3);
+    const offset = rotatePoint(scale.map((y, i) => y * wallOffset[i]) as Vec3, rot);
     pos = pos.map((y, i) => y + offset[i]) as Vec3;
 
     pos[0] -= 0.5;
