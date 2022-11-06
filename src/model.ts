@@ -271,7 +271,7 @@ export class ModelScene {
                 object.rotation = rot;
                 object.scale = scale;
                 if (forObject) forObject(object);
-                object.push();
+                object.push(false);
             }
             // Creating event for assigned
             else {
@@ -292,7 +292,7 @@ export class ModelScene {
                 createYeetDef();
                 const event = new CustomEvent().animateTrack(x);
                 event.animate.position = "yeet";
-                event.push();
+                event.push(false);
             }
         })
     }
@@ -355,7 +355,7 @@ export class ModelScene {
 
                     const event = new CustomEvent(time).animateTrack(track + "_material");
                     event.animate.color = x.color as Vec4;
-                    event.push();
+                    event.push(false);
                 }
 
                 const event = new CustomEvent(time).animateTrack(track, duration);
@@ -399,7 +399,7 @@ export class ModelScene {
                         ((object as Geometry).material as RawGeometryMaterial).track = object.track + "_material";
 
                     if (forObject) forObject(object);
-                    object.push();
+                    object.push(false);
                 }
             }
         })
@@ -440,17 +440,17 @@ export function debugObject(input: GroupObjectTypes, resolution: number, scale?:
     activeDiff.customEvents = [];
     activeDiff.rawEnvironment = [];
 
-    new Event().backLasers().on([3, 3, 3, 1]).push();
+    new Event().backLasers().on([3, 3, 3, 1]).push(false);
 
     baseEnvironmentTrack("fog");
     const fogEvent = new CustomEvent().animateComponent("fog");
     fogEvent.fog.attenuation = [0.000001];
     fogEvent.fog.startY = [-69420]
-    fogEvent.push();
+    fogEvent.push(false);
 
     const removeUI = new Environment(new Regex().add("NarrowGameHUD").end(), "Regex");
     removeUI.active = false;
-    removeUI.push();
+    removeUI.push(false);
 
     activeDiff.geoMaterials["debugCubeX"] = {
         shader: "Standard",
