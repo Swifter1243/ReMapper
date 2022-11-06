@@ -273,7 +273,7 @@ export class ModelScene {
                     x.color
                 ) object.material.color = x.color;
 
-                object.track = track;
+                object.track.value = track;
                 object.position = pos;
                 object.rotation = rot;
                 object.scale = scale;
@@ -400,9 +400,9 @@ export class ModelScene {
             if (group.object) {
                 for (let i = 0; i < objectInfo.max; i++) {
                     const object = copy(group.object)
-                    object.track = this.getPieceTrack(group.object, groupKey, i);
+                    object.track.value = this.getPieceTrack(group.object, groupKey, i);
 
-                    if (animatedMaterials.some(x => x === object.track))
+                    if (animatedMaterials.some(x => x === object.track.value))
                         ((object as Geometry).material as RawGeometryMaterial).track = object.track + "_material";
 
                     if (forObject) forObject(object);

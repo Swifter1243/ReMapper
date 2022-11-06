@@ -1,5 +1,5 @@
 // deno-lint-ignore-file no-explicit-any adjacent-overload-signatures no-namespace
-import { combineAnimations, AnimationInternals } from './animation.ts';
+import { combineAnimations, AnimationInternals, Track } from './animation.ts';
 import { activeDiffGet } from './beatmap.ts';
 import { copy, Vec3, ColorType } from './general.ts';
 import { CustomEvent } from './custom_event.ts';
@@ -37,7 +37,7 @@ export namespace EnvironmentInternals {
         get rotation() { return this.json.rotation }
         get localRotation() { return this.json.localRotation }
         get lightID() { return this.json.lightID }
-        get track() { return this.json.track }
+        get track() { return new Track(this.json.track) }
         get group() { return this.json.group }
         get animationProperties() {
             const returnObj: any = {};
@@ -57,7 +57,6 @@ export namespace EnvironmentInternals {
         set rotation(value: Vec3) { this.json.rotation = value }
         set localRotation(value: Vec3) { this.json.localRotation = value }
         set lightID(value: number) { this.json.lightID = value }
-        set track(value: string) { this.json.track = value }
         set group(value: string) { this.json.group = value }
     }
 }
@@ -121,12 +120,12 @@ export function animateEnvGroup(group: string, time: number, animation: (animati
             const newAnimation = new AnimationInternals.AbstractAnimation;
             animation(newAnimation);
 
-            if (!x.track) {
-                x.track = `environment_${envCount}`;
+            if (!x.track.value) {
+                x.track.value = `environment_${envCount}`;
                 envCount++
             }
 
-            const event = new CustomEvent(time).animateTrack(x.track);
+            const event = new CustomEvent(time).animateTrack(x.track.value);
             if (duration) event.duration = duration;
             if (easing) event.easing = easing;
 
@@ -142,11 +141,11 @@ export function animateEnvGroup(group: string, time: number, animation: (animati
 
 export function animateEnvTrack(group: string, time: number, animation: (animation: AnimationInternals.EnvironmentAnimation) => void, duration?: number, easing?: string) {
     if (activeDiffGet().rawEnvironment !== undefined) activeDiffGet().rawEnvironment.forEach(x => {
-        if (x.track === group) {
+        if (x.track.value === group) {
             const newAnimation = new AnimationInternals.AbstractAnimation;
             animation(newAnimation);
 
-            const event = new CustomEvent(time).animateTrack(x.track);
+            const event = new CustomEvent(time).animateTrack(x.track.value);
             if (duration) event.duration = duration;
             if (easing) event.easing = easing;
 
