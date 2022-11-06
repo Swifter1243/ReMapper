@@ -1,5 +1,6 @@
-// deno-lint-ignore-file no-namespace no-explicit-any adjacent-overload-signatures
+// deno-lint-ignore-file no-namespace adjacent-overload-signatures
 import { optimizeAnimation, OptimizeSettings } from "./anim_optimizer.ts";
+import { Json } from "./beatmap.ts";
 import { ANIM, EASE, SPLINE } from "./constants.ts";
 import { lerpEasing, arrAdd, copy, arrMul, arrLast, findFraction, lerp, Vec3, Vec4, lerpRotation } from "./general.ts";
 
@@ -31,10 +32,10 @@ export type RawKeyframesAny = SingleKeyframe | KeyframeArray;
 export type TrackValue = string | string[];
 export namespace AnimationInternals {
     export class BaseAnimation {
-        json: Record<string, any> = {};
+        json: Json = {};
         length: number;
 
-        constructor(length?: number, data?: Record<string, any>) {
+        constructor(length?: number, data?: Json) {
             length ??= 1;
 
             this.length = length;
@@ -243,41 +244,41 @@ export class Animation extends AnimationInternals.BaseAnimation {
     * @param {Object} json 
     * @returns {AbstractAnimation}
     */
-    import(json: Record<string, any>) { return new AnimationInternals.AbstractAnimation(this.length, json) }
+    import(json: Json) { return new AnimationInternals.AbstractAnimation(this.length, json) }
 
     /**
      * Create an event with no particular identity.
      * @returns {AbstractAnimation};
      */
-    abstract(json: Record<string, any> = {}) { return this.import(json) }
+    abstract(json: Json = {}) { return this.import(json) }
 
     /**
      * State that this animation is for a note.
      * @param {Object} json 
      * @returns 
      */
-    noteAnimation(json?: Record<string, any>) { return new AnimationInternals.NoteAnimation(this.length, json) }
+    noteAnimation(json?: Json) { return new AnimationInternals.NoteAnimation(this.length, json) }
 
     /**
      * State that this animation is for a wall.
      * @param {Object} json 
      * @returns 
      */
-    wallAnimation(json?: Record<string, any>) { return new AnimationInternals.WallAnimation(this.length, json) }
+    wallAnimation(json?: Json) { return new AnimationInternals.WallAnimation(this.length, json) }
 
     /**
      * State that this animation is for an environment object.
      * @param {Object} json 
      * @returns 
      */
-    environmentAnimation(json?: Record<string, any>) { return new AnimationInternals.EnvironmentAnimation(this.length, json) }
+    environmentAnimation(json?: Json) { return new AnimationInternals.EnvironmentAnimation(this.length, json) }
 
     /**
      * State that this animation is for fog.
      * @param {Object} json 
      * @returns 
      */
-    fogAnimation(json?: Record<string, any>) { return new AnimationInternals.FogAnimation(this.length, json) }
+    fogAnimation(json?: Json) { return new AnimationInternals.FogAnimation(this.length, json) }
 }
 
 export class Keyframe {
@@ -324,13 +325,13 @@ export class Keyframe {
     }
 }
 export class Track {
-    private reference: Record<string, any>;
+    private reference: Json;
 
     /**
      * Handler for the track property.
      * @param {TrackValue} value 
      */
-    constructor(reference: Record<string, any>) {
+    constructor(reference: Json) {
         this.reference = reference;
     }
 

@@ -12,8 +12,9 @@ import { ENV_NAMES, MODS, settingsHandler, DIFFS, FILENAME, FILEPATH } from './c
 import { BoostEvent, BPMChange, LightEvent, LightEventBox, LightEventBoxGroup, LightRotation, LightRotationBox, LightRotationBoxGroup, RotationEvent } from './event.ts';
 
 type PostProcessFn<T> = (object: T, diff: Difficulty) => void;
-type DIFFPATH = FILEPATH<DIFFS>
-type DIFFNAME = FILENAME<DIFFS>
+export type DIFFPATH = FILEPATH<DIFFS>
+export type DIFFNAME = FILENAME<DIFFS>
+export type Json = Record<string, any>
 
 export function arrJsonToClass<T>(array: T[], target: { new(): T; }, callback?: (obj: T) => void) {
     if (array === undefined) return;
@@ -23,7 +24,7 @@ export function arrJsonToClass<T>(array: T[], target: { new(): T; }, callback?: 
     }
 }
 
-export function arrClassToJson<T>(arr: T[], outputJSON: Record<string, any>, prop: string, callback?: (obj: any) => void) {
+export function arrClassToJson<T>(arr: T[], outputJSON: Json, prop: string, callback?: (obj: any) => void) {
     const jsonArr = jsonGet(outputJSON, prop);
     if (jsonArr === undefined) return;
 
@@ -40,9 +41,9 @@ export function arrClassToJson<T>(arr: T[], outputJSON: Record<string, any>, pro
 }
 
 export class Difficulty {
-    json: Record<string, any> = {};
-    diffSet: Record<string, any> = {};
-    diffSetMap: Record<string, any> = {};
+    json: Json = {};
+    diffSet: Json = {};
+    diffSetMap: Json = {};
     mapFile: DIFFPATH;
     relativeMapFile: DIFFNAME;
     private postProcesses = new Map<unknown[] | undefined, PostProcessFn<unknown>[]>();
@@ -67,8 +68,8 @@ export class Difficulty {
         this.relativeMapFile = parsedOutput.name as DIFFNAME;
         this.json = JSON.parse(Deno.readTextFileSync(parsedInput.path));
 
-        info.json._difficultyBeatmapSets.forEach((set: Record<string, any>) => {
-            set._difficultyBeatmaps.forEach((setmap: Record<string, any>) => {
+        info.json._difficultyBeatmapSets.forEach((set: Json) => {
+            set._difficultyBeatmaps.forEach((setmap: Json) => {
                 if (this.relativeMapFile === setmap._beatmapFilename) {
                     this.diffSet = set;
                     this.diffSetMap = setmap;
@@ -174,7 +175,7 @@ export class Difficulty {
 
         this.doPostProcess()
 
-        const outputJSON = {} as Record<string, any>;
+        const outputJSON = {} as Json;
 
         Object.keys(this.json).forEach(x => {
             if (Array.isArray(this.json[x])) outputJSON[x] = [];
@@ -219,8 +220,8 @@ export class Difficulty {
         gameplayArrClassToJson(this.fakeWalls, "fakeObstacles");
         gameplayArrClassToJson(this.fakeChains, "fakeBurstSliders");
 
-        function safeCloneJSON(json: Record<string, any>) {
-            const output: Record<string, any> = {};
+        function safeCloneJSON(json: Json) {
+            const output: Json = {};
 
             Object.keys(json).forEach(k => {
                 if (typeof json[k] !== "object") output[k] = json[k];
@@ -276,7 +277,7 @@ export class Difficulty {
      * @param {Boolean} required True by default, set to false to remove the requirement.
      */
     require(requirement: MODS, required = true) {
-        const requirements: Record<string, any> = {};
+        const requirements: Json = {};
 
         let requirementsArr = this.requirements;
         if (requirementsArr === undefined) requirementsArr = [];
@@ -298,7 +299,7 @@ export class Difficulty {
      * @param {Boolean} suggested True by default, set to false to remove the suggestion.
      */
     suggest(suggestion: MODS, suggested = true) {
-        const suggestions: Record<string, any> = {};
+        const suggestions: Json = {};
 
         let suggestionsArr = this.suggestions;
         if (suggestionsArr === undefined) suggestionsArr = [];
@@ -316,7 +317,7 @@ export class Difficulty {
 
     readonly settings = new Proxy(new settingsHandler(this), {
         get(object, property) {
-            const objValue = (object as any)[property] as string | [string, Record<string, any>];
+            const objValue = (object as any)[property] as string | [string, Json];
             const path = typeof objValue === "string" ? objValue : objValue[0];
             const diff = (object as any)["diff"] as Difficulty;
 
@@ -324,7 +325,7 @@ export class Difficulty {
         },
 
         set(object, property, value) {
-            const objValue = (object as any)[property] as string | [string, Record<string, any>];
+            const objValue = (object as any)[property] as string | [string, Json];
             const path = typeof objValue === "string" ? objValue : objValue[0];
             const diff = (object as any)["diff"] as Difficulty;
 
@@ -334,7 +335,7 @@ export class Difficulty {
         }
     });
 
-    private pruneInput(object: Record<string, any>, property: string, value: any) {
+    private pruneInput(object: Json, property: string, value: any) {
         jsonSet(object, property, value);
         if (!isEmptyObject(value)) jsonPrune(this.diffSetMap);
     }
@@ -372,7 +373,7 @@ export class Difficulty {
     set diffRank(value: number) { this.pruneInput(this.diffSetMap, "_difficultyRank", value) }
     set requirements(value: string[]) { this.pruneInput(this.diffSetMap, "_customData._requirements", value) }
     set suggestions(value: string[]) { this.pruneInput(this.diffSetMap, "_customData._suggestions", value) }
-    set rawSettings(value: Record<string, any>) { this.pruneInput(this.diffSetMap, "_customData._settings", value) }
+    set rawSettings(value: Json) { this.pruneInput(this.diffSetMap, "_customData._settings", value) }
     set warnings(value: string[]) { this.pruneInput(this.diffSetMap, "_customData._warnings", value) }
     set information(value: string[]) { this.pruneInput(this.diffSetMap, "_customData._information", value) }
     set label(value: string) { this.pruneInput(this.diffSetMap, "_customData._difficultyLabel", value) }
@@ -424,8 +425,8 @@ export class Difficulty {
     set boostEvents(value: BoostEvent[]) { this.json.colorBoostBeatmapEvents = value }
     set lightEventBoxes(value: LightEventBox[]) { this.json.lightColorEventBoxGroups = value }
     set lightRotationBoxes(value: LightRotationBox[]) { this.json.lightRotationEventBoxGroups = value }
-    set waypoints(value: Record<string, any>[]) { this.json.waypoints = value }
-    set basicEventTypesKeywords(value: Record<string, any>) { this.json.basicEventTypesWithKeywords = value }
+    set waypoints(value: Json[]) { this.json.waypoints = value }
+    set basicEventTypesKeywords(value: Json) { this.json.basicEventTypesWithKeywords = value }
     set useBasicEvents(value: boolean) { this.json.useNormalEventsAsCompatibleEvents = value }
     set customData(value) { jsonSet(this.json, "customData", value) }
     set customEvents(value: CustomEventInternals.BaseEvent[]) { jsonSet(this.json, "customData.customEvents", value) }
@@ -481,7 +482,7 @@ export class Difficulty {
 }
 
 export class Info {
-    json: Record<string, any> = {};
+    json: Json = {};
     fileName = "Info.dat";
 
     load(path?: string) {
@@ -534,9 +535,9 @@ export class Info {
     set songFileName(value: string) { jsonSet(this.json, "_songFilename", value) }
     set environment(value: ENV_NAMES) { jsonSet(this.json, "_environmentName", value) }
     set environment360(value: string) { jsonSet(this.json, "_allDirectionsEnvironmentName", value) }
-    set customData(value: Record<string, any>) { jsonSet(this.json, "_customData", value) }
-    set editors(value: Record<string, any>) { jsonSet(this.json, "_customData._editors", value) }
-    set contributors(value: Record<string, any>[]) { jsonSet(this.json, "_customData._contributors", value) }
+    set customData(value: Json) { jsonSet(this.json, "_customData", value) }
+    set editors(value: Json) { jsonSet(this.json, "_customData._editors", value) }
+    set contributors(value: Json[]) { jsonSet(this.json, "_customData._contributors", value) }
     set customEnvironment(value: string) { jsonSet(this.json, "_customData._customEnvironment", value) }
     set customEnvironmentHash(value: string) { jsonSet(this.json, "_customData._customEnvironmentHash", value) }
 }
@@ -568,7 +569,7 @@ function reduceDecimalsPostProcess(_: never, diff: Difficulty) {
     const mapJson = diff.json;
     reduceDecimalsInObject(mapJson);
 
-    function reduceDecimalsInObject(json: Record<string, any>) {
+    function reduceDecimalsInObject(json: Json) {
         for (const key in json) {
             // deno-lint-ignore no-prototype-builtins
             if (!json.hasOwnProperty(key)) return;

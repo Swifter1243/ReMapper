@@ -4,7 +4,7 @@ import * as easings from './easings.ts';
 import { bakeAnimation, complexifyArray, ComplexKeyframesLinear, ComplexKeyframesVec3, ComplexKeyframesVec4, KeyframesAny, KeyframesLinear, KeyframesVec3, KeyframesVec4, KeyframeValues, RawKeyframesAny, RawKeyframesVec3, simplifyArray } from './animation.ts';
 import { Wall } from './wall.ts';
 import { EASE, FILENAME, FILEPATH } from './constants.ts';
-import { activeDiffGet } from './beatmap.ts';
+import { activeDiffGet, Json } from './beatmap.ts';
 import { Note } from './note.ts';
 import { EventInternals } from './basicEvent.ts';
 import { OptimizeSettings } from "./anim_optimizer.ts";
@@ -109,7 +109,7 @@ export function filterObjects(objects: any[], min: number, max: number, property
  * @param {String} property What property to sort.
  * @param {Boolean} smallestToLargest Whether to sort smallest to largest. True by default.
  */
-export function sortObjects(objects: Record<string, any>[], property: string, smallestToLargest = true) {
+export function sortObjects(objects: Json[], property: string, smallestToLargest = true) {
     if (objects === undefined) return;
 
     objects.sort((a, b) => smallestToLargest ?
@@ -386,7 +386,7 @@ export function copy<T>(obj: T): T {
  * @param {Object} o 
  * @returns {Boolean}
  */
-export function isEmptyObject(o: Record<string, any>) {
+export function isEmptyObject(o: Json) {
     if (typeof o !== "object") return false;
     return Object.keys(o).length === 0;
 }
@@ -438,7 +438,7 @@ export function toDegrees(values: number[]) {
  * Delete empty objects/arrays from an object recursively.
  * @param {Object} obj 
  */
-export function jsonPrune(obj: Record<string, any>) {
+export function jsonPrune(obj: Json) {
     Object.keys(obj).forEach(prop => {
         if (obj[prop] == null) {
             delete obj[prop];
@@ -468,7 +468,7 @@ export function jsonPrune(obj: Record<string, any>) {
 * @param {String} prop
 * @param {Any?} init Optional value to initialize the property if it doesn't exist yet.
 */
-export function jsonGet(obj: Record<string, any>, prop: string, init?: any) {
+export function jsonGet(obj: Json, prop: string, init?: any) {
 
     // If the property doesn't exist, initialize it.
     if (init != null) jsonFill(obj, prop, init);
@@ -491,7 +491,7 @@ export function jsonGet(obj: Record<string, any>, prop: string, init?: any) {
 * @param {String} prop
 * @param {Any} value
 */
-export function jsonFill(obj: Record<string, any>, prop: string, value: any) {
+export function jsonFill(obj: Json, prop: string, value: any) {
     const steps = prop.split('.');
 
     // Create empty objects along the path
@@ -511,7 +511,7 @@ export function jsonFill(obj: Record<string, any>, prop: string, value: any) {
  * @param {String} prop 
  * @param {*} value
  */
-export function jsonSet(obj: Record<string, any>, prop: string, value: any) {
+export function jsonSet(obj: Json, prop: string, value: any) {
     const steps = prop.split('.');
     let currentObj = obj;
     for (let i = 0; i < steps.length - 1; i++) {
@@ -529,7 +529,7 @@ export function jsonSet(obj: Record<string, any>, prop: string, value: any) {
  * @param {String} prop 
  * @returns {Boolean}
  */
-export function jsonCheck(obj: Record<string, any>, prop: string) {
+export function jsonCheck(obj: Json, prop: string) {
     const value = jsonGet(obj, prop);
     if (value != null) return true;
     return false;
@@ -540,7 +540,7 @@ export function jsonCheck(obj: Record<string, any>, prop: string) {
 * @param {Object} obj 
 * @param {String} prop 
 */
-export function jsonRemove(obj: Record<string, any>, prop: string) {
+export function jsonRemove(obj: Json, prop: string) {
     const steps = prop.split('.')
     let currentObj = obj
     for (let i = 0; i < steps.length - 1; i++) {

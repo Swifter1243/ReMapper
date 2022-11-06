@@ -1,5 +1,5 @@
-// deno-lint-ignore-file no-explicit-any adjacent-overload-signatures
-import { activeDiff, info } from "./beatmap.ts";
+// deno-lint-ignore-file adjacent-overload-signatures
+import { activeDiff, info, Json } from "./beatmap.ts";
 import { AXIS, DISTTYPE, FILTERTYPE, LIGHTCOL, ROTDIR, ROTEASE, ROTTRANS, LIGHTTRANS } from "./constants.ts";
 import { copy } from "./general.ts";
 import { BaseObject } from "./object.ts";
@@ -16,7 +16,7 @@ export class BPMChange extends BaseObject {
      * @param {Object} json 
      * @returns {Note}
      */
-    import(json: Record<number, any>) {
+    import(json: Json) {
         this.json = json;
         return this;
     }
@@ -47,7 +47,7 @@ export class RotationEvent extends BaseObject {
      * @param {Object} json 
      * @returns {Note}
      */
-    import(json: Record<number, any>) {
+    import(json: Json) {
         this.json = json;
         return this;
     }
@@ -79,7 +79,7 @@ export class BoostEvent extends BaseObject {
      * @param {Object} json 
      * @returns {Note}
      */
-    import(json: Record<number, any>) {
+    import(json: Json) {
         this.json = json;
         return this;
     }
@@ -98,7 +98,7 @@ export class BoostEvent extends BaseObject {
 }
 
 class EventBox extends BaseObject {
-    json: Record<string, any> = {
+    json: Json = {
         b: 0,
         g: 0,
         e: []
@@ -115,7 +115,7 @@ class EventBox extends BaseObject {
      * @param {Object} json 
      * @returns {Note}
      */
-    import(json: Record<number, any>) {
+    import(json: Json) {
         this.json = json;
         return this;
     }
@@ -161,14 +161,14 @@ interface EventFilter {
 }
 
 export class EventBoxGroup {
-    json: Record<string, any> = {};
+    json: Json = {};
 
     /**
     * Create a light event box group using JSON.
     * @param {Object} json 
     * @returns {Note}
     */
-    import(json: Record<number, any>) {
+    import(json: Json) {
         this.json = json;
         return this;
     }
@@ -205,7 +205,7 @@ export class EventBoxGroup {
 }
 
 export class LightEventBoxGroup extends EventBoxGroup {
-    json: Record<string, any> = {
+    json: Json = {
         f: {
             f: 1,
             p: 0,
@@ -237,7 +237,7 @@ export class LightEventBoxGroup extends EventBoxGroup {
 }
 
 export class LightRotationBoxGroup extends EventBoxGroup {
-    json: Record<string, any> = {
+    json: Json = {
         f: {
             f: 1,
             p: 0,
@@ -275,7 +275,7 @@ export class LightRotationBoxGroup extends EventBoxGroup {
 }
 
 export class LightEvent {
-    json: Record<string, any> = {
+    json: Json = {
         b: 0,
         i: 0,
         c: 0,
@@ -288,7 +288,7 @@ export class LightEvent {
     * @param {Object} json 
     * @returns {Note}
     */
-    import(json: Record<number, any>) {
+    import(json: Json) {
         this.json = json;
         return this;
     }
@@ -312,7 +312,7 @@ export class LightEvent {
 }
 
 export class LightRotation {
-    json: Record<string, any> = {
+    json: Json = {
         b: 0,
         p: 0,
         e: 0,
@@ -326,7 +326,7 @@ export class LightRotation {
     * @param {Object} json 
     * @returns {Note}
     */
-    import(json: Record<number, any>) {
+    import(json: Json) {
         this.json = json;
         return this;
     }

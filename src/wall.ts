@@ -5,7 +5,7 @@ import { Animation, AnimationInternals } from './animation.ts';
 import { BaseGameplayObject } from './object.ts';
 
 export class Wall extends BaseGameplayObject {
-    json: Record<string, any> = {
+    json: Json = {
         b: 0,
         x: 0,
         y: 0,
@@ -36,7 +36,7 @@ export class Wall extends BaseGameplayObject {
      * @param {Object} json 
      * @returns {Note}
      */
-    import(json: Record<string, any>) {
+    import(json: Json) {
         this.json = json;
         if (this.customData === undefined) this.customData = {};
         if (this.animation === undefined) this.animation = {};

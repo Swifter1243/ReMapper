@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-explicit-any no-namespace adjacent-overload-signatures
 import { EASE, EVENT } from './constants.ts';
-import { activeDiffGet } from './beatmap.ts';
+import { activeDiffGet, Json } from './beatmap.ts';
 import { copy, jsonGet, jsonSet, ColorType } from './general.ts';
 import { BaseObject } from './object.ts';
 
@@ -8,7 +8,7 @@ export type LightID = number | number[];
 
 export namespace EventInternals {
     export class BaseEvent extends BaseObject {
-        constructor(time: number | Record<string, any>) {
+        constructor(time: number | Json) {
             super()
             this.value = 0;
             if (time instanceof Object) {
@@ -37,7 +37,7 @@ export namespace EventInternals {
     }
 
     export class LightEvent extends EventInternals.BaseEvent {
-        constructor(json: Record<string, any>, type: number) {
+        constructor(json: Json, type: number) {
             super(json);
             this.type = type;
         }
@@ -122,7 +122,7 @@ export namespace EventInternals {
     }
 
     export class LaserSpeedEvent extends EventInternals.BaseEvent {
-        constructor(json: Record<string, any>, type: number, speed: number, direction?: number, lockRotation?: boolean) {
+        constructor(json: Json, type: number, speed: number, direction?: number, lockRotation?: boolean) {
             super(json);
             this.type = type;
 
@@ -148,7 +148,7 @@ export namespace EventInternals {
     }
 
     export class RingZoomEvent extends EventInternals.BaseEvent {
-        constructor(json: Record<string, any>, step?: number, speed?: number) {
+        constructor(json: Json, step?: number, speed?: number) {
             super(json);
             this.type = EVENT.RING_ZOOM;
 
@@ -170,7 +170,7 @@ export namespace EventInternals {
     }
 
     export class RingSpinEvent extends EventInternals.BaseEvent {
-        constructor(json: Record<string, any>, rotation?: number, direction?: number, step?: number, speed?: number, prop?: number, nameFilter?: string) {
+        constructor(json: Json, rotation?: number, direction?: number, step?: number, speed?: number, prop?: number, nameFilter?: string) {
             super(json);
             this.type = EVENT.RING_SPIN;
 
@@ -204,10 +204,10 @@ export namespace EventInternals {
     }
 
     export class RotationEvent extends EventInternals.BaseEvent {
-        constructor(json: Record<string, any>, type: number, rotation: number) {
+        constructor(json: Json, type: number, rotation: number) {
             super(json);
             this.type = type;
-            this.value = (EVENT as Record<string, any>)[`${(rotation < 0 ? "CCW_" : "CW_") + Math.abs(rotation)}`];
+            this.value = (EVENT as Json)[`${(rotation < 0 ? "CCW_" : "CW_") + Math.abs(rotation)}`];
         }
 
         /**
@@ -312,7 +312,7 @@ export class Event extends EventInternals.BaseEvent {
      * @param {Object} json 
      * @returns {AbstractEvent}
      */
-    import(json: Record<string, any>) { return new EventInternals.AbstractEvent(json) }
+    import(json: Json) { return new EventInternals.AbstractEvent(json) }
 
     /**
      * Create an event with no particular identity.

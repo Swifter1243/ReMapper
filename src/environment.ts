@@ -1,6 +1,6 @@
-// deno-lint-ignore-file no-explicit-any adjacent-overload-signatures no-namespace
+// deno-lint-ignore-file adjacent-overload-signatures no-namespace
 import { combineAnimations, AnimationInternals, Track, KeyframesLinear, KeyframesVec3 } from './animation.ts';
-import { activeDiffGet } from './beatmap.ts';
+import { activeDiffGet, Json } from './beatmap.ts';
 import { copy, Vec3, ColorType, jsonGet, jsonSet } from './general.ts';
 import { CustomEvent } from './custom_event.ts';
 import { GEO_TYPE, LOOKUP, GEO_SHADER, ANIM, EASE } from './constants.ts';
@@ -9,14 +9,14 @@ let envCount = 0;
 
 export namespace EnvironmentInternals {
     export class BaseEnvironment {
-        json: Record<string, any> = {};
+        json: Json = {};
 
         /**
         * Create an environment object using JSON.
         * @param {Object} json 
         * @returns {Environment}
         */
-        import(json: Record<string, any>) {
+        import(json: Json) {
             this.json = json;
             return this;
         }
@@ -93,7 +93,7 @@ export class Environment extends EnvironmentInternals.BaseEnvironment {
 }
 
 export class Geometry extends EnvironmentInternals.BaseEnvironment {
-    json: Record<string, any> = {
+    json: Json = {
         geometry: {}
     };
 

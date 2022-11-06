@@ -1,12 +1,12 @@
-// deno-lint-ignore-file no-explicit-any adjacent-overload-signatures
-import { activeDiffGet } from './beatmap.ts';
+// deno-lint-ignore-file adjacent-overload-signatures
+import { activeDiffGet, Json } from './beatmap.ts';
 import { Animation, AnimationInternals } from './animation.ts';
 import { ANCHORMODE, CUT, NOTETYPE } from './constants.ts';
 import { BaseGameplayObject, BaseSliderObject } from './object.ts';
 import { copy } from './general.ts';
 
 export class Note extends BaseGameplayObject {
-    json: Record<string, any> = {
+    json: Json = {
         b: 0,
         x: 0,
         y: 0,
@@ -36,7 +36,7 @@ export class Note extends BaseGameplayObject {
      * @param {Object} json 
      * @returns {Note}
      */
-    import(json: Record<number, any>) {
+    import(json: Json) {
         this.json = json;
         if (this.customData === undefined) this.customData = {};
         if (this.animation === undefined) this.animation = {};
@@ -81,7 +81,7 @@ export class Note extends BaseGameplayObject {
 }
 
 export class Bomb extends BaseGameplayObject {
-    json: Record<string, any> = {
+    json: Json = {
         b: 0,
         x: 0,
         y: 0,
@@ -106,7 +106,7 @@ export class Bomb extends BaseGameplayObject {
      * @param {Object} json 
      * @returns {Note}
      */
-    import(json: Record<number, any>) {
+    import(json: Json) {
         this.json = json;
         if (this.customData === undefined) this.customData = {};
         if (this.animation === undefined) this.animation = {};
@@ -145,7 +145,7 @@ export class Bomb extends BaseGameplayObject {
 }
 
 export class Chain extends BaseSliderObject {
-    json: Record<string, any> = {
+    json: Json = {
         b: 0,
         x: 0,
         y: 0,
@@ -193,7 +193,7 @@ export class Chain extends BaseSliderObject {
      * @param {Object} json 
      * @returns {Note}
      */
-    import(json: Record<number, any>) {
+    import(json: Json) {
         this.json = json;
         if (this.customData === undefined) this.customData = {};
         if (this.animation === undefined) this.animation = {};
@@ -234,7 +234,7 @@ export class Chain extends BaseSliderObject {
 }
 
 export class Arc extends BaseSliderObject {
-    json: Record<string, any> = {
+    json: Json = {
         b: 0,
         c: 0,
         x: 0,
@@ -283,7 +283,7 @@ export class Arc extends BaseSliderObject {
      * @param {Object} json 
      * @returns {Note}
      */
-    import(json: Record<number, any>) {
+    import(json: Json) {
         this.json = json;
         if (this.customData === undefined) this.customData = {};
         if (this.animation === undefined) this.animation = {};

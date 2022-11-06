@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-namespace no-explicit-any adjacent-overload-signatures
 import { copy, jsonGet, jsonSet } from './general.ts';
-import { activeDiffGet } from './beatmap.ts';
+import { activeDiffGet, Json } from './beatmap.ts';
 import { AnimationInternals, Animation, TrackValue, Track, KeyframesLinear } from './animation.ts';
 import { EASE } from './constants.ts';
 import { BloomFogEnvironment, ILightWithId, TubeBloomPrePassLight } from './environment.ts';
@@ -13,7 +13,7 @@ export namespace CustomEventInternals {
             d: {}
         };
 
-        constructor(time: number | Record<string, any>) {
+        constructor(time: number | Json) {
             if (typeof time === "object") {
                 Object.assign(this.json, time);
                 return;
@@ -35,14 +35,14 @@ export namespace CustomEventInternals {
 
         set time(value: number) { this.json.b = value }
         set type(value: string) { this.json.t = value }
-        set data(value: Record<string, any>) { this.json.d = value }
+        set data(value: Json) { this.json.d = value }
     }
 
 
     export class AnimateTrack extends BaseEvent {
         animate: AnimationInternals.AbstractAnimation;
 
-        constructor(json: Record<string, any>, track?: TrackValue, duration?: number, animation?: Record<string, any>, easing?: EASE) {
+        constructor(json: Json, track?: TrackValue, duration?: number, animation?: Json, easing?: EASE) {
             super(json);
             this.type = "AnimateTrack";
             if (track) this.track.value = track;
@@ -56,7 +56,7 @@ export namespace CustomEventInternals {
          * Set the properties for animation.
          * @param data 
          */
-        setProperties(data: Record<string, any>) {
+        setProperties(data: Json) {
             const oldData = copy(this.data);
 
             Object.keys(this.data).forEach(key => { delete this.data[key] });
@@ -99,7 +99,7 @@ export namespace CustomEventInternals {
     export class AssignPathAnimation extends BaseEvent {
         animate: AnimationInternals.AbstractAnimation;
 
-        constructor(json: Record<string, any>, track?: TrackValue, duration?: number, animation?: Record<string, any>, easing?: EASE) {
+        constructor(json: Json, track?: TrackValue, duration?: number, animation?: Json, easing?: EASE) {
             super(json);
             this.type = "AssignPathAnimation";
             if (track) this.track.value = track;
@@ -113,7 +113,7 @@ export namespace CustomEventInternals {
          * Set the properties for animation.
          * @param data 
          */
-        setProperties(data: Record<string, any>) {
+        setProperties(data: Json) {
             const oldData = copy(this.data);
 
             Object.keys(this.data).forEach(key => { delete this.data[key] });
@@ -152,7 +152,7 @@ export namespace CustomEventInternals {
     }
 
     export class AssignTrackParent extends BaseEvent {
-        constructor(json: Record<string, any>, childrenTracks: string[], parentTrack: string, worldPositionStays?: boolean) {
+        constructor(json: Json, childrenTracks: string[], parentTrack: string, worldPositionStays?: boolean) {
             super(json);
             this.type = "AssignTrackParent";
             this.childrenTracks = childrenTracks;
@@ -177,7 +177,7 @@ export namespace CustomEventInternals {
     }
 
     export class AssignPlayerToTrack extends BaseEvent {
-        constructor(json: Record<string, any>, track?: string) {
+        constructor(json: Json, track?: string) {
             super(json);
             this.type = "AssignPlayerToTrack";
             if (track) this.track.value = track;
@@ -193,7 +193,7 @@ export namespace CustomEventInternals {
     }
 
     export class AnimateComponent extends BaseEvent {
-        constructor(json: Record<string, any>, track?: TrackValue, duration?: number, easing?: EASE) {
+        constructor(json: Json, track?: TrackValue, duration?: number, easing?: EASE) {
             super(json);
             this.type = "AnimateComponent";
             if (track) this.track.value = track;
@@ -224,7 +224,7 @@ export namespace CustomEventInternals {
     export class AbstractEvent extends BaseEvent {
         animate: AnimationInternals.AbstractAnimation;
 
-        constructor(json: Record<string, any>) {
+        constructor(json: Json) {
             super(json);
             this.animate = new Animation().abstract(this.data);
         }
@@ -233,7 +233,7 @@ export namespace CustomEventInternals {
          * Add properties to the data.
          * @param data 
          */
-        appendData(data: Record<string, any>) {
+        appendData(data: Json) {
             Object.keys(data).forEach(x => {
                 this.json._data[x] = data[x];
             })
@@ -283,7 +283,7 @@ export class CustomEvent extends CustomEventInternals.BaseEvent {
      * @param {Object} json 
      * @returns {AbstractEvent}
      */
-    import(json: Record<string, any>) { return new CustomEventInternals.AbstractEvent(json) }
+    import(json: Json) { return new CustomEventInternals.AbstractEvent(json) }
 
     /**
      * Create an event with no particular identity.
@@ -299,7 +299,7 @@ export class CustomEvent extends CustomEventInternals.BaseEvent {
      * @param {String} easing 
      * @returns 
      */
-    animateTrack = (track?: TrackValue, duration?: number, animation?: Record<string, any>, easing?: EASE) =>
+    animateTrack = (track?: TrackValue, duration?: number, animation?: Json, easing?: EASE) =>
         new CustomEventInternals.AnimateTrack(this.json, track, duration, animation, easing);
 
     /**
@@ -310,7 +310,7 @@ export class CustomEvent extends CustomEventInternals.BaseEvent {
      * @param {String} easing 
      * @returns 
      */
-    assignPathAnimation = (track?: TrackValue, duration?: number, animation: Record<string, any> = {}, easing?: EASE) =>
+    assignPathAnimation = (track?: TrackValue, duration?: number, animation: Json = {}, easing?: EASE) =>
         new CustomEventInternals.AssignPathAnimation(this.json, track, duration, animation, easing);
 
     /**

@@ -1,11 +1,11 @@
 // deno-lint-ignore-file
 import { Track } from "./animation.ts";
-import { activeDiffGet, info } from "./beatmap.ts";
+import { activeDiffGet, info, Json } from "./beatmap.ts";
 import { NOTETYPE } from "./constants.ts";
 import { ColorType, copy, getJumps, isEmptyObject, jsonCheck, jsonGet, jsonPrune, jsonRemove, jsonSet, Vec2, Vec3 } from "./general.ts";
 
 export class BaseObject {
-    json: Record<string, any> = {};
+    json: Json = {};
 
     get time() { return this.json.b }
     get customData() { return this.json.customData }
