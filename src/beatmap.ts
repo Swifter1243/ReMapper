@@ -650,7 +650,7 @@ export function exportZip(excludeDiffs: FILENAME<DIFFS>[] = [], zipName?: string
  * Be mindful that the external difficulties don't have an input/output structure,
  * so new pushed notes for example may not be cleared on the next run and would build up.
  */
-export function transferVisuals(diffs: DIFFPATH[], forDiff?: (diff: Difficulty) => void) {
+export function transferVisuals(diffs: DIFFPATH[], forDiff?: (diff: Difficulty) => void, walls = true) {
     const startActive = activeDiff as Difficulty;
 
     diffs.forEach(x => {
@@ -660,16 +660,26 @@ export function transferVisuals(diffs: DIFFPATH[], forDiff?: (diff: Difficulty) 
         workingDiff.pointDefinitions = startActive.pointDefinitions;
         workingDiff.customEvents = startActive.customEvents;
         workingDiff.events = startActive.events;
+        workingDiff.geoMaterials = startActive.geoMaterials;
+        workingDiff.boostEvents = startActive.boostEvents;
+        workingDiff.lightEventBoxes = startActive.lightEventBoxes;
+        workingDiff.lightRotationBoxes = startActive.lightRotationBoxes;
+        workingDiff.fakeNotes = startActive.fakeNotes;
+        workingDiff.fakeBombs = startActive.fakeBombs;
+        workingDiff.fakeWalls = startActive.fakeWalls;
+        workingDiff.fakeChains = startActive.fakeChains;
 
-        for (let y = 0; y < workingDiff.walls.length; y++) {
-            const obstacle = workingDiff.walls[y];
-            if (obstacle.isModded) {
-                workingDiff.walls.splice(y, 1);
-                y--;
+        if (walls) {
+            for (let y = 0; y < workingDiff.walls.length; y++) {
+                const obstacle = workingDiff.walls[y];
+                if (obstacle.isModded) {
+                    workingDiff.walls.splice(y, 1);
+                    y--;
+                }
             }
+    
+            startActive.walls.forEach(y => { if (y.isModded) workingDiff.walls.push(y) })
         }
-
-        startActive.walls.forEach(y => { if (y.isModded) workingDiff.walls.push(y) })
 
         if (forDiff !== undefined) forDiff(workingDiff);
         workingDiff.save();
