@@ -388,6 +388,14 @@ export function isEmptyObject(o: Record<string, any>) {
     return Object.keys(o).length === 0;
 }
 
+export function getDist(A: Vec3, B: Vec3) {
+    const deltaX = B[0] - A[0];
+    const deltaY = B[1] - A[1];
+    const deltaZ = B[2] - A[2];
+    const sum = (deltaX * deltaX) + (deltaY * deltaY) + (deltaZ * deltaZ);
+    return Math.sqrt(sum);
+}
+
 /**
  * Rotate a point around 0,0,0.
  * @param {Array} rotation
