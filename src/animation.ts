@@ -1,9 +1,11 @@
-// deno-lint-ignore-file no-namespace adjacent-overload-signatures
+// deno-lint-ignore-file no-namespace adjacent-overload-signatures no-explicit-any
 import { optimizeAnimation, OptimizeSettings } from "./anim_optimizer.ts";
 import { Json } from "./beatmap.ts";
+import { Color, lerpColor } from "./color.ts";
 import { ANIM, EASE, SPLINE } from "./constants.ts";
-import { lerpEasing, arrAdd, copy, arrMul, arrLast, findFraction, lerp, Vec3, Vec4, lerpRotation } from "./general.ts";
+import { lerpEasing, arrAdd, copy, arrMul, arrLast, findFraction, Vec3, Vec4, lerpRotation, arrLerp } from "./general.ts";
 
+export type AnimationFlag = Interpolation | "hsvLerp";
 export type Interpolation = EASE | SPLINE;
 export type TimeValue = number;
 
@@ -19,12 +21,16 @@ export type KeyframesVec3 = AbstractKeyframeArray<Vec3>
 export type ComplexKeyframesVec3 = AbstractComplexKeyframeArray<Vec3>;
 export type RawKeyframesVec3 = AbstractRawKeyframeArray<Vec3>;
 
+export type ComplexKeyframesColor = [...Vec4, number, AnimationFlag?, AnimationFlag?, AnimationFlag?][]
+export type KeyframesColor = ComplexKeyframesColor | Vec4 | string
+export type RawKeyframesColor = ComplexKeyframesColor | Vec4
+
 export type KeyframesVec4 = AbstractKeyframeArray<Vec4>;
 export type ComplexKeyframesVec4 = AbstractComplexKeyframeArray<Vec4>;
 export type RawKeyframesVec4 = AbstractRawKeyframeArray<Vec4>;
 
 export type SingleKeyframe = number[]; // [...]
-export type KeyframeValues = (number | (EASE | undefined) | (SPLINE | undefined))[]; // [[...], [...]]
+export type KeyframeValues = (number | (AnimationFlag | undefined))[]; // [[...], [...]]
 export type KeyframeArray = KeyframeValues[];
 export type KeyframesAny = SingleKeyframe | KeyframeArray | string;
 export type RawKeyframesAny = SingleKeyframe | KeyframeArray;
@@ -152,7 +158,7 @@ export namespace AnimationInternals {
         set localRotation(value: KeyframesVec3) { this.set("localRotation", value as KeyframesAny) }
         set scale(value: KeyframesVec3) { this.set("scale", value as KeyframesAny) }
         set dissolve(value: KeyframesLinear) { this.set("dissolve", value as KeyframesAny) }
-        set color(value: KeyframesVec4) { this.set("color", value as KeyframesAny) }
+        set color(value: KeyframesColor) { this.set("color", value as KeyframesAny) }
         set uninteractable(value: KeyframesLinear) { this.set("uninteractable", value as KeyframesAny) }
         set time(value: KeyframesLinear) { this.set("time", value as KeyframesAny) }
     }
@@ -223,7 +229,7 @@ export namespace AnimationInternals {
         set height(value: KeyframesLinear) { this.set("height", value as KeyframesAny) }
         set dissolve(value: KeyframesLinear) { this.set("dissolve", value as KeyframesAny) }
         set dissolveArrow(value: KeyframesLinear) { this.set("dissolveArrow", value as KeyframesAny) }
-        set color(value: KeyframesVec4) { this.set("color", value as KeyframesAny) }
+        set color(value: KeyframesColor) { this.set("color", value as KeyframesAny) }
         set uninteractable(value: KeyframesLinear) { this.set("uninteractable", value as KeyframesAny) }
         set time(value: KeyframesLinear) { this.set("time", value as KeyframesAny) }
     }
@@ -282,48 +288,48 @@ export class Animation extends AnimationInternals.BaseAnimation {
 }
 
 export class Keyframe {
-    values: number[] = [];
-    timeIndex = 0;
-    time = 0;
-    easing?: EASE;
-    spline?: SPLINE;
+    data: KeyframeValues
 
     constructor(data: KeyframeValues) {
-        this.timeIndex = this.getTimeIndex(data);
-        this.time = data[this.timeIndex] as number;
-        this.values = this.getValues(data);
-        this.easing = this.getEasing(data);
-        this.spline = this.getSpline(data);
+        this.data = data;
     }
 
-    private getValues(arr: KeyframeValues): number[] {
-        const time = this.getTimeIndex(arr);
-        return arr.slice(0, time) as number[];
+    get timeIndex() {
+        for (let i = this.data.length - 1; i >= 0; i--)
+            if (typeof this.data[i] !== "string") return i;
+        return -1;
     }
 
-    private getTimeIndex(arr: KeyframeValues): number {
-        for (let i = arr.length - 1; i >= 0; i--) {
-            if (typeof arr[i] !== "string") return i;
+    get time() { return this.data[this.timeIndex] as number }
+    get values() { return this.data.slice(0, this.timeIndex) as number[] }
+    get easing() { return this.data[this.getFlagIndex("ease", false)] as EASE }
+    get spline() { return this.data[this.getFlagIndex("spline", false)] as SPLINE }
+    get hsvLerp() { return this.getFlagIndex("hsvLerp") !== -1 }
+
+    set time(value: number) { this.data[this.timeIndex] = value }
+    set values(value: number[]) { for (let i = 0; i < this.timeIndex; i++) this.data[i] = value[i] }
+    set easing(value: EASE) { this.setFlag(value, "ease") }
+    set spline(value: SPLINE) { this.setFlag(value, "ease") }
+    set hsvLerp(value: boolean) { 
+        if (value) this.setFlag("hsvLerp") 
+        else {
+            const flagIndex = this.getFlagIndex("hsvLerp");
+            if (flagIndex !== -1) this.data.splice(flagIndex, 1);
         }
-        return 0;
     }
 
-    private getEasing(arr: KeyframeValues): EASE {
-        return arr.filter(x => typeof x === "string" && x.includes("ease"))[0] as EASE;
+    setFlag(value: string, old?: string) {
+        let index = this.getFlagIndex(old ? old : value, old !== undefined);
+        if (index === -1) index = this.data.length;
+        this.data[index] = value as any;
     }
 
-    private getSpline(arr: KeyframeValues): SPLINE {
-        return arr.filter(x => typeof x === "string" && x.includes("spline"))[0] as SPLINE;
-    }
-
-    // TODO: Rename this to compile or build?
-    get data() {
-        const output: (string | number)[] = [...this.values, this.time];
-        if (this.easing !== undefined) output.push(this.easing);
-        if (this.spline !== undefined) output.push(this.spline);
-        return output;
+    getFlagIndex(flag: string, exact = true) {
+        if (exact) return this.data.findIndex(x => typeof x === "string" && x === flag);
+        return this.data.findIndex(x => typeof x === "string" && x.includes(flag));
     }
 }
+
 export class Track {
     private reference: Json;
 
@@ -459,40 +465,40 @@ export function getValuesAtTime(property: ANIM, animation: KeyframesAny, time: n
     animation = complexifyArray(animation);
     const timeInfo = timeInKeyframes(time, animation);
     if (timeInfo.interpolate && timeInfo.r && timeInfo.l) {
-        if (property === "rotation" || property === "localRotation" || property === "offsetWorldRotation") {
+        if (property === "rotation" || property === "localRotation" || property === "offsetWorldRotation")
             return lerpRotation(timeInfo.l.values as Vec3, timeInfo.r.values as Vec3, timeInfo.normalTime);
+        if (property === "color" && timeInfo.r.hsvLerp) {
+            const color1 = new Color(timeInfo.l.values as Vec4, "RGB");
+            const color2 = new Color(timeInfo.r.values as Vec4, "RGB");
+            const lerp = lerpColor(color1, color2, timeInfo.normalTime, undefined, "HSV");
+            return lerp.export();
         }
         else {
-            // TODO: Move this into its own function, this is bad
-            if (timeInfo.r.spline === "splineCatmullRom") {
-                const p0 = timeInfo.leftIndex - 1 < 0 ? timeInfo.l.values : new Keyframe(animation[timeInfo.leftIndex - 1]).values;
-                const p1 = timeInfo.l.values;
-                const p2 = timeInfo.r.values;
-                const p3 = timeInfo.rightIndex + 1 > animation.length - 1 ? timeInfo.r.values : new Keyframe(animation[timeInfo.rightIndex + 1]).values;
+                // TODO: Move this into its own function, this is bad
+                if (timeInfo.r.spline === "splineCatmullRom") {
+                    const p0 = timeInfo.leftIndex - 1 < 0 ? timeInfo.l.values : new Keyframe(animation[timeInfo.leftIndex - 1]).values;
+                    const p1 = timeInfo.l.values;
+                    const p2 = timeInfo.r.values;
+                    const p3 = timeInfo.rightIndex + 1 > animation.length - 1 ? timeInfo.r.values : new Keyframe(animation[timeInfo.rightIndex + 1]).values;
 
-                const t = timeInfo.normalTime;
-                const tt = t * t;
-                const ttt = tt * t;
+                    const t = timeInfo.normalTime;
+                    const tt = t * t;
+                    const ttt = tt * t;
 
-                const q0 = -ttt + (2 * tt) - t;
-                const q1 = (3 * ttt) - (5 * tt) + 2;
-                const q2 = (-3 * ttt) + (4 * tt) + t;
-                const q3 = ttt - tt;
+                    const q0 = -ttt + (2 * tt) - t;
+                    const q1 = (3 * ttt) - (5 * tt) + 2;
+                    const q2 = (-3 * ttt) + (4 * tt) + t;
+                    const q3 = ttt - tt;
 
-                const o0 = arrMul(p0, q0);
-                const o1 = arrMul(p1, q1);
-                const o2 = arrMul(p2, q2);
-                const o3 = arrMul(p3, q3);
+                    const o0 = arrMul(p0, q0);
+                    const o1 = arrMul(p1, q1);
+                    const o2 = arrMul(p2, q2);
+                    const o3 = arrMul(p3, q3);
 
-                return arrMul(arrAdd(arrAdd(o0, o1), arrAdd(o2, o3)), 0.5);
+                    return arrMul(arrAdd(arrAdd(o0, o1), arrAdd(o2, o3)), 0.5);
+                }
+                else return arrLerp(timeInfo.l.values, timeInfo.r.values, timeInfo.normalTime);
             }
-            else {
-                // TODO: Move this into a lerpArray function?
-                return timeInfo.l.values.map((x, i) => {
-                    return lerp(x, timeInfo.r.values[i], timeInfo.normalTime);
-                });
-            }
-        }
     }
     else return (timeInfo.l as Keyframe).values;
 }

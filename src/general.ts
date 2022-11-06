@@ -255,6 +255,10 @@ export function arrSubtract(arr: number[], value: number[] | number) {
     else return arr.map((x, i) => x - (value[i] !== undefined ? value[i] : 0));
 }
 
+export const arrLerp = <T extends readonly [] | readonly number[]>
+    (start: T, end: { [K in keyof T]: number }, fraction: number) =>
+    start.map((x, i) => lerp(x, end[i], fraction));
+
 /**
  * Multiply an array either by a number or another array.
  * @param {Array} arr 
