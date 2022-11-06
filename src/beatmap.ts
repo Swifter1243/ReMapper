@@ -457,15 +457,15 @@ export class Difficulty {
         fn(arr);
         this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.AssignPlayerToTrack)).concat(arr);
     }
-    assignFogTracks(fn: (arr: CustomEventInternals.AssignFogTrack[]) => void) {
-        const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.AssignFogTrack) as CustomEventInternals.AssignFogTrack[]
-        fn(arr);
-        this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.AnimateTrack)).concat(arr);
-    }
     abstractEvents(fn: (arr: CustomEventInternals.AbstractEvent[]) => void) {
         const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.AbstractEvent) as CustomEventInternals.AbstractEvent[]
         fn(arr);
         this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.AbstractEvent)).concat(arr);
+    }
+    animateComponents(fn: (arr: CustomEventInternals.AnimateComponent[]) => void) {
+        const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.AnimateComponent) as CustomEventInternals.AnimateComponent[]
+        fn(arr);
+        this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.AnimateComponent)).concat(arr);
     }
 
     environment(fn: (arr: Environment[]) => void) {

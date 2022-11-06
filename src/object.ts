@@ -42,7 +42,7 @@ export class BaseGameplayObject extends BaseObject {
     get life() { return this.halfJumpDur * 2 }
     get lifeStart() { return this.time - this.life / 2 }
     get interactable() { return !this.json.customData.uninteractable }
-    get track() { return new Track(this.json.customData.track) }
+    get track() { return new Track(this.json.customData) }
     get color() { return this.json.customData.color }
     get animation() { return this.json.customData.animation }
 

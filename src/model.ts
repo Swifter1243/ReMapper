@@ -1,5 +1,5 @@
 // deno-lint-ignore-file no-explicit-any
-import { arrAdd, cacheData, ColorType, copy, iterateKeyframes, rotatePoint, Vec3, Vec4, parseFilePath } from "./general.ts";
+import { arrAdd, cacheData, ColorType, copy, iterateKeyframes, rotatePoint, Vec3, Vec4, parseFilePath, baseEnvironmentTrack } from "./general.ts";
 import { bakeAnimation, complexifyArray, ComplexKeyframesVec3, KeyframeArray, KeyframesAny, KeyframeValues, RawKeyframesVec3 } from "./animation.ts";
 import { Environment, Geometry, RawGeometryMaterial } from "./environment.ts";
 import { optimizeAnimation, OptimizeSettings } from "./anim_optimizer.ts";
@@ -449,10 +449,10 @@ export function debugObject(input: GroupObjectTypes, resolution: number, scale?:
 
     new Event().backLasers().on([3, 3, 3, 1]).push();
 
-    new CustomEvent().assignFogTrack("fog").push();
-    const fogEvent = new CustomEvent().animateTrack("fog");
-    fogEvent.animate.attenuation = [0.000001];
-    fogEvent.animate.startY = [-69420]
+    baseEnvironmentTrack("fog");
+    const fogEvent = new CustomEvent().animateComponent("fog");
+    fogEvent.fog.attenuation = [0.000001];
+    fogEvent.fog.startY = [-69420]
     fogEvent.push();
 
     const removeUI = new Environment(new Regex().add("NarrowGameHUD").end(), "Regex");

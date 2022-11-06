@@ -9,6 +9,7 @@ import { Note } from './note.ts';
 import { EventInternals } from './basicEvent.ts';
 import { OptimizeSettings } from "./anim_optimizer.ts";
 import { fs, path, three } from "./deps.ts";
+import { Environment } from './environment.ts';
 
 export type Vec2 = [number, number];
 export type Vec3 = [number, number, number];
@@ -656,4 +657,10 @@ export function parseFilePath(input: FILEPATH, ext?: `.${string}`, error = true)
     if (dir !== ".") output.dir = dir;
 
     return output
+}
+
+export function baseEnvironmentTrack(track: string) {
+    const env = new Environment("[0]Environment", "EndsWith");
+    env.track.value = track;
+    env.push();
 }

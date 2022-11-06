@@ -323,19 +323,14 @@ export class Keyframe {
         return output;
     }
 }
-
-type TrackReference = {
-    track: any;
-}
-
 export class Track {
-    private reference: TrackReference;
+    private reference: Record<string, any>;
 
     /**
      * Handler for the track property.
      * @param {TrackValue} value 
      */
-    constructor(reference: TrackReference) {
+    constructor(reference: Record<string, any>) {
         this.reference = reference;
     }
 

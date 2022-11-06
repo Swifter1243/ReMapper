@@ -1,9 +1,9 @@
 // deno-lint-ignore-file no-explicit-any adjacent-overload-signatures no-namespace
-import { combineAnimations, AnimationInternals, Track } from './animation.ts';
+import { combineAnimations, AnimationInternals, Track, KeyframesLinear } from './animation.ts';
 import { activeDiffGet } from './beatmap.ts';
-import { copy, Vec3, ColorType } from './general.ts';
+import { copy, Vec3, ColorType, jsonGet } from './general.ts';
 import { CustomEvent } from './custom_event.ts';
-import { GEO_TYPE, LOOKUP, GEO_SHADER, ANIM } from './constants.ts';
+import { GEO_TYPE, LOOKUP, GEO_SHADER, ANIM, EASE } from './constants.ts';
 
 let envCount = 0;
 
@@ -37,7 +37,7 @@ export namespace EnvironmentInternals {
         get rotation() { return this.json.rotation }
         get localRotation() { return this.json.localRotation }
         get lightID() { return this.json.lightID }
-        get track() { return new Track(this.json.track) }
+        get track() { return new Track(this.json) }
         get group() { return this.json.group }
         get animationProperties() {
             const returnObj: any = {};
@@ -48,6 +48,7 @@ export namespace EnvironmentInternals {
             if (this.scale !== undefined) returnObj.scale = this.scale
             return returnObj;
         }
+        get components() { return jsonGet(this.json, "components", {}) }
 
         set duplicate(value: number) { this.json.duplicate = value }
         set active(value: boolean) { this.json.active = value }
@@ -58,6 +59,7 @@ export namespace EnvironmentInternals {
         set localRotation(value: Vec3) { this.json.localRotation = value }
         set lightID(value: number) { this.json.lightID = value }
         set group(value: string) { this.json.group = value }
+        set components(value: Components) { this.json.components = value }
     }
 }
 
@@ -75,11 +77,11 @@ export class Environment extends EnvironmentInternals.BaseEnvironment {
         this.lookupMethod = lookupMethod;
     }
 
-    get id() { return this.json._id }
-    get lookupMethod() { return this.json._lookupMethod }
+    get id() { return this.json.id }
+    get lookupMethod() { return this.json.lookupMethod }
 
-    set id(value: string) { this.json._id = value }
-    set lookupMethod(value: LOOKUP) { this.json._lookupMethod = value }
+    set id(value: string) { this.json.id = value }
+    set lookupMethod(value: LOOKUP) { this.json.lookupMethod = value }
 }
 
 export class Geometry extends EnvironmentInternals.BaseEnvironment {
@@ -114,7 +116,7 @@ export type RawGeometryMaterial = {
     shaderKeywords?: string[]
 }
 
-export function animateEnvGroup(group: string, time: number, animation: (animation: AnimationInternals.EnvironmentAnimation) => void, duration?: number, easing?: string) {
+export function animateEnvGroup(group: string, time: number, animation: (animation: AnimationInternals.EnvironmentAnimation) => void, duration?: number, easing?: EASE) {
     if (activeDiffGet().rawEnvironment !== undefined) activeDiffGet().rawEnvironment.forEach(x => {
         if (x.group === group) {
             const newAnimation = new AnimationInternals.AbstractAnimation;
@@ -139,7 +141,7 @@ export function animateEnvGroup(group: string, time: number, animation: (animati
     })
 }
 
-export function animateEnvTrack(group: string, time: number, animation: (animation: AnimationInternals.EnvironmentAnimation) => void, duration?: number, easing?: string) {
+export function animateEnvTrack(group: string, time: number, animation: (animation: AnimationInternals.EnvironmentAnimation) => void, duration?: number, easing?: EASE) {
     if (activeDiffGet().rawEnvironment !== undefined) activeDiffGet().rawEnvironment.forEach(x => {
         if (x.track.value === group) {
             const newAnimation = new AnimationInternals.AbstractAnimation;
@@ -157,4 +159,27 @@ export function animateEnvTrack(group: string, time: number, animation: (animati
             event.push();
         }
     })
+}
+
+export type Components = {
+    ILightWithId?: ILightWithId<number>,
+    BloomFogEnvironment?: BloomFogEnvironment<number>,
+    TubeBloomPrePassLight?: TubeBloomPrePassLight<number>
+}
+
+export type ILightWithId<T extends number | KeyframesLinear> = {
+    lightID: T,
+    type: T
+}
+
+export type BloomFogEnvironment<T extends number | KeyframesLinear> = {
+    attenuation?: T,
+    offset?: T,
+    startY?: T,
+    height?: T
+}
+
+export type TubeBloomPrePassLight<T extends number | KeyframesLinear> = {
+    colorAlphaMultiplier?: T,
+    bloomFogIntensityMultiplier?: T
 }
