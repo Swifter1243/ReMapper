@@ -659,8 +659,10 @@ export function parseFilePath(input: FILEPATH, ext?: `.${string}`, error = true)
     return output
 }
 
+export const getBaseEnvironment = () => new Environment("[0]Environment", "EndsWith");
+
 export function baseEnvironmentTrack(track: string) {
-    const env = new Environment("[0]Environment", "EndsWith");
+    const env = getBaseEnvironment();
     env.track.value = track;
     env.push();
 }
