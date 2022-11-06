@@ -16,6 +16,7 @@ export namespace EventInternals {
                 return;
             }
             this.time = time;
+            this.floatValue = 1;
         }
 
         /**
