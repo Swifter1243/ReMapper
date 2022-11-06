@@ -427,4 +427,11 @@ export type GEO_TYPE =
 export type GEO_SHADER =
     "Standard" |
     "OpaqueLight" |
-    "TransparentLight"
+    "TransparentLight" |
+    "BaseWater" |
+    "BillieWater" |
+    "BTSPillar" |
+    "InterscopeConcrete" |
+    "InterscopeCar" |
+    "Obstacle" |
+    "WaterfallMirror"
