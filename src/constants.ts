@@ -244,56 +244,61 @@ export enum CUT {
     DOT
 }
 
-export const EVENT = {
-    // Type
-    BACK_LASERS: 0,
-    RING_LIGHTS: 1,
-    LEFT_LASERS: 2,
-    RIGHT_LASERS: 3,
-    CENTER_LASERS: 4,
-    LEFT_EXTRA: 6,
-    RIGHT_EXTRA: 7,
-    RING_SPIN: 8,
-    RING_ZOOM: 9,
-    BILLIE_LEFT: 10,
-    BILLIE_RIGHT: 11,
-    LEFT_SPEED: 12,
-    RIGHT_SPEED: 13,
-    EARLY_ROTATION: 14,
-    LATE_ROTATION: 15,
-    LOWER_HYDRAULICS: 16,
-    RAISE_HYDRAULICS: 17,
+export enum EVENTGROUP {
+    BACK_LASERS,
+    RING_LIGHTS,
+    LEFT_LASERS,
+    RIGHT_LASERS,
+    CENTER_LASERS,
+    BOOST,
+    LEFT_EXTRA,
+    RIGHT_EXTRA,
+    RING_SPIN,
+    RING_ZOOM,
+    BILLIE_LEFT,
+    BILLIE_RIGHT,
+    LEFT_ROTATING,
+    RIGHT_ROTATING,
+    EARLY_ROTATION,
+    LATE_ROTATION,
+    LOWER_HYDRAULICS,
+    RAISE_HYDRAULICS,
+    GAGA_LEFT,
+    GAGA_RIGHT
+}
 
-    // Regular Action
-    OFF: 0,
-    BLUE_ON: 1,
-    BLUE_FLASH: 2,
-    BLUE_FADE: 3,
-    BLUE_IN: 4,
-    RED_ON: 5,
-    RED_FLASH: 6,
-    RED_FADE: 7,
-    RED_IN: 8,
+export enum EVENTACTION {
+    OFF,
+    BLUE_ON,
+    BLUE_FLASH,
+    BLUE_FADE,
+    BLUE_IN,
+    RED_ON,
+    RED_FLASH,
+    RED_FADE,
+    RED_IN
+}
 
-    // Interscope Action
-    NO_HYDRAULICS: 0,
-    ALL_CARS: 1,
-    LEFT_CARS: 2,
-    RIGHT_CARS: 3,
-    FRONT_CARS: 4,
-    FRONT_MIDDLE_CARS: 5,
-    BACK_MIDDLE_CARS: 6,
-    BACK_CARS: 7,
+export enum INTERSCOPEGROUP {
+    NO_HYDRAULICS,
+    ALL_CARS,
+    LEFT_CARS,
+    RIGHT_CARS,
+    FRONT_CARS,
+    FRONT_MIDDLE_CARS,
+    BACK_MIDDLE_CARS,
+    BACK_CARS
+}
 
-    // Rotation Action
-    CCW_60: 0,
-    CCW_45: 1,
-    CCW_30: 2,
-    CCW_15: 3,
-    CW_15: 4,
-    CW_30: 5,
-    CW_45: 6,
-    CW_60: 7
+export enum ROTATIONACTION {
+    CCW_60,
+    CCW_45,
+    CCW_30,
+    CCW_15,
+    CW_15,
+    CW_30,
+    CW_45,
+    CW_60
 }
 
 export type ANIM =

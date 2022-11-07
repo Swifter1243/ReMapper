@@ -1,5 +1,5 @@
 // deno-lint-ignore-file no-explicit-any no-namespace adjacent-overload-signatures
-import { EASE, EVENT } from './constants.ts';
+import { EASE, EVENTGROUP, EVENTACTION, ROTATIONACTION, INTERSCOPEGROUP } from './constants.ts';
 import { activeDiffGet, Json } from './beatmap.ts';
 import { copy, jsonGet, jsonSet, ColorType } from './general.ts';
 import { BaseObject } from './object.ts';
@@ -8,6 +8,7 @@ export type LightID = number | number[];
 
 export namespace EventInternals {
     export class BaseEvent extends BaseObject {
+        /** The bare minimum event. */
         constructor(time: number | Json) {
             super()
             this.value = 0;
@@ -19,16 +20,19 @@ export namespace EventInternals {
             this.floatValue = 1;
         }
 
-        /**
-        * Push this event to the difficulty
+        /** Push this event to the difficulty 
+         * @param clone Whether this object will be copied before being pushed.
         */
         push(clone = true) {
             activeDiffGet().events.push((clone ? copy(this) : this) as any);
             return this;
         }
 
+        /** The type of the event. */
         get type() { return this.json.et }
+        /** The value of the event. */
         get value() { return this.json.i }
+        /** The value of the event, but allowing decimals. */
         get floatValue() { return this.json.f }
 
         set type(value: number) { this.json.et = value }
@@ -42,24 +46,22 @@ export namespace EventInternals {
             this.type = type;
         }
 
-        /**
-         * Create an event that turns lights off.
-         * @returns 
+        /** Create an event that turns lights off
+         * @param lightID The lightIDs to target.
          */
         off(lightID?: LightID) {
-            this.value = EVENT.OFF;
+            this.value = EVENTACTION.OFF;
             if (lightID) this.lightID = lightID;
             return this;
         }
 
         /**
          * Create an event that turns lights on.
-         * @param {Array} color Can be boolean to determine if the light is blue (true), or a color.
-         * @param {Number | Array} lightID 
-         * @returns 
+         * @param color Can be boolean to determine if the light is blue (true), or a color.
+         * @param lightID The lightIDs to target.
          */
         on(color: ColorType | boolean = true, lightID?: LightID) {
-            this.value = (typeof color === "boolean" && color) ? EVENT.BLUE_ON : EVENT.RED_ON;
+            this.value = (typeof color === "boolean" && color) ? EVENTACTION.BLUE_ON : EVENTACTION.RED_ON;
             if (typeof color !== "boolean") this.color = color;
             if (lightID) this.lightID = lightID;
             return this;
@@ -67,12 +69,11 @@ export namespace EventInternals {
 
         /**
          * Create an event that flashes the lights.
-         * @param {Array} color Can be boolean to determine if the light is blue (true), or a color.
-         * @param {Number | Array} lightID 
-         * @returns 
+         * @param color Can be boolean to determine if the light is blue (true), or a color.
+         * @param lightID The lightIDs to target.
          */
         flash(color: ColorType | boolean = true, lightID?: LightID) {
-            this.value = (typeof color === "boolean" && color) ? EVENT.BLUE_FLASH : EVENT.RED_FLASH;
+            this.value = (typeof color === "boolean" && color) ? EVENTACTION.BLUE_FLASH : EVENTACTION.RED_FLASH;
             if (typeof color !== "boolean") this.color = color;
             if (lightID) this.lightID = lightID;
             return this;
@@ -80,12 +81,11 @@ export namespace EventInternals {
 
         /**
          * Create an event that fades the lights out.
-         * @param {Array} color Can be boolean to determine if the light is blue (true), or a color.
-         * @param {Number | Array} lightID 
-         * @returns 
+         * @param color Can be boolean to determine if the light is blue (true), or a color.
+         * @param lightID The lightIDs to target.
          */
         fade(color: ColorType | boolean = true, lightID?: LightID) {
-            this.value = (typeof color === "boolean" && color) ? EVENT.BLUE_FADE : EVENT.RED_FADE;
+            this.value = (typeof color === "boolean" && color) ? EVENTACTION.BLUE_FADE : EVENTACTION.RED_FADE;
             if (typeof color !== "boolean") this.color = color;
             if (lightID) this.lightID = lightID;
             return this;
@@ -93,35 +93,44 @@ export namespace EventInternals {
 
         /**
          * Create an event that makes the lights fade in to this color from the previous.
-         * @param {Array} color Can be boolean to determine if the light is blue (true), or a color.
-         * @param {Number | Array} lightID 
+         * @param color Can be boolean to determine if the light is blue (true), or a color.
+         * @param lightID The lightIDs to target.
          * @returns 
          */
         in(color: ColorType | boolean = true, lightID?: LightID) {
-            this.value = (typeof color === "boolean" && color) ? EVENT.BLUE_IN : EVENT.RED_IN;
+            this.value = (typeof color === "boolean" && color) ? EVENTACTION.BLUE_IN : EVENTACTION.RED_IN;
             if (typeof color !== "boolean") this.color = color;
             if (lightID !== undefined) this.lightID = lightID;
             return this;
         }
 
-        /**
-        * Remove the subclass of the event, giving access to all properties, but can allow for invalid data.
-        * @returns {AbstractEvent}
-        */
+        /** Remove the subclass of the event, giving access to all properties, but can allow for invalid data. */
         abstract() { return new Event().import(this.json) }
 
+        /** The lightIDs to target. */
         get lightID() { return jsonGet(this.json, "customData.lightID") }
+        /** The color of the event. */
         get color() { return jsonGet(this.json, "customData.color") }
+        /** The easing for transition events. Goes on start event. */
         get easing() { return jsonGet(this.json, "customData.easing") }
+        /** The color interpolation for transition events. Goes on start event. */
         get lerpType() { return jsonGet(this.json, "customData.lerpType") }
 
         set lightID(value: LightID) { jsonSet(this.json, "customData.lightID", value) }
         set color(value: ColorType) { jsonSet(this.json, "customData.color", value) }
         set easing(value: EASE) { jsonSet(this.json, "customData.easing", value) }
-        set lerpType(value: string) { jsonSet(this.json, "customData.lerpType", value) }
+        set lerpType(value: "RGB" | "HSV") { jsonSet(this.json, "customData.lerpType", value) }
     }
 
     export class LaserSpeedEvent extends EventInternals.BaseEvent {
+        /**
+         * Controls rotating laser speed.
+         * @param json Json to import.
+         * @param type Type of the event.
+         * @param speed Speed of the rotating lasers.
+         * @param direction Direction of the rotating lasers.
+         * @param lockRotation Whether the existing rotation should be kept.
+         */
         constructor(json: Json, type: number, speed: number, direction?: number, lockRotation?: boolean) {
             super(json);
             this.type = type;
@@ -132,14 +141,14 @@ export namespace EventInternals {
             if (lockRotation !== undefined) this.lockRotation = lockRotation;
         }
 
-        /**
-        * Remove the subclass of the event, giving access to all properties, but can allow for invalid data.
-        * @returns {AbstractEvent}
-        */
+        /** Remove the subclass of the event, giving access to all properties, but can allow for invalid data. */
         abstract() { return new Event().import(this.json) }
 
+        /** Whether the existing rotation should be kept. */
         get lockRotation() { return jsonGet(this.json, "customData.lockRotation") }
+        /** Speed of the rotating lasers. */
         get speed() { return jsonGet(this.json, "customData.speed") }
+        /** Direction of the rotating lasers. */
         get direction() { return jsonGet(this.json, "customData.direction") }
 
         set lockRotation(value: boolean) { jsonSet(this.json, "customData.lockRotation", value) }
@@ -148,9 +157,15 @@ export namespace EventInternals {
     }
 
     export class RingZoomEvent extends EventInternals.BaseEvent {
+        /**
+         * Controls ring zoom.
+         * @param json Json to import.
+         * @param step The position offset between each ring.
+         * @param speed The speed of the zoom.
+         */
         constructor(json: Json, step?: number, speed?: number) {
             super(json);
-            this.type = EVENT.RING_ZOOM;
+            this.type = EVENTGROUP.RING_ZOOM;
 
             if (step !== undefined) this.step = step;
             if (speed !== undefined) this.speed = speed;
@@ -162,7 +177,9 @@ export namespace EventInternals {
         */
         abstract() { return new Event().import(this.json) }
 
+        /** The position offset between each ring. */
         get step() { return jsonGet(this.json, "customData.step") }
+        /** The speed of the zoom. */
         get speed() { return jsonGet(this.json, "customData.speed") }
 
         set step(value: number) { jsonSet(this.json, "customData.step", value) }
@@ -170,9 +187,20 @@ export namespace EventInternals {
     }
 
     export class RingSpinEvent extends EventInternals.BaseEvent {
+        /**
+         * Controls spinning the rings.
+         * @param json Json to import.
+         * @param rotation Degrees of the spin.
+         * @param direction Direction of the spin. 1 is clockwise, 0 is counterclockwise.
+         * @param step The angle between each ring.
+         * @param speed The speed multiplier of the spin.
+         * @param prop The rate at which physics propogate through the rings.
+         * High values will cause rings to move simultneously, low values gives them significant delay.
+         * @param nameFilter The ring object name to target.
+         */
         constructor(json: Json, rotation?: number, direction?: number, step?: number, speed?: number, prop?: number, nameFilter?: string) {
             super(json);
-            this.type = EVENT.RING_SPIN;
+            this.type = EVENTGROUP.RING_SPIN;
 
             if (rotation !== undefined) this.rotation = rotation;
             if (direction !== undefined) this.direction = direction;
@@ -182,17 +210,22 @@ export namespace EventInternals {
             if (nameFilter !== undefined) this.nameFilter = nameFilter;
         }
 
-        /**
-        * Remove the subclass of the event, giving access to all properties, but can allow for invalid data.
-        * @returns {AbstractEvent}
-        */
+        /** Remove the subclass of the event, giving access to all properties, but can allow for invalid data. */
         abstract() { return new Event().import(this.json) }
 
+        /** The speed multiplier of the spin. */
         get speed() { return jsonGet(this.json, "customData.speed") }
+        /** Direction of the spin. 1 is clockwise, 0 is counterclockwise. */
         get direction() { return jsonGet(this.json, "customData.direction") }
+        /** The ring object name to target. */
         get nameFilter() { return jsonGet(this.json, "customData.nameFilter") }
+        /** Degrees of the spin. */
         get rotation() { return jsonGet(this.json, "customData.rotation") }
+        /** The angle between each ring. */
         get step() { return jsonGet(this.json, "customData.step") }
+        /** The rate at which physics propogate through the rings.
+         * High values will cause rings to move simultneously, low values gives them significant delay.
+         */
         get prop() { return jsonGet(this.json, "customData.prop") }
 
         set speed(value: number) { jsonSet(this.json, "customData.speed", value) }
@@ -204,30 +237,49 @@ export namespace EventInternals {
     }
 
     export class RotationEvent extends EventInternals.BaseEvent {
+        /**
+         * Event to spin the gameplay objects in the map.
+         * The new rotation events should be used instead.
+         * @param json Json to import.
+         * @param type Type of the event.
+         * @param rotation The rotation of the event.
+         * Must be a multiple of 15 between -60 and 60.
+         */
         constructor(json: Json, type: number, rotation: number) {
             super(json);
             this.type = type;
-            this.value = (EVENT as Json)[`${(rotation < 0 ? "CCW_" : "CW_") + Math.abs(rotation)}`];
+            this.value = (ROTATIONACTION as Json)[`${(rotation < 0 ? "CCW_" : "CW_") + Math.abs(rotation)}`];
         }
 
-        /**
-        * Remove the subclass of the event, giving access to all properties, but can allow for invalid data.
-        * @returns {AbstractEvent}
-        */
+        /** Remove the subclass of the event, giving access to all properties, but can allow for invalid data. */
         abstract() { return new Event().import(this.json) }
     }
 
     export class AbstractEvent extends EventInternals.BaseEvent {
+        /** Whether the existing rotation should be kept. */
         get lockRotation() { return jsonGet(this.json, "customData.lockRotation") }
+        /** The lightIDs to target. */
         get lightID() { return jsonGet(this.json, "customData.lightID") }
+        /** The color of the event. */
         get color() { return jsonGet(this.json, "customData.color") }
+        /** The easing for transition events. Goes on start event. */
         get easing() { return jsonGet(this.json, "customData.easing") }
+        /** The color interpolation for transition events. Goes on start event. */
         get lerpType() { return jsonGet(this.json, "customData.lerpType") }
+        /** The speed of the event. Only for ring spins & zooms, and laser rotations. */
         get speed() { return jsonGet(this.json, "customData.speed") }
+        /** Direction of the spin/lasers. Only for laser rotations and ring spins. */
         get direction() { return jsonGet(this.json, "customData.direction") }
+        /** The ring object name to target. Only for ring spins. */
         get nameFilter() { return jsonGet(this.json, "customData.nameFilter") }
+        /** Degrees of the spin. Only for ring spins. */
         get rotation() { return jsonGet(this.json, "customData.rotation") }
+        /** The angle between each ring. Only for ring spins. */
         get step() { return jsonGet(this.json, "customData.step") }
+        /** The rate at which physics propogate through the rings.
+        * High values will cause rings to move simultneously, low values gives them significant delay.
+        * Only for ring spins.
+        */
         get prop() { return jsonGet(this.json, "customData.prop") }
 
         set lockRotation(value: boolean) { jsonSet(this.json, "customData.lockRotation", value) }
@@ -246,171 +298,172 @@ export namespace EventInternals {
 
 export class Event extends EventInternals.BaseEvent {
     /**
-     * Event object for ease of creation.
-     * @param {Object} time
+     * The starting event class builder.
+     * From this point you should select one of the attached methods to continue initialization.
+     * @param time Time of the event.
      */
     constructor(time = 0) { super(time) }
 
+    /**
+     * Iniitialize an event from a type.
+     * @param type The type of the event.
+     */
     setType(type: number) { return new EventInternals.LightEvent(this.json, type) }
 
-    /**
-     * Controls the back lasers.
-     * @returns 
-     */
-    backLasers() { return new EventInternals.LightEvent(this.json, EVENT.BACK_LASERS) }
+    /** Controls the back lasers. (Type 0) */
+    backLasers = () => new EventInternals.LightEvent(this.json, EVENTGROUP.BACK_LASERS)
+
+    /** Controls the ring lights. (Type 1) */
+    ringLights = () => new EventInternals.LightEvent(this.json, EVENTGROUP.RING_LIGHTS)
+
+    /** Controls the left lasers. (Type 2) */
+    leftLasers = () => new EventInternals.LightEvent(this.json, EVENTGROUP.LEFT_LASERS)
+
+    /** Controls the right lasers. (Type 3) */
+    rightLasers = () => new EventInternals.LightEvent(this.json, EVENTGROUP.RIGHT_LASERS)
+
+    /** Controls the center lasers. (Type 4) */
+    centerLasers = () => new EventInternals.LightEvent(this.json, EVENTGROUP.CENTER_LASERS)
+
+    /** Controls the extra left lasers in some environments. (Type 6) */
+    extraLeft = () => new EventInternals.LightEvent(this.json, EVENTGROUP.LEFT_EXTRA)
+
+    /** Controls the extra right lasers in some environments. (Type 7) */
+    extraRight = () => new EventInternals.LightEvent(this.json, EVENTGROUP.RIGHT_EXTRA)
+
+    /** Controls the left lasers in the Billie environment. (Type 10) */
+    billieLeft = () => new EventInternals.LightEvent(this.json, EVENTGROUP.BILLIE_LEFT)
+
+    /** Controls the right lasers in the Billie environment. (Type 11) */
+    billieRight = () => new EventInternals.LightEvent(this.json, EVENTGROUP.BILLIE_RIGHT)
+
+    /** Controls the outer left tower height in the Gaga environment. (Type 18) */
+    gagaLeft = () => new EventInternals.LightEvent(this.json, EVENTGROUP.GAGA_LEFT)
+
+    /** Controls the outer left tower height in the Gaga environment. (Type 19) */
+    gagaRight = () => new EventInternals.LightEvent(this.json, EVENTGROUP.GAGA_RIGHT)
 
     /**
-     * Controls the ring lights.
-     * @returns 
+     * Create an event using Json.
+     * @param json The Json to import.
      */
-    ringLights() { return new EventInternals.LightEvent(this.json, EVENT.RING_LIGHTS) }
+    import = (json: Json) => new EventInternals.AbstractEvent(json)
 
-    /**
-     * Controls the left lasers.
-     * @returns 
-     */
-    leftLasers() { return new EventInternals.LightEvent(this.json, EVENT.LEFT_LASERS) }
-
-    /**
-     * Controls the right lasers.
-     * @returns 
-     */
-    rightLasers() { return new EventInternals.LightEvent(this.json, EVENT.RIGHT_LASERS) }
-
-    /**
-     * Controls the center lasers.
-     * @returns 
-     */
-    centerLasers() { return new EventInternals.LightEvent(this.json, EVENT.CENTER_LASERS) }
-
-    /**
-     * Controls the extra left lasers in some environments.
-     * @returns 
-     */
-    extraLeft() { return new EventInternals.LightEvent(this.json, EVENT.LEFT_EXTRA) }
-
-    /**
-     * Controls the extra right lasers in some environments.
-     * @returns 
-     */
-    extraRight() { return new EventInternals.LightEvent(this.json, EVENT.RIGHT_EXTRA) }
-
-    /**
-     * Controls the left lasers in the Billie environment.
-     * @returns 
-     */
-    billieLeft() { return new EventInternals.LightEvent(this.json, EVENT.BILLIE_LEFT) }
-
-    /**
-     * Controls the right lasers in the Billie environment.
-     * @returns 
-     */
-    billieRight() { return new EventInternals.LightEvent(this.json, EVENT.BILLIE_RIGHT) }
-
-    /**
-     * Create an event using JSON.
-     * @param {Object} json 
-     * @returns {AbstractEvent}
-     */
-    import(json: Json) { return new EventInternals.AbstractEvent(json) }
-
-    /**
-     * Create an event with no particular identity.
-    * @returns {AbstractEvent};
-    */
-    abstract() { return this.import({}) }
+    /** Create an event with no particular identity. */
+    abstract = () => this.import({});
 
     /**
      * Move cars in the interscope environment.
-     * @param {Number} value 
-     * @returns 
+     * @param value The group of cars to target.
      */
-    moveCars(value: number) {
-        this.type = EVENT.RING_SPIN;
+    moveCars(value: INTERSCOPEGROUP) {
+        this.type = EVENTGROUP.RING_SPIN;
         this.value = value;
         return new EventInternals.BaseEvent(this.json);
     }
 
-    /**
-     * Lower the hydraulics of the cars in the interscope environment.
-     * @returns 
-     */
+    /** Lower the hydraulics of the cars in the interscope environment. */
     lowerHydraulics() {
-        this.type = EVENT.LOWER_HYDRAULICS;
+        this.type = EVENTGROUP.LOWER_HYDRAULICS;
         return new EventInternals.BaseEvent(this.json);
     }
 
-    /**
-     * Raise the hydraulics of the cars in the interscope environment.
-     * @returns 
-     */
+    /** Raise the hydraulics of the cars in the interscope environment. */
     raiseHydraulics() {
-        this.type = EVENT.RAISE_HYDRAULICS;
+        this.type = EVENTGROUP.RAISE_HYDRAULICS;
         return new EventInternals.BaseEvent(this.json);
     }
 
     /**
-     * Spin the rings in an environment.
-     * @param {Number} rotation 
-     * @param {Number} direction 
-     * @param {Number} step 
-     * @param {Number} speed 
-     * @param {Number} prop 
-     * @param {String} nameFilter 
-     * @returns 
+     * Spin the rings of an environment.
+     * @param rotation Degrees of the spin.
+     * @param direction Direction of the spin. 1 is clockwise, 0 is counterclockwise.
+     * @param step The angle between each ring.
+     * @param speed The speed multiplier of the spin.
+     * @param prop The rate at which physics propogate through the rings.
+     * High values will cause rings to move simultneously, low values gives them significant delay.
+     * @param nameFilter The ring object name to target.
      */
-    ringSpin(
+    ringSpin = (
         rotation?: number,
         direction?: number,
         step?: number,
         speed?: number,
         prop?: number,
         nameFilter?: string,
-    ) {
-        return new EventInternals.RingSpinEvent(this.json, rotation, direction, step, speed, prop, nameFilter);
-    }
+    ) => new EventInternals.RingSpinEvent(
+        this.json,
+        rotation,
+        direction,
+        step,
+        speed,
+        prop,
+        nameFilter
+    );
 
     /**
-     * Control the zoom of the rings.
-     * @param {Number} step 
-     * @param {Number} speed 
-     * @returns 
+     * Controls ring zoom.
+     * @param step The position offset between each ring.
+     * @param speed The speed of the zoom.
      */
-    ringZoom(step?: number, speed?: number) { return new EventInternals.RingZoomEvent(this.json, step, speed) }
+    ringZoom = (step?: number, speed?: number) =>
+        new EventInternals.RingZoomEvent(this.json, step, speed)
 
     /**
-     * Control the movement speed of the left lasers.
-     * @param {Number} speed When containing decimals, the noodle data will be used for speed.
-     * @param {Number} direction 
-     * @param {Boolean} lockRotation 
-     * @returns 
+     * Controls left rotating laser speed.
+     * @param speed Speed of the rotating lasers.
+     * @param direction Direction of the rotating lasers.
+     * @param lockRotation Whether the existing rotation should be kept.
      */
-    leftLaserSpeed(speed: number, direction?: number, lockRotation?: boolean) {
-        return new EventInternals.LaserSpeedEvent(this.json, EVENT.LEFT_SPEED, speed, direction, lockRotation);
-    }
+    leftLaserSpeed = (
+        speed: number,
+        direction?: number,
+        lockRotation?: boolean
+    ) => new EventInternals.LaserSpeedEvent(
+        this.json,
+        EVENTGROUP.LEFT_ROTATING,
+        speed,
+        direction,
+        lockRotation
+    );
 
     /**
-     * Control the movement speed of the right lasers.
-     * @param {Number} speed When containing decimals, the noodle data will be used for speed.
-     * @param {Number} direction 
-     * @param {Boolean} lockRotation 
-     * @returns 
+     * Controls right rotating laser speed.
+     * @param speed Speed of the rotating lasers.
+     * @param direction Direction of the rotating lasers.
+     * @param lockRotation Whether the existing rotation should be kept.
      */
-    rightLaserSpeed(speed: number, direction?: number, lockRotation?: boolean) {
-        return new EventInternals.LaserSpeedEvent(this.json, EVENT.RIGHT_SPEED, speed, direction, lockRotation);
-    }
+    rightLaserSpeed = (
+        speed: number,
+        direction?: number,
+        lockRotation?: boolean
+    ) => new EventInternals.LaserSpeedEvent(
+        this.json,
+        EVENTGROUP.RIGHT_ROTATING,
+        speed,
+        direction,
+        lockRotation
+    );
 
     /**
      * Used for 360 mode, rotates future objects and active objects.
-     * @param {Number} rotation 
-     * @returns 
+     * @param rotation The rotation of the event.
+     * Must be a multiple of 15 between -60 and 60.
      */
-    earlyRotation(rotation: number) { return new EventInternals.RotationEvent(this.json, EVENT.EARLY_ROTATION, rotation) }
+    earlyRotation = (rotation: number) => new EventInternals.RotationEvent(
+        this.json,
+        EVENTGROUP.EARLY_ROTATION,
+        rotation
+    )
 
     /**
      * Used for 360 mode, rotates future objects only.
-     * @param {Number} rotation 
-     * @returns 
+     * @param rotation The rotation of the event.
+     * Must be a multiple of 15 between -60 and 60.
      */
-    lateRotation(rotation: number) { return new EventInternals.RotationEvent(this.json, EVENT.LATE_ROTATION, rotation) }
+    lateRotation = (rotation: number) => new EventInternals.RotationEvent(
+        this.json,
+        EVENTGROUP.LATE_ROTATION,
+        rotation
+    )
 }
