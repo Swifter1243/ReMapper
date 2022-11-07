@@ -4,11 +4,12 @@ export type ColorFormat = "RGB" | "HSV";
 
 export class Color {
   private internalValue: ColorType = [0, 0, 0, 1];
+  /** The format for the color. */
   format: ColorFormat = "RGB";
 
   /**
-   * @param {Array} value The value of the color.
-   * @param {String} format The format of the color. Defaults to RGB.
+   * @param value The value of the color.
+   * @param format The format of the color. Defaults to RGB.
    */
   constructor(value: ColorType, format: ColorFormat) {
     if (value === undefined) value = this.internalValue;
@@ -19,7 +20,7 @@ export class Color {
 
   /**
    * Converts from one format to another.
-   * @param {String} format
+   * @param format Format to convert to.
    */
   toFormat(format: ColorFormat) {
     if (format === "RGB") {
@@ -31,10 +32,8 @@ export class Color {
     }
   }
 
-  /**
-   * Exports noodle ready in RGB.
-   * @returns {Array}
-   */
+
+  /** Returns RGB form. */
   export(): ColorType {
     this.toFormat("RGB");
     return this.internalValue;
@@ -122,6 +121,7 @@ export class Color {
     this.format = "HSV";
   }
 
+  /** The value of the color. */
   get value() {
     return this.internalValue;
   }
@@ -132,11 +132,11 @@ export class Color {
 
 /**
  * Interpolates between a start and end color to get a color in between.
- * @param {Color} start
- * @param {Color} end
- * @param {Number} fraction
- * @param {String} easing Optional easing
- * @param {String} format Option to lerp through HSV or RGB
+ * @param start Start color.
+ * @param end End color.
+ * @param fraction The value in between colors.
+ * @param easing Optional easing.
+ * @param format Option to lerp through HSV or RGB.
  */
 export function lerpColor(
   start: Color,

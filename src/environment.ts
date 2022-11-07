@@ -9,35 +9,47 @@ let envCount = 0;
 
 export namespace EnvironmentInternals {
     export class BaseEnvironment {
+        /** The Json data on this object. */
         json: Json = {};
 
         /**
-        * Create an environment object using JSON.
-        * @param {Object} json 
-        * @returns {Environment}
+        * Create an environment/geometry object using Json.
+        * @param json The Json to import.
         */
         import(json: Json) {
             this.json = json;
             return this;
         }
 
-        /**
-         * Push this environment object to the difficulty
-         */
+        /** Push this environment/geometry object to the difficulty.
+         * @param clone Whether this object will be copied before being pushed.
+        */
         push(clone = true) {
             activeDiffGet().rawEnvironment.push(clone ? copy(this) : this);
             return this;
         }
 
+        /** How many times to duplicate this object. */
         get duplicate() { return this.json.duplicate }
+        /** Whether this object is enabled. */
         get active() { return this.json.active }
+        /** The scale of this object. */
         get scale() { return this.json.scale }
+        /** The worldspace position of this object. */
         get position() { return this.json.position }
+        /** The position of this object relative to it's parent. */
         get localPosition() { return this.json.localPosition }
+        /** The worldspace rotation of this object. */
         get rotation() { return this.json.rotation }
+        /** The rotation of this object relative to it's parent. */
         get localRotation() { return this.json.localRotation }
+        /** The track class for this object.
+         * Please read the properties of this class to see how it works.
+         */
         get track() { return new Track(this.json) }
+        /** Group used with "animateEnvGroup". Not saved to the difficulty. */
         get group() { return this.json.group }
+        /** All the animateable properties of this object. */
         get animationProperties() {
             const returnObj: {
                 position?: KeyframesVec3,
@@ -53,8 +65,11 @@ export namespace EnvironmentInternals {
             if (this.scale) returnObj.scale = this.scale
             return returnObj;
         }
+        /** All of the components on this object. */
         get components() { return jsonGet(this.json, "components", {}) }
+        /** Sets the "lightID" value on the "ILightWithID" component. */
         get lightID() { return jsonGet(jsonGet(this.components, "ILightWithId", {}), "lightID") }
+        /** Sets the "type" value on the "ILightWithID" component. */
         get lightType() { return jsonGet(jsonGet(this.components, "ILightWithId", {}), "type") }
 
         set duplicate(value: number) { this.json.duplicate = value }
@@ -74,8 +89,8 @@ export namespace EnvironmentInternals {
 export class Environment extends EnvironmentInternals.BaseEnvironment {
     /**
      * Environment object for ease of creation and additional tools.
-     * @param {String} id 
-     * @param {String} lookupMethod 
+     * @param id The object name to look up in the environment.
+     * @param lookupMethod The method of looking up the object name in the environment.
      */
     constructor(id?: string, lookupMethod: LOOKUP | undefined = undefined) {
         super();
@@ -85,7 +100,9 @@ export class Environment extends EnvironmentInternals.BaseEnvironment {
         this.lookupMethod = lookupMethod;
     }
 
+    /** The object name to look up in the environment. */
     get id() { return this.json.id }
+    /** The method of looking up the object name in the environment. */
     get lookupMethod() { return this.json.lookupMethod }
 
     set id(value: string) { this.json.id = value }
@@ -97,6 +114,11 @@ export class Geometry extends EnvironmentInternals.BaseEnvironment {
         geometry: {}
     };
 
+    /**
+     * Geometry object for ease of creation and additional tools.
+     * @param type The geometry shape type.
+     * @param material The material on this geometry object.
+     */
     constructor(type?: GEO_TYPE, material?: GeometryMaterial | string) {
         super();
         type ??= "Cube";
@@ -107,8 +129,11 @@ export class Geometry extends EnvironmentInternals.BaseEnvironment {
         this.material = material;
     }
 
+    /** The geometry shape type. */
     get type() { return this.json.geometry.type }
+    /** The material on this geometry object. */
     get material() { return this.json.geometry.material }
+    /** Whether this geometry object has collision. */
     get collision() { return this.json.geometry.collision }
 
     set type(value: GEO_TYPE) { this.json.geometry.type = value }
@@ -116,7 +141,9 @@ export class Geometry extends EnvironmentInternals.BaseEnvironment {
     set collision(value: boolean) { this.json.geometry.collision = value }
 }
 
+/** A material used on a geometry object. Allows difficulty material references. */
 export type GeometryMaterial = RawGeometryMaterial | string
+/** All properties allowed for a material used on a geometry object. */
 export type RawGeometryMaterial = {
     shader: GEO_SHADER,
     color?: ColorType,
@@ -124,6 +151,14 @@ export type RawGeometryMaterial = {
     shaderKeywords?: string[]
 }
 
+/**
+ * Targets any environment objects in a group and animates them based on their original transforms.
+ * @param group The group to target.
+ * @param time The time of the animation.
+ * @param animation Callback for the animation that will be used.
+ * @param duration Duration of the animation.
+ * @param easing Easing on the animation.
+ */
 export function animateEnvGroup(group: string, time: number, animation: (animation: AnimationInternals.EnvironmentAnimation) => void, duration?: number, easing?: EASE) {
     if (activeDiffGet().rawEnvironment !== undefined) activeDiffGet().rawEnvironment.forEach(x => {
         if (x.group === group) {
@@ -149,9 +184,17 @@ export function animateEnvGroup(group: string, time: number, animation: (animati
     })
 }
 
-export function animateEnvTrack(group: string, time: number, animation: (animation: AnimationInternals.EnvironmentAnimation) => void, duration?: number, easing?: EASE) {
+/**
+ * Targets any environment objects in a track and animates them based on their original transforms.
+ * @param track The track to target.
+ * @param time The time of the animation.
+ * @param animation Callback for the animation that will be used.
+ * @param duration Duration of the animation.
+ * @param easing Easing on the animation.
+ */
+export function animateEnvTrack(track: string, time: number, animation: (animation: AnimationInternals.EnvironmentAnimation) => void, duration?: number, easing?: EASE) {
     if (activeDiffGet().rawEnvironment !== undefined) activeDiffGet().rawEnvironment.forEach(x => {
-        if (x.track.value === group) {
+        if (x.track.value === track) {
             const newAnimation = new AnimationInternals.AbstractAnimation;
             animation(newAnimation);
 
@@ -169,17 +212,22 @@ export function animateEnvTrack(group: string, time: number, animation: (animati
     })
 }
 
+/** All components on environment objects. */
 export type Components = {
     ILightWithId?: ILightWithId<number>,
     BloomFogEnvironment?: BloomFogEnvironment<number>,
     TubeBloomPrePassLight?: TubeBloomPrePassLight<number>
 }
 
+/** The "ILightWithId" environment component. 
+ * Allows both animated and non animated variants. */
 export type ILightWithId<T extends number | KeyframesLinear> = {
     lightID: T,
     type: T
 }
 
+/** The "BloomFogEnvironment" environment component. 
+ * Allows both animated and non animated variants. */
 export type BloomFogEnvironment<T extends number | KeyframesLinear> = {
     attenuation?: T,
     offset?: T,
@@ -187,6 +235,8 @@ export type BloomFogEnvironment<T extends number | KeyframesLinear> = {
     height?: T
 }
 
+/** The "TubeBloomPrePassLight" environment component. 
+ * Allows both animated and non animated variants. */
 export type TubeBloomPrePassLight<T extends number | KeyframesLinear> = {
     colorAlphaMultiplier?: T,
     bloomFogIntensityMultiplier?: T

@@ -8,6 +8,7 @@ export type FILEPATH<T extends string = string> = FILENAME<T> | `${string}/${FIL
 
 type DiffNameBase<T extends string> = `Easy${T}` | `Normal${T}` | `Hard${T}` | `Expert${T}` | `ExpertPlus${T}`
 
+/** All difficulty names. */
 export type DIFFS =
     DiffNameBase<"Standard"> |
     DiffNameBase<"NoArrows"> |
@@ -17,10 +18,12 @@ export type DIFFS =
     DiffNameBase<"Lightshow"> |
     DiffNameBase<"Lawless">
 
+/** All mods to require/suggest. */
 export type MODS =
     "Chroma" |
     "Noodle Extensions"
 
+/** All environment names. */
 export type ENV_NAMES =
     "BTSEnvironment" |
     "BigMirrorEnvironment" |
@@ -52,6 +55,7 @@ export type ENV_NAMES =
 
 
 type EaseBase<T extends string> = `easeIn${T}` | `easeOut${T}` | `easeInOut${T}`;
+/** All easings. */
 export type EASE =
     "easeLinear" |
     "easeStep" |
@@ -66,9 +70,11 @@ export type EASE =
     EaseBase<"Back"> |
     EaseBase<"Bounce">
 
+/** All splines. */
 export type SPLINE =
     "splineCatmullRom"
 
+/** Handler to alias settings. */
 export class settingsHandler {
     private diff: Difficulty;
     constructor(diff: Difficulty) { this.diff = diff }
@@ -139,7 +145,9 @@ export class settingsHandler {
     zenModeWalls = "_chroma._forceZenModeWalls" as unknown as boolean;
 }
 
+/** Setting presets. You would set these equal to the "rawSettings" property on a difficulty. */
 export const PRESET = {
+    /** Settings which are good for maps that need chroma and noodle. */
     MODCHART_SETTINGS: {
         _playerOptions: {
             _environmentEffectsFilterExpertPlusPreset: "AllEffects",
@@ -160,6 +168,7 @@ export const PRESET = {
             _enabledObstacleType: "All"
         }
     },
+    /** Settings which are good for maps that have chroma environment stuff. */
     CHROMA_SETTINGS: {
         _playerOptions: {
             _environmentEffectsFilterExpertPlusPreset: "AllEffects",
@@ -175,49 +184,58 @@ export const PRESET = {
     }
 }
 
+/** The type for a note. */
 export enum NOTETYPE {
     RED = 0,
     BLUE = 1
 }
 
+/** The mid anchor mode for arcs. */
 export enum ANCHORMODE {
     STRAIGHT = 0,
     CW = 1,
     CCW = 2
 }
 
+/** The distribution types for V3 lights. */
 export enum DISTTYPE {
     WAVE = 1,
     STEP
 }
 
+/** The filter types for V3 lights. */
 export enum FILTERTYPE {
     SECTIONS = 1,
     STEPANDOFFSET
 }
 
+/** The transitions for V3 lights. */
 export enum LIGHTTRANS {
     INSTANT,
     TRANSITION,
     EXTEND
 }
 
+/** The transitions for V3 light rotations. */
 export enum ROTTRANS {
     TRANSITION,
     EXTEND
 }
 
+/** The colors for V3 lights. */
 export enum LIGHTCOL {
     RED,
     BLUE,
     WHITE
 }
 
+/** The rotation axis for V3 light rotations. */
 export enum AXIS {
     X,
     Y
 }
 
+/** The easings for V3 light rotations. */
 export enum ROTEASE {
     NONE = -1,
     LINEAR,
@@ -226,12 +244,14 @@ export enum ROTEASE {
     EASEINOUTQUAD
 }
 
+/** The direction of rotation for V3 light rotations. */
 export enum ROTDIR {
     AUTOMATIC,
     CLOCKWISE,
     COUNTERCLOCKWISE
 }
 
+/** Note cut directions. */
 export enum CUT {
     UP,
     DOWN,
@@ -244,6 +264,7 @@ export enum CUT {
     DOT
 }
 
+/** Basic event groups/types. */
 export enum EVENTGROUP {
     BACK_LASERS,
     RING_LIGHTS,
@@ -267,6 +288,7 @@ export enum EVENTGROUP {
     GAGA_RIGHT
 }
 
+/** Basic lighting event actions. */
 export enum EVENTACTION {
     OFF,
     BLUE_ON,
@@ -279,6 +301,7 @@ export enum EVENTACTION {
     RED_IN
 }
 
+/** Interscope car groups. */
 export enum INTERSCOPEGROUP {
     NO_HYDRAULICS,
     ALL_CARS,
@@ -290,6 +313,7 @@ export enum INTERSCOPEGROUP {
     BACK_CARS
 }
 
+/** Rotation basic event values. */
 export enum ROTATIONACTION {
     CCW_60,
     CCW_45,
@@ -301,6 +325,7 @@ export enum ROTATIONACTION {
     CW_60
 }
 
+/** Animation properties. */
 export type ANIM =
     "position" |
     "offsetPosition" |
@@ -320,7 +345,11 @@ export type ANIM =
     "height" |
     "time"
 
-// Known objects that work. Feel free to PR your own!
+/**
+ * Known transforms for objects with ModelScene.
+ * ModelScene is NOT limited to these!
+ * You can figure out the transforms for ANY object.
+ */
 export const ENV = {
     BTS: {
         PILLAR: {
@@ -409,10 +438,12 @@ export const ENV = {
     }
 }
 
+/** Color formats. */
 export type COLOR =
     "RGB" |
     "HSV"
 
+/** Lookup methods for environment objects. */
 export type LOOKUP =
     "Contains" |
     "Regex" |
@@ -420,6 +451,7 @@ export type LOOKUP =
     "StartsWith" |
     "EndsWith"
 
+/** Geometry shape types. */
 export type GEO_TYPE =
     "Sphere" |
     "Capsule" |
@@ -429,6 +461,7 @@ export type GEO_TYPE =
     "Quad" |
     "Triangle"
 
+/** Shaders available for geometry materials. */
 export type GEO_SHADER =
     "Standard" |
     "OpaqueLight" |
