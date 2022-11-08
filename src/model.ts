@@ -1,31 +1,38 @@
 // deno-lint-ignore-file no-explicit-any
-import { arrAdd, cacheData, ColorType, copy, iterateKeyframes, rotatePoint, Vec3, Vec4, parseFilePath } from "./general.ts";
-import { bakeAnimation, complexifyArray, ComplexKeyframesVec3, KeyframeArray, KeyframesAny, KeyframeValues, RawKeyframesVec3, toPointDef } from "./animation.ts";
+import { arrAdd, cacheData, ColorType, copy, iterateKeyframes, rotatePoint, Vec3, Vec4, parseFilePath, baseEnvironmentTrack } from "./general.ts";
+import { bakeAnimation, complexifyArray, ComplexKeyframesVec3, KeyframeArray, KeyframesAny, KeyframeValues, RawKeyframesVec3 } from "./animation.ts";
 import { Environment, Geometry, RawGeometryMaterial } from "./environment.ts";
 import { optimizeAnimation, OptimizeSettings } from "./anim_optimizer.ts";
 import { CustomEvent, CustomEventInternals } from "./custom_event.ts";
-import { activeDiff } from "./beatmap.ts";
+import { activeDiff, activeDiffGet } from "./beatmap.ts";
 import { Regex } from "./regex.ts";
-import { Event } from "./event.ts";
+import { Event } from "./basicEvent.ts";
 import { FILEPATH } from "./constants.ts";
 
 let modelSceneCount = 0;
 let noYeet = true;
 
+/** Objects that are allowed to be spawned with a ModelScene. */
 export type GroupObjectTypes = Environment | Geometry;
+/** Allowed options for providing data to a ModelScene. */
 export type ObjectInput = FILEPATH | ModelObject[];
 
+/** Input options for the "static" method in a ModelScene. */
 export type StaticOptions = {
     input: ObjectInput,
     objects?: (arr: ModelObject[]) => void,
     processing?: any
 }
+
+/** Input options for the "animate" method in a ModelScene. */
 export type AnimatedOptions = StaticOptions & {
     bake?: boolean,
     static?: boolean
 }
 
+/** Allowed inputs for the "static" method in ModelScene. */
 export type StaticObjectInput = ObjectInput | StaticOptions
+/** Allowed inputs for the "animate" method in ModelScene. */
 export type AnimatedObjectInput = ObjectInput | AnimatedOptions
 
 type ModelGroup = {
@@ -36,6 +43,7 @@ type ModelGroup = {
     disappearWhenAbsent?: boolean
 }
 
+/** The data type used by ModelScene to define objects. */
 export interface ModelObject {
     pos: RawKeyframesVec3;
     rot: RawKeyframesVec3;
@@ -54,6 +62,13 @@ export class ModelScene {
         perSwitch: Record<number, number>;
     }>>{}
 
+    /**
+     * Handler for representing object data as part of the environment. 
+     * @param object Object to spawn on model objects with no track.
+     * @param scale The scale multiplier for the spawned object previously mentioned.
+     * @param anchor The anchor offset for the spawned object previously mentioned.
+     * @param rotation The rotation offset for the spawned object previously mentioned.
+     */
     constructor(object?: GroupObjectTypes, scale?: Vec3, anchor?: Vec3, rotation?: Vec3) {
         if (object) this.pushGroup(undefined, object, scale, anchor, rotation);
         this.trackID = modelSceneCount;
@@ -74,6 +89,14 @@ export class ModelScene {
         this.groups[key as string] = group;
     }
 
+    /**
+     * Assign a track in input ModelObjects to spawn and pool new objects.
+     * @param track Track to check for.
+     * @param object Object to spawn.
+     * @param scale The scale multiplier for the spawned object previously mentioned.
+     * @param anchor The anchor offset for the spawned object previously mentioned.
+     * @param rotation The rotation offset for the spawned object previously mentioned.
+     */
     addPrimaryGroups(track: string | string[], object: GroupObjectTypes, scale?: Vec3, anchor?: Vec3, rotation?: Vec3) {
         const tracks = typeof track === "object" ? track : [track];
         tracks.forEach(t => {
@@ -81,6 +104,14 @@ export class ModelScene {
         })
     }
 
+    /**
+     * Assign a track in input ModelObjects to animate an existing object with identical track name.
+     * @param track Track to check for and animate.
+     * @param scale The scale multiplier for the spawned object previously mentioned.
+     * @param anchor The anchor offset for the spawned object previously mentioned.
+     * @param rotation The rotation offset for the spawned object previously mentioned.
+     * @param disappearWhenAbsent Make the object on this track disappear when no ModelObject with the corresponding track exists.
+     */
     assignObjects(track: string | string[], scale?: Vec3, anchor?: Vec3, rotation?: Vec3, disappearWhenAbsent = true) {
         const tracks = typeof track === "object" ? track : [track];
         tracks.forEach(t => {
@@ -145,7 +176,6 @@ export class ModelScene {
                         objScale.pop();
 
                         objPos = (objPos as Vec3).map(x => x / 2);
-                        objScale = (objScale as Vec3).map(x => x * 0.6);
                         if (anchor) objPos = applyAnchor(objPos as Vec3, objRot as Vec3, objScale as Vec3, anchor);
                         if (rotation) objRot = (objRot as Vec3).map((x, i) => (x + (rotation as Vec3)[i]) % 360);
                         if (scale) objScale = (objScale as Vec3).map((x, i) => x * (scale as Vec3)[i]);
@@ -188,12 +218,6 @@ export class ModelScene {
                     if (group.rotation) rotation = group.rotation
                 }
 
-                iterateKeyframes(x.scale, y => {
-                    y[0] *= 0.6;
-                    y[1] *= 0.6;
-                    y[2] *= 0.6;
-                })
-
                 if ((anchor && options.bake !== false && !options.static) || options.bake) {
                     // Baking animation
                     const bakedCube: ModelObject = bakeAnimation({ pos: x.pos, rot: x.rot, scale: x.scale }, transform => {
@@ -231,6 +255,12 @@ export class ModelScene {
         return [complexTransform[0], complexTransform[1], complexTransform[2]] as Vec3;
     }
 
+    /**
+     * Create a one-time environment from static data.
+     * @param input Input for ModelObjects.
+     * @param forObject Function to run on each spawned object.
+     * @param forAssigned Function to run on each assigned object.
+     */
     static(input: StaticObjectInput, forObject?: (object: GroupObjectTypes) => void, forAssigned?: (event: CustomEventInternals.AnimateTrack) => void) {
         const data = this.getObjects(input);
 
@@ -269,23 +299,23 @@ export class ModelScene {
                 if (
                     object instanceof Geometry &&
                     typeof object.material !== "string" &&
-                    !object.material._color &&
+                    !object.material.color &&
                     x.color
-                ) object.material._color = x.color;
+                ) object.material.color = x.color;
 
-                object.track = track;
+                object.track.value = track;
                 object.position = pos;
                 object.rotation = rot;
                 object.scale = scale;
                 if (forObject) forObject(object);
-                object.push();
+                object.push(false);
             }
             // Creating event for assigned
             else {
                 const event = new CustomEvent().animateTrack(track);
-                event.animate.set("_position", x.pos, false);
-                event.animate.set("_rotation", x.rot, false);
-                event.animate.set("_scale", x.scale, false);
+                event.animate.set("position", x.pos, false);
+                event.animate.set("rotation", x.rot, false);
+                event.animate.set("scale", x.scale, false);
                 if (forAssigned) forAssigned(event);
                 activeDiff.customEvents.push(event);
             }
@@ -299,11 +329,20 @@ export class ModelScene {
                 createYeetDef();
                 const event = new CustomEvent().animateTrack(x);
                 event.animate.position = "yeet";
-                event.push();
+                event.push(false);
             }
         })
     }
 
+    /**
+     * Create an animated environment from possibly multiple sources of data.
+     * @param switches The different data switches in this environment. The format is as so:
+     * [0] - Input for ModelObjects.
+     * [1] - Time of the switch.
+     * [2]? - Duration of the animation.
+     * [3]? - Function to run on each event moving the objects.
+     * @param forObject Function to run on each spawned object.
+     */
     animate(switches: [
         AnimatedObjectInput,
         number,
@@ -354,7 +393,7 @@ export class ModelScene {
                     group.object &&
                     group.object instanceof Geometry &&
                     typeof group.object.material !== "string" &&
-                    !group.object.material._color &&
+                    !group.object.material.color &&
                     x.color
                 ) {
                     x.color[3] ??= 1;
@@ -362,13 +401,13 @@ export class ModelScene {
 
                     const event = new CustomEvent(time).animateTrack(track + "_material");
                     event.animate.color = x.color as Vec4;
-                    event.push();
+                    event.push(false);
                 }
 
                 const event = new CustomEvent(time).animateTrack(track, duration);
-                event.animate.set("_position", x.pos, false);
-                event.animate.set("_rotation", x.rot, false);
-                event.animate.set("_scale", x.scale, false);
+                event.animate.set("position", x.pos, false);
+                event.animate.set("rotation", x.rot, false);
+                event.animate.set("scale", x.scale, false);
                 if (forEvent) forEvent(event, objectInfo.perSwitch[time]);
                 activeDiff.customEvents.push(event);
             })
@@ -400,13 +439,13 @@ export class ModelScene {
             if (group.object) {
                 for (let i = 0; i < objectInfo.max; i++) {
                     const object = copy(group.object)
-                    object.track = this.getPieceTrack(group.object, groupKey, i);
+                    object.track.value = this.getPieceTrack(group.object, groupKey, i);
 
-                    if (animatedMaterials.some(x => x === object.track))
-                        ((object as Geometry).material as RawGeometryMaterial)._track = object.track + "_material";
+                    if (animatedMaterials.some(x => x === object.track.value))
+                        ((object as Geometry).material as RawGeometryMaterial).track = object.track + "_material";
 
                     if (forObject) forObject(object);
-                    object.push();
+                    object.push(false);
                 }
             }
         })
@@ -415,18 +454,29 @@ export class ModelScene {
     }
 }
 
+/**
+ * Get the anchor offset for an object based on various transforms.
+ * @param objPos Position of the object.
+ * @param objRot Rotation of the object.
+ * @param objScale Scale of the object.
+ * @param anchor Anchor vector to move the object.
+ */
 export function applyAnchor(objPos: Vec3, objRot: Vec3, objScale: Vec3, anchor: Vec3) {
-    const offset = rotatePoint(objRot, objScale.map((x, i) => x * anchor[i] / 0.6) as Vec3);
+    const offset = rotatePoint(objScale.map((x, i) => x * anchor[i]) as Vec3, objRot);
     return objPos.map((x, i) => x + offset[i]) as Vec3;
 }
 
 function createYeetDef() {
     if (noYeet === true) {
         noYeet = false;
-        toPointDef([0, -69420, 0], "yeet");
+        activeDiffGet().pointDefinitions.yeet = [0, -69420, 0];
     }
 }
 
+/**
+ * Get the objects from a .rmmodel.
+ * @param filePath Path to the .rmmodel.
+ */
 export function getModel(filePath: FILEPATH) {
     const data = JSON.parse(Deno.readTextFileSync(parseFilePath(filePath, ".rmmodel").path));
     return data.objects as ModelObject[];
@@ -434,12 +484,12 @@ export function getModel(filePath: FILEPATH) {
 
 /**
  * Debug the transformations necessary to fit an object to a cube.
- * Use the axis
- * @param input 
+ * Use the axis indicators to guide the process.
+ * @param input Object to spawn.
  * @param resolution The scale of the object for each axis.
- * @param scale 
- * @param anchor 
- * @param rotation 
+ * @param scale The scale multiplier for the spawned object previously mentioned.
+ * @param anchor The anchor offset for the spawned object previously mentioned.
+ * @param rotation The rotation offset for the spawned object previously mentioned.
  */
 export function debugObject(input: GroupObjectTypes, resolution: number, scale?: Vec3, anchor?: Vec3, rotation?: Vec3) {
     activeDiff.notes = [];
@@ -447,34 +497,34 @@ export function debugObject(input: GroupObjectTypes, resolution: number, scale?:
     activeDiff.customEvents = [];
     activeDiff.rawEnvironment = [];
 
-    new Event().backLasers().on([3, 3, 3, 1]).push();
+    new Event().backLasers().on([3, 3, 3, 1]).push(false);
 
-    new CustomEvent().assignFogTrack("fog").push();
-    const fogEvent = new CustomEvent().animateTrack("fog");
-    fogEvent.animate.attenuation = [0.000001];
-    fogEvent.animate.startY = [-69420]
-    fogEvent.push();
+    baseEnvironmentTrack("fog");
+    const fogEvent = new CustomEvent().animateComponent("fog");
+    fogEvent.fog.attenuation = [0.000001];
+    fogEvent.fog.startY = [-69420]
+    fogEvent.push(false);
 
     const removeUI = new Environment(new Regex().add("NarrowGameHUD").end(), "Regex");
     removeUI.active = false;
-    removeUI.push();
+    removeUI.push(false);
 
     activeDiff.geoMaterials["debugCubeX"] = {
-        _shader: "Standard",
-        _color: [1, 0, 0],
-        _shaderKeywords: []
+        shader: "Standard",
+        color: [1, 0, 0],
+        shaderKeywords: []
     }
 
     activeDiff.geoMaterials["debugCubeY"] = {
-        _shader: "Standard",
-        _color: [0, 1, 0],
-        _shaderKeywords: []
+        shader: "Standard",
+        color: [0, 1, 0],
+        shaderKeywords: []
     }
 
     activeDiff.geoMaterials["debugCubeZ"] = {
-        _shader: "Standard",
-        _color: [0, 0, 1],
-        _shaderKeywords: []
+        shader: "Standard",
+        color: [0, 0, 1],
+        shaderKeywords: []
     }
 
     const modelData: ModelObject[] = [];

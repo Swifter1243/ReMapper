@@ -156,6 +156,9 @@ function SlopeOfPoint(a: Keyframe, b: Keyframe, slopes: number[]) {
 
 // pointC is undefined if array is size 2
 // return true to remove point
+/**
+ * Function for an Optimizer.
+ */
 export type OptimizeFunction = (pointA: Keyframe, pointB: Keyframe, pointC: Keyframe | undefined) => Keyframe | undefined;
 
 // https://github.com/ErisApps/OhHeck/blob/ae8d02bf6bf2ec8545c2a07546c6844185b97f1c/OhHeck.Core/Analyzer/Lints/Animation/DuplicatePointData.cs
@@ -335,9 +338,9 @@ function optimizeKeyframes(keyframes: Keyframe[], optimizeSettings: OptimizeSett
 
 /**
  * Optimizes animations, removing unnecessary points.
- * @param {KeyframesAny} animation keyframe or array of keyframes to optimize. 
- * @param {OptimizeSettings} settings settings for the optimizer.
- * @returns {KeyframesAny}
+ * @param animation keyframe or array of keyframes to optimize. 
+ * @param settings settings for the optimizer.
+ * @returns
  */
 export function optimizeAnimation(animation: KeyframesAny, settings: OptimizeSettings): KeyframesAny {
     const keyframes: Keyframe[] = copy(complexifyArray(animation)).map(x => new Keyframe(x));

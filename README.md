@@ -7,18 +7,19 @@ This is a [TypeScript](https://www.typescriptlang.org/) library designed to help
 Normal way:
 
 ```js
-map._notes.push({
-  _time: 20,
-  _lineIndex: 1,
-  _lineLayer: 1,
-  _type: 1,
-  _cutDirection: 3,
+map.colorNotes.push({
+  b: 20,
+  x: 1,
+  y: 1,
+  c: 1,
+  d: 3,
+  a: 0
 });
 ```
 
 ReMapper: 
 ```js
-new Note(20, NOTE.RED, NOTE.RIGHT, [1, 1]).push();
+new Note(20, NOTETYPE.RED, CUT.RIGHT, 1, 1).push();
 ```
 
 Here are some notable features:

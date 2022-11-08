@@ -1,14 +1,17 @@
 import { clamp, ColorType, lerp, lerpEasing, lerpWrap } from "./general.ts";
 
+export type ColorFormat = "RGB" | "HSV";
+
 export class Color {
   private internalValue: ColorType = [0, 0, 0, 1];
-  format = "RGB";
+  /** The format for the color. */
+  format: ColorFormat = "RGB";
 
   /**
-   * @param {Array} value The value of the color.
-   * @param {String} format The format of the color. Defaults to RGB.
+   * @param value The value of the color.
+   * @param format The format of the color. Defaults to RGB.
    */
-  constructor(value: ColorType, format: string) {
+  constructor(value: ColorType, format: ColorFormat) {
     if (value === undefined) value = this.internalValue;
     if (format === undefined) format = this.format;
     this.internalValue = this.processValue(value);
@@ -17,31 +20,22 @@ export class Color {
 
   /**
    * Converts from one format to another.
-   * @param {String} format
-   * @param {Boolean} alert Option to remove alerts about already being the same format.
+   * @param format Format to convert to.
    */
-  toFormat(format: string, alert = true) {
+  toFormat(format: ColorFormat) {
     if (format === "RGB") {
-      if (this.format === "RGB" && alert) {
-        console.warn(`The color ${this.internalValue} was already RGB!`);
-      }
       if (this.format === "HSV") this.HSVtoRGB();
     }
 
     if (format === "HSV") {
-      if (this.format === "HSV" && alert) {
-        console.warn(`The color ${this.internalValue} was already HSV!`);
-      }
       if (this.format === "RGB") this.RGBtoHSV();
     }
   }
 
-  /**
-   * Exports noodle ready in RGB.
-   * @returns {Array}
-   */
+
+  /** Returns RGB form. */
   export(): ColorType {
-    this.toFormat("RGB", false);
+    this.toFormat("RGB");
     return this.internalValue;
   }
 
@@ -86,7 +80,7 @@ export class Color {
         r = v, g = p, b = q;
         break;
     }
-    if (this.internalValue[3]) {
+    if (this.internalValue[3] !== undefined) {
       this.internalValue = [r, g, b, this.internalValue[3]];
     } else this.internalValue = [r, g, b];
     this.format = "RGB";
@@ -121,12 +115,13 @@ export class Color {
         break;
     }
 
-    if (this.internalValue[3]) {
+    if (this.internalValue[3] !== undefined) {
       this.internalValue = [h, s, v, this.internalValue[3]];
     } else this.internalValue = [h, s, v];
     this.format = "HSV";
   }
 
+  /** The value of the color. */
   get value() {
     return this.internalValue;
   }
@@ -137,18 +132,18 @@ export class Color {
 
 /**
  * Interpolates between a start and end color to get a color in between.
- * @param {Color} start
- * @param {Color} end
- * @param {Number} fraction
- * @param {String} easing Optional easing
- * @param {String} format Option to lerp through HSV or RGB
+ * @param start Start color.
+ * @param end End color.
+ * @param fraction The value in between colors.
+ * @param easing Optional easing.
+ * @param format Option to lerp through HSV or RGB.
  */
 export function lerpColor(
   start: Color,
   end: Color,
   fraction: number,
   easing = undefined,
-  format?: string,
+  format?: ColorFormat,
 ) {
   if (format !== "RGB" && format !== "HSV") format = "RGB";
 
@@ -159,17 +154,17 @@ export function lerpColor(
   const newStart = new Color(start.value, start.format);
   const newEnd = new Color(end.value, end.format);
 
-  newStart.toFormat(format, false);
-  newEnd.toFormat(format, false);
+  newStart.toFormat(format);
+  newEnd.toFormat(format);
 
   if (format === "HSV") {
     output.value[0] = lerpWrap(newStart.value[0], newEnd.value[0], fraction);
     output.value[1] = lerp(newStart.value[1], newEnd.value[1], fraction);
     output.value[2] = lerp(newStart.value[2], newEnd.value[2], fraction);
-    if (newStart.value[3] || newEnd.value[3]) {
+    if (newStart.value[3] !== undefined || newEnd.value[3] !== undefined) {
       output.value[3] = lerp(
-        newStart.value[3] ? newStart.value[3] : 1,
-        newEnd.value[3] ? newEnd.value[3] : 1,
+        newStart.value[3] !== undefined ? newStart.value[3] : 1,
+        newEnd.value[3] !== undefined ? newEnd.value[3] : 1,
         fraction,
       );
     }
@@ -179,6 +174,6 @@ export function lerpColor(
     }
   }
 
-  output.toFormat(returnFormat, false);
+  output.toFormat(returnFormat);
   return output;
 }

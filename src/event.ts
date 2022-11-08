@@ -1,494 +1,414 @@
-// deno-lint-ignore-file no-explicit-any no-namespace adjacent-overload-signatures
-import { EASE, EVENT } from './constants.ts';
-import { activeDiffGet } from './beatmap.ts';
-import { copy, jsonPrune, isEmptyObject, jsonGet, jsonSet, ColorType } from './general.ts';
+// deno-lint-ignore-file adjacent-overload-signatures
+import { activeDiff, info, Json } from "./beatmap.ts";
+import { AXIS, DISTTYPE, FILTERTYPE, LIGHTCOL, ROTDIR, ROTEASE, ROTTRANS, LIGHTTRANS } from "./constants.ts";
+import { copy } from "./general.ts";
+import { BaseObject } from "./object.ts";
 
-export type LightID = number | number[];
-
-export namespace EventInternals {
-    export class BaseEvent {
-        json: any = {
-            _time: 0,
-            _type: 0,
-            _value: 0
-        };
-
-        constructor(time: number | Record<string, any>) {
-            if (time instanceof Object) {
-                this.json = time;
-                return;
-            }
-            this.time = time;
-        }
-
-        /**
-        * Push this event to the difficulty
-        */
-        push() {
-            activeDiffGet().events.push(copy(this) as any);
-            return this;
-        }
-
-        get time() { return this.json._time }
-        get type() { return this.json._type }
-        get value() { return this.json._value }
-        get floatValue() { return this.json._floatValue }
-        get customData() { return jsonGet(this.json, "_customData") }
-
-        set time(value: number) { this.json._time = value }
-        set type(value: number) { this.json._type = value }
-        set value(value: number) { this.json._value = value }
-        set floatValue(value: number) { this.json._floatValue = value }
-        set customData(value) { jsonSet(this.json, "_customData", value) }
-
-        get isModded() {
-            if (this.customData === undefined) return false;
-            const customData = copy(this.customData);
-            jsonPrune(customData);
-            return !isEmptyObject(customData);
-        }
+export class BPMChange extends BaseObject {
+    /**
+     * BPMChange object for ease of creation.
+     * @param time The time that the BPM changes.
+     * @param BPM The BPM when this event activates.
+     */
+    constructor(time: number = 0, BPM: number = info.BPM) {
+        super();
+        this.time = time;
+        this.BPM = BPM;
     }
 
-    export class LightEvent extends EventInternals.BaseEvent {
-        constructor(json: Record<string, any>, type: number) {
-            super(json);
-            this.type = type;
-        }
-
-        /**
-         * Create an event that turns lights off.
-         * @returns 
-         */
-        off(lightID?: LightID) {
-            this.value = EVENT.OFF;
-            if (lightID) this.lightID = lightID;
-            return this;
-        }
-
-        /**
-         * Create an event that turns lights on.
-         * @param {Array} color Can be boolean to determine if the light is blue (true), or a color.
-         * @param {Number | Array} lightID 
-         * @returns 
-         */
-        on(color: ColorType | boolean, lightID?: LightID) {
-            this.value = (typeof color === "boolean" && color) ? EVENT.BLUE_ON : EVENT.RED_ON;
-            if (typeof color !== "boolean") this.color = color;
-            if (lightID) this.lightID = lightID;
-            return this;
-        }
-
-        /**
-         * Create an event that flashes the lights.
-         * @param {Array} color Can be boolean to determine if the light is blue (true), or a color.
-         * @param {Number | Array} lightID 
-         * @returns 
-         */
-        flash(color: ColorType | boolean, lightID?: LightID) {
-            this.value = (typeof color === "boolean" && color) ? EVENT.BLUE_FLASH : EVENT.RED_FLASH;
-            if (typeof color !== "boolean") this.color = color;
-            if (lightID) this.lightID = lightID;
-            return this;
-        }
-
-        /**
-         * Create an event that fades the lights out.
-         * @param {Array} color Can be boolean to determine if the light is blue (true), or a color.
-         * @param {Number | Array} lightID 
-         * @returns 
-         */
-        fade(color: ColorType | boolean, lightID?: LightID) {
-            this.value = (typeof color === "boolean" && color) ? EVENT.BLUE_FADE : EVENT.RED_FADE;
-            if (typeof color !== "boolean") this.color = color;
-            if (lightID) this.lightID = lightID;
-            return this;
-        }
-
-        /**
-         * Create an event that makes the lights fade in to this color from the previous.
-         * @param {Array} color Can be boolean to determine if the light is blue (true), or a color.
-         * @param {Number | Array} lightID 
-         * @returns 
-         */
-        in(color: ColorType | boolean, lightID?: LightID) {
-            this.value = (typeof color === "boolean" && color) ? EVENT.BLUE_IN : EVENT.RED_IN;
-            if (typeof color !== "boolean") this.color = color;
-            if (lightID !== undefined) this.lightID = lightID;
-            return this;
-        }
-
-        /**
-         * Create a light gradient between 2 colors. This feature is deprecated in Chroma.
-         * @param {Array} startColor 
-         * @param {Array} endColor 
-         * @param {Number} duration 
-         * @param {String} easing 
-         * @returns 
-         */
-        gradient(startColor: ColorType, endColor: ColorType, duration: number, easing?: EASE) {
-            this.startColor = startColor;
-            this.endColor = endColor;
-            this.duration = duration;
-            this.value = 1;
-            if (easing !== undefined) this.gradientEasing = easing;
-            return this;
-        }
-
-        /**
-        * Remove the subclass of the event, giving access to all properties, but can allow for invalid data.
-        * @returns {AbstractEvent}
-        */
-        abstract() { return new Event().import(this.json) }
-
-        get lightID() { return jsonGet(this.json, "_customData._lightID") }
-        get color() { return jsonGet(this.json, "_customData._color") }
-        get easing() { return jsonGet(this.json, "_customData._easing") }
-        get lerpType() { return jsonGet(this.json, "_customData._lerpType") }
-        get lightGradient() { return jsonGet(this.json, "_customData._lightGradient") }
-        get startColor() { return jsonGet(this.json, "_customData._lightGradient._startColor") }
-        get endColor() { return jsonGet(this.json, "_customData._lightGradient._endColor") }
-        get duration() { return jsonGet(this.json, "_customData._lightGradient._duration") }
-        get gradientEasing() { return jsonGet(this.json, "_customData._lightGradient._easing") }
-
-        set lightID(value: LightID) { jsonSet(this.json, "_customData._lightID", value) }
-        set color(value: ColorType) { jsonSet(this.json, "_customData._color", value) }
-        set easing(value: EASE) { jsonSet(this.json, "_customData._easing", value) }
-        set lerpType(value: string) { jsonSet(this.json, "_customData._lerpType", value) }
-        set lightGradient(value) { jsonSet(this.json, "_customData._lightGradient", value) }
-        set startColor(value: ColorType) { jsonSet(this.json, "_customData._lightGradient._startColor", value) }
-        set endColor(value: ColorType) { jsonSet(this.json, "_customData._lightGradient._endColor", value) }
-        set duration(value: number) { jsonSet(this.json, "_customData._lightGradient._duration", value) }
-        set gradientEasing(value: EASE) { jsonSet(this.json, "_customData._lightGradient._easing", value) }
+    /**
+     * Create a BPM change using Json.
+     * @param json The Json to import.
+     */
+    import(json: Json) {
+        this.json = json;
+        return this;
     }
 
-    export class LaserSpeedEvent extends EventInternals.BaseEvent {
-        constructor(json: Record<string, any>, type: number, speed: number, direction?: number, lockPosition?: boolean) {
-            super(json);
-            this.type = type;
-
-            if (speed % 1 === 0) this.value = speed;
-            else this.speed = speed;
-            if (direction !== undefined) this.direction = direction;
-            if (lockPosition !== undefined) this.lockPosition = lockPosition;
-        }
-
-        /**
-        * Remove the subclass of the event, giving access to all properties, but can allow for invalid data.
-        * @returns {AbstractEvent}
-        */
-        abstract() { return new Event().import(this.json) }
-
-        get lockPosition() { return jsonGet(this.json, "_customData._lockPosition") }
-        get speed() { return jsonGet(this.json, "_customData._speed") }
-        get direction() { return jsonGet(this.json, "_customData._direction") }
-
-        set lockPosition(value: boolean) { jsonSet(this.json, "_customData._lockPosition", value) }
-        set speed(value: number) { jsonSet(this.json, "_customData._speed", value) }
-        set direction(value: number) { jsonSet(this.json, "_customData._direction", value) }
+    /** Push this BPM change to the difficulty.
+     * @param clone Whether this object will be copied before being pushed.
+    */
+    push(clone = true) {
+        activeDiff.BPMChanges.push(clone ? copy(this) : this);
+        return this;
     }
 
-    export class RingZoomEvent extends EventInternals.BaseEvent {
-        constructor(json: Record<string, any>, step?: number, speed?: number) {
-            super(json);
-            this.type = EVENT.RING_ZOOM;
+    /** The BPM when this event activates. */
+    get BPM() { return this.json.m }
 
-            if (step !== undefined) this.step = step;
-            if (speed !== undefined) this.speed = speed;
-        }
+    set BPM(value: number) { this.json.m = value }
+}
 
-        /**
-        * Remove the subclass of the event, giving access to all properties, but can allow for invalid data.
-        * @returns {AbstractEvent}
-        */
-        abstract() { return new Event().import(this.json) }
-
-        get step() { return jsonGet(this.json, "_customData._step") }
-        get speed() { return jsonGet(this.json, "_customData._speed") }
-
-        set step(value: number) { jsonSet(this.json, "_customData._step", value) }
-        set speed(value: number) { jsonSet(this.json, "_customData._speed", value) }
+export class RotationEvent extends BaseObject {
+    /**
+     * Event for rotating gameplay elements, used in 90 and 360 levels.
+     * @param time The time that this rotation will happen.
+     * @param rotation The degrees of this rotation.
+     * @param early Whether this rotation effects objects that are already active.
+     */
+    constructor(time: number = 0, rotation: number = 0, early: boolean = false) {
+        super();
+        this.time = time;
+        this.rotation = rotation;
+        this.early = early;
     }
 
-    export class RingSpinEvent extends EventInternals.BaseEvent {
-        constructor(json: Record<string, any>, rotation?: number, direction?: number, step?: number, speed?: number, prop?: number, reset?: boolean, nameFilter?: string, counterSpin?: boolean) {
-            super(json);
-            this.type = EVENT.RING_SPIN;
-
-            if (rotation !== undefined) this.rotation = rotation;
-            if (direction !== undefined) this.direction = direction;
-            if (step !== undefined) this.step = step;
-            if (speed !== undefined) this.speed = speed;
-            if (prop !== undefined) this.prop = prop;
-            if (reset !== undefined) this.reset = reset;
-            if (nameFilter !== undefined) this.nameFilter = nameFilter;
-            if (counterSpin !== undefined) this.counterSpin = counterSpin;
-        }
-
-        /**
-        * Remove the subclass of the event, giving access to all properties, but can allow for invalid data.
-        * @returns {AbstractEvent}
-        */
-        abstract() { return new Event().import(this.json) }
-
-        get speed() { return jsonGet(this.json, "_customData._speed") }
-        get direction() { return jsonGet(this.json, "_customData._direction") }
-        get nameFilter() { return jsonGet(this.json, "_customData._nameFilter") }
-        get reset() { return jsonGet(this.json, "_customData._reset") }
-        get rotation() { return jsonGet(this.json, "_customData._rotation") }
-        get step() { return jsonGet(this.json, "_customData._step") }
-        get prop() { return jsonGet(this.json, "_customData._prop") }
-        get counterSpin() { return jsonGet(this.json, "_customData._counterSpin") }
-
-        set speed(value: number) { jsonSet(this.json, "_customData._speed", value) }
-        set direction(value: number) { jsonSet(this.json, "_customData._direction", value) }
-        set nameFilter(value: string) { jsonSet(this.json, "_customData._nameFilter", value) }
-        set reset(value: boolean) { jsonSet(this.json, "_customData._reset", value) }
-        set rotation(value: number) { jsonSet(this.json, "_customData._rotation", value) }
-        set step(value: number) { jsonSet(this.json, "_customData._step", value) }
-        set prop(value: number) { jsonSet(this.json, "_customData._prop", value) }
-        set counterSpin(value: boolean) { jsonSet(this.json, "_customData._counterSpin", value) }
+    /**
+     * Create a rotation event using Json.
+     * @param json The Json to import.
+     */
+    import(json: Json) {
+        this.json = json;
+        return this;
     }
 
-    export class RotationEvent extends EventInternals.BaseEvent {
-        constructor(json: Record<string, any>, type: number, rotation: number) {
-            super(json);
-            this.type = type;
-
-            if ((EVENT as Record<string, any>)[`CW_${Math.abs(rotation)}`]) 
-            this.value = (EVENT as Record<string, any>)[`${(rotation < 0 ? "CCW_" : "CW_") + Math.abs(rotation)}`];
-            else this.rotation = rotation;
-        }
-
-        /**
-        * Remove the subclass of the event, giving access to all properties, but can allow for invalid data.
-        * @returns {AbstractEvent}
-        */
-        abstract() { return new Event().import(this.json) }
-
-        get rotation() { return jsonGet(this.json, "_customData._rotation") }
-        set rotation(value) { jsonSet(this.json, "_customData._rotation", value) }
+    /** Push this rotation event to the difficulty.
+     * @param clone Whether this object will be copied before being pushed.
+    */
+    push(clone = true) {
+        activeDiff.rotationEvents.push(clone ? copy(this) : this);
+        return this;
     }
 
-    export class AbstractEvent extends EventInternals.BaseEvent {
-        get lockPosition() { return jsonGet(this.json, "_customData._lockPosition") }
-        get lightID() { return jsonGet(this.json, "_customData._lightID") }
-        get color() { return jsonGet(this.json, "_customData._color") }
-        get easing() { return jsonGet(this.json, "_customData._easing") }
-        get lerpType() { return jsonGet(this.json, "_customData._lerpType") }
-        get lightGradient() { return jsonGet(this.json, "_customData._lightGradient") }
-        get startColor() { return jsonGet(this.json, "_customData._lightGradient._startColor") }
-        get endColor() { return jsonGet(this.json, "_customData._lightGradient._endColor") }
-        get duration() { return jsonGet(this.json, "_customData._lightGradient._duration") }
-        get gradientEasing() { return jsonGet(this.json, "_customData._lightGradient._easing") }
-        get speed() { return jsonGet(this.json, "_customData._speed") }
-        get direction() { return jsonGet(this.json, "_customData._direction") }
-        get nameFilter() { return jsonGet(this.json, "_customData._nameFilter") }
-        get reset() { return jsonGet(this.json, "_customData._reset") }
-        get rotation() { return jsonGet(this.json, "_customData._rotation") }
-        get step() { return jsonGet(this.json, "_customData._step") }
-        get prop() { return jsonGet(this.json, "_customData._prop") }
-        get counterSpin() { return jsonGet(this.json, "_customData._counterSpin") }
+    /** The degrees of this rotation. */
+    get rotation() { return this.json.r }
+    /** Whether this rotation effects objects that are already active. */
+    get early() { return this.json.e === 0 }
 
-        set lockPosition(value: boolean) { jsonSet(this.json, "_customData._lockPosition", value) }
-        set speed(value: number) { jsonSet(this.json, "_customData._speed", value) }
-        set direction(value: number) { jsonSet(this.json, "_customData._direction", value) }
-        set nameFilter(value: string) { jsonSet(this.json, "_customData._nameFilter", value) }
-        set reset(value: boolean) { jsonSet(this.json, "_customData._reset", value) }
-        set rotation(value: number) { jsonSet(this.json, "_customData._rotation", value) }
-        set step(value: number) { jsonSet(this.json, "_customData._step", value) }
-        set prop(value: number) { jsonSet(this.json, "_customData._prop", value) }
-        set counterSpin(value: boolean) { jsonSet(this.json, "_customData._counterSpin", value) }
-        set lightID(value: LightID) { jsonSet(this.json, "_customData._lightID", value) }
-        set color(value: ColorType) { jsonSet(this.json, "_customData._color", value) }
-        set easing(value: EASE) { jsonSet(this.json, "_customData._easing", value) }
-        set lerpType(value: string) { jsonSet(this.json, "_customData._lerpType", value) }
-        set lightGradient(value) { jsonSet(this.json, "_customData._lightGradient", value) }
-        set startColor(value: ColorType) { jsonSet(this.json, "_customData._lightGradient._startColor", value) }
-        set endColor(value: ColorType) { jsonSet(this.json, "_customData._lightGradient._endColor", value) }
-        set duration(value: number) { jsonSet(this.json, "_customData._lightGradient._duration", value) }
-        set gradientEasing(value: EASE) { jsonSet(this.json, "_customData._lightGradient._easing", value) }
+    set rotation(value: number) { this.json.r = value }
+    set early(value: boolean) { this.json.e = value ? 0 : 1 }
+}
+
+export class BoostEvent extends BaseObject {
+    /**
+     * Boost event object for ease of creation.
+     * @param time The time this boost event will happen.
+     * @param on Whether boost colors will be on.
+     */
+    constructor(time = 0, on = false) {
+        super();
+        this.time = time;
+        this.on = on;
+    }
+
+    /**
+     * Create a boost event using JSON.
+     * @param json The Json to import.
+     */
+    import(json: Json) {
+        this.json = json;
+        return this;
+    }
+
+    /** Push this boost event to the difficulty.
+     * @param clone Whether this object will be copied before being pushed.
+    */
+    push(clone = true) {
+        activeDiff.boostEvents.push(clone ? copy(this) : this);
+        return this;
+    }
+
+    /** Whether boost colors will be on. */
+    get on() { return this.json.o }
+
+    set on(value: boolean) { this.json.o = value }
+}
+
+class EventBox extends BaseObject {
+    json: Json = {
+        b: 0,
+        g: 0,
+        e: []
+    }
+
+    constructor(beat = 0, group = 0) {
+        super();
+        this.time = beat;
+        this.group = group;
+    }
+
+    /**
+     * Create an event box using Json.
+     * @param json The Json to import.
+     */
+    import(json: Json) {
+        this.json = json;
+        return this;
+    }
+
+    /** The group of this lighting event. */
+    get group() { return this.json.g }
+
+    set group(value: number) { this.json.g = value }
+}
+
+export class LightEventBox extends EventBox {
+    /** Push this light event box to the difficulty.
+     * @param clone Whether this object will be copied before being pushed.
+    */
+    push(clone = true) {
+        activeDiff.lightEventBoxes.push(clone ? copy(this) : this);
+        return this;
+    }
+
+    /** The different lanes in this group. */
+    get boxGroups() { return this.json.e }
+
+    set boxGroups(value: LightEventBoxGroup[]) { this.json.g = value }
+}
+
+export class LightRotationBox extends EventBox {
+    /** Push this light rotation box to the difficulty.
+     * @param clone Whether this object will be copied before being pushed.
+    */
+    push(clone = true) {
+        activeDiff.lightRotationBoxes.push(clone ? copy(this) : this);
+        return this;
+    }
+
+    /** The different lanes in this group. */
+    get boxGroups() { return this.json.e }
+
+    set boxGroups(value: LightRotationBoxGroup[]) { this.json.g = value }
+}
+
+interface EventFilter {
+    f: number,
+    p: number,
+    t: number,
+    r: number
+}
+
+export class EventBoxGroup {
+    json: Json = {};
+
+    /**
+    * Create a light event box group using Json.
+    * @param json Json to import.
+    */
+    import(json: Json) {
+        this.json = json;
+        return this;
+    }
+
+    /** A Json object containing data describing the lights to effect. */
+    get filter() { return this.json.f }
+    /** The method used to pick lights to effect. */
+    get filterType() { return this.json.f.f }
+    /** Parameter 0 for the filter. */
+    get filterParam0() { return this.json.f.p }
+    /** Parameter 1 for the filter. */
+    get filterParam1() { return this.json.f.t }
+    /** Whether the filter method should be reversed. */
+    get filterReverse() { return this.json.f.r === 1 }
+    /** Parameter for the beat distribution type. */
+    get beatDistribution() { return this.json.w }
+    /** How the lights take effect over time. */
+    get beatDistributionType() { return this.json.d }
+
+    set filter(value: EventFilter) { this.json.f = value }
+    set filterType(value: FILTERTYPE) { this.json.f.f = value }
+    set filterParam0(value: number) { this.json.f.p = value }
+    set filterParam1(value: number) { this.json.f.t = value }
+    set filterReverse(value: boolean) { this.json.f.r = value ? 1 : 0 }
+    set beatDistribution(value: number) { this.json.w = value }
+    set beatDistributionType(value: DISTTYPE) { this.json.d = value }
+
+    /**
+     * Select lights by grouping them in intervals.
+     * @param amount How many sections the light group is split into.
+     * @param index Which section to use.
+     * @param reverse Whether the method should be reversed.
+     */
+    sections(amount: number, index: number, reverse = false) {
+        this.filterType = FILTERTYPE.SECTIONS;
+        this.filterParam0 = amount;
+        this.filterParam1 = index;
+        this.filterReverse = reverse;
+    }
+
+    /**
+     * Select lights by a start point and interval.
+     * @param offset Start point index.
+     * @param step Interval of light picking.
+     * @param reverse Whether the method should be reversed.
+     */
+    stepAndOffset(offset: number, step: number, reverse = false) {
+        this.filterType = FILTERTYPE.STEPANDOFFSET;
+        this.filterParam0 = offset;
+        this.filterParam1 = step;
+        this.filterReverse = reverse;
     }
 }
 
-export class Event extends EventInternals.BaseEvent {
-    /**
-     * Event object for ease of creation.
-     * @param {Object} time
-     */
-    constructor(time = 0) { super(time) }
+export class LightEventBoxGroup extends EventBoxGroup {
+    json: Json = {
+        f: {
+            f: 1,
+            p: 0,
+            t: 0,
+            r: 0
+        },
+        w: 1,
+        d: 1,
+        r: 1,
+        t: 1,
+        b: 1,
+        e: []
+    }
+
+    /** Push this light event box group to a light event box. */
+    push(box: LightEventBox) {
+        box.boxGroups.push(copy(this));
+        return this;
+    }
+
+    /** Parameter for the brightness distribution type. */
+    get brightnessDistribution() { return this.json.r }
+    /** How the brightness of the lights take effect over time. */
+    get brightnessDistributionType() { return this.json.t }
+    /** Determines if the brightness distribution effects the first event in the lane. */
+    get brightnessDistributionFirst() { return this.json.b === 1 }
+    /** Lighting events in this group. */
+    get events() { return this.json.e }
+
+    set brightnessDistribution(value: number) { this.json.r = value }
+    set brightnessDistributionType(value: DISTTYPE) { this.json.t = value }
+    set brightnessDistributionFirst(value: boolean) { this.json.b = value ? 1 : 0 }
+    set events(value: LightEvent[]) { this.json.e = value }
+}
+
+export class LightRotationBoxGroup extends EventBoxGroup {
+    json: Json = {
+        f: {
+            f: 1,
+            p: 0,
+            t: 0,
+            r: 0
+        },
+        w: 1,
+        d: 1,
+        s: 1,
+        t: 1,
+        b: 1,
+        a: 0,
+        r: 0,
+        l: []
+    }
+
+    /** Push this light rotation box group to a light rotation box. */
+    push(box: LightRotationBox) {
+        box.boxGroups.push(copy(this));
+        return this;
+    }
+
+    /** Parameter for the rotation distribution type. */
+    get rotationDistribution() { return this.json.s }
+    /** How the rotation of the lights take effect over time. */
+    get rotationDistributionType() { return this.json.t }
+    /** Determines if the rotation distribution effects the first event in the lane. */
+    get rotationDistributionFirst() { return this.json.b === 1 }
+    /** The axis of rotation. */
+    get axis() { return this.json.a }
+    /** Whether the rotation should be flipped. */
+    get flipped() { return this.json.r === 1 }
+    /** Rotation events in this group. */
+    get events() { return this.json.l }
+
+    set rotationDistribution(value: number) { this.json.s = value }
+    set rotationDistributionType(value: DISTTYPE) { this.json.t = value }
+    set rotationDistributionFirst(value: boolean) { this.json.b = value ? 1 : 0 }
+    set axis(value: AXIS) { this.json.a = value }
+    set flipped(value: boolean) { this.json.r = value ? 1 : 0 }
+    set events(value: LightRotation[]) { this.json.l = value }
+}
+
+export class LightEvent {
+    /** The Json of this light event. */
+    json: Json = {
+        b: 0,
+        i: 0,
+        c: 0,
+        s: 1,
+        f: 0
+    }
 
     /**
-     * Controls the back lasers.
-     * @returns 
-     */
-    backLasers() { return new EventInternals.LightEvent(this.json, EVENT.BACK_LASERS) }
-
-    /**
-     * Controls the ring lights.
-     * @returns 
-     */
-    ringLights() { return new EventInternals.LightEvent(this.json, EVENT.RING_LIGHTS) }
-
-    /**
-     * Controls the left lasers.
-     * @returns 
-     */
-    leftLasers() { return new EventInternals.LightEvent(this.json, EVENT.LEFT_LASERS) }
-
-    /**
-     * Controls the right lasers.
-     * @returns 
-     */
-    rightLasers() { return new EventInternals.LightEvent(this.json, EVENT.RIGHT_LASERS) }
-
-    /**
-     * Controls the center lasers.
-     * @returns 
-     */
-    centerLasers() { return new EventInternals.LightEvent(this.json, EVENT.CENTER_LASERS) }
-
-    /**
-     * Controls the extra left lasers in some environments.
-     * @returns 
-     */
-    extraLeft() { return new EventInternals.LightEvent(this.json, EVENT.LEFT_EXTRA) }
-
-    /**
-     * Controls the extra right lasers in some environments.
-     * @returns 
-     */
-    extraRight() { return new EventInternals.LightEvent(this.json, EVENT.RIGHT_EXTRA) }
-
-    /**
-     * Controls the left lasers in the Billie environment.
-     * @returns 
-     */
-    billieLeft() { return new EventInternals.LightEvent(this.json, EVENT.BILLIE_LEFT) }
-
-    /**
-     * Controls the right lasers in the Billie environment.
-     * @returns 
-     */
-    billieRight() { return new EventInternals.LightEvent(this.json, EVENT.BILLIE_RIGHT) }
-
-    /**
-     * Create an event using JSON.
-     * @param {Object} json 
-     * @returns {AbstractEvent}
-     */
-    import(json: Record<string, any>) { return new EventInternals.AbstractEvent(json) }
-
-    /**
-     * Create an event with no particular identity.
-    * @returns {AbstractEvent};
+    * Create a light event using JSON.
+    * @param json Json to import.
     */
-    abstract() { return this.import({}) }
+    import(json: Json) {
+        this.json = json;
+        return this;
+    }
 
-    /**
-     * Make this event change boost colors.
-     * @param {Boolean} on 
-     * @returns 
-     */
-    boost(on: boolean) {
-        this.type = EVENT.BOOST;
-        this.value = on ? EVENT.BOOST_ON : EVENT.BOOST_OFF;
-        return new EventInternals.BaseEvent(this.json);
+    /** Push this light event to a light event box group. */
+    push(group: LightEventBoxGroup) {
+        group.events.push(copy(this));
+        return this;
+    }
+
+    /** The beat this event happens, added to the light event box's time. */
+    get addedBeat() { return this.json.b }
+    /** The transition type between this light event and the previous. */
+    get transition() { return this.json.i }
+    /** The color of this lighting event. */
+    get color() { return this.json.c }
+    /** The brightness of this lighting event. */
+    get brightness() { return this.json.s }
+    /** The frequency of this light event's flickering. */
+    get flickerFrequency() { return this.json.f }
+
+    set addedBeat(value: number) { this.json.b = value }
+    set transition(value: LIGHTTRANS) { this.json.i = value }
+    set color(value: LIGHTCOL) { this.json.c = value }
+    set brightness(value: number) { this.json.s = value }
+    set flickerFrequency(value: number) { this.json.f = value }
+}
+
+export class LightRotation {
+    /** The Json of this light rotation. */
+    json: Json = {
+        b: 0,
+        p: 0,
+        e: 0,
+        l: 0,
+        r: 0,
+        o: 1
     }
 
     /**
-     * Move cars in the interscope environment.
-     * @param {Number} value 
-     * @returns 
-     */
-    moveCars(value: number) {
-        this.type = EVENT.RING_SPIN;
-        this.value = value;
-        return new EventInternals.BaseEvent(this.json);
+    * Create a light rotation using Json.
+    * @param json Json to import.
+    */
+    import(json: Json) {
+        this.json = json;
+        return this;
     }
 
-    /**
-     * Lower the hydraulics of the cars in the interscope environment.
-     * @returns 
-     */
-    lowerHydraulics() {
-        this.type = EVENT.LOWER_HYDRAULICS;
-        return new EventInternals.BaseEvent(this.json);
+    /** Push this light rotation to a light rotation box group. */
+    push(group: LightRotationBoxGroup) {
+        group.events.push(copy(this));
+        return this;
     }
 
-    /**
-     * Raise the hydraulics of the cars in the interscope environment.
-     * @returns 
-     */
-    raiseHydraulics() {
-        this.type = EVENT.RAISE_HYDRAULICS;
-        return new EventInternals.BaseEvent(this.json);
-    }
+    /** The beat this event happens, added to the rotation event box's time. */
+    get addedBeat() { return this.json.b }
+    /** The transition type between this rotation event and the previous. */
+    get transition() { return this.json.p }
+    /** The easing of the rotation. */
+    get ease() { return this.json.e }
+    /** The amount of additional 360 degree loops. */
+    get loops() { return this.json.l }
+    /** The degrees of the rotation. */
+    get rotation() { return this.json.r }
+    /** The direction of the rotation. */
+    get direction() { return this.json.o }
 
-    /**
-     * Spin the rings in an environment.
-     * @param {Number} rotation 
-     * @param {Number} direction 
-     * @param {Number} step 
-     * @param {Number} speed 
-     * @param {Number} prop 
-     * @param {Boolean} reset 
-     * @param {String} nameFilter 
-     * @param {Boolean} counterSpin 
-     * @returns 
-     */
-    ringSpin(
-        rotation?: number,
-        direction?: number,
-        step?: number,
-        speed?: number,
-        prop?: number,
-        reset?: boolean,
-        nameFilter?: string,
-        counterSpin?: boolean) {
-        return new EventInternals.RingSpinEvent(this.json, rotation, direction, step, speed, prop, reset, nameFilter, counterSpin);
-    }
-
-    /**
-     * Control the zoom of the rings.
-     * @param {Number} step 
-     * @param {Number} speed 
-     * @returns 
-     */
-    ringZoom(step?: number, speed?: number) { return new EventInternals.RingZoomEvent(this.json, step, speed) }
-
-    /**
-     * Control the movement speed of the left lasers.
-     * @param {Number} speed When containing decimals, the noodle data will be used for speed.
-     * @param {Number} direction 
-     * @param {Boolean} lockPosition 
-     * @returns 
-     */
-    leftLaserSpeed(speed: number, direction?: number, lockPosition?: boolean) {
-        return new EventInternals.LaserSpeedEvent(this.json, EVENT.LEFT_SPEED, speed, direction, lockPosition);
-    }
-
-    /**
-     * Control the movement speed of the right lasers.
-     * @param {Number} speed When containing decimals, the noodle data will be used for speed.
-     * @param {Number} direction 
-     * @param {Boolean} lockPosition 
-     * @returns 
-     */
-    rightLaserSpeed(speed: number, direction?: number, lockPosition?: boolean) {
-        return new EventInternals.LaserSpeedEvent(this.json, EVENT.RIGHT_SPEED, speed, direction, lockPosition);
-    }
-
-    /**
-     * Used for 360 mode, rotates future objects and active objects.
-     * @param {Number} rotation 
-     * @returns 
-     */
-    earlyRotation(rotation: number) { return new EventInternals.RotationEvent(this.json, EVENT.EARLY_ROTATION, rotation) }
-
-    /**
-     * Used for 360 mode, rotates future objects only.
-     * @param {Number} rotation 
-     * @returns 
-     */
-    lateRotation(rotation: number) { return new EventInternals.RotationEvent(this.json, EVENT.LATE_ROTATION, rotation) }
+    set addedBeat(value: number) { this.json.b = value }
+    set transition(value: ROTTRANS) { this.json.p = value }
+    set ease(value: ROTEASE) { this.json.e = value }
+    set loops(value: number) { this.json.l = value }
+    set rotation(value: number) { this.json.r = value }
+    set direction(value: ROTDIR) { this.json.o = value }
 }

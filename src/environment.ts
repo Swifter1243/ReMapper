@@ -1,72 +1,96 @@
-// deno-lint-ignore-file no-explicit-any adjacent-overload-signatures no-namespace
-import { combineAnimations, AnimationInternals } from './animation.ts';
-import { activeDiffGet } from './beatmap.ts';
-import { copy, Vec3, ColorType } from './general.ts';
+// deno-lint-ignore-file adjacent-overload-signatures no-namespace
+import { combineAnimations, AnimationInternals, Track, KeyframesLinear, KeyframesVec3 } from './animation.ts';
+import { activeDiffGet, Json } from './beatmap.ts';
+import { copy, Vec3, ColorType, jsonGet, jsonSet } from './general.ts';
 import { CustomEvent } from './custom_event.ts';
-import { GEO_TYPE, LOOKUP, GEO_SHADER } from './constants.ts';
+import { GEO_TYPE, LOOKUP, GEO_SHADER, ANIM, EASE } from './constants.ts';
 
 let envCount = 0;
 
 export namespace EnvironmentInternals {
     export class BaseEnvironment {
-        json: Record<string, any> = {};
+        /** The Json data on this object. */
+        json: Json = {};
 
         /**
-        * Create an environment object using JSON.
-        * @param {Object} json 
-        * @returns {Environment}
+        * Create an environment/geometry object using Json.
+        * @param json The Json to import.
         */
-        import(json: Record<string, any>) {
+        import(json: Json) {
             this.json = json;
             return this;
         }
 
-        /**
-         * Push this environment object to the difficulty
-         */
-        push() {
-            activeDiffGet().rawEnvironment.push(copy(this));
+        /** Push this environment/geometry object to the difficulty.
+         * @param clone Whether this object will be copied before being pushed.
+        */
+        push(clone = true) {
+            activeDiffGet().rawEnvironment.push(clone ? copy(this) : this);
             return this;
         }
 
-        get duplicate() { return this.json._duplicate }
-        get active() { return this.json._active }
-        get scale() { return this.json._scale }
-        get position() { return this.json._position }
-        get localPosition() { return this.json._localPosition }
-        get rotation() { return this.json._rotation }
-        get localRotation() { return this.json._localRotation }
-        get lightID() { return this.json._lightID }
-        get track() { return this.json._track }
-        get group() { return this.json._group }
+        /** How many times to duplicate this object. */
+        get duplicate() { return this.json.duplicate }
+        /** Whether this object is enabled. */
+        get active() { return this.json.active }
+        /** The scale of this object. */
+        get scale() { return this.json.scale }
+        /** The worldspace position of this object. */
+        get position() { return this.json.position }
+        /** The position of this object relative to it's parent. */
+        get localPosition() { return this.json.localPosition }
+        /** The worldspace rotation of this object. */
+        get rotation() { return this.json.rotation }
+        /** The rotation of this object relative to it's parent. */
+        get localRotation() { return this.json.localRotation }
+        /** The track class for this object.
+         * Please read the properties of this class to see how it works.
+         */
+        get track() { return new Track(this.json) }
+        /** Group used with "animateEnvGroup". Not saved to the difficulty. */
+        get group() { return this.json.group }
+        /** All the animateable properties of this object. */
         get animationProperties() {
-            const returnObj: any = {};
-            if (this.position !== undefined) returnObj._position = this.position;
-            if (this.localPosition !== undefined) returnObj._localPosition = this.localPosition;
-            if (this.rotation !== undefined) returnObj._rotation = this.rotation;
-            if (this.localRotation !== undefined) returnObj._localRotation = this.localRotation;
-            if (this.scale !== undefined) returnObj._scale = this.scale
+            const returnObj: {
+                position?: KeyframesVec3,
+                localPosition?: KeyframesVec3,
+                rotation?: KeyframesVec3,
+                localRotation?: KeyframesVec3,
+                scale?: KeyframesVec3
+            } = {};
+            if (this.position) returnObj.position = this.position;
+            if (this.localPosition) returnObj.localPosition = this.localPosition;
+            if (this.rotation) returnObj.rotation = this.rotation;
+            if (this.localRotation) returnObj.localRotation = this.localRotation;
+            if (this.scale) returnObj.scale = this.scale
             return returnObj;
         }
+        /** All of the components on this object. */
+        get components() { return jsonGet(this.json, "components", {}) }
+        /** Sets the "lightID" value on the "ILightWithID" component. */
+        get lightID() { return jsonGet(jsonGet(this.components, "ILightWithId", {}), "lightID") }
+        /** Sets the "type" value on the "ILightWithID" component. */
+        get lightType() { return jsonGet(jsonGet(this.components, "ILightWithId", {}), "type") }
 
-        set duplicate(value: number) { this.json._duplicate = value }
-        set active(value: boolean) { this.json._active = value }
-        set scale(value: Vec3) { this.json._scale = value }
-        set position(value: Vec3) { this.json._position = value }
-        set localPosition(value: Vec3) { this.json._localPosition = value }
-        set rotation(value: Vec3) { this.json._rotation = value }
-        set localRotation(value: Vec3) { this.json._localRotation = value }
-        set lightID(value: number) { this.json._lightID = value }
-        set track(value: string) { this.json._track = value }
-        set group(value: string) { this.json._group = value }
+        set duplicate(value: number) { this.json.duplicate = value }
+        set active(value: boolean) { this.json.active = value }
+        set scale(value: Vec3) { this.json.scale = value }
+        set position(value: Vec3) { this.json.position = value }
+        set localPosition(value: Vec3) { this.json.localPosition = value }
+        set rotation(value: Vec3) { this.json.rotation = value }
+        set localRotation(value: Vec3) { this.json.localRotation = value }
+        set group(value: string) { this.json.group = value }
+        set components(value: Components) { this.json.components = value }
+        set lightID(value: number) {jsonSet(jsonGet(this.components, "ILightWithId", {}), "lightID", value)}
+        set lightType(value: number) {jsonSet(jsonGet(this.components, "ILightWithId", {}), "type", value)}
     }
 }
 
 export class Environment extends EnvironmentInternals.BaseEnvironment {
     /**
      * Environment object for ease of creation and additional tools.
-     * @param {String} id 
-     * @param {String} lookupMethod 
+     * @param id The object name to look up in the environment.
+     * @param lookupMethod The method of looking up the object name in the environment.
      */
     constructor(id?: string, lookupMethod: LOOKUP | undefined = undefined) {
         super();
@@ -76,63 +100,83 @@ export class Environment extends EnvironmentInternals.BaseEnvironment {
         this.lookupMethod = lookupMethod;
     }
 
-    get id() { return this.json._id }
-    get lookupMethod() { return this.json._lookupMethod }
+    /** The object name to look up in the environment. */
+    get id() { return this.json.id }
+    /** The method of looking up the object name in the environment. */
+    get lookupMethod() { return this.json.lookupMethod }
 
-    set id(value: string) { this.json._id = value }
-    set lookupMethod(value: LOOKUP) { this.json._lookupMethod = value }
+    set id(value: string) { this.json.id = value }
+    set lookupMethod(value: LOOKUP) { this.json.lookupMethod = value }
 }
 
 export class Geometry extends EnvironmentInternals.BaseEnvironment {
-    json: Record<string, any> = {
-        _geometry: {}
+    json: Json = {
+        geometry: {}
     };
 
+    /**
+     * Geometry object for ease of creation and additional tools.
+     * @param type The geometry shape type.
+     * @param material The material on this geometry object.
+     */
     constructor(type?: GEO_TYPE, material?: GeometryMaterial | string) {
         super();
         type ??= "Cube";
         material ??= {
-            _shader: "Standard"
+            shader: "Standard"
         }
         this.type = type;
         this.material = material;
     }
 
-    get type() { return this.json._geometry._type }
-    get material() { return this.json._geometry._material }
-    get collision() { return this.json._geometry._collision }
+    /** The geometry shape type. */
+    get type() { return this.json.geometry.type }
+    /** The material on this geometry object. */
+    get material() { return this.json.geometry.material }
+    /** Whether this geometry object has collision. */
+    get collision() { return this.json.geometry.collision }
 
-    set type(value: GEO_TYPE) { this.json._geometry._type = value }
-    set material(value: GeometryMaterial | string) { this.json._geometry._material = value }
-    set collision(value: boolean) { this.json._geometry._collision = value }
+    set type(value: GEO_TYPE) { this.json.geometry.type = value }
+    set material(value: GeometryMaterial | string) { this.json.geometry.material = value }
+    set collision(value: boolean) { this.json.geometry.collision = value }
 }
 
+/** A material used on a geometry object. Allows difficulty material references. */
 export type GeometryMaterial = RawGeometryMaterial | string
+/** All properties allowed for a material used on a geometry object. */
 export type RawGeometryMaterial = {
-    _shader: GEO_SHADER,
-    _color?: ColorType,
-    _track?: string,
-    _shaderKeywords?: string[]
+    shader: GEO_SHADER,
+    color?: ColorType,
+    track?: string,
+    shaderKeywords?: string[]
 }
 
-export function animateEnvGroup(group: string, time: number, animation: (animation: AnimationInternals.EnvironmentAnimation) => void, duration?: number, easing?: string) {
+/**
+ * Targets any environment objects in a group and animates them based on their original transforms.
+ * @param group The group to target.
+ * @param time The time of the animation.
+ * @param animation Callback for the animation that will be used.
+ * @param duration Duration of the animation.
+ * @param easing Easing on the animation.
+ */
+export function animateEnvGroup(group: string, time: number, animation: (animation: AnimationInternals.EnvironmentAnimation) => void, duration?: number, easing?: EASE) {
     if (activeDiffGet().rawEnvironment !== undefined) activeDiffGet().rawEnvironment.forEach(x => {
         if (x.group === group) {
             const newAnimation = new AnimationInternals.AbstractAnimation;
             animation(newAnimation);
 
-            if (!x.track) {
-                x.track = `environment_${envCount}`;
+            if (!x.track.value) {
+                x.track.value = `environment_${envCount}`;
                 envCount++
             }
 
-            const event = new CustomEvent(time).animateTrack(x.track);
+            const event = new CustomEvent(time).animateTrack(x.track.value);
             if (duration) event.duration = duration;
             if (easing) event.easing = easing;
 
             Object.keys(newAnimation.json).forEach(key => {
                 event.animate.json[key] = newAnimation.json[key]
-                if (x.json[key]) event.animate.json[key] = combineAnimations(event.animate.json[key], x.json[key], key);
+                if (x.json[key]) event.animate.json[key] = combineAnimations(event.animate.json[key], x.json[key], key as ANIM);
             })
 
             event.push();
@@ -140,22 +184,60 @@ export function animateEnvGroup(group: string, time: number, animation: (animati
     })
 }
 
-export function animateEnvTrack(group: string, time: number, animation: (animation: AnimationInternals.EnvironmentAnimation) => void, duration?: number, easing?: string) {
+/**
+ * Targets any environment objects in a track and animates them based on their original transforms.
+ * @param track The track to target.
+ * @param time The time of the animation.
+ * @param animation Callback for the animation that will be used.
+ * @param duration Duration of the animation.
+ * @param easing Easing on the animation.
+ */
+export function animateEnvTrack(track: string, time: number, animation: (animation: AnimationInternals.EnvironmentAnimation) => void, duration?: number, easing?: EASE) {
     if (activeDiffGet().rawEnvironment !== undefined) activeDiffGet().rawEnvironment.forEach(x => {
-        if (x.track === group) {
+        if (x.track.value === track) {
             const newAnimation = new AnimationInternals.AbstractAnimation;
             animation(newAnimation);
 
-            const event = new CustomEvent(time).animateTrack(x.track);
+            const event = new CustomEvent(time).animateTrack(x.track.value);
             if (duration) event.duration = duration;
             if (easing) event.easing = easing;
 
             Object.keys(newAnimation.json).forEach(key => {
                 event.animate.json[key] = newAnimation.json[key]
-                if (x.json[key]) event.animate.json[key] = combineAnimations(event.animate.json[key], x.json[key], key);
+                if (x.json[key]) event.animate.json[key] = combineAnimations(event.animate.json[key], x.json[key], key as ANIM);
             })
 
             event.push();
         }
     })
+}
+
+/** All components on environment objects. */
+export type Components = {
+    ILightWithId?: ILightWithId<number>,
+    BloomFogEnvironment?: BloomFogEnvironment<number>,
+    TubeBloomPrePassLight?: TubeBloomPrePassLight<number>
+}
+
+/** The "ILightWithId" environment component. 
+ * Allows both animated and non animated variants. */
+export type ILightWithId<T extends number | KeyframesLinear> = {
+    lightID: T,
+    type: T
+}
+
+/** The "BloomFogEnvironment" environment component. 
+ * Allows both animated and non animated variants. */
+export type BloomFogEnvironment<T extends number | KeyframesLinear> = {
+    attenuation?: T,
+    offset?: T,
+    startY?: T,
+    height?: T
+}
+
+/** The "TubeBloomPrePassLight" environment component. 
+ * Allows both animated and non animated variants. */
+export type TubeBloomPrePassLight<T extends number | KeyframesLinear> = {
+    colorAlphaMultiplier?: T,
+    bloomFogIntensityMultiplier?: T
 }

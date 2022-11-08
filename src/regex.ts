@@ -8,14 +8,10 @@ export class Regex {
      */
     constructor(initial?: string) { if (initial) this.string = initial }
 
-    /**
-     * Specifies the start with the end of a previous seperator: "]".
-     */
+    /** Specifies the start with the end of a previous seperator: "]". */
     start() { this.string += "\\]"; return this }
 
-    /**
-     * Specifies the end of the entire string.
-     */
+    /** Specifies the end of the entire string */
     end() { return this.string + "$" }
 
     /**
@@ -46,9 +42,7 @@ export class Regex {
         return this;
     }
 
-    /**
-     * Tests the regex expression's validity.
-     */
+    /** Tests the regex expression's validity. */
     verify() {
         new RegExp(this.string);
         console.log(`Regex ${this.string} is valid`)

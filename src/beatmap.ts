@@ -1,24 +1,78 @@
 // deno-lint-ignore-file no-explicit-any adjacent-overload-signatures
 import { path, fs, compress } from './deps.ts';
-import { Note } from './note.ts';
+import { Arc, Note, Bomb, Chain } from './note.ts';
 import { Wall } from './wall.ts';
-import { Event, EventInternals } from './event.ts';
+import { Event, EventInternals } from './basicEvent.ts';
 import { CustomEvent, CustomEventInternals } from './custom_event.ts';
 import { Environment, EnvironmentInternals, Geometry, GeometryMaterial } from './environment.ts';
-import { copy, isEmptyObject, jsonGet, jsonPrune, jsonRemove, jsonSet, sortObjects, Vec3, setDecimals, RMLog, parseFilePath, RMJson } from './general.ts';
-import { AnimationInternals } from './animation.ts';
+import { copy, isEmptyObject, jsonGet, jsonPrune, jsonSet, sortObjects, Vec3, setDecimals, RMLog, parseFilePath, RMJson, jsonRemove } from './general.ts';
+import { AnimationInternals, RawKeyframesAny } from './animation.ts';
 import { OptimizeSettings } from './anim_optimizer.ts';
 import { ENV_NAMES, MODS, settingsHandler, DIFFS, FILENAME, FILEPATH } from './constants.ts';
+import { BoostEvent, BPMChange, LightEvent, LightEventBox, LightEventBoxGroup, LightRotation, LightRotationBox, LightRotationBoxGroup, RotationEvent } from './event.ts';
 
 type PostProcessFn<T> = (object: T, diff: Difficulty) => void;
-type DIFFPATH = FILEPATH<DIFFS>
-type DIFFNAME = FILENAME<DIFFS>
+
+/** Absolute or relative path to a difficulty. Extension is optional. */
+export type DIFFPATH = FILEPATH<DIFFS>
+/** Filename for a difficulty. Extension is optional. */
+export type DIFFNAME = FILENAME<DIFFS>
+/** Type for Json data. */
+export type Json = Record<string, any>
+
+/**
+ * Converts an array of Json objects to a class counterpart.
+ * Used internally in Difficulty to import Json.
+ * @param array Array to convert.
+ * @param target Class to convert to. Must have "import" function.
+ * @param callback Optional function to run on each converted class.
+ */
+export function arrJsonToClass<T>(array: T[], target: { new(): T; }, callback?: (obj: T) => void) {
+    if (array === undefined) return;
+    for (let i = 0; i < array.length; i++) {
+        array[i] = (new target() as any).import(array[i]);
+        if (callback) callback(array[i]);
+    }
+}
+
+/**
+ * Converts an array of classes to Json.
+ * Used internally in Difficulty to export to Json.
+ * @param arr Array to convert.
+ * @param outputJSON Parent Json that array is attached to.
+ * @param prop Property of the array in the outputJSON value.
+ * @param callback Optional callback to run on each class copy before conversion.
+ */
+export function arrClassToJson<T>(arr: T[], outputJSON: Json, prop: string, callback?: (obj: any) => void) {
+    const jsonArr = jsonGet(outputJSON, prop);
+    if (jsonArr === undefined) return;
+
+    if (callback) {
+        arr.forEach(x => {
+            const obj = copy(x) as any;
+            callback(obj);
+            jsonArr.push(obj.json);
+        })
+    }
+    else arr.forEach(x => jsonArr.push((x as any).json));
+
+    sortObjects(jsonArr, "b");
+}
 
 export class Difficulty {
-    json: Record<string, any> = {};
-    diffSet: Record<string, any> = {};
-    diffSetMap: Record<string, any> = {};
+    /** The Json of the entire difficulty. */
+    json: Json = {};
+    /** The Json of the difficulty set 
+     * (e.g. Standard) that this difficulty is contained in inside of the Info.dat.
+    */
+    diffSet: Json = {};
+    /** The Json of the difficulty set map
+     * (e.g. Hard) that this difficulty is contained in inside of the Info.dat.
+    */
+    diffSetMap: Json = {};
+    /** The path to the output file of this difficulty. */
     mapFile: DIFFPATH;
+    /** The filename of the output file of this difficulty. */
     relativeMapFile: DIFFNAME;
     private postProcesses = new Map<unknown[] | undefined, PostProcessFn<unknown>[]>();
     private registerProcessors() {
@@ -28,8 +82,8 @@ export class Difficulty {
     /**
      * Creates a difficulty. Can be used to access various information and the map data.
      * Will set the active difficulty to this.
-     * @param {String} input Filename for the input.
-     * @param {String} input Filename for the output. If left blank, input will be used.
+     * @param input Filename for the input.
+     * @param input Filename for the output. If left blank, input will be used.
      */
     constructor(input: DIFFPATH, output?: DIFFPATH) {
         const parsedInput = parseFilePath(input, ".dat");
@@ -42,8 +96,8 @@ export class Difficulty {
         this.relativeMapFile = parsedOutput.name as DIFFNAME;
         this.json = JSON.parse(Deno.readTextFileSync(parsedInput.path));
 
-        info.json._difficultyBeatmapSets.forEach((set: Record<string, any>) => {
-            set._difficultyBeatmaps.forEach((setmap: Record<string, any>) => {
+        info.json._difficultyBeatmapSets.forEach((set: Json) => {
+            set._difficultyBeatmaps.forEach((setmap: Json) => {
                 if (this.relativeMapFile === setmap._beatmapFilename) {
                     this.diffSet = set;
                     this.diffSetMap = setmap;
@@ -53,21 +107,70 @@ export class Difficulty {
 
         if (this.diffSet === undefined) throw new Error(`The difficulty ${parsedOutput.name} does not exist in your Info.dat`)
 
-        for (let i = 0; i < this.notes.length; i++) this.notes[i] = new Note().import(this.notes[i] as Record<string, any>);
-        for (let i = 0; i < this.walls.length; i++) this.walls[i] = new Wall().import(this.walls[i] as Record<string, any>);
-        for (let i = 0; i < this.events.length; i++) this.events[i] = new Event().import(this.events[i] as Record<string, any>);
-        if (this.customEvents !== undefined)
-            for (let i = 0; i < this.customEvents.length; i++) this.customEvents[i] = new CustomEvent().import(this.customEvents[i] as Record<string, any>);
-        if (this.rawEnvironment !== undefined)
-            for (let i = 0; i < this.rawEnvironment.length; i++) this.rawEnvironment[i] = new EnvironmentInternals.BaseEnvironment().import(this.rawEnvironment[i] as Record<string, any>);
+        function transferKey(obj: Json, old: string, value: string) {
+            if (obj[old] === undefined) return;
+            obj[value] = obj[old];
+            delete obj[old];
+        }
 
-        if (this.version === undefined) this.version = "2.2.0";
+        this.json.basicBeatmapEvents.forEach((x: Json) => {
+            if (x.customData) {
+                const keys = [
+                    "lightID",
+                    "color",
+                    "easing",
+                    "lerpType",
+                    "rotation",
+                    "nameFilter",
+                    "step",
+                    "prop",
+                    "speed",
+                    "direction"
+                ]
+
+                keys.forEach(k => transferKey(x.customData, `_${k}`, k));
+            }
+        })
+
+        arrJsonToClass(this.notes, Note);
+        arrJsonToClass(this.bombs, Bomb);
+        arrJsonToClass(this.arcs, Arc);
+        arrJsonToClass(this.chains, Chain);
+        arrJsonToClass(this.walls, Wall);
+        arrJsonToClass(this.events, Event as any);
+        arrJsonToClass(this.customEvents, CustomEvent);
+        arrJsonToClass(this.rawEnvironment, EnvironmentInternals.BaseEnvironment);
+        arrJsonToClass(this.BPMChanges, BPMChange);
+        arrJsonToClass(this.rotationEvents, RotationEvent);
+        arrJsonToClass(this.boostEvents, BoostEvent);
+
+        arrJsonToClass(this.lightEventBoxes, LightEventBox, b => {
+            arrJsonToClass(b.boxGroups, LightEventBoxGroup, g => {
+                arrJsonToClass(g.events, LightEvent);
+            })
+        })
+
+        arrJsonToClass(this.lightRotationBoxes, LightRotationBox, b => {
+            arrJsonToClass(b.boxGroups, LightRotationBoxGroup, g => {
+                arrJsonToClass(g.events, LightRotation);
+            })
+        })
+
+        arrJsonToClass(this.fakeNotes, Note);
+        arrJsonToClass(this.fakeBombs, Bomb);
+        arrJsonToClass(this.fakeWalls, Wall);
+        arrJsonToClass(this.fakeChains, Chain);
 
         activeDiff = this;
 
         this.registerProcessors();
     }
 
+    /**
+     * Go through every animation in this difficulty and optimize it.
+     * Warning, this is an expensive action and may be redundant based on what has already been optimized.
+     * @param optimize Settings for the optimization.
+     */
     optimize(optimize: OptimizeSettings = new OptimizeSettings()) {
         const optimizeAnimation = (animation: AnimationInternals.BaseAnimation) => {
             animation.optimize(undefined, optimize)
@@ -81,9 +184,9 @@ export class Difficulty {
     }
 
     /**
-     * 
-     * @param object The object to process. If undefined, will just process the difficulty
-     * @param fn 
+     * Allows you to add a function to be run on save of this difficulty.
+     * @param object The object to process. If undefined, the difficulty will be processed.
+     * @param fn The function to be added.
      */
     addPostProcess<T>(object: T[] | undefined, fn: PostProcessFn<T>) {
         let list = this.postProcesses.get(object)
@@ -98,8 +201,8 @@ export class Difficulty {
     }
 
     /**
-     * 
-     * @param object The object to process. If undefined, will run all 
+     * Runs the post process functions in this difficulty.
+     * @param object The object to process. If undefined, the difficulty will be processed.
      */
     doPostProcess<T = unknown>(object: T[] | undefined = undefined) {
         type Tuple = [unknown[] | undefined, PostProcessFn<unknown>[]];
@@ -122,7 +225,8 @@ export class Difficulty {
 
     /** 
      * Saves the difficulty.
-     * @param {String} diffName Filename for the save. If left blank, the beatmap file name will be used for the save.
+     * @param diffName Filename for the save. 
+     * If left blank, the beatmap file name will be used for the save.
      */
     save(diffName?: DIFFPATH) {
         if (diffName) diffName = parseFilePath(diffName, ".dat").path as DIFFPATH;
@@ -130,70 +234,95 @@ export class Difficulty {
 
         this.doPostProcess()
 
-        const outputJSON = {} as Record<string, any>;
+        const outputJSON = {} as Json;
 
         Object.keys(this.json).forEach(x => {
-            if (
-                x === "_notes" ||
-                x === "_obstacles" ||
-                x === "_events"
-            ) {
-                outputJSON[x] = [];
-            }
-            else if (x === "_customData") Object.keys(this.json[x]).forEach(y => {
+            if (Array.isArray(this.json[x])) outputJSON[x] = [];
+            else if (x === "customData") Object.keys(this.json[x]).forEach(y => {
                 if (!outputJSON[x]) outputJSON[x] = {};
-                if (
-                    y === "_environment" ||
-                    y === "_customEvents"
-                ) {
-                    outputJSON[x][y] = [];
-                }
+                if (Array.isArray(this.json[x][y])) outputJSON[x][y] = [];
                 else outputJSON[x][y] = copy(this.json[x][y]);
             })
             else outputJSON[x] = copy(this.json[x]);
         })
 
-        // Notes
-        this.notes.forEach(x => {
-            const note = copy(x);
-            if (settings.forceJumpsForNoodle && x.isGameplayModded) {
-                note.NJS = x.NJS;
-                note.offset = x.offset;
-            }
-            jsonPrune(note.json);
-            outputJSON._notes.push(note.json);
-        })
+        const diffArrClassToJson = <T>(arr: T[], prop: string, callback?: (obj: any) => void) =>
+            arrClassToJson(arr, outputJSON, prop, callback);
 
-        // Walls
-        this.walls.forEach(x => {
-            const wall = copy(x);
-            if (settings.forceJumpsForNoodle && wall.isGameplayModded) {
-                wall.NJS = x.NJS;
-                wall.offset = x.offset;
-            }
-            jsonPrune(wall.json);
-            outputJSON._obstacles.push(wall.json);
-        })
-
-        // Events
-        this.events.forEach(x => { outputJSON._events.push(copy(x.json)) });
-
-        // Custom Events
-        if (this.customEvents) {
-            this.customEvents.forEach(x => outputJSON._customData._customEvents.push(copy(x.json)));
-            sortObjects(outputJSON._customData._customEvents, "_time");
+        function gameplayArrClassToJson<T>(arr: T[], prop: string) {
+            diffArrClassToJson(arr, prop, x => {
+                if (settings.forceJumpsForNoodle && x.isGameplayModded) {
+                    // deno-lint-ignore no-self-assign
+                    x.NJS = x.NJS;
+                    // deno-lint-ignore no-self-assign
+                    x.offset = x.offset;
+                }
+                jsonPrune(x.json);
+            })
         }
 
-        // Environment
-        if (this.rawEnvironment) this.rawEnvironment.forEach(x => {
-            const json = copy(x.json);
-            jsonRemove(json, "_group");
-            outputJSON._customData._environment.push(json);
+        gameplayArrClassToJson(this.notes, "colorNotes");
+        gameplayArrClassToJson(this.bombs, "bombNotes");
+        gameplayArrClassToJson(this.arcs, "sliders");
+        gameplayArrClassToJson(this.chains, "burstSliders");
+        gameplayArrClassToJson(this.walls, "obstacles");
+        diffArrClassToJson(this.events, "basicBeatmapEvents");
+        diffArrClassToJson(this.BPMChanges, "bpmEvents");
+        diffArrClassToJson(this.rotationEvents, "rotationEvents");
+        diffArrClassToJson(this.boostEvents, "colorBoostBeatmapEvents");
+        diffArrClassToJson(this.customEvents, "customData.customEvents");
+        diffArrClassToJson(this.rawEnvironment, "customData.environment", x => {
+            jsonRemove(x.json, "group");
+        })
+        gameplayArrClassToJson(this.fakeNotes, "fakeColorNotes");
+        gameplayArrClassToJson(this.fakeBombs, "fakeBombNotes");
+        gameplayArrClassToJson(this.fakeWalls, "fakeObstacles");
+        gameplayArrClassToJson(this.fakeChains, "fakeBurstSliders");
+
+        function safeCloneJSON(json: Json) {
+            const output: Json = {};
+
+            Object.keys(json).forEach(k => {
+                if (typeof json[k] !== "object") output[k] = json[k];
+                else output[k] = [];
+            })
+
+            return output;
+        }
+
+        this.lightEventBoxes.forEach(b => {
+            const json = safeCloneJSON(b.json);
+
+            b.boxGroups.forEach(g => {
+                const groupJson = safeCloneJSON(g.json);
+                groupJson.f = copy(g.json.f);
+
+                g.events.forEach(e => {
+                    groupJson.e.push(e.json);
+                })
+
+                json.e.push(groupJson);
+            })
+
+            outputJSON.lightColorEventBoxGroups.push(json);
         })
 
-        sortObjects(outputJSON._events, "_time");
-        sortObjects(outputJSON._notes, "_time");
-        sortObjects(outputJSON._obstacles, "_time");
+        this.lightRotationBoxes.forEach(b => {
+            const json = safeCloneJSON(b.json);
+
+            b.boxGroups.forEach(g => {
+                const groupJson = safeCloneJSON(g.json);
+                groupJson.f = copy(g.json.f);
+
+                g.events.forEach(e => {
+                    groupJson.l.push(e.json);
+                })
+
+                json.e.push(groupJson);
+            })
+
+            outputJSON.lightRotationEventBoxGroups.push(json);
+        })
 
         info.save();
         RMJson.save();
@@ -202,12 +331,12 @@ export class Difficulty {
     }
 
     /**
-     * Add/remove a requirement from the difficulty.
-     * @param {String} requirement 
-     * @param {Boolean} required True by default, set to false to remove the requirement.
+     * Add/remove a mod requirement from the difficulty.
+     * @param requirement The requirement to effect.
+     * @param required True by default, set to false to remove the requirement.
      */
     require(requirement: MODS, required = true) {
-        const requirements: Record<string, any> = {};
+        const requirements: Json = {};
 
         let requirementsArr = this.requirements;
         if (requirementsArr === undefined) requirementsArr = [];
@@ -224,12 +353,12 @@ export class Difficulty {
     }
 
     /**
-     * Add/remove a suggestion from the difficulty.
-     * @param {String} suggestion 
-     * @param {Boolean} suggested True by default, set to false to remove the suggestion.
+     * Add/remove a mod suggestion from the difficulty.
+     * @param suggestion The suggestion to effect.
+     * @param suggested True by default, set to false to remove the suggestion.
      */
     suggest(suggestion: MODS, suggested = true) {
-        const suggestions: Record<string, any> = {};
+        const suggestions: Json = {};
 
         let suggestionsArr = this.suggestions;
         if (suggestionsArr === undefined) suggestionsArr = [];
@@ -245,9 +374,10 @@ export class Difficulty {
         this.suggestions = suggestionsArr;
     }
 
+    /** The settings to be set for this difficulty. */
     readonly settings = new Proxy(new settingsHandler(this), {
         get(object, property) {
-            const objValue = (object as any)[property] as string | [string, Record<string, any>];
+            const objValue = (object as any)[property] as string | [string, Json];
             const path = typeof objValue === "string" ? objValue : objValue[0];
             const diff = (object as any)["diff"] as Difficulty;
 
@@ -255,7 +385,7 @@ export class Difficulty {
         },
 
         set(object, property, value) {
-            const objValue = (object as any)[property] as string | [string, Record<string, any>];
+            const objValue = (object as any)[property] as string | [string, Json];
             const path = typeof objValue === "string" ? objValue : objValue[0];
             const diff = (object as any)["diff"] as Difficulty;
 
@@ -265,7 +395,7 @@ export class Difficulty {
         }
     });
 
-    private pruneInput(object: Record<string, any>, property: string, value: any) {
+    private pruneInput(object: Json, property: string, value: any) {
         jsonSet(object, property, value);
         if (!isEmptyObject(value)) jsonPrune(this.diffSetMap);
     }
@@ -273,37 +403,58 @@ export class Difficulty {
     private colorArrayToTuple(array: Vec3) { return { r: array[0], g: array[1], b: array[2] } }
 
     // Info.dat
-    get NJS(): number { return jsonGet(this.diffSetMap, "_noteJumpMovementSpeed") }
-    get offset(): number { return jsonGet(this.diffSetMap, "_noteJumpStartBeatOffset") }
-    get fileName(): string { return jsonGet(this.diffSetMap, "_beatmapFilename") }
-    get diffSetName(): string { return jsonGet(this.diffSet, "_beatmapCharacteristicName") }
-    get name(): string { return jsonGet(this.diffSetMap, "_difficulty") }
-    get diffRank(): number { return jsonGet(this.diffSetMap, "_difficultyRank") }
-    get requirements(): string[] { return jsonGet(this.diffSetMap, "_customData._requirements", []) }
-    get suggestions(): string[] { return jsonGet(this.diffSetMap, "_customData._suggestions", []) }
-    get rawSettings(): Record<string, any> { return jsonGet(this.diffSetMap, "_customData._settings", {}) }
-    get warnings(): string[] { return jsonGet(this.diffSetMap, "_customData._warnings") }
-    get information(): string[] { return jsonGet(this.diffSetMap, "_customData._information") }
-    get label(): string { return jsonGet(this.diffSetMap, "_customData._difficultyLabel") }
-    get editorOffset(): number { return jsonGet(this.diffSetMap, "_customData._editorOffset") }
-    get editorOldOffset(): number { return jsonGet(this.diffSetMap, "_customData._editorOldOffset") }
-    get colorLeft(): Vec3 { return jsonGet(this.diffSetMap, "_customData._colorLeft") }
-    get colorRight(): Vec3 { return jsonGet(this.diffSetMap, "_customData._colorRight") }
-    get lightColorLeft(): Vec3 { return jsonGet(this.diffSetMap, "_customData._envColorLeft") }
-    get lightColorRight(): Vec3 { return jsonGet(this.diffSetMap, "_customData._envColorRight") }
-    get boostColorLeft(): Vec3 { return jsonGet(this.diffSetMap, "_customData._envColorLeftBoost") }
-    get boostColorRight(): Vec3 { return jsonGet(this.diffSetMap, "_customData._envColorRightBoost") }
-    get obstacleColor(): Vec3 { return jsonGet(this.diffSetMap, "_customData._obstacleColor") }
+    /** The note jump speed for this difficulty. */
+    get NJS() { return jsonGet(this.diffSetMap, "noteJumpMovementSpeed") }
+    /** The note offset for this difficulty. */
+    get offset() { return jsonGet(this.diffSetMap, "noteJumpStartBeatOffset") }
+    /** The filename for this difficulty. */
+    get fileName() { return jsonGet(this.diffSetMap, "_beatmapFilename") }
+    /** The name of the difficulty set. E.g. Standard */
+    get diffSetName() { return jsonGet(this.diffSet, "_beatmapCharacteristicName") }
+    /** The name of the difficulty. E.g. Hard */
+    get name() { return jsonGet(this.diffSetMap, "_difficulty") }
+    /** The difficulty rank. */
+    get diffRank() { return jsonGet(this.diffSetMap, "_difficultyRank") }
+    /** The mod requirements for this difficulty. */
+    get requirements() { return jsonGet(this.diffSetMap, "_customData._requirements", []) }
+    /** The mod suggestions for this difficulty. */
+    get suggestions() { return jsonGet(this.diffSetMap, "_customData._suggestions", []) }
+    /** The unaliased settings object. */
+    get rawSettings() { return jsonGet(this.diffSetMap, "_customData._settings", {}) }
+    /** Warnings to display in the info button. */
+    get warnings() { return jsonGet(this.diffSetMap, "_customData._warnings") }
+    /** Information to display in the info button. */
+    get information() { return jsonGet(this.diffSetMap, "_customData._information") }
+    /** The custom difficulty name. */
+    get label() { return jsonGet(this.diffSetMap, "_customData._difficultyLabel") }
+    /** Unknown */
+    get editorOffset() { return jsonGet(this.diffSetMap, "_customData._editorOffset") }
+    /** Unknown */
+    get editorOldOffset() { return jsonGet(this.diffSetMap, "_customData._editorOldOffset") }
+    /** The left object color. */
+    get colorLeft() { return jsonGet(this.diffSetMap, "_customData._colorLeft") }
+    /** The right object color. */
+    get colorRight() { return jsonGet(this.diffSetMap, "_customData._colorRight") }
+    /** The left light color. */
+    get lightColorLeft() { return jsonGet(this.diffSetMap, "_customData._envColorLeft") }
+    /** The right light color. */
+    get lightColorRight() { return jsonGet(this.diffSetMap, "_customData._envColorRight") }
+    /** The left boost light color. */
+    get boostColorLeft() { return jsonGet(this.diffSetMap, "_customData._envColorLeftBoost") }
+    /** The right boost light color. */
+    get boostColorRight() { return jsonGet(this.diffSetMap, "_customData._envColorRightBoost") }
+    /** The color for walls. */
+    get wallColor() { return jsonGet(this.diffSetMap, "_customData._obstacleColor") }
 
-    set NJS(value: number) { this.pruneInput(this.diffSetMap, "_noteJumpMovementSpeed", value) }
-    set offset(value: number) { this.pruneInput(this.diffSetMap, "_noteJumpStartBeatOffset", value) }
+    set NJS(value: number) { this.pruneInput(this.diffSetMap, "noteJumpMovementSpeed", value) }
+    set offset(value: number) { this.pruneInput(this.diffSetMap, "noteJumpStartBeatOffset", value) }
     set fileName(value: string) { this.pruneInput(this.diffSetMap, "_beatmapFilename", value) }
     set diffSetName(value: string) { this.pruneInput(this.diffSet, "_beatmapCharacteristicName", value) }
     set name(value: string) { this.pruneInput(this.diffSetMap, "_difficulty", value) }
     set diffRank(value: number) { this.pruneInput(this.diffSetMap, "_difficultyRank", value) }
     set requirements(value: string[]) { this.pruneInput(this.diffSetMap, "_customData._requirements", value) }
     set suggestions(value: string[]) { this.pruneInput(this.diffSetMap, "_customData._suggestions", value) }
-    set rawSettings(value: Record<string, any>) { this.pruneInput(this.diffSetMap, "_customData._settings", value) }
+    set rawSettings(value: Json) { this.pruneInput(this.diffSetMap, "_customData._settings", value) }
     set warnings(value: string[]) { this.pruneInput(this.diffSetMap, "_customData._warnings", value) }
     set information(value: string[]) { this.pruneInput(this.diffSetMap, "_customData._information", value) }
     set label(value: string) { this.pruneInput(this.diffSetMap, "_customData._difficultyLabel", value) }
@@ -315,109 +466,204 @@ export class Difficulty {
     set lightColorRight(value: Vec3) { this.pruneInput(this.diffSetMap, "_customData._envColorRight", this.colorArrayToTuple(value)) }
     set boostColorLeft(value: Vec3) { this.pruneInput(this.diffSetMap, "_customData._envColorLeftBoost", this.colorArrayToTuple(value)) }
     set boostColorRight(value: Vec3) { this.pruneInput(this.diffSetMap, "_customData._envColorRightBoost", this.colorArrayToTuple(value)) }
-    set obstacleColor(value: Vec3) { this.pruneInput(this.diffSetMap, "_customData._obstacleColor", this.colorArrayToTuple(value)) }
+    set wallColor(value: Vec3) { this.pruneInput(this.diffSetMap, "_customData._obstacleColor", this.colorArrayToTuple(value)) }
 
     // Map
-    get version(): string { return jsonGet(this.json, "_version") }
-    get notes(): Note[] { return jsonGet(this.json, "_notes") }
-    get walls(): Wall[] { return jsonGet(this.json, "_obstacles") }
-    get events(): EventInternals.AbstractEvent[] { return jsonGet(this.json, "_events") }
-    get waypoints(): any[] { return jsonGet(this.json, "_waypoints") }
-    get customData() { return jsonGet(this.json, "_customData", {}) }
-    get customEvents(): CustomEventInternals.BaseEvent[] { return jsonGet(this.json, "_customData._customEvents", []) }
+    /** The beatmap version. */
+    get version() { return this.json.version }
+    /** All notes in the map. */
+    get notes() { return this.json.colorNotes }
+    /** All bombs in the map. */
+    get bombs() { return this.json.bombNotes }
+    /** All arcs in the map. */
+    get arcs() { return this.json.sliders }
+    /** All chains in the map. */
+    get chains() { return this.json.burstSliders }
+    /** All walls in the map. */
+    get walls() { return this.json.obstacles }
+    /** All basic events in the map. */
+    get events() { return this.json.basicBeatmapEvents }
+    /** All BPM changes. */
+    get BPMChanges() { return this.json.bpmEvents }
+    /** All rotation events in the map. Used for 90 and 360 levels. 
+     * Doesn't include basic event version. */
+    get rotationEvents() { return this.json.rotationEvents }
+    /** All light boost color events. Doesn't include basic event version. */
+    get boostEvents() { return this.json.colorBoostBeatmapEvents }
+    /** All light event boxes. (V3 lighting) */
+    get lightEventBoxes() { return this.json.lightColorEventBoxGroups }
+    /** All rotation event boxes. (V3 light rotating) */
+    get lightRotationBoxes() { return this.json.lightRotationEventBoxGroups }
+    /** All waypoints. Not much is known about what these do. */
+    get waypoints() { return this.json.waypoints }
+    /** Unknown. */
+    get basicEventTypesKeywords() { return this.json.basicEventTypesWithKeywords }
+    /** Unknown, probably enables/disables basic events. */
+    get useBasicEvents() { return this.json.useNormalEventsAsCompatibleEvents }
+    /** Custom data in the map. */
+    get customData() { return jsonGet(this.json, "customData", {}) }
+    /** All custom events in the map. */
+    get customEvents() { return jsonGet(this.json, "customData.customEvents", []) }
+    /** Point definitions in the map. Used as arbitrary animation data. */
+    get pointDefinitions() { return jsonGet(this.json, "customData.pointDefinitions", {}) }
+    /** All materials for geometry. */
+    get geoMaterials() { return jsonGet(this.json, "customData.materials", {}) }
+    /** The unaliased environment object array. */
+    get rawEnvironment() { return jsonGet(this.json, "customData.environment", []) }
+    /** All fake notes in the map. */
+    get fakeNotes() { return jsonGet(this.json, "customData.fakeColorNotes", []) }
+    /** All fake bombs in the map. */
+    get fakeBombs() { return jsonGet(this.json, "customData.fakeBombNotes", []) }
+    /** All fake walls in the map. */
+    get fakeWalls() { return jsonGet(this.json, "customData.fakeObstacles", []) }
+    /** All fake chains in the map. */
+    get fakeChains() { return jsonGet(this.json, "customData.fakeBurstSliders", []) }
+
+    set version(value: string) { this.json.version = value }
+    set notes(value: Note[]) { this.json.colorNotes = value }
+    set bombs(value: Bomb[]) { this.json.bombNotes = value }
+    set arcs(value: Arc[]) { this.json.sliders = value }
+    set chains(value: Chain[]) { this.json.burstSliders = value }
+    set walls(value: Wall[]) { this.json.obstacles = value }
+    set events(value: EventInternals.AbstractEvent[]) { this.json.basicBeatmapEvents = value }
+    set BPMChanges(value: BPMChange[]) { this.json.bpmEvents = value }
+    set rotationEvents(value: RotationEvent[]) { this.json.rotationEvents = value }
+    set boostEvents(value: BoostEvent[]) { this.json.colorBoostBeatmapEvents = value }
+    set lightEventBoxes(value: LightEventBox[]) { this.json.lightColorEventBoxGroups = value }
+    set lightRotationBoxes(value: LightRotationBox[]) { this.json.lightRotationEventBoxGroups = value }
+    set waypoints(value: Json[]) { this.json.waypoints = value }
+    set basicEventTypesKeywords(value: Json) { this.json.basicEventTypesWithKeywords = value }
+    set useBasicEvents(value: boolean) { this.json.useNormalEventsAsCompatibleEvents = value }
+    set customData(value) { jsonSet(this.json, "customData", value) }
+    set customEvents(value: CustomEventInternals.BaseEvent[]) { jsonSet(this.json, "customData.customEvents", value) }
+    set pointDefinitions(value: Record<string, RawKeyframesAny>) { jsonSet(this.json, "customData.pointDefinitions", value) }
+    set geoMaterials(value: Record<string, GeometryMaterial>) { jsonSet(this.json, "customData.materials", value) }
+    set rawEnvironment(value: EnvironmentInternals.BaseEnvironment[]) { jsonSet(this.json, "customData.environment", value) }
+    set fakeNotes(value: Note[]) { jsonSet(this.json, "customData.fakeColorNotes", value) }
+    set fakeBombs(value: Bomb[]) { jsonSet(this.json, "customData.fakeBombNotes", value) }
+    set fakeWalls(value: Wall[]) { jsonSet(this.json, "customData.fakeObstacles", value) }
+    set fakeChains(value: Chain[]) { jsonSet(this.json, "customData.fakeBurstSliders", value) }
+
+    /** Returns a callback function providing an array of all AnimateTrack events. */
     animateTracks(fn: (arr: CustomEventInternals.AnimateTrack[]) => void) {
         const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.AnimateTrack) as CustomEventInternals.AnimateTrack[]
         fn(arr);
         this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.AnimateTrack)).concat(arr);
     }
+    /** Returns a callback function providing an array of all AssignPathAnimation events. */
     assignPathAnimations(fn: (arr: CustomEventInternals.AssignPathAnimation[]) => void) {
         const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.AssignPathAnimation) as CustomEventInternals.AssignPathAnimation[]
         fn(arr);
         this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.AssignPathAnimation)).concat(arr);
     }
+    /** Returns a callback function providing an array of all AssignTrackParent events. */
     assignTrackParents(fn: (arr: CustomEventInternals.AssignTrackParent[]) => void) {
         const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.AssignTrackParent) as CustomEventInternals.AssignTrackParent[]
         fn(arr);
         this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.AssignTrackParent)).concat(arr);
     }
+    /** Returns a callback function providing an array of all AssignPlayerToTrack events. */
     assignPlayerToTracks(fn: (arr: CustomEventInternals.AssignPlayerToTrack[]) => void) {
         const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.AssignPlayerToTrack) as CustomEventInternals.AssignPlayerToTrack[]
         fn(arr);
         this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.AssignPlayerToTrack)).concat(arr);
     }
-    assignFogTracks(fn: (arr: CustomEventInternals.AssignFogTrack[]) => void) {
-        const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.AssignFogTrack) as CustomEventInternals.AssignFogTrack[]
-        fn(arr);
-        this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.AnimateTrack)).concat(arr);
-    }
+    /** Returns a callback function providing an array of all AbstractEvent events. */
     abstractEvents(fn: (arr: CustomEventInternals.AbstractEvent[]) => void) {
         const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.AbstractEvent) as CustomEventInternals.AbstractEvent[]
         fn(arr);
         this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.AbstractEvent)).concat(arr);
     }
-    get pointDefinitions(): Record<string, any>[] { return jsonGet(this.json, "_customData._pointDefinitions", []) }
-    get geoMaterials(): Record<string, GeometryMaterial> { return jsonGet(this.json, "_customData._materials", {}) }
-    get rawEnvironment(): EnvironmentInternals.BaseEnvironment[] { return jsonGet(this.json, "_customData._environment", []) }
+    /** Returns a callback function providing an array of all AnimateComponent events. */
+    animateComponents(fn: (arr: CustomEventInternals.AnimateComponent[]) => void) {
+        const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.AnimateComponent) as CustomEventInternals.AnimateComponent[]
+        fn(arr);
+        this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.AnimateComponent)).concat(arr);
+    }
+
+    /** Returns a callback function providing an array of all Environment objects. */
     environment(fn: (arr: Environment[]) => void) {
         const arr = this.rawEnvironment.filter(x => x instanceof Environment) as Environment[]
         fn(arr);
         this.rawEnvironment = this.rawEnvironment.filter(x => !(x instanceof Environment)).concat(arr);
     }
+    /** Returns a callback function providing an array of all Geometry objects. */
     geometry(fn: (arr: Geometry[]) => void) {
         const arr = this.rawEnvironment.filter(x => x instanceof Geometry) as Geometry[]
         fn(arr);
         this.rawEnvironment = this.rawEnvironment.filter(x => !(x instanceof Geometry)).concat(arr);
     }
-
-    set version(value: string) { jsonSet(this.json, "_version", value) }
-    set notes(value: Note[]) { jsonSet(this.json, "_notes", value) }
-    set walls(value: Wall[]) { jsonSet(this.json, "_obstacles", value) }
-    set events(value: EventInternals.AbstractEvent[]) { jsonSet(this.json, "_events", value) }
-    set waypoints(value: any[]) { jsonSet(this.json, "_waypoints", value) }
-    set customData(value) { jsonSet(this.json, "_customData", value) }
-    set customEvents(value: CustomEventInternals.BaseEvent[]) { jsonSet(this.json, "_customData._customEvents", value) }
-    set pointDefinitions(value: Record<string, any>[]) { jsonSet(this.json, "_customData._pointDefinitions", value) }
-    set geoMaterials(value: Record<string, GeometryMaterial>) { jsonSet(this.json, "_customData._materials", value) }
-    set rawEnvironment(value: EnvironmentInternals.BaseEnvironment[]) { jsonSet(this.json, "_customData._environment", value) }
 }
 
 export class Info {
-    json: Record<string, any> = {};
+    /** The Json for this info */
+    json: Json = {};
+    /** The filename of this info */
     fileName = "Info.dat";
 
+    /**
+     * Loads the Json into this info.
+     * @param path Path to the file to load from.
+     */
     load(path?: string) {
         const fileName = path ? parseFilePath(path, ".dat").path : this.fileName;
         this.json = JSON.parse(Deno.readTextFileSync(fileName));
         this.fileName = fileName;
     }
 
-    /**
-     * Saves the Info.dat
-     */
+    /** Saves the info. */
     save() {
         if (!this.json) throw new Error("The Info object has not been loaded.");
         Deno.writeTextFileSync(this.fileName, JSON.stringify(this.json, null, 2));
     }
 
+    /** Info version. */
     get version() { return jsonGet(this.json, "_version") }
+    /** Name of the song. */
     get name() { return jsonGet(this.json, "_songName") }
+    /** Song subname. */
     get subName() { return jsonGet(this.json, "_songSubName") }
+    /** Name of the song author. */
     get authorName() { return jsonGet(this.json, "_songAuthorName") }
+    /** Name of the mapper(s). */
     get mapper() { return jsonGet(this.json, "_levelAuthorName") }
+    /** BPM of the song. */
     get BPM() { return jsonGet(this.json, "_beatsPerMinute") }
+    /** Start (in seconds) of the song preview when clicking on the song. */
     get previewStart() { return jsonGet(this.json, "_previewStartTime") }
+    /** Duration (in seconds) of the song preview when clicking on the song. */
     get previewDuration() { return jsonGet(this.json, "_previewDuration") }
+    /** Offsets the song audio in seconds. */
     get songOffset() { return jsonGet(this.json, "_songTimeOffset") }
+    /** 
+     * Value that is meant to correct some beats being offset in a measure.
+     * This value works in tangent with shufflePeriod.
+     * More info can be found here: https://bsmg.wiki/mapping/map-format.html#shuffle
+     */
     get shuffle() { return jsonGet(this.json, "_shuffle") }
+    /**
+     * Value that is meant to correct some beats being offset in a measure.
+     * This value works in tangent with shuffle.
+     * More info can be found here: https://bsmg.wiki/mapping/map-format.html#shuffleperiod
+     */
     get shufflePeriod() { return jsonGet(this.json, "_shufflePeriod") }
+    /** Filename of the cover art. */
     get coverFileName() { return jsonGet(this.json, "_coverImageFilename") }
+    /** Filename of the song. */
     get songFileName() { return jsonGet(this.json, "_songFilename") }
+    /** Name of the environment. */
     get environment() { return jsonGet(this.json, "_environmentName") }
+    /** Name of the environment for 360 levels. */
     get environment360() { return jsonGet(this.json, "_allDirectionsEnvironmentName") }
+    /** Custom data for the info. */
     get customData() { return jsonGet(this.json, "_customData") }
+    /** Editors that have edited this map. */
     get editors() { return jsonGet(this.json, "_customData._editors") }
+    /** Contributors who have worked on this map. */
     get contributors() { return jsonGet(this.json, "_customData._contributors") }
+    /** A custom platform to use. */
     get customEnvironment() { return jsonGet(this.json, "_customData._customEnvironment") }
+    /** The hash for a custom platform used. */
     get customEnvironmentHash() { return jsonGet(this.json, "_customData._customEnvironmentHash") }
 
     set version(value: string) { jsonSet(this.json, "_version", value) }
@@ -435,9 +681,9 @@ export class Info {
     set songFileName(value: string) { jsonSet(this.json, "_songFilename", value) }
     set environment(value: ENV_NAMES) { jsonSet(this.json, "_environmentName", value) }
     set environment360(value: string) { jsonSet(this.json, "_allDirectionsEnvironmentName", value) }
-    set customData(value: Record<string, any>) { jsonSet(this.json, "_customData", value) }
-    set editors(value: Record<string, any>) { jsonSet(this.json, "_customData._editors", value) }
-    set contributors(value: Record<string, any>[]) { jsonSet(this.json, "_customData._contributors", value) }
+    set customData(value: Json) { jsonSet(this.json, "_customData", value) }
+    set editors(value: Json) { jsonSet(this.json, "_customData._editors", value) }
+    set contributors(value: Json[]) { jsonSet(this.json, "_customData._contributors", value) }
     set customEnvironment(value: string) { jsonSet(this.json, "_customData._customEnvironment", value) }
     set customEnvironmentHash(value: string) { jsonSet(this.json, "_customData._customEnvironmentHash", value) }
 }
@@ -451,14 +697,11 @@ export const settings = {
 
 /**
  * Set the difficulty that objects are being created for.
- * @param {Object} diff 
+ * @param diff The difficulty to set to.
  */
 export function activeDiffSet(diff: Difficulty) { activeDiff = diff }
 
-/**
- * Get the active difficulty, ensuring that it is indeed active.
- * @returns {Object}
- */
+/** Get the active difficulty, ensuring that it is indeed active. */
 export function activeDiffGet() {
     if (activeDiff) return activeDiff;
     else throw new Error("There is currently no loaded difficulty.");
@@ -469,7 +712,7 @@ function reduceDecimalsPostProcess(_: never, diff: Difficulty) {
     const mapJson = diff.json;
     reduceDecimalsInObject(mapJson);
 
-    function reduceDecimalsInObject(json: Record<string, any>) {
+    function reduceDecimalsInObject(json: Json) {
         for (const key in json) {
             // deno-lint-ignore no-prototype-builtins
             if (!json.hasOwnProperty(key)) return;
@@ -486,8 +729,8 @@ function reduceDecimalsPostProcess(_: never, diff: Difficulty) {
 
 /**
  * Automatically zip the map, including only necessary files.
- * @param {String[]} excludeDiffs Difficulties to exclude.
- * @param {String} zipName Name of the zip (don't include ".zip"). Uses folder name if undefined.
+ * @param excludeDiffs Difficulties to exclude.
+ * @param zipName Name of the zip (don't include ".zip"). Uses folder name if undefined.
  */
 export function exportZip(excludeDiffs: FILENAME<DIFFS>[] = [], zipName?: string) {
     if (!info.json) throw new Error("The Info object has not been loaded.");
@@ -544,14 +787,14 @@ export function exportZip(excludeDiffs: FILENAME<DIFFS>[] = [], zipName?: string
 
 /**
  * Transfer the visual aspect of maps to other difficulties.
- * More specifically modded walls, custom events, point definitions, environment enhancements, and lighting events.
- * @param {Array} diffs The difficulties being effected.
- * @param {Function} forDiff A function to run over each difficulty.
+ * @param diffs The difficulties being effected.
+ * @param forDiff A function to run over each difficulty.
+ * @param walls If true, walls with custom data will be overriden.
  * The activeDiff keyword will change to be each difficulty running during this function.
  * Be mindful that the external difficulties don't have an input/output structure,
  * so new pushed notes for example may not be cleared on the next run and would build up.
  */
-export function transferVisuals(diffs: DIFFPATH[], forDiff?: (diff: Difficulty) => void) {
+export function transferVisuals(diffs: DIFFPATH[], forDiff?: (diff: Difficulty) => void, walls = true) {
     const startActive = activeDiff as Difficulty;
 
     diffs.forEach(x => {
@@ -561,16 +804,26 @@ export function transferVisuals(diffs: DIFFPATH[], forDiff?: (diff: Difficulty) 
         workingDiff.pointDefinitions = startActive.pointDefinitions;
         workingDiff.customEvents = startActive.customEvents;
         workingDiff.events = startActive.events;
+        workingDiff.geoMaterials = startActive.geoMaterials;
+        workingDiff.boostEvents = startActive.boostEvents;
+        workingDiff.lightEventBoxes = startActive.lightEventBoxes;
+        workingDiff.lightRotationBoxes = startActive.lightRotationBoxes;
+        workingDiff.fakeNotes = startActive.fakeNotes;
+        workingDiff.fakeBombs = startActive.fakeBombs;
+        workingDiff.fakeWalls = startActive.fakeWalls;
+        workingDiff.fakeChains = startActive.fakeChains;
 
-        for (let y = 0; y < workingDiff.walls.length; y++) {
-            const obstacle = workingDiff.walls[y];
-            if (obstacle.isModded) {
-                workingDiff.walls.splice(y, 1);
-                y--;
+        if (walls) {
+            for (let y = 0; y < workingDiff.walls.length; y++) {
+                const obstacle = workingDiff.walls[y];
+                if (obstacle.isModded) {
+                    workingDiff.walls.splice(y, 1);
+                    y--;
+                }
             }
-        }
 
-        startActive.walls.forEach(y => { if (y.isModded) workingDiff.walls.push(y) })
+            startActive.walls.forEach(y => { if (y.isModded) workingDiff.walls.push(y) })
+        }
 
         if (forDiff !== undefined) forDiff(workingDiff);
         workingDiff.save();

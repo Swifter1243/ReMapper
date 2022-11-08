@@ -1,43 +1,47 @@
-// deno-lint-ignore-file no-explicit-any adjacent-overload-signatures
-import { activeDiffGet, info } from './beatmap.ts';
-import { Animation, AnimationInternals, Track } from './animation.ts';
-import { isEmptyObject, getJumps, copy, jsonPrune, ColorType, jsonRemove } from './general.ts';
-import { NOTE } from './constants.ts';
+// deno-lint-ignore-file adjacent-overload-signatures
+import { activeDiffGet, Json } from './beatmap.ts';
+import { Animation, AnimationInternals } from './animation.ts';
+import { ANCHORMODE, CUT, NOTETYPE } from './constants.ts';
+import { BaseGameplayObject, BaseSliderObject } from './object.ts';
+import { copy, Vec2 } from './general.ts';
 
-export class Note {
-    json: Record<string, any> = {
-        _time: 0,
-        _type: 0,
-        _cutDirection: 0,
-        _lineIndex: 0,
-        _lineLayer: 0,
-        _customData: {
-            _animation: {}
+export class Note extends BaseGameplayObject {
+    json: Json = {
+        b: 0,
+        x: 0,
+        y: 0,
+        c: 0,
+        d: 0,
+        a: 0,
+        customData: {
+            animation: {}
         }
     };
-    /// NOOO DON'T DO THIS PLEASE USE A CONSTRUCTOR
+    /** The animation of this note. */
     animate = new Animation().noteAnimation(this.animation);
 
     /**
-     * Note object for ease of creation
-     * @param {Number} time
-     * @param {Number} type 
-     * @param {Number} direction 
-     * @param {Array} position Array for x and y of the note. If an additional boolean of true is added, it will be converted to a noodle position instead of the vanilla grid.
+     * Note object for ease of creation.
+     * @param time Time this note will be hit.
+     * @param type The color of the note.
+     * @param direction The direction the note will be cut.
+     * @param x The lane of the note.
+     * @param y The vertical row of the note.
      */
-    constructor(time?: number, type?: NOTE, direction?: NOTE, position?: [number, number, boolean?]) {
-        if (time !== undefined) this.time = time;
-        if (type !== undefined) this.type = type;
-        if (direction !== undefined) this.direction = direction;
-        if (position !== undefined) this.position = position;
+    constructor(time = 0, type = NOTETYPE.BLUE, direction = CUT.DOWN, x = 0, y = 0) {
+        super();
+        this.time = time;
+        this.type = type;
+        this.direction = direction;
+        this.x = x;
+        this.y = y;
     }
 
     /**
-     * Create a note using JSON.
-     * @param {Object} json 
-     * @returns {Note}
+     * Create a note using Json.
+     * @param json Json to import.
      */
-    import(json: Record<number, any>) {
+    import(json: Json) {
         this.json = json;
         if (this.customData === undefined) this.customData = {};
         if (this.animation === undefined) this.animation = {};
@@ -46,10 +50,303 @@ export class Note {
     }
 
     /**
-     * Push this note to the difficulty
+     * Push this note to the difficulty.
+     * @param fake Whether this note will be pushed to the fakeNotes array.
+     * @param clone Whether this object will be copied before being pushed.
      */
-    push() {
-        activeDiffGet().notes.push(copy(this));
+    push(fake = false, clone = true) {
+        if (fake) activeDiffGet().fakeNotes.push(clone ? copy(this) : this);
+        else activeDiffGet().notes.push(clone ? copy(this) : this);
+        return this;
+    }
+
+    /**
+     * Apply an animation through the Animation class.
+     * @param animation Animation to apply.
+     */
+    importAnimation(animation: AnimationInternals.BaseAnimation) {
+        this.animation = animation.json;
+        this.animate = new Animation().noteAnimation(this.animation);
+        return this;
+    }
+
+    /** The color of the note. */
+    get type() { return this.json.c }
+    /** The direction the note will be cut. */
+    get direction() { return this.json.d }
+    /** The angle added to the note's rotation. */
+    get angleOffset() { return this.json.a }
+    /** Specifies an initial position the note will spawn at before going to it's unmodified position.  */
+    get flip() { return this.json.customData.flip }
+    /** Whether note gravity (the effect where notes move to their vertical row from the bottom row) is enabled. */
+    get noteGravity() { return !this.json.customData.disableNoteGravity }
+    /** Whether this note will look at the player. */
+    get noteLook() { return !this.json.customData.disableNoteLook }
+    /** Whether this note will have a spawn effect. */
+    get spawnEffect() { return this.json.customData.spawnEffect }
+
+    set type(value: NOTETYPE) { this.json.c = value }
+    set direction(value: CUT) { this.json.d = value }
+    set angleOffset(value: number) { this.json.a = value }
+    set flip(value: Vec2) { this.json.customData.flip = value }
+    set noteGravity(value: boolean) { this.json.customData.disableNoteGravity = !value }
+    set noteLook(value: boolean) { this.json.customData.disableNoteLook = !value }
+    set spawnEffect(value: boolean) { this.json.customData.spawnEffect = value }
+}
+
+export class Bomb extends BaseGameplayObject {
+    json: Json = {
+        b: 0,
+        x: 0,
+        y: 0,
+        customData: {
+            animation: {}
+        }
+    };
+    /** The animation of this bomb. */
+    animate = new Animation().noteAnimation(this.animation);
+
+    /**
+     * Bomb object for ease of creation.
+     * @param time The time this bomb will reach the player.
+     * @param x The lane of the note.
+     * @param y The vertical row of the note.
+     */
+    constructor(time = 0, x = 0, y = 0) {
+        super();
+        this.time = time;
+        this.x = x;
+        this.y = y;
+    }
+
+    /**
+     * Create a bomb using Json.
+     * @param json Json to import.
+     */
+    import(json: Json) {
+        this.json = json;
+        if (this.customData === undefined) this.customData = {};
+        if (this.animation === undefined) this.animation = {};
+        this.animate = new Animation().noteAnimation(this.animation);
+        return this;
+    }
+
+    /**
+     * Push this bomb to the difficulty.
+     * @param fake Whether this bomb will be pushed to the fakeBombs array.
+     * @param clone Whether this object will be copied before being pushed.
+     */
+    push(fake = false, clone = true) {
+        if (fake) activeDiffGet().fakeBombs.push(clone ? copy(this) : this);
+        else activeDiffGet().bombs.push(clone ? copy(this) : this);
+        return this;
+    }
+
+    /**
+     * Apply an animation through the Animation class.
+     * @param animation Animation to apply.
+     */
+    importAnimation(animation: AnimationInternals.BaseAnimation) {
+        this.animation = animation.json;
+        this.animate = new Animation().noteAnimation(this.animation);
+        return this;
+    }
+
+    /** Specifies an initial position the bomb will spawn at before going to it's unmodified position.  */
+    get flip() { return this.json.customData.flip }
+    /** Whether note gravity (the effect where notes move to their vertical row from the bottom row) is enabled. */
+    get noteGravity() { return !this.json.customData.disableNoteGravity }
+    /** Whether this bomb will look at the player. */
+    get noteLook() { return !this.json.customData.disableNoteLook }
+    /** Whether this bomb will have a spawn effect. */
+    get spawnEffect() { return this.json.customData.spawnEffect }
+
+    set flip(value: boolean) { this.json.customData.flip = value }
+    set noteGravity(value: boolean) { this.json.customData.disableNoteGravity = !value }
+    set noteLook(value: boolean) { this.json.customData.disableNoteLook = !value }
+    set spawnEffect(value: boolean) { this.json.customData.spawnEffect = value }
+}
+
+export class Chain extends BaseSliderObject {
+    json: Json = {
+        b: 0,
+        x: 0,
+        y: 0,
+        c: 0,
+        d: 0,
+        tb: 0,
+        tx: 0,
+        ty: 0,
+        sc: 4,
+        s: 1,
+        customData: {
+            animation: {}
+        }
+    };
+    /** The animation of this chain. */
+    animate = new Animation().noteAnimation(this.animation);
+
+
+    /**
+     * Chain object for ease of creation.
+     * @param time The time this chain will be hit.
+     * @param type The color of the chain.
+     * @param x The lane of the chain.
+     * @param y The vertical row of the chain.
+     * @param tailTime The time that the tail of the chain reaches the player.
+     * @param tailX The lane of the chain's tail.
+     * @param tailY The vertical row of the chain's tail.
+     * @param direction The cut direction of the chain.
+     * @param links The amount of links in the chain.
+     */
+    constructor(
+        time = 0,
+        type = NOTETYPE.BLUE,
+        x = 0,
+        y = 0,
+        tailTime = 0,
+        tailX = 0,
+        tailY = 0,
+        direction = CUT.DOWN,
+        links = 4
+    ) {
+        super();
+        this.time = time;
+        this.x = x;
+        this.y = y;
+        this.tailTime = tailTime;
+        this.tailX = tailX;
+        this.tailY = tailY;
+        this.headDirection = direction;
+        this.type = type;
+        this.links = links;
+    }
+
+    /**
+     * Create a chain using Json.
+     * @param json Json to import.
+     */
+    import(json: Json) {
+        this.json = json;
+        if (this.customData === undefined) this.customData = {};
+        if (this.animation === undefined) this.animation = {};
+        this.animate = new Animation().noteAnimation(this.animation);
+        return this;
+    }
+
+    /**
+     * Push this chain to the difficulty.
+     * @param fake Whether this chain will be pushed to the fakeChains array.
+     * @param clone Whether this object will be copied before being pushed.
+     */
+    push(fake = false, clone = true) {
+        if (fake) activeDiffGet().fakeChains.push(clone ? copy(this) : this);
+        else activeDiffGet().chains.push(clone ? copy(this) : this);
+        return this;
+    }
+
+    /**
+     * Apply an animation through the Animation class.
+     * @param animation Animation to apply.
+     */
+    importAnimation(animation: AnimationInternals.BaseAnimation) {
+        this.animation = animation.json;
+        this.animate = new Animation().noteAnimation(this.animation);
+        return this;
+    }
+
+    /** The amount of links in the chain. */
+    get links() { return this.json.sc }
+    /** An interpolation or extrapolation of the path between the head and tail. */
+    get squish() { return this.json.s }
+    /** Specifies an initial position the chain will spawn at before going to it's unmodified position.  */
+    get flip() { return this.json.customData.flip }
+    /** Whether note gravity (the effect where notes move to their vertical row from the bottom row) is enabled. */
+    get noteGravity() { return !this.json.customData.disableNoteGravity }
+    /** Whether this chain will look at the player. */
+    get noteLook() { return !this.json.customData.disableNoteLook }
+
+    set links(value: number) { this.json.sc = value }
+    set squish(value: number) { this.json.s = value }
+    set flip(value: Vec2) { this.json.customData.flip = value }
+    set noteGravity(value: boolean) { this.json.customData.disableNoteGravity = !value }
+    set noteLook(value: boolean) { this.json.customData.disableNoteLook = !value }
+}
+
+export class Arc extends BaseSliderObject {
+    json: Json = {
+        b: 0,
+        c: 0,
+        x: 0,
+        y: 0,
+        d: 0,
+        mu: 0,
+        tb: 0,
+        tx: 0,
+        ty: 0,
+        tc: 0,
+        tmu: 0,
+        m: 0,
+        customData: {
+            animation: {}
+        }
+    };
+    /** The animation of this arc. */
+    animate = new Animation().noteAnimation(this.animation);
+
+
+    /**
+     * Arc object for ease of creation.
+     * @param time The time this arc will be hit.
+     * @param type The color of the arc.
+     * @param x The lane of the arc.
+     * @param y The vertical row of the arc.
+     * @param headDirection The cut direction of the head of the arc.
+     * @param tailTime The time that the tail of the arc reaches the player.
+     * @param tailX The lane of the arc's tail.
+     * @param tailY The vertical row of the arc's tail.
+     * @param tailDirection The cut direction of the tail of the arc.
+     */
+    constructor(
+        time = 0,
+        type = NOTETYPE.BLUE,
+        x = 0,
+        y = 0,
+        headDirection = CUT.DOWN,
+        tailTime = 0, tailX = 0,
+        tailY = 0,
+        tailDirection = CUT.DOWN
+    ) {
+        super();
+        this.time = time;
+        this.type = type;
+        this.x = x;
+        this.y = y;
+        this.headDirection = headDirection;
+        this.tailTime = tailTime;
+        this.tailX = tailX;
+        this.tailY = tailY;
+        this.tailDirection = tailDirection;
+    }
+
+    /**
+     * Create an arc using JSON.
+     * @param json 
+     * @returns {Note}
+     */
+    import(json: Json) {
+        this.json = json;
+        if (this.customData === undefined) this.customData = {};
+        if (this.animation === undefined) this.animation = {};
+        this.animate = new Animation().noteAnimation(this.animation);
+        return this;
+    }
+
+    /**
+     * Push this arc to the difficulty
+     */
+    push(clone = true) {
+        activeDiffGet().arcs.push(clone ? copy(this) : this);
         return this;
     }
 
@@ -63,97 +360,23 @@ export class Note {
         return this;
     }
 
-    get time() { return this.json._time }
-    get type() { return this.json._type }
-    get direction() { return this.json._cutDirection }
-    get customData() { return this.json._customData }
-    get preciseDirection() { return this.json._customData._cutDirection }
-    get flip() { return this.json._customData._flip }
-    get noteGravity() { return !this.json._customData._disableNoteGravity }
-    get noteLook() { return !this.json._customData._disableNoteLook }
-    get spawnEffect() { return !this.json._customData._disableSpawnEffect }
-    get position() {
-        let isNoodle = false;
-        if (this.json._customData._position) isNoodle = true;
+    /** The cut direction of the tail of the arc. */
+    get tailDirection() { return this.json.tc }
+    /** Multiplier for the distance the start of the arc shoots outward. */
+    get headLength() { return this.json.mu }
+    /** Multiplier for the distance the end of the arc shoots outward. */
+    get tailLength() { return this.json.tmu }
+    /** How the arc curves from the head to the midpoint. */
+    get anchorMode() { return this.json.m }
+    /** Specifies an initial position the arc will spawn at before going to it's unmodified position.  */
+    get flip() { return this.json.customData.flip }
+    /** Whether note gravity (the effect where notes move to their vertical row from the bottom row) is enabled. */
+    get noteGravity() { return !this.json.customData.disableNoteGravity }
 
-        if (!isNoodle) return [this.json._lineIndex, this.json._lineLayer];
-        else return [...(this.json._customData._position as [number, number]), true];
-    }
-    get rotation() { return this.json._customData._rotation }
-    get localRotation() { return this.json._customData._localRotation }
-    get NJS() {
-        if (this.json._customData._noteJumpMovementSpeed) return this.json._customData._noteJumpMovementSpeed;
-        else return activeDiffGet().NJS;
-    }
-    get offset() {
-        if (this.json._customData._noteJumpStartBeatOffset) return this.json._customData._noteJumpStartBeatOffset;
-        else return activeDiffGet().offset;
-    }
-    get halfJumpDur() { return getJumps(this.NJS, this.offset, info.BPM).halfDur }
-    get jumpDist() { return getJumps(this.NJS, this.offset, info.BPM).dist }
-    get life() { return this.halfJumpDur * 2 }
-    get lifeStart() { return this.time - this.life / 2 }
-    get fake() { return this.json._customData._fake }
-    get interactable() { return this.json._customData._interactable }
-    get track() { return new Track(this.json._customData) }
-    get color() { return this.json._customData._color }
-    get animation() { return this.json._customData._animation }
-
-    set time(value: number) { this.json._time = value }
-    set type(value: number) { this.json._type = value }
-    set direction(value: number) { this.json._cutDirection = value }
-    set customData(value) { this.json._customData = value }
-    set preciseDirection(value: number) { this.json._customData._cutDirection = value }
-    set flip(value: boolean) { this.json._customData._flip = value }
-    set noteGravity(value: boolean) { this.json._customData._disableNoteGravity = !value }
-    set noteLook(value: boolean) { this.json._customData._disableNoteLook = !value }
-    set spawnEffect(value: boolean) { this.json._customData._disableSpawnEffect = !value }
-    set position(value: [number, number, boolean?]) {
-        let isNoodle = false;
-        if (value[2] !== undefined) isNoodle = value[2];
-
-        if (!isNoodle) {
-            this.json._lineIndex = value[0];
-            this.json._lineLayer = value[1];
-
-            delete this.json._customData._position;
-        }
-        else {
-            this.json._lineIndex = 0;
-            this.json._lineLayer = 0;
-
-            this.json._customData._position = [value[0] - 0.5, value[1]];
-        }
-    }
-    set rotation(value: number[]) { this.json._customData._rotation = value }
-    set localRotation(value: number[]) { this.json._customData._localRotation = value }
-    set NJS(value: number) { this.json._customData._noteJumpMovementSpeed = value }
-    set offset(value: number) { this.json._customData._noteJumpStartBeatOffset = value }
-    set life(value: number) { 
-        if (value < 2) console.log("Warning: The lifespan of a note has a minimum of 2 beats.");
-        const defaultJumps = getJumps(this.NJS, 0, info.BPM);
-        this.offset = (value - (2 * defaultJumps.halfDur)) / 2;
-    }
-    set lifeStart(value: number) { this.time = value + this.life / 2 }
-    set fake(value: boolean) { this.json._customData._fake = value }
-    set interactable(value: boolean) { this.json._customData._interactable = value }
-    set color(value: ColorType) { this.json._customData._color = value }
-    set animation(value) { this.json._customData._animation = value }
-
-    get isModded() {
-        if (this.customData === undefined) return false;
-        const customData = copy(this.customData);
-        jsonPrune(customData);
-        return !isEmptyObject(customData);
-    }
-    
-    get isGameplayModded() {
-        if (this.customData === undefined) return false;
-        const customData = copy(this.customData);
-        jsonRemove(customData, "_color");
-        jsonRemove(customData, "_disableSpawnEffect");
-        jsonRemove(customData, "_animation._color");
-        jsonPrune(customData);
-        return !isEmptyObject(customData);
-    }
+    set tailDirection(value: CUT) { this.json.tc = value }
+    set headLength(value: number) { this.json.mu = value }
+    set tailLength(value: number) { this.json.tmu = value }
+    set anchorMode(value: ANCHORMODE) { this.json.m = value }
+    set flip(value: Vec2) { this.json.customData.flip = value }
+    set noteGravity(value: boolean) { this.json.customData.disableNoteGravity = !value }
 }

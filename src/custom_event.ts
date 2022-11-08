@@ -1,17 +1,20 @@
 // deno-lint-ignore-file no-namespace no-explicit-any adjacent-overload-signatures
-import { copy } from './general.ts';
-import { activeDiffGet } from './beatmap.ts';
-import { AnimationInternals, Animation, TrackValue, Track } from './animation.ts';
+import { copy, jsonGet, jsonSet } from './general.ts';
+import { activeDiffGet, Json } from './beatmap.ts';
+import { AnimationInternals, Animation, TrackValue, Track, KeyframesLinear } from './animation.ts';
+import { EASE } from './constants.ts';
+import { BloomFogEnvironment, ILightWithId, TubeBloomPrePassLight } from './environment.ts';
 
 export namespace CustomEventInternals {
     export class BaseEvent {
+        /** The Json for this event. */
         json: any = {
-            _time: 0,
-            _type: "",
-            _data: {}
+            b: 0,
+            t: "",
+            d: {}
         };
 
-        constructor(time: number | Record<string, any>) {
+        constructor(time: number | Json) {
             if (typeof time === "object") {
                 Object.assign(this.json, time);
                 return;
@@ -19,28 +22,40 @@ export namespace CustomEventInternals {
             this.time = time;
         }
 
-        /**
-        * Push this event to the difficulty
+        /** Push this event to the difficulty.
+         * @param clone Whether this object will be copied before being pushed.
         */
-        push() {
-            activeDiffGet().customEvents.push(copy(this));
+        push(clone = true) {
+            activeDiffGet().customEvents.push(clone ? copy(this) : this);
             return this;
         }
 
-        get time() { return this.json._time }
-        get type() { return this.json._type }
-        get data() { return this.json._data }
+        /** The time of this event in beats. */
+        get time() { return this.json.b }
+        /** The type of this event. */
+        get type() { return this.json.t }
+        /** The data of this event. */
+        get data() { return this.json.d }
 
-        set time(value) { this.json._time = value }
-        set type(value) { this.json._type = value }
-        set data(value) { this.json._data = value }
+        set time(value: number) { this.json.b = value }
+        set type(value: string) { this.json.t = value }
+        set data(value: Json) { this.json.d = value }
     }
 
 
     export class AnimateTrack extends BaseEvent {
+        /** The animation of this event. */
         animate: AnimationInternals.AbstractAnimation;
 
-        constructor(json: Record<string, any>, track?: TrackValue, duration?: number, animation?: Record<string, any>, easing?: string) {
+        /**
+         * Animate a track.
+         * @param json The json to import.
+         * @param track Track(s) to effect.
+         * @param duration The duration of the animation.
+         * @param animation The animation properties to replace.
+         * @param easing The easing on this event's animation.
+         */
+        constructor(json: Json, track?: TrackValue, duration?: number, animation?: Json, easing?: EASE) {
             super(json);
             this.type = "AnimateTrack";
             if (track) this.track.value = track;
@@ -52,15 +67,15 @@ export namespace CustomEventInternals {
 
         /**
          * Set the properties for animation.
-         * @param data 
+         * @param data The properties to replace.
          */
-        setProperties(data: Record<string, any>) {
+        setProperties(data: Json) {
             const oldData = copy(this.data);
 
             Object.keys(this.data).forEach(key => { delete this.data[key] });
-            this.track.value = oldData._track;
-            this.duration = oldData._duration;
-            if (oldData._easing) this.easing = oldData._easing;
+            this.track.value = oldData.track;
+            this.duration = oldData.duration;
+            if (oldData.easing) this.easing = oldData.easing;
 
             Object.keys(data).forEach(x => {
                 this.json._data[x] = data[x];
@@ -69,7 +84,7 @@ export namespace CustomEventInternals {
 
         /**
          * Apply an animation through the Animation class.
-         * @param {Animation} animation
+         * @param animation Animation to apply.
          */
         importAnimation(animation: AnimationInternals.BaseAnimation) {
             this.setProperties(animation.json);
@@ -78,24 +93,38 @@ export namespace CustomEventInternals {
             return this;
         }
 
-        /**
-        * Remove the subclass of the event, giving access to all properties, but can allow for invalid data.
-        * @returns {AbstractEvent}
-        */
+        /** Remove the subclass of the event, giving access to all properties, but can allow for invalid data. */
         abstract() { return new CustomEvent().import(this.json) }
 
+        /** The track class for this event.
+         * Please read the properties of this class to see how it works.
+         */
         get track() { return new Track(this.data) }
-        get duration() { return this.data._duration }
-        get easing() { return this.data._easing }
+        /** The duration of the animation. */
+        get duration() { return this.data.duration }
+        /** The easing on this event's animation. */
+        get easing() { return this.data.easing }
+        /** The amount of times to repeat this event. */
+        get repeat() { return this.data.repeat }
 
-        set duration(value) { this.data._duration = value }
-        set easing(value) { this.data._easing = value }
+        set duration(value: number) { this.data.duration = value }
+        set easing(value: EASE) { this.data.easing = value }
+        set repeat(value: number) { this.data.repeat = value }
     }
 
     export class AssignPathAnimation extends BaseEvent {
+        /** The animation of this event. */
         animate: AnimationInternals.AbstractAnimation;
 
-        constructor(json: Record<string, any>, track?: TrackValue, duration?: number, animation?: Record<string, any>, easing?: string) {
+        /**
+         * Animate objects on a track across their lifespan.
+         * @param json The json to import.
+         * @param track Track(s) to effect.
+         * @param duration The time to transition from a previous path to this one.
+         * @param animation The animation properties to replace.
+         * @param easing The easing on this event's animation.
+         */
+        constructor(json: Json, track?: TrackValue, duration?: number, animation?: Json, easing?: EASE) {
             super(json);
             this.type = "AssignPathAnimation";
             if (track) this.track.value = track;
@@ -107,15 +136,15 @@ export namespace CustomEventInternals {
 
         /**
          * Set the properties for animation.
-         * @param data 
+         * @param data The properties to replace.
          */
-        setProperties(data: Record<string, any>) {
+        setProperties(data: Json) {
             const oldData = copy(this.data);
 
             Object.keys(this.data).forEach(key => { delete this.data[key] });
-            this.track.value = oldData._track;
-            this.duration = oldData._duration;
-            if (oldData._easing) this.easing = oldData._easing;
+            this.track.value = oldData.track;
+            this.duration = oldData.duration;
+            if (oldData.easing) this.easing = oldData.easing;
 
             Object.keys(data).forEach(x => {
                 this.json._data[x] = data[x];
@@ -124,7 +153,7 @@ export namespace CustomEventInternals {
 
         /**
          * Apply an animation through the Animation class.
-         * @param {Animation} animation
+         * @param animation Animation to apply.
          */
         importAnimation(animation: AnimationInternals.BaseAnimation) {
             this.setProperties(animation.json);
@@ -133,22 +162,31 @@ export namespace CustomEventInternals {
             return this;
         }
 
-        /**
-        * Remove the subclass of the event, giving access to all properties, but can allow for invalid data.
-        * @returns {AbstractEvent}
-        */
+        /** Remove the subclass of the event, giving access to all properties, but can allow for invalid data. */
         abstract() { return new CustomEvent().import(this.json) }
 
+        /** The track class for this event.
+         * Please read the properties of this class to see how it works.
+         */
         get track() { return new Track(this.data) }
-        get duration() { return this.data._duration }
-        get easing() { return this.data._easing }
+        /** The time to transition from a previous path to this one. */
+        get duration() { return this.data.duration }
+        /** The easing on this event's animation. */
+        get easing() { return this.data.easing }
 
-        set duration(value) { this.data._duration = value }
-        set easing(value) { this.data._easing = value }
+        set duration(value: number) { this.data.duration = value }
+        set easing(value: EASE) { this.data.easing = value }
     }
 
     export class AssignTrackParent extends BaseEvent {
-        constructor(json: Record<string, any>, childrenTracks: string[], parentTrack: string, worldPositionStays?: boolean) {
+        /**
+         * Assign tracks to a parent track.
+         * @param json Json to import.
+         * @param childrenTracks Children tracks to assign.
+         * @param parentTrack Name of the parent track.
+         * @param worldPositionStays Modifies the transform of children objects to remain in the same place relative to world space.
+         */
+        constructor(json: Json, childrenTracks: string[], parentTrack: string, worldPositionStays?: boolean) {
             super(json);
             this.type = "AssignTrackParent";
             this.childrenTracks = childrenTracks;
@@ -157,66 +195,101 @@ export namespace CustomEventInternals {
             if (worldPositionStays !== undefined) this.worldPositionStays = worldPositionStays;
         }
 
-        /**
-        * Remove the subclass of the event, giving access to all properties, but can allow for invalid data.
-        * @returns {AbstractEvent}
-        */
+        /** Remove the subclass of the event, giving access to all properties, but can allow for invalid data. */
         abstract() { return new CustomEvent().import(this.json) }
 
-        get childrenTracks() { return this.data._childrenTracks }
-        get parentTrack() { return this.data._parentTrack }
-        get worldPositionStays() { return this.data._worldPositionStays }
+        /** Children tracks to assign. */
+        get childrenTracks() { return this.data.childrenTracks }
+        /** Name of the parent track. */
+        get parentTrack() { return this.data.parentTrack }
+        /** Modifies the transform of children objects to remain in the same place relative to world space. */
+        get worldPositionStays() { return this.data.worldPositionStays }
 
-        set childrenTracks(value) { this.data._childrenTracks = value }
-        set parentTrack(value) { this.data._parentTrack = value }
-        set worldPositionStays(value) { this.data._worldPositionStays = value }
+        set childrenTracks(value: string[]) { this.data.childrenTracks = value }
+        set parentTrack(value: string) { this.data.parentTrack = value }
+        set worldPositionStays(value: boolean) { this.data.worldPositionStays = value }
     }
 
     export class AssignPlayerToTrack extends BaseEvent {
-        constructor(json: Record<string, any>, track?: string) {
+        /**
+         * Assigns the player to a track.
+         * @param json Json to import.
+         * @param track Track the player will be assigned to.
+         */
+        constructor(json: Json, track?: string) {
             super(json);
             this.type = "AssignPlayerToTrack";
-            if (track) this.track.value = track;
+            if (track) this.track = track;
         }
 
-        /**
-        * Remove the subclass of the event, giving access to all properties, but can allow for invalid data.
-        * @returns {AbstractEvent}
-        */
+        /** Remove the subclass of the event, giving access to all properties, but can allow for invalid data. */
         abstract() { return new CustomEvent().import(this.json) }
 
-        get track() { return new Track(this.data) }
+        /** Track the player will be assigned to. */
+        get track() { return this.data.track }
+
+        set track(value: string) { this.data.track = value }
     }
 
-    export class AssignFogTrack extends BaseEvent {
-        constructor(json: Record<string, any>, track?: string) {
+    export class AnimateComponent extends BaseEvent {
+        /**
+         * Animate components on a track.
+         * @param json Json to import.
+         * @param track Track(s) to effect.
+         * @param duration Duration of the animation.
+         * @param easing The easing on the animation.
+         */
+        constructor(json: Json, track?: TrackValue, duration?: number, easing?: EASE) {
             super(json);
-            this.type = "AssignFogTrack";
+            this.type = "AnimateComponent";
             if (track) this.track.value = track;
+            if (duration) this.duration = duration;
+            if (easing) this.easing = easing;
         }
 
-        /**
-        * Remove the subclass of the event, giving access to all properties, but can allow for invalid data.
-        * @returns {AbstractEvent}
-        */
+        /** Remove the subclass of the event, giving access to all properties, but can allow for invalid data. */
         abstract() { return new CustomEvent().import(this.json) }
 
+        /** The track class for this event.
+         * Please read the properties of this class to see how it works.
+         */
         get track() { return new Track(this.data) }
+        /** The duration of the animation. */
+        get duration() { return this.data.duration }
+        /** The easing on this event's animation. */
+        get easing() { return this.data.easing }
+        /** The "ILightWithId" component to animate. */
+        get lightID() { return jsonGet(this.data, "ILightWithId", {}) }
+        /** The "BloomFogEnvironment" component to animate. */
+        get fog() { return jsonGet(this.data, "BloomFogEnvironment", {}) }
+        /** The "TubeBloomPrePassLight component to animate." */
+        get lightMultiplier() { return jsonGet(this.data, "TubeBloomPrePassLight", {}) }
+
+        set duration(value: number) { this.data.duration = value }
+        set easing(value: EASE) { this.data.easing = value }
+        set lightID(value: ILightWithId<KeyframesLinear>) { jsonSet(this.data, "ILightWithId", value) }
+        set fog(value: BloomFogEnvironment<KeyframesLinear>) { jsonSet(this.data, "BloomFogEnvironment", value) }
+        set lightMultiplier(value: TubeBloomPrePassLight<KeyframesLinear>) { jsonSet(this.data, "TubeBloomPrePassLight", value) }
     }
 
     export class AbstractEvent extends BaseEvent {
+        /** The animation of this event. */
         animate: AnimationInternals.AbstractAnimation;
 
-        constructor(json: Record<string, any>) {
+        /**
+         * A custom event that has an unknown type.
+         * @param json Json to import.
+         */
+        constructor(json: Json) {
             super(json);
             this.animate = new Animation().abstract(this.data);
         }
 
         /**
          * Add properties to the data.
-         * @param data 
+         * @param data Properties to add.
          */
-        appendData(data: Record<string, any>) {
+        appendData(data: Json) {
             Object.keys(data).forEach(x => {
                 this.json._data[x] = data[x];
             })
@@ -224,7 +297,7 @@ export namespace CustomEventInternals {
 
         /**
          * Apply an animation through the Animation class.
-         * @param {Animation} animation
+         * @param animation Animation to apply.
          */
         importAnimation(animation: AnimationInternals.BaseAnimation) {
             this.appendData(animation.json);
@@ -233,86 +306,101 @@ export namespace CustomEventInternals {
             return this;
         }
 
+        /** The track class for this event.
+         * Please read the properties of this class to see how it works.
+         */
         get track() { return new Track(this.data) }
-        get duration() { return this.data._duration }
-        get easing() { return this.data._easing }
-        get childrenTracks() { return this.data._childrenTracks }
-        get parentTrack() { return this.data._parentTrack }
-        get worldPositionStays() { return this.data._worldPositionStays }
+        /** The duration of the animation. 
+         * Or in the case of AssignPathAnimation,
+         * the time to transition from a previous path to this one.  */
+        get duration() { return this.data.duration }
+        /** The easing on this event's animation.
+         * Or in the case of AssignPathAnimation,
+         * the easing for the transition from a previous path to this one.  */
+        get easing() { return this.data.easing }
+        /** Children tracks to assign. AssignTrackParent only. */
+        get childrenTracks() { return this.data.childrenTracks }
+        /** Name of the parent track. AssignTrackParent only. */
+        get parentTrack() { return this.data.parentTrack }
+        /** Modifies the transform of children objects to remain in the same place relative to world space. 
+         * AssignTrackParent only. */
+        get worldPositionStays() { return this.data.worldPositionStays }
+        /** The "ILightWithId" component to animate. AnimateComponent only. */
+        get lightID() { return jsonGet(this.data, "ILightWithId", {}) }
+        /** The "BloomFogEnvironment" component to animate. AnimateComponent only. */
+        get fog() { return jsonGet(this.data, "BloomFogEnvironment", {}) }
+        /** The "TubeBloomPrePassLight" component to animate. AnimateComponent only. */
+        get lightMultiplier() { return jsonGet(this.data, "TubeBloomPrePassLight", {}) }
 
-        set duration(value) { this.data._duration = value }
-        set easing(value) { this.data._easing = value }
-        set childrenTracks(value) { this.data._childrenTracks = value }
-        set parentTrack(value) { this.data._parentTrack = value }
-        set worldPositionStays(value) { this.data._worldPositionStays = value }
+        set duration(value: number) { this.data.duration = value }
+        set easing(value: EASE) { this.data.easing = value }
+        set childrenTracks(value: string[]) { this.data.childrenTracks = value }
+        set parentTrack(value: string) { this.data.parentTrack = value }
+        set worldPositionStays(value: boolean) { this.data.worldPositionStays = value }
+        set lightID(value: ILightWithId<KeyframesLinear>) { jsonSet(this.data, "ILightWithId", value) }
+        set fog(value: BloomFogEnvironment<KeyframesLinear>) { jsonSet(this.data, "BloomFogEnvironment", value) }
+        set lightMultiplier(value: TubeBloomPrePassLight<KeyframesLinear>) { jsonSet(this.data, "TubeBloomPrePassLight", value) }
     }
 }
 
 export class CustomEvent extends CustomEventInternals.BaseEvent {
     /**
-     * Event object for ease of creation.
-     * @param {Object} time
+     * Custom Event object for ease of creation.
+     * @param time Time of the event.
      */
     constructor(time = 0) { super(time) }
 
     /**
-     * Create a custom event using JSON.
-     * @param {Object} json 
-     * @returns {AbstractEvent}
+     * Create a custom event using Json.
+     * @param json Json to import.
      */
-    import(json: Record<string, any>) { return new CustomEventInternals.AbstractEvent(json) }
+    import(json: Json) { return new CustomEventInternals.AbstractEvent(json) }
 
-    /**
-     * Create an event with no particular identity.
-     * @returns {AbstractEvent};
-     */
+    /** Create an event with no particular identity. */
     abstract() { return this.import({}) }
 
     /**
      * Animate a track.
-     * @param {String} track 
-     * @param {Number} duration 
-     * @param {Object} animation JSON for the animation.
-     * @param {String} easing 
-     * @returns 
+     * @param track Track(s) to effect.
+     * @param duration The duration of the animation.
+     * @param animation The animation properties to replace.
+     * @param easing The easing on this event's animation.
      */
-    animateTrack = (track?: TrackValue, duration?: number, animation?: Record<string, any>, easing?: string) =>
+    animateTrack = (track?: TrackValue, duration?: number, animation?: Json, easing?: EASE) =>
         new CustomEventInternals.AnimateTrack(this.json, track, duration, animation, easing);
 
     /**
      * Animate objects on a track across their lifespan.
-     * @param {String} track 
-     * @param {Number} duration 
-     * @param {Object} animation JSON for the animation.
-     * @param {String} easing 
-     * @returns 
+     * @param track Track(s) to effect.
+     * @param duration The time to transition from a previous path to this one.
+     * @param animation The animation properties to replace.
+     * @param easing The easing on this event's animation.
      */
-    assignPathAnimation = (track?: TrackValue, duration?: number, animation: Record<string, any> = {}, easing?: string) =>
+    assignPathAnimation = (track?: TrackValue, duration?: number, animation: Json = {}, easing?: EASE) =>
         new CustomEventInternals.AssignPathAnimation(this.json, track, duration, animation, easing);
 
     /**
-     * Assign a parent to a track.
-     * @param {Array} childrenTracks 
-     * @param {String} parentTrack 
-     * @param {Boolean} worldPositionStays Object stays in the same place after being parented, false by default.
-     * @returns 
+     * Assign tracks to a parent track.
+     * @param childrenTracks Children tracks to assign.
+     * @param parentTrack Name of the parent track.
+     * @param worldPositionStays Modifies the transform of children objects to remain in the same place relative to world space.
      */
     assignTrackParent = (childrenTracks: string[], parentTrack: string, worldPositionStays?: boolean) =>
         new CustomEventInternals.AssignTrackParent(this.json, childrenTracks, parentTrack, worldPositionStays);
 
     /**
-     * Assign the player to a track.
-     * @param {String} track 
-     * @returns 
+     * Assigns the player to a track.
+     * @param track Track the player will be assigned to.
      */
     assignPlayerToTrack = (track?: string) =>
         new CustomEventInternals.AssignPlayerToTrack(this.json, track)
 
     /**
-     * Assign the fog to a track.
-     * @param {String} track 
-     * @returns 
+     * Animate components on a track.
+     * @param track Track(s) to effect.
+     * @param duration Duration of the animation.
+     * @param easing The easing on the animation.
      */
-    assignFogTrack = (track: string) =>
-        new CustomEventInternals.AssignFogTrack(this.json, track)
+    animateComponent = (track?: TrackValue, duration?: number, easing?: EASE) =>
+        new CustomEventInternals.AnimateComponent(this.json, track, duration, easing);
 }

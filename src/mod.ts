@@ -4,6 +4,7 @@ export * from './color.ts';
 export * from './note.ts';
 export * from './wall.ts';
 export * from './event.ts';
+export * from './basicEvent.ts';
 export * from './custom_event.ts';
 export * from './environment.ts';
 export * from './animation.ts';

@@ -4,16 +4,23 @@ import * as easings from './easings.ts';
 import { bakeAnimation, complexifyArray, ComplexKeyframesLinear, ComplexKeyframesVec3, ComplexKeyframesVec4, KeyframesAny, KeyframesLinear, KeyframesVec3, KeyframesVec4, KeyframeValues, RawKeyframesAny, RawKeyframesVec3, simplifyArray } from './animation.ts';
 import { Wall } from './wall.ts';
 import { EASE, FILENAME, FILEPATH } from './constants.ts';
-import { activeDiffGet } from './beatmap.ts';
+import { activeDiffGet, Json } from './beatmap.ts';
 import { Note } from './note.ts';
-import { EventInternals } from './event.ts';
+import { EventInternals } from './basicEvent.ts';
 import { OptimizeSettings } from "./anim_optimizer.ts";
 import { fs, path, three } from "./deps.ts";
+import { Environment } from './environment.ts';
 
+/** An array with 2 numbers. */
+export type Vec2 = [number, number];
+/** An array with 3 numbers. */
 export type Vec3 = [number, number, number];
+/** An array with 4 numbers. */
 export type Vec4 = [number, number, number, number];
+/** An array with [r,g,b] or [r,g,b,a]. */
 export type ColorType = [number, number, number] | [number, number, number, number];
 
+/** Cached data saved in the ReMapper cache. */
 type CachedData = {
     processing: string,
     data: any,
@@ -21,12 +28,15 @@ type CachedData = {
 };
 
 class ReMapperJson {
+    /** Filename of the cache. */
     readonly fileName = "RM_Cache.json";
+    /** Json internals for the cache. */
     private json = {
         runs: 0,
         cachedData: {} as Record<string, CachedData>
     }
 
+    /** Handler for the RM_Cache file. */
     constructor() {
         if (!fs.existsSync(this.fileName)) this.save();
         this.json = JSON.parse(Deno.readTextFileSync(this.fileName));
@@ -38,11 +48,14 @@ class ReMapperJson {
         })
     }
 
+    /** Save the cache. */
     save() {
         Deno.writeTextFileSync(this.fileName, JSON.stringify(this.json));
     }
 
+    /** Amount of times the ReMapper script has been run. */
     get runs() { return this.json.runs }
+    /** The cached data in the cache. */
     get cachedData() { return this.json.cachedData }
 
     protected set runs(value: number) { this.json.runs = value }
@@ -50,8 +63,16 @@ class ReMapperJson {
     protected set cachedData(value: Record<string, CachedData>) { this.json.cachedData = value }
 }
 
+/** The ReMapper cache. */
 export const RMJson = new ReMapperJson();
 
+/**
+ * Store data in the ReMapper cache.
+ * Retrieves the same data unless specified parameters are changed.
+ * @param name Name of the data.
+ * @param process Function to generate new data if the parameters are changed.
+ * @param processing Parameters to compare to see if data should be re-cached.
+ */
 export function cacheData<T>(name: string, process: () => T, processing: any[] = []): T {
     let outputData: any;
     const processingJSON = JSON.stringify(processing).replaceAll('"', "");
@@ -85,11 +106,10 @@ export function cacheData<T>(name: string, process: () => T, processing: any[] =
 
 /**
  * Allows you to filter through an array of objects with a min and max property.
- * @param {Number} min
- * @param {Number} max
- * @param {Array} objects Array of objects to check.
- * @param {String} property What property to check for.
- * @returns {Array}
+ * @param min Minimum allowed value of the property.
+ * @param max Maximum allowed value of the property.
+ * @param objects Array of objects to check.
+ * @param property What property to check for.
  */
 export function filterObjects(objects: any[], min: number, max: number, property: string) {
     const passedObjects: any[] = [];
@@ -103,11 +123,11 @@ export function filterObjects(objects: any[], min: number, max: number, property
 
 /**
  * Sorts an array of objects by a property.
- * @param {Array} objects Array of objects to sort.
- * @param {String} property What property to sort.
- * @param {Boolean} smallestToLargest Whether to sort smallest to largest. True by default.
+ * @param objects Array of objects to sort.
+ * @param property What property to sort.
+ * @param smallestToLargest Whether to sort smallest to largest. True by default.
  */
-export function sortObjects(objects: Record<string, any>[], property: string, smallestToLargest = true) {
+export function sortObjects(objects: Json[], property: string, smallestToLargest = true) {
     if (objects === undefined) return;
 
     objects.sort((a, b) => smallestToLargest ?
@@ -116,33 +136,60 @@ export function sortObjects(objects: Record<string, any>[], property: string, sm
 }
 
 /**
- * Gets notes between a min and max time, as a Note class.
- * @param {Number} min 
- * @param {Number} max 
- * @param {Function} forEach Lambda function for each note.
- * @returns {Array}
+ * Gets notes between a min and max time.
+ * @param min Minimum time of the notes.
+ * @param max Maximum time of the notes.
+ * @param forEach Function for each note.
  */
 export function notesBetween(min: number, max: number, forEach: (note: Note) => void) {
     filterObjects(activeDiffGet().notes, min, max, "time").forEach(x => { forEach(x) });
 }
 
 /**
- * Gets walls between a min and max time, as a Wall class.
- * @param {Number} min 
- * @param {Number} max 
- * @param {Function} forEach Lambda function for each wall.
- * @returns {Array}
+ * Gets bombs between a min and max time.
+ * @param min Minimum time of the bombs.
+ * @param max Maximum time of the bombs.
+ * @param forEach Function for each bomb.
+ */
+export function bombsBetween(min: number, max: number, forEach: (note: Note) => void) {
+    filterObjects(activeDiffGet().bombs, min, max, "time").forEach(x => { forEach(x) });
+}
+
+/**
+ * Gets arcs between a min and max time..
+ * @param min Minimum time of the arcs.
+ * @param max Maximum time of the arcs.
+ * @param forEach Function for each arc.
+ */
+export function arcsBetween(min: number, max: number, forEach: (note: Note) => void) {
+    filterObjects(activeDiffGet().arcs, min, max, "time").forEach(x => { forEach(x) });
+}
+
+/**
+ * Gets chains between a min and max time.
+ * @param min Minimum time of the chains.
+ * @param max Maximum time of the chains.
+ * @param forEach Function for each chain.
+ */
+export function chainsBetween(min: number, max: number, forEach: (note: Note) => void) {
+    filterObjects(activeDiffGet().chains, min, max, "time").forEach(x => { forEach(x) });
+}
+
+/**
+ * Gets walls between a min and max time.
+ * @param min Minimum time of the walls.
+ * @param max Maximum time of the walls.
+ * @param forEach Function for each wall.
  */
 export function wallsBetween(min: number, max: number, forEach: (note: Wall) => void) {
     filterObjects(activeDiffGet().walls, min, max, "time").forEach(x => { forEach(x) });
 }
 
 /**
- * Gets events between a min and max time, as an Event class.
- * @param {Number} min 
- * @param {Number} max 
- * @param {Function} forEach Lambda function for each event.
- * @returns {Array}
+ * Gets events between a min and max time.
+ * @param min Minimum of the events.
+ * @param max Maximum time of the events.
+ * @param forEach Function for each event.
  */
 export function eventsBetween(min: number, max: number, forEach: (note: EventInternals.AbstractEvent) => void) {
     filterObjects(activeDiffGet().events, min, max, "time").forEach(x => { forEach(x) });
@@ -150,11 +197,10 @@ export function eventsBetween(min: number, max: number, forEach: (note: EventInt
 
 /**
  * Interpolates between a start and end value to get a value in between.
- * @param {Number} start 
- * @param {Number} end 
- * @param {Number} fraction
- * @param {String} easing Optional easing
- * @returns {Number}
+ * @param start Start value.
+ * @param end End value.
+ * @param fraction Value to find in between start and end.
+ * @param easing Optional easing.
  */
 export function lerp(start: number, end: number, fraction: number, easing?: EASE) {
     if (easing !== undefined) fraction = lerpEasing(easing, fraction);
@@ -163,11 +209,10 @@ export function lerp(start: number, end: number, fraction: number, easing?: EASE
 
 /**
  * Interpolates between a start and end value to get a value in between. Will wrap around 0-1.
- * @param {Number} start 
- * @param {Number} end 
- * @param {Number} fraction 
- * @param {String} easing Optional easing 
- * @returns 
+ * @param start Start value.
+ * @param end End value.
+ * @param fraction Value to find in between start and end.
+ * @param easing Optional easing.
  */
 export function lerpWrap(start: number, end: number, fraction: number, easing?: EASE) {
     if (easing !== undefined) fraction = lerpEasing(easing, fraction);
@@ -185,11 +230,10 @@ export function lerpWrap(start: number, end: number, fraction: number, easing?: 
 
 /**
  * Interpolates between a start and end rotation to get a rotation in between.
- * @param {Vec3} start 
- * @param {Vec3} end 
- * @param {Number} fraction 
- * @param {EASE} easing 
- * @returns
+ * @param start Start rotation.
+ * @param end End rotation.
+ * @param fraction Value to find in between start and end.
+ * @param easing Optional easing.
  */
 export function lerpRotation(start: Vec3, end: Vec3, fraction: number, easing?: EASE): Vec3 {
     if (easing !== undefined) fraction = lerpEasing(easing, fraction);
@@ -199,6 +243,10 @@ export function lerpRotation(start: Vec3, end: Vec3, fraction: number, easing?: 
     return eulerFromQuaternion(q1);
 }
 
+/**
+ * Converts a quaternion to a euler rotation.
+ * @param q Input quaternion.
+ */
 export function eulerFromQuaternion(q: three.Quaternion) {
     let euler = new three.Euler(0, 0, 0, "YXZ").setFromQuaternion(q).toArray();
     euler.pop();
@@ -208,9 +256,8 @@ export function eulerFromQuaternion(q: three.Quaternion) {
 
 /**
  * Process a number through an easing.
- * @param {String} easing Name of easing.
- * @param {Number} value Progress of easing (0-1).
- * @returns {Number}
+ * @param easing Name of easing.
+ * @param value Progress of easing (0-1).
  */
 export function lerpEasing(easing: EASE, value: number) {
     if (easing === "easeLinear" || easing === undefined) return value;
@@ -220,10 +267,9 @@ export function lerpEasing(easing: EASE, value: number) {
 
 /**
  * Find value between 0 and 1 from a beginning, length, and a point in time between.
- * @param {Number} beginning 
- * @param {Number} length 
- * @param {Number} time 
- * @returns {Number}
+ * @param beginning Start value.
+ * @param length Length between start and end value.
+ * @param time Value between start and end.
  */
 export function findFraction(beginning: number, length: number, time: number) {
     if (length === 0) return 0;
@@ -232,18 +278,14 @@ export function findFraction(beginning: number, length: number, time: number) {
 
 /**
  * Get the last element in an array.
- * @param {Array} arr 
- * @returns {*}
+ * @param arr Input array.
  */
-export function arrLast(arr: any[]) {
-    return arr[arr.length - 1];
-}
+export const arrLast = (arr: any[]) => arr[arr.length - 1];
 
 /**
  * Add either a number or another array to an array.
- * @param {Array} arr 
- * @param {*} value Can be a number or an array.
- * @returns {Array}
+ * @param arr Input array.
+ * @param value Can be a number or an array.
  */
 export function arrAdd(arr: number[], value: number[] | number) {
     if (typeof value === "number") return arr.map(x => x + value);
@@ -251,10 +293,29 @@ export function arrAdd(arr: number[], value: number[] | number) {
 }
 
 /**
+ * Subtract either a number or another array from an array.
+ * @param arr Input array.
+ * @param value Can be a number or an array.
+ */
+export function arrSubtract(arr: number[], value: number[] | number) {
+    if (typeof value === "number") return arr.map(x => x + value);
+    else return arr.map((x, i) => x - (value[i] !== undefined ? value[i] : 0));
+}
+
+/**
+ * Interpolate to find an array between 2 arrays of the same length.
+ * @param start Start array.
+ * @param end End array.
+ * @param fraction Value to find in between start and end.
+ */
+export const arrLerp = <T extends readonly [] | readonly number[]>
+    (start: T, end: { [K in keyof T]: number }, fraction: number) =>
+    start.map((x, i) => lerp(x, end[i], fraction));
+
+/**
  * Multiply an array either by a number or another array.
- * @param {Array} arr 
- * @param {*} value Can be a number or an array.
- * @returns {Array}
+ * @param arr Input array.
+ * @param value Can be a number or an array.
  */
 export function arrMul(arr: number[], value: number[] | number) {
     if (typeof value === "number") return arr.map(x => x * value);
@@ -263,9 +324,8 @@ export function arrMul(arr: number[], value: number[] | number) {
 
 /**
  * Divide an array either by a number or another array.
- * @param {Array} arr 
- * @param {*} value Can be a number or an array.
- * @returns {Array}
+ * @param arr Input array.
+ * @param value Can be a number or an array.
  */
 export function arrDiv(arr: number[], value: number[] | number) {
     if (typeof value === "number") return arr.map(x => x / value);
@@ -274,10 +334,9 @@ export function arrDiv(arr: number[], value: number[] | number) {
 
 /**
  * Check if 2 arrays are equal to each other.
- * @param {Array} arr1 
- * @param {Array} arr2 
- * @param {Number} lenience The maximum difference 2 numbers in an array can have before they're considered not equal.
- * @returns {Boolean}
+ * @param arr1 First array.
+ * @param arr2 Second array.
+ * @param lenience The maximum difference 2 numbers in an array can have before they're considered not equal.
  */
 export function arrEqual(arr1: number[], arr2: number[], lenience = 0) {
     if (!arr1 || !arr2) return false;
@@ -295,29 +354,26 @@ export function arrEqual(arr1: number[], arr2: number[], lenience = 0) {
 
 /**
  * Check if an array contains a value.
- * @param arr 
- * @param value 
- * @returns 
+ * @param arr Input array.
+ * @param value Value to check for.
  */
 export const arrHas = (arr: any[], value: any) => arr.some(x => x === value);
 
 /**
  * Gives a random number in the given range.
- * @param {Number} start
- * @param {Number} end
- * @param roundResult
- * @returns {Number}
+ * @param start Minimum value.
+ * @param end Maximum value.
+ * @param roundResult If defined, result will be rounded to nearest multiple of this number.
  */
-export function rand(start: number, end: number, roundResult?: number | undefined) {
+export function rand(start: number, end: number, roundResult?: number) {
     const result = (Math.random() * (end - start)) + start;
     return roundResult ? round(result, roundResult) : result;
 }
 
 /**
- * Rounds a number to the nearest other number.
- * @param {Number} input 
- * @param {Number} number 
- * @returns {Number}
+ * Rounds a number to the nearest multiple of another number.
+ * @param input Number to round.
+ * @param number Number to round to.
  */
 export function round(input: number, number: number) {
     return Math.round(input / number) * number;
@@ -325,10 +381,9 @@ export function round(input: number, number: number) {
 
 /**
  * Makes a number fit between a min and max value.
- * @param {Number} input
- * @param {Number} min Can be left undefined to ignore.
- * @param {Number} max Can be left undefined to ignore.
- * @returns {Number}
+ * @param input Input number.
+ * @param min Optional minimum value.
+ * @param max Optional maximum value.
  */
 export function clamp(input: number, min?: number, max?: number) {
     if (max !== undefined && input > max) input = max;
@@ -337,10 +392,9 @@ export function clamp(input: number, min?: number, max?: number) {
 }
 
 /**
- * Sets the decimals on a number.
- * @param {Number} input 
- * @param {Number} decimals 
- * @returns {Number}
+ * Sets the decimal place amount on a number.
+ * @param input Input number.
+ * @param decimals Amount of decimals.
  */
 export function setDecimals(input: number, decimals: number) {
     const multiplier = Math.pow(10, decimals);
@@ -349,17 +403,14 @@ export function setDecimals(input: number, decimals: number) {
 
 /**
  * Get the amount of seconds in the script.
- * @param {Number} decimals 
- * @returns {Number}
+ * @param decimals Amount of decimals in returned number.
  */
-export function getSeconds(decimals = 2) {
-    return setDecimals(performance.now() / 1000, decimals);
-}
+export const getSeconds = (decimals = 2) =>
+    setDecimals(performance.now() / 1000, decimals);
 
 /**
- * Creates a new instance of an object.
- * @param {*} obj 
- * @returns
+ * Creates a new instance of an object, recursively.
+ * @param obj Object to clone.
  */
 export function copy<T>(obj: T): T {
     if (obj === null || typeof obj !== "object") { return obj; }
@@ -378,22 +429,33 @@ export function copy<T>(obj: T): T {
 
 /**
  * Checks if an object is empty.
- * @param {Object} o 
- * @returns {Boolean}
+ * @param o Object to check.
  */
-export function isEmptyObject(o: Record<string, any>) {
+export function isEmptyObject(o: Json) {
     if (typeof o !== "object") return false;
     return Object.keys(o).length === 0;
 }
 
 /**
- * Rotate a point around 0,0,0.
- * @param {Array} rotation
- * @param {Array} point
- * @param {Array} anchor Anchor of rotation.
- * @returns {Array}
+ * Gets the distance between 2 points.
+ * @param A First point.
+ * @param B Second point.
  */
-export function rotatePoint(rotation: Vec3, point: Vec3, anchor: Vec3 = [0, 0, 0]) {
+export function getDist(A: Vec3, B: Vec3) {
+    const deltaX = B[0] - A[0];
+    const deltaY = B[1] - A[1];
+    const deltaZ = B[2] - A[2];
+    const sum = (deltaX * deltaX) + (deltaY * deltaY) + (deltaZ * deltaZ);
+    return Math.sqrt(sum);
+}
+
+/**
+ * Rotates a point around a mathematical anchor, [0,0,0] by default.
+ * @param point Point to rotate.
+ * @param rotation Rotation to apply.
+ * @param anchor Location of the rotation anchor.
+ */
+export function rotatePoint(point: Vec3, rotation: Vec3, anchor: Vec3 = [0, 0, 0]) {
     const mathRot = toRadians(rotation) as Vec3;
     const vector = new three.Vector3(...arrAdd(point, arrMul(anchor, -1))).applyEuler(new three.Euler(...mathRot, "YXZ"));
     return arrAdd([vector.x, vector.y, vector.z], anchor) as Vec3;
@@ -401,18 +463,16 @@ export function rotatePoint(rotation: Vec3, point: Vec3, anchor: Vec3 = [0, 0, 0
 
 /**
  * Rotate a vector, starts downwards.
- * @param {Array} rotation
- * @param {Number} length
- * @returns {Array}
+ * @param rotation Rotation to apply.
+ * @param length Length of the vector.
  */
 export function rotateVector(rotation: Vec3, length: number) {
-    return rotatePoint(rotation, [0, -length, 0]);
+    return rotatePoint([0, -length, 0], rotation);
 }
 
 /**
  * Convert an array of numbers from degrees to radians.
- * @param {Array} values 
- * @returns 
+ * @param values Input array of numbers.
  */
 export function toRadians(values: number[]) {
     return values.map(x => x * (Math.PI / 180));
@@ -420,8 +480,7 @@ export function toRadians(values: number[]) {
 
 /**
  * Convert an array of numbers from radians to degrees.
- * @param {Array} values 
- * @returns 
+ * @param values Input array of numbers.
  */
 export function toDegrees(values: number[]) {
     return values.map(x => x * (180 / Math.PI));
@@ -429,9 +488,9 @@ export function toDegrees(values: number[]) {
 
 /**
  * Delete empty objects/arrays from an object recursively.
- * @param {Object} obj 
+ * @param obj Object to prune.
  */
-export function jsonPrune(obj: Record<string, any>) {
+export function jsonPrune(obj: Json) {
     Object.keys(obj).forEach(prop => {
         if (obj[prop] == null) {
             delete obj[prop];
@@ -456,12 +515,12 @@ export function jsonPrune(obj: Record<string, any>) {
 }
 
 /**
-* Get a property of an object.
-* @param {Object} obj 
-* @param {String} prop
-* @param {Any?} init Optional value to initialize the property if it doesn't exist yet.
+* Get a property of an object recursively.
+* @param obj Base object.
+* @param prop Property on this object to check. Can be multiple objects deep.
+* @param init Optional value to initialize the property if it doesn't exist yet.
 */
-export function jsonGet(obj: Record<string, any>, prop: string, init?: any) {
+export function jsonGet(obj: Json, prop: string, init?: any) {
 
     // If the property doesn't exist, initialize it.
     if (init != null) jsonFill(obj, prop, init);
@@ -479,12 +538,12 @@ export function jsonGet(obj: Record<string, any>, prop: string, init?: any) {
 }
 
 /**
-* Fill the object with empty properties along the path of prop.
-* @param {Object} obj
-* @param {String} prop
-* @param {Any} value
+* If a property doesn't exist through a path of objects, fill objects to get to that property.
+* @param obj Base object.
+* @param prop Property on this object to check. Can be multiple objects deep.
+* @param value Value to set the property to.
 */
-export function jsonFill(obj: Record<string, any>, prop: string, value: any) {
+export function jsonFill(obj: Json, prop: string, value: any) {
     const steps = prop.split('.');
 
     // Create empty objects along the path
@@ -500,11 +559,11 @@ export function jsonFill(obj: Record<string, any>, prop: string, value: any) {
 
 /**
  * Set a property in an object, add objects if needed.
- * @param {Object} obj 
- * @param {String} prop 
- * @param {*} value
+* @param obj Base object.
+* @param prop Property on this object to check. Can be multiple objects deep.
+* @param value Value to set the property to.
  */
-export function jsonSet(obj: Record<string, any>, prop: string, value: any) {
+export function jsonSet(obj: Json, prop: string, value: any) {
     const steps = prop.split('.');
     let currentObj = obj;
     for (let i = 0; i < steps.length - 1; i++) {
@@ -518,11 +577,11 @@ export function jsonSet(obj: Record<string, any>, prop: string, value: any) {
 
 /**
  * Check if a property in an object exists
- * @param {Object} obj 
- * @param {String} prop 
- * @returns {Boolean}
+ * @param obj 
+ * @param prop 
+ * @returns
  */
-export function jsonCheck(obj: Record<string, any>, prop: string) {
+export function jsonCheck(obj: Json, prop: string) {
     const value = jsonGet(obj, prop);
     if (value != null) return true;
     return false;
@@ -530,10 +589,10 @@ export function jsonCheck(obj: Record<string, any>, prop: string) {
 
 /**
 * Remove a property of an object recursively, and delete empty objects left behind.
-* @param {Object} obj 
-* @param {String} prop 
+* @param obj Base object.
+* @param prop Property on this object to check. Can be multiple objects deep.
 */
-export function jsonRemove(obj: Record<string, any>, prop: string) {
+export function jsonRemove(obj: Json, prop: string) {
     const steps = prop.split('.')
     let currentObj = obj
     for (let i = 0; i < steps.length - 1; i++) {
@@ -545,10 +604,10 @@ export function jsonRemove(obj: Record<string, any>, prop: string) {
 
 /**
  * Get jump related info.
- * @param {Number} NJS 
- * @param {Number} offset 
- * @param {Number} BPM 
- * @returns {Object} Returns an object; {halfDur, dist}.
+ * @param NJS Note jump speed.
+ * @param offset Note offset.
+ * @param BPM Song BPM.
+ * @returns Returns an object; {halfDur, dist}.
  * A "jump" is the period when the object "jumps" in (indicated by spawning light on notes) to when it's deleted.
  * Jump Duration is the time in beats that the object will be jumping for.
  * This function will output half of this, so it will end when the note is supposed to be hit.
@@ -574,14 +633,13 @@ export function getJumps(NJS: number, offset: number, BPM: number) {
 
 /**
  * Calculate the correct position for a wall to line up with a position in the world.
- * @param {Array} pos 
- * @param {Array} rot 
- * @param {Array} scale 
- * @returns {Vec3}
+ * @param pos Position of the wall in world space.
+ * @param rot Rotation of the wall in world space.
+ * @param scale Scale of the wall in world space.
  */
 export function worldToWall(pos: Vec3, rot: Vec3, scale: Vec3) {
     const wallOffset = [0, -0.5, -0.5];
-    const offset = rotatePoint(rot, scale.map((y, i) => y * wallOffset[i]) as Vec3);
+    const offset = rotatePoint(scale.map((y, i) => y * wallOffset[i]) as Vec3, rot);
     pos = pos.map((y, i) => y + offset[i]) as Vec3;
 
     pos[0] -= 0.5;
@@ -593,10 +651,10 @@ export function worldToWall(pos: Vec3, rot: Vec3, scale: Vec3) {
 
 /**
  * Create a wall for debugging. Position, rotation, and scale are in world space and can be animations.
- * @param {Object} transform
- * @param {Number} animStart When animation starts.
- * @param {Number} animDur How long animation lasts for.
- * @param {Number} animFreq Frequency of keyframes in animation.
+ * @param transform All of the transformations for the wall.
+ * @param animStart When animation starts.
+ * @param animDur How long animation lasts for.
+ * @param animFreq Frequency of keyframes in animation.
  */
 export function debugWall(transform: { pos?: RawKeyframesVec3, rot?: RawKeyframesVec3, scale?: RawKeyframesVec3 }, animStart?: number, animDur?: number, animFreq?: number, animOptimizer = new OptimizeSettings()) {
     animStart ??= 0;
@@ -620,8 +678,17 @@ export function debugWall(transform: { pos?: RawKeyframesVec3, rot?: RawKeyframe
     wall.push();
 }
 
+/**
+ * Log a message as ReMapper, displaying seconds.
+ * @param message Message to log.
+ */
 export const RMLog = (message: string) => console.log(`[ReMapper: ${getSeconds()}s] ` + message);
 
+/**
+ * Safely iterate through an array of keyframes.
+ * @param keyframes Keyframes to iterate.
+ * @param fn Function to run on each keyframe.
+ */
 export function iterateKeyframes(keyframes: KeyframesLinear, fn: (values: ComplexKeyframesLinear[0], index: number) => void): void;
 export function iterateKeyframes(keyframes: KeyframesVec3, fn: (values: ComplexKeyframesVec3[0], index: number) => void): void;
 export function iterateKeyframes(keyframes: KeyframesVec4, fn: (values: ComplexKeyframesVec4[0], index: number) => void): void;
@@ -641,6 +708,12 @@ function iterateKeyframesInternal(keyframes: KeyframesAny, fn: (values: Keyframe
 
 // TODO: Make complexifyArray and simplifyArray only take in raw types
 
+/**
+ * Parse a file path, allowing extension forcing and getting useful information.
+ * @param input Input path. Can be relative or absolute.
+ * @param ext Force extension on the file.
+ * @param error Throw an error if the file doesn't exist.
+ */
 export function parseFilePath(input: FILEPATH, ext?: `.${string}`, error = true) {
     if (ext && !path.extname(input)) input += ext;
 
@@ -655,4 +728,17 @@ export function parseFilePath(input: FILEPATH, ext?: `.${string}`, error = true)
     if (dir !== ".") output.dir = dir;
 
     return output
+}
+
+/** Get the base "Environment" object. */
+export const getBaseEnvironment = () => new Environment("[0]Environment", "EndsWith");
+
+/**
+ * Assign a track to the base "Environment" object.
+ * @param track Track to assign the object to.
+ */
+export function baseEnvironmentTrack(track: string) {
+    const env = getBaseEnvironment();
+    env.track.value = track;
+    env.push();
 }
