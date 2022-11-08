@@ -12,20 +12,27 @@ import { FILEPATH } from "./constants.ts";
 let modelSceneCount = 0;
 let noYeet = true;
 
+/** Objects that are allowed to be spawned with a ModelScene. */
 export type GroupObjectTypes = Environment | Geometry;
+/** Allowed options for providing data to a ModelScene. */
 export type ObjectInput = FILEPATH | ModelObject[];
 
+/** Input options for the "static" method in a ModelScene. */
 export type StaticOptions = {
     input: ObjectInput,
     objects?: (arr: ModelObject[]) => void,
     processing?: any
 }
+
+/** Input options for the "animate" method in a ModelScene. */
 export type AnimatedOptions = StaticOptions & {
     bake?: boolean,
     static?: boolean
 }
 
+/** Allowed inputs for the "static" method in ModelScene. */
 export type StaticObjectInput = ObjectInput | StaticOptions
+/** Allowed inputs for the "animate" method in ModelScene. */
 export type AnimatedObjectInput = ObjectInput | AnimatedOptions
 
 type ModelGroup = {
@@ -36,6 +43,7 @@ type ModelGroup = {
     disappearWhenAbsent?: boolean
 }
 
+/** The data type used by ModelScene to define objects. */
 export interface ModelObject {
     pos: RawKeyframesVec3;
     rot: RawKeyframesVec3;
@@ -54,6 +62,13 @@ export class ModelScene {
         perSwitch: Record<number, number>;
     }>>{}
 
+    /**
+     * Handler for representing object data as part of the environment. 
+     * @param object Object to spawn on model objects with no track.
+     * @param scale The scale multiplier for the spawned object previously mentioned.
+     * @param anchor The anchor offset for the spawned object previously mentioned.
+     * @param rotation The rotation offset for the spawned object previously mentioned.
+     */
     constructor(object?: GroupObjectTypes, scale?: Vec3, anchor?: Vec3, rotation?: Vec3) {
         if (object) this.pushGroup(undefined, object, scale, anchor, rotation);
         this.trackID = modelSceneCount;
@@ -74,6 +89,14 @@ export class ModelScene {
         this.groups[key as string] = group;
     }
 
+    /**
+     * Assign a track in input ModelObjects to spawn and pool new objects.
+     * @param track Track to check for.
+     * @param object Object to spawn.
+     * @param scale The scale multiplier for the spawned object previously mentioned.
+     * @param anchor The anchor offset for the spawned object previously mentioned.
+     * @param rotation The rotation offset for the spawned object previously mentioned.
+     */
     addPrimaryGroups(track: string | string[], object: GroupObjectTypes, scale?: Vec3, anchor?: Vec3, rotation?: Vec3) {
         const tracks = typeof track === "object" ? track : [track];
         tracks.forEach(t => {
@@ -81,6 +104,14 @@ export class ModelScene {
         })
     }
 
+    /**
+     * Assign a track in input ModelObjects to animate an existing object with identical track name.
+     * @param track Track to check for and animate.
+     * @param scale The scale multiplier for the spawned object previously mentioned.
+     * @param anchor The anchor offset for the spawned object previously mentioned.
+     * @param rotation The rotation offset for the spawned object previously mentioned.
+     * @param disappearWhenAbsent Make the object on this track disappear when no ModelObject with the corresponding track exists.
+     */
     assignObjects(track: string | string[], scale?: Vec3, anchor?: Vec3, rotation?: Vec3, disappearWhenAbsent = true) {
         const tracks = typeof track === "object" ? track : [track];
         tracks.forEach(t => {
@@ -224,6 +255,12 @@ export class ModelScene {
         return [complexTransform[0], complexTransform[1], complexTransform[2]] as Vec3;
     }
 
+    /**
+     * Create a one-time environment from static data.
+     * @param input Input for ModelObjects.
+     * @param forObject Function to run on each spawned object.
+     * @param forAssigned Function to run on each assigned object.
+     */
     static(input: StaticObjectInput, forObject?: (object: GroupObjectTypes) => void, forAssigned?: (event: CustomEventInternals.AnimateTrack) => void) {
         const data = this.getObjects(input);
 
@@ -297,6 +334,15 @@ export class ModelScene {
         })
     }
 
+    /**
+     * Create an animated environment from possibly multiple sources of data.
+     * @param switches The different data switches in this environment. The format is as so:
+     * [0] - Input for ModelObjects.
+     * [1] - Time of the switch.
+     * [2]? - Duration of the animation.
+     * [3]? - Function to run on each event moving the objects.
+     * @param forObject Function to run on each spawned object.
+     */
     animate(switches: [
         AnimatedObjectInput,
         number,
@@ -408,6 +454,13 @@ export class ModelScene {
     }
 }
 
+/**
+ * Get the anchor offset for an object based on various transforms.
+ * @param objPos Position of the object.
+ * @param objRot Rotation of the object.
+ * @param objScale Scale of the object.
+ * @param anchor Anchor vector to move the object.
+ */
 export function applyAnchor(objPos: Vec3, objRot: Vec3, objScale: Vec3, anchor: Vec3) {
     const offset = rotatePoint(objScale.map((x, i) => x * anchor[i]) as Vec3, objRot);
     return objPos.map((x, i) => x + offset[i]) as Vec3;
@@ -420,6 +473,10 @@ function createYeetDef() {
     }
 }
 
+/**
+ * Get the objects from a .rmmodel.
+ * @param filePath Path to the .rmmodel.
+ */
 export function getModel(filePath: FILEPATH) {
     const data = JSON.parse(Deno.readTextFileSync(parseFilePath(filePath, ".rmmodel").path));
     return data.objects as ModelObject[];
@@ -427,12 +484,12 @@ export function getModel(filePath: FILEPATH) {
 
 /**
  * Debug the transformations necessary to fit an object to a cube.
- * Use the axis
- * @param input 
+ * Use the axis indicators to guide the process.
+ * @param input Object to spawn.
  * @param resolution The scale of the object for each axis.
- * @param scale 
- * @param anchor 
- * @param rotation 
+ * @param scale The scale multiplier for the spawned object previously mentioned.
+ * @param anchor The anchor offset for the spawned object previously mentioned.
+ * @param rotation The rotation offset for the spawned object previously mentioned.
  */
 export function debugObject(input: GroupObjectTypes, resolution: number, scale?: Vec3, anchor?: Vec3, rotation?: Vec3) {
     activeDiff.notes = [];

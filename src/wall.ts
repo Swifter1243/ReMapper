@@ -1,5 +1,5 @@
-// deno-lint-ignore-file adjacent-overload-signatures no-explicit-any
-import { activeDiffGet } from './beatmap.ts';
+// deno-lint-ignore-file adjacent-overload-signatures
+import { activeDiffGet, Json } from './beatmap.ts';
 import { copy, Vec3 } from './general.ts';
 import { Animation, AnimationInternals } from './animation.ts';
 import { BaseGameplayObject } from './object.ts';
@@ -16,10 +16,17 @@ export class Wall extends BaseGameplayObject {
             animation: {}
         }
     };
+    /** The animation of this wall. */
     animate = new Animation().wallAnimation(this.animation);
 
     /**
      * Wall object for ease of creation.
+     * @param time The time this wall will arrive at the player.
+     * @param duration The duration of the wall.
+     * @param x The lane of the wall.
+     * @param y The vertical row of the wall.
+     * @param height The height of the wall.
+     * @param width The width of the wall.
      */
     constructor(time = 0, duration = 1, x = 0, y = 0, height = 1, width = 1) {
         super();
@@ -32,9 +39,8 @@ export class Wall extends BaseGameplayObject {
     }
 
     /**
-     * Create a wall using JSON.
-     * @param {Object} json 
-     * @returns {Note}
+     * Create a wall using Json.
+     * @param json Json to import.
      */
     import(json: Json) {
         this.json = json;
@@ -45,7 +51,9 @@ export class Wall extends BaseGameplayObject {
     }
 
     /**
-     * Push this wall to the difficulty
+     * Push this wall to the difficulty.
+     * @param fake Whether this wall will be pushed to the fakeWalls array.
+     * @param clone Whether this object will be copied before being pushed.
      */
     push(fake = false, clone = true) {
         if (fake) activeDiffGet().fakeWalls.push(clone ? copy(this) : this);
@@ -55,7 +63,7 @@ export class Wall extends BaseGameplayObject {
 
     /**
      * Apply an animation through the Animation class.
-     * @param {Animation} animation 
+     * @param animation Animation to apply.
      */
     importAnimation(animation: AnimationInternals.BaseAnimation) {
         this.animation = animation.json;
@@ -63,9 +71,13 @@ export class Wall extends BaseGameplayObject {
         return this;
     }
 
+    /** The duration of the wall. */
     get duration() { return this.json.d }
+    /** The height of the wall. */
     get height() { return this.json.h }
+    /** The width of the wall. */
     get width() { return this.json.w }
+    /** The scale of the wall. */
     get scale() { return this.json.customData.size }
     get life() { return this.halfJumpDur * 2 + this.duration }
     get lifeStart() { return this.time - this.halfJumpDur }

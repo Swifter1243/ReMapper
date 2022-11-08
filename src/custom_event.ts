@@ -346,13 +346,13 @@ export namespace CustomEventInternals {
 export class CustomEvent extends CustomEventInternals.BaseEvent {
     /**
      * Custom Event object for ease of creation.
-     * @param {Object} time Time of the event.
+     * @param time Time of the event.
      */
     constructor(time = 0) { super(time) }
 
     /**
      * Create a custom event using Json.
-     * @param {Object} json Json to import.
+     * @param json Json to import.
      */
     import(json: Json) { return new CustomEventInternals.AbstractEvent(json) }
 

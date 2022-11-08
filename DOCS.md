@@ -11,7 +11,8 @@ them.
 
 If seeing the structure of a completed map helps, you can check out my
 [Map Scripts](https://github.com/Swifter1243/MapScripts/tree/main/ReMapper) that
-use ReMapper. Keep in mind some of these may be outdated, you can see the version that it was made on at the top of the script.
+use ReMapper. Keep in mind some of these may be outdated, you can see the
+version that it was made on at the top of the script.
 
 I would recommend reading all the way up to the end of
 [Environment](#environment), and pay attention to as much as possible. Every
@@ -20,18 +21,23 @@ detail is crucial and can apply to multiple places.
 # Importing
 
 In order for your script to include functions, classes, or whatever else from
-ReMapper, you'll need to import them. Initialize an import statement like so (the setup tool would have already done this for you):
+ReMapper, you'll need to import them. Initialize an import statement like so
+(the setup tool would have already done this for you):
 
 ```js
-import {} from "https://deno.land/x/remapper@2.0.0/src/mod.ts" // MAKE SURE TO USE THE LATEST REMAPPER VERSION HERE
+import {} from "https://deno.land/x/remapper@3.0.0/src/mod.ts"; // MAKE SURE TO USE THE LATEST REMAPPER VERSION HERE
 ```
 
-If you know exactly what you want to import, as you're typing it, press tab, and it'll be added to the import statement at the top like so:
+If you know exactly what you want to import, as you're typing it, press tab, and
+it'll be added to the import statement at the top like so:
 
 ```js
-import { Difficulty, info } from "https://deno.land/x/remapper@2.0.0/src/mod.ts"
+import {
+  Difficulty,
+  info,
+} from "https://deno.land/x/remapper@3.0.0/src/mod.ts";
 
-info // press tab while typing to import
+info; // press tab while typing to import
 ```
 
 Keep in mind that some things may already exist in JS/TS (such as CustomEvent),
@@ -76,12 +82,15 @@ console.log(info.version);
 # Constants
 
 Constants are an important part of this package, they provide lookups for
-certain values that might not be easy to remember. 
+certain values that might not be easy to remember.
 
-For example, you may be trying to spawn a note, but can't remember what number corresponds to a top right note. You could use the `NOTE` constant to see all of the options, and whatever property you access will be the equivalent of the correct number.
+For example, you may be trying to spawn a note, but can't remember what number
+corresponds to a top right note. You could use the `NOTE` constant to see all of
+the options, and whatever property you access will be the equivalent of the
+correct number.
 
 ```js
-new Note(10, NOTE.UP_RIGHT).push();
+new Note(10, NOTETYPE.BLUE).push();
 ```
 
 # Objects (Notes, Walls)
@@ -101,7 +110,7 @@ notesBetween(0, 10, (note) => {
 You can also create a new object:
 
 ```js
-const wall = new Wall(0, 10, WALL.CROUCH);
+const wall = new Wall(0, 10);
 ```
 
 After making changes to this wall, push it to the difficulty.
@@ -116,8 +125,7 @@ If you don't plan on referencing an object again, you don't need a variable for
 it.
 
 ```js
-new Note(3, NOTE.BLUE, NOTE.LEFT, [0, 1, true]).push();
-// "true" in this position argument will use noodle position instead of lineIndex and lineLayer.
+new Note(3, NOTETYPE.BLUE, CUT.LEFT, 0, 1).push();
 ```
 
 # Animation
@@ -159,7 +167,7 @@ certain time. It accounts for easings, splines, and what the property actually
 is (rotations interpolate differently than positions, for example).
 
 ```js
-console.log(wall.animate.get(_definitePosition, 3)); // Get values at time 3, which is also divided by the length.
+console.log(wall.animate.get("definitePosition", 3)); // Get values at time 3, which is also divided by the length.
 ```
 
 So far this animation would end up as:
@@ -196,14 +204,14 @@ Custom events are also similar to events, they have subclasses and will require
 an extra method to initialize.
 
 ```js
-new CustomEvent().assignFogTrack("fog").push();
+new CustomEvent().assignPlayerToTrack("player").push();
 ```
 
 Animation related events have an animation class attached to them.
 
 ```js
-const event = new CustomEvent(2).animateTrack("fog", 10);
-event.animate.attenuation = [[0, 0], [0.001, 1]];
+const event = new CustomEvent(2).animateTrack("player", 10);
+event.animate.position = [[0,0,0,0],[0,10,0,1,"easeInOutExpo"]];
 event.push();
 ```
 
@@ -223,7 +231,9 @@ Regex classes also exist to easily generate regex statements for environment
 stuff.
 
 ```js
-const regex = new Regex().start().add("PillarPair").vary(4).seperate().add("PillarL").end().string;
+const regex =
+  new Regex().start().add("PillarPair").vary(4).seperate().add("PillarL").end()
+    .string;
 ```
 
 This would result in `\\]PillarPair \\(4\\)\\.\\[\\d*\\]PillarL$`. You can also
@@ -259,19 +269,19 @@ Geometry uses materials, which can either be initialized with the object:
 
 ```js
 new Geometry("Cube", {
-  _shader: "Standard",
+  shader: "Standard",
   color: [1, 1, 1, 1],
-  _track: "cube",
+  track: "cube",
 }).push();
 ```
 
 Or added to the `geoMaterials` object in the map:
 
 ```js
-map.geoMaterials["white"] = {
-  _shader: "Standard",
+map.geoMaterials.white = {
+  shader: "Standard",
   color: [1, 1, 1, 1],
-  _track: "cube",
+  track: "cube",
 };
 new Geometry("Cube", "white").push();
 ```
@@ -323,7 +333,7 @@ The `object` field will determine which object is spawned, currently
 `Environment` and `Geometry` are supported.
 
 ```js
-const scene = new ModelScene(new Geometry()) // Defaults to Cube type;
+const scene = new ModelScene(new Geometry()); // Defaults to Cube type;
 ```
 
 You can add new primary objects with `addPrimaryGroups`, which takes the
@@ -425,23 +435,32 @@ for (let i = 0; i <= 1; i++) {
 
 # Light Remapper
 
-This is a class that is focused on iterating and changing lighting events. The usefulness comes in being able to light in an editor like normal, and then being able to transform those lights to work with any complexities such as moving lightIDs or boosting the lights.
+This is a class that is focused on iterating and changing lighting events. The
+usefulness comes in being able to light in an editor like normal, and then being
+able to transform those lights to work with any complexities such as moving
+lightIDs or boosting the lights.
 
-The main components are conditions and processes. Conditions are a collection of conditions that each event will need to pass. There are some built in such as `type` or `IDs`, or you can add your own.
+The main components are conditions and processes. Conditions are a collection of
+conditions that each event will need to pass. There are some built in such as
+`type` or `IDs`, or you can add your own.
 
 ```js
 new LightRemapper().type(EVENT.RING_LIGHTS).run();
 // This will target the events in the ring lights.
 ```
 
-Processes are a chain of functions that will run on each event. Again some are built in, such as `setType` or `setIDs`, or you can add your own.
+Processes are a chain of functions that will run on each event. Again some are
+built in, such as `setType` or `setIDs`, or you can add your own.
 
 ```js
 new LightRemapper().type(EVENT.RING_LIGHTS).setType(EVENT.CENTER_LASERS).run();
 // This will convert ring lights to center lights.
 ```
 
-There may be instances where you will need to move lightIDs to something like duplicated lights for example, and there are lots of nuances with that process. It can be something as simple as adding to all lightIDs, to changing the differences between them, to changing the differences at different points.
+There may be instances where you will need to move lightIDs to something like
+duplicated lights for example, and there are lots of nuances with that process.
+It can be something as simple as adding to all lightIDs, to changing the
+differences between them, to changing the differences at different points.
 
 In the most basic example, you can simply add a number to the end of all the
 lightIDs.

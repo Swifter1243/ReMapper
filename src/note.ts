@@ -3,7 +3,7 @@ import { activeDiffGet, Json } from './beatmap.ts';
 import { Animation, AnimationInternals } from './animation.ts';
 import { ANCHORMODE, CUT, NOTETYPE } from './constants.ts';
 import { BaseGameplayObject, BaseSliderObject } from './object.ts';
-import { copy } from './general.ts';
+import { copy, Vec2 } from './general.ts';
 
 export class Note extends BaseGameplayObject {
     json: Json = {
@@ -17,10 +17,16 @@ export class Note extends BaseGameplayObject {
             animation: {}
         }
     };
+    /** The animation of this note. */
     animate = new Animation().noteAnimation(this.animation);
 
     /**
-     * Note object for ease of creation
+     * Note object for ease of creation.
+     * @param time Time this note will be hit.
+     * @param type The color of the note.
+     * @param direction The direction the note will be cut.
+     * @param x The lane of the note.
+     * @param y The vertical row of the note.
      */
     constructor(time = 0, type = NOTETYPE.BLUE, direction = CUT.DOWN, x = 0, y = 0) {
         super();
@@ -32,9 +38,8 @@ export class Note extends BaseGameplayObject {
     }
 
     /**
-     * Create a note using JSON.
-     * @param {Object} json 
-     * @returns {Note}
+     * Create a note using Json.
+     * @param json Json to import.
      */
     import(json: Json) {
         this.json = json;
@@ -45,7 +50,9 @@ export class Note extends BaseGameplayObject {
     }
 
     /**
-     * Push this note to the difficulty
+     * Push this note to the difficulty.
+     * @param fake Whether this note will be pushed to the fakeNotes array.
+     * @param clone Whether this object will be copied before being pushed.
      */
     push(fake = false, clone = true) {
         if (fake) activeDiffGet().fakeNotes.push(clone ? copy(this) : this);
@@ -55,7 +62,7 @@ export class Note extends BaseGameplayObject {
 
     /**
      * Apply an animation through the Animation class.
-     * @param {Animation} animation 
+     * @param animation Animation to apply.
      */
     importAnimation(animation: AnimationInternals.BaseAnimation) {
         this.animation = animation.json;
@@ -63,18 +70,25 @@ export class Note extends BaseGameplayObject {
         return this;
     }
 
+    /** The color of the note. */
     get type() { return this.json.c }
+    /** The direction the note will be cut. */
     get direction() { return this.json.d }
+    /** The angle added to the note's rotation. */
     get angleOffset() { return this.json.a }
+    /** Specifies an initial position the note will spawn at before going to it's unmodified position.  */
     get flip() { return this.json.customData.flip }
+    /** Whether note gravity (the effect where notes move to their vertical row from the bottom row) is enabled. */
     get noteGravity() { return !this.json.customData.disableNoteGravity }
+    /** Whether this note will look at the player. */
     get noteLook() { return !this.json.customData.disableNoteLook }
+    /** Whether this note will have a spawn effect. */
     get spawnEffect() { return this.json.customData.spawnEffect }
 
     set type(value: NOTETYPE) { this.json.c = value }
     set direction(value: CUT) { this.json.d = value }
     set angleOffset(value: number) { this.json.a = value }
-    set flip(value: boolean) { this.json.customData.flip = value }
+    set flip(value: Vec2) { this.json.customData.flip = value }
     set noteGravity(value: boolean) { this.json.customData.disableNoteGravity = !value }
     set noteLook(value: boolean) { this.json.customData.disableNoteLook = !value }
     set spawnEffect(value: boolean) { this.json.customData.spawnEffect = value }
@@ -89,11 +103,15 @@ export class Bomb extends BaseGameplayObject {
             animation: {}
         }
     };
+    /** The animation of this bomb. */
     animate = new Animation().noteAnimation(this.animation);
 
     /**
-    * Bomb object for ease of creation
-    */
+     * Bomb object for ease of creation.
+     * @param time The time this bomb will reach the player.
+     * @param x The lane of the note.
+     * @param y The vertical row of the note.
+     */
     constructor(time = 0, x = 0, y = 0) {
         super();
         this.time = time;
@@ -102,9 +120,8 @@ export class Bomb extends BaseGameplayObject {
     }
 
     /**
-     * Create a bomb using JSON.
-     * @param {Object} json 
-     * @returns {Note}
+     * Create a bomb using Json.
+     * @param json Json to import.
      */
     import(json: Json) {
         this.json = json;
@@ -115,7 +132,9 @@ export class Bomb extends BaseGameplayObject {
     }
 
     /**
-     * Push this bomb to the difficulty
+     * Push this bomb to the difficulty.
+     * @param fake Whether this bomb will be pushed to the fakeBombs array.
+     * @param clone Whether this object will be copied before being pushed.
      */
     push(fake = false, clone = true) {
         if (fake) activeDiffGet().fakeBombs.push(clone ? copy(this) : this);
@@ -125,7 +144,7 @@ export class Bomb extends BaseGameplayObject {
 
     /**
      * Apply an animation through the Animation class.
-     * @param {Animation} animation 
+     * @param animation Animation to apply.
      */
     importAnimation(animation: AnimationInternals.BaseAnimation) {
         this.animation = animation.json;
@@ -133,9 +152,13 @@ export class Bomb extends BaseGameplayObject {
         return this;
     }
 
+    /** Specifies an initial position the bomb will spawn at before going to it's unmodified position.  */
     get flip() { return this.json.customData.flip }
+    /** Whether note gravity (the effect where notes move to their vertical row from the bottom row) is enabled. */
     get noteGravity() { return !this.json.customData.disableNoteGravity }
+    /** Whether this bomb will look at the player. */
     get noteLook() { return !this.json.customData.disableNoteLook }
+    /** Whether this bomb will have a spawn effect. */
     get spawnEffect() { return this.json.customData.spawnEffect }
 
     set flip(value: boolean) { this.json.customData.flip = value }
@@ -160,11 +183,22 @@ export class Chain extends BaseSliderObject {
             animation: {}
         }
     };
+    /** The animation of this chain. */
     animate = new Animation().noteAnimation(this.animation);
 
+
     /**
-    * Chain object for ease of creation
-    */
+     * Chain object for ease of creation.
+     * @param time The time this chain will be hit.
+     * @param type The color of the chain.
+     * @param x The lane of the chain.
+     * @param y The vertical row of the chain.
+     * @param tailTime The time that the tail of the chain reaches the player.
+     * @param tailX The lane of the chain's tail.
+     * @param tailY The vertical row of the chain's tail.
+     * @param direction The cut direction of the chain.
+     * @param links The amount of links in the chain.
+     */
     constructor(
         time = 0,
         type = NOTETYPE.BLUE,
@@ -189,9 +223,8 @@ export class Chain extends BaseSliderObject {
     }
 
     /**
-     * Create a chain using JSON.
-     * @param {Object} json 
-     * @returns {Note}
+     * Create a chain using Json.
+     * @param json Json to import.
      */
     import(json: Json) {
         this.json = json;
@@ -202,7 +235,9 @@ export class Chain extends BaseSliderObject {
     }
 
     /**
-     * Push this chain to the difficulty
+     * Push this chain to the difficulty.
+     * @param fake Whether this chain will be pushed to the fakeChains array.
+     * @param clone Whether this object will be copied before being pushed.
      */
     push(fake = false, clone = true) {
         if (fake) activeDiffGet().fakeChains.push(clone ? copy(this) : this);
@@ -212,7 +247,7 @@ export class Chain extends BaseSliderObject {
 
     /**
      * Apply an animation through the Animation class.
-     * @param {Animation} animation 
+     * @param animation Animation to apply.
      */
     importAnimation(animation: AnimationInternals.BaseAnimation) {
         this.animation = animation.json;
@@ -220,15 +255,20 @@ export class Chain extends BaseSliderObject {
         return this;
     }
 
+    /** The amount of links in the chain. */
     get links() { return this.json.sc }
+    /** An interpolation or extrapolation of the path between the head and tail. */
     get squish() { return this.json.s }
+    /** Specifies an initial position the chain will spawn at before going to it's unmodified position.  */
     get flip() { return this.json.customData.flip }
+    /** Whether note gravity (the effect where notes move to their vertical row from the bottom row) is enabled. */
     get noteGravity() { return !this.json.customData.disableNoteGravity }
+    /** Whether this chain will look at the player. */
     get noteLook() { return !this.json.customData.disableNoteLook }
 
     set links(value: number) { this.json.sc = value }
     set squish(value: number) { this.json.s = value }
-    set flip(value: boolean) { this.json.customData.flip = value }
+    set flip(value: Vec2) { this.json.customData.flip = value }
     set noteGravity(value: boolean) { this.json.customData.disableNoteGravity = !value }
     set noteLook(value: boolean) { this.json.customData.disableNoteLook = !value }
 }
@@ -251,11 +291,22 @@ export class Arc extends BaseSliderObject {
             animation: {}
         }
     };
+    /** The animation of this arc. */
     animate = new Animation().noteAnimation(this.animation);
 
+
     /**
-    * Arc object for ease of creation
-    */
+     * Arc object for ease of creation.
+     * @param time The time this arc will be hit.
+     * @param type The color of the arc.
+     * @param x The lane of the arc.
+     * @param y The vertical row of the arc.
+     * @param headDirection The cut direction of the head of the arc.
+     * @param tailTime The time that the tail of the arc reaches the player.
+     * @param tailX The lane of the arc's tail.
+     * @param tailY The vertical row of the arc's tail.
+     * @param tailDirection The cut direction of the tail of the arc.
+     */
     constructor(
         time = 0,
         type = NOTETYPE.BLUE,
@@ -280,7 +331,7 @@ export class Arc extends BaseSliderObject {
 
     /**
      * Create an arc using JSON.
-     * @param {Object} json 
+     * @param json 
      * @returns {Note}
      */
     import(json: Json) {
@@ -309,17 +360,23 @@ export class Arc extends BaseSliderObject {
         return this;
     }
 
+    /** The cut direction of the tail of the arc. */
     get tailDirection() { return this.json.tc }
+    /** Multiplier for the distance the start of the arc shoots outward. */
     get headLength() { return this.json.mu }
+    /** Multiplier for the distance the end of the arc shoots outward. */
     get tailLength() { return this.json.tmu }
+    /** How the arc curves from the head to the midpoint. */
     get anchorMode() { return this.json.m }
+    /** Specifies an initial position the arc will spawn at before going to it's unmodified position.  */
     get flip() { return this.json.customData.flip }
+    /** Whether note gravity (the effect where notes move to their vertical row from the bottom row) is enabled. */
     get noteGravity() { return !this.json.customData.disableNoteGravity }
 
     set tailDirection(value: CUT) { this.json.tc = value }
     set headLength(value: number) { this.json.mu = value }
     set tailLength(value: number) { this.json.tmu = value }
     set anchorMode(value: ANCHORMODE) { this.json.m = value }
-    set flip(value: boolean) { this.json.customData.flip = value }
+    set flip(value: Vec2) { this.json.customData.flip = value }
     set noteGravity(value: boolean) { this.json.customData.disableNoteGravity = !value }
 }
