@@ -115,10 +115,20 @@ export class Difficulty {
 
         this.json.basicBeatmapEvents.forEach((x: Json) => {
             if (x.customData) {
-                transferKey(x.customData, "_lightID", "lightID");
-                transferKey(x.customData, "_color", "color");
-                transferKey(x.customData, "_easing", "easing");
-                transferKey(x.customData, "_lerpType", "lerpType");
+                const keys = [
+                    "lightID",
+                    "color",
+                    "easing",
+                    "lerpType",
+                    "rotation",
+                    "nameFilter",
+                    "step",
+                    "prop",
+                    "speed",
+                    "direction"
+                ]
+
+                keys.forEach(k => transferKey(x.customData, `_${k}`, k));
             }
         })
 
