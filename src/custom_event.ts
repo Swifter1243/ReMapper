@@ -379,6 +379,42 @@ export namespace CustomEventInternals {
         set whitelist(value: boolean) { this.data.whitelist = value }
     }
 
+    export class DeclareRenderTexture extends BaseIdentityEvent {
+        /**
+         * Declare a RenderTexture to be used anywhere.
+         * They are set as a global variable and can be accessed by declaring a sampler named what you put in "name".
+         * Depth texture can be obtained by adding the suffix "_Depth" to your sampler.
+         * @param json Json to import.
+         * @param name Name of the depth texture.
+         * @param width Exact width for the texture.
+         * @param height Exact height for the texture.
+         */
+        constructor(json: Json, name: string, width: number, height: number) {
+            super(json);
+            this.type = "DeclareRenderTexture";
+            this.name = name;
+            this.width = width;
+            this.height = height;
+        }
+
+        /** Name of the depth texture. */
+        get name() { return this.data.name }
+        /** Number to divide screen width by. */
+        get xRatio() { return this.data.xRatio }
+        /** Number to divide screen height by. */
+        get yRatio() { return this.data.yRatio }
+        /** Exact width for the texture. */
+        get width() { return this.data.width }
+        /** Exact height for the texture. */
+        get height() { return this.data.height }
+
+        set name(value: string) { this.data.name = value }
+        set xRatio(value: number) { this.data.xRatio = value }
+        set yRatio(value: number) { this.data.yRatio = value }
+        set width(value: number) { this.data.width = value }
+        set height(value: number) { this.data.height = value }
+    }
+
     export class AbstractEvent extends BaseEvent {
         /** The animation of this event. */
         animate: AnimationInternals.AbstractAnimation;
@@ -453,12 +489,22 @@ export namespace CustomEventInternals {
          * Default is "_Main", which is reserved for the camera.
          * ApplyPostProcessing only. */
         get target() { return this.data.target }
-        /** Name of the culling mask, this is what you must name your sampler in your shader.
-         * DeclareCullingMask only.
+        /** DeclareCullingMask:
+         * Name of the culling mask, this is what you must name your sampler in your shader.
+         * DeclareDepthTexture:
+         * Name of the depth texture.
          */
         get name() { return this.data.name }
         /** Culls everything but the selected tracks. DeclareCullingMask only. */
         get whitelist() { return this.data.whitelist }
+        /** Number to divide screen width by. DeclareRenderTexture only. */
+        get xRatio() { return this.data.xRatio }
+        /** Number to divide screen height by. DeclareRenderTexture only. */
+        get yRatio() { return this.data.yRatio }
+        /** Exact width for the texture. DeclareRenderTexture only. */
+        get width() { return this.data.width }
+        /** Exact height for the texture. DeclareRenderTexture only. */
+        get height() { return this.data.height }
 
         set duration(value: number) { this.data.duration = value }
         set easing(value: EASE) { this.data.easing = value }
@@ -569,4 +615,15 @@ export class CustomEvent extends CustomEventInternals.BaseEvent {
      */
     declareCullingMask = (name: string, track: TrackValue, whitelist?: boolean) =>
         new CustomEventInternals.DeclareCullingMask(this.json, name, track, whitelist);
+
+    /**
+     * Declare a RenderTexture to be used anywhere.
+     * They are set as a global variable and can be accessed by declaring a sampler named what you put in "name".
+     * Depth texture can be obtained by adding the suffix "_Depth" to your sampler.
+     * @param name Name of the depth texture.
+     * @param width Exact width for the texture.
+     * @param height Exact height for the texture.
+     */
+    declareRenderTexture = (name: string, width: number, height: number) =>
+        new CustomEventInternals.DeclareRenderTexture(this.json, name, width, height);
 }

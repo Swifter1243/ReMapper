@@ -598,6 +598,12 @@ export class Difficulty {
         fn(arr);
         this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.DeclareCullingMask)).concat(arr);
     }
+    /** Returns a callback function providing an array of all DeclareRenderTexture events. */
+    declareRenderTextures(fn: (arr: CustomEventInternals.DeclareRenderTexture[]) => void) {
+        const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.DeclareRenderTexture) as CustomEventInternals.DeclareRenderTexture[]
+        fn(arr);
+        this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.DeclareRenderTexture)).concat(arr);
+    }
 
     /** Returns a callback function providing an array of all Environment objects. */
     environment(fn: (arr: Environment[]) => void) {
