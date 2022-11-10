@@ -1,5 +1,5 @@
 // deno-lint-ignore-file no-namespace no-explicit-any adjacent-overload-signatures
-import { copy, jsonGet, jsonSet } from './general.ts';
+import { copy, jsonGet, jsonSet, Vec3 } from './general.ts';
 import { activeDiffGet, Json } from './beatmap.ts';
 import { AnimationInternals, Animation, TrackValue, Track, KeyframesLinear } from './animation.ts';
 import { EASE, FILEPATH, PROPERTY_TYPE } from './constants.ts';
@@ -415,6 +415,50 @@ export namespace CustomEventInternals {
         set height(value: number) { this.data.height = value }
     }
 
+    export class InstantiatePrefab extends BaseIdentityEvent {
+        /**
+         * Instantiate a chosen prefab into the scene.
+         * @param json Json to import.
+         * @param asset File path to the desired prefab.
+         * @param track The track(s) for the prefab.
+         * @param id Unique id for referencing prefab later. Random id will be given by default.
+         */
+        constructor(json: Json, asset: FILEPATH, track?: TrackValue, id?: string) {
+            super(json);
+            this.type = "InstantiatePrefab";
+            this.asset = asset;
+            if (track) this.track.value = track;
+            if (id) this.id = id;
+        }
+
+        /** File path to the desired prefab. */
+        get asset() { return this.data.asset }
+        /** Unique id for referencing prefab later. Random id will be given by default. */
+        get id() { return this.data.id }
+        /** The track class for this event.
+        * Please read the properties of this class to see how it works.
+        */
+        get track() { return new Track(this.data) }
+        /** Position of the prefab relative to the world. */
+        get position() { return this.data.position }
+        /** Position of the prefab relative to it's parent. */
+        get localPosition() { return this.data.localPosition }
+        /** Rotation of the prefab relative to the world. */
+        get rotation() { return this.data.rotation }
+        /** Rotation of the prefab relative to it's parent. */
+        get localRotation() { return this.data.localRotation }
+        /** Scale of the prefab. */
+        get scale() { return this.data.scale }
+
+        set asset(value: FILEPATH) { this.data.asset = value }
+        set id(value: string) { this.data.id = value }
+        set position(value: Vec3) { this.data.position = value }
+        set localPosition(value: Vec3) { this.data.localPosition = value }
+        set rotation(value: Vec3) { this.data.rotation = value }
+        set localRotation(value: Vec3) { this.data.localRotation = value }
+        set scale(value: Vec3) { this.data.scale = value }
+    }
+
     export class AbstractEvent extends BaseEvent {
         /** The animation of this event. */
         animate: AnimationInternals.AbstractAnimation;
@@ -474,7 +518,8 @@ export namespace CustomEventInternals {
         get fog() { return jsonGet(this.data, "BloomFogEnvironment", {}) }
         /** The "TubeBloomPrePassLight" component to animate. AnimateComponent only. */
         get lightMultiplier() { return jsonGet(this.data, "TubeBloomPrePassLight", {}) }
-        /** File path to the material. SetMaterialProperty & ApplyPostProcessing only. */
+        /** File path to the relevant asset. 
+         * SetMaterialProperty, ApplyPostProcessing & InstantiatePrefab only. */
         get asset() { return this.data.asset }
         /** Properties to set. SetMaterialProperty & ApplyPostProcessing only. */
         get properties() { return this.data.properties }
@@ -505,6 +550,18 @@ export namespace CustomEventInternals {
         get width() { return this.data.width }
         /** Exact height for the texture. DeclareRenderTexture only. */
         get height() { return this.data.height }
+        /** Unique id for referencing prefab later. Random id will be given by default. */
+        get id() { return this.data.id }
+        /** Position of the prefab relative to the world. InstantiatePrefab only. */
+        get position() { return this.data.position }
+        /** Position of the prefab relative to it's parent. InstantiatePrefab only. */
+        get localPosition() { return this.data.localPosition }
+        /** Rotation of the prefab relative to the world. InstantiatePrefab only. */
+        get rotation() { return this.data.rotation }
+        /** Rotation of the prefab relative to it's parent. InstantiatePrefab only. */
+        get localRotation() { return this.data.localRotation }
+        /** Scale of the prefab. InstantiatePrefab only. */
+        get scale() { return this.data.scale }
 
         set duration(value: number) { this.data.duration = value }
         set easing(value: EASE) { this.data.easing = value }
@@ -626,4 +683,13 @@ export class CustomEvent extends CustomEventInternals.BaseEvent {
      */
     declareRenderTexture = (name: string, width: number, height: number) =>
         new CustomEventInternals.DeclareRenderTexture(this.json, name, width, height);
+
+    /**
+     * Instantiate a chosen prefab into the scene.
+     * @param asset File path to the desired prefab.
+     * @param track The track(s) for the prefab.
+     * @param id Unique id for referencing prefab later. Random id will be given by default.
+     */
+    instantiatePrefab = (asset: FILEPATH, track?: TrackValue, id?: string) =>
+        new CustomEventInternals.InstantiatePrefab(this.json, asset, track, id);
 }

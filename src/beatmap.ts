@@ -604,6 +604,12 @@ export class Difficulty {
         fn(arr);
         this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.DeclareRenderTexture)).concat(arr);
     }
+    /** Returns a callback function providing an array of all InstantiatePrefab events. */
+    instantiatePrefab(fn: (arr: CustomEventInternals.InstantiatePrefab[]) => void) {
+        const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.InstantiatePrefab) as CustomEventInternals.InstantiatePrefab[]
+        fn(arr);
+        this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.InstantiatePrefab)).concat(arr);
+    }
 
     /** Returns a callback function providing an array of all Environment objects. */
     environment(fn: (arr: Environment[]) => void) {
