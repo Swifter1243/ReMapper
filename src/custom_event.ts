@@ -598,6 +598,10 @@ export namespace CustomEventInternals {
         set target(value: string) { this.data.target = value }
         set name(value: string) { this.data.name = value }
         set whitelist(value: boolean) { this.data.whitelist = value }
+        set xRatio(value: number) { this.data.xRatio = value }
+        set yRatio(value: number) { this.data.yRatio = value }
+        set width(value: number) { this.data.width = value }
+        set height(value: number) { this.data.height = value }
         set id(value: string) { this.data.id = value }
         set position(value: Vec3) { this.data.position = value }
         set localPosition(value: Vec3) { this.data.localPosition = value }
