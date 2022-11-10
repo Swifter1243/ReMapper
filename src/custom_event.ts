@@ -578,6 +578,12 @@ export namespace CustomEventInternals {
         set target(value: string) { this.data.target = value }
         set name(value: string) { this.data.name = value }
         set whitelist(value: boolean) { this.data.whitelist = value }
+        set id(value: string) { this.data.id = value }
+        set position(value: Vec3) { this.data.position = value }
+        set localPosition(value: Vec3) { this.data.localPosition = value }
+        set rotation(value: Vec3) { this.data.rotation = value }
+        set localRotation(value: Vec3) { this.data.localRotation = value }
+        set scale(value: Vec3) { this.data.scale = value }
     }
 }
 
