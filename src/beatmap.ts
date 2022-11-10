@@ -580,11 +580,17 @@ export class Difficulty {
         fn(arr);
         this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.AnimateComponent)).concat(arr);
     }
-    /** Returns a callback function providing an array of all AnimateComponent events. */
+    /** Returns a callback function providing an array of all SetMaterialProperty events. */
     setMaterialProperties(fn: (arr: CustomEventInternals.SetMaterialProperty[]) => void) {
         const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.SetMaterialProperty) as CustomEventInternals.SetMaterialProperty[]
         fn(arr);
         this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.SetMaterialProperty)).concat(arr);
+    }
+    /** Returns a callback function providing an array of all ApplyPostProcessing events. */
+    applyPostProcessings(fn: (arr: CustomEventInternals.ApplyPostProcessing[]) => void) {
+        const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.ApplyPostProcessing) as CustomEventInternals.ApplyPostProcessing[]
+        fn(arr);
+        this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.ApplyPostProcessing)).concat(arr);
     }
 
     /** Returns a callback function providing an array of all Environment objects. */

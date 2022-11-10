@@ -280,7 +280,7 @@ export namespace CustomEventInternals {
          * @param duration The duration of the animation.
          * @param easing An easing for the animation to follow.
          */
-        constructor(json: Json, asset?: string, properties?: MaterialProperty[], duration?: number, easing?: EASE) {
+        constructor(json: Json, asset: string, properties: MaterialProperty[], duration?: number, easing?: EASE) {
             super(json);
             this.type = "SetMaterialProperty";
             if (asset) this.asset = asset;
@@ -302,6 +302,51 @@ export namespace CustomEventInternals {
         set duration(value: number) { this.data.duration = value }
         set easing(value: EASE) { this.data.easing = value }
         set properties(value: MaterialProperty[]) { this.data.properties = value }
+    }
+
+    export class ApplyPostProcessing extends BaseIdentityEvent {
+        /**
+         * Assigns a material to the camera and allows you to call a SetMaterialProperty from within.
+         * @param json Json to import.
+         * @param asset File path to the material.
+         * @param properties Properties to set.
+         * @param duration The duration of the animation.
+         * @param easing An easing for the animation to follow.
+         */
+        constructor(json: Json, asset: string, properties: MaterialProperty[], duration?: number, easing?: EASE) {
+            super(json);
+            this.type = "ApplyPostProcessing";
+            if (asset) this.asset = asset;
+            if (properties) this.properties = properties;
+            if (duration) this.duration = duration;
+            if (easing) this.easing = easing;
+        }
+
+        /** File path to the material. */
+        get asset() { return this.data.asset }
+        /** The duration of the animation. */
+        get duration() { return this.data.duration }
+        /** An easing for the animation to follow. */
+        get easing() { return this.data.easing }
+        /** Properties to set. */
+        get properties() { return this.data.properties }
+        /** Which order to run current active post processing effects.
+         * Higher post priority will run first.
+         */
+        get priority() { return this.data.priority }
+        /** Which pass in the shader. */
+        get pass() { return this.data.pass }
+        /** Which render texture to save to. 
+         * Default is "_Main", which is reserved for the camera. */
+        get target() { return this.data.target }
+
+        set asset(value: FILEPATH) { this.data.asset = value }
+        set duration(value: number) { this.data.duration = value }
+        set easing(value: EASE) { this.data.easing = value }
+        set properties(value: MaterialProperty[]) { this.data.properties = value }
+        set priority(value: number) { this.data.priority = value }
+        set pass(value: number) { this.data.pass = value }
+        set target(value: string) { this.data.target = value }
     }
 
     export class AbstractEvent extends BaseEvent {
@@ -363,10 +408,21 @@ export namespace CustomEventInternals {
         get fog() { return jsonGet(this.data, "BloomFogEnvironment", {}) }
         /** The "TubeBloomPrePassLight" component to animate. AnimateComponent only. */
         get lightMultiplier() { return jsonGet(this.data, "TubeBloomPrePassLight", {}) }
-        /** File path to the material. SetMaterialProperty only. */
+        /** File path to the material. SetMaterialProperty & ApplyPostProcessing only. */
         get asset() { return this.data.asset }
-        /** Properties to set. SetMaterialProperty only. */
+        /** Properties to set. SetMaterialProperty & ApplyPostProcessing only. */
         get properties() { return this.data.properties }
+        /** Which order to run current active post processing effects.
+         * Higher post priority will run first.
+         * ApplyPostProcessing only.
+         */
+        get priority() { return this.data.priority }
+        /** Which pass in the shader. ApplyPostProcessing only. */
+        get pass() { return this.data.pass }
+        /** Which render texture to save to. 
+         * Default is "_Main", which is reserved for the camera.
+         * ApplyPostProcessing only. */
+        get target() { return this.data.target }
 
         set duration(value: number) { this.data.duration = value }
         set easing(value: EASE) { this.data.easing = value }
@@ -378,6 +434,9 @@ export namespace CustomEventInternals {
         set lightMultiplier(value: TubeBloomPrePassLight<KeyframesLinear>) { jsonSet(this.data, "TubeBloomPrePassLight", value) }
         set asset(value: FILEPATH) { this.data.asset = value }
         set properties(value: MaterialProperty[]) { this.data.properties = value }
+        set priority(value: number) { this.data.priority = value }
+        set pass(value: number) { this.data.pass = value }
+        set target(value: string) { this.data.target = value }
     }
 }
 
@@ -450,6 +509,17 @@ export class CustomEvent extends CustomEventInternals.BaseEvent {
      * @param duration The duration of the animation.
      * @param easing An easing for the animation to follow.
      */
-    setMaterialProperty = (asset?: string, properties?: MaterialProperty[], duration?: number, easing?: EASE) =>
+    setMaterialProperty = (asset: string, properties: MaterialProperty[], duration?: number, easing?: EASE) =>
         new CustomEventInternals.SetMaterialProperty(this.json, asset, properties, duration, easing);
+
+    /**
+     * Assigns a material to the camera and allows you to call a SetMaterialProperty from within.
+     * @param json Json to import.
+     * @param asset File path to the material.
+     * @param properties Properties to set.
+     * @param duration The duration of the animation.
+     * @param easing An easing for the animation to follow.
+     */
+    applyPostProcessing = (asset: string, properties: MaterialProperty[], duration?: number, easing?: EASE) =>
+        new CustomEventInternals.ApplyPostProcessing(this.json, asset, properties, duration, easing);
 }
