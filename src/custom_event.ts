@@ -459,6 +459,24 @@ export namespace CustomEventInternals {
         set scale(value: Vec3) { this.data.scale = value }
     }
 
+    export class DestroyPrefab extends BaseIdentityEvent {
+        /**
+         * Will destroy a prefab in the scene.
+         * @param json Json to import.
+         * @param id Id of the prefab to destroy.
+         */
+        constructor(json: Json, id: string) {
+            super(json);
+            this.type = "DestroyPrefab";
+            this.id = id;
+        }
+
+        /** Id of the prefab to destroy. */
+        get id() { return this.data.id }
+
+        set id(value: string) { this.data.id = value }
+    }
+
     export class AbstractEvent extends BaseEvent {
         /** The animation of this event. */
         animate: AnimationInternals.AbstractAnimation;
@@ -550,7 +568,9 @@ export namespace CustomEventInternals {
         get width() { return this.data.width }
         /** Exact height for the texture. DeclareRenderTexture only. */
         get height() { return this.data.height }
-        /** Unique id for referencing prefab later. Random id will be given by default. */
+        /** InstantiatePrefab: 
+         * Unique id for referencing prefab later. Random id will be given by default.
+         * DestroyPrefab: Id of the prefab to destroy. */
         get id() { return this.data.id }
         /** Position of the prefab relative to the world. InstantiatePrefab only. */
         get position() { return this.data.position }
@@ -698,4 +718,11 @@ export class CustomEvent extends CustomEventInternals.BaseEvent {
      */
     instantiatePrefab = (asset: FILEPATH, track?: TrackValue, id?: string) =>
         new CustomEventInternals.InstantiatePrefab(this.json, asset, track, id);
+
+    /**
+     * Will destroy a prefab in the scene.
+     * @param id Id of the prefab to destroy.
+     */
+    destroyPrefab = (id: string) =>
+        new CustomEventInternals.DestroyPrefab(this.json, id);
 }

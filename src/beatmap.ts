@@ -544,72 +544,59 @@ export class Difficulty {
     set fakeWalls(value: Wall[]) { jsonSet(this.json, "customData.fakeObstacles", value) }
     set fakeChains(value: Chain[]) { jsonSet(this.json, "customData.fakeBurstSliders", value) }
 
+    private returnCustomEvent<T extends CustomEventInternals.BaseEvent>(fn: (arr: T[]) => void, target: { new(): T; }) {
+        const arr = this.customEvents.filter(x => x instanceof target) as T[]
+        fn(arr);
+        this.customEvents = this.customEvents.filter(x => !(x instanceof target)).concat(arr);
+    }
+
     /** Returns a callback function providing an array of all AnimateTrack events. */
-    animateTracks(fn: (arr: CustomEventInternals.AnimateTrack[]) => void) {
-        const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.AnimateTrack) as CustomEventInternals.AnimateTrack[]
-        fn(arr);
-        this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.AnimateTrack)).concat(arr);
-    }
+    animateTracks = (fn: (arr: CustomEventInternals.AnimateTrack[]) => void) =>
+        this.returnCustomEvent(fn, CustomEventInternals.AnimateTrack as any);
+
     /** Returns a callback function providing an array of all AssignPathAnimation events. */
-    assignPathAnimations(fn: (arr: CustomEventInternals.AssignPathAnimation[]) => void) {
-        const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.AssignPathAnimation) as CustomEventInternals.AssignPathAnimation[]
-        fn(arr);
-        this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.AssignPathAnimation)).concat(arr);
-    }
+    assignPathAnimations = (fn: (arr: CustomEventInternals.AssignPathAnimation[]) => void) =>
+    this.returnCustomEvent(fn, CustomEventInternals.AssignPathAnimation as any);
+    
     /** Returns a callback function providing an array of all AssignTrackParent events. */
-    assignTrackParents(fn: (arr: CustomEventInternals.AssignTrackParent[]) => void) {
-        const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.AssignTrackParent) as CustomEventInternals.AssignTrackParent[]
-        fn(arr);
-        this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.AssignTrackParent)).concat(arr);
-    }
+    assignTrackParents = (fn: (arr: CustomEventInternals.AssignTrackParent[]) => void) =>
+    this.returnCustomEvent(fn, CustomEventInternals.AssignTrackParent as any);
+
     /** Returns a callback function providing an array of all AssignPlayerToTrack events. */
-    assignPlayerToTracks(fn: (arr: CustomEventInternals.AssignPlayerToTrack[]) => void) {
-        const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.AssignPlayerToTrack) as CustomEventInternals.AssignPlayerToTrack[]
-        fn(arr);
-        this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.AssignPlayerToTrack)).concat(arr);
-    }
+    assignPlayerToTracks = (fn: (arr: CustomEventInternals.AssignPlayerToTrack[]) => void) =>
+    this.returnCustomEvent(fn, CustomEventInternals.AssignPlayerToTrack as any);
+
     /** Returns a callback function providing an array of all AbstractEvent events. */
-    abstractEvents(fn: (arr: CustomEventInternals.AbstractEvent[]) => void) {
-        const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.AbstractEvent) as CustomEventInternals.AbstractEvent[]
-        fn(arr);
-        this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.AbstractEvent)).concat(arr);
-    }
+    abstractEvents = (fn: (arr: CustomEventInternals.AbstractEvent[]) => void) =>
+    this.returnCustomEvent(fn, CustomEventInternals.AbstractEvent as any);
+
     /** Returns a callback function providing an array of all AnimateComponent events. */
-    animateComponents(fn: (arr: CustomEventInternals.AnimateComponent[]) => void) {
-        const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.AnimateComponent) as CustomEventInternals.AnimateComponent[]
-        fn(arr);
-        this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.AnimateComponent)).concat(arr);
-    }
+    animateComponents = (fn: (arr: CustomEventInternals.AnimateComponent[]) => void) =>
+    this.returnCustomEvent(fn, CustomEventInternals.AnimateComponent as any);
+
     /** Returns a callback function providing an array of all SetMaterialProperty events. */
-    setMaterialProperties(fn: (arr: CustomEventInternals.SetMaterialProperty[]) => void) {
-        const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.SetMaterialProperty) as CustomEventInternals.SetMaterialProperty[]
-        fn(arr);
-        this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.SetMaterialProperty)).concat(arr);
-    }
+    setMaterialProperties = (fn: (arr: CustomEventInternals.SetMaterialProperty[]) => void) =>
+    this.returnCustomEvent(fn, CustomEventInternals.SetMaterialProperty as any);
+    
     /** Returns a callback function providing an array of all ApplyPostProcessing events. */
-    applyPostProcessings(fn: (arr: CustomEventInternals.ApplyPostProcessing[]) => void) {
-        const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.ApplyPostProcessing) as CustomEventInternals.ApplyPostProcessing[]
-        fn(arr);
-        this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.ApplyPostProcessing)).concat(arr);
-    }
+    applyPostProcessings = (fn: (arr: CustomEventInternals.ApplyPostProcessing[]) => void) =>
+    this.returnCustomEvent(fn, CustomEventInternals.ApplyPostProcessing as any);
+    
     /** Returns a callback function providing an array of all DeclareCullingMask events. */
-    declareCullingMasks(fn: (arr: CustomEventInternals.DeclareCullingMask[]) => void) {
-        const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.DeclareCullingMask) as CustomEventInternals.DeclareCullingMask[]
-        fn(arr);
-        this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.DeclareCullingMask)).concat(arr);
-    }
+    declareCullingMasks = (fn: (arr: CustomEventInternals.DeclareCullingMask[]) => void) =>
+    this.returnCustomEvent(fn, CustomEventInternals.DeclareCullingMask as any);
+    
     /** Returns a callback function providing an array of all DeclareRenderTexture events. */
-    declareRenderTextures(fn: (arr: CustomEventInternals.DeclareRenderTexture[]) => void) {
-        const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.DeclareRenderTexture) as CustomEventInternals.DeclareRenderTexture[]
-        fn(arr);
-        this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.DeclareRenderTexture)).concat(arr);
-    }
+    declareRenderTextures = (fn: (arr: CustomEventInternals.DeclareRenderTexture[]) => void) =>
+    this.returnCustomEvent(fn, CustomEventInternals.DeclareRenderTexture as any);
+    
     /** Returns a callback function providing an array of all InstantiatePrefab events. */
-    instantiatePrefab(fn: (arr: CustomEventInternals.InstantiatePrefab[]) => void) {
-        const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.InstantiatePrefab) as CustomEventInternals.InstantiatePrefab[]
-        fn(arr);
-        this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.InstantiatePrefab)).concat(arr);
-    }
+    instantiatePrefab = (fn: (arr: CustomEventInternals.InstantiatePrefab[]) => void) =>
+    this.returnCustomEvent(fn, CustomEventInternals.InstantiatePrefab as any);
+    
+    /** Returns a callback function providing an array of all DestroyPrefab events. */
+    destroyPrefabs = (fn: (arr: CustomEventInternals.DestroyPrefab[]) => void) =>
+    this.returnCustomEvent(fn, CustomEventInternals.DestroyPrefab as any);
 
     /** Returns a callback function providing an array of all Environment objects. */
     environment(fn: (arr: Environment[]) => void) {
@@ -617,6 +604,7 @@ export class Difficulty {
         fn(arr);
         this.rawEnvironment = this.rawEnvironment.filter(x => !(x instanceof Environment)).concat(arr);
     }
+
     /** Returns a callback function providing an array of all Geometry objects. */
     geometry(fn: (arr: Geometry[]) => void) {
         const arr = this.rawEnvironment.filter(x => x instanceof Geometry) as Geometry[]
