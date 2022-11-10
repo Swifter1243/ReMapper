@@ -580,6 +580,12 @@ export class Difficulty {
         fn(arr);
         this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.AnimateComponent)).concat(arr);
     }
+    /** Returns a callback function providing an array of all AnimateComponent events. */
+    setMaterialProperties(fn: (arr: CustomEventInternals.SetMaterialProperty[]) => void) {
+        const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.SetMaterialProperty) as CustomEventInternals.SetMaterialProperty[]
+        fn(arr);
+        this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.SetMaterialProperty)).concat(arr);
+    }
 
     /** Returns a callback function providing an array of all Environment objects. */
     environment(fn: (arr: Environment[]) => void) {

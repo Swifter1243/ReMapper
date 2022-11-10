@@ -2,8 +2,17 @@
 import { copy, jsonGet, jsonSet } from './general.ts';
 import { activeDiffGet, Json } from './beatmap.ts';
 import { AnimationInternals, Animation, TrackValue, Track, KeyframesLinear } from './animation.ts';
-import { EASE } from './constants.ts';
+import { EASE, FILEPATH, PROPERTY_TYPE } from './constants.ts';
 import { BloomFogEnvironment, ILightWithId, TubeBloomPrePassLight } from './environment.ts';
+
+export interface MaterialProperty {
+    /** Name of the property on the material. */
+    name: string,
+    /** Type of the property. */
+    type: PROPERTY_TYPE,
+    /** Value to set the property to. */
+    value: any
+}
 
 export namespace CustomEventInternals {
     export class BaseEvent {
@@ -42,8 +51,13 @@ export namespace CustomEventInternals {
         set data(value: Json) { this.json.d = value }
     }
 
+    class BaseIdentityEvent extends BaseEvent {
+        /** Remove the subclass of the event, giving access to all properties, but can allow for invalid data. */
+        abstract() { return new CustomEvent().import(this.json) }
+    }
 
-    export class AnimateTrack extends BaseEvent {
+
+    export class AnimateTrack extends BaseIdentityEvent {
         /** The animation of this event. */
         animate: AnimationInternals.AbstractAnimation;
 
@@ -93,9 +107,6 @@ export namespace CustomEventInternals {
             return this;
         }
 
-        /** Remove the subclass of the event, giving access to all properties, but can allow for invalid data. */
-        abstract() { return new CustomEvent().import(this.json) }
-
         /** The track class for this event.
          * Please read the properties of this class to see how it works.
          */
@@ -112,7 +123,7 @@ export namespace CustomEventInternals {
         set repeat(value: number) { this.data.repeat = value }
     }
 
-    export class AssignPathAnimation extends BaseEvent {
+    export class AssignPathAnimation extends BaseIdentityEvent {
         /** The animation of this event. */
         animate: AnimationInternals.AbstractAnimation;
 
@@ -162,9 +173,6 @@ export namespace CustomEventInternals {
             return this;
         }
 
-        /** Remove the subclass of the event, giving access to all properties, but can allow for invalid data. */
-        abstract() { return new CustomEvent().import(this.json) }
-
         /** The track class for this event.
          * Please read the properties of this class to see how it works.
          */
@@ -178,7 +186,7 @@ export namespace CustomEventInternals {
         set easing(value: EASE) { this.data.easing = value }
     }
 
-    export class AssignTrackParent extends BaseEvent {
+    export class AssignTrackParent extends BaseIdentityEvent {
         /**
          * Assign tracks to a parent track.
          * @param json Json to import.
@@ -195,9 +203,6 @@ export namespace CustomEventInternals {
             if (worldPositionStays !== undefined) this.worldPositionStays = worldPositionStays;
         }
 
-        /** Remove the subclass of the event, giving access to all properties, but can allow for invalid data. */
-        abstract() { return new CustomEvent().import(this.json) }
-
         /** Children tracks to assign. */
         get childrenTracks() { return this.data.childrenTracks }
         /** Name of the parent track. */
@@ -210,7 +215,7 @@ export namespace CustomEventInternals {
         set worldPositionStays(value: boolean) { this.data.worldPositionStays = value }
     }
 
-    export class AssignPlayerToTrack extends BaseEvent {
+    export class AssignPlayerToTrack extends BaseIdentityEvent {
         /**
          * Assigns the player to a track.
          * @param json Json to import.
@@ -222,16 +227,13 @@ export namespace CustomEventInternals {
             if (track) this.track = track;
         }
 
-        /** Remove the subclass of the event, giving access to all properties, but can allow for invalid data. */
-        abstract() { return new CustomEvent().import(this.json) }
-
         /** Track the player will be assigned to. */
         get track() { return this.data.track }
 
         set track(value: string) { this.data.track = value }
     }
 
-    export class AnimateComponent extends BaseEvent {
+    export class AnimateComponent extends BaseIdentityEvent {
         /**
          * Animate components on a track.
          * @param json Json to import.
@@ -246,9 +248,6 @@ export namespace CustomEventInternals {
             if (duration) this.duration = duration;
             if (easing) this.easing = easing;
         }
-
-        /** Remove the subclass of the event, giving access to all properties, but can allow for invalid data. */
-        abstract() { return new CustomEvent().import(this.json) }
 
         /** The track class for this event.
          * Please read the properties of this class to see how it works.
@@ -270,6 +269,39 @@ export namespace CustomEventInternals {
         set lightID(value: ILightWithId<KeyframesLinear>) { jsonSet(this.data, "ILightWithId", value) }
         set fog(value: BloomFogEnvironment<KeyframesLinear>) { jsonSet(this.data, "BloomFogEnvironment", value) }
         set lightMultiplier(value: TubeBloomPrePassLight<KeyframesLinear>) { jsonSet(this.data, "TubeBloomPrePassLight", value) }
+    }
+
+    export class SetMaterialProperty extends BaseIdentityEvent {
+        /**
+         * Set properties on a material.
+         * @param json Json to import.
+         * @param asset File path to the material.
+         * @param properties Properties to set.
+         * @param duration The duration of the animation.
+         * @param easing An easing for the animation to follow.
+         */
+        constructor(json: Json, asset?: string, properties?: MaterialProperty[], duration?: number, easing?: EASE) {
+            super(json);
+            this.type = "SetMaterialProperty";
+            if (asset) this.asset = asset;
+            if (properties) this.properties = properties;
+            if (duration) this.duration = duration;
+            if (easing) this.easing = easing;
+        }
+
+        /** File path to the material. */
+        get asset() { return this.data.asset }
+        /** The duration of the animation. */
+        get duration() { return this.data.duration }
+        /** An easing for the animation to follow. */
+        get easing() { return this.data.easing }
+        /** Properties to set. */
+        get properties() { return this.data.properties }
+
+        set asset(value: FILEPATH) { this.data.asset = value }
+        set duration(value: number) { this.data.duration = value }
+        set easing(value: EASE) { this.data.easing = value }
+        set properties(value: MaterialProperty[]) { this.data.properties = value }
     }
 
     export class AbstractEvent extends BaseEvent {
@@ -331,6 +363,10 @@ export namespace CustomEventInternals {
         get fog() { return jsonGet(this.data, "BloomFogEnvironment", {}) }
         /** The "TubeBloomPrePassLight" component to animate. AnimateComponent only. */
         get lightMultiplier() { return jsonGet(this.data, "TubeBloomPrePassLight", {}) }
+        /** File path to the material. SetMaterialProperty only. */
+        get asset() { return this.data.asset }
+        /** Properties to set. SetMaterialProperty only. */
+        get properties() { return this.data.properties }
 
         set duration(value: number) { this.data.duration = value }
         set easing(value: EASE) { this.data.easing = value }
@@ -340,6 +376,8 @@ export namespace CustomEventInternals {
         set lightID(value: ILightWithId<KeyframesLinear>) { jsonSet(this.data, "ILightWithId", value) }
         set fog(value: BloomFogEnvironment<KeyframesLinear>) { jsonSet(this.data, "BloomFogEnvironment", value) }
         set lightMultiplier(value: TubeBloomPrePassLight<KeyframesLinear>) { jsonSet(this.data, "TubeBloomPrePassLight", value) }
+        set asset(value: FILEPATH) { this.data.asset = value }
+        set properties(value: MaterialProperty[]) { this.data.properties = value }
     }
 }
 
@@ -403,4 +441,15 @@ export class CustomEvent extends CustomEventInternals.BaseEvent {
      */
     animateComponent = (track?: TrackValue, duration?: number, easing?: EASE) =>
         new CustomEventInternals.AnimateComponent(this.json, track, duration, easing);
+
+    /**
+     * Set properties on a material.
+     * @param json Json to import.
+     * @param asset File path to the material.
+     * @param properties Properties to set.
+     * @param duration The duration of the animation.
+     * @param easing An easing for the animation to follow.
+     */
+    setMaterialProperty = (asset?: string, properties?: MaterialProperty[], duration?: number, easing?: EASE) =>
+        new CustomEventInternals.SetMaterialProperty(this.json, asset, properties, duration, easing);
 }

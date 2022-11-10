@@ -474,3 +474,8 @@ export type GEO_SHADER =
     "InterscopeCar" |
     "Obstacle" |
     "WaterfallMirror"
+
+export type PROPERTY_TYPE = 
+    "Texture" |
+    "Float" |
+    "Color"
