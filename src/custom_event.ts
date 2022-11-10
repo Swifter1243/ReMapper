@@ -283,8 +283,8 @@ export namespace CustomEventInternals {
         constructor(json: Json, asset: string, properties: MaterialProperty[], duration?: number, easing?: EASE) {
             super(json);
             this.type = "SetMaterialProperty";
-            if (asset) this.asset = asset;
-            if (properties) this.properties = properties;
+            this.asset = asset;
+            this.properties = properties;
             if (duration) this.duration = duration;
             if (easing) this.easing = easing;
         }
@@ -316,8 +316,8 @@ export namespace CustomEventInternals {
         constructor(json: Json, asset: string, properties: MaterialProperty[], duration?: number, easing?: EASE) {
             super(json);
             this.type = "ApplyPostProcessing";
-            if (asset) this.asset = asset;
-            if (properties) this.properties = properties;
+            this.asset = asset;
+            this.properties = properties;
             if (duration) this.duration = duration;
             if (easing) this.easing = easing;
         }
@@ -347,6 +347,36 @@ export namespace CustomEventInternals {
         set priority(value: number) { this.data.priority = value }
         set pass(value: number) { this.data.pass = value }
         set target(value: string) { this.data.target = value }
+    }
+
+    export class DeclareCullingMask extends BaseIdentityEvent {
+        /**
+         * Declares a culling mask where selected tracks are culled.
+         * Vivify will automatically create a texture for you to sample from your shader
+         * @param json Json to import.
+         * @param name Name of the culling mask, this is what you must name your sampler in your shader.
+         * @param track The track(s) to target for culling.
+         * @param whitelist Culls everything but the selected tracks.
+         */
+        constructor(json: Json, name: string, track: TrackValue, whitelist?: boolean) {
+            super(json);
+            this.type = "DeclareCullingMask";
+            this.name = name;
+            this.track.value = track;
+            if (whitelist) this.whitelist = whitelist;
+        }
+
+        /** Name of the culling mask, this is what you must name your sampler in your shader. */
+        get name() { return this.data.name }
+        /** The track class for this event.
+        * Please read the properties of this class to see how it works.
+        */
+        get track() { return new Track(this.data) }
+        /** Culls everything but the selected tracks. */
+        get whitelist() { return this.data.whitelist }
+
+        set name(value: string) { this.data.name = value }
+        set whitelist(value: boolean) { this.data.whitelist = value }
     }
 
     export class AbstractEvent extends BaseEvent {
@@ -423,6 +453,12 @@ export namespace CustomEventInternals {
          * Default is "_Main", which is reserved for the camera.
          * ApplyPostProcessing only. */
         get target() { return this.data.target }
+        /** Name of the culling mask, this is what you must name your sampler in your shader.
+         * DeclareCullingMask only.
+         */
+        get name() { return this.data.name }
+        /** Culls everything but the selected tracks. DeclareCullingMask only. */
+        get whitelist() { return this.data.whitelist }
 
         set duration(value: number) { this.data.duration = value }
         set easing(value: EASE) { this.data.easing = value }
@@ -437,6 +473,8 @@ export namespace CustomEventInternals {
         set priority(value: number) { this.data.priority = value }
         set pass(value: number) { this.data.pass = value }
         set target(value: string) { this.data.target = value }
+        set name(value: string) { this.data.name = value }
+        set whitelist(value: boolean) { this.data.whitelist = value }
     }
 }
 
@@ -503,7 +541,6 @@ export class CustomEvent extends CustomEventInternals.BaseEvent {
 
     /**
      * Set properties on a material.
-     * @param json Json to import.
      * @param asset File path to the material.
      * @param properties Properties to set.
      * @param duration The duration of the animation.
@@ -514,7 +551,6 @@ export class CustomEvent extends CustomEventInternals.BaseEvent {
 
     /**
      * Assigns a material to the camera and allows you to call a SetMaterialProperty from within.
-     * @param json Json to import.
      * @param asset File path to the material.
      * @param properties Properties to set.
      * @param duration The duration of the animation.
@@ -522,4 +558,15 @@ export class CustomEvent extends CustomEventInternals.BaseEvent {
      */
     applyPostProcessing = (asset: string, properties: MaterialProperty[], duration?: number, easing?: EASE) =>
         new CustomEventInternals.ApplyPostProcessing(this.json, asset, properties, duration, easing);
+
+    /**
+     * Declares a culling mask where selected tracks are culled.
+     * Vivify will automatically create a texture for you to sample from your shader
+     * @param json Json to import.
+     * @param name Name of the culling mask, this is what you must name your sampler in your shader.
+     * @param track The track(s) to target for culling.
+     * @param whitelist Culls everything but the selected tracks.
+     */
+    declareCullingMask = (name: string, track: TrackValue, whitelist?: boolean) =>
+        new CustomEventInternals.DeclareCullingMask(this.json, name, track, whitelist);
 }

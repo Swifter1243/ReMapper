@@ -592,6 +592,12 @@ export class Difficulty {
         fn(arr);
         this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.ApplyPostProcessing)).concat(arr);
     }
+    /** Returns a callback function providing an array of all DeclareCullingMask events. */
+    declareCullingMasks(fn: (arr: CustomEventInternals.DeclareCullingMask[]) => void) {
+        const arr = this.customEvents.filter(x => x instanceof CustomEventInternals.DeclareCullingMask) as CustomEventInternals.DeclareCullingMask[]
+        fn(arr);
+        this.customEvents = this.customEvents.filter(x => !(x instanceof CustomEventInternals.DeclareCullingMask)).concat(arr);
+    }
 
     /** Returns a callback function providing an array of all Environment objects. */
     environment(fn: (arr: Environment[]) => void) {
