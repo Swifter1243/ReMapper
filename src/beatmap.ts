@@ -598,6 +598,10 @@ export class Difficulty {
     destroyPrefabs = (fn: (arr: CustomEventInternals.DestroyPrefab[]) => void) =>
     this.returnCustomEvent(fn, CustomEventInternals.DestroyPrefab as any);
 
+    /** Returns a callback function providing an array of all SetAnimatorProperty events. */
+    setAnimatorPropertys = (fn: (arr: CustomEventInternals.SetAnimatorProperty[]) => void) =>
+    this.returnCustomEvent(fn, CustomEventInternals.SetAnimatorProperty as any);
+
     /** Returns a callback function providing an array of all Environment objects. */
     environment(fn: (arr: Environment[]) => void) {
         const arr = this.rawEnvironment.filter(x => x instanceof Environment) as Environment[]

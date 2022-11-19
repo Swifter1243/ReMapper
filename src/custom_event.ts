@@ -68,16 +68,16 @@ export namespace CustomEventInternals {
                 "DeclareCullingMask": CustomEventInternals.DeclareCullingMask,
                 "DeclareRenderTexture": CustomEventInternals.DeclareRenderTexture,
                 "InstantiatePrefab": CustomEventInternals.InstantiatePrefab,
-                "DestroyPrefab": CustomEventInternals.DestroyPrefab
-                // "SetAnimatorProperty": CustomEventInternals.SetAnimatorProperty
+                "DestroyPrefab": CustomEventInternals.DestroyPrefab,
+                "SetAnimatorProperty": CustomEventInternals.SetAnimatorProperty
             }
 
             const target = lookup[event.type];
             if (target !== undefined) {
                 const targetObj = new target;
                 Object.setPrototypeOf(event, targetObj);
-                if (Object.hasOwn(targetObj, "animate")) 
-                (event as any).animate = new Animation().abstract(this.data);
+                if (Object.hasOwn(targetObj, "animate"))
+                    (event as any).animate = new Animation().abstract(this.data);
             }
 
             return event;
@@ -556,6 +556,39 @@ export namespace CustomEventInternals {
 
         set id(value: string) { this.data.id = value }
     }
+
+    export class SetAnimatorProperty extends BaseEvent {
+        /**
+         * Searches a prefab for animator components and sets properties.
+         * @param json Json to import.
+         * @param id ID assigned to the prefab.
+         * @param properties Properties to set.
+         * @param duration The duration of the animation.
+         * @param easing An easing for the animation to follow.
+         */
+        constructor(json: Json, id: string, properties: AnimatorProperty[], duration?: number, easing?: EASE) {
+            super(json);
+            this.type = "SetAnimatorProperty";
+            this.id = id;
+            this.properties = properties;
+            if (duration) this.duration = duration;
+            if (easing) this.easing = easing;
+        }
+
+        /** ID assigned to the prefab. */
+        get id() { return this.data.id }
+        /** The duration of the animation. */
+        get duration() { return this.data.duration }
+        /** An easing for the animation to follow. */
+        get easing() { return this.data.easing }
+        /** Properties to set. */
+        get properties() { return this.data.properties }
+
+        set id(value: string) { this.data.id = value }
+        set duration(value: number) { this.data.duration = value }
+        set easing(value: EASE) { this.data.easing = value }
+        set properties(value: AnimatorProperty[]) { this.data.properties = value }
+    }
 }
 
 export class CustomEvent extends CustomEventInternals.BaseEvent {
@@ -676,4 +709,14 @@ export class CustomEvent extends CustomEventInternals.BaseEvent {
      */
     destroyPrefab = (id: string) =>
         new CustomEventInternals.DestroyPrefab(this.json, id);
+
+    /**
+     * Searches a prefab for animator components and sets properties.
+     * @param id ID assigned to the prefab.
+     * @param properties Properties to set.
+     * @param duration The duration of the animation.
+     * @param easing An easing for the animation to follow.
+     */
+    setAnimatorProperty = (id: string, properties: AnimatorProperty[], duration?: number, easing?: EASE) =>
+        new CustomEventInternals.SetAnimatorProperty(this.json, id, properties, duration, easing);
 }
