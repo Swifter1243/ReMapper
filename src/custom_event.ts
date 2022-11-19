@@ -403,9 +403,12 @@ export namespace CustomEventInternals {
         get priority() { return this.data.priority }
         /** Which pass in the shader. */
         get pass() { return this.data.pass }
-        /** Which render textures to save to. 
+        /** Which render texture(s) to save to. 
          * Default is "_Main", which is reserved for the camera. */
-        get destination() { return this.data.destination }
+        get destination() {
+            return this.data.destination.length === 1 ?
+                this.data.destination[0] : this.data.destination
+        }
         /** Which render texture to pass the shader as "_MainText".
         * Default is "_Main", which is reserved for the camera. */
         get source() { return this.data.source }
@@ -416,7 +419,10 @@ export namespace CustomEventInternals {
         set properties(value: MaterialProperty[]) { this.data.properties = value }
         set priority(value: number) { this.data.priority = value }
         set pass(value: number) { this.data.pass = value }
-        set destination(value: string[]) { this.data.destination = value }
+        set destination(value: string | string[]) {
+            this.data.destination =
+            Array.isArray(value) ? value : [value]
+        }
         set source(value: string) { this.data.source = value }
     }
 
