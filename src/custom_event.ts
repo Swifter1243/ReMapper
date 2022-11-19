@@ -5,7 +5,7 @@ import { AnimationInternals, Animation, TrackValue, Track, KeyframesLinear, Keyf
 import { ANIMATOR_PROP_TYPE, EASE, FILEPATH, MATERIAL_PROP_TYPE } from './constants.ts';
 import { BloomFogEnvironment, ILightWithId, TubeBloomPrePassLight } from './environment.ts';
 
-export type Property<T, V> =  {
+export type Property<T, V> = {
     /** Name of the property. */
     name: string,
     /** Type of the property. */
@@ -313,6 +313,34 @@ export namespace CustomEventInternals {
         set properties(value: MaterialProperty[]) { this.data.properties = value }
     }
 
+    export class SetGlobalProperty extends BaseIdentityEvent {
+        /**
+         * Allows setting global properties that persist even after the map ends.
+         * @param json Json to import.
+         * @param properties Properties to set.
+         * @param duration The duration of the animation.
+         * @param easing An easing for the animation to follow.
+         */
+        constructor(json: Json, properties: MaterialProperty[], duration?: number, easing?: EASE) {
+            super(json);
+            this.type = "SetMaterialProperty";
+            this.properties = properties;
+            if (duration) this.duration = duration;
+            if (easing) this.easing = easing;
+        }
+
+        /** The duration of the animation. */
+        get duration() { return this.data.duration }
+        /** An easing for the animation to follow. */
+        get easing() { return this.data.easing }
+        /** Properties to set. */
+        get properties() { return this.data.properties }
+
+        set duration(value: number) { this.data.duration = value }
+        set easing(value: EASE) { this.data.easing = value }
+        set properties(value: MaterialProperty[]) { this.data.properties = value }
+    }
+
     export class ApplyPostProcessing extends BaseIdentityEvent {
         /**
          * Assigns a material to the camera and allows you to call a SetMaterialProperty from within.
@@ -545,10 +573,9 @@ export namespace CustomEventInternals {
         get fog() { return jsonGet(this.data, "BloomFogEnvironment", {}) }
         /** The "TubeBloomPrePassLight" component to animate. AnimateComponent only. */
         get lightMultiplier() { return jsonGet(this.data, "TubeBloomPrePassLight", {}) }
-        /** File path to the relevant asset. 
-         * SetMaterialProperty, ApplyPostProcessing & InstantiatePrefab only. */
+        /** File path to the relevant asset. */
         get asset() { return this.data.asset }
-        /** Properties to set. SetMaterialProperty & ApplyPostProcessing only. */
+        /** Properties to set for an event that edits properties. */
         get properties() { return this.data.properties }
         /** Which order to run current active post processing effects.
          * Higher post priority will run first.
@@ -690,6 +717,15 @@ export class CustomEvent extends CustomEventInternals.BaseEvent {
      */
     setMaterialProperty = (asset: string, properties: MaterialProperty[], duration?: number, easing?: EASE) =>
         new CustomEventInternals.SetMaterialProperty(this.json, asset, properties, duration, easing);
+
+    /**
+     * Allows setting global properties that persist even after the map ends.
+     * @param properties Properties to set.
+     * @param duration The duration of the animation.
+     * @param easing An easing for the animation to follow.
+     */
+    setGlobalProperty = (properties: MaterialProperty[], duration?: number, easing?: EASE) =>
+        new CustomEventInternals.SetGlobalProperty(this.json, properties, duration, easing);
 
     /**
      * Assigns a material to the camera and allows you to call a SetMaterialProperty from within.

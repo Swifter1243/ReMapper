@@ -577,6 +577,10 @@ export class Difficulty {
     /** Returns a callback function providing an array of all SetMaterialProperty events. */
     setMaterialProperties = (fn: (arr: CustomEventInternals.SetMaterialProperty[]) => void) =>
     this.returnCustomEvent(fn, CustomEventInternals.SetMaterialProperty as any);
+
+    /** Returns a callback function providing an array of all SetGlobalProperty events. */
+    setGlobalProperties = (fn: (arr: CustomEventInternals.SetGlobalProperty[]) => void) =>
+    this.returnCustomEvent(fn, CustomEventInternals.SetGlobalProperty as any);
     
     /** Returns a callback function providing an array of all ApplyPostProcessing events. */
     applyPostProcessings = (fn: (arr: CustomEventInternals.ApplyPostProcessing[]) => void) =>
