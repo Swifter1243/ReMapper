@@ -566,10 +566,6 @@ export class Difficulty {
     assignPlayerToTracks = (fn: (arr: CustomEventInternals.AssignPlayerToTrack[]) => void) =>
     this.returnCustomEvent(fn, CustomEventInternals.AssignPlayerToTrack as any);
 
-    /** Returns a callback function providing an array of all AbstractEvent events. */
-    abstractEvents = (fn: (arr: CustomEventInternals.AbstractEvent[]) => void) =>
-    this.returnCustomEvent(fn, CustomEventInternals.AbstractEvent as any);
-
     /** Returns a callback function providing an array of all AnimateComponent events. */
     animateComponents = (fn: (arr: CustomEventInternals.AnimateComponent[]) => void) =>
     this.returnCustomEvent(fn, CustomEventInternals.AnimateComponent as any);

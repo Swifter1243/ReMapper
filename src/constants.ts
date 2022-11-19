@@ -439,6 +439,21 @@ export const ENV = {
     }
 }
 
+export type CUSTOM_EVENT_TYPE =
+    "AnimateTrack" |
+    "AssignPathAnimation" |
+    "AssignTrackParent" |
+    "AssignPlayerToTrack" |
+    "AnimateComponent" |
+    "SetMaterialProperty" |
+    "SetGlobalProperty" |
+    "ApplyPostProcessing" |
+    "DeclareCullingMask" |
+    "DeclareRenderTexture" |
+    "InstantiatePrefab" |
+    "DestroyPrefab" |
+    "SetAnimatorProperty"
+
 /** Color formats. */
 export type COLOR =
     "RGB" |
@@ -475,16 +490,19 @@ export type GEO_SHADER =
     "Obstacle" |
     "WaterfallMirror"
 
+/** Types allowed for material properties. */
 export type MATERIAL_PROP_TYPE =
     "Texture" |
     "Float" |
     "Color"
 
+/** Types allowed for animator properties. */
 export type ANIMATOR_PROP_TYPE =
     "Bool" |
     "Float" |
     "Trigger"
 
+/** Color format types for render textures. */
 export type RENDER_TEX =
     "ARGB32" |
     "Depth" |
@@ -515,6 +533,7 @@ export type RENDER_TEX =
     "BGR101010_XR" |
     "R16"
 
+/** Filter modes for textures. */
 export type TEX_FILTER =
     "Point" |
     "Bilinear" |

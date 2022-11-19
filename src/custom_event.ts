@@ -1,8 +1,9 @@
+// deno-lint-ignore-file
 // deno-lint-ignore-file no-namespace no-explicit-any adjacent-overload-signatures
 import { copy, jsonGet, jsonSet, Vec3 } from './general.ts';
 import { activeDiffGet, Json } from './beatmap.ts';
 import { AnimationInternals, Animation, TrackValue, Track, KeyframesLinear, KeyframesColor } from './animation.ts';
-import { ANIMATOR_PROP_TYPE, EASE, FILEPATH, MATERIAL_PROP_TYPE, RENDER_TEX, TEX_FILTER } from './constants.ts';
+import { ANIMATOR_PROP_TYPE, CUSTOM_EVENT_TYPE, EASE, FILEPATH, MATERIAL_PROP_TYPE, RENDER_TEX, TEX_FILTER } from './constants.ts';
 import { BloomFogEnvironment, ILightWithId, TubeBloomPrePassLight } from './environment.ts';
 
 export type Property<T, V> = {
@@ -48,6 +49,40 @@ export namespace CustomEventInternals {
             return this;
         }
 
+        /**
+         * Create a custom event using Json.
+         * @param json Json to import.
+         */
+        import(json: Json) {
+            const event = new CustomEventInternals.BaseEvent(json);
+
+            const lookup: Record<string, any> = {
+                "AnimateTrack": CustomEventInternals.AnimateTrack,
+                "AssignPathAnimation": CustomEventInternals.AssignPathAnimation,
+                "AssignTrackParent": CustomEventInternals.AssignTrackParent,
+                "AssignPlayerToTrack": CustomEventInternals.AssignPlayerToTrack,
+                "AnimateComponent": CustomEventInternals.AnimateComponent,
+                "SetMaterialProperty": CustomEventInternals.SetMaterialProperty,
+                "SetGlobalProperty": CustomEventInternals.SetGlobalProperty,
+                "ApplyPostProcessing": CustomEventInternals.ApplyPostProcessing,
+                "DeclareCullingMask": CustomEventInternals.DeclareCullingMask,
+                "DeclareRenderTexture": CustomEventInternals.DeclareRenderTexture,
+                "InstantiatePrefab": CustomEventInternals.InstantiatePrefab,
+                "DestroyPrefab": CustomEventInternals.DestroyPrefab
+                // "SetAnimatorProperty": CustomEventInternals.SetAnimatorProperty
+            }
+
+            const target = lookup[event.type];
+            if (target !== undefined) {
+                const targetObj = new target;
+                Object.setPrototypeOf(event, targetObj);
+                if (Object.hasOwn(targetObj, "animate")) 
+                (event as any).animate = new Animation().abstract(this.data);
+            }
+
+            return event;
+        }
+
         /** The time of this event in beats. */
         get time() { return this.json.b }
         /** The type of this event. */
@@ -56,17 +91,12 @@ export namespace CustomEventInternals {
         get data() { return this.json.d }
 
         set time(value: number) { this.json.b = value }
-        set type(value: string) { this.json.t = value }
+        set type(value: CUSTOM_EVENT_TYPE) { this.json.t = value }
         set data(value: Json) { this.json.d = value }
     }
 
-    class BaseIdentityEvent extends BaseEvent {
-        /** Remove the subclass of the event, giving access to all properties, but can allow for invalid data. */
-        abstract() { return new CustomEvent().import(this.json) }
-    }
 
-
-    export class AnimateTrack extends BaseIdentityEvent {
+    export class AnimateTrack extends BaseEvent {
         /** The animation of this event. */
         animate: AnimationInternals.AbstractAnimation;
 
@@ -132,7 +162,7 @@ export namespace CustomEventInternals {
         set repeat(value: number) { this.data.repeat = value }
     }
 
-    export class AssignPathAnimation extends BaseIdentityEvent {
+    export class AssignPathAnimation extends BaseEvent {
         /** The animation of this event. */
         animate: AnimationInternals.AbstractAnimation;
 
@@ -195,7 +225,7 @@ export namespace CustomEventInternals {
         set easing(value: EASE) { this.data.easing = value }
     }
 
-    export class AssignTrackParent extends BaseIdentityEvent {
+    export class AssignTrackParent extends BaseEvent {
         /**
          * Assign tracks to a parent track.
          * @param json Json to import.
@@ -224,7 +254,7 @@ export namespace CustomEventInternals {
         set worldPositionStays(value: boolean) { this.data.worldPositionStays = value }
     }
 
-    export class AssignPlayerToTrack extends BaseIdentityEvent {
+    export class AssignPlayerToTrack extends BaseEvent {
         /**
          * Assigns the player to a track.
          * @param json Json to import.
@@ -242,7 +272,7 @@ export namespace CustomEventInternals {
         set track(value: string) { this.data.track = value }
     }
 
-    export class AnimateComponent extends BaseIdentityEvent {
+    export class AnimateComponent extends BaseEvent {
         /**
          * Animate components on a track.
          * @param json Json to import.
@@ -280,7 +310,7 @@ export namespace CustomEventInternals {
         set lightMultiplier(value: TubeBloomPrePassLight<KeyframesLinear>) { jsonSet(this.data, "TubeBloomPrePassLight", value) }
     }
 
-    export class SetMaterialProperty extends BaseIdentityEvent {
+    export class SetMaterialProperty extends BaseEvent {
         /**
          * Set properties on a material.
          * @param json Json to import.
@@ -313,7 +343,7 @@ export namespace CustomEventInternals {
         set properties(value: MaterialProperty[]) { this.data.properties = value }
     }
 
-    export class SetGlobalProperty extends BaseIdentityEvent {
+    export class SetGlobalProperty extends BaseEvent {
         /**
          * Allows setting global properties that persist even after the map ends.
          * @param json Json to import.
@@ -323,7 +353,7 @@ export namespace CustomEventInternals {
          */
         constructor(json: Json, properties: MaterialProperty[], duration?: number, easing?: EASE) {
             super(json);
-            this.type = "SetMaterialProperty";
+            this.type = "SetGlobalProperty";
             this.properties = properties;
             if (duration) this.duration = duration;
             if (easing) this.easing = easing;
@@ -341,7 +371,7 @@ export namespace CustomEventInternals {
         set properties(value: MaterialProperty[]) { this.data.properties = value }
     }
 
-    export class ApplyPostProcessing extends BaseIdentityEvent {
+    export class ApplyPostProcessing extends BaseEvent {
         /**
          * Assigns a material to the camera and allows you to call a SetMaterialProperty from within.
          * @param json Json to import.
@@ -390,7 +420,7 @@ export namespace CustomEventInternals {
         set source(value: string) { this.data.source = value }
     }
 
-    export class DeclareCullingMask extends BaseIdentityEvent {
+    export class DeclareCullingMask extends BaseEvent {
         /**
          * Declares a culling mask where selected tracks are culled.
          * Vivify will automatically create a texture for you to sample from your shader
@@ -423,7 +453,7 @@ export namespace CustomEventInternals {
         set depthTexture(value: boolean) { this.data.depthTexture = value }
     }
 
-    export class DeclareRenderTexture extends BaseIdentityEvent {
+    export class DeclareRenderTexture extends BaseEvent {
         /**
          * Declare a RenderTexture to be used anywhere.
          * They are set as a global variable and can be accessed by declaring a sampler named what you put in "name".
@@ -465,7 +495,7 @@ export namespace CustomEventInternals {
         set filterMode(value: TEX_FILTER) { this.data.filterMode = value }
     }
 
-    export class InstantiatePrefab extends BaseIdentityEvent {
+    export class InstantiatePrefab extends BaseEvent {
         /**
          * Instantiate a chosen prefab into the scene.
          * @param json Json to import.
@@ -509,7 +539,7 @@ export namespace CustomEventInternals {
         set scale(value: Vec3) { this.data.scale = value }
     }
 
-    export class DestroyPrefab extends BaseIdentityEvent {
+    export class DestroyPrefab extends BaseEvent {
         /**
          * Will destroy a prefab in the scene.
          * @param json Json to import.
@@ -526,152 +556,6 @@ export namespace CustomEventInternals {
 
         set id(value: string) { this.data.id = value }
     }
-
-    export class AbstractEvent extends BaseEvent {
-        /** The animation of this event. */
-        animate: AnimationInternals.AbstractAnimation;
-
-        /**
-         * A custom event that has an unknown type.
-         * @param json Json to import.
-         */
-        constructor(json: Json) {
-            super(json);
-            this.animate = new Animation().abstract(this.data);
-        }
-
-        /**
-         * Add properties to the data.
-         * @param data Properties to add.
-         */
-        appendData(data: Json) {
-            Object.keys(data).forEach(x => {
-                this.json._data[x] = data[x];
-            })
-        }
-
-        /**
-         * Apply an animation through the Animation class.
-         * @param animation Animation to apply.
-         */
-        importAnimation(animation: AnimationInternals.BaseAnimation) {
-            this.appendData(animation.json);
-            this.duration = animation.length;
-            this.animate.length = animation.length;
-            return this;
-        }
-
-        /** The track class for this event.
-         * Please read the properties of this class to see how it works.
-         */
-        get track() { return new Track(this.data) }
-        /** The duration of the animation. 
-         * Or in the case of AssignPathAnimation,
-         * the time to transition from a previous path to this one.  */
-        get duration() { return this.data.duration }
-        /** The easing on this event's animation.
-         * Or in the case of AssignPathAnimation,
-         * the easing for the transition from a previous path to this one.  */
-        get easing() { return this.data.easing }
-        /** Children tracks to assign. AssignTrackParent only. */
-        get childrenTracks() { return this.data.childrenTracks }
-        /** Name of the parent track. AssignTrackParent only. */
-        get parentTrack() { return this.data.parentTrack }
-        /** Modifies the transform of children objects to remain in the same place relative to world space. 
-         * AssignTrackParent only. */
-        get worldPositionStays() { return this.data.worldPositionStays }
-        /** The "ILightWithId" component to animate. AnimateComponent only. */
-        get lightID() { return jsonGet(this.data, "ILightWithId", {}) }
-        /** The "BloomFogEnvironment" component to animate. AnimateComponent only. */
-        get fog() { return jsonGet(this.data, "BloomFogEnvironment", {}) }
-        /** The "TubeBloomPrePassLight" component to animate. AnimateComponent only. */
-        get lightMultiplier() { return jsonGet(this.data, "TubeBloomPrePassLight", {}) }
-        /** File path to the relevant asset. */
-        get asset() { return this.data.asset }
-        /** Properties to set for an event that edits properties. */
-        get properties() { return this.data.properties }
-        /** Which order to run current active post processing effects.
-         * Higher post priority will run first.
-         * ApplyPostProcessing only.
-         */
-        get priority() { return this.data.priority }
-        /** Which pass in the shader. ApplyPostProcessing only. */
-        get pass() { return this.data.pass }
-        /** Which render textures to save to. 
-         * Default is "_Main", which is reserved for the camera.
-         * ApplyPostProcessing only. */
-        get destination() { return this.data.destination }
-        /** Which render texture to pass the shader as "_MainText".
-         * Default is "_Main", which is reserved for the camera. 
-         * ApplyPostProcessing only. */
-        get source() { return this.data.source }
-        /** DeclareCullingMask:
-         * Name of the culling mask, this is what you must name your sampler in your shader.
-         * DeclareDepthTexture:
-         * Name of the depth texture.
-         */
-        get name() { return this.data.name }
-        /** Culls everything but the selected tracks. DeclareCullingMask only. */
-        get whitelist() { return this.data.whitelist }
-        /** Write depth texture to "(name)_Depth". Default is false. DeclareCullingMask only. */
-        get depthTexture() { return this.data.depthTexture }
-        /** Number to divide screen width by. DeclareRenderTexture only. */
-        get xRatio() { return this.data.xRatio }
-        /** Number to divide screen height by. DeclareRenderTexture only. */
-        get yRatio() { return this.data.yRatio }
-        /** Exact width for the texture. DeclareRenderTexture only. */
-        get width() { return this.data.width }
-        /** Exact height for the texture. DeclareRenderTexture only. */
-        get height() { return this.data.height }
-        /** Color format for the texture. DeclareRenderTexture only. */
-        get colorFormat() { return this.data.colorFormat }
-        /** Filter mode for the texture. DeclareRenderTexture only. */
-        get filterMode() { return this.data.filterMode }
-        /** InstantiatePrefab: 
-         * Unique id for referencing prefab later. Random id will be given by default.
-         * DestroyPrefab: Id of the prefab to destroy. */
-        get id() { return this.data.id }
-        /** Position of the prefab relative to the world. InstantiatePrefab only. */
-        get position() { return this.data.position }
-        /** Position of the prefab relative to it's parent. InstantiatePrefab only. */
-        get localPosition() { return this.data.localPosition }
-        /** Rotation of the prefab relative to the world. InstantiatePrefab only. */
-        get rotation() { return this.data.rotation }
-        /** Rotation of the prefab relative to it's parent. InstantiatePrefab only. */
-        get localRotation() { return this.data.localRotation }
-        /** Scale of the prefab. InstantiatePrefab only. */
-        get scale() { return this.data.scale }
-
-        set duration(value: number) { this.data.duration = value }
-        set easing(value: EASE) { this.data.easing = value }
-        set childrenTracks(value: string[]) { this.data.childrenTracks = value }
-        set parentTrack(value: string) { this.data.parentTrack = value }
-        set worldPositionStays(value: boolean) { this.data.worldPositionStays = value }
-        set lightID(value: ILightWithId<KeyframesLinear>) { jsonSet(this.data, "ILightWithId", value) }
-        set fog(value: BloomFogEnvironment<KeyframesLinear>) { jsonSet(this.data, "BloomFogEnvironment", value) }
-        set lightMultiplier(value: TubeBloomPrePassLight<KeyframesLinear>) { jsonSet(this.data, "TubeBloomPrePassLight", value) }
-        set asset(value: FILEPATH) { this.data.asset = value }
-        set properties(value: MaterialProperty[]) { this.data.properties = value }
-        set priority(value: number) { this.data.priority = value }
-        set pass(value: number) { this.data.pass = value }
-        set destination(value: string[]) { this.data.destination = value }
-        set source(value: string) { this.data.source = value }
-        set name(value: string) { this.data.name = value }
-        set whitelist(value: boolean) { this.data.whitelist = value }
-        set depthTexture(value: boolean) { this.data.depthTexture = value }
-        set xRatio(value: number) { this.data.xRatio = value }
-        set yRatio(value: number) { this.data.yRatio = value }
-        set width(value: number) { this.data.width = value }
-        set height(value: number) { this.data.height = value }
-        set colorFormat(value: RENDER_TEX) { this.data.colorFormat = value }
-        set filterMode(value: TEX_FILTER) { this.data.filterMode = value }
-        set id(value: string) { this.data.id = value }
-        set position(value: Vec3) { this.data.position = value }
-        set localPosition(value: Vec3) { this.data.localPosition = value }
-        set rotation(value: Vec3) { this.data.rotation = value }
-        set localRotation(value: Vec3) { this.data.localRotation = value }
-        set scale(value: Vec3) { this.data.scale = value }
-    }
 }
 
 export class CustomEvent extends CustomEventInternals.BaseEvent {
@@ -680,15 +564,6 @@ export class CustomEvent extends CustomEventInternals.BaseEvent {
      * @param time Time of the event.
      */
     constructor(time = 0) { super(time) }
-
-    /**
-     * Create a custom event using Json.
-     * @param json Json to import.
-     */
-    import(json: Json) { return new CustomEventInternals.AbstractEvent(json) }
-
-    /** Create an event with no particular identity. */
-    abstract() { return this.import({}) }
 
     /**
      * Animate a track.
