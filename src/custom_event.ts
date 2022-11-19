@@ -373,9 +373,12 @@ export namespace CustomEventInternals {
         get priority() { return this.data.priority }
         /** Which pass in the shader. */
         get pass() { return this.data.pass }
-        /** Which render texture to save to. 
+        /** Which render textures to save to. 
          * Default is "_Main", which is reserved for the camera. */
-        get target() { return this.data.target }
+        get destination() { return this.data.destination }
+        /** Which render texture to pass the shader as "_MainText".
+        * Default is "_Main", which is reserved for the camera. */
+        get source() { return this.data.source }
 
         set asset(value: FILEPATH) { this.data.asset = value }
         set duration(value: number) { this.data.duration = value }
@@ -383,7 +386,8 @@ export namespace CustomEventInternals {
         set properties(value: MaterialProperty[]) { this.data.properties = value }
         set priority(value: number) { this.data.priority = value }
         set pass(value: number) { this.data.pass = value }
-        set target(value: string) { this.data.target = value }
+        set destination(value: string[]) { this.data.destination = value }
+        set source(value: string) { this.data.source = value }
     }
 
     export class DeclareCullingMask extends BaseIdentityEvent {
@@ -584,10 +588,14 @@ export namespace CustomEventInternals {
         get priority() { return this.data.priority }
         /** Which pass in the shader. ApplyPostProcessing only. */
         get pass() { return this.data.pass }
-        /** Which render texture to save to. 
+        /** Which render textures to save to. 
          * Default is "_Main", which is reserved for the camera.
          * ApplyPostProcessing only. */
-        get target() { return this.data.target }
+        get destination() { return this.data.destination }
+        /** Which render texture to pass the shader as "_MainText".
+         * Default is "_Main", which is reserved for the camera. 
+         * ApplyPostProcessing only. */
+        get source() { return this.data.source }
         /** DeclareCullingMask:
          * Name of the culling mask, this is what you must name your sampler in your shader.
          * DeclareDepthTexture:
@@ -631,7 +639,8 @@ export namespace CustomEventInternals {
         set properties(value: MaterialProperty[]) { this.data.properties = value }
         set priority(value: number) { this.data.priority = value }
         set pass(value: number) { this.data.pass = value }
-        set target(value: string) { this.data.target = value }
+        set destination(value: string[]) { this.data.destination = value }
+        set source(value: string) { this.data.source = value }
         set name(value: string) { this.data.name = value }
         set whitelist(value: boolean) { this.data.whitelist = value }
         set xRatio(value: number) { this.data.xRatio = value }
