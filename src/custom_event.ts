@@ -2,7 +2,7 @@
 import { copy, jsonGet, jsonSet, Vec3 } from './general.ts';
 import { activeDiffGet, Json } from './beatmap.ts';
 import { AnimationInternals, Animation, TrackValue, Track, KeyframesLinear, KeyframesColor } from './animation.ts';
-import { ANIMATOR_PROP_TYPE, EASE, FILEPATH, MATERIAL_PROP_TYPE } from './constants.ts';
+import { ANIMATOR_PROP_TYPE, EASE, FILEPATH, MATERIAL_PROP_TYPE, RENDER_TEX, TEX_FILTER } from './constants.ts';
 import { BloomFogEnvironment, ILightWithId, TubeBloomPrePassLight } from './environment.ts';
 
 export type Property<T, V> = {
@@ -415,9 +415,12 @@ export namespace CustomEventInternals {
         get track() { return new Track(this.data) }
         /** Culls everything but the selected tracks. */
         get whitelist() { return this.data.whitelist }
+        /** Write depth texture to "(name)_Depth". Default is false. */
+        get depthTexture() { return this.data.depthTexture }
 
         set name(value: string) { this.data.name = value }
         set whitelist(value: boolean) { this.data.whitelist = value }
+        set depthTexture(value: boolean) { this.data.depthTexture = value }
     }
 
     export class DeclareRenderTexture extends BaseIdentityEvent {
@@ -448,12 +451,18 @@ export namespace CustomEventInternals {
         get width() { return this.data.width }
         /** Exact height for the texture. */
         get height() { return this.data.height }
+        /** Color format for the texture. */
+        get colorFormat() { return this.data.colorFormat }
+        /** Filter mode for the texture. */
+        get filterMode() { return this.data.filterMode }
 
         set name(value: string) { this.data.name = value }
         set xRatio(value: number) { this.data.xRatio = value }
         set yRatio(value: number) { this.data.yRatio = value }
         set width(value: number) { this.data.width = value }
         set height(value: number) { this.data.height = value }
+        set colorFormat(value: RENDER_TEX) { this.data.colorFormat = value }
+        set filterMode(value: TEX_FILTER) { this.data.filterMode = value }
     }
 
     export class InstantiatePrefab extends BaseIdentityEvent {
@@ -604,6 +613,8 @@ export namespace CustomEventInternals {
         get name() { return this.data.name }
         /** Culls everything but the selected tracks. DeclareCullingMask only. */
         get whitelist() { return this.data.whitelist }
+        /** Write depth texture to "(name)_Depth". Default is false. DeclareCullingMask only. */
+        get depthTexture() { return this.data.depthTexture }
         /** Number to divide screen width by. DeclareRenderTexture only. */
         get xRatio() { return this.data.xRatio }
         /** Number to divide screen height by. DeclareRenderTexture only. */
@@ -612,6 +623,10 @@ export namespace CustomEventInternals {
         get width() { return this.data.width }
         /** Exact height for the texture. DeclareRenderTexture only. */
         get height() { return this.data.height }
+        /** Color format for the texture. DeclareRenderTexture only. */
+        get colorFormat() { return this.data.colorFormat }
+        /** Filter mode for the texture. DeclareRenderTexture only. */
+        get filterMode() { return this.data.filterMode }
         /** InstantiatePrefab: 
          * Unique id for referencing prefab later. Random id will be given by default.
          * DestroyPrefab: Id of the prefab to destroy. */
@@ -643,10 +658,13 @@ export namespace CustomEventInternals {
         set source(value: string) { this.data.source = value }
         set name(value: string) { this.data.name = value }
         set whitelist(value: boolean) { this.data.whitelist = value }
+        set depthTexture(value: boolean) { this.data.depthTexture = value }
         set xRatio(value: number) { this.data.xRatio = value }
         set yRatio(value: number) { this.data.yRatio = value }
         set width(value: number) { this.data.width = value }
         set height(value: number) { this.data.height = value }
+        set colorFormat(value: RENDER_TEX) { this.data.colorFormat = value }
+        set filterMode(value: TEX_FILTER) { this.data.filterMode = value }
         set id(value: string) { this.data.id = value }
         set position(value: Vec3) { this.data.position = value }
         set localPosition(value: Vec3) { this.data.localPosition = value }

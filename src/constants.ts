@@ -475,7 +475,7 @@ export type GEO_SHADER =
     "Obstacle" |
     "WaterfallMirror"
 
-export type MATERIAL_PROP_TYPE = 
+export type MATERIAL_PROP_TYPE =
     "Texture" |
     "Float" |
     "Color"
@@ -484,3 +484,38 @@ export type ANIMATOR_PROP_TYPE =
     "Bool" |
     "Float" |
     "Trigger"
+
+export type RENDER_TEX =
+    "ARGB32" |
+    "Depth" |
+    "ARGBHalf" |
+    "Shadowmap" |
+    "RGB565" |
+    "ARGB4444" |
+    "ARGB1555" |
+    "Default" |
+    "ARGB2101010" |
+    "DefaultHDR" |
+    "ARGB64" |
+    "ARGBFloat" |
+    "RGFloat" |
+    "RGHalf" |
+    "RFloat" |
+    "RHalf" |
+    "R8" |
+    "ARGBInt" |
+    "RGInt" |
+    "RInt" |
+    "BGRA32" |
+    "RGB111110Float" |
+    "RG32" |
+    "RGBAUShort" |
+    "RG16" |
+    "BGRA101010_XR" |
+    "BGR101010_XR" |
+    "R16"
+
+export type TEX_FILTER =
+    "Point" |
+    "Bilinear" |
+    "Trilinear"
