@@ -475,7 +475,12 @@ export type GEO_SHADER =
     "Obstacle" |
     "WaterfallMirror"
 
-export type PROPERTY_TYPE = 
+export type MATERIAL_PROP_TYPE = 
     "Texture" |
     "Float" |
     "Color"
+
+export type ANIMATOR_PROP_TYPE =
+    "Bool" |
+    "Float" |
+    "Trigger"

@@ -1,18 +1,27 @@
 // deno-lint-ignore-file no-namespace no-explicit-any adjacent-overload-signatures
 import { copy, jsonGet, jsonSet, Vec3 } from './general.ts';
 import { activeDiffGet, Json } from './beatmap.ts';
-import { AnimationInternals, Animation, TrackValue, Track, KeyframesLinear } from './animation.ts';
-import { EASE, FILEPATH, PROPERTY_TYPE } from './constants.ts';
+import { AnimationInternals, Animation, TrackValue, Track, KeyframesLinear, KeyframesColor } from './animation.ts';
+import { ANIMATOR_PROP_TYPE, EASE, FILEPATH, MATERIAL_PROP_TYPE } from './constants.ts';
 import { BloomFogEnvironment, ILightWithId, TubeBloomPrePassLight } from './environment.ts';
 
-export interface MaterialProperty {
-    /** Name of the property on the material. */
+export type Property<T, V> =  {
+    /** Name of the property. */
     name: string,
     /** Type of the property. */
-    type: PROPERTY_TYPE,
+    type: T,
     /** Value to set the property to. */
-    value: any
+    value: V
 }
+
+/** A valid value for material properties. */
+export type MaterialPropertyValue = FILEPATH | KeyframesLinear | KeyframesColor;
+/** A valid value for animator properties. */
+export type AnimatorPropertyValue = boolean | KeyframesLinear;
+/** A property for a material. */
+export type MaterialProperty = Property<MATERIAL_PROP_TYPE, MaterialPropertyValue>;
+/** A property for an animator. */
+export type AnimatorProperty = Property<ANIMATOR_PROP_TYPE, AnimatorPropertyValue>;
 
 export namespace CustomEventInternals {
     export class BaseEvent {
