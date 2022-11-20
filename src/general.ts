@@ -9,7 +9,7 @@ import { Note } from './note.ts';
 import { EventInternals } from './basicEvent.ts';
 import { OptimizeSettings } from "./anim_optimizer.ts";
 import { fs, path, three } from "./deps.ts";
-import { Environment } from './environment.ts';
+import { BloomFogEnvironment, Environment } from './environment.ts';
 
 /** An array with 2 numbers. */
 export type Vec2 = [number, number];
@@ -743,6 +743,17 @@ export const getBaseEnvironment = () => new Environment("[0]Environment", "EndsW
 export function baseEnvironmentTrack(track: string) {
     const env = getBaseEnvironment();
     env.track.value = track;
+    env.push();
+}
+
+/**
+ * Edits the base Environment object's fog component.
+ * @param fog The fog component.
+ */
+export function adjustFog(fog: (bfe: BloomFogEnvironment<number>) => void) {
+    const env = getBaseEnvironment();
+    env.components.BloomFogEnvironment = {};
+    fog(env.components.BloomFogEnvironment);
     env.push();
 }
 
