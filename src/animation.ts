@@ -23,38 +23,42 @@ export type AbstractKeyframeArray<T extends number[]> = AbstractRawKeyframeArray
 export type KeyframesLinear = AbstractKeyframeArray<[number]>
 /** Array of keyframes with 1 value. [[x, time]...] */
 export type ComplexKeyframesLinear = AbstractComplexKeyframeArray<[number]>
+/** Keyframe or array of keyframes with 1 value.
+ * [[x,time]...] or [x]
+ */
+export type RawKeyframesLinear = AbstractRawKeyframeArray<[number]>
 
 /** Keyframe or array of keyframes with 3 values. Allows point definitions.
  * [[x,y,z,time]...] or [x,y,z]
  */
 export type KeyframesVec3 = AbstractKeyframeArray<Vec3>
+/** Array of keyframes with 3 values. [[x,y,z,time]...] */
+export type ComplexKeyframesVec3 = AbstractComplexKeyframeArray<Vec3>;
 /** Keyframe or array of keyframes with 3 values.
  * [[x,y,z,time]...] or [x,y,z]
  */
-export type ComplexKeyframesVec3 = AbstractComplexKeyframeArray<Vec3>;
-/** Array of keyframes with 3 values. [[x,y,z,time]...] */
 export type RawKeyframesVec3 = AbstractRawKeyframeArray<Vec3>;
 
 /** Keyframe or array of keyframes with 4 values. Allows "hsvLerp".
  * [[r,g,b,a,time]...] or [r,g,b,a]
  */
 export type ComplexKeyframesColor = [...Vec4, number, KeyframeFlag?, KeyframeFlag?, KeyframeFlag?][]
+/** Array of keyframes with 4 values. [[r,g,b,a,time]...] */
+export type KeyframesColor = ComplexKeyframesColor | Vec4 | string
 /** Keyframe or array of keyframes with 4 values. Allows "hsvLerp" and point definitions.
  * [[r,g,b,a,time]...] or [r,g,b,a]
  */
-export type KeyframesColor = ComplexKeyframesColor | Vec4 | string
-/** Array of keyframes with 4 values. [[r,g,b,a,time]...] */
 export type RawKeyframesColor = ComplexKeyframesColor | Vec4
 
 /** Keyframe or array of keyframes with 4 values. Allows point definitions.
  * [[x,y,z,w,time]...] or [x,y,z,w]
  */
 export type KeyframesVec4 = AbstractKeyframeArray<Vec4>;
+/** Array of keyframes with 4 values. [[x,y,z,w,time]...] */
+export type ComplexKeyframesVec4 = AbstractComplexKeyframeArray<Vec4>;
 /** Keyframe or array of keyframes with 4 values.
  * [[x,y,z,w,time]...] or [x,y,z,w]
  */
-export type ComplexKeyframesVec4 = AbstractComplexKeyframeArray<Vec4>;
-/** Array of keyframes with 4 values. [[x,y,z,w,time]...] */
 export type RawKeyframesVec4 = AbstractRawKeyframeArray<Vec4>;
 
 /** Keyframe which isn't in an array with other keyframes, has any amount of values. */
@@ -62,11 +66,11 @@ export type SingleKeyframe = number[];
 /** Keyframe which is in an array with other keyframes, has any amount of values. */
 export type KeyframeValues = (number | (KeyframeFlag | undefined))[];
 /** Array of keyframes which have any amount of values. */
-export type KeyframeArray = KeyframeValues[];
+export type ComplexKeyframesAny = KeyframeValues[];
 /** Keyframe or array of keyframes with any amount of values. Allows point definitions. */
-export type KeyframesAny = SingleKeyframe | KeyframeArray | string;
+export type KeyframesAny = SingleKeyframe | ComplexKeyframesAny | string;
 /** Keyframe or array of keyframes with any amount of values. */
-export type RawKeyframesAny = SingleKeyframe | KeyframeArray;
+export type RawKeyframesAny = SingleKeyframe | ComplexKeyframesAny;
 
 /** A track or multiple tracks. */
 export type TrackValue = string | string[];
@@ -108,7 +112,8 @@ export namespace AnimationInternals {
          */
         set(property: ANIM, value: KeyframesAny, process = true) {
             if (typeof value === "string" || !process) this.json[property] = value;
-            else this.json[property] = simplifyArray(this.convert(complexifyArray(value)).sort((a: KeyframeValues, b: KeyframeValues) => new Keyframe(a).time - new Keyframe(b).time))
+            else this.json[property] = simplifyArray(this.convert(complexifyArray(value))
+                .sort((a: KeyframeValues, b: KeyframeValues) => new Keyframe(a).time - new Keyframe(b).time));
         }
 
         /**
@@ -135,7 +140,7 @@ export namespace AnimationInternals {
             if (typeof value === "string") this.json[property] = value;
             else {
                 value = this.convert(complexifyArray(value));
-                const concatArray = (value as KeyframeArray).concat(complexifyArray(this.json[property]));
+                const concatArray = (value as ComplexKeyframesAny).concat(complexifyArray(this.json[property]));
                 const newValue = simplifyArray(concatArray.sort((a, b) => new Keyframe(a).time - new Keyframe(b).time));
                 this.json[property] = newValue;
             }
@@ -171,7 +176,7 @@ export namespace AnimationInternals {
             }
         }
 
-        private convert(value: KeyframeArray) {
+        private convert(value: ComplexKeyframesAny) {
             return value.map(x => {
                 const time = new Keyframe(x).timeIndex;
                 x[time] = this.convertTime(x[time] as number);
@@ -210,15 +215,15 @@ export namespace AnimationInternals {
         /** Controls the time value for other animations. */
         get time() { return this.get("time") }
 
-        set position(value: KeyframesVec3) { this.set("offsetPosition", value as KeyframesAny) }
-        set definitePosition(value: KeyframesVec3) { this.set("definitePosition", value as KeyframesAny) }
-        set rotation(value: KeyframesVec3) { this.set("offsetWorldRotation", value as KeyframesAny) }
-        set localRotation(value: KeyframesVec3) { this.set("localRotation", value as KeyframesAny) }
-        set scale(value: KeyframesVec3) { this.set("scale", value as KeyframesAny) }
-        set dissolve(value: KeyframesLinear) { this.set("dissolve", value as KeyframesAny) }
-        set color(value: KeyframesColor) { this.set("color", value as KeyframesAny) }
-        set uninteractable(value: KeyframesLinear) { this.set("uninteractable", value as KeyframesAny) }
-        set time(value: KeyframesLinear) { this.set("time", value as KeyframesAny) }
+        set position(value: KeyframesVec3) { this.set("offsetPosition", value) }
+        set definitePosition(value: KeyframesVec3) { this.set("definitePosition", value) }
+        set rotation(value: KeyframesVec3) { this.set("offsetWorldRotation", value) }
+        set localRotation(value: KeyframesVec3) { this.set("localRotation", value) }
+        set scale(value: KeyframesVec3) { this.set("scale", value) }
+        set dissolve(value: KeyframesLinear) { this.set("dissolve", value) }
+        set color(value: KeyframesColor) { this.set("color", value) }
+        set uninteractable(value: KeyframesLinear) { this.set("uninteractable", value) }
+        set time(value: KeyframesLinear) { this.set("time", value) }
     }
 
     /** Animation specifically for note objects. */
@@ -227,7 +232,7 @@ export namespace AnimationInternals {
          * 0 means invisible, 1 means visible.
          */
         get dissolveArrow() { return this.get("dissolveArrow") }
-        set dissolveArrow(value: KeyframesLinear) { this.set("dissolveArrow", value as KeyframesAny) }
+        set dissolveArrow(value: KeyframesLinear) { this.set("dissolveArrow", value) }
     }
 
     /** Animation specifically for wall objects. */
@@ -246,11 +251,11 @@ export namespace AnimationInternals {
         /** The scale of the object. */
         get scale() { return this.get("scale") }
 
-        set position(value: KeyframesVec3) { this.set("position", value as KeyframesAny) }
-        set rotation(value: KeyframesVec3) { this.set("rotation", value as KeyframesAny) }
-        set localPosition(value: KeyframesVec3) { this.set("localPosition", value as KeyframesAny) }
-        set localRotation(value: KeyframesVec3) { this.set("localRotation", value as KeyframesAny) }
-        set scale(value: KeyframesVec3) { this.set("scale", value as KeyframesAny) }
+        set position(value: KeyframesVec3) { this.set("position", value) }
+        set rotation(value: KeyframesVec3) { this.set("rotation", value) }
+        set localPosition(value: KeyframesVec3) { this.set("localPosition", value) }
+        set localRotation(value: KeyframesVec3) { this.set("localRotation", value) }
+        set scale(value: KeyframesVec3) { this.set("scale", value) }
     }
 
     /** Animation that can apply to any object. */
@@ -290,19 +295,19 @@ export namespace AnimationInternals {
         /** Controls the time value for other animations. */
         get time() { return this.get("time") }
 
-        set position(value: KeyframesVec3) { this.set("position", value as KeyframesAny) }
-        set rotation(value: KeyframesVec3) { this.set("rotation", value as KeyframesAny) }
-        set localPosition(value: KeyframesVec3) { this.set("localPosition", value as KeyframesAny) }
-        set localRotation(value: KeyframesVec3) { this.set("localRotation", value as KeyframesAny) }
-        set offsetPosition(value: KeyframesVec3) { this.set("offsetPosition", value as KeyframesAny) }
-        set offsetRotation(value: KeyframesVec3) { this.set("offsetWorldRotation", value as KeyframesAny) }
-        set definitePosition(value: KeyframesVec3) { this.set("definitePosition", value as KeyframesAny) }
-        set scale(value: KeyframesVec3) { this.set("scale", value as KeyframesAny) }
-        set dissolve(value: KeyframesLinear) { this.set("dissolve", value as KeyframesAny) }
-        set dissolveArrow(value: KeyframesLinear) { this.set("dissolveArrow", value as KeyframesAny) }
-        set color(value: KeyframesColor) { this.set("color", value as KeyframesAny) }
-        set uninteractable(value: KeyframesLinear) { this.set("uninteractable", value as KeyframesAny) }
-        set time(value: KeyframesLinear) { this.set("time", value as KeyframesAny) }
+        set position(value: KeyframesVec3) { this.set("position", value) }
+        set rotation(value: KeyframesVec3) { this.set("rotation", value) }
+        set localPosition(value: KeyframesVec3) { this.set("localPosition", value) }
+        set localRotation(value: KeyframesVec3) { this.set("localRotation", value) }
+        set offsetPosition(value: KeyframesVec3) { this.set("offsetPosition", value) }
+        set offsetRotation(value: KeyframesVec3) { this.set("offsetWorldRotation", value) }
+        set definitePosition(value: KeyframesVec3) { this.set("definitePosition", value) }
+        set scale(value: KeyframesVec3) { this.set("scale", value) }
+        set dissolve(value: KeyframesLinear) { this.set("dissolve", value) }
+        set dissolveArrow(value: KeyframesLinear) { this.set("dissolveArrow", value) }
+        set color(value: KeyframesColor) { this.set("color", value) }
+        set uninteractable(value: KeyframesLinear) { this.set("uninteractable", value) }
+        set time(value: KeyframesLinear) { this.set("time", value) }
     }
 }
 
@@ -505,10 +510,10 @@ export class Track {
  * For example if you input [x,y,z], it would be converted to [[x,y,z,0]].
  * @param array The keyframe or array of keyframes.
  */
- export function complexifyArray(array: KeyframesAny) {
+export function complexifyArray(array: RawKeyframesAny) {
     if (array === undefined) return [];
-    if (!isSimple(array)) return array as KeyframeArray;
-    return [[...array, 0]] as KeyframeArray;
+    if (!isSimple(array)) return array as ComplexKeyframesAny;
+    return [[...array, 0]] as ComplexKeyframesAny;
 }
 
 /**
@@ -516,12 +521,12 @@ export class Track {
  * For example if you input [[x,y,z,0]], it would be converted to [x,y,z].
  * @param array The array of keyframes.
  */
-export function simplifyArray(array: KeyframesAny): KeyframesAny {
+export function simplifyArray(array: RawKeyframesAny) {
     if (array === undefined) return [];
     if (array.length <= 1 && !isSimple(array) && new Keyframe(array[0] as KeyframeValues).time === 0) {
         const newArr = array[0] as KeyframeValues;
         newArr.pop();
-        return newArr as KeyframesAny;
+        return newArr as RawKeyframesAny;
     }
     return array;
 }
@@ -530,7 +535,7 @@ export function simplifyArray(array: KeyframesAny): KeyframesAny {
  * Checks if value is an array of keyframes.
  * @param array The keyframe or array of keyframes.
  */
-export const isSimple = (array: KeyframesAny) => typeof array[0] !== "object";
+export const isSimple = (array: RawKeyframesAny) => typeof array[0] !== "object";
 
 /**
  * Get the value of keyframes at a given time.
@@ -538,7 +543,7 @@ export const isSimple = (array: KeyframesAny) => typeof array[0] !== "object";
  * @param animation The keyframes.
  * @param time The time to get the value at.
  */
-export function getValuesAtTime(property: ANIM, animation: KeyframesAny, time: number) {
+export function getValuesAtTime(property: ANIM, animation: RawKeyframesAny, time: number) {
     animation = complexifyArray(animation);
     const timeInfo = timeInKeyframes(time, animation);
     if (timeInfo.interpolate && timeInfo.r && timeInfo.l) {
@@ -580,7 +585,7 @@ export function getValuesAtTime(property: ANIM, animation: KeyframesAny, time: n
     else return (timeInfo.l as Keyframe).values;
 }
 
-function timeInKeyframes(time: number, animation: KeyframeArray) {
+function timeInKeyframes(time: number, animation: ComplexKeyframesAny) {
     let l: Keyframe;
     let normalTime = 0;
 
@@ -633,20 +638,20 @@ function timeInKeyframes(time: number, animation: KeyframeArray) {
  * @param anim2 The second animation.
  * @param property The property that this animation came from.
  */
-export function combineAnimations(anim1: KeyframesAny, anim2: KeyframesAny, property: ANIM) {
+export function combineAnimations(anim1: RawKeyframesAny, anim2: RawKeyframesAny, property: ANIM) {
     let simpleArr = copy(anim1);
-    let complexArr: KeyframeArray = [];
+    let complexArr: ComplexKeyframesAny = [];
 
     if (isSimple(anim1) && isSimple(anim2)) { complexArr = complexifyArray(anim2) }
     else if (!isSimple(anim1) && isSimple(anim2)) {
         simpleArr = copy(anim2);
-        complexArr = copy(anim1) as KeyframeArray;
+        complexArr = copy(anim1) as ComplexKeyframesAny;
     }
     else if (!isSimple(anim1) && !isSimple(anim2)) {
         console.error(`[${anim1}] and [${anim2}] are unable to combine!`);
     }
     else {
-        complexArr = copy(anim2) as KeyframeArray;
+        complexArr = copy(anim2) as ComplexKeyframesAny;
     }
 
     const editElem = function (e: number, e2: number) {
@@ -698,7 +703,7 @@ export function bakeAnimation(animation: { pos?: RawKeyframesVec3, rot?: RawKeyf
         scale: <number[][]>[]
     }
 
-    function getDomain(arr: KeyframesAny) {
+    function getDomain(arr: RawKeyframesAny) {
         let newArr = complexifyArray(arr);
         newArr = newArr.sort((a, b) => new Keyframe(a).time - new Keyframe(b).time);
         let min = 1;
@@ -711,9 +716,9 @@ export function bakeAnimation(animation: { pos?: RawKeyframesVec3, rot?: RawKeyf
         return { min: min, max: max };
     }
 
-    const posDomain = getDomain(animation.pos as KeyframesAny);
-    const rotDomain = getDomain(animation.rot as KeyframesAny);
-    const scaleDomain = getDomain(animation.scale as KeyframesAny);
+    const posDomain = getDomain(animation.pos);
+    const rotDomain = getDomain(animation.rot);
+    const scaleDomain = getDomain(animation.scale);
 
     const totalMin = getDomain([[posDomain.min], [rotDomain.min], [scaleDomain.min]]).min;
     const totalMax = getDomain([[posDomain.max], [rotDomain.max], [scaleDomain.max]]).max;

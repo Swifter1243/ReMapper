@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-explicit-any
 import { arrAdd, cacheData, ColorType, copy, iterateKeyframes, rotatePoint, Vec3, Vec4, parseFilePath, baseEnvironmentTrack } from "./general.ts";
-import { bakeAnimation, complexifyArray, ComplexKeyframesVec3, KeyframeArray, KeyframesAny, KeyframeValues, RawKeyframesVec3 } from "./animation.ts";
+import { bakeAnimation, complexifyArray, ComplexKeyframesVec3, ComplexKeyframesAny, KeyframeValues, RawKeyframesVec3 } from "./animation.ts";
 import { Environment, Geometry, RawGeometryMaterial } from "./environment.ts";
 import { optimizeAnimation, OptimizeSettings } from "./anim_optimizer.ts";
 import { CustomEvent, CustomEventInternals } from "./custom_event.ts";
@@ -162,9 +162,9 @@ export class ModelScene {
                     }
 
                     // Making keyframes a consistent array format
-                    x.pos = complexifyArray(x.pos as KeyframesAny) as RawKeyframesVec3;
-                    x.rot = complexifyArray(x.rot as KeyframesAny) as RawKeyframesVec3;
-                    x.scale = complexifyArray(x.scale as KeyframesAny) as RawKeyframesVec3;
+                    x.pos = complexifyArray(x.pos) as ComplexKeyframesVec3;
+                    x.rot = complexifyArray(x.rot) as ComplexKeyframesVec3;
+                    x.scale = complexifyArray(x.scale) as ComplexKeyframesVec3;
 
                     // Applying transformation to each keyframe
                     for (let i = 0; i < x.pos.length; i++) {
@@ -180,15 +180,15 @@ export class ModelScene {
                         if (rotation) objRot = (objRot as Vec3).map((x, i) => (x + (rotation as Vec3)[i]) % 360);
                         if (scale) objScale = (objScale as Vec3).map((x, i) => x * (scale as Vec3)[i]);
 
-                        (x.pos as KeyframeArray)[i] = [...(objPos as Vec3), (x.pos as ComplexKeyframesVec3)[i][3]];
-                        (x.rot as KeyframeArray)[i] = [...(objRot as Vec3), (x.rot as ComplexKeyframesVec3)[i][3]];
-                        (x.scale as KeyframeArray)[i] = [...(objScale as Vec3), (x.scale as ComplexKeyframesVec3)[i][3]];
+                        (x.pos as ComplexKeyframesAny)[i] = [...(objPos as Vec3), (x.pos as ComplexKeyframesVec3)[i][3]];
+                        (x.rot as ComplexKeyframesAny)[i] = [...(objRot as Vec3), (x.rot as ComplexKeyframesVec3)[i][3]];
+                        (x.scale as ComplexKeyframesAny)[i] = [...(objScale as Vec3), (x.scale as ComplexKeyframesVec3)[i][3]];
                     }
 
                     // Optimizing object
-                    x.pos = optimizeAnimation(x.pos as KeyframesAny, this.optimizer) as RawKeyframesVec3;
-                    x.rot = optimizeAnimation(x.rot as KeyframesAny, this.optimizer) as RawKeyframesVec3;
-                    x.scale = optimizeAnimation(x.scale as KeyframesAny, this.optimizer) as RawKeyframesVec3;
+                    x.pos = optimizeAnimation(x.pos, this.optimizer) as RawKeyframesVec3;
+                    x.rot = optimizeAnimation(x.rot, this.optimizer) as RawKeyframesVec3;
+                    x.scale = optimizeAnimation(x.scale, this.optimizer) as RawKeyframesVec3;
                 })
                 return fileObjects;
             }, processing)

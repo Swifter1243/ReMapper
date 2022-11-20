@@ -1,7 +1,7 @@
 // deno-lint-ignore-file no-explicit-any adjacent-overload-signatures
 const EPSILON = 1e-3;
 import * as easings from './easings.ts';
-import { bakeAnimation, complexifyArray, ComplexKeyframesLinear, ComplexKeyframesVec3, ComplexKeyframesVec4, KeyframesAny, KeyframesLinear, KeyframesVec3, KeyframesVec4, KeyframeValues, RawKeyframesAny, RawKeyframesVec3, simplifyArray } from './animation.ts';
+import { bakeAnimation, complexifyArray, ComplexKeyframesLinear, ComplexKeyframesVec3, ComplexKeyframesVec4, KeyframesVec3, KeyframeValues, RawKeyframesAny, RawKeyframesLinear, RawKeyframesVec3, RawKeyframesVec4, simplifyArray } from './animation.ts';
 import { Wall } from './wall.ts';
 import { EASE, FILENAME, FILEPATH } from './constants.ts';
 import { activeDiffGet, Json } from './beatmap.ts';
@@ -692,21 +692,21 @@ export const RMLog = (message: string) => console.log(`[ReMapper: ${getSeconds()
  * @param keyframes Keyframes to iterate.
  * @param fn Function to run on each keyframe.
  */
-export function iterateKeyframes(keyframes: KeyframesLinear, fn: (values: ComplexKeyframesLinear[0], index: number) => void): void;
-export function iterateKeyframes(keyframes: KeyframesVec3, fn: (values: ComplexKeyframesVec3[0], index: number) => void): void;
-export function iterateKeyframes(keyframes: KeyframesVec4, fn: (values: ComplexKeyframesVec4[0], index: number) => void): void;
-export function iterateKeyframes(keyframes: KeyframesAny, fn: (any: any, index: number) => void): void {
-    iterateKeyframesInternal(keyframes as KeyframesAny, fn)
+export function iterateKeyframes(keyframes: RawKeyframesLinear, fn: (values: ComplexKeyframesLinear[0], index: number) => void): void;
+export function iterateKeyframes(keyframes: RawKeyframesVec3, fn: (values: ComplexKeyframesVec3[0], index: number) => void): void;
+export function iterateKeyframes(keyframes: RawKeyframesVec4, fn: (values: ComplexKeyframesVec4[0], index: number) => void): void;
+export function iterateKeyframes(keyframes: RawKeyframesAny, fn: (any: any, index: number) => void): void {
+    iterateKeyframesInternal(keyframes, fn)
 }
 
-function iterateKeyframesInternal(keyframes: KeyframesAny, fn: (values: KeyframeValues, index: number) => void): void {
+function iterateKeyframesInternal(keyframes: RawKeyframesAny, fn: (values: KeyframeValues, index: number) => void): void {
     // TODO: Lookup point def
     if (typeof keyframes === "string") return;
 
     const newKeyframes = complexifyArray(copy(keyframes));
     newKeyframes.forEach((x, i) => fn(x, i));
     keyframes.length = 0;
-    (simplifyArray(newKeyframes) as RawKeyframesAny).forEach(x => (keyframes as any).push(x));
+    (simplifyArray(newKeyframes)).forEach(x => (keyframes as any).push(x));
 }
 
 // TODO: Make complexifyArray and simplifyArray only take in raw types

@@ -1,4 +1,4 @@
-import { complexifyArray, Keyframe, KeyframesAny, simplifyArray } from "./animation.ts";
+import { complexifyArray, Keyframe, RawKeyframesAny, simplifyArray } from "./animation.ts";
 import { copy } from "./general.ts";
 
 function areArrayElementsIdentical<T>(enumerable1: T[], enumerable2: T[]): boolean {
@@ -342,11 +342,11 @@ function optimizeKeyframes(keyframes: Keyframe[], optimizeSettings: OptimizeSett
  * @param settings settings for the optimizer.
  * @returns
  */
-export function optimizeAnimation(animation: KeyframesAny, settings: OptimizeSettings): KeyframesAny {
+export function optimizeAnimation(animation: RawKeyframesAny, settings: OptimizeSettings) {
     const keyframes: Keyframe[] = copy(complexifyArray(animation)).map(x => new Keyframe(x));
 
     // not enough points to optimize
-    if (keyframes.length <= 2) return simplifyArray(keyframes.map(x => x.data) as KeyframesAny);
+    if (keyframes.length <= 2) return simplifyArray(keyframes.map(x => x.data) as RawKeyframesAny);
 
-    return simplifyArray(optimizeKeyframes(keyframes, settings).map(x => x.data) as KeyframesAny);
+    return simplifyArray(optimizeKeyframes(keyframes, settings).map(x => x.data) as RawKeyframesAny);
 }
