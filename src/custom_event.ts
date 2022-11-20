@@ -1,4 +1,4 @@
-// deno-lint-ignore-file no-namespace no-explicit-any adjacent-overload-signatures
+// deno-lint-ignore-file no-namespace adjacent-overload-signatures
 import { copy, jsonGet, jsonSet } from './general.ts';
 import { activeDiffGet, Json } from './beatmap.ts';
 import { AnimationInternals, Animation, TrackValue, Track, KeyframesLinear } from './animation.ts';
@@ -8,7 +8,7 @@ import { BloomFogEnvironment, ILightWithId, TubeBloomPrePassLight } from './envi
 export namespace CustomEventInternals {
     export class BaseEvent {
         /** The Json for this event. */
-        json: any = {
+        json: Json = {
             b: 0,
             t: "",
             d: {}
