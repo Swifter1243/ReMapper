@@ -38,13 +38,13 @@ export class BaseGameplayObject extends BaseObject {
     get localRotation() { return this.json.customData.localRotation }
     /** The note jump speed of an object. */
     get NJS() {
-        if (this.json.customData.noteJumpMovementSpeed)
+        if (this.json.customData.noteJumpMovementSpeed !== undefined)
             return this.json.customData.noteJumpMovementSpeed;
         else return activeDiffGet().NJS;
     }
     /** The note offset of an object. */
     get offset() {
-        if (this.json.customData.noteJumpStartBeatOffset)
+        if (this.json.customData.noteJumpStartBeatOffset !== undefined)
             return this.json.customData.noteJumpStartBeatOffset;
         else return activeDiffGet().offset;
     }
