@@ -344,7 +344,7 @@ the object.
 scene.addPrimaryGroups(
   "red sphere",
   new Geometry("Sphere", {
-    _shader: "Standard",
+    shader: "Standard",
     color: [1, 0, 0], // Note: This overrides colors from the model data.
   }),
 );
