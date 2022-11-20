@@ -280,7 +280,7 @@ export function findFraction(beginning: number, length: number, time: number) {
  * Get the last element in an array.
  * @param arr Input array.
  */
-export const arrLast = (arr: any[]) => arr[arr.length - 1];
+export const arrLast = <T>(arr: T[]) => arr[arr.length - 1];
 
 /**
  * Add either a number or another array to an array.
