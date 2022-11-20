@@ -30,7 +30,7 @@ export class BaseGameplayObject extends BaseObject {
     get x() { return this.json.x }
     /** The vertical row of the object. */
     get y() { return this.json.y }
-    /** The position added to the object. */
+    /** The position of the object. Overrides "x" and "y". */
     get position() { return this.json.customData.coordinates }
     /** The rotation added to an object around the world origin. */
     get rotation() { return this.json.customData.worldRotation }
