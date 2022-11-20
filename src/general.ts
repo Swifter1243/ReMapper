@@ -745,3 +745,39 @@ export function baseEnvironmentTrack(track: string) {
     env.track.value = track;
     env.push();
 }
+
+/**
+ * Get the bounds of a box, assuming the center is 0,0,0.
+ * @param rotation Rotation of the box.
+ * @param scale Scale of the box.
+ */
+export function getBoxBounds(rotation: Vec3, scale: Vec3 = [1, 1, 1]) {
+    const corners: Vec3[] = [
+        [-1, 1, 1],
+        [1, 1, 1],
+        [-1, -1, 1],
+        [1, -1, 1],
+        [-1, 1, -1],
+        [1, 1, -1],
+        [-1, -1, -1],
+        [1, -1, -1]
+    ]
+
+    const lowBound: Vec3 = [0, 0, 0];
+    const highBound: Vec3 = [0, 0, 0];
+
+    corners.forEach(c => {
+        c = rotatePoint(c, rotation);
+
+        c.forEach((x, i) => {
+            x = (x / 2) * scale[i];
+            if (lowBound[i] > x) lowBound[i] = x;
+            if (highBound[i] < x) highBound[i] = x;
+        })
+    })
+
+    return {
+        lowBound: lowBound,
+        highBound: highBound
+    }
+}
