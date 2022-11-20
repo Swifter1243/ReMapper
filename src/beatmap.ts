@@ -274,10 +274,10 @@ export class Difficulty {
         diffArrClassToJson(this.rawEnvironment, "customData.environment", x => {
             jsonRemove(x.json, "group");
         })
-        gameplayArrClassToJson(this.fakeNotes, "fakeColorNotes");
-        gameplayArrClassToJson(this.fakeBombs, "fakeBombNotes");
-        gameplayArrClassToJson(this.fakeWalls, "fakeObstacles");
-        gameplayArrClassToJson(this.fakeChains, "fakeBurstSliders");
+        gameplayArrClassToJson(this.fakeNotes, "customData.fakeColorNotes");
+        gameplayArrClassToJson(this.fakeBombs, "customData.fakeBombNotes");
+        gameplayArrClassToJson(this.fakeWalls, "customData.fakeObstacles");
+        gameplayArrClassToJson(this.fakeChains, "customData.fakeBurstSliders");
 
         function safeCloneJSON(json: Json) {
             const output: Json = {};
