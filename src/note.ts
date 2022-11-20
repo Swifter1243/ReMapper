@@ -190,35 +190,35 @@ export class Chain extends BaseSliderObject {
     /**
      * Chain object for ease of creation.
      * @param time The time this chain will be hit.
+     * @param tailTime The time that the tail of the chain reaches the player.
      * @param type The color of the chain.
+     * @param direction The cut direction of the chain.
      * @param x The lane of the chain.
      * @param y The vertical row of the chain.
-     * @param tailTime The time that the tail of the chain reaches the player.
      * @param tailX The lane of the chain's tail.
      * @param tailY The vertical row of the chain's tail.
-     * @param direction The cut direction of the chain.
      * @param links The amount of links in the chain.
      */
     constructor(
         time = 0,
+        tailTime = 0,
         type = NOTETYPE.BLUE,
+        direction = CUT.DOWN,
         x = 0,
         y = 0,
-        tailTime = 0,
         tailX = 0,
         tailY = 0,
-        direction = CUT.DOWN,
         links = 4
     ) {
         super();
         this.time = time;
+        this.tailTime = tailTime;
+        this.type = type;
+        this.headDirection = direction;
         this.x = x;
         this.y = y;
-        this.tailTime = tailTime;
         this.tailX = tailX;
         this.tailY = tailY;
-        this.headDirection = direction;
-        this.type = type;
         this.links = links;
     }
 
@@ -280,12 +280,12 @@ export class Arc extends BaseSliderObject {
         x: 0,
         y: 0,
         d: 0,
-        mu: 0,
+        mu: 1,
         tb: 0,
         tx: 0,
         ty: 0,
         tc: 0,
-        tmu: 0,
+        tmu: 1,
         m: 0,
         customData: {
             animation: {}
@@ -298,35 +298,36 @@ export class Arc extends BaseSliderObject {
     /**
      * Arc object for ease of creation.
      * @param time The time this arc will be hit.
+     * @param tailTime The time that the tail of the arc reaches the player.
      * @param type The color of the arc.
+     * @param headDirection The cut direction of the head of the arc.
+     * @param tailDirection The cut direction of the tail of the arc.
      * @param x The lane of the arc.
      * @param y The vertical row of the arc.
-     * @param headDirection The cut direction of the head of the arc.
-     * @param tailTime The time that the tail of the arc reaches the player.
      * @param tailX The lane of the arc's tail.
      * @param tailY The vertical row of the arc's tail.
-     * @param tailDirection The cut direction of the tail of the arc.
      */
     constructor(
         time = 0,
+        tailTime = 0, 
         type = NOTETYPE.BLUE,
+        headDirection = CUT.DOWN,
+        tailDirection = CUT.DOWN,
         x = 0,
         y = 0,
-        headDirection = CUT.DOWN,
-        tailTime = 0, tailX = 0,
-        tailY = 0,
-        tailDirection = CUT.DOWN
+        tailX = 0,
+        tailY = 0
     ) {
         super();
         this.time = time;
+        this.tailTime = tailTime;
         this.type = type;
+        this.headDirection = headDirection;
+        this.tailDirection = tailDirection;
         this.x = x;
         this.y = y;
-        this.headDirection = headDirection;
-        this.tailTime = tailTime;
         this.tailX = tailX;
         this.tailY = tailY;
-        this.tailDirection = tailDirection;
     }
 
     /**
