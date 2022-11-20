@@ -78,7 +78,7 @@ export class BaseGameplayObject extends BaseObject {
     set x(value: number) { this.json.x = value }
     set y(value: number) { this.json.y = value }
     set position(value: Vec2) { this.json.customData.coordinates = value }
-    set rotation(value: Vec3) { this.json.customData.worldRotation = value }
+    set rotation(value: Vec3 | number) { this.json.customData.worldRotation = value }
     set localRotation(value: Vec3) { this.json.customData.localRotation = value }
     set NJS(value: number) { this.json.customData.noteJumpMovementSpeed = value }
     set offset(value: number) { this.json.customData.noteJumpStartBeatOffset = value }
