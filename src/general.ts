@@ -287,9 +287,10 @@ export const arrLast = (arr: any[]) => arr[arr.length - 1];
  * @param arr Input array.
  * @param value Can be a number or an array.
  */
-export function arrAdd(arr: number[], value: number[] | number) {
-    if (typeof value === "number") return arr.map(x => x + value);
-    else return arr.map((x, i) => x + (value[i] !== undefined ? value[i] : 0));
+export function arrAdd<T extends readonly [] | readonly number[]>
+    (arr: T, value: { [K in keyof T]: number } | number) {
+    if (typeof value === "number") return arr.map(x => x + value) as unknown as T;
+    else return arr.map((x, i) => x + value[i]) as unknown as T;
 }
 
 /**
@@ -297,9 +298,10 @@ export function arrAdd(arr: number[], value: number[] | number) {
  * @param arr Input array.
  * @param value Can be a number or an array.
  */
-export function arrSubtract(arr: number[], value: number[] | number) {
-    if (typeof value === "number") return arr.map(x => x + value);
-    else return arr.map((x, i) => x - (value[i] !== undefined ? value[i] : 0));
+export function arrSubtract<T extends readonly [] | readonly number[]>
+    (arr: T, value: { [K in keyof T]: number } | number) {
+    if (typeof value === "number") return arr.map(x => x - value) as unknown as T;
+    else return arr.map((x, i) => x - value[i]) as unknown as T;
 }
 
 /**
@@ -317,9 +319,10 @@ export const arrLerp = <T extends readonly [] | readonly number[]>
  * @param arr Input array.
  * @param value Can be a number or an array.
  */
-export function arrMul(arr: number[], value: number[] | number) {
-    if (typeof value === "number") return arr.map(x => x * value);
-    else return arr.map((x, i) => x * (value[i] !== undefined ? value[i] : 1));
+export function arrMul<T extends readonly [] | readonly number[]>
+    (arr: T, value: { [K in keyof T]: number } | number) {
+    if (typeof value === "number") return arr.map(x => x * value) as unknown as T;
+    else return arr.map((x, i) => x * value[i]) as unknown as T;
 }
 
 /**
@@ -327,9 +330,10 @@ export function arrMul(arr: number[], value: number[] | number) {
  * @param arr Input array.
  * @param value Can be a number or an array.
  */
-export function arrDiv(arr: number[], value: number[] | number) {
-    if (typeof value === "number") return arr.map(x => x / value);
-    else return arr.map((x, i) => x / (value[i] !== undefined ? value[i] : 1));
+export function arrDiv<T extends readonly [] | readonly number[]>
+    (arr: T, value: { [K in keyof T]: number } | number) {
+    if (typeof value === "number") return arr.map(x => x / value) as unknown as T;
+    else return arr.map((x, i) => x / value[i]) as unknown as T;
 }
 
 /**
@@ -338,9 +342,8 @@ export function arrDiv(arr: number[], value: number[] | number) {
  * @param arr2 Second array.
  * @param lenience The maximum difference 2 numbers in an array can have before they're considered not equal.
  */
-export function arrEqual(arr1: number[], arr2: number[], lenience = 0) {
-    if (!arr1 || !arr2) return false;
-    if (arr1.length !== arr2.length) return false;
+export function arrEqual<T extends readonly [] | readonly number[]>
+    (arr1: T, arr2: { [K in keyof T]: number }, lenience = 0) {
     let result = true;
     arr1.forEach((x, i) => {
         if (lenience !== 0 && typeof x === "number" && typeof arr2[i] === "number") {
