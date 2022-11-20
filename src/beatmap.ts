@@ -404,9 +404,9 @@ export class Difficulty {
 
     // Info.dat
     /** The note jump speed for this difficulty. */
-    get NJS() { return jsonGet(this.diffSetMap, "noteJumpMovementSpeed") }
+    get NJS() { return jsonGet(this.diffSetMap, "_noteJumpMovementSpeed") }
     /** The note offset for this difficulty. */
-    get offset() { return jsonGet(this.diffSetMap, "noteJumpStartBeatOffset") }
+    get offset() { return jsonGet(this.diffSetMap, "_noteJumpStartBeatOffset") }
     /** The filename for this difficulty. */
     get fileName() { return jsonGet(this.diffSetMap, "_beatmapFilename") }
     /** The name of the difficulty set. E.g. Standard */
@@ -446,8 +446,8 @@ export class Difficulty {
     /** The color for walls. */
     get wallColor() { return jsonGet(this.diffSetMap, "_customData._obstacleColor") }
 
-    set NJS(value: number) { this.pruneInput(this.diffSetMap, "noteJumpMovementSpeed", value) }
-    set offset(value: number) { this.pruneInput(this.diffSetMap, "noteJumpStartBeatOffset", value) }
+    set NJS(value: number) { this.pruneInput(this.diffSetMap, "_noteJumpMovementSpeed", value) }
+    set offset(value: number) { this.pruneInput(this.diffSetMap, "_noteJumpStartBeatOffset", value) }
     set fileName(value: string) { this.pruneInput(this.diffSetMap, "_beatmapFilename", value) }
     set diffSetName(value: string) { this.pruneInput(this.diffSet, "_beatmapCharacteristicName", value) }
     set name(value: string) { this.pruneInput(this.diffSetMap, "_difficulty", value) }
