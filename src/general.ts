@@ -477,16 +477,16 @@ export function rotateVector(rotation: Vec3, length: number) {
  * Convert an array of numbers from degrees to radians.
  * @param values Input array of numbers.
  */
-export function toRadians(values: number[]) {
-    return values.map(x => x * (Math.PI / 180));
+export function toRadians<T extends number[]>(values: T) {
+    return values.map(x => x * (Math.PI / 180)) as T;
 }
 
 /**
  * Convert an array of numbers from radians to degrees.
  * @param values Input array of numbers.
  */
-export function toDegrees(values: number[]) {
-    return values.map(x => x * (180 / Math.PI));
+export function toDegrees<T extends number[]>(values: T) {
+    return values.map(x => x * (180 / Math.PI)) as T;
 }
 
 /**
@@ -709,7 +709,7 @@ export function debugWall(transform: { pos?: RawKeyframesVec3, rot?: RawKeyframe
         const wtw = worldToWall(pos as Vec3, rot as Vec3, scale as Vec3);
         wall.animate.definitePosition = wtw.pos;
         wall.scale = wtw.scale;
-        wall.rotation = rot as Vec3;
+        wall.localRotation = rot as Vec3;
     }
 
     wall.push();
@@ -797,12 +797,18 @@ type Box = {
     scale?: Vec3
 }
 
+export type Bounds = {
+    lowBound: Vec3,
+    highBound: Vec3,
+    scale: Vec3,
+    midPoint: Vec3
+}
 
 /**
  * Gets information about the bounding box of a box or a bunch of boxes.
  * @param boxes Can be one box or an array of boxes.
  */
-export function getBoxBounds(boxes: Box | Box[]) {
+export function getBoxBounds(boxes: Box | Box[]): Bounds {
     let lowBound: Vec3 | undefined;
     let highBound: Vec3 | undefined;
 
@@ -846,8 +852,8 @@ export function getBoxBounds(boxes: Box | Box[]) {
     const midPoint = (lowBound as Vec3).map((x, i) => lerp(x, (highBound as Vec3)[i], 0.5)) as Vec3;
 
     return {
-        lowBound: lowBound,
-        highBound: highBound,
+        lowBound: lowBound as Vec3,
+        highBound: highBound as Vec3,
         scale: scale,
         midPoint: midPoint
     }

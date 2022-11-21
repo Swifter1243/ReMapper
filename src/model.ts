@@ -1,5 +1,5 @@
 // deno-lint-ignore-file no-explicit-any
-import { arrAdd, cacheData, ColorType, copy, iterateKeyframes, rotatePoint, Vec3, Vec4, parseFilePath, baseEnvironmentTrack } from "./general.ts";
+import { arrAdd, cacheData, ColorType, copy, iterateKeyframes, rotatePoint, Vec3, Vec4, parseFilePath, baseEnvironmentTrack, getBoxBounds, Bounds } from "./general.ts";
 import { bakeAnimation, complexifyArray, ComplexKeyframesVec3, ComplexKeyframesAny, KeyframeValues, RawKeyframesVec3 } from "./animation.ts";
 import { Environment, Geometry, RawGeometryMaterial } from "./environment.ts";
 import { optimizeAnimation, OptimizeSettings } from "./anim_optimizer.ts";
@@ -571,4 +571,121 @@ export function debugObject(input: GroupObjectTypes, resolution: number, scale?:
     scene.addPrimaryGroups("debugCubeY", new Geometry(undefined, "debugCubeY"))
     scene.addPrimaryGroups("debugCubeZ", new Geometry(undefined, "debugCubeZ"))
     scene.static(modelData);
+}
+
+type TextObject = {
+    pos: Vec3,
+    rot: Vec3,
+    scale: Vec3,
+    color?: ColorType,
+    track?: string
+}
+
+export class Text {
+    /** How the text will be aligned horizontally. */
+    horizontalAlign: "Left" | "Center" | "Right" = "Center";
+    /** How the text will be aligned vertically. */
+    verticalAlign: "Top" | "Center" | "Bottom" = "Bottom";
+    /** The position of the text box. */
+    position: Vec3 = [0, 0, 0];
+    /** The height of the text box. */
+    height = 2;
+    /** The height of the text model. Generated from input. */
+    modelHeight = 0;
+    /** A scalar of the model height which is used as the width of a space. */
+    wordSpacing = 0.6;
+    /** Each letter is spaced from the last by it's width. This is a scalar for that spacing. */
+    letterSpacing = 1;
+    /** The model data of the text. */
+    model: TextObject[] = [];
+
+    /**
+     * An interface to generate objects from text.
+     * Each object forming a letter in your model should have a track for the letter it's assigned to.
+     * @param input The model data of the text. Can be either a path to a model or a collection of objects.
+     */
+    constructor(input: string | TextObject[]) {
+        this.import(input);
+    }
+
+    /**
+     * Import a model for the text.
+     * @param input The model data of the text. Can be either a path to a model or a collection of objects.
+     */
+    import(input: string | TextObject[]) {
+        if (typeof input === "string") this.model = getModel(input) as TextObject[];
+        else this.model = input;
+        this.model.forEach(x => {
+            x.scale = x.scale.map(y => y * 2) as Vec3;
+        })
+        const bounds = getBoxBounds(this.model);
+        this.modelHeight = bounds.highBound[1];
+    }
+
+    /**
+     * Generate an array of objects containing model data for a string of text.
+     * @param text The string of text to generate.
+     */
+    toObjects(text: string) {
+        const letters: Record<string, {
+            model: TextObject[],
+            bounds: Bounds
+        }> = {};
+        const model: TextObject[] = [];
+
+        function getLetter(char: string, self: Text) {
+            if (letters[char]) return letters[char];
+            const letterModel: TextObject[] = self.model.filter(x => x.track === char);
+            if (letterModel.length === 0) return undefined;
+
+            letters[char] = {
+                model: letterModel,
+                bounds: getBoxBounds(letterModel)
+            }
+            return letters[char];
+        }
+
+        let length = 0;
+
+        for (let i = 0; i < text.length; i++) {
+            const char = text[i];
+
+            if (char === " ") {
+                length += this.modelHeight * this.wordSpacing;
+                continue;
+            }
+
+            const letter = getLetter(char, this);
+            if (letter === undefined) continue;
+
+            letter.model.forEach(x => {
+                const letterModel = {
+                    pos: copy(x.pos),
+                    rot: copy(x.rot),
+                    scale: copy(x.scale)
+                }
+                letterModel.pos[0] -= letter.bounds.lowBound[0];
+                letterModel.pos[2] -= letter.bounds.lowBound[2];
+                letterModel.pos[0] += length;
+                model.push(letterModel);
+            })
+            length += letter.bounds.scale[0] * this.letterSpacing;
+        }
+
+        const scalar = this.height / this.modelHeight;
+
+        model.forEach(x => {
+            if (this.horizontalAlign === "Center") x.pos[0] -= length / 2;
+            if (this.horizontalAlign === "Right") x.pos[0] -= length;
+
+            x.pos = x.pos.map(y => y * scalar) as Vec3;
+            x.scale = x.scale.map(y => y * scalar) as Vec3;
+            x.pos = arrAdd(x.pos, this.position);
+
+            if (this.verticalAlign === "Center") x.pos[1] -= this.height / 2;
+            if (this.verticalAlign === "Top") x.pos[1] -= this.height;
+        })
+
+        return model;
+    }
 }
