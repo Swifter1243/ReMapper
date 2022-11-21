@@ -791,38 +791,64 @@ export function adjustFog(fog: (bfe: BloomFogEnvironment<number>) => void) {
     env.push();
 }
 
+type Box = {
+    pos?: Vec3,
+    rot?: Vec3,
+    scale?: Vec3
+}
+
+
 /**
- * Get the bounds of a box, assuming the center is 0,0,0.
- * @param rotation Rotation of the box.
- * @param scale Scale of the box.
+ * Gets information about the bounding box of a box or a bunch of boxes.
+ * @param boxes Can be one box or an array of boxes.
  */
-export function getBoxBounds(rotation: Vec3, scale: Vec3 = [1, 1, 1]) {
-    const corners: Vec3[] = [
-        [-1, 1, 1],
-        [1, 1, 1],
-        [-1, -1, 1],
-        [1, -1, 1],
-        [-1, 1, -1],
-        [1, 1, -1],
-        [-1, -1, -1],
-        [1, -1, -1]
-    ]
+export function getBoxBounds(boxes: Box | Box[]) {
+    let lowBound: Vec3 | undefined;
+    let highBound: Vec3 | undefined;
 
-    const lowBound: Vec3 = [0, 0, 0];
-    const highBound: Vec3 = [0, 0, 0];
+    const boxArr = Array.isArray(boxes) ? boxes : [boxes];
 
-    corners.forEach(c => {
-        c = rotatePoint(c, rotation);
+    boxArr.forEach(b => {
+        const pos = b.pos ?? [0,0,0];
+        const rot = b.rot ?? [0,0,0];
+        const scale = b.scale ?? [1,1,1];
 
-        c.forEach((x, i) => {
-            x = (x / 2) * scale[i];
-            if (lowBound[i] > x) lowBound[i] = x;
-            if (highBound[i] < x) highBound[i] = x;
+        const corners: Vec3[] = [
+            [-1, 1, 1],
+            [1, 1, 1],
+            [-1, -1, 1],
+            [1, -1, 1],
+            [-1, 1, -1],
+            [1, 1, -1],
+            [-1, -1, -1],
+            [1, -1, -1]
+        ]
+
+        corners.forEach(c => {
+            c = c.map((x, i) => (x / 2) * scale[i]) as Vec3;
+            c = rotatePoint(c, rot);
+            c = arrAdd(c, pos)
+
+            if (lowBound === undefined) {
+                lowBound = copy(c);
+                highBound = copy(c);
+                return;
+            }
+    
+            c.forEach((x, i) => {
+                if ((lowBound as Vec3)[i] > x) (lowBound as Vec3)[i] = x;
+                if ((highBound as Vec3)[i] < x) (highBound as Vec3)[i] = x;
+            })
         })
     })
 
+    const scale = (lowBound as Vec3).map((x, i) => Math.abs(x - (highBound as Vec3)[i])) as Vec3;
+    const midPoint = (lowBound as Vec3).map((x, i) => lerp(x, (highBound as Vec3)[i], 0.5)) as Vec3;
+
     return {
         lowBound: lowBound,
-        highBound: highBound
+        highBound: highBound,
+        scale: scale,
+        midPoint: midPoint
     }
 }
