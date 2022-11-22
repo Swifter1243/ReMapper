@@ -1242,6 +1242,7 @@ export function transferVisuals(
   activeDiffSet(startActive);
 }
 
+// source: https://github.com/Aeroluna/HeckedV2ToV3/blob/f0c9250ba05fa03126012a93e7c6fa257d75696a/HeckedV2ToV3/BeatmapEventsConverter.cs#L177
 function convertChromaLegacyGradients(
   event: EventInternals.AbstractEvent,
   diff: Difficulty
