@@ -607,7 +607,9 @@ export class Text {
     /** A scalar of the model height which is used as the width of a space. */
     wordSpacing = 0.6;
     /** Each letter is spaced from the last by it's width. This is a scalar for that spacing. */
-    letterSpacing = 1;
+    letterSpacing = 1.1;
+    /** A scalar of the model height which is the minimum spacing for a letter. */
+    minSpacing = 0.3;
     /** The model data of the text. */
     model: TextObject[] = [];
 
@@ -627,6 +629,7 @@ export class Text {
     import(input: string | TextObject[]) {
         if (typeof input === "string") this.model = getModel(input) as TextObject[];
         else this.model = input;
+        input = copy(input);
         this.model.forEach(x => {
             x.scale = x.scale.map(y => y * 2) as Vec3;
         })
@@ -644,6 +647,7 @@ export class Text {
             bounds: Bounds
         }> = {};
         const model: TextObject[] = [];
+        const minSpacing = this.modelHeight * this.minSpacing;
 
         function getLetter(char: string, self: Text) {
             if (letters[char]) return letters[char];
@@ -663,12 +667,14 @@ export class Text {
             const char = text[i];
 
             if (char === " ") {
-                length += this.modelHeight * this.wordSpacing;
+                length += this.modelHeight * this.wordSpacing * this.letterSpacing;
                 continue;
             }
 
             const letter = getLetter(char, this);
             if (letter === undefined) continue;
+
+            const letterWidth = Math.max(letter.bounds.scale[0], minSpacing) * this.letterSpacing;
 
             letter.model.forEach(x => {
                 const letterModel = {
@@ -679,9 +685,10 @@ export class Text {
                 letterModel.pos[0] -= letter.bounds.lowBound[0];
                 letterModel.pos[2] -= letter.bounds.lowBound[2];
                 letterModel.pos[0] += length;
+                letterModel.pos[0] += (letterWidth - letter.bounds.scale[0]) / 2;
                 model.push(letterModel);
             })
-            length += letter.bounds.scale[0] * this.letterSpacing;
+            length += letterWidth;
         }
 
         const scalar = this.height / this.modelHeight;
