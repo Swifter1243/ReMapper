@@ -357,7 +357,7 @@ export class Difficulty {
      * @param suggestion The suggestion to effect.
      * @param suggested True by default, set to false to remove the suggestion.
      */
-    suggest(suggestion: MODS, suggested = true) {
+    suggest(suggestion: MODS | "Cinema", suggested = true) {
         const suggestions: Json = {};
 
         let suggestionsArr = this.suggestions;

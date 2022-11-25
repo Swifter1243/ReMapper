@@ -1,9 +1,9 @@
-// deno-lint-ignore-file no-explicit-any adjacent-overload-signatures
+// deno-lint-ignore-file adjacent-overload-signatures
 import { Json } from './beatmap.ts';
 import { jsonGet } from './general.ts';
 
 export class CinemaScreen {
-    json: Record<string, any> = {
+    json: Json = {
         "videoID": undefined,
         "screenPosition": {
             "x": 0.0,
@@ -44,8 +44,10 @@ export class CinemaScreen {
      */
     push() {
         // Warnings for out of range numbers for certain Cinema Properties
+        const red = "\x1b[31m";
+        const white = "\x1b[0m";
         function cinemaRange(thing: string, number: number) {
-            console.log("\x1b[31m", `Cinema Warning: ${thing} value`, "\x1b[31m", number, "\x1b[31m", "out of range!",  "\x1b[0m")
+            console.log(red, `Cinema Warning: ${thing} value`, number, red, "out of range!",  white)
         }
         if (this.curvature > 180 || this.curvature < 0) cinemaRange("curvature", this.curvature)
         if (this.subsurfaces > 256 || this.subsurfaces < 1) cinemaRange("subsurfaces", this.subsurfaces)
