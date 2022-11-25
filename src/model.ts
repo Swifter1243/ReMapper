@@ -132,12 +132,10 @@ export class ModelScene {
 
         if (typeof objectInput === "string") {
             const inputPath = parseFilePath(objectInput, ".rmmodel").path;
-            const mTime = Deno.statSync(inputPath).mtime?.toString();
             const objects = options.objects ? options.objects.toString() : undefined;
-            const processing: any[] = [options, objects, this.groups, this.optimizer, mTime];
+            const processing: any[] = [options, objects, this.groups, this.optimizer];
 
-            return cacheData(`modelScene${this.trackID}_${inputPath}`, () => {
-                const fileObjects = getModel(inputPath);
+            return getModel(inputPath, `modelScene${this.trackID}_${inputPath}`, fileObjects => {
                 if (options.objects) options.objects(fileObjects);
                 fileObjects.forEach(x => {
                     if (options.static) {
@@ -474,12 +472,26 @@ function createYeetDef() {
 }
 
 /**
- * Get the objects from a .rmmodel.
+ * Get the objects from a .rmmodel, caches data if model hasn't changed.
  * @param filePath Path to the .rmmodel.
+ * @param name Name to cache the data as. Defaults to file name.
+ * @param process Function to run for each object on the cached data.
+ * @param processing Parameters that will re-process the data if changed.
  */
-export function getModel(filePath: FILEPATH) {
-    const data = JSON.parse(Deno.readTextFileSync(parseFilePath(filePath, ".rmmodel").path));
-    return data.objects as ModelObject[];
+export function getModel(filePath: FILEPATH, name?: string, process?: (objects: ModelObject[]) => void, processing?: any[]) {
+    const parsedPath = parseFilePath(filePath, ".rmmodel");
+    const inputPath = parsedPath.path;
+    const mTime = Deno.statSync(inputPath).mtime?.toString();
+    processing ??= [];
+    processing.push.apply(processing, [mTime, process?.toString()]);
+
+    name ??= parsedPath.name;
+
+    return cacheData(name, () => {
+        const data = JSON.parse(Deno.readTextFileSync(parseFilePath(filePath, ".rmmodel").path));
+        if (process) process(data.objects);
+        return data.objects as ModelObject[];
+    }, processing);
 }
 
 /**
