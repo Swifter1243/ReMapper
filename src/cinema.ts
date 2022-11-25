@@ -30,10 +30,10 @@ export class CinemaScreen {
     }
 
     /**
-     * Create a note using Json.
+     * Create a Cinema Screen using Json.
      * @param json Json to import.
      */
-     import(json: Json) {
+    import(json: Json) {
         this.json = json;
         return this;
     }
