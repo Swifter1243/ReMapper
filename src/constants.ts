@@ -21,7 +21,8 @@ export type DIFFS =
 /** All mods to require/suggest. */
 export type MODS =
     "Chroma" |
-    "Noodle Extensions"
+    "Noodle Extensions" |
+    "Cinema"
 
 /** All environment names. */
 export type ENV_NAMES =

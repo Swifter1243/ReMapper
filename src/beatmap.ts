@@ -744,6 +744,7 @@ export function exportZip(excludeDiffs: FILENAME<DIFFS>[] = [], zipName?: string
         if (fs.existsSync(dir)) files.push(dir);
     }
 
+    pushFile("cinema-video.json");
     pushFile(exportInfo._songFilename);
     if (exportInfo._coverImageFilename !== undefined) pushFile(exportInfo._coverImageFilename);
 
