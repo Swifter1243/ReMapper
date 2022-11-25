@@ -1,7 +1,7 @@
 // deno-lint-ignore-file no-explicit-any adjacent-overload-signatures
 const EPSILON = 1e-3;
 import * as easings from './easings.ts';
-import { bakeAnimation, complexifyArray, ComplexKeyframesLinear, ComplexKeyframesVec3, ComplexKeyframesVec4, isSimple, KeyframesVec3, KeyframeValues, RawKeyframesAny, RawKeyframesLinear, RawKeyframesVec3, RawKeyframesVec4, simplifyArray } from './animation.ts';
+import { bakeAnimation, complexifyArray, ComplexKeyframesLinear, ComplexKeyframesVec3, ComplexKeyframesVec4, isSimple, KeyframesLinear, KeyframesVec3, KeyframeValues, RawKeyframesAny, RawKeyframesLinear, RawKeyframesVec3, RawKeyframesVec4, simplifyArray } from './animation.ts';
 import { Wall } from './wall.ts';
 import { EASE, FILENAME, FILEPATH } from './constants.ts';
 import { activeDiffGet, Json } from './beatmap.ts';
@@ -10,6 +10,7 @@ import { EventInternals } from './basicEvent.ts';
 import { OptimizeSettings } from "./anim_optimizer.ts";
 import { fs, path, three } from "./deps.ts";
 import { BloomFogEnvironment, Environment } from './environment.ts';
+import { CustomEvent, CustomEventInternals } from './custom_event.ts';
 
 /** An array with 2 numbers. */
 export type Vec2 = [number, number];
@@ -780,15 +781,53 @@ export function baseEnvironmentTrack(track: string) {
     env.push();
 }
 
+let fogInitialized = false;
+type AnyFog = BloomFogEnvironment<number | ComplexKeyframesLinear>;
+
 /**
  * Edits the base Environment object's fog component.
+ * Or spawns an event to animate the fog.
  * @param fog The fog component.
+ * @param time The time of the event.
+ * @param duration The duration of the animation.
+ * @param event The animation event.
  */
-export function adjustFog(fog: (bfe: BloomFogEnvironment<number>) => void) {
-    const env = getBaseEnvironment();
-    env.components.BloomFogEnvironment = {};
-    fog(env.components.BloomFogEnvironment);
-    env.push();
+export function adjustFog(
+    fog: (bfe: AnyFog) => void,
+    time?: number,
+    duration?: number,
+    event?: (event: CustomEventInternals.AnimateComponent) => void
+) {
+    let isStatic = true;
+
+    if (time !== undefined || duration !== undefined || event || fogInitialized) isStatic = false;
+
+    const anyFog: AnyFog = {};
+    fog(anyFog);
+
+    Object.entries(anyFog).forEach(x => {
+        if (typeof x[1] !== "number") isStatic = false;
+    })
+
+    if (isStatic) {
+        const env = getBaseEnvironment();
+        env.components.BloomFogEnvironment = anyFog as BloomFogEnvironment<number>;
+        env.push();
+        fogInitialized = true;
+    } 
+    else {
+        baseEnvironmentTrack("fog");
+
+        const fogEvent = new CustomEvent(time).animateComponent("fog", duration);
+
+        Object.entries(anyFog).forEach(x => {
+            if (typeof x[1] === "number") (anyFog as any)[x[0]] = [x[1]];
+        })
+
+        fogEvent.fog = anyFog as BloomFogEnvironment<KeyframesLinear>;
+        if (event) event(fogEvent);
+        fogEvent.push();
+    }
 }
 
 type Box = {
@@ -815,9 +854,9 @@ export function getBoxBounds(boxes: Box | Box[]): Bounds {
     const boxArr = Array.isArray(boxes) ? boxes : [boxes];
 
     boxArr.forEach(b => {
-        const pos = b.pos ?? [0,0,0];
-        const rot = b.rot ?? [0,0,0];
-        const scale = b.scale ?? [1,1,1];
+        const pos = b.pos ?? [0, 0, 0];
+        const rot = b.rot ?? [0, 0, 0];
+        const scale = b.scale ?? [1, 1, 1];
 
         const corners: Vec3[] = [
             [-1, 1, 1],
@@ -840,7 +879,7 @@ export function getBoxBounds(boxes: Box | Box[]): Bounds {
                 highBound = copy(c);
                 return;
             }
-    
+
             c.forEach((x, i) => {
                 if ((lowBound as Vec3)[i] > x) (lowBound as Vec3)[i] = x;
                 if ((highBound as Vec3)[i] < x) (highBound as Vec3)[i] = x;
