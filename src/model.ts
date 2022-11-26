@@ -174,7 +174,6 @@ export class ModelScene {
                         objRot.pop();
                         objScale.pop();
 
-                        objPos = (objPos as Vec3).map(x => x / 2);
                         if (anchor) objPos = applyAnchor(objPos as Vec3, objRot as Vec3, objScale as Vec3, anchor);
                         if (rotation) objRot = (objRot as Vec3).map((x, i) => (x + (rotation as Vec3)[i]) % 360);
                         if (scale) objScale = (objScale as Vec3).map((x, i) => x * (scale as Vec3)[i]);
@@ -628,10 +627,6 @@ export class Text {
     import(input: string | TextObject[]) {
         if (typeof input === "string") this.model = getModel(input) as TextObject[];
         else this.model = input;
-        this.model = copy(this.model);
-        this.model.forEach(x => {
-            x.scale = x.scale.map(y => y * 2) as Vec3;
-        })
         const bounds = getBoxBounds(this.model);
         this.modelHeight = bounds.highBound[1];
     }
