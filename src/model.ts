@@ -629,7 +629,7 @@ export class Text {
     import(input: string | TextObject[]) {
         if (typeof input === "string") this.model = getModel(input) as TextObject[];
         else this.model = input;
-        input = copy(input);
+        this.model = copy(this.model);
         this.model.forEach(x => {
             x.scale = x.scale.map(y => y * 2) as Vec3;
         })
