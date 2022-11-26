@@ -605,12 +605,10 @@ export class Text {
     height = 2;
     /** The height of the text model. Generated from input. */
     modelHeight = 0;
-    /** A scalar of the model height which is used as the width of a space. */
-    wordSpacing = 0.6;
-    /** Each letter is spaced from the last by it's width. This is a scalar for that spacing. */
-    letterSpacing = 1.1;
-    /** A scalar of the model height which is the minimum spacing for a letter. */
-    minSpacing = 0.3;
+    /** A scalar of the model height which is used to space letters. */
+    letterSpacing = 0.8;
+    /** A scalar of the letter spacing which is used as the width of a space. */
+    wordSpacing = 0.8;
     /** The model data of the text. */
     model: TextObject[] = [];
 
@@ -648,7 +646,6 @@ export class Text {
             bounds: Bounds
         }> = {};
         const model: TextObject[] = [];
-        const minSpacing = this.modelHeight * this.minSpacing;
 
         function getLetter(char: string, self: Text) {
             if (letters[char]) return letters[char];
@@ -663,19 +660,18 @@ export class Text {
         }
 
         let length = 0;
+        const letterWidth = this.modelHeight * this.letterSpacing;
 
         for (let i = 0; i < text.length; i++) {
             const char = text[i];
 
             if (char === " ") {
-                length += this.modelHeight * this.wordSpacing * this.letterSpacing;
+                length += letterWidth * this.wordSpacing;
                 continue;
             }
 
             const letter = getLetter(char, this);
             if (letter === undefined) continue;
-
-            const letterWidth = Math.max(letter.bounds.scale[0], minSpacing) * this.letterSpacing;
 
             letter.model.forEach(x => {
                 const letterModel = {
