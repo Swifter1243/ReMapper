@@ -186,6 +186,7 @@ export function modelToWall(
     w.lifeStart = start;
     w.animate.dissolve = [[0,0],[1,0]];
     w.position = [0,0];
+    w.interactable = false;
 
     if (typeof input === "string") {
         objects = getModel(input, `modelToWall_${modelToWallCount}`, o => {

@@ -8,6 +8,7 @@ import { activeDiff, activeDiffGet } from "./beatmap.ts";
 import { Regex } from "./regex.ts";
 import { Event } from "./basicEvent.ts";
 import { FILEPATH } from "./constants.ts";
+import { modelToWall, Wall } from "./wall.ts";
 
 let modelSceneCount = 0;
 let noYeet = true;
@@ -594,10 +595,10 @@ type TextObject = {
 }
 
 export class Text {
-    /** How the text will be aligned horizontally. */
-    horizontalAlign: "Left" | "Center" | "Right" = "Center";
-    /** How the text will be aligned vertically. */
-    verticalAlign: "Top" | "Center" | "Bottom" = "Bottom";
+    /** How the text will be anchored horizontally. */
+    horizontalAnchor: "Left" | "Center" | "Right" = "Center";
+    /** How the text will be anchored vertically. */
+    verticalAnchor: "Top" | "Center" | "Bottom" = "Bottom";
     /** The position of the text box. */
     position: Vec3 = [0, 0, 0];
     /** The height of the text box. */
@@ -694,17 +695,38 @@ export class Text {
         const scalar = this.height / this.modelHeight;
 
         model.forEach(x => {
-            if (this.horizontalAlign === "Center") x.pos[0] -= length / 2;
-            if (this.horizontalAlign === "Right") x.pos[0] -= length;
+            if (this.horizontalAnchor === "Center") x.pos[0] -= length / 2;
+            if (this.horizontalAnchor === "Right") x.pos[0] -= length;
 
             x.pos = x.pos.map(y => y * scalar) as Vec3;
             x.scale = x.scale.map(y => y * scalar) as Vec3;
             x.pos = arrAdd(x.pos, this.position);
 
-            if (this.verticalAlign === "Center") x.pos[1] -= this.height / 2;
-            if (this.verticalAlign === "Top") x.pos[1] -= this.height;
+            if (this.verticalAnchor === "Center") x.pos[1] -= this.height / 2;
+            if (this.verticalAnchor === "Top") x.pos[1] -= this.height;
         })
 
         return model;
+    }
+
+    /**
+     * Generate walls from a string of text.
+     * @param text The string of text to generate.
+     * @param start Wall's lifespan start.
+     * @param end Wall's lifespan end.
+     * @param wall A callback for each wall being spawned.
+     * @param animFreq The frequency for the animation baking (if using array of objects).
+     * @param animOptimizer The optimizer for the animation baking (if using array of objects).
+     */
+    toWalls(
+        text: string,
+        start: number,
+        end: number,
+        wall?: (wall: Wall) => void,
+        animFreq?: number,
+        animOptimizer = new OptimizeSettings()
+    ) {
+        const model = this.toObjects(text);
+        modelToWall(model, start, end, wall, animFreq, animOptimizer);
     }
 }
