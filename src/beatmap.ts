@@ -8,7 +8,7 @@ import { Environment, EnvironmentInternals, Geometry, GeometryMaterial } from '.
 import { copy, isEmptyObject, jsonGet, jsonPrune, jsonSet, sortObjects, Vec3, setDecimals, RMLog, parseFilePath, RMJson, jsonRemove } from './general.ts';
 import { AnimationInternals, RawKeyframesAny } from './animation.ts';
 import { OptimizeSettings } from './anim_optimizer.ts';
-import { ENV_NAMES, MODS, settingsHandler, DIFFS, FILENAME, FILEPATH } from './constants.ts';
+import { ENV_NAMES, SUGGEST_MODS, REQUIRE_MODS, settingsHandler, DIFFS, FILENAME, FILEPATH } from './constants.ts';
 import { BoostEvent, BPMChange, LightEvent, LightEventBox, LightEventBoxGroup, LightRotation, LightRotationBox, LightRotationBoxGroup, RotationEvent } from './event.ts';
 
 type PostProcessFn<T> = (object: T, diff: Difficulty) => void;
@@ -335,7 +335,7 @@ export class Difficulty {
      * @param requirement The requirement to effect.
      * @param required True by default, set to false to remove the requirement.
      */
-    require(requirement: MODS, required = true) {
+    require(requirement: REQUIRE_MODS, required = true) {
         const requirements: Json = {};
 
         let requirementsArr = this.requirements;
@@ -357,7 +357,7 @@ export class Difficulty {
      * @param suggestion The suggestion to effect.
      * @param suggested True by default, set to false to remove the suggestion.
      */
-    suggest(suggestion: MODS | "Cinema", suggested = true) {
+    suggest(suggestion: SUGGEST_MODS, suggested = true) {
         const suggestions: Json = {};
 
         let suggestionsArr = this.suggestions;
