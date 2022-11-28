@@ -1,15 +1,15 @@
 // deno-lint-ignore-file no-explicit-any adjacent-overload-signatures
 const EPSILON = 1e-3;
 import * as easings from './easings.ts';
-import { bakeAnimation, complexifyArray, ComplexKeyframesLinear, ComplexKeyframesVec3, ComplexKeyframesVec4, isSimple, KeyframesVec3, KeyframeValues, RawKeyframesAny, RawKeyframesLinear, RawKeyframesVec3, RawKeyframesVec4, simplifyArray } from './animation.ts';
+import { complexifyArray, ComplexKeyframesLinear, ComplexKeyframesVec3, ComplexKeyframesVec4, KeyframesLinear, KeyframeValues, RawKeyframesAny, RawKeyframesLinear, RawKeyframesVec3, RawKeyframesVec4, simplifyArray } from './animation.ts';
 import { Wall } from './wall.ts';
 import { EASE, FILENAME, FILEPATH } from './constants.ts';
 import { activeDiffGet, Json } from './beatmap.ts';
 import { Note } from './note.ts';
 import { EventInternals } from './basicEvent.ts';
-import { OptimizeSettings } from "./anim_optimizer.ts";
 import { fs, path, three } from "./deps.ts";
 import { BloomFogEnvironment, Environment } from './environment.ts';
+import { CustomEvent, CustomEventInternals } from './custom_event.ts';
 
 /** An array with 2 numbers. */
 export type Vec2 = [number, number];
@@ -665,57 +665,6 @@ export function worldToWall(pos: Vec3 = [0, 0, 0], rot: Vec3 = [0, 0, 0], scale:
 }
 
 /**
- * Create a wall for debugging. Position, rotation, and scale are in world space and can be animations.
- * @param transform All of the transformations for the wall.
- * @param animStart When animation starts.
- * @param animDur How long animation lasts for.
- * @param animFreq Frequency of keyframes in animation.
- * @param animOptimizer Optimizer for the animation.
- */
-export function debugWall(transform: { pos?: RawKeyframesVec3, rot?: RawKeyframesVec3, scale?: RawKeyframesVec3 }, animStart?: number, animDur?: number, animFreq?: number, animOptimizer = new OptimizeSettings()) {
-    animStart ??= 0;
-    animDur ??= 0;
-    animFreq ??= 1 / 32;
-
-    const pos = transform.pos ?? [0, 0, 0];
-    const rot = transform.rot ?? [0, 0, 0];
-    const scale = transform.scale ?? [1, 1, 1];
-
-    const wall = new Wall();
-    wall.life = animDur + 69420;
-    wall.lifeStart = 0;
-    wall.color = [0, 0, 0, 1];
-    wall.position = [0, 0];
-
-    if (
-        !isSimple(pos) ||
-        !isSimple(rot) ||
-        !isSimple(scale)
-    ) {
-        transform = bakeAnimation(transform, keyframe => {
-            const wtw = worldToWall(keyframe.pos, keyframe.rot, keyframe.scale, true);
-            keyframe.pos = wtw.pos;
-            keyframe.scale = wtw.scale;
-            keyframe.time = keyframe.time * (animDur as number) + (animStart as number);
-        }, animFreq, animOptimizer);
-
-        wall.scale = [1, 1, 1];
-        wall.animate.length = wall.life;
-        wall.animate.definitePosition = transform.pos as KeyframesVec3;
-        wall.animate.localRotation = transform.rot as KeyframesVec3;
-        wall.animate.scale = transform.scale as KeyframesVec3;
-    }
-    else {
-        const wtw = worldToWall(pos as Vec3, rot as Vec3, scale as Vec3);
-        wall.animate.definitePosition = wtw.pos;
-        wall.scale = wtw.scale;
-        wall.localRotation = rot as Vec3;
-    }
-
-    wall.push();
-}
-
-/**
  * Log a message as ReMapper, displaying seconds.
  * @param message Message to log.
  */
@@ -780,15 +729,53 @@ export function baseEnvironmentTrack(track: string) {
     env.push();
 }
 
+let fogInitialized = false;
+type AnyFog = BloomFogEnvironment<number | ComplexKeyframesLinear>;
+
 /**
  * Edits the base Environment object's fog component.
+ * Or spawns an event to animate the fog.
  * @param fog The fog component.
+ * @param time The time of the event.
+ * @param duration The duration of the animation.
+ * @param event The animation event.
  */
-export function adjustFog(fog: (bfe: BloomFogEnvironment<number>) => void) {
-    const env = getBaseEnvironment();
-    env.components.BloomFogEnvironment = {};
-    fog(env.components.BloomFogEnvironment);
-    env.push();
+export function adjustFog(
+    fog: (bfe: AnyFog) => void,
+    time?: number,
+    duration?: number,
+    event?: (event: CustomEventInternals.AnimateComponent) => void
+) {
+    let isStatic = true;
+
+    if (time !== undefined || duration !== undefined || event || fogInitialized) isStatic = false;
+
+    const anyFog: AnyFog = {};
+    fog(anyFog);
+
+    Object.entries(anyFog).forEach(x => {
+        if (typeof x[1] !== "number") isStatic = false;
+    })
+
+    if (isStatic) {
+        const env = getBaseEnvironment();
+        env.components.BloomFogEnvironment = anyFog as BloomFogEnvironment<number>;
+        env.push();
+        fogInitialized = true;
+    }
+    else {
+        baseEnvironmentTrack("fog");
+
+        const fogEvent = new CustomEvent(time).animateComponent("fog", duration);
+
+        Object.entries(anyFog).forEach(x => {
+            if (typeof x[1] === "number") (anyFog as any)[x[0]] = [x[1]];
+        })
+
+        fogEvent.fog = anyFog as BloomFogEnvironment<KeyframesLinear>;
+        if (event) event(fogEvent);
+        fogEvent.push();
+    }
 }
 
 type Box = {
@@ -815,9 +802,9 @@ export function getBoxBounds(boxes: Box | Box[]): Bounds {
     const boxArr = Array.isArray(boxes) ? boxes : [boxes];
 
     boxArr.forEach(b => {
-        const pos = b.pos ?? [0,0,0];
-        const rot = b.rot ?? [0,0,0];
-        const scale = b.scale ?? [1,1,1];
+        const pos = b.pos ?? [0, 0, 0];
+        const rot = b.rot ?? [0, 0, 0];
+        const scale = b.scale ?? [1, 1, 1];
 
         const corners: Vec3[] = [
             [-1, 1, 1],
@@ -840,7 +827,7 @@ export function getBoxBounds(boxes: Box | Box[]): Bounds {
                 highBound = copy(c);
                 return;
             }
-    
+
             c.forEach((x, i) => {
                 if ((lowBound as Vec3)[i] > x) (lowBound as Vec3)[i] = x;
                 if ((highBound as Vec3)[i] < x) (highBound as Vec3)[i] = x;

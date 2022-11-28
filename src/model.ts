@@ -8,6 +8,7 @@ import { activeDiff, activeDiffGet } from "./beatmap.ts";
 import { Regex } from "./regex.ts";
 import { Event } from "./basicEvent.ts";
 import { FILEPATH } from "./constants.ts";
+import { modelToWall, Wall } from "./wall.ts";
 
 let modelSceneCount = 0;
 let noYeet = true;
@@ -132,12 +133,10 @@ export class ModelScene {
 
         if (typeof objectInput === "string") {
             const inputPath = parseFilePath(objectInput, ".rmmodel").path;
-            const mTime = Deno.statSync(inputPath).mtime?.toString();
             const objects = options.objects ? options.objects.toString() : undefined;
-            const processing: any[] = [options, objects, this.groups, this.optimizer, mTime];
+            const processing: any[] = [options, objects, this.groups, this.optimizer];
 
-            return cacheData(`modelScene${this.trackID}_${inputPath}`, () => {
-                const fileObjects = getModel(inputPath);
+            return getModel(inputPath, `modelScene${this.trackID}_${inputPath}`, fileObjects => {
                 if (options.objects) options.objects(fileObjects);
                 fileObjects.forEach(x => {
                     if (options.static) {
@@ -175,7 +174,6 @@ export class ModelScene {
                         objRot.pop();
                         objScale.pop();
 
-                        objPos = (objPos as Vec3).map(x => x / 2);
                         if (anchor) objPos = applyAnchor(objPos as Vec3, objRot as Vec3, objScale as Vec3, anchor);
                         if (rotation) objRot = (objRot as Vec3).map((x, i) => (x + (rotation as Vec3)[i]) % 360);
                         if (scale) objScale = (objScale as Vec3).map((x, i) => x * (scale as Vec3)[i]);
@@ -474,12 +472,26 @@ function createYeetDef() {
 }
 
 /**
- * Get the objects from a .rmmodel.
+ * Get the objects from a .rmmodel, caches data if model hasn't changed.
  * @param filePath Path to the .rmmodel.
+ * @param name Name to cache the data as. Defaults to file name.
+ * @param process Function to run for each object on the cached data.
+ * @param processing Parameters that will re-process the data if changed.
  */
-export function getModel(filePath: FILEPATH) {
-    const data = JSON.parse(Deno.readTextFileSync(parseFilePath(filePath, ".rmmodel").path));
-    return data.objects as ModelObject[];
+export function getModel(filePath: FILEPATH, name?: string, process?: (objects: ModelObject[]) => void, processing?: any[]) {
+    const parsedPath = parseFilePath(filePath, ".rmmodel");
+    const inputPath = parsedPath.path;
+    const mTime = Deno.statSync(inputPath).mtime?.toString();
+    processing ??= [];
+    processing.push.apply(processing, [mTime, process?.toString()]);
+
+    name ??= parsedPath.name;
+
+    return cacheData(name, () => {
+        const data = JSON.parse(Deno.readTextFileSync(parseFilePath(filePath, ".rmmodel").path));
+        if (process) process(data.objects);
+        return data.objects as ModelObject[];
+    }, processing);
 }
 
 /**
@@ -582,20 +594,20 @@ type TextObject = {
 }
 
 export class Text {
-    /** How the text will be aligned horizontally. */
-    horizontalAlign: "Left" | "Center" | "Right" = "Center";
-    /** How the text will be aligned vertically. */
-    verticalAlign: "Top" | "Center" | "Bottom" = "Bottom";
+    /** How the text will be anchored horizontally. */
+    horizontalAnchor: "Left" | "Center" | "Right" = "Center";
+    /** How the text will be anchored vertically. */
+    verticalAnchor: "Top" | "Center" | "Bottom" = "Bottom";
     /** The position of the text box. */
     position: Vec3 = [0, 0, 0];
     /** The height of the text box. */
     height = 2;
     /** The height of the text model. Generated from input. */
     modelHeight = 0;
-    /** A scalar of the model height which is used as the width of a space. */
-    wordSpacing = 0.6;
-    /** Each letter is spaced from the last by it's width. This is a scalar for that spacing. */
-    letterSpacing = 1;
+    /** A scalar of the model height which is used to space letters. */
+    letterSpacing = 0.8;
+    /** A scalar of the letter spacing which is used as the width of a space. */
+    wordSpacing = 0.8;
     /** The model data of the text. */
     model: TextObject[] = [];
 
@@ -615,9 +627,6 @@ export class Text {
     import(input: string | TextObject[]) {
         if (typeof input === "string") this.model = getModel(input) as TextObject[];
         else this.model = input;
-        this.model.forEach(x => {
-            x.scale = x.scale.map(y => y * 2) as Vec3;
-        })
         const bounds = getBoxBounds(this.model);
         this.modelHeight = bounds.highBound[1];
     }
@@ -646,12 +655,13 @@ export class Text {
         }
 
         let length = 0;
+        const letterWidth = this.modelHeight * this.letterSpacing;
 
         for (let i = 0; i < text.length; i++) {
             const char = text[i];
 
             if (char === " ") {
-                length += this.modelHeight * this.wordSpacing;
+                length += letterWidth * this.wordSpacing;
                 continue;
             }
 
@@ -667,25 +677,47 @@ export class Text {
                 letterModel.pos[0] -= letter.bounds.lowBound[0];
                 letterModel.pos[2] -= letter.bounds.lowBound[2];
                 letterModel.pos[0] += length;
+                letterModel.pos[0] += (letterWidth - letter.bounds.scale[0]) / 2;
                 model.push(letterModel);
             })
-            length += letter.bounds.scale[0] * this.letterSpacing;
+            length += letterWidth;
         }
 
         const scalar = this.height / this.modelHeight;
 
         model.forEach(x => {
-            if (this.horizontalAlign === "Center") x.pos[0] -= length / 2;
-            if (this.horizontalAlign === "Right") x.pos[0] -= length;
+            if (this.horizontalAnchor === "Center") x.pos[0] -= length / 2;
+            if (this.horizontalAnchor === "Right") x.pos[0] -= length;
 
             x.pos = x.pos.map(y => y * scalar) as Vec3;
             x.scale = x.scale.map(y => y * scalar) as Vec3;
             x.pos = arrAdd(x.pos, this.position);
 
-            if (this.verticalAlign === "Center") x.pos[1] -= this.height / 2;
-            if (this.verticalAlign === "Top") x.pos[1] -= this.height;
+            if (this.verticalAnchor === "Center") x.pos[1] -= this.height / 2;
+            if (this.verticalAnchor === "Top") x.pos[1] -= this.height;
         })
 
         return model;
+    }
+
+    /**
+     * Generate walls from a string of text.
+     * @param text The string of text to generate.
+     * @param start Wall's lifespan start.
+     * @param end Wall's lifespan end.
+     * @param wall A callback for each wall being spawned.
+     * @param animFreq The frequency for the animation baking (if using array of objects).
+     * @param animOptimizer The optimizer for the animation baking (if using array of objects).
+     */
+    toWalls(
+        text: string,
+        start: number,
+        end: number,
+        wall?: (wall: Wall) => void,
+        animFreq?: number,
+        animOptimizer = new OptimizeSettings()
+    ) {
+        const model = this.toObjects(text);
+        modelToWall(model, start, end, wall, animFreq, animOptimizer);
     }
 }
