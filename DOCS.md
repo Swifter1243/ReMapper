@@ -524,4 +524,4 @@ screen.push();
 new CinemaScreen("YoutubeID","dQw4w9WgXcQ");
 ```
 
-ReMapper does not support additional screens in the `cinema-video.json` file, instead you can use Chroma to duplicate the main Cinema Screen ( `CinemaScreen$` ). ReMapper also does not support the environament manupulation tools Cinema has, as you do use Chroma to do the same thing.
+ReMapper does not support additional screens in the `cinema-video.json` file, instead you can use Chroma to duplicate the main Cinema Screen ( `CinemaScreen$` ). ReMapper also does not support the environment manipulation tools Cinema has, as you do use Chroma to do the same thing.
