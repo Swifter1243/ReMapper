@@ -801,6 +801,8 @@ export function exportZip(excludeDiffs: FILENAME<DIFFS>[] = [], zipName?: string
 
 /**
  * Automatically upload the map files to quest, including only necessary files.
+ * 
+ * They will be uploaded to the song WIP folder, {@link QUEST_CUSTOMS_WIP_LEVELS_PATH}
  * @param excludeDiffs Difficulties to exclude.
  * @param options Options to pass to ADB
  */
