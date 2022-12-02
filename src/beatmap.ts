@@ -818,11 +818,15 @@ export async function exportToQuest(excludeDiffs: FILENAME<DIFFS>[] = [], option
     const files = collectBeatmapFiles(excludeDiffs); // surround with quotes for safety
     const cwd = Deno.cwd();
     
+    const questSongFolder = `${QUEST_CUSTOMS_WIP_LEVELS_PATH}/${info.name}`;
+
+    await adbDeno.mkdir(questSongFolder);
+
     const tasks = files.map(v => {
         const relativePath = path.relative(cwd, v);
         console.log(`Uploading ${relativePath} to quest`)
         adbDeno.uploadFile(
-          `${QUEST_CUSTOMS_WIP_LEVELS_PATH}/${relativePath}`,
+          `${questSongFolder}/${relativePath}`,
             v,
           options
         );
