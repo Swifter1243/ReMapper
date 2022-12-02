@@ -10,7 +10,6 @@ import { AnimationInternals, RawKeyframesAny } from './animation.ts';
 import { OptimizeSettings } from './anim_optimizer.ts';
 import { ENV_NAMES, MODS, settingsHandler, DIFFS, FILENAME, FILEPATH, QUEST_CUSTOMS_WIP_LEVELS_PATH } from './constants.ts';
 import { BoostEvent, BPMChange, LightEvent, LightEventBox, LightEventBoxGroup, LightRotation, LightRotationBox, LightRotationBoxGroup, RotationEvent } from './event.ts';
-import { InvokeADBOptions } from 'https://deno.land/x/adb_deno@0.1.1/setup.ts';
 
 type PostProcessFn<T> = (object: T, diff: Difficulty) => void;
 
@@ -801,11 +800,11 @@ export function exportZip(excludeDiffs: FILENAME<DIFFS>[] = [], zipName?: string
 }
 
 /**
- * Automatically zip the map, including only necessary files.
+ * Automatically upload the map files to quest, including only necessary files.
  * @param excludeDiffs Difficulties to exclude.
- * @param zipName Name of the zip (don't include ".zip"). Uses folder name if undefined.
+ * @param options Options to pass to ADB
  */
-export async function exportToQuest(excludeDiffs: FILENAME<DIFFS>[] = [], options?: InvokeADBOptions) {
+export async function exportToQuest(excludeDiffs: FILENAME<DIFFS>[] = [], options?: adbDeno.InvokeADBOptions) {
     const adbBinary = adbDeno.getADBBinary(adbDeno.defaultADBPath())
 
     // Download ADB
