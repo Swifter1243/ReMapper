@@ -732,12 +732,8 @@ export function collectBeatmapFiles(
 ) {
     if (!info.json) throw new Error("The Info object has not been loaded.");
 
-    const absoluteInfoFileName =
-        info.fileName === "Info.dat"
-            ? Deno.cwd() + `\\${info.fileName}`
-            : info.fileName;
     const exportInfo = copy(info.json);
-    let unsanitizedFiles: (string | undefined)[] = [
+    const unsanitizedFiles: (string | undefined)[] = [
         exportInfo._songFilename,
         exportInfo._coverImageFilename,
     ];
@@ -765,13 +761,6 @@ export function collectBeatmapFiles(
             s--;
         }
     }
-    
-
-    const tempDir = Deno.makeTempDirSync();
-    const tempInfo = tempDir + `\\Info.dat`;
-    unsanitizedFiles.push(tempInfo);
-    Deno.writeTextFileSync(tempInfo, JSON.stringify(exportInfo, null, 0));
-
 
     const workingDir = Deno.cwd();
     const files = unsanitizedFiles
@@ -780,7 +769,11 @@ export function collectBeatmapFiles(
         .filter(v => fs.existsSync(v)) // ensure file exists
         
 
+    const tempDir = Deno.makeTempDirSync();
+    const tempInfo = tempDir + `\\Info.dat`;
+    Deno.writeTextFileSync(tempInfo, JSON.stringify(exportInfo, null, 0));
 
+    files.push(tempInfo); // add temp info
 
     return files;
 }
