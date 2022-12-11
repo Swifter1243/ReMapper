@@ -1,6 +1,6 @@
 // deno-lint-ignore-file adjacent-overload-signatures
 import { activeDiffGet, Json } from './beatmap.ts';
-import { copy, Vec3, worldToWall } from './general.ts';
+import { copy, iterateKeyframes, Vec3, worldToWall } from './general.ts';
 import { Animation, AnimationInternals, bakeAnimation, complexifyArray, ComplexKeyframesVec3, isSimple, KeyframesVec3, RawKeyframesVec3, simplifyArray } from './animation.ts';
 import { BaseGameplayObject } from './object.ts';
 import { getModel, ModelObject } from './model.ts';
@@ -157,6 +157,8 @@ let modelToWallCount = 0;
  * @param start Wall's lifespan start.
  * @param end Wall's lifespan end.
  * @param wall A callback for each wall being spawned.
+ * @param distribution Beats to spread spawning of walls out. 
+ * Animations are adjusted, but keep in mind path animation events for these walls might be messed up.
  * @param animFreq The frequency for the animation baking (if using array of objects).
  * @param animOptimizer The optimizer for the animation baking (if using array of objects).
  */
@@ -165,6 +167,7 @@ export function modelToWall(
     start: number,
     end: number,
     wall?: (wall: Wall) => void,
+    distribution = 1,
     animFreq?: number,
     animOptimizer = new OptimizeSettings()
 ) {
@@ -184,8 +187,8 @@ export function modelToWall(
     const w = new Wall();
     w.life = end - start;
     w.lifeStart = start;
-    w.animate.dissolve = [[0,0],[1,0]];
-    w.position = [0,0];
+    w.animate.dissolve = [[0, 0], [1, 0]];
+    w.position = [0, 0];
     w.interactable = false;
 
     if (typeof input === "string") {
@@ -198,7 +201,7 @@ export function modelToWall(
                 const scale = complexifyArray(x.scale) as ComplexKeyframesVec3;
 
                 const getVec3 = (keyframes: ComplexKeyframesVec3, index: number) =>
-                [keyframes[index][0], keyframes[index][1], keyframes[index][2]] as Vec3
+                    [keyframes[index][0], keyframes[index][1], keyframes[index][2]] as Vec3
 
                 for (let i = 0; i < pos.length; i++) {
                     const wtw = worldToWall(getVec3(pos, i), getVec3(rot, i), getVec3(scale, i), animated);
@@ -234,9 +237,26 @@ export function modelToWall(
         })
     }
 
-    objects.forEach(x => {
+    objects.forEach((x, i) => {
         const o = copy(w);
         o.animate = new Animation().wallAnimation(o.animation);
+
+        if (distribution > 0) {
+            const fraction = i / (objects.length - 1);
+            const animShrink = w.life / (w.life + distribution * fraction);
+            const animOffset = 1 - animShrink;
+            o.life += animOffset;
+            o.lifeStart = start - animOffset;
+
+            const addOffset = (keyframes: RawKeyframesVec3) =>
+                isSimple(keyframes) ? keyframes : iterateKeyframes(keyframes, k => {
+                    k[3] = (k[3] * animShrink) + animOffset;
+                })
+
+            addOffset(x.pos);
+            addOffset(x.rot);
+            addOffset(x.scale);
+        }
 
         o.animate.definitePosition = x.pos;
         if (x.color) o.color = x.color;
@@ -246,7 +266,7 @@ export function modelToWall(
 
         if (isSimple(x.scale)) o.scale = x.scale as Vec3;
         else {
-            o.scale = [1,1,1];
+            o.scale = [1, 1, 1];
             o.animate.scale = x.scale;
         }
 

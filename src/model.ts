@@ -706,6 +706,8 @@ export class Text {
      * @param start Wall's lifespan start.
      * @param end Wall's lifespan end.
      * @param wall A callback for each wall being spawned.
+     * @param distribution Beats to spread spawning of walls out. 
+     * Animations are adjusted, but keep in mind path animation events for these walls might be messed up.
      * @param animFreq The frequency for the animation baking (if using array of objects).
      * @param animOptimizer The optimizer for the animation baking (if using array of objects).
      */
@@ -714,10 +716,11 @@ export class Text {
         start: number,
         end: number,
         wall?: (wall: Wall) => void,
+        distribution = 1,
         animFreq?: number,
         animOptimizer = new OptimizeSettings()
     ) {
         const model = this.toObjects(text);
-        modelToWall(model, start, end, wall, animFreq, animOptimizer);
+        modelToWall(model, start, end, wall, distribution, animFreq, animOptimizer);
     }
 }

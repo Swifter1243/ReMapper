@@ -13,31 +13,31 @@ export type Interpolation = EASE | SPLINE;
 export type TimeValue = number;
 
 /** Helper type for complex keyframes. */
-export type AbstractComplexKeyframeArray<T extends number[]> = [...T, TimeValue, Interpolation?, SPLINE?][]
+export type ComplexKeyframesAbstract<T extends number[]> = [...T, TimeValue, Interpolation?, SPLINE?][]
 /** Helper type for raw keyframes. */
-export type AbstractRawKeyframeArray<T extends number[]> = AbstractComplexKeyframeArray<T> | T
+export type RawKeyframesAbstract<T extends number[]> = ComplexKeyframesAbstract<T> | T
 /** Helper type for keyframe arrays. */
-export type AbstractKeyframeArray<T extends number[]> = AbstractRawKeyframeArray<T> | T | string
+export type KeyframesAbstract<T extends number[]> = RawKeyframesAbstract<T> | T | string
 
 /** Keyframe or array of keyframes with 1 value. [[x, time]...] or [x] */
-export type KeyframesLinear = AbstractKeyframeArray<[number]>
+export type KeyframesLinear = KeyframesAbstract<[number]>
 /** Array of keyframes with 1 value. [[x, time]...] */
-export type ComplexKeyframesLinear = AbstractComplexKeyframeArray<[number]>
+export type ComplexKeyframesLinear = ComplexKeyframesAbstract<[number]>
 /** Keyframe or array of keyframes with 1 value.
  * [[x,time]...] or [x]
  */
-export type RawKeyframesLinear = AbstractRawKeyframeArray<[number]>
+export type RawKeyframesLinear = RawKeyframesAbstract<[number]>
 
 /** Keyframe or array of keyframes with 3 values. Allows point definitions.
  * [[x,y,z,time]...] or [x,y,z]
  */
-export type KeyframesVec3 = AbstractKeyframeArray<Vec3>
+export type KeyframesVec3 = KeyframesAbstract<Vec3>
 /** Array of keyframes with 3 values. [[x,y,z,time]...] */
-export type ComplexKeyframesVec3 = AbstractComplexKeyframeArray<Vec3>;
+export type ComplexKeyframesVec3 = ComplexKeyframesAbstract<Vec3>;
 /** Keyframe or array of keyframes with 3 values.
  * [[x,y,z,time]...] or [x,y,z]
  */
-export type RawKeyframesVec3 = AbstractRawKeyframeArray<Vec3>;
+export type RawKeyframesVec3 = RawKeyframesAbstract<Vec3>;
 
 /** Keyframe or array of keyframes with 4 values. Allows "hsvLerp".
  * [[r,g,b,a,time]...] or [r,g,b,a]
@@ -53,13 +53,13 @@ export type RawKeyframesColor = ComplexKeyframesColor | Vec4
 /** Keyframe or array of keyframes with 4 values. Allows point definitions.
  * [[x,y,z,w,time]...] or [x,y,z,w]
  */
-export type KeyframesVec4 = AbstractKeyframeArray<Vec4>;
+export type KeyframesVec4 = KeyframesAbstract<Vec4>;
 /** Array of keyframes with 4 values. [[x,y,z,w,time]...] */
-export type ComplexKeyframesVec4 = AbstractComplexKeyframeArray<Vec4>;
+export type ComplexKeyframesVec4 = ComplexKeyframesAbstract<Vec4>;
 /** Keyframe or array of keyframes with 4 values.
  * [[x,y,z,w,time]...] or [x,y,z,w]
  */
-export type RawKeyframesVec4 = AbstractRawKeyframeArray<Vec4>;
+export type RawKeyframesVec4 = RawKeyframesAbstract<Vec4>;
 
 /** Keyframe which isn't in an array with other keyframes, has any amount of values. */
 export type SingleKeyframe = number[];
@@ -510,11 +510,14 @@ export class Track {
  * For example if you input [x,y,z], it would be converted to [[x,y,z,0]].
  * @param array The keyframe or array of keyframes.
  */
-export function complexifyArray(array: RawKeyframesAny) {
+export function complexifyArray(array: RawKeyframesAny): ComplexKeyframesAny
+export function complexifyArray<T extends number[]>(array: RawKeyframesAbstract<T>) {
     if (array === undefined) return [];
-    if (!isSimple(array)) return array as ComplexKeyframesAny;
-    return [[...array, 0]] as ComplexKeyframesAny;
+    if (!isSimple(array)) return array as ComplexKeyframesAbstract<T>;
+    return [[...array, 0]] as ComplexKeyframesAbstract<T>;
 }
+
+complexifyArray([0,0,0] as Vec3)
 
 /**
  * If possible, isolate an array of keyframes with one keyframe.
