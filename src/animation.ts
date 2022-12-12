@@ -517,8 +517,6 @@ export function complexifyArray<T extends number[]>(array: RawKeyframesAbstract<
     return [[...array, 0]] as ComplexKeyframesAbstract<T>;
 }
 
-complexifyArray([0,0,0] as Vec3)
-
 /**
  * If possible, isolate an array of keyframes with one keyframe.
  * For example if you input [[x,y,z,0]], it would be converted to [x,y,z].

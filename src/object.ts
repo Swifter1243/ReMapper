@@ -57,7 +57,6 @@ export class BaseGameplayObject extends BaseObject {
     /**
      * A "jump" is the period when the object "jumps" in (indicated by spawning light on notes) to when it's deleted.
      * Jump Distance is the Z distance from when the object starts it's jump to when it's deleted.
-     * This function will output the jump distance converted to noodle units.
      */
     get jumpDist() { return getJumps(this.NJS, this.offset, info.BPM).dist }
     /** The lifespan of the object. */
@@ -83,7 +82,7 @@ export class BaseGameplayObject extends BaseObject {
     set NJS(value: number) { this.json.customData.noteJumpMovementSpeed = value }
     set offset(value: number) { this.json.customData.noteJumpStartBeatOffset = value }
     set life(value: number) {
-        if (value < 2) console.log("Warning: The lifespan of a note has a minimum of 2 beats.");
+        if (value < 0.25) console.log("Warning: The lifespan of a note has a minimum of 0.25 beats.");
         const defaultJumps = getJumps(this.NJS, 0, info.BPM);
         this.offset = (value - (2 * defaultJumps.halfDur)) / 2;
     }
