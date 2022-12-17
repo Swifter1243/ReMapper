@@ -1,7 +1,7 @@
 // deno-lint-ignore-file adjacent-overload-signatures
 import { activeDiffGet, Json } from './beatmap.ts';
-import { copy, iterateKeyframes, Vec3, worldToWall } from './general.ts';
-import { Animation, AnimationInternals, bakeAnimation, complexifyArray, ComplexKeyframesVec3, isSimple, KeyframesVec3, RawKeyframesVec3, simplifyArray } from './animation.ts';
+import { copy, Vec3, worldToWall } from './general.ts';
+import { Animation, AnimationInternals, bakeAnimation, complexifyArray, ComplexKeyframesAny, ComplexKeyframesVec3, isSimple, Keyframe, KeyframesVec3, RawKeyframesAny, RawKeyframesVec3, simplifyArray } from './animation.ts';
 import { BaseGameplayObject } from './object.ts';
 import { getModel, ModelObject } from './model.ts';
 import { OptimizeSettings } from './anim_optimizer.ts';
@@ -243,19 +243,27 @@ export function modelToWall(
 
         if (distribution > 0) {
             const fraction = i / (objects.length - 1);
-            const animShrink = w.life / (w.life + distribution * fraction);
-            const animOffset = 1 - animShrink;
-            o.life += animOffset;
-            o.lifeStart = start - animOffset;
+            const backwardOffset = o.life * fraction;
+            const newLife = o.life + backwardOffset;
+            const animMul = o.life / newLife;
+            const animAdd = 1 - animMul;
 
-            const addOffset = (keyframes: RawKeyframesVec3) =>
-                isSimple(keyframes) ? keyframes : iterateKeyframes(keyframes, k => {
-                    k[3] = (k[3] * animShrink) + animOffset;
+            o.life = newLife;
+            o.lifeStart = start - backwardOffset;
+
+            const transformAnim = (anim: RawKeyframesAny) => {
+                if (isSimple(anim)) return anim;
+                (anim as ComplexKeyframesAny).forEach(k => {
+                    const keyframe = new Keyframe(k);
+                    const newTime = (keyframe.time * animMul) + animAdd;
+                    k[keyframe.timeIndex] = newTime;
                 })
+            }
 
-            addOffset(x.pos);
-            addOffset(x.rot);
-            addOffset(x.scale);
+            transformAnim(x.pos);
+            transformAnim(x.rot);
+            transformAnim(x.scale);
+            transformAnim(o.animate.dissolve as RawKeyframesAny);
         }
 
         o.animate.definitePosition = x.pos;
