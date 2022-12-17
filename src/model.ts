@@ -1,7 +1,7 @@
 // deno-lint-ignore-file no-explicit-any
 import { arrAdd, cacheData, ColorType, copy, iterateKeyframes, rotatePoint, Vec3, Vec4, parseFilePath, baseEnvironmentTrack, getBoxBounds, Bounds } from "./general.ts";
 import { bakeAnimation, complexifyArray, ComplexKeyframesVec3, ComplexKeyframesAny, KeyframeValues, RawKeyframesVec3 } from "./animation.ts";
-import { Environment, Geometry, RawGeometryMaterial } from "./environment.ts";
+import { Environment, Geometry, GeometryMaterial, RawGeometryMaterial } from "./environment.ts";
 import { optimizeAnimation, OptimizeSettings } from "./anim_optimizer.ts";
 import { CustomEvent, CustomEventInternals } from "./custom_event.ts";
 import { activeDiff, activeDiffGet } from "./beatmap.ts";
@@ -41,7 +41,8 @@ type ModelGroup = {
     anchor?: Vec3,
     scale?: Vec3,
     rotation?: Vec3,
-    disappearWhenAbsent?: boolean
+    disappearWhenAbsent?: boolean,
+    defaultMaterial?: GeometryMaterial
 }
 
 /** The data type used by ModelScene to define objects. */
@@ -54,7 +55,7 @@ export interface ModelObject {
 }
 
 export class ModelScene {
-    private groups = <Record<string, ModelGroup>>{};
+    groups = <Record<string, ModelGroup>>{};
     optimizer = new OptimizeSettings();
     bakeAnimFreq = 1 / 32;
     trackID: number;
@@ -80,6 +81,7 @@ export class ModelScene {
         const group: ModelGroup = {}
         if (object) {
             if (object instanceof Environment) object.duplicate = 1;
+            if (object instanceof Geometry) group.defaultMaterial = object.material;
             object.position = [0, -69420, 0];
             group.object = object
         }
@@ -121,6 +123,14 @@ export class ModelScene {
             })
         })
     }
+
+    /**
+     * Spawn every object in a group with a unique material.
+     * Allows colors from models to be applied to geometry.
+     * Should be used with caution as it creates a unique material per object.
+     * @param group The group to enable unique materials on. Leave undefined to effect base group.
+     */
+    enableUniqueMaterials = (group?: string) => this.groups[group as string].defaultMaterial = undefined;
 
     private getObjects(input: AnimatedObjectInput) {
         let objectInput = input as ObjectInput;
@@ -274,16 +284,16 @@ export class ModelScene {
 
         data.forEach(x => {
             // Getting info about group
-            const key = x.track as string;
-            const group = this.groups[key];
+            const groupKey = x.track as string;
+            const group = this.groups[groupKey];
 
             // Registering data about object amounts
-            const objectInfo = this.objectInfo[key];
+            const objectInfo = this.objectInfo[groupKey];
             if (!objectInfo) return;
             objectInfo.perSwitch[0]++;
             if (objectInfo.perSwitch[0] > objectInfo.max) objectInfo.max = objectInfo.perSwitch[0];
 
-            const track = this.getPieceTrack(group.object, key, objectInfo.perSwitch[0] - 1);
+            const track = this.getPieceTrack(group.object, groupKey, objectInfo.perSwitch[0] - 1);
 
             // Get transforms
             const pos = this.getFirstTransform(x.pos);
@@ -294,8 +304,15 @@ export class ModelScene {
             if (group.object) {
                 const object = copy(group.object)
 
+                if (group.defaultMaterial) {
+                    const materialName = `modelScene${this.trackID}_${groupKey}_material`;
+                    activeDiff.geoMaterials[materialName] = group.defaultMaterial;
+                    (object as Geometry).material = materialName;
+                }
+
                 if (
                     object instanceof Geometry &&
+                    !group.defaultMaterial &&
                     typeof object.material !== "string" &&
                     !object.material.color &&
                     x.color
@@ -390,6 +407,7 @@ export class ModelScene {
                 if (
                     group.object &&
                     group.object instanceof Geometry &&
+                    !group.defaultMaterial &&
                     typeof group.object.material !== "string" &&
                     !group.object.material.color &&
                     x.color
@@ -435,9 +453,17 @@ export class ModelScene {
 
             // Spawning objects
             if (group.object) {
+                let materialName: string | undefined = undefined;
+                if (group.defaultMaterial) {
+                    materialName = `modelScene${this.trackID}_${groupKey}_material`;
+                    activeDiff.geoMaterials[materialName] = group.defaultMaterial;
+                }
+
                 for (let i = 0; i < objectInfo.max; i++) {
                     const object = copy(group.object)
                     object.track.value = this.getPieceTrack(group.object, groupKey, i);
+
+                    if (materialName) (object as Geometry).material = materialName;
 
                     if (animatedMaterials.some(x => x === object.track.value))
                         ((object as Geometry).material as RawGeometryMaterial).track = object.track + "_material";
