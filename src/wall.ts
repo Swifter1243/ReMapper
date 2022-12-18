@@ -1,10 +1,10 @@
 // deno-lint-ignore-file adjacent-overload-signatures
 import { activeDiffGet, Json } from './beatmap.ts';
 import { copy, Vec3, worldToWall } from './general.ts';
-import { Animation, AnimationInternals, bakeAnimation, complexifyArray, ComplexKeyframesAny, ComplexKeyframesVec3, isSimple, Keyframe, KeyframesVec3, RawKeyframesAny, RawKeyframesVec3, simplifyArray } from './animation.ts';
+import { Animation, AnimationInternals, bakeAnimation, complexifyArray, ComplexKeyframesAny, ComplexKeyframesVec3, isSimple, Keyframe, KeyframesVec3, RawKeyframesAny, RawKeyframesVec3 } from './animation.ts';
 import { BaseGameplayObject } from './object.ts';
 import { getModel, ModelObject } from './model.ts';
-import { OptimizeSettings } from './anim_optimizer.ts';
+import { optimizeAnimation, OptimizeSettings } from './anim_optimizer.ts';
 
 export class Wall extends BaseGameplayObject {
     json: Json = {
@@ -167,11 +167,14 @@ export function modelToWall(
     start: number,
     end: number,
     wall?: (wall: Wall) => void,
-    distribution = 1,
+    distribution?: number,
     animFreq?: number,
     animOptimizer = new OptimizeSettings()
 ) {
     animFreq ??= 1 / 64;
+    distribution ??= 1;
+
+    const dur = end - start;
 
     let objects: ModelObject[] = [];
     modelToWallCount++;
@@ -184,6 +187,42 @@ export function modelToWall(
         )
     }
 
+    function getDistributeNums(index: number, length: number) {
+        const fraction = index / (length - 1);
+        const backwardOffset = (distribution as number) * fraction;
+        const newLife = dur + backwardOffset;
+        const animMul = dur / newLife;
+        const animAdd = 1 - animMul;
+
+        return {
+            backwardOffset: backwardOffset,
+            newLife: newLife,
+            animMul: animMul,
+            animAdd: animAdd
+        }
+    }
+
+    function distributeWall(o: Wall, index: number, length: number) {
+        if (distribution === undefined || length < 1) return;
+        const nums = getDistributeNums(index, length);
+
+        o.life = nums.newLife;
+        o.lifeStart = start - nums.backwardOffset;
+        distributeAnim(o.animate.dissolve as RawKeyframesAny, index, length);
+    }
+
+    function distributeAnim(anim: RawKeyframesAny, index: number, length: number) {
+        if (distribution === undefined || length < 1) return;
+        const nums = getDistributeNums(index, length);
+
+        if (isSimple(anim)) return anim;
+        (anim as ComplexKeyframesAny).forEach(k => {
+            const keyframe = new Keyframe(k);
+            const newTime = (keyframe.time * nums.animMul) + nums.animAdd;
+            k[keyframe.timeIndex] = newTime;
+        })
+    }
+
     const w = new Wall();
     w.life = end - start;
     w.lifeStart = start;
@@ -193,7 +232,7 @@ export function modelToWall(
 
     if (typeof input === "string") {
         objects = getModel(input, `modelToWall_${modelToWallCount}`, o => {
-            o.forEach(x => {
+            o.forEach((x, i) => {
                 const animated = isAnimated(x);
 
                 const pos = complexifyArray(x.pos) as ComplexKeyframesVec3;
@@ -209,14 +248,19 @@ export function modelToWall(
                     scale[i] = [...wtw.scale, scale[i][3]];
                 }
 
-                x.pos = simplifyArray(pos) as RawKeyframesVec3;
-                x.rot = simplifyArray(rot) as RawKeyframesVec3;
-                x.scale = simplifyArray(scale) as RawKeyframesVec3;
+                x.pos = optimizeAnimation(pos, animOptimizer) as RawKeyframesVec3;
+                x.rot = optimizeAnimation(rot, animOptimizer) as RawKeyframesVec3;
+                x.scale = optimizeAnimation(scale, animOptimizer) as RawKeyframesVec3;
+
+                distributeAnim(x.pos, i, o.length);
+                distributeAnim(x.rot, i, o.length);
+                distributeAnim(x.scale, i, o.length);
             })
-        });
+        }, [animOptimizer, distribution]);
     }
     else {
-        objects = input.map(x => {
+        objects = input.map((x, i) => {
+            x = copy(x);
             const animated = isAnimated(x);
 
             const anim = bakeAnimation({
@@ -233,6 +277,10 @@ export function modelToWall(
             x.rot = anim.rot;
             x.scale = anim.scale;
 
+            distributeAnim(x.pos, i, input.length);
+            distributeAnim(x.rot, i, input.length);
+            distributeAnim(x.scale, i, input.length);
+
             return x;
         })
     }
@@ -240,31 +288,6 @@ export function modelToWall(
     objects.forEach((x, i) => {
         const o = copy(w);
         o.animate = new Animation().wallAnimation(o.animation);
-
-        if (distribution > 0) {
-            const fraction = i / (objects.length - 1);
-            const backwardOffset = o.life * fraction;
-            const newLife = o.life + backwardOffset;
-            const animMul = o.life / newLife;
-            const animAdd = 1 - animMul;
-
-            o.life = newLife;
-            o.lifeStart = start - backwardOffset;
-
-            const transformAnim = (anim: RawKeyframesAny) => {
-                if (isSimple(anim)) return anim;
-                (anim as ComplexKeyframesAny).forEach(k => {
-                    const keyframe = new Keyframe(k);
-                    const newTime = (keyframe.time * animMul) + animAdd;
-                    k[keyframe.timeIndex] = newTime;
-                })
-            }
-
-            transformAnim(x.pos);
-            transformAnim(x.rot);
-            transformAnim(x.scale);
-            transformAnim(o.animate.dissolve as RawKeyframesAny);
-        }
 
         o.animate.definitePosition = x.pos;
         if (x.color) o.color = x.color;
@@ -277,6 +300,8 @@ export function modelToWall(
             o.scale = [1, 1, 1];
             o.animate.scale = x.scale;
         }
+
+        distributeWall(o, i, objects.length);
 
         if (wall) wall(o);
         o.push(true, false);
