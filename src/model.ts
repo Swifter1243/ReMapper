@@ -71,7 +71,9 @@ export class ModelScene {
     objectInfo = <Record<string, {
         max: number,
         perSwitch: Record<number, number>;
+        initialPos?: ModelObject[];
     }>>{}
+    initializePositions = true;
 
     /**
      * Handler for representing object data as part of the environment. 
@@ -243,8 +245,9 @@ export class ModelScene {
                         transform.pos = applyAnchor(transform.pos, transform.rot, transform.scale, anchor ?? [0, 0, 0] as Vec3);
                     }, this.bakeAnimFreq, this.optimizer);
 
-                    bakedCube.track = x.track;
-                    x = bakedCube;
+                    x.pos = bakedCube.pos;
+                    x.rot = bakedCube.rot;
+                    x.scale = bakedCube.scale;
                 }
 
                 if (rotation) iterateKeyframes(x.rot, y => {
@@ -390,18 +393,20 @@ export class ModelScene {
         })
 
         // Object animation
-        switches.forEach(x => {
+        switches.forEach((x, switchIndex) => {
             const input = x[0];
             const time = x[1];
             const duration = x[2] ?? 0;
             const forEvent = x[3];
             const data = this.getObjects(input);
 
+            const firstInitializing = this.initializePositions && switchIndex === 0 && time !== 0;
             Object.keys(this.groups).forEach(x => {
                 this.objectInfo[x].perSwitch[time] = 0;
+                if (firstInitializing) this.objectInfo[x].initialPos = [];
             })
 
-            data.forEach(x => {
+            data.forEach((x, i) => {
                 // Getting info about group
                 const key = x.track as string;
                 const group = this.groups[key];
@@ -413,6 +418,23 @@ export class ModelScene {
                 if (objectInfo.perSwitch[time] > objectInfo.max) objectInfo.max = objectInfo.perSwitch[time];
 
                 const track = this.getPieceTrack(group.object, key, objectInfo.perSwitch[time] - 1);
+
+                // Set initializing data
+                if (firstInitializing) objectInfo.initialPos![i] = {
+                    pos: complexifyArray(x.pos)[0] as Vec3,
+                    rot: complexifyArray(x.rot)[0] as Vec3,
+                    scale: complexifyArray(x.scale)[0] as Vec3
+                }
+
+                // Initialize assigned object position
+                if (!group.object && firstInitializing) {
+                    const event = new CustomEvent().animateTrack(track);
+                    const initalizePos = objectInfo.initialPos![i];
+                    event.animate.position = initalizePos.pos as Vec3;
+                    event.animate.rotation = initalizePos.rot as Vec3;
+                    event.animate.scale = initalizePos.scale as Vec3;
+                    event.push(false);
+                }
 
                 // Creating event
                 if (
@@ -426,9 +448,12 @@ export class ModelScene {
                     x.color[3] ??= 1;
                     animatedMaterials.push(track);
 
-                    const event = new CustomEvent(time).animateTrack(track + "_material");
-                    event.animate.color = x.color as Vec4;
-                    event.push(false);
+                    if (firstInitializing) objectInfo.initialPos![i].color = x.color;
+                    else {
+                        const event = new CustomEvent(time).animateTrack(track + "_material");
+                        event.animate.color = x.color as Vec4;
+                        event.push(false);
+                    }
                 }
 
                 const event = new CustomEvent(time).animateTrack(track, duration);
@@ -436,7 +461,7 @@ export class ModelScene {
                 event.animate.set("rotation", x.rot, false);
                 event.animate.set("scale", x.scale, false);
                 if (forEvent) forEvent(event, objectInfo.perSwitch[time]);
-                activeDiff.customEvents.push(event);
+                event.push(false);
             })
         })
 
@@ -448,19 +473,23 @@ export class ModelScene {
             if (!objectInfo) return;
 
             // Yeeting objects
-            Object.keys(objectInfo.perSwitch).forEach(switchTime => {
+            Object.keys(objectInfo.perSwitch).forEach((switchTime, switchIndex) => {
                 const numSwitchTime = parseInt(switchTime);
+                const firstInitializing = this.initializePositions && switchIndex === 0 && numSwitchTime !== 0;
+                const eventTime = firstInitializing ? 0 : parseInt(switchTime);
                 const amount = objectInfo.perSwitch[numSwitchTime];
 
                 if (group.disappearWhenAbsent || group.object) for (let i = amount; i < objectInfo.max; i++) {
                     if (!yeetEvents[numSwitchTime]) {
-                        const event = new CustomEvent(numSwitchTime).animateTrack();
+                        const event = new CustomEvent(eventTime).animateTrack();
                         event.animate.position = "yeet";
                         yeetEvents[numSwitchTime] = event;
                     }
                     yeetEvents[numSwitchTime].track.add(this.getPieceTrack(group.object, groupKey, i));
                 }
             })
+
+            const initializing = objectInfo.initialPos !== undefined;
 
             // Spawning objects
             if (group.object) {
@@ -474,8 +503,16 @@ export class ModelScene {
                     const object = copy(group.object)
                     object.track.value = this.getPieceTrack(group.object, groupKey, i);
 
-                    if (materialName) (object as Geometry).material = materialName;
+                    if (initializing) {
+                        const initialPos = objectInfo.initialPos![i];
+                        object.position = initialPos.pos as Vec3;
+                        object.rotation = initialPos.rot as Vec3;
+                        object.scale = initialPos.scale as Vec3;
+                        if (initialPos.color)
+                            ((object as Geometry).material as RawGeometryMaterial).color = initialPos.color;
+                    }
 
+                    if (materialName) (object as Geometry).material = materialName;
                     if (animatedMaterials.some(x => x === object.track.value))
                         ((object as Geometry).material as RawGeometryMaterial).track = object.track.value + "_material";
 
