@@ -20,14 +20,23 @@ export type ObjectInput = FILEPATH | ModelObject[];
 
 /** Input options for the "static" method in a ModelScene. */
 export type StaticOptions = {
+    /** The input of objects. Can be an array of objects or a path to a model. */
     input: ObjectInput,
+    /** Function to run on objects when they're being cached. Only works for path input. */
+    onCache?: (objs: ModelObject[]) => void,
+    /** Function to run on objects about to be processed.
+        Be careful when mutating these, as cached objects are stored across script executions. */
     objects?: (arr: ModelObject[]) => void,
+    /** Recache the objects when information in this array changes. Only works for path input. */
     processing?: any
 }
 
 /** Input options for the "animate" method in a ModelScene. */
 export type AnimatedOptions = StaticOptions & {
+    /** Whether or not to re-bake the object animations if you input an array of objects.
+        On by default, I would recommend not touching this unless you know what you're doing. */
     bake?: boolean,
+    /** If this input is animated, use the only first frame. */
     static?: boolean
 }
 
@@ -143,11 +152,11 @@ export class ModelScene {
 
         if (typeof objectInput === "string") {
             const inputPath = parseFilePath(objectInput, ".rmmodel").path;
-            const objects = options.objects ? options.objects.toString() : undefined;
-            const processing: any[] = [options, objects, this.groups, this.optimizer];
+            const onCache = options.onCache ? options.onCache.toString() : undefined;
+            const processing: any[] = [options, onCache, this.groups, this.optimizer];
 
-            return getModel(inputPath, `modelScene${this.trackID}_${inputPath}`, fileObjects => {
-                if (options.objects) options.objects(fileObjects);
+            const model = getModel(inputPath, `modelScene${this.trackID}_${inputPath}`, fileObjects => {
+                if (options.onCache) options.onCache(fileObjects);
                 fileObjects.forEach(x => {
                     if (options.static) {
                         const makeStatic = (k: RawKeyframesVec3) =>
@@ -200,6 +209,8 @@ export class ModelScene {
                 })
                 return fileObjects;
             }, processing)
+            if (options.objects) options.objects(model);
+            return model;
         }
         else {
             const outputObjects: ModelObject[] = [];
