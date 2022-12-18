@@ -63,6 +63,10 @@ export interface ModelObject {
     track?: string;
 }
 
+type Duration = number | undefined;
+type AnimationStart = number | undefined;
+type ForEvent = ((event: CustomEventInternals.AnimateTrack, objects: number) => void) | undefined;
+
 export class ModelScene {
     groups = <Record<string, ModelGroup>>{};
     optimizer = new OptimizeSettings();
@@ -272,9 +276,17 @@ export class ModelScene {
     private getPieceTrack = (object: undefined | GroupObjectTypes, track: string, index: number) =>
         object ? `modelScene${this.trackID}_${track}_${index}` : track
 
-    private getFirstTransform(transform: RawKeyframesVec3) {
-        const complexTransform = complexifyArray(copy(transform))[0];
+    private getFirstValues(keyframes: RawKeyframesVec3) {
+        const complexTransform = complexifyArray(copy(keyframes))[0];
         return [complexTransform[0], complexTransform[1], complexTransform[2]] as Vec3;
+    }
+
+    private getFirstTransform(obj: ModelObject) {
+        return {
+            pos: this.getFirstValues(obj.pos),
+            rot: this.getFirstValues(obj.rot),
+            scale: this.getFirstValues(obj.scale)
+        }
     }
 
     /**
@@ -310,9 +322,9 @@ export class ModelScene {
             const track = this.getPieceTrack(group.object, groupKey, objectInfo.perSwitch[0] - 1);
 
             // Get transforms
-            const pos = this.getFirstTransform(x.pos);
-            const rot = this.getFirstTransform(x.rot);
-            const scale = this.getFirstTransform(x.scale);
+            const pos = this.getFirstValues(x.pos);
+            const rot = this.getFirstValues(x.rot);
+            const scale = this.getFirstValues(x.scale);
 
             // Creating objects
             if (group.object) {
@@ -369,14 +381,16 @@ export class ModelScene {
      * [0] - Input for ModelObjects.
      * [1] - Time of the switch.
      * [2]? - Duration of the animation.
-     * [3]? - Function to run on each event moving the objects.
+     * [3]? - Time to wait until animation starts.
+     * [4]? - Function to run on each event moving the objects.
      * @param forObject Function to run on each spawned object.
      */
     animate(switches: [
         AnimatedObjectInput,
         number,
-        number?,
-        ((event: CustomEventInternals.AnimateTrack, objects: number) => void)?,
+        Duration?,
+        AnimationStart?,
+        ForEvent?,
     ][], forObject?: (object: GroupObjectTypes) => void) {
         createYeetDef();
         switches.sort((a, b) => a[1] - b[1]);
@@ -397,10 +411,12 @@ export class ModelScene {
             const input = x[0];
             const time = x[1];
             const duration = x[2] ?? 0;
-            const forEvent = x[3];
+            const start = x[3] ?? 0;
+            const forEvent = x[4];
             const data = this.getObjects(input);
 
             const firstInitializing = this.initializePositions && switchIndex === 0 && time !== 0;
+            const delaying = !firstInitializing && start > 0;
             Object.keys(this.groups).forEach(x => {
                 this.objectInfo[x].perSwitch[time] = 0;
                 if (firstInitializing) this.objectInfo[x].initialPos = [];
@@ -420,11 +436,7 @@ export class ModelScene {
                 const track = this.getPieceTrack(group.object, key, objectInfo.perSwitch[time] - 1);
 
                 // Set initializing data
-                if (firstInitializing) objectInfo.initialPos![i] = {
-                    pos: complexifyArray(x.pos)[0] as Vec3,
-                    rot: complexifyArray(x.rot)[0] as Vec3,
-                    scale: complexifyArray(x.scale)[0] as Vec3
-                }
+                if (firstInitializing) objectInfo.initialPos![i] = this.getFirstTransform(x);
 
                 // Initialize assigned object position
                 if (!group.object && firstInitializing) {
@@ -433,6 +445,7 @@ export class ModelScene {
                     event.animate.position = initalizePos.pos as Vec3;
                     event.animate.rotation = initalizePos.rot as Vec3;
                     event.animate.scale = initalizePos.scale as Vec3;
+                    if (forEvent) forEvent(event, objectInfo.perSwitch[time]);
                     event.push(false);
                 }
 
@@ -457,6 +470,16 @@ export class ModelScene {
                 }
 
                 const event = new CustomEvent(time).animateTrack(track, duration);
+
+                if (delaying) {
+                    event.animate.set("position", this.getFirstValues(x.pos), false);
+                    event.animate.set("rotation", this.getFirstValues(x.rot), false);
+                    event.animate.set("scale", this.getFirstValues(x.scale), false);
+                    if (forEvent) forEvent(event, objectInfo.perSwitch[time]);
+                    event.push();
+                }
+
+                event.time = time + start;
                 event.animate.set("position", x.pos, false);
                 event.animate.set("rotation", x.rot, false);
                 event.animate.set("scale", x.scale, false);
