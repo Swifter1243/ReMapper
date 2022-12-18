@@ -130,7 +130,7 @@ export class ModelScene {
      * Should be used with caution as it creates a unique material per object.
      * @param group The group to enable unique materials on. Leave undefined to effect base group.
      */
-    enableUniqueMaterials = (group?: string) => this.groups[group as string].defaultMaterial = undefined;
+    enableModelColors = (group?: string) => this.groups[group as string].defaultMaterial = undefined;
 
     private getObjects(input: AnimatedObjectInput) {
         let objectInput = input as ObjectInput;
@@ -466,7 +466,7 @@ export class ModelScene {
                     if (materialName) (object as Geometry).material = materialName;
 
                     if (animatedMaterials.some(x => x === object.track.value))
-                        ((object as Geometry).material as RawGeometryMaterial).track = object.track + "_material";
+                        ((object as Geometry).material as RawGeometryMaterial).track = object.track.value + "_material";
 
                     if (forObject) forObject(object);
                     object.push(false);
