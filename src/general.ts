@@ -363,6 +363,13 @@ export function arrEqual<T extends readonly [] | readonly number[]>
 export const arrHas = (arr: any[], value: any) => arr.some(x => x === value);
 
 /**
+ * Add values of one array to another.
+ * @param arr Array to add values to.
+ * @param arr2 Values to add.
+ */
+export const arrAppend = (arr: any[], arr2: any[]) => arr.push.apply(arr, arr2);
+
+/**
  * Gives a random number in the given range.
  * @param start Minimum value.
  * @param end Maximum value.
