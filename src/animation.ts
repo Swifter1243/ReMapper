@@ -3,7 +3,7 @@ import { optimizeAnimation, OptimizeSettings } from "./anim_optimizer.ts";
 import { Json } from "./beatmap.ts";
 import { Color, lerpColor } from "./color.ts";
 import { ANIM, EASE, SPLINE } from "./constants.ts";
-import { lerpEasing, arrAdd, copy, arrMul, arrLast, findFraction, Vec3, Vec4, lerpRotation, arrLerp } from "./general.ts";
+import { lerpEasing, arrAdd, copy, arrMul, arrLast, findFraction, Vec3, Vec4, lerpRotation, arrLerp, ceilTo, floorTo } from "./general.ts";
 
 /** Any flag that could be in a keyframe. E.g. easings, splines */
 export type KeyframeFlag = Interpolation | "hsvLerp";
@@ -688,8 +688,8 @@ export function combineAnimations(anim1: RawKeyframesAny, anim2: RawKeyframesAny
 export function bakeAnimation(animation: { pos?: RawKeyframesVec3, rot?: RawKeyframesVec3, scale?: RawKeyframesVec3 },
     forKeyframe?: (transform: { pos: Vec3, rot: Vec3, scale: Vec3, time: number }) => void,
     animFreq?: number, animOptimizer?: OptimizeSettings) {
-    animFreq ??= 1 / 32,
-        animation.pos ??= [0, 0, 0];
+    animFreq ??= 1 / 32;
+    animation.pos ??= [0, 0, 0];
     animation.rot ??= [0, 0, 0];
     animation.scale ??= [1, 1, 1];
 
@@ -721,8 +721,8 @@ export function bakeAnimation(animation: { pos?: RawKeyframesVec3, rot?: RawKeyf
     const rotDomain = getDomain(animation.rot);
     const scaleDomain = getDomain(animation.scale);
 
-    const totalMin = getDomain([[posDomain.min], [rotDomain.min], [scaleDomain.min]]).min;
-    const totalMax = getDomain([[posDomain.max], [rotDomain.max], [scaleDomain.max]]).max;
+    const totalMin = floorTo(getDomain([[posDomain.min], [rotDomain.min], [scaleDomain.min]]).min, animFreq);
+    const totalMax = ceilTo(getDomain([[posDomain.max], [rotDomain.max], [scaleDomain.max]]).max, animFreq);
 
     for (let i = totalMin; i <= totalMax; i += animFreq) {
         const keyframe = {

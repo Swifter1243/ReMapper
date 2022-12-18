@@ -378,9 +378,21 @@ export function rand(start: number, end: number, roundResult?: number) {
  * @param input Number to round.
  * @param number Number to round to.
  */
-export function round(input: number, number: number) {
-    return Math.round(input / number) * number;
-}
+export const round = (input: number, number: number) => Math.round(input / number) * number;
+
+/**
+ * Floors a number to the nearest multiple of another number.
+ * @param input Number to floor.
+ * @param number Number to floor to.
+ */
+export const floorTo = (input: number, number: number) => Math.floor(input / number) * number;
+
+/**
+ * Ceils a number to the nearest multiple of another number.
+ * @param input Number to ceil.
+ * @param number Number to ceil to.
+ */
+export const ceilTo = (input: number, number: number) => Math.ceil(input / number) * number;
 
 /**
  * Makes a number fit between a min and max value.
