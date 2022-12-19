@@ -12,8 +12,10 @@ export type Interpolation = EASE | SPLINE;
 /** Time value in a keyframe. */
 export type TimeValue = number;
 
+/** Helper type for single keyframes. */
+export type SingleKeyframeAbstract<T extends number[]> = [...T, TimeValue, KeyframeFlag?, KeyframeFlag?, KeyframeFlag?];
 /** Helper type for complex keyframes. */
-export type ComplexKeyframesAbstract<T extends number[]> = [...T, TimeValue, Interpolation?, SPLINE?][]
+export type ComplexKeyframesAbstract<T extends number[]> = SingleKeyframeAbstract<T>[]
 /** Helper type for raw keyframes. */
 export type RawKeyframesAbstract<T extends number[]> = ComplexKeyframesAbstract<T> | T
 /** Helper type for keyframe arrays. */
@@ -39,17 +41,6 @@ export type ComplexKeyframesVec3 = ComplexKeyframesAbstract<Vec3>;
  */
 export type RawKeyframesVec3 = RawKeyframesAbstract<Vec3>;
 
-/** Keyframe or array of keyframes with 4 values. Allows "hsvLerp".
- * [[r,g,b,a,time]...] or [r,g,b,a]
- */
-export type ComplexKeyframesColor = [...Vec4, number, KeyframeFlag?, KeyframeFlag?, KeyframeFlag?][]
-/** Array of keyframes with 4 values. [[r,g,b,a,time]...] */
-export type KeyframesColor = ComplexKeyframesColor | Vec4 | string
-/** Keyframe or array of keyframes with 4 values. Allows "hsvLerp" and point definitions.
- * [[r,g,b,a,time]...] or [r,g,b,a]
- */
-export type RawKeyframesColor = ComplexKeyframesColor | Vec4
-
 /** Keyframe or array of keyframes with 4 values. Allows point definitions.
  * [[x,y,z,w,time]...] or [x,y,z,w]
  */
@@ -62,11 +53,11 @@ export type ComplexKeyframesVec4 = ComplexKeyframesAbstract<Vec4>;
 export type RawKeyframesVec4 = RawKeyframesAbstract<Vec4>;
 
 /** Keyframe which isn't in an array with other keyframes, has any amount of values. */
-export type SingleKeyframe = number[];
+export type SingleKeyframe = SingleKeyframeAbstract<number[]>;
 /** Keyframe which is in an array with other keyframes, has any amount of values. */
 export type KeyframeValues = (number | (KeyframeFlag | undefined))[];
 /** Array of keyframes which have any amount of values. */
-export type ComplexKeyframesAny = KeyframeValues[];
+export type ComplexKeyframesAny = ComplexKeyframesAbstract<number[]>;
 /** Keyframe or array of keyframes with any amount of values. Allows point definitions. */
 export type KeyframesAny = SingleKeyframe | ComplexKeyframesAny | string;
 /** Keyframe or array of keyframes with any amount of values. */
@@ -140,7 +131,7 @@ export namespace AnimationInternals {
             if (typeof value === "string") this.json[property] = value;
             else {
                 value = this.convert(complexifyArray(value));
-                const concatArray = (value as ComplexKeyframesAny).concat(complexifyArray(this.json[property]));
+                const concatArray = value.concat(complexifyArray(this.json[property]));
                 const newValue = simplifyArray(concatArray.sort((a, b) => new Keyframe(a).time - new Keyframe(b).time));
                 this.json[property] = newValue;
             }
@@ -181,7 +172,7 @@ export namespace AnimationInternals {
                 const time = new Keyframe(x).timeIndex;
                 x[time] = this.convertTime(x[time] as number);
                 return x;
-            })
+            }) as ComplexKeyframesAny
         }
 
         private convertTime(time: number) {
@@ -221,7 +212,7 @@ export namespace AnimationInternals {
         set localRotation(value: KeyframesVec3) { this.set("localRotation", value) }
         set scale(value: KeyframesVec3) { this.set("scale", value) }
         set dissolve(value: KeyframesLinear) { this.set("dissolve", value) }
-        set color(value: KeyframesColor) { this.set("color", value) }
+        set color(value: KeyframesVec4) { this.set("color", value) }
         set uninteractable(value: KeyframesLinear) { this.set("uninteractable", value) }
         set time(value: KeyframesLinear) { this.set("time", value) }
     }
@@ -305,7 +296,7 @@ export namespace AnimationInternals {
         set scale(value: KeyframesVec3) { this.set("scale", value) }
         set dissolve(value: KeyframesLinear) { this.set("dissolve", value) }
         set dissolveArrow(value: KeyframesLinear) { this.set("dissolveArrow", value) }
-        set color(value: KeyframesColor) { this.set("color", value) }
+        set color(value: KeyframesVec4) { this.set("color", value) }
         set uninteractable(value: KeyframesLinear) { this.set("uninteractable", value) }
         set time(value: KeyframesLinear) { this.set("time", value) }
     }
@@ -510,8 +501,7 @@ export class Track {
  * For example if you input [x,y,z], it would be converted to [[x,y,z,0]].
  * @param array The keyframe or array of keyframes.
  */
-export function complexifyArray(array: RawKeyframesAny): ComplexKeyframesAny
-export function complexifyArray<T extends number[]>(array: RawKeyframesAbstract<T>) {
+export function complexifyArray<T extends number[] | []>(array: RawKeyframesAbstract<T> | RawKeyframesAny) {
     if (array === undefined) return [];
     if (!isSimple(array)) return array as ComplexKeyframesAbstract<T>;
     return [[...array, 0]] as ComplexKeyframesAbstract<T>;
@@ -522,12 +512,11 @@ export function complexifyArray<T extends number[]>(array: RawKeyframesAbstract<
  * For example if you input [[x,y,z,0]], it would be converted to [x,y,z].
  * @param array The array of keyframes.
  */
-export function simplifyArray(array: RawKeyframesAny) {
+export function simplifyArray<T extends number[] | []>(array: RawKeyframesAbstract<T>) {
     if (array === undefined) return [];
-    if (array.length <= 1 && !isSimple(array) && new Keyframe(array[0] as KeyframeValues).time === 0) {
-        const newArr = array[0] as KeyframeValues;
-        newArr.pop();
-        return newArr as RawKeyframesAny;
+    if (array.length <= 1 && !isSimple(array)) {
+        const keyframe = new Keyframe(array[0] as KeyframeValues);
+        if (keyframe.time === 0) return keyframe.values as RawKeyframesAbstract<T>;
     }
     return array;
 }
@@ -758,7 +747,9 @@ export function bakeAnimation(animation: { pos?: RawKeyframesVec3, rot?: RawKeyf
  * @param loops Amount of loops.
  * @param mirror Whether to mirror to connect loops.
  */
-export function loopAnimation(animation: RawKeyframesAny, loops: number, mirror = false) {
+export function loopAnimation<T extends number[] | []>(
+    animation: RawKeyframesAbstract<T>, loops: number, mirror = false
+) {
     if (isSimple(animation)) return animation;
     const newAnim = complexifyArray(animation);
     const output: ComplexKeyframesAny = [];
@@ -816,5 +807,5 @@ export function loopAnimation(animation: RawKeyframesAny, loops: number, mirror 
         }
     }
 
-    return output;
+    return output as ComplexKeyframesAbstract<T>;
 }

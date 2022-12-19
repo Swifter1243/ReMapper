@@ -1,7 +1,7 @@
 // deno-lint-ignore-file no-explicit-any adjacent-overload-signatures
 const EPSILON = 1e-3;
 import * as easings from './easings.ts';
-import { complexifyArray, ComplexKeyframesLinear, ComplexKeyframesVec3, ComplexKeyframesVec4, KeyframesLinear, KeyframeValues, RawKeyframesAny, RawKeyframesLinear, RawKeyframesVec3, RawKeyframesVec4, simplifyArray } from './animation.ts';
+import { complexifyArray, ComplexKeyframesLinear, KeyframesLinear, RawKeyframesAbstract, simplifyArray, SingleKeyframeAbstract } from './animation.ts';
 import { Wall } from './wall.ts';
 import { EASE, FILENAME, FILEPATH } from './constants.ts';
 import { activeDiffGet, Json } from './beatmap.ts';
@@ -697,24 +697,18 @@ export const RMLog = (message: string) => console.log(`[ReMapper: ${getSeconds()
  * @param keyframes Keyframes to iterate.
  * @param fn Function to run on each keyframe.
  */
-export function iterateKeyframes(keyframes: RawKeyframesLinear, fn: (values: ComplexKeyframesLinear[0], index: number) => void): void;
-export function iterateKeyframes(keyframes: RawKeyframesVec3, fn: (values: ComplexKeyframesVec3[0], index: number) => void): void;
-export function iterateKeyframes(keyframes: RawKeyframesVec4, fn: (values: ComplexKeyframesVec4[0], index: number) => void): void;
-export function iterateKeyframes(keyframes: RawKeyframesAny, fn: (any: any, index: number) => void): void {
-    iterateKeyframesInternal(keyframes, fn)
-}
-
-function iterateKeyframesInternal(keyframes: RawKeyframesAny, fn: (values: KeyframeValues, index: number) => void): void {
+export function iterateKeyframes<T extends number[] | []>(
+    keyframes: RawKeyframesAbstract<T>, fn: (values: SingleKeyframeAbstract<T>, index: number) => void
+) {
     // TODO: Lookup point def
     if (typeof keyframes === "string") return;
 
-    const newKeyframes = complexifyArray(copy(keyframes));
+    const newKeyframes = complexifyArray(keyframes);
     newKeyframes.forEach((x, i) => fn(x, i));
-    keyframes.length = 0;
-    (simplifyArray(newKeyframes)).forEach(x => (keyframes as any).push(x));
+    const newSimpleKeyframes = simplifyArray(newKeyframes);
+    newSimpleKeyframes.forEach((x, i) => keyframes[i] = x);
+    keyframes.length = newSimpleKeyframes.length;
 }
-
-// TODO: Make complexifyArray and simplifyArray only take in raw types
 
 /**
  * Parse a file path, allowing extension forcing and getting useful information.

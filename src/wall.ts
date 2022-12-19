@@ -235,9 +235,9 @@ export function modelToWall(
             o.forEach((x, i) => {
                 const animated = isAnimated(x);
 
-                const pos = complexifyArray(x.pos) as ComplexKeyframesVec3;
-                const rot = complexifyArray(x.rot) as ComplexKeyframesVec3;
-                const scale = complexifyArray(x.scale) as ComplexKeyframesVec3;
+                const pos = complexifyArray(x.pos);
+                const rot = complexifyArray(x.rot);
+                const scale = complexifyArray(x.scale);
 
                 const getVec3 = (keyframes: ComplexKeyframesVec3, index: number) =>
                     [keyframes[index][0], keyframes[index][1], keyframes[index][2]] as Vec3
@@ -248,9 +248,9 @@ export function modelToWall(
                     scale[i] = [...wtw.scale, scale[i][3]];
                 }
 
-                x.pos = optimizeAnimation(pos, animOptimizer) as RawKeyframesVec3;
-                x.rot = optimizeAnimation(rot, animOptimizer) as RawKeyframesVec3;
-                x.scale = optimizeAnimation(scale, animOptimizer) as RawKeyframesVec3;
+                x.pos = optimizeAnimation(pos, animOptimizer);
+                x.rot = optimizeAnimation(rot, animOptimizer);
+                x.scale = optimizeAnimation(scale, animOptimizer);
 
                 distributeAnim(x.pos, i, o.length);
                 distributeAnim(x.rot, i, o.length);

@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-explicit-any
 import { arrAdd, cacheData, ColorType, copy, iterateKeyframes, rotatePoint, Vec3, Vec4, parseFilePath, baseEnvironmentTrack, getBoxBounds, Bounds } from "./general.ts";
-import { bakeAnimation, complexifyArray, ComplexKeyframesVec3, ComplexKeyframesAny, KeyframeValues, RawKeyframesVec3, loopAnimation } from "./animation.ts";
+import { bakeAnimation, complexifyArray, KeyframeValues, RawKeyframesVec3, loopAnimation } from "./animation.ts";
 import { Environment, Geometry, GeometryMaterial, RawGeometryMaterial } from "./environment.ts";
 import { optimizeAnimation, OptimizeSettings } from "./anim_optimizer.ts";
 import { CustomEvent, CustomEventInternals } from "./custom_event.ts";
@@ -190,9 +190,9 @@ export class ModelScene {
                     }
 
                     // Making keyframes a consistent array format
-                    x.pos = complexifyArray(x.pos) as ComplexKeyframesVec3;
-                    x.rot = complexifyArray(x.rot) as ComplexKeyframesVec3;
-                    x.scale = complexifyArray(x.scale) as ComplexKeyframesVec3;
+                    x.pos = complexifyArray(x.pos);
+                    x.rot = complexifyArray(x.rot);
+                    x.scale = complexifyArray(x.scale);
 
                     // Applying transformation to each keyframe
                     for (let i = 0; i < x.pos.length; i++) {
@@ -207,21 +207,21 @@ export class ModelScene {
                         if (rotation) objRot = (objRot as Vec3).map((x, i) => (x + (rotation as Vec3)[i]) % 360);
                         if (scale) objScale = (objScale as Vec3).map((x, i) => x * (scale as Vec3)[i]);
 
-                        (x.pos as ComplexKeyframesAny)[i] = [...(objPos as Vec3), (x.pos as ComplexKeyframesVec3)[i][3]];
-                        (x.rot as ComplexKeyframesAny)[i] = [...(objRot as Vec3), (x.rot as ComplexKeyframesVec3)[i][3]];
-                        (x.scale as ComplexKeyframesAny)[i] = [...(objScale as Vec3), (x.scale as ComplexKeyframesVec3)[i][3]];
+                        (x.pos)[i] = [...(objPos as Vec3), (x.pos)[i][3]];
+                        (x.rot)[i] = [...(objRot as Vec3), (x.rot)[i][3]];
+                        (x.scale)[i] = [...(objScale as Vec3), (x.scale)[i][3]];
                     }
 
                     // Optimizing object
-                    x.pos = optimizeAnimation(x.pos, this.optimizer) as RawKeyframesVec3;
-                    x.rot = optimizeAnimation(x.rot, this.optimizer) as RawKeyframesVec3;
-                    x.scale = optimizeAnimation(x.scale, this.optimizer) as RawKeyframesVec3;
+                    x.pos = optimizeAnimation(x.pos, this.optimizer);
+                    x.rot = optimizeAnimation(x.rot, this.optimizer);
+                    x.scale = optimizeAnimation(x.scale, this.optimizer);
 
                     // Loop animation
                     if (options.loop !== undefined) {
-                        x.pos = loopAnimation(x.pos, options.loop, options.mirrorLoop) as RawKeyframesVec3;
-                        x.rot = loopAnimation(x.rot, options.loop, options.mirrorLoop) as RawKeyframesVec3;
-                        x.scale = loopAnimation(x.scale, options.loop, options.mirrorLoop) as RawKeyframesVec3;
+                        x.pos = loopAnimation(x.pos, options.loop, options.mirrorLoop);
+                        x.rot = loopAnimation(x.rot, options.loop, options.mirrorLoop);
+                        x.scale = loopAnimation(x.scale, options.loop, options.mirrorLoop);
                     }
                 })
                 return fileObjects;
@@ -266,22 +266,22 @@ export class ModelScene {
                 }
 
                 if (rotation) iterateKeyframes(x.rot, y => {
-                    y[0] = (y[0] + (rotation as Vec3)[0]) % 360;
-                    y[1] = (y[1] + (rotation as Vec3)[1]) % 360;
-                    y[2] = (y[2] + (rotation as Vec3)[2]) % 360;
+                    y[0] = (y[0] + (rotation!)[0]) % 360;
+                    y[1] = (y[1] + (rotation!)[1]) % 360;
+                    y[2] = (y[2] + (rotation!)[2]) % 360;
                 })
 
                 if (scale) iterateKeyframes(x.scale, y => {
-                    y[0] *= (scale as Vec3)[0];
-                    y[1] *= (scale as Vec3)[1];
-                    y[2] *= (scale as Vec3)[2];
+                    y[0] *= (scale!)[0];
+                    y[1] *= (scale!)[1];
+                    y[2] *= (scale!)[2];
                 })
 
                 // Loop animation
                 if (options.loop !== undefined) {
-                    x.pos = loopAnimation(x.pos, options.loop, options.mirrorLoop) as RawKeyframesVec3;
-                    x.rot = loopAnimation(x.rot, options.loop, options.mirrorLoop) as RawKeyframesVec3;
-                    x.scale = loopAnimation(x.scale, options.loop, options.mirrorLoop) as RawKeyframesVec3;
+                    x.pos = loopAnimation(x.pos, options.loop, options.mirrorLoop);
+                    x.rot = loopAnimation(x.rot, options.loop, options.mirrorLoop);
+                    x.scale = loopAnimation(x.scale, options.loop, options.mirrorLoop);
                 }
 
                 outputObjects.push(x);
