@@ -742,6 +742,40 @@ export function bakeAnimation(animation: { pos?: RawKeyframesVec3, rot?: RawKeyf
 }
 
 /**
+ * Reverse an animation. Accounts for most easings but not splines.
+ * @param animation Animation to reverse.
+ */
+export function reverseAnimation<T extends NumberTuple>(animation: RawKeyframesAbstract<T>) {
+    if (isSimple(animation)) return animation;
+    const keyframes: Keyframe[] = [];
+
+    (animation as ComplexKeyframesAbstract<T>).forEach((x, i) => {
+        const k = new Keyframe(copy(x));
+        k.time = 1 - k.time;
+        keyframes[animation.length - 1 - i] = k;
+    })
+
+    for (let i = keyframes.length - 1; i >= 0; i--) {
+        const current = keyframes[i];
+
+        if (current.easing) {
+            if (current.easing && !current.easing.includes("InOut")) {
+                if (current.easing.includes("In"))
+                    current.easing = current.easing.replace("In", "Out") as EASE;
+                else if (current.easing.includes("Out"))
+                    current.easing = current.easing.replace("Out", "In") as EASE;
+            }
+
+            const last = keyframes[i + 1];
+            last.easing = current.easing;
+            current.data.splice(current.getFlagIndex("ease", false), 1);
+        }
+    }
+
+    return keyframes.map(x => x.data) as RawKeyframesAbstract<T>;
+}
+
+/**
  * Repeat an animation. Can also mirror the animation to connect loops.
  * @param animation Animation to loop.
  * @param loops Amount of loops.
