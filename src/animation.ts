@@ -3,7 +3,7 @@ import { optimizeAnimation, OptimizeSettings } from "./anim_optimizer.ts";
 import { Json } from "./beatmap.ts";
 import { Color, lerpColor } from "./color.ts";
 import { ANIM, EASE, SPLINE } from "./constants.ts";
-import { lerpEasing, arrAdd, copy, arrMul, arrLast, findFraction, Vec3, Vec4, lerpRotation, arrLerp } from "./general.ts";
+import { lerpEasing, arrAdd, copy, arrMul, arrLast, findFraction, Vec3, Vec4, lerpRotation, arrLerp, ceilTo, floorTo } from "./general.ts";
 
 /** Any flag that could be in a keyframe. E.g. easings, splines */
 export type KeyframeFlag = Interpolation | "hsvLerp";
@@ -13,31 +13,31 @@ export type Interpolation = EASE | SPLINE;
 export type TimeValue = number;
 
 /** Helper type for complex keyframes. */
-export type AbstractComplexKeyframeArray<T extends number[]> = [...T, TimeValue, Interpolation?, SPLINE?][]
+export type ComplexKeyframesAbstract<T extends number[]> = [...T, TimeValue, Interpolation?, SPLINE?][]
 /** Helper type for raw keyframes. */
-export type AbstractRawKeyframeArray<T extends number[]> = AbstractComplexKeyframeArray<T> | T
+export type RawKeyframesAbstract<T extends number[]> = ComplexKeyframesAbstract<T> | T
 /** Helper type for keyframe arrays. */
-export type AbstractKeyframeArray<T extends number[]> = AbstractRawKeyframeArray<T> | T | string
+export type KeyframesAbstract<T extends number[]> = RawKeyframesAbstract<T> | T | string
 
 /** Keyframe or array of keyframes with 1 value. [[x, time]...] or [x] */
-export type KeyframesLinear = AbstractKeyframeArray<[number]>
+export type KeyframesLinear = KeyframesAbstract<[number]>
 /** Array of keyframes with 1 value. [[x, time]...] */
-export type ComplexKeyframesLinear = AbstractComplexKeyframeArray<[number]>
+export type ComplexKeyframesLinear = ComplexKeyframesAbstract<[number]>
 /** Keyframe or array of keyframes with 1 value.
  * [[x,time]...] or [x]
  */
-export type RawKeyframesLinear = AbstractRawKeyframeArray<[number]>
+export type RawKeyframesLinear = RawKeyframesAbstract<[number]>
 
 /** Keyframe or array of keyframes with 3 values. Allows point definitions.
  * [[x,y,z,time]...] or [x,y,z]
  */
-export type KeyframesVec3 = AbstractKeyframeArray<Vec3>
+export type KeyframesVec3 = KeyframesAbstract<Vec3>
 /** Array of keyframes with 3 values. [[x,y,z,time]...] */
-export type ComplexKeyframesVec3 = AbstractComplexKeyframeArray<Vec3>;
+export type ComplexKeyframesVec3 = ComplexKeyframesAbstract<Vec3>;
 /** Keyframe or array of keyframes with 3 values.
  * [[x,y,z,time]...] or [x,y,z]
  */
-export type RawKeyframesVec3 = AbstractRawKeyframeArray<Vec3>;
+export type RawKeyframesVec3 = RawKeyframesAbstract<Vec3>;
 
 /** Keyframe or array of keyframes with 4 values. Allows "hsvLerp".
  * [[r,g,b,a,time]...] or [r,g,b,a]
@@ -53,13 +53,13 @@ export type RawKeyframesColor = ComplexKeyframesColor | Vec4
 /** Keyframe or array of keyframes with 4 values. Allows point definitions.
  * [[x,y,z,w,time]...] or [x,y,z,w]
  */
-export type KeyframesVec4 = AbstractKeyframeArray<Vec4>;
+export type KeyframesVec4 = KeyframesAbstract<Vec4>;
 /** Array of keyframes with 4 values. [[x,y,z,w,time]...] */
-export type ComplexKeyframesVec4 = AbstractComplexKeyframeArray<Vec4>;
+export type ComplexKeyframesVec4 = ComplexKeyframesAbstract<Vec4>;
 /** Keyframe or array of keyframes with 4 values.
  * [[x,y,z,w,time]...] or [x,y,z,w]
  */
-export type RawKeyframesVec4 = AbstractRawKeyframeArray<Vec4>;
+export type RawKeyframesVec4 = RawKeyframesAbstract<Vec4>;
 
 /** Keyframe which isn't in an array with other keyframes, has any amount of values. */
 export type SingleKeyframe = number[];
@@ -389,7 +389,7 @@ export class Keyframe {
     set time(value: number) { this.data[this.timeIndex] = value }
     set values(value: number[]) { for (let i = 0; i < this.timeIndex; i++) this.data[i] = value[i] }
     set easing(value: EASE) { this.setFlag(value, "ease") }
-    set spline(value: SPLINE) { this.setFlag(value, "ease") }
+    set spline(value: SPLINE) { this.setFlag(value, "spline") }
     set hsvLerp(value: boolean) {
         if (value) this.setFlag("hsvLerp")
         else {
@@ -404,7 +404,7 @@ export class Keyframe {
      * @param old An existing flag containing this will be replaced by the value.
      */
     setFlag(value: string, old?: string) {
-        let index = this.getFlagIndex(old ? old : value, old !== undefined);
+        let index = this.getFlagIndex(old ? old : value, old === undefined);
         if (index === -1) index = this.data.length;
         this.data[index] = value as any;
     }
@@ -510,10 +510,11 @@ export class Track {
  * For example if you input [x,y,z], it would be converted to [[x,y,z,0]].
  * @param array The keyframe or array of keyframes.
  */
-export function complexifyArray(array: RawKeyframesAny) {
+export function complexifyArray(array: RawKeyframesAny): ComplexKeyframesAny
+export function complexifyArray<T extends number[]>(array: RawKeyframesAbstract<T>) {
     if (array === undefined) return [];
-    if (!isSimple(array)) return array as ComplexKeyframesAny;
-    return [[...array, 0]] as ComplexKeyframesAny;
+    if (!isSimple(array)) return array as ComplexKeyframesAbstract<T>;
+    return [[...array, 0]] as ComplexKeyframesAbstract<T>;
 }
 
 /**
@@ -687,8 +688,8 @@ export function combineAnimations(anim1: RawKeyframesAny, anim2: RawKeyframesAny
 export function bakeAnimation(animation: { pos?: RawKeyframesVec3, rot?: RawKeyframesVec3, scale?: RawKeyframesVec3 },
     forKeyframe?: (transform: { pos: Vec3, rot: Vec3, scale: Vec3, time: number }) => void,
     animFreq?: number, animOptimizer?: OptimizeSettings) {
-    animFreq ??= 1 / 32,
-        animation.pos ??= [0, 0, 0];
+    animFreq ??= 1 / 32;
+    animation.pos ??= [0, 0, 0];
     animation.rot ??= [0, 0, 0];
     animation.scale ??= [1, 1, 1];
 
@@ -720,8 +721,8 @@ export function bakeAnimation(animation: { pos?: RawKeyframesVec3, rot?: RawKeyf
     const rotDomain = getDomain(animation.rot);
     const scaleDomain = getDomain(animation.scale);
 
-    const totalMin = getDomain([[posDomain.min], [rotDomain.min], [scaleDomain.min]]).min;
-    const totalMax = getDomain([[posDomain.max], [rotDomain.max], [scaleDomain.max]]).max;
+    const totalMin = floorTo(getDomain([[posDomain.min], [rotDomain.min], [scaleDomain.min]]).min, animFreq);
+    const totalMax = ceilTo(getDomain([[posDomain.max], [rotDomain.max], [scaleDomain.max]]).max, animFreq);
 
     for (let i = totalMin; i <= totalMax; i += animFreq) {
         const keyframe = {
@@ -749,4 +750,71 @@ export function bakeAnimation(animation: { pos?: RawKeyframesVec3, rot?: RawKeyf
         rot: dataAnim.rotation as RawKeyframesVec3,
         scale: dataAnim.scale as RawKeyframesVec3
     };
-} 
+}
+
+/**
+ * Repeat an animation. Can also mirror the animation to connect loops.
+ * @param animation Animation to loop.
+ * @param loops Amount of loops.
+ * @param mirror Whether to mirror to connect loops.
+ */
+export function loopAnimation(animation: RawKeyframesAny, loops: number, mirror = false) {
+    if (isSimple(animation)) return animation;
+    const newAnim = complexifyArray(animation);
+    const output: ComplexKeyframesAny = [];
+
+    for (let l = 0; l < loops; l++) {
+        if (mirror) {
+            const getTime = (time: number, index: number) => (time / (loops * 2)) + (index / (loops * 2));
+
+            newAnim.forEach(c => {
+                let k = new Keyframe(copy(c));
+                k.time = getTime(k.time, l * 2);
+                output.push(k.data)
+
+                k = new Keyframe(copy(c));
+                k.time = getTime(1.0000001 - k.time, l * 2 + 1);
+                output.push(k.data);
+            })
+        }
+        else {
+            const start = new Keyframe(newAnim[0]);
+            const end = new Keyframe(arrLast(newAnim));
+            const getTime = (time: number) => (time / loops) + (l / loops);
+
+            if (l > 0 && start.time !== 0) output.push([...start.values, getTime(0)]);
+            newAnim.forEach(c => {
+                const k = new Keyframe(copy(c));
+                k.time = getTime(k.time);
+                output.push(k.data);
+            })
+            if (l < loops - 1 && end.time !== 1) output.push([...end.values, getTime(1)]);
+        }
+    }
+
+    if (mirror) {
+        output.sort((a, b) => new Keyframe(a).time - new Keyframe(b).time);
+
+        // Reverse easings
+        for (let i = output.length - 1; i >= 0; i--) {
+            const section = output.length / loops;
+            const inLooped = i % section >= section / 2;
+            const current = new Keyframe(output[i]);
+
+            if (inLooped && current.easing) {
+                if (current.easing && !current.easing.includes("InOut")) {
+                    if (current.easing.includes("In"))
+                        current.easing = current.easing.replace("In", "Out") as EASE;
+                    else if (current.easing.includes("Out"))
+                        current.easing = current.easing.replace("Out", "In") as EASE;
+                }
+
+                const last = new Keyframe(output[i + 1]);
+                last.easing = current.easing;
+                current.data.splice(current.getFlagIndex("ease", false), 1);
+            }
+        }
+    }
+
+    return output;
+}

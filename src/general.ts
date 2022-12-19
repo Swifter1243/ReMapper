@@ -363,6 +363,13 @@ export function arrEqual<T extends readonly [] | readonly number[]>
 export const arrHas = (arr: any[], value: any) => arr.some(x => x === value);
 
 /**
+ * Add values of one array to another.
+ * @param arr Array to add values to.
+ * @param arr2 Values to add.
+ */
+export const arrAppend = (arr: any[], arr2: any[]) => arr.push.apply(arr, arr2);
+
+/**
  * Gives a random number in the given range.
  * @param start Minimum value.
  * @param end Maximum value.
@@ -378,9 +385,21 @@ export function rand(start: number, end: number, roundResult?: number) {
  * @param input Number to round.
  * @param number Number to round to.
  */
-export function round(input: number, number: number) {
-    return Math.round(input / number) * number;
-}
+export const round = (input: number, number: number) => Math.round(input / number) * number;
+
+/**
+ * Floors a number to the nearest multiple of another number.
+ * @param input Number to floor.
+ * @param number Number to floor to.
+ */
+export const floorTo = (input: number, number: number) => Math.floor(input / number) * number;
+
+/**
+ * Ceils a number to the nearest multiple of another number.
+ * @param input Number to ceil.
+ * @param number Number to ceil to.
+ */
+export const ceilTo = (input: number, number: number) => Math.ceil(input / number) * number;
 
 /**
  * Makes a number fit between a min and max value.
@@ -615,23 +634,26 @@ export function jsonRemove(obj: Json, prop: string) {
  * Jump Duration is the time in beats that the object will be jumping for.
  * This function will output half of this, so it will end when the note is supposed to be hit.
  * Jump Distance is the Z distance from when the object starts it's jump to when it's deleted.
- * This function will output the jump distance converted to noodle units.
  */
 export function getJumps(NJS: number, offset: number, BPM: number) {
     const startHJD = 4;
-    const maxHJD = 18;
+    const maxHJD = 18 - 0.001;
+    const oneBeatDur = 60 / BPM;
 
-    const num = 60 / BPM;
-    let num2 = startHJD;
-    while (NJS * num * num2 > maxHJD) num2 /= 2;
-    num2 += offset;
-    if (num2 < 1) num2 = 1;
+    let halfDur = startHJD;
+    const num2 = NJS * oneBeatDur;
+    let num3 = num2 * halfDur;
+    while (num3 > maxHJD) {
+        halfDur /= 2;
+        num3 = num2 * halfDur;
+    }
+    halfDur += offset;
+    if (halfDur < 0.25) halfDur = 0.25;
 
-    const jumpDur = num * num2 * 2;
-    let jumpDist = NJS * jumpDur;
-    jumpDist /= 0.6;
+    const jumpDur = halfDur * 2 * oneBeatDur;
+    const jumpDist = NJS * jumpDur;
 
-    return { halfDur: num2, dist: jumpDist };
+    return { halfDur: halfDur, dist: jumpDist };
 }
 
 /**

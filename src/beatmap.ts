@@ -1,5 +1,5 @@
 // deno-lint-ignore-file no-explicit-any adjacent-overload-signatures
-import { path, fs, compress } from './deps.ts';
+import { path, fs, compress, adbDeno } from './deps.ts';
 import { Arc, Note, Bomb, Chain } from './note.ts';
 import { Wall } from './wall.ts';
 import { Event, EventInternals } from './basicEvent.ts';
@@ -8,7 +8,7 @@ import { Environment, EnvironmentInternals, Geometry, GeometryMaterial } from '.
 import { copy, isEmptyObject, jsonGet, jsonPrune, jsonSet, sortObjects, Vec3, setDecimals, RMLog, parseFilePath, RMJson, jsonRemove } from './general.ts';
 import { AnimationInternals, RawKeyframesAny } from './animation.ts';
 import { OptimizeSettings } from './anim_optimizer.ts';
-import { ENV_NAMES, SUGGEST_MODS, REQUIRE_MODS, settingsHandler, DIFFS, FILENAME, FILEPATH } from './constants.ts';
+import { ENV_NAMES, SUGGEST_MODS, REQUIRE_MODS, settingsHandler, DIFFS, FILENAME, FILEPATH, QUEST_WIP_PATH } from './constants.ts';
 import { BoostEvent, BPMChange, LightEvent, LightEventBox, LightEventBoxGroup, LightRotation, LightRotationBox, LightRotationBoxGroup, RotationEvent } from './event.ts';
 
 type PostProcessFn<T> = (object: T, diff: Difficulty) => void;
@@ -728,40 +728,36 @@ function reduceDecimalsPostProcess(_: never, diff: Difficulty) {
 }
 
 /**
- * Automatically zip the map, including only necessary files.
+ * Create a temporary directory with all of the relevant files for the beatmap.
+ * Returns all of the files that are in the directory.
  * @param excludeDiffs Difficulties to exclude.
- * @param zipName Name of the zip (don't include ".zip"). Uses folder name if undefined.
  */
-export function exportZip(excludeDiffs: FILENAME<DIFFS>[] = [], zipName?: string) {
+export function collectBeatmapFiles(
+    excludeDiffs: FILENAME<DIFFS>[] = []
+) {
     if (!info.json) throw new Error("The Info object has not been loaded.");
 
-    const absoluteInfoFileName = info.fileName === "Info.dat" ? Deno.cwd() + `\\${info.fileName}` : info.fileName;
-    const workingDir = path.parse(absoluteInfoFileName).dir;
     const exportInfo = copy(info.json);
-    let files: string[] = [];
-    function pushFile(file: string) {
-        const dir = workingDir + `\\${file}`;
-        if (fs.existsSync(dir)) files.push(dir);
-    }
-
-    pushFile("cinema-video.json");
-    pushFile(exportInfo._songFilename);
-    if (exportInfo._coverImageFilename !== undefined) pushFile(exportInfo._coverImageFilename);
+    const unsanitizedFiles: (string | undefined)[] = [
+        exportInfo._songFilename,
+        exportInfo._coverImageFilename,
+        "cinema-video.json"
+    ];
 
     for (let s = 0; s < exportInfo._difficultyBeatmapSets.length; s++) {
         const set = exportInfo._difficultyBeatmapSets[s];
         for (let m = 0; m < set._difficultyBeatmaps.length; m++) {
             const map = set._difficultyBeatmaps[m];
             let passed = true;
-            excludeDiffs.forEach(d => {
+            excludeDiffs.forEach((d) => {
                 if (map._beatmapFilename === parseFilePath(d, ".dat").path) {
                     set._difficultyBeatmaps.splice(m, 1);
                     m--;
                     passed = false;
                 }
-            })
+            });
 
-            if (passed) pushFile(map._beatmapFilename);
+            if (passed) unsanitizedFiles.push(map._beatmapFilename);
         }
 
         if (set._difficultyBeatmaps.length === 0) {
@@ -770,20 +766,75 @@ export function exportZip(excludeDiffs: FILENAME<DIFFS>[] = [], zipName?: string
         }
     }
 
-    zipName ??= `${path.parse(workingDir).name}`;
-    zipName = `${zipName}.zip`;
+    const workingDir = Deno.cwd();
+    const files = unsanitizedFiles
+        .filter((v) => v) // check not undefined or null
+        .map(v => path.join(workingDir, v!)) // prepend workspace dir
+        .filter(v => fs.existsSync(v)) // ensure file exists
+
     const tempDir = Deno.makeTempDirSync();
     const tempInfo = tempDir + `\\Info.dat`;
-    files.push(tempInfo);
     Deno.writeTextFileSync(tempInfo, JSON.stringify(exportInfo, null, 0));
 
-    files = files.map(x => x = `"${x}"`);
+    files.push(tempInfo); // add temp info
+
+    return files;
+}
+
+/**
+ * Automatically zip the map, including only necessary files.
+ * @param excludeDiffs Difficulties to exclude.
+ * @param zipName Name of the zip (don't include ".zip"). Uses folder name if undefined.
+ */
+export function exportZip(excludeDiffs: FILENAME<DIFFS>[] = [], zipName?: string) {
+    const workingDir = Deno.cwd();
+    zipName ??= `${path.parse(workingDir).name}`;
+    zipName = `${zipName}.zip`;
     zipName = zipName.replaceAll(" ", "_");
-    compressZip();
-    async function compressZip() {
-        await compress(files, zipName, { overwrite: true });
+    
+    const files = collectBeatmapFiles(excludeDiffs)
+        .map((v) => `"${v}"`); // surround with quotes for safety
+
+    compress(files, zipName, { overwrite: true }).then(() => {
         RMLog(`${zipName} has been zipped!`);
+    });
+}
+
+/**
+ * Automatically upload the map files to quest, including only necessary files.
+ * 
+ * They will be uploaded to the song WIP folder, {@link QUEST_WIP_PATH}
+ * @param excludeDiffs Difficulties to exclude.
+ * @param options Options to pass to ADB
+ */
+export async function exportToQuest(excludeDiffs: FILENAME<DIFFS>[] = [], options?: adbDeno.InvokeADBOptions) {
+    const adbBinary = adbDeno.getADBBinary(adbDeno.defaultADBPath())
+
+    // Download ADB
+    if (!fs.existsSync(adbBinary)) {
+        console.log("ADB not found, downloading")
+        await adbDeno.downloadADB(options?.downloadPath)
     }
+
+    const files = collectBeatmapFiles(excludeDiffs); // surround with quotes for safety
+    const cwd = Deno.cwd();
+
+    const questSongFolder = `${QUEST_WIP_PATH}/${info.name}`;
+
+    await adbDeno.mkdir(questSongFolder);
+
+    const tasks = files.map(v => {
+        const relativePath = path.relative(cwd, v);
+        console.log(`Uploading ${relativePath} to quest`)
+        adbDeno.uploadFile(
+            `${questSongFolder}/${relativePath}`,
+            v,
+            options
+        );
+    })
+
+    await Promise.all(tasks);
+    console.log("Uploaded all files to quest")
 }
 
 /**
