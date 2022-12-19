@@ -1,5 +1,5 @@
 import { complexifyArray, Keyframe, RawKeyframesAbstract, simplifyArray } from "./animation.ts";
-import { copy } from "./general.ts";
+import { copy, NumberTuple } from "./general.ts";
 
 function areArrayElementsIdentical<T>(enumerable1: T[], enumerable2: T[]): boolean {
     if (enumerable1.length !== enumerable2.length) {
@@ -342,7 +342,7 @@ function optimizeKeyframes(keyframes: Keyframe[], optimizeSettings: OptimizeSett
  * @param settings settings for the optimizer.
  * @returns
  */
-export function optimizeAnimation<T extends number[] | []>
+export function optimizeAnimation<T extends NumberTuple>
 (animation: RawKeyframesAbstract<T>, settings: OptimizeSettings) {
     const keyframes: Keyframe[] = copy(complexifyArray(animation)).map(x => new Keyframe(x));
 

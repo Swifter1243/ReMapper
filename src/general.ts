@@ -19,6 +19,8 @@ export type Vec3 = [number, number, number];
 export type Vec4 = [number, number, number, number];
 /** An array with [r,g,b] or [r,g,b,a]. */
 export type ColorType = [number, number, number] | [number, number, number, number];
+/** A type that can be used to prefer a tuple on an array of numbers. */
+export type NumberTuple = number[] | [];
 
 /** Cached data saved in the ReMapper cache. */
 type CachedData = {
@@ -697,7 +699,7 @@ export const RMLog = (message: string) => console.log(`[ReMapper: ${getSeconds()
  * @param keyframes Keyframes to iterate.
  * @param fn Function to run on each keyframe.
  */
-export function iterateKeyframes<T extends number[] | []>(
+export function iterateKeyframes<T extends NumberTuple>(
     keyframes: RawKeyframesAbstract<T>, fn: (values: SingleKeyframeAbstract<T>, index: number) => void
 ) {
     // TODO: Lookup point def

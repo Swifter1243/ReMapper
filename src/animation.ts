@@ -3,7 +3,7 @@ import { optimizeAnimation, OptimizeSettings } from "./anim_optimizer.ts";
 import { Json } from "./beatmap.ts";
 import { Color, lerpColor } from "./color.ts";
 import { ANIM, EASE, SPLINE } from "./constants.ts";
-import { lerpEasing, arrAdd, copy, arrMul, arrLast, findFraction, Vec3, Vec4, lerpRotation, arrLerp, ceilTo, floorTo } from "./general.ts";
+import { lerpEasing, arrAdd, copy, arrMul, arrLast, findFraction, Vec3, Vec4, lerpRotation, arrLerp, ceilTo, floorTo, NumberTuple } from "./general.ts";
 
 /** Any flag that could be in a keyframe. E.g. easings, splines */
 export type KeyframeFlag = Interpolation | "hsvLerp";
@@ -501,7 +501,7 @@ export class Track {
  * For example if you input [x,y,z], it would be converted to [[x,y,z,0]].
  * @param array The keyframe or array of keyframes.
  */
-export function complexifyArray<T extends number[] | []>(array: RawKeyframesAbstract<T> | RawKeyframesAny) {
+export function complexifyArray<T extends NumberTuple>(array: RawKeyframesAbstract<T> | RawKeyframesAny) {
     if (array === undefined) return [];
     if (!isSimple(array)) return array as ComplexKeyframesAbstract<T>;
     return [[...array, 0]] as ComplexKeyframesAbstract<T>;
@@ -512,7 +512,7 @@ export function complexifyArray<T extends number[] | []>(array: RawKeyframesAbst
  * For example if you input [[x,y,z,0]], it would be converted to [x,y,z].
  * @param array The array of keyframes.
  */
-export function simplifyArray<T extends number[] | []>(array: RawKeyframesAbstract<T>) {
+export function simplifyArray<T extends NumberTuple>(array: RawKeyframesAbstract<T>) {
     if (array === undefined) return [];
     if (array.length <= 1 && !isSimple(array)) {
         const keyframe = new Keyframe(array[0] as KeyframeValues);
@@ -747,7 +747,7 @@ export function bakeAnimation(animation: { pos?: RawKeyframesVec3, rot?: RawKeyf
  * @param loops Amount of loops.
  * @param mirror Whether to mirror to connect loops.
  */
-export function loopAnimation<T extends number[] | []>(
+export function loopAnimation<T extends NumberTuple>(
     animation: RawKeyframesAbstract<T>, loops: number, mirror = false
 ) {
     if (isSimple(animation)) return animation;
