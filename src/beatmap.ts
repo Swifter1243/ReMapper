@@ -4,7 +4,7 @@ import { Arc, Note, Bomb, Chain } from './note.ts';
 import { Wall } from './wall.ts';
 import { Event, EventInternals } from './basicEvent.ts';
 import { CustomEvent, CustomEventInternals } from './custom_event.ts';
-import { Environment, EnvironmentInternals, Geometry, GeometryMaterial } from './environment.ts';
+import { Environment, EnvironmentInternals, Geometry, RawGeometryMaterial } from './environment.ts';
 import { copy, isEmptyObject, jsonGet, jsonPrune, jsonSet, sortObjects, Vec3, setDecimals, RMLog, parseFilePath, RMJson, jsonRemove } from './general.ts';
 import { AnimationInternals, RawKeyframesAny } from './animation.ts';
 import { OptimizeSettings } from './anim_optimizer.ts';
@@ -537,7 +537,7 @@ export class Difficulty {
     set customData(value) { jsonSet(this.json, "customData", value) }
     set customEvents(value: CustomEventInternals.BaseEvent[]) { jsonSet(this.json, "customData.customEvents", value) }
     set pointDefinitions(value: Record<string, RawKeyframesAny>) { jsonSet(this.json, "customData.pointDefinitions", value) }
-    set geoMaterials(value: Record<string, GeometryMaterial>) { jsonSet(this.json, "customData.materials", value) }
+    set geoMaterials(value: Record<string, RawGeometryMaterial>) { jsonSet(this.json, "customData.materials", value) }
     set rawEnvironment(value: EnvironmentInternals.BaseEnvironment[]) { jsonSet(this.json, "customData.environment", value) }
     set fakeNotes(value: Note[]) { jsonSet(this.json, "customData.fakeColorNotes", value) }
     set fakeBombs(value: Bomb[]) { jsonSet(this.json, "customData.fakeBombNotes", value) }

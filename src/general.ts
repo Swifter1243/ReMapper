@@ -796,7 +796,7 @@ export function adjustFog(
     }
 }
 
-type Box = {
+export type Transform = {
     pos?: Vec3,
     rot?: Vec3,
     scale?: Vec3
@@ -813,7 +813,7 @@ export type Bounds = {
  * Gets information about the bounding box of a box or a bunch of boxes.
  * @param boxes Can be one box or an array of boxes.
  */
-export function getBoxBounds(boxes: Box | Box[]): Bounds {
+export function getBoxBounds(boxes: Transform | Transform[]): Bounds {
     let lowBound: Vec3 | undefined;
     let highBound: Vec3 | undefined;
 

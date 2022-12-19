@@ -1,7 +1,7 @@
 // deno-lint-ignore-file no-explicit-any
 import { arrAdd, cacheData, ColorType, copy, iterateKeyframes, rotatePoint, Vec3, Vec4, parseFilePath, baseEnvironmentTrack, getBoxBounds, Bounds } from "./general.ts";
 import { bakeAnimation, complexifyArray, KeyframeValues, mirrorAnimation, RawKeyframesVec3 } from "./animation.ts";
-import { Environment, Geometry, GeometryMaterial, RawGeometryMaterial } from "./environment.ts";
+import { Environment, Geometry, RawGeometryMaterial } from "./environment.ts";
 import { optimizeAnimation, OptimizeSettings } from "./anim_optimizer.ts";
 import { CustomEvent, CustomEventInternals } from "./custom_event.ts";
 import { activeDiff, activeDiffGet } from "./beatmap.ts";
@@ -55,7 +55,7 @@ type ModelGroup = {
     scale?: Vec3,
     rotation?: Vec3,
     disappearWhenAbsent?: boolean,
-    defaultMaterial?: GeometryMaterial
+    defaultMaterial?: RawGeometryMaterial
 }
 
 /** The data type used by ModelScene to define objects. */
