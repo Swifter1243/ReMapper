@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-explicit-any
 import { arrAdd, cacheData, ColorType, copy, iterateKeyframes, rotatePoint, Vec3, Vec4, parseFilePath, baseEnvironmentTrack, getBoxBounds, Bounds } from "./general.ts";
-import { bakeAnimation, complexifyArray, KeyframeValues, RawKeyframesVec3, loopAnimation } from "./animation.ts";
+import { bakeAnimation, complexifyArray, KeyframeValues, mirrorAnimation, RawKeyframesVec3 } from "./animation.ts";
 import { Environment, Geometry, GeometryMaterial, RawGeometryMaterial } from "./environment.ts";
 import { optimizeAnimation, OptimizeSettings } from "./anim_optimizer.ts";
 import { CustomEvent, CustomEventInternals } from "./custom_event.ts";
@@ -40,8 +40,8 @@ export type AnimatedOptions = StaticOptions & {
     static?: boolean,
     /** Whether to loop the animation. */
     loop?: number,
-    /** Whether to mirror the animation if it's looped. */
-    mirrorLoop?: boolean
+    /** Whether to mirror the animation. */
+    mirror?: boolean
 }
 
 /** Allowed inputs for the "static" method in ModelScene. */
@@ -218,10 +218,10 @@ export class ModelScene {
                     x.scale = optimizeAnimation(x.scale, this.optimizer);
 
                     // Loop animation
-                    if (options.loop !== undefined) {
-                        x.pos = loopAnimation(x.pos, options.loop, options.mirrorLoop);
-                        x.rot = loopAnimation(x.rot, options.loop, options.mirrorLoop);
-                        x.scale = loopAnimation(x.scale, options.loop, options.mirrorLoop);
+                    if (options.mirror) {
+                        x.pos = mirrorAnimation(x.pos);
+                        x.rot = mirrorAnimation(x.rot);
+                        x.scale = mirrorAnimation(x.scale);
                     }
                 })
                 return fileObjects;
@@ -278,10 +278,10 @@ export class ModelScene {
                 })
 
                 // Loop animation
-                if (options.loop !== undefined) {
-                    x.pos = loopAnimation(x.pos, options.loop, options.mirrorLoop);
-                    x.rot = loopAnimation(x.rot, options.loop, options.mirrorLoop);
-                    x.scale = loopAnimation(x.scale, options.loop, options.mirrorLoop);
+                if (options.mirror) {
+                    x.pos = mirrorAnimation(x.pos);
+                    x.rot = mirrorAnimation(x.rot);
+                    x.scale = mirrorAnimation(x.scale);
                 }
 
                 outputObjects.push(x);
@@ -501,6 +501,17 @@ export class ModelScene {
                 event.animate.set("position", x.pos, false);
                 event.animate.set("rotation", x.rot, false);
                 event.animate.set("scale", x.scale, false);
+
+                if (
+                    typeof input === "object" &&
+                    !Array.isArray(input) &&
+                    input.loop !== undefined &&
+                    input.loop > 1
+                ) {
+                    event.repeat = input.loop - 1;
+                    event.duration /= input.loop;
+                }
+
                 if (forEvent) forEvent(event, objectInfo.perSwitch[time]);
                 event.push(false);
             })

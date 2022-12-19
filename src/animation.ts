@@ -3,7 +3,7 @@ import { optimizeAnimation, OptimizeSettings } from "./anim_optimizer.ts";
 import { Json } from "./beatmap.ts";
 import { Color, lerpColor } from "./color.ts";
 import { ANIM, EASE, SPLINE } from "./constants.ts";
-import { lerpEasing, arrAdd, copy, arrMul, arrLast, findFraction, Vec3, Vec4, lerpRotation, arrLerp, ceilTo, floorTo, NumberTuple } from "./general.ts";
+import { lerpEasing, arrAdd, copy, arrMul, arrLast, findFraction, Vec3, Vec4, lerpRotation, arrLerp, ceilTo, floorTo, NumberTuple, iterateKeyframes } from "./general.ts";
 
 /** Any flag that could be in a keyframe. E.g. easings, splines */
 export type KeyframeFlag = Interpolation | "hsvLerp";
@@ -776,70 +776,24 @@ export function reverseAnimation<T extends NumberTuple>(animation: RawKeyframesA
 }
 
 /**
- * Repeat an animation. Can also mirror the animation to connect loops.
- * @param animation Animation to loop.
- * @param loops Amount of loops.
- * @param mirror Whether to mirror to connect loops.
+ * Get an animation with a reversed animation after.
+ * @param animation Animation to mirror.
  */
-export function loopAnimation<T extends NumberTuple>(
-    animation: RawKeyframesAbstract<T>, loops: number, mirror = false
-) {
-    if (isSimple(animation)) return animation;
-    const newAnim = complexifyArray(animation);
-    const output: ComplexKeyframesAny = [];
+export function mirrorAnimation<T extends NumberTuple>(animation: RawKeyframesAbstract<T>) {
+    const reversedAnim = reverseAnimation(animation);
+    const output: Keyframe[] = [];
+    
+    iterateKeyframes(animation, x => {
+        const k = new Keyframe(copy(x));
+        k.time = k.time / 2;
+        output.push(k);
+    })
 
-    for (let l = 0; l < loops; l++) {
-        if (mirror) {
-            const getTime = (time: number, index: number) => (time / (loops * 2)) + (index / (loops * 2));
+    iterateKeyframes(reversedAnim, x => {
+        const k = new Keyframe(x);
+        k.time = k.time / 2 + 0.5;
+        output.push(k);
+    })
 
-            newAnim.forEach(c => {
-                let k = new Keyframe(copy(c));
-                k.time = getTime(k.time, l * 2);
-                output.push(k.data)
-
-                k = new Keyframe(copy(c));
-                k.time = getTime(1.0000001 - k.time, l * 2 + 1);
-                output.push(k.data);
-            })
-        }
-        else {
-            const start = new Keyframe(newAnim[0]);
-            const end = new Keyframe(arrLast(newAnim));
-            const getTime = (time: number) => (time / loops) + (l / loops);
-
-            if (l > 0 && start.time !== 0) output.push([...start.values, getTime(0)]);
-            newAnim.forEach(c => {
-                const k = new Keyframe(copy(c));
-                k.time = getTime(k.time);
-                output.push(k.data);
-            })
-            if (l < loops - 1 && end.time !== 1) output.push([...end.values, getTime(1)]);
-        }
-    }
-
-    if (mirror) {
-        output.sort((a, b) => new Keyframe(a).time - new Keyframe(b).time);
-
-        // Reverse easings
-        for (let i = output.length - 1; i >= 0; i--) {
-            const section = output.length / loops;
-            const inLooped = i % section >= section / 2;
-            const current = new Keyframe(output[i]);
-
-            if (inLooped && current.easing) {
-                if (current.easing && !current.easing.includes("InOut")) {
-                    if (current.easing.includes("In"))
-                        current.easing = current.easing.replace("In", "Out") as EASE;
-                    else if (current.easing.includes("Out"))
-                        current.easing = current.easing.replace("Out", "In") as EASE;
-                }
-
-                const last = new Keyframe(output[i + 1]);
-                last.easing = current.easing;
-                current.data.splice(current.getFlagIndex("ease", false), 1);
-            }
-        }
-    }
-
-    return output as ComplexKeyframesAbstract<T>;
+    return output.map(x => x.data) as ComplexKeyframesAbstract<T>;
 }
