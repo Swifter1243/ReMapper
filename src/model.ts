@@ -100,7 +100,8 @@ export class ModelScene {
         const group: ModelGroup = {}
         if (object) {
             if (object instanceof Environment) object.duplicate = 1;
-            if (object instanceof Geometry) group.defaultMaterial = object.material;
+            if (object instanceof Geometry && typeof object.material !== "string")
+                group.defaultMaterial = object.material;
             object.position = [0, -69420, 0];
             group.object = object
         }
