@@ -21,8 +21,13 @@ export type DIFFS =
     DiffNameBase<"Lightshow"> |
     DiffNameBase<"Lawless">
 
-/** All mods to require/suggest. */
-export type MODS =
+/** All mods to suggest. */
+export type SUGGEST_MODS =
+    "Chroma" |
+    "Cinema"
+
+/** All mods to require. */
+export type REQUIRE_MODS =
     "Chroma" |
     "Noodle Extensions"
 

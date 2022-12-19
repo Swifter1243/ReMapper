@@ -507,3 +507,21 @@ lightRemapper.normalizeWithChanges([[1, 2], [3, 1]]); // [1, 3, 5, 6, 7] --> [1,
 You can run this algorithm through with a sequence of test IDs using `test()`,
 or use `run()` to actually search the real event array. You also have the option
 to log the output of each processed event.
+
+# Cinema
+
+You can create a Cinema Screen with ReMapper now by importing the "CinemaScreen" class. Cinema Screens are defined with a Cinema lookup method (either "YoutubeID" or "URL") and video ID (either the Youtube video ID or the URL of a video from Youtube, Facebook, Dailymotion or Vimeo). Make sure to set Cinema as a suggestion or requirement, as it will not work if you don't do that!
+
+[**Click here for a list of all Cinema Screen Properties**](https://github.com/Kevga/BeatSaberCinema#basic-settings)
+
+```ts
+// If you want to control all properties of the screen
+const screen = new CinemaScreen("YoutubeID","dQw4w9WgXcQ");
+screen.videoFile = "haha";
+screen.push();
+
+// If you don't plan on changing any properties of the screen
+new CinemaScreen("YoutubeID","dQw4w9WgXcQ");
+```
+
+ReMapper does not support additional screens in the `cinema-video.json` file, instead you can use Chroma to duplicate the main Cinema Screen ( `CinemaScreen$` ). ReMapper also does not support the environment manipulation tools Cinema has, as you do use Chroma to do the same thing.
