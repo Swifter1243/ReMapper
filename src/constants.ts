@@ -2,8 +2,8 @@ import { Difficulty } from "./beatmap.ts"
 import { Vec3 } from "./general.ts"
 import { Regex } from "./regex.ts"
 
-export const QUEST_CUSTOMS_WIP_LEVELS_PATH =
-  "/sdcard/ModData/com.beatgames.beatsaber/Mods/SongLoader/CustomWIPLevels";
+export const QUEST_WIP_PATH =
+    "/sdcard/ModData/com.beatgames.beatsaber/Mods/SongLoader/CustomWIPLevels";
 
 // TODO: If possible, try to figure out a way to default to a string with no extension or path
 export type FILENAME<T extends string = string> = T | `${T}.${string}`;

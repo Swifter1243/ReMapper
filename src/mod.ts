@@ -13,4 +13,4 @@ export * from './regex.ts';
 export * from './light_remapper.ts';
 export * from './anim_optimizer.ts';
 export * from './model.ts';
-export { adbDeno, three } from "./deps.ts"
+export { adbDeno, three } from "./deps.ts";

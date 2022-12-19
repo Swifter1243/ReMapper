@@ -8,7 +8,7 @@ import { Environment, EnvironmentInternals, Geometry, GeometryMaterial } from '.
 import { copy, isEmptyObject, jsonGet, jsonPrune, jsonSet, sortObjects, Vec3, setDecimals, RMLog, parseFilePath, RMJson, jsonRemove } from './general.ts';
 import { AnimationInternals, RawKeyframesAny } from './animation.ts';
 import { OptimizeSettings } from './anim_optimizer.ts';
-import { ENV_NAMES, MODS, settingsHandler, DIFFS, FILENAME, FILEPATH, QUEST_CUSTOMS_WIP_LEVELS_PATH } from './constants.ts';
+import { ENV_NAMES, MODS, settingsHandler, DIFFS, FILENAME, FILEPATH, QUEST_WIP_PATH } from './constants.ts';
 import { BoostEvent, BPMChange, LightEvent, LightEventBox, LightEventBoxGroup, LightRotation, LightRotationBox, LightRotationBoxGroup, RotationEvent } from './event.ts';
 
 type PostProcessFn<T> = (object: T, diff: Difficulty) => void;
@@ -727,6 +727,11 @@ function reduceDecimalsPostProcess(_: never, diff: Difficulty) {
     }
 }
 
+/**
+ * Create a temporary directory with all of the relevant files for the beatmap.
+ * Returns all of the files that are in the directory.
+ * @param excludeDiffs Difficulties to exclude.
+ */
 export function collectBeatmapFiles(
     excludeDiffs: FILENAME<DIFFS>[] = []
 ) {
@@ -737,8 +742,6 @@ export function collectBeatmapFiles(
         exportInfo._songFilename,
         exportInfo._coverImageFilename,
     ];
-
-   
 
     for (let s = 0; s < exportInfo._difficultyBeatmapSets.length; s++) {
         const set = exportInfo._difficultyBeatmapSets[s];
@@ -767,7 +770,6 @@ export function collectBeatmapFiles(
         .filter((v) => v) // check not undefined or null
         .map(v => path.join(workingDir, v!)) // prepend workspace dir
         .filter(v => fs.existsSync(v)) // ensure file exists
-        
 
     const tempDir = Deno.makeTempDirSync();
     const tempInfo = tempDir + `\\Info.dat`;
@@ -784,18 +786,23 @@ export function collectBeatmapFiles(
  * @param zipName Name of the zip (don't include ".zip"). Uses folder name if undefined.
  */
 export function exportZip(excludeDiffs: FILENAME<DIFFS>[] = [], zipName?: string) {
+    const workingDir = Deno.cwd();
+    zipName ??= `${path.parse(workingDir).name}`;
+    zipName = `${zipName}.zip`;
+    zipName = zipName.replaceAll(" ", "_");
+    
     const files = collectBeatmapFiles(excludeDiffs)
         .map((v) => `"${v}"`); // surround with quotes for safety
-    
-  compress(files, zipName, { overwrite: true }).then(() => {
-    RMLog(`${zipName} has been zipped!`);
-  });
+
+    compress(files, zipName, { overwrite: true }).then(() => {
+        RMLog(`${zipName} has been zipped!`);
+    });
 }
 
 /**
  * Automatically upload the map files to quest, including only necessary files.
  * 
- * They will be uploaded to the song WIP folder, {@link QUEST_CUSTOMS_WIP_LEVELS_PATH}
+ * They will be uploaded to the song WIP folder, {@link QUEST_WIP_PATH}
  * @param excludeDiffs Difficulties to exclude.
  * @param options Options to pass to ADB
  */
@@ -810,8 +817,8 @@ export async function exportToQuest(excludeDiffs: FILENAME<DIFFS>[] = [], option
 
     const files = collectBeatmapFiles(excludeDiffs); // surround with quotes for safety
     const cwd = Deno.cwd();
-    
-    const questSongFolder = `${QUEST_CUSTOMS_WIP_LEVELS_PATH}/${info.name}`;
+
+    const questSongFolder = `${QUEST_WIP_PATH}/${info.name}`;
 
     await adbDeno.mkdir(questSongFolder);
 
@@ -819,12 +826,12 @@ export async function exportToQuest(excludeDiffs: FILENAME<DIFFS>[] = [], option
         const relativePath = path.relative(cwd, v);
         console.log(`Uploading ${relativePath} to quest`)
         adbDeno.uploadFile(
-          `${questSongFolder}/${relativePath}`,
+            `${questSongFolder}/${relativePath}`,
             v,
-          options
+            options
         );
     })
-    
+
     await Promise.all(tasks);
     console.log("Uploaded all files to quest")
 }
