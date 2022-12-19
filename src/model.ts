@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-explicit-any
 import { arrAdd, cacheData, ColorType, copy, iterateKeyframes, rotatePoint, Vec3, Vec4, parseFilePath, baseEnvironmentTrack, getBoxBounds, Bounds } from "./general.ts";
-import { bakeAnimation, complexifyArray, ComplexKeyframesVec3, ComplexKeyframesAny, KeyframeValues, RawKeyframesVec3 } from "./animation.ts";
+import { bakeAnimation, complexifyArray, ComplexKeyframesVec3, ComplexKeyframesAny, KeyframeValues, RawKeyframesVec3, loopAnimation } from "./animation.ts";
 import { Environment, Geometry, GeometryMaterial, RawGeometryMaterial } from "./environment.ts";
 import { optimizeAnimation, OptimizeSettings } from "./anim_optimizer.ts";
 import { CustomEvent, CustomEventInternals } from "./custom_event.ts";
@@ -37,7 +37,11 @@ export type AnimatedOptions = StaticOptions & {
         On by default, I would recommend not touching this unless you know what you're doing. */
     bake?: boolean,
     /** If this input is animated, use the only first frame. */
-    static?: boolean
+    static?: boolean,
+    /** Whether to loop the animation. */
+    loop?: number,
+    /** Whether to mirror the animation if it's looped. */
+    mirrorLoop?: boolean
 }
 
 /** Allowed inputs for the "static" method in ModelScene. */
@@ -212,6 +216,13 @@ export class ModelScene {
                     x.pos = optimizeAnimation(x.pos, this.optimizer) as RawKeyframesVec3;
                     x.rot = optimizeAnimation(x.rot, this.optimizer) as RawKeyframesVec3;
                     x.scale = optimizeAnimation(x.scale, this.optimizer) as RawKeyframesVec3;
+
+                    // Loop animation
+                    if (options.loop !== undefined) {
+                        x.pos = loopAnimation(x.pos, options.loop, options.mirrorLoop) as RawKeyframesVec3;
+                        x.rot = loopAnimation(x.rot, options.loop, options.mirrorLoop) as RawKeyframesVec3;
+                        x.scale = loopAnimation(x.scale, options.loop, options.mirrorLoop) as RawKeyframesVec3;
+                    }
                 })
                 return fileObjects;
             }, processing)
@@ -265,6 +276,13 @@ export class ModelScene {
                     y[1] *= (scale as Vec3)[1];
                     y[2] *= (scale as Vec3)[2];
                 })
+
+                // Loop animation
+                if (options.loop !== undefined) {
+                    x.pos = loopAnimation(x.pos, options.loop, options.mirrorLoop) as RawKeyframesVec3;
+                    x.rot = loopAnimation(x.rot, options.loop, options.mirrorLoop) as RawKeyframesVec3;
+                    x.scale = loopAnimation(x.scale, options.loop, options.mirrorLoop) as RawKeyframesVec3;
+                }
 
                 outputObjects.push(x);
             })

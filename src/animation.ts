@@ -389,7 +389,7 @@ export class Keyframe {
     set time(value: number) { this.data[this.timeIndex] = value }
     set values(value: number[]) { for (let i = 0; i < this.timeIndex; i++) this.data[i] = value[i] }
     set easing(value: EASE) { this.setFlag(value, "ease") }
-    set spline(value: SPLINE) { this.setFlag(value, "ease") }
+    set spline(value: SPLINE) { this.setFlag(value, "spline") }
     set hsvLerp(value: boolean) {
         if (value) this.setFlag("hsvLerp")
         else {
@@ -404,7 +404,7 @@ export class Keyframe {
      * @param old An existing flag containing this will be replaced by the value.
      */
     setFlag(value: string, old?: string) {
-        let index = this.getFlagIndex(old ? old : value, old !== undefined);
+        let index = this.getFlagIndex(old ? old : value, old === undefined);
         if (index === -1) index = this.data.length;
         this.data[index] = value as any;
     }
@@ -750,4 +750,71 @@ export function bakeAnimation(animation: { pos?: RawKeyframesVec3, rot?: RawKeyf
         rot: dataAnim.rotation as RawKeyframesVec3,
         scale: dataAnim.scale as RawKeyframesVec3
     };
-} 
+}
+
+/**
+ * Repeat an animation. Can also mirror the animation to connect loops.
+ * @param animation Animation to loop.
+ * @param loops Amount of loops.
+ * @param mirror Whether to mirror to connect loops.
+ */
+export function loopAnimation(animation: RawKeyframesAny, loops: number, mirror = false) {
+    if (isSimple(animation)) return animation;
+    const newAnim = complexifyArray(animation);
+    const output: ComplexKeyframesAny = [];
+
+    for (let l = 0; l < loops; l++) {
+        if (mirror) {
+            const getTime = (time: number, index: number) => (time / (loops * 2)) + (index / (loops * 2));
+
+            newAnim.forEach(c => {
+                let k = new Keyframe(copy(c));
+                k.time = getTime(k.time, l * 2);
+                output.push(k.data)
+
+                k = new Keyframe(copy(c));
+                k.time = getTime(1.0000001 - k.time, l * 2 + 1);
+                output.push(k.data);
+            })
+        }
+        else {
+            const start = new Keyframe(newAnim[0]);
+            const end = new Keyframe(arrLast(newAnim));
+            const getTime = (time: number) => (time / loops) + (l / loops);
+
+            if (l > 0 && start.time !== 0) output.push([...start.values, getTime(0)]);
+            newAnim.forEach(c => {
+                const k = new Keyframe(copy(c));
+                k.time = getTime(k.time);
+                output.push(k.data);
+            })
+            if (l < loops - 1 && end.time !== 1) output.push([...end.values, getTime(1)]);
+        }
+    }
+
+    if (mirror) {
+        output.sort((a, b) => new Keyframe(a).time - new Keyframe(b).time);
+
+        // Reverse easings
+        for (let i = output.length - 1; i >= 0; i--) {
+            const section = output.length / loops;
+            const inLooped = i % section >= section / 2;
+            const current = new Keyframe(output[i]);
+
+            if (inLooped && current.easing) {
+                if (current.easing && !current.easing.includes("InOut")) {
+                    if (current.easing.includes("In"))
+                        current.easing = current.easing.replace("In", "Out") as EASE;
+                    else if (current.easing.includes("Out"))
+                        current.easing = current.easing.replace("Out", "In") as EASE;
+                }
+
+                const last = new Keyframe(output[i + 1]);
+                last.easing = current.easing;
+                current.data.splice(current.getFlagIndex("ease", false), 1);
+            }
+        }
+    }
+
+    return output;
+}
