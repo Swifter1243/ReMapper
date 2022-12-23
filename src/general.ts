@@ -239,17 +239,17 @@ export function lerpWrap(start: number, end: number, fraction: number, easing?: 
  */
 export function lerpRotation(start: Vec3, end: Vec3, fraction: number, easing?: EASE): Vec3 {
     if (easing !== undefined) fraction = lerpEasing(easing, fraction);
-    const q1 = new three.Quaternion().setFromEuler(new three.Euler(...(toRadians(start) as Vec3), "YXZ"));
-    const q2 = new three.Quaternion().setFromEuler(new three.Euler(...(toRadians(end) as Vec3), "YXZ"));
+    const q1 = new three.Quaternion().setFromEuler(new three.Euler(...toRadians(start), "YXZ"));
+    const q2 = new three.Quaternion().setFromEuler(new three.Euler(...toRadians(end), "YXZ"));
     q1.slerp(q2, fraction);
-    return eulerFromQuaternion(q1);
+    return rotFromQuaternion(q1);
 }
 
 /**
  * Converts a quaternion to a euler rotation.
  * @param q Input quaternion.
  */
-export function eulerFromQuaternion(q: three.Quaternion) {
+export function rotFromQuaternion(q: three.Quaternion) {
     let euler = new three.Euler(0, 0, 0, "YXZ").setFromQuaternion(q).toArray();
     euler.pop();
     euler = toDegrees(euler);
@@ -480,9 +480,9 @@ export function getDist(A: Vec3, B: Vec3) {
  * @param anchor Location of the rotation anchor.
  */
 export function rotatePoint(point: Vec3, rotation: Vec3, anchor: Vec3 = [0, 0, 0]) {
-    const mathRot = toRadians(rotation) as Vec3;
-    const vector = new three.Vector3(...arrAdd(point, arrMul(anchor, -1))).applyEuler(new three.Euler(...mathRot, "YXZ"));
-    return arrAdd([vector.x, vector.y, vector.z], anchor) as Vec3;
+    const mathRot = toRadians(rotation);
+    const vector = toVec3(arrAdd(point, arrMul(anchor, -1))).applyEuler(new three.Euler(...mathRot, "YXZ"));
+    return arrAdd(toArr(vector), anchor) as Vec3;
 }
 
 /**
@@ -498,7 +498,7 @@ export function rotateVector(rotation: Vec3, length: number) {
  * Convert an array of numbers from degrees to radians.
  * @param values Input array of numbers.
  */
-export function toRadians<T extends number[]>(values: T) {
+export function toRadians<T extends number[] | []>(values: T) {
     return values.map(x => x * (Math.PI / 180)) as T;
 }
 
@@ -506,8 +506,88 @@ export function toRadians<T extends number[]>(values: T) {
  * Convert an array of numbers from radians to degrees.
  * @param values Input array of numbers.
  */
-export function toDegrees<T extends number[]>(values: T) {
+export function toDegrees<T extends number[] | []>(values: T) {
     return values.map(x => x * (180 / Math.PI)) as T;
+}
+
+/**
+ * Convert three Vector3 and Euler classes to a three number array.
+ * @param v Vector or Euler to convert.
+ */
+export const toArr = (v: three.Vector3 | three.Euler) => [v.x, v.y, v.z] as Vec3;
+
+/**
+ * Converts a three number array to three Vector3.
+ * @param v Array to convert.
+ */
+export const toVec3 = (v: Vec3) => new three.Vector3(...v);
+
+/**
+ * Converts a three number array to three Euler.
+ * @param v Array to convert.
+ */
+export const toEuler = (v: Vec3) => new three.Euler(...toRadians(v), "YXZ");
+
+/**
+ * Converts a three number array to three Quaternion.
+ * @param v Array to convert.
+ */
+export const toQuaternion = (v: Vec3) => new three.Quaternion().setFromEuler(toEuler(v));
+
+/**
+ * Takes a transformation and converts it to matrix.
+ * @param transform Transform to convert.
+ */
+export function getMatrixFromTransform(transform: Transform) {
+    const m = new three.Matrix4();
+    const pos = transform.pos ?? [0, 0, 0];
+    const rot = transform.rot ?? [0, 0, 0];
+    const scale = transform.scale ?? [1, 1, 1];
+    m.compose(toVec3(pos), toQuaternion(rot), toVec3(scale));
+    return m;
+}
+
+/**
+ * Takes matrix and converts it to a transformation.
+ * @param matrix Matrix to convert.
+ */
+export function getTransformFromMatrix(matrix: three.Matrix4) {
+    const pos = new three.Vector3();
+    const q = new three.Quaternion();
+    const scale = new three.Vector3();
+    matrix.decompose(pos, q, scale);
+    const rot = rotFromQuaternion(q);
+    return {
+        pos: toArr(pos),
+        rot: rot,
+        scale: toArr(scale)
+    }
+}
+
+/**
+ * Applies 2 transformations to each other.
+ * @param target Input transformation.
+ * @param transform Transformation to apply.
+ * @param anchor 
+ * @returns 
+ */
+export function combineTransforms(target: Transform, transform: Transform, anchor: Vec3 = [0, 0, 0]) {
+    target = copy(target);
+    transform = copy(transform);
+
+    target.pos ??= [0, 0, 0];
+    target.pos = arrSubtract(target.pos, anchor);
+
+    const targetM = getMatrixFromTransform(target);
+    const transformM = getMatrixFromTransform(transform);
+    targetM.premultiply(transformM);
+    target = getTransformFromMatrix(targetM);
+
+    return {
+        pos: target.pos as Vec3,
+        rot: target.rot as Vec3,
+        scale: target.scale as Vec3
+    };
 }
 
 /**
@@ -800,6 +880,12 @@ export type Transform = {
     pos?: Vec3,
     rot?: Vec3,
     scale?: Vec3
+}
+
+export type FullTransform = {
+    pos: Vec3,
+    rot: Vec3,
+    scale: Vec3
 }
 
 export type Bounds = {
