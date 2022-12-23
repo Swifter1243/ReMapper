@@ -29,6 +29,10 @@ export type StaticOptions = {
     objects?: (arr: ModelObject[]) => void,
     /** Recache the objects when information in this array changes. Only works for path input. */
     processing?: any
+    /** Transform the objects. */
+    transform: Transform & {
+        anchor?: Vec3
+    }
 }
 
 /** Input options for the "animate" method in a ModelScene. */
@@ -204,6 +208,17 @@ export class ModelScene {
                         objRot.pop();
                         objScale.pop();
 
+                        if (options.transform) {
+                            const combined = combineTransforms({
+                                pos: objPos as Vec3,
+                                rot: objRot as Vec3,
+                                scale: objScale as Vec3
+                            }, options.transform, options.transform.anchor);
+                            objPos = combined.pos;
+                            objRot = combined.rot;
+                            objScale = combined.scale;
+                        }
+
                         if (anchor) objPos = applyAnchor(objPos as Vec3, objRot as Vec3, objScale as Vec3, anchor);
                         if (rotation) objRot = (objRot as Vec3).map((x, i) => (x + (rotation as Vec3)[i]) % 360);
                         if (scale) objScale = (objScale as Vec3).map((x, i) => x * (scale as Vec3)[i]);
@@ -255,9 +270,20 @@ export class ModelScene {
                     if (group.rotation) rotation = group.rotation
                 }
 
-                if ((anchor && options.bake !== false && !options.static) || options.bake) {
+                if ((anchor && options.bake !== false && !options.static) || options.bake || options.transform) {
                     // Baking animation
                     const bakedCube: ModelObject = bakeAnimation({ pos: x.pos, rot: x.rot, scale: x.scale }, transform => {
+                        if (options.transform) {
+                            const combined = combineTransforms({
+                                pos: transform.pos,
+                                rot: transform.rot,
+                                scale: transform.scale
+                            }, options.transform, options.transform.anchor);
+                            transform.pos = combined.pos;
+                            transform.rot = combined.rot;
+                            transform.scale = combined.scale;
+                        }
+
                         transform.pos = applyAnchor(transform.pos, transform.rot, transform.scale, anchor ?? [0, 0, 0] as Vec3);
                     }, this.bakeAnimFreq, this.optimizer);
 
