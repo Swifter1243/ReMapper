@@ -1,5 +1,5 @@
 // deno-lint-ignore-file no-explicit-any
-import { arrAdd, cacheData, ColorType, copy, iterateKeyframes, rotatePoint, Vec3, Vec4, parseFilePath, baseEnvironmentTrack, getBoxBounds, Bounds } from "./general.ts";
+import { arrAdd, cacheData, ColorType, copy, iterateKeyframes, rotatePoint, Vec3, Vec4, parseFilePath, baseEnvironmentTrack, getBoxBounds, Bounds, combineTransforms, Transform } from "./general.ts";
 import { bakeAnimation, complexifyArray, KeyframeValues, mirrorAnimation, RawKeyframesVec3 } from "./animation.ts";
 import { Environment, Geometry, RawGeometryMaterial } from "./environment.ts";
 import { optimizeAnimation, OptimizeSettings } from "./anim_optimizer.ts";
@@ -726,7 +726,11 @@ export class Text {
     /** How the text will be anchored vertically. */
     verticalAnchor: "Top" | "Center" | "Bottom" = "Bottom";
     /** The position of the text box. */
-    position: Vec3 = [0, 0, 0];
+    position: Vec3 | undefined = undefined;
+    /** The rotation of the text box. */
+    rotation: Vec3 | undefined = undefined;
+    /** The scale of the text box. */
+    scale: Vec3 | undefined = undefined;
     /** The height of the text box. */
     height = 2;
     /** The height of the text model. Generated from input. */
@@ -811,6 +815,14 @@ export class Text {
         }
 
         const scalar = this.height / this.modelHeight;
+        let transform: undefined | Transform = undefined;
+        if (this.position || this.rotation || this.scale) {
+            transform = {
+                pos: this.position,
+                rot: this.rotation,
+                scale: this.scale
+            }
+        }
 
         model.forEach(x => {
             if (this.horizontalAnchor === "Center") x.pos[0] -= length / 2;
@@ -818,7 +830,13 @@ export class Text {
 
             x.pos = x.pos.map(y => y * scalar) as Vec3;
             x.scale = x.scale.map(y => y * scalar) as Vec3;
-            x.pos = arrAdd(x.pos, this.position);
+
+            if (transform) {
+                const combined = combineTransforms(x, transform);
+                x.pos = combined.pos;
+                x.rot = combined.rot;
+                x.scale = combined.scale;
+            }
 
             if (this.verticalAnchor === "Center") x.pos[1] -= this.height / 2;
             if (this.verticalAnchor === "Top") x.pos[1] -= this.height;
