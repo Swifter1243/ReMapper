@@ -388,6 +388,13 @@ export const arrHas = (arr: any[], value: any) => arr.some(x => x === value);
 export const arrAppend = (arr: any[], arr2: any[]) => arr.push.apply(arr, arr2);
 
 /**
+ * Generate an array from a range of numbers.
+ * @param start Starting number.
+ * @param start Ending number.
+ */
+export const arrFill = (start: number, end: number) => Array.from({ length: end - start + 1 }, (_, i) => (i + start));
+
+/**
  * Gives a random number in the given range.
  * @param start Minimum value.
  * @param end Maximum value.
