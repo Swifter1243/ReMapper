@@ -5,7 +5,7 @@ import { Wall } from './wall.ts';
 import { Event, EventInternals } from './basicEvent.ts';
 import { CustomEvent, CustomEventInternals } from './custom_event.ts';
 import { Environment, EnvironmentInternals, Geometry, RawGeometryMaterial } from './environment.ts';
-import { copy, isEmptyObject, jsonGet, jsonPrune, jsonSet, sortObjects, Vec3, setDecimals, RMLog, parseFilePath, RMJson, jsonRemove } from './general.ts';
+import { copy, isEmptyObject, jsonGet, jsonPrune, jsonSet, sortObjects, Vec3, setDecimals, RMLog, parseFilePath, RMJson, jsonRemove, arrRemove } from './general.ts';
 import { AnimationInternals, RawKeyframesAny } from './animation.ts';
 import { OptimizeSettings } from './anim_optimizer.ts';
 import { ENV_NAMES, SUGGEST_MODS, REQUIRE_MODS, settingsHandler, DIFFS, FILENAME, FILEPATH, QUEST_WIP_PATH } from './constants.ts';
@@ -751,7 +751,7 @@ export function collectBeatmapFiles(
             let passed = true;
             excludeDiffs.forEach((d) => {
                 if (map._beatmapFilename === parseFilePath(d, ".dat").path) {
-                    set._difficultyBeatmaps.splice(m, 1);
+                    arrRemove(set._difficultyBeatmaps, m);
                     m--;
                     passed = false;
                 }
@@ -761,7 +761,7 @@ export function collectBeatmapFiles(
         }
 
         if (set._difficultyBeatmaps.length === 0) {
-            exportInfo._difficultyBeatmapSets.splice(s, 1);
+            arrRemove(exportInfo._difficultyBeatmapSets, s);
             s--;
         }
     }
@@ -869,7 +869,7 @@ export function transferVisuals(diffs: DIFFPATH[], forDiff?: (diff: Difficulty) 
             for (let y = 0; y < workingDiff.walls.length; y++) {
                 const obstacle = workingDiff.walls[y];
                 if (obstacle.isModded) {
-                    workingDiff.walls.splice(y, 1);
+                    arrRemove(workingDiff.walls, y);
                     y--;
                 }
             }

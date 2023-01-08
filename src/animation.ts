@@ -3,7 +3,7 @@ import { optimizeAnimation, OptimizeSettings } from "./anim_optimizer.ts";
 import { Json } from "./beatmap.ts";
 import { Color, lerpColor } from "./color.ts";
 import { ANIM, EASE, SPLINE } from "./constants.ts";
-import { lerpEasing, arrAdd, copy, arrMul, arrLast, findFraction, Vec3, Vec4, lerpRotation, arrLerp, ceilTo, floorTo, NumberTuple, iterateKeyframes } from "./general.ts";
+import { lerpEasing, arrAdd, copy, arrMul, arrLast, findFraction, Vec3, Vec4, lerpRotation, arrLerp, ceilTo, floorTo, NumberTuple, iterateKeyframes, arrRemove } from "./general.ts";
 
 /** Any flag that could be in a keyframe. E.g. easings, splines */
 export type KeyframeFlag = Interpolation | "hsvLerp";
@@ -385,7 +385,7 @@ export class Keyframe {
         if (value) this.setFlag("hsvLerp")
         else {
             const flagIndex = this.getFlagIndex("hsvLerp");
-            if (flagIndex !== -1) this.data.splice(flagIndex, 1);
+            if (flagIndex !== -1) arrRemove(this.data, flagIndex);
         }
     }
 
@@ -768,7 +768,7 @@ export function reverseAnimation<T extends NumberTuple>(animation: RawKeyframesA
 
             const last = keyframes[i + 1];
             last.easing = current.easing;
-            current.data.splice(current.getFlagIndex("ease", false), 1);
+            arrRemove(current.data, current.getFlagIndex("ease", false));
         }
     }
 

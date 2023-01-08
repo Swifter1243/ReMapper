@@ -358,11 +358,11 @@ export function arrEqual<T extends readonly [] | readonly number[]>
 }
 
 /**
- * Delete a single element of an array, mutating it.
+ * Remove a single element of an array, mutating it.
  * @param arr Array to mutate.
- * @param index Element to delete. Can be -1 to delete last element.
+ * @param index Element to remove. Can be -1 to remove last element.
  */
-export function arrDelete(arr: any[], index: number) {
+export function arrRemove(arr: any[], index: number) {
     if (index === -1) index = arr.length - 1;
     if (index > arr.length - 1 || index < 0) return;
 
