@@ -386,6 +386,7 @@ scene.animate([
   ["model2", 20, 40],
 ]);
 
+// Or some ways to iterate things
 scene.animate([
   ["model1", 0],
   ["model2", 20, 40, (event) => { // Iterate moving events
