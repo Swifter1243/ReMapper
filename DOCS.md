@@ -365,9 +365,12 @@ the same for the whole map. It also includes an optional field to let you
 iterate over each object being spawned.
 
 ```js
+// Standard use
+scene.static("model");
+
+// Or iterate through each object
 scene.static("model", (object) => {
-  object.active = true;
-  // This is a completely arbitrary example, this function is not required.
+  object.duplicate = 3;
 });
 ```
 
@@ -377,16 +380,21 @@ that moves the objects. There is also a function after the switches to iterate
 on each object being spawned.
 
 ```js
+// Standard use
 scene.animate([
   ["model1", 0],
-  ["model2", 20, 40, (event) => {
+  ["model2", 20, 40],
+]);
+
+scene.animate([
+  ["model1", 0],
+  ["model2", 20, 40, (event) => { // Iterate moving events
     if (event.track.has("water")) {
       event.duration = 1;
     }
   }],
-], (object) => {
-  object.active = true;
-  // Again both functions completely optional and arbitrary.
+], (object) => { // Iterate spawned objects
+  object.duplicate = 5;
 });
 ```
 
