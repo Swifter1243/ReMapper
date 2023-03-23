@@ -506,10 +506,10 @@ export namespace CustomEventInternals {
          * Instantiate a chosen prefab into the scene.
          * @param json Json to import.
          * @param asset File path to the desired prefab.
+         * @param id Unique id for referencing prefab later. Random id will be given by default. 
          * @param track The track(s) for the prefab.
-         * @param id Unique id for referencing prefab later. Random id will be given by default.
          */
-        constructor(json: Json, asset: FILEPATH, track?: TrackValue, id?: string) {
+        constructor(json: Json, asset: FILEPATH, id?: string, track?: TrackValue) {
             super(json);
             this.type = "InstantiatePrefab";
             this.asset = asset;
@@ -703,11 +703,11 @@ export class CustomEvent extends CustomEventInternals.BaseEvent {
     /**
      * Instantiate a chosen prefab into the scene.
      * @param asset File path to the desired prefab.
-     * @param track The track(s) for the prefab.
      * @param id Unique id for referencing prefab later. Random id will be given by default.
+     * @param track The track(s) for the prefab.
      */
-    instantiatePrefab = (asset: FILEPATH, track?: TrackValue, id?: string) =>
-        new CustomEventInternals.InstantiatePrefab(this.json, asset, track, id);
+    instantiatePrefab = (asset: FILEPATH, id?: string, track?: TrackValue) =>
+        new CustomEventInternals.InstantiatePrefab(this.json, asset, id, track);
 
     /**
      * Will destroy a prefab in the scene.
