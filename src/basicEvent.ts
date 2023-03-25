@@ -12,8 +12,6 @@ import { BaseObject } from "./object.ts";
 
 export type LightID = number | number[];
 
-
-
 export class Event extends EventInternals.BaseEvent {
   /**
    * The starting event class builder.

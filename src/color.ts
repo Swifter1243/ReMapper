@@ -93,7 +93,7 @@ export class Color {
     const max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min;
 
     let h = 69;
-    const s = (max === 0 ? 0 : d / max);
+    const s = max === 0 ? 0 : d / max;
     const v = max;
 
     switch (max) {

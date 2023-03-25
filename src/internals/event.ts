@@ -1,7 +1,7 @@
 import { LightID } from "../basicEvent.ts";
-import { Json,activeDiffGet } from "../beatmap.ts";
-import { EVENTACTION,EASE,EVENTGROUP,ROTATIONACTION } from "../constants.ts";
-import { copy,ColorType,jsonGet,jsonSet } from "../general.ts";
+import { activeDiffGet, Json } from "../beatmap.ts";
+import { EASE, EVENTACTION, EVENTGROUP, ROTATIONACTION } from "../constants.ts";
+import { ColorType, copy, jsonGet, jsonSet } from "../general.ts";
 import { BaseObject } from "../object.ts";
 import { EventInternals } from "./mod.ts";
 
@@ -75,10 +75,9 @@ export class LightEvent extends EventInternals.BaseEvent {
    * @param lightID The lightIDs to target.
    */
   on(color: ColorType | boolean = true, lightID?: LightID) {
-    this.value =
-      typeof color === "boolean" && color
-        ? EVENTACTION.BLUE_ON
-        : EVENTACTION.RED_ON;
+    this.value = typeof color === "boolean" && color
+      ? EVENTACTION.BLUE_ON
+      : EVENTACTION.RED_ON;
     if (typeof color !== "boolean") this.color = color;
     if (lightID) this.lightID = lightID;
     return this;
@@ -90,10 +89,9 @@ export class LightEvent extends EventInternals.BaseEvent {
    * @param lightID The lightIDs to target.
    */
   flash(color: ColorType | boolean = true, lightID?: LightID) {
-    this.value =
-      typeof color === "boolean" && color
-        ? EVENTACTION.BLUE_FLASH
-        : EVENTACTION.RED_FLASH;
+    this.value = typeof color === "boolean" && color
+      ? EVENTACTION.BLUE_FLASH
+      : EVENTACTION.RED_FLASH;
     if (typeof color !== "boolean") this.color = color;
     if (lightID) this.lightID = lightID;
     return this;
@@ -105,10 +103,9 @@ export class LightEvent extends EventInternals.BaseEvent {
    * @param lightID The lightIDs to target.
    */
   fade(color: ColorType | boolean = true, lightID?: LightID) {
-    this.value =
-      typeof color === "boolean" && color
-        ? EVENTACTION.BLUE_FADE
-        : EVENTACTION.RED_FADE;
+    this.value = typeof color === "boolean" && color
+      ? EVENTACTION.BLUE_FADE
+      : EVENTACTION.RED_FADE;
     if (typeof color !== "boolean") this.color = color;
     if (lightID) this.lightID = lightID;
     return this;
@@ -121,10 +118,9 @@ export class LightEvent extends EventInternals.BaseEvent {
    * @returns
    */
   in(color: ColorType | boolean = true, lightID?: LightID) {
-    this.value =
-      typeof color === "boolean" && color
-        ? EVENTACTION.BLUE_IN
-        : EVENTACTION.RED_IN;
+    this.value = typeof color === "boolean" && color
+      ? EVENTACTION.BLUE_IN
+      : EVENTACTION.RED_IN;
     if (typeof color !== "boolean") this.color = color;
     if (lightID !== undefined) this.lightID = lightID;
     return this;
@@ -180,7 +176,7 @@ export class LaserSpeedEvent extends EventInternals.BaseEvent {
     type: number,
     speed: number,
     direction?: number,
-    lockRotation?: boolean
+    lockRotation?: boolean,
   ) {
     super(json);
     this.type = type;
@@ -279,7 +275,7 @@ export class RingSpinEvent extends EventInternals.BaseEvent {
     step?: number,
     speed?: number,
     prop?: number,
-    nameFilter?: string
+    nameFilter?: string,
   ) {
     super(json);
     this.type = EVENTGROUP.RING_SPIN;

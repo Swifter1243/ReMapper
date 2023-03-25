@@ -36,7 +36,7 @@ export type SingleKeyframeAbstract<T extends number[]> = [
   TimeValue,
   KeyframeFlag?,
   KeyframeFlag?,
-  KeyframeFlag?
+  KeyframeFlag?,
 ];
 /** Helper type for complex keyframes. */
 export type ComplexKeyframesAbstract<T extends number[]> =
@@ -239,7 +239,7 @@ export class Keyframe {
       return this.data.findIndex((x) => typeof x === "string" && x === flag);
     }
     return this.data.findIndex(
-      (x) => typeof x === "string" && x.includes(flag)
+      (x) => typeof x === "string" && x.includes(flag),
     );
   }
 }
@@ -288,7 +288,7 @@ export class Track {
   add(value: TrackValue) {
     if (!this.value) this.value = [];
     const arrValue = this.expandArray(this.value).concat(
-      this.expandArray(value)
+      this.expandArray(value),
     );
     this.value = this.simplifyArray(arrValue);
   }
@@ -343,7 +343,7 @@ export class Track {
  * @param array The keyframe or array of keyframes.
  */
 export function complexifyArray<T extends NumberTuple>(
-  array: RawKeyframesAbstract<T> | RawKeyframesAny
+  array: RawKeyframesAbstract<T> | RawKeyframesAny,
 ) {
   if (array === undefined) return [];
   if (!isSimple(array)) return array as ComplexKeyframesAbstract<T>;
@@ -356,7 +356,7 @@ export function complexifyArray<T extends NumberTuple>(
  * @param array The array of keyframes.
  */
 export function simplifyArray<T extends NumberTuple>(
-  array: RawKeyframesAbstract<T>
+  array: RawKeyframesAbstract<T>,
 ) {
   if (array === undefined) return [];
   if (array.length <= 1 && !isSimple(array)) {
@@ -382,7 +382,7 @@ export const isSimple = (array: RawKeyframesAny) =>
 export function getValuesAtTime(
   property: ANIM,
   animation: RawKeyframesAny,
-  time: number
+  time: number,
 ) {
   animation = complexifyArray(animation);
   const timeInfo = timeInKeyframes(time, animation);
@@ -395,7 +395,7 @@ export function getValuesAtTime(
       return lerpRotation(
         timeInfo.l.values as Vec3,
         timeInfo.r.values as Vec3,
-        timeInfo.normalTime
+        timeInfo.normalTime,
       );
     }
     if (property === "color" && timeInfo.r.hsvLerp) {
@@ -406,7 +406,7 @@ export function getValuesAtTime(
         color2,
         timeInfo.normalTime,
         undefined,
-        "HSV"
+        "HSV",
       );
       return lerp.export();
     }
@@ -421,18 +421,16 @@ export function getValuesAtTime(
 
 export function splineCatmullRomLerp(
   timeInfo: Required<ReturnType<typeof timeInKeyframes>>,
-  animation: ComplexKeyframesAny
+  animation: ComplexKeyframesAny,
 ) {
-  const p0 =
-    timeInfo.leftIndex - 1 < 0
-      ? timeInfo.l.values
-      : new Keyframe(animation[timeInfo.leftIndex - 1]).values;
+  const p0 = timeInfo.leftIndex - 1 < 0
+    ? timeInfo.l.values
+    : new Keyframe(animation[timeInfo.leftIndex - 1]).values;
   const p1 = timeInfo.l.values;
   const p2 = timeInfo.r.values;
-  const p3 =
-    timeInfo.rightIndex + 1 > animation.length - 1
-      ? timeInfo.r.values
-      : new Keyframe(animation[timeInfo.rightIndex + 1]).values;
+  const p3 = timeInfo.rightIndex + 1 > animation.length - 1
+    ? timeInfo.r.values
+    : new Keyframe(animation[timeInfo.rightIndex + 1]).values;
 
   const t = timeInfo.normalTime;
   const tt = t * t;
@@ -507,7 +505,7 @@ function timeInKeyframes(time: number, animation: ComplexKeyframesAny) {
 export function combineAnimations(
   anim1: RawKeyframesAny,
   anim2: RawKeyframesAny,
-  property: ANIM
+  property: ANIM,
 ) {
   let simpleArr = copy(anim1);
   let complexArr: ComplexKeyframesAny = [];
@@ -528,14 +526,16 @@ export function combineAnimations(
       property === "localPosition" ||
       property === "definitePosition" ||
       property === "offsetPosition"
-    )
+    ) {
       e += e2;
+    }
     if (
       property === "rotation" ||
       property === "localRotation" ||
       property === "offsetWorldRotation"
-    )
+    ) {
       e = (e + e2) % 360;
+    }
     if (property === "scale") e *= e2;
     return e;
   };
@@ -544,7 +544,7 @@ export function combineAnimations(
     for (let i = 0; i < simpleArr.length; i++) {
       complexArr[j][i] = editElem(
         complexArr[j][i] as number,
-        simpleArr[i] as number
+        simpleArr[i] as number,
       );
     }
   }
@@ -572,7 +572,7 @@ export function bakeAnimation(
     time: number;
   }) => void,
   animFreq?: number,
-  animOptimizer?: OptimizeSettings
+  animOptimizer?: OptimizeSettings,
 ) {
   animFreq ??= 1 / 32;
   animation.pos ??= [0, 0, 0];
@@ -585,9 +585,9 @@ export function bakeAnimation(
   dataAnim.scale = copy(animation.scale);
 
   const data = {
-    pos: <number[][]>[],
-    rot: <number[][]>[],
-    scale: <number[][]>[],
+    pos: <number[][]> [],
+    rot: <number[][]> [],
+    scale: <number[][]> [],
   };
 
   function getDomain(arr: RawKeyframesAny) {
@@ -609,11 +609,11 @@ export function bakeAnimation(
 
   const totalMin = floorTo(
     getDomain([[posDomain.min], [rotDomain.min], [scaleDomain.min]]).min,
-    animFreq
+    animFreq,
   );
   const totalMax = ceilTo(
     getDomain([[posDomain.max], [rotDomain.max], [scaleDomain.max]]).max,
-    animFreq
+    animFreq,
   );
 
   for (let i = totalMin; i <= totalMax; i += animFreq) {
@@ -649,7 +649,7 @@ export function bakeAnimation(
  * @param animation Animation to reverse.
  */
 export function reverseAnimation<T extends NumberTuple>(
-  animation: RawKeyframesAbstract<T>
+  animation: RawKeyframesAbstract<T>,
 ) {
   if (isSimple(animation)) return animation;
   const keyframes: Keyframe[] = [];
@@ -686,7 +686,7 @@ export function reverseAnimation<T extends NumberTuple>(
  * @param animation Animation to mirror.
  */
 export function mirrorAnimation<T extends NumberTuple>(
-  animation: RawKeyframesAbstract<T>
+  animation: RawKeyframesAbstract<T>,
 ) {
   const reversedAnim = reverseAnimation(animation);
   const output: Keyframe[] = [];

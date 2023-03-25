@@ -25,7 +25,10 @@ export class BaseObject {
   constructor(time?: number, obj?: BaseObject);
   constructor(obj: BaseObject);
   constructor(
-    ...params: [obj: BaseObject | number | undefined, obj?: BaseObject | undefined]
+    ...params: [
+      obj: BaseObject | number | undefined,
+      obj?: BaseObject | undefined,
+    ]
   ) {
     if (typeof params === "object") {
       Object.assign(this, params);
@@ -53,8 +56,7 @@ export class BaseGameplayObject extends BaseObject {
   /** The rotation added to an object around it's anchor point. */
   localRotation?: Vec3;
 
-  
-  njs: number
+  njs: number;
 
   get NJS() {
     if (this.json.customData.noteJumpMovementSpeed !== undefined) {
@@ -133,7 +135,7 @@ export class BaseGameplayObject extends BaseObject {
   set life(value: number) {
     if (value < 0.25) {
       console.log(
-        "Warning: The lifespan of a note has a minimum of 0.25 beats."
+        "Warning: The lifespan of a note has a minimum of 0.25 beats.",
       );
     }
     const defaultJumps = getJumps(this.NJS, 0, info.BPM);

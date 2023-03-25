@@ -69,7 +69,7 @@ class ReMapperJson {
       JSON.stringify({
         runs: this.runs,
         cachedData: this.cachedData,
-      })
+      }),
     );
   }
 }
@@ -87,7 +87,7 @@ export const RMJson = new ReMapperJson();
 export function cacheData<T>(
   name: string,
   process: () => T,
-  processing: any[] = []
+  processing: any[] = [],
 ): T {
   let outputData: any;
   const processingJSON = JSON.stringify(processing).replaceAll('"', "");
@@ -128,7 +128,7 @@ export function filterObjects(
   objects: any[],
   min: number,
   max: number,
-  property: string
+  property: string,
 ) {
   const passedObjects: any[] = [];
 
@@ -150,7 +150,7 @@ export function filterObjects(
 export function sortObjects(
   objects: Json[],
   property: string,
-  smallestToLargest = true
+  smallestToLargest = true,
 ) {
   if (objects === undefined) return;
 
@@ -168,7 +168,7 @@ export function sortObjects(
 export function notesBetween(
   min: number,
   max: number,
-  forEach: (note: Note) => void
+  forEach: (note: Note) => void,
 ) {
   filterObjects(activeDiffGet().notes, min, max, "time").forEach((x) => {
     forEach(x);
@@ -184,7 +184,7 @@ export function notesBetween(
 export function bombsBetween(
   min: number,
   max: number,
-  forEach: (note: Note) => void
+  forEach: (note: Note) => void,
 ) {
   filterObjects(activeDiffGet().bombs, min, max, "time").forEach((x) => {
     forEach(x);
@@ -200,7 +200,7 @@ export function bombsBetween(
 export function arcsBetween(
   min: number,
   max: number,
-  forEach: (note: Note) => void
+  forEach: (note: Note) => void,
 ) {
   filterObjects(activeDiffGet().arcs, min, max, "time").forEach((x) => {
     forEach(x);
@@ -216,7 +216,7 @@ export function arcsBetween(
 export function chainsBetween(
   min: number,
   max: number,
-  forEach: (note: Note) => void
+  forEach: (note: Note) => void,
 ) {
   filterObjects(activeDiffGet().chains, min, max, "time").forEach((x) => {
     forEach(x);
@@ -232,7 +232,7 @@ export function chainsBetween(
 export function wallsBetween(
   min: number,
   max: number,
-  forEach: (note: Wall) => void
+  forEach: (note: Wall) => void,
 ) {
   filterObjects(activeDiffGet().walls, min, max, "time").forEach((x) => {
     forEach(x);
@@ -248,7 +248,7 @@ export function wallsBetween(
 export function eventsBetween(
   min: number,
   max: number,
-  forEach: (note: EventInternals.AbstractEvent) => void
+  forEach: (note: EventInternals.AbstractEvent) => void,
 ) {
   filterObjects(activeDiffGet().events, min, max, "time").forEach((x) => {
     forEach(x);
@@ -266,7 +266,7 @@ export function lerp(
   start: number,
   end: number,
   fraction: number,
-  easing?: EASE
+  easing?: EASE,
 ) {
   if (easing !== undefined) fraction = lerpEasing(easing, fraction);
   return start + (end - start) * fraction;
@@ -283,7 +283,7 @@ export function lerpWrap(
   start: number,
   end: number,
   fraction: number,
-  easing?: EASE
+  easing?: EASE,
 ) {
   if (easing !== undefined) fraction = lerpEasing(easing, fraction);
   const distance = Math.abs(end - start);
@@ -309,14 +309,14 @@ export function lerpRotation(
   start: Vec3,
   end: Vec3,
   fraction: number,
-  easing?: EASE
+  easing?: EASE,
 ): Vec3 {
   if (easing !== undefined) fraction = lerpEasing(easing, fraction);
   const q1 = new three.Quaternion().setFromEuler(
-    new three.Euler(...toRadians(start), "YXZ")
+    new three.Euler(...toRadians(start), "YXZ"),
   );
   const q2 = new three.Quaternion().setFromEuler(
-    new three.Euler(...toRadians(end), "YXZ")
+    new three.Euler(...toRadians(end), "YXZ"),
   );
   q1.slerp(q2, fraction);
   return rotFromQuaternion(q1);
@@ -368,7 +368,7 @@ export const arrLast = <T>(arr: T[]) => arr[arr.length - 1];
  */
 export function arrAdd<T extends readonly [] | readonly number[]>(
   arr: T,
-  value: { [K in keyof T]: number } | number
+  value: { [K in keyof T]: number } | number,
 ) {
   if (typeof value === "number") {
     return arr.map((x) => x + value) as unknown as T;
@@ -382,7 +382,7 @@ export function arrAdd<T extends readonly [] | readonly number[]>(
  */
 export function arrSubtract<T extends readonly [] | readonly number[]>(
   arr: T,
-  value: { [K in keyof T]: number } | number
+  value: { [K in keyof T]: number } | number,
 ) {
   if (typeof value === "number") {
     return arr.map((x) => x - value) as unknown as T;
@@ -398,7 +398,7 @@ export function arrSubtract<T extends readonly [] | readonly number[]>(
 export const arrLerp = <T extends readonly [] | readonly number[]>(
   start: T,
   end: { [K in keyof T]: number },
-  fraction: number
+  fraction: number,
 ) => start.map((x, i) => lerp(x, end[i], fraction));
 
 /**
@@ -408,7 +408,7 @@ export const arrLerp = <T extends readonly [] | readonly number[]>(
  */
 export function arrMul<T extends readonly [] | readonly number[]>(
   arr: T,
-  value: { [K in keyof T]: number } | number
+  value: { [K in keyof T]: number } | number,
 ) {
   if (typeof value === "number") {
     return arr.map((x) => x * value) as unknown as T;
@@ -422,7 +422,7 @@ export function arrMul<T extends readonly [] | readonly number[]>(
  */
 export function arrDiv<T extends readonly [] | readonly number[]>(
   arr: T,
-  value: { [K in keyof T]: number } | number
+  value: { [K in keyof T]: number } | number,
 ) {
   if (typeof value === "number") {
     return arr.map((x) => x / value) as unknown as T;
@@ -438,7 +438,7 @@ export function arrDiv<T extends readonly [] | readonly number[]>(
 export function arrEqual<T extends readonly [] | readonly number[]>(
   arr1: T,
   arr2: { [K in keyof T]: number },
-  lenience = 0
+  lenience = 0,
 ) {
   let result = true;
   arr1.forEach((x, i) => {
@@ -610,11 +610,11 @@ export function getDist(A: Vec3, B: Vec3) {
 export function rotatePoint(
   point: Vec3,
   rotation: Vec3,
-  anchor: Vec3 = [0, 0, 0]
+  anchor: Vec3 = [0, 0, 0],
 ) {
   const mathRot = toRadians(rotation);
   const vector = toVec3(arrAdd(point, arrMul(anchor, -1))).applyEuler(
-    new three.Euler(...mathRot, "YXZ")
+    new three.Euler(...mathRot, "YXZ"),
   );
   return arrAdd(toArr(vector), anchor) as Vec3;
 }
@@ -710,7 +710,7 @@ export function getTransformFromMatrix(matrix: three.Matrix4) {
 export function combineTransforms(
   target: Transform,
   transform: Transform,
-  anchor: Vec3 = [0, 0, 0]
+  anchor: Vec3 = [0, 0, 0],
 ) {
   target = copy(target);
   transform = copy(transform);
@@ -887,11 +887,11 @@ export function worldToWall(
   pos: Vec3 = [0, 0, 0],
   rot: Vec3 = [0, 0, 0],
   scale: Vec3 = [1, 1, 1],
-  animated = false
+  animated = false,
 ) {
   scale = scale.map((x) => x / 0.6) as Vec3;
 
-  pos = [(pos[0] /= 0.6), (pos[1] /= 0.6), (pos[2] /= 0.6)];
+  pos = [pos[0] /= 0.6, pos[1] /= 0.6, pos[2] /= 0.6];
 
   let offset = [0, -0.5, -0.5] as Vec3;
   offset = rotatePoint(offset.map((x, i) => x * scale[i]) as Vec3, rot);
@@ -920,7 +920,7 @@ export const RMLog = (message: string) =>
  */
 export function iterateKeyframes<T extends NumberTuple>(
   keyframes: RawKeyframesAbstract<T>,
-  fn: (values: SingleKeyframeAbstract<T>, index: number) => void
+  fn: (values: SingleKeyframeAbstract<T>, index: number) => void,
 ) {
   // TODO: Lookup point def
   if (typeof keyframes === "string") return;
@@ -941,7 +941,7 @@ export function iterateKeyframes<T extends NumberTuple>(
 export function parseFilePath(
   input: FILEPATH,
   ext?: `.${string}`,
-  error = true
+  error = true,
 ) {
   if (ext && !path.extname(input)) input += ext;
 
@@ -989,7 +989,7 @@ export function adjustFog(
   fog: (bfe: AnyFog) => void,
   time?: number,
   duration?: number,
-  event?: (event: CustomEventInternals.AnimateComponent) => void
+  event?: (event: CustomEventInternals.AnimateComponent) => void,
 ) {
   let isStatic = true;
 
