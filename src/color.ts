@@ -32,7 +32,6 @@ export class Color {
     }
   }
 
-
   /** Returns RGB form. */
   export(): ColorType {
     this.toFormat("RGB");
