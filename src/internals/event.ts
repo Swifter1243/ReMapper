@@ -31,7 +31,6 @@ abstract class BaseEvent<
   ) {
     if (typeof params[0] === "object") {
       super(params[0]);
-      Object.assign(this, params[0]);
     } else {
       const [time, type, value, floatValue] = params;
       super(time);
@@ -59,8 +58,6 @@ abstract class BaseEvent<
 
 export class LightEvent
   extends BaseEvent<bsmap.v2.IEventLight, bsmap.v3.IBasicEventLight> {
-
-
   /** Create an event that turns lights off
    * @param lightID The lightIDs to target.
    */
@@ -164,8 +161,8 @@ export class LightEvent
           _easing: this.easing,
           _lerpType: this.lerpType,
           _lightID: this.lightID,
-          ...this.customData
-        }
+          ...this.customData,
+        },
       } satisfies bsmap.v2.IEventLight;
     }
   }
@@ -181,7 +178,8 @@ export class LightEvent
 //   customData: {}
 // })
 
-export class LaserSpeedEvent extends EventInternals.BaseEvent {
+export class LaserSpeedEvent
+  extends BaseEvent<bsmap.v2.IEventLaser, bsmap.v3.IBasicEventLaserRotation> {
   /**
    * Controls rotating laser speed.
    * @param json Json to import.
@@ -191,47 +189,80 @@ export class LaserSpeedEvent extends EventInternals.BaseEvent {
    * @param lockRotation Whether the existing rotation should be kept.
    */
   constructor(
-    json: Json,
-    type: number,
-    speed: number,
-    direction?: number,
+    time: number,
+    type: LaserSpeedEvent["type"],
+    speed: LaserSpeedEvent["value"],
+    direction?: -1 | 0 | 1,
     lockRotation?: boolean,
+  );
+  constructor(obj: Fields<LaserSpeedEvent>);
+  // deno-lint-ignore constructor-super
+  constructor(
+    ...params:
+      | [
+        time: number,
+        type: LaserSpeedEvent["type"],
+        speed: LaserSpeedEvent["value"],
+        direction?: number,
+        lockRotation?: boolean,
+      ]
+      | [obj: Fields<LaserSpeedEvent>]
   ) {
-    super(json);
-    this.type = type;
+    if (typeof params[0] === "object") {
+      super(params[0]);
+    } else {
+      const [time, type, speed, direction, lockRotation] = params;
+      super(time, type, speed);
 
-    if (speed % 1 === 0) this.value = speed;
-    else this.speed = speed;
-    if (direction !== undefined) this.direction = direction;
-    if (lockRotation !== undefined) this.lockRotation = lockRotation;
-  }
+      if (this.speed && this.speed % 1 !== 0) {
+        this.speed = speed;
+      }
 
-  /** Remove the subclass of the event, giving access to all properties, but can allow for invalid data. */
-  abstract() {
-    return new Event().import(this.json);
+      if (direction !== undefined) this.direction = direction;
+      if (lockRotation !== undefined) this.lockRotation = lockRotation;
+    }
   }
 
   /** Whether the existing rotation should be kept. */
-  get lockRotation() {
-    return jsonGet(this.json, "customData.lockRotation");
-  }
+  lockRotation?: boolean;
   /** Speed of the rotating lasers. */
-  get speed() {
-    return jsonGet(this.json, "customData.speed");
-  }
+  speed?: number;
   /** Direction of the rotating lasers. */
-  get direction() {
-    return jsonGet(this.json, "customData.direction");
-  }
+  direction?: number;
 
-  set lockRotation(value: boolean) {
-    jsonSet(this.json, "customData.lockRotation", value);
-  }
-  set speed(value: number) {
-    jsonSet(this.json, "customData.speed", value);
-  }
-  set direction(value: number) {
-    jsonSet(this.json, "customData.direction", value);
+  toJson(v3: true): bsmap.v3.IBasicEventLaserRotation;
+  toJson(v3: false): bsmap.v2.IEventLaser;
+  toJson(
+    v3: boolean,
+  ): bsmap.v2.IEventLaser | bsmap.v3.IBasicEventLaserRotation {
+    if (v3) {
+      return {
+        b: this.time,
+        et: this.type,
+        f: this.floatValue,
+        i: this.value,
+        customData: {
+          direction: this.direction,
+          lockRotation: this.lockRotation,
+          speed: this.speed,
+          ...this.customData,
+        },
+      } satisfies bsmap.v3.IBasicEventLaserRotation;
+    } else {
+      return {
+        _floatValue: this.floatValue,
+        _time: this.time,
+        _type: this.type,
+        _value: this.value,
+        _customData: {
+          _direction: this.direction,
+          _lockPosition: this.lockRotation,
+          _preciseSpeed: this.speed,
+          _speed: this.speed,
+          ...this.customData
+        },
+      } satisfies bsmap.v2.IEventLaser;
+    }
   }
 }
 
