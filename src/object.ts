@@ -28,18 +28,17 @@ export abstract class BaseObject<
   /** Any community made data on this object. */
   customData: Record<string, unknown> = {};
 
-  constructor(time?: number, obj?: Record<string, unknown>);
+  constructor(time?: number);
   constructor(obj: Readonly<BaseObject<TV2, TV3>>);
   constructor(
     ...params:
-      | [time?: number, obj?: Record<string, unknown>]
+      | [time?: number]
       | [obj: Readonly<BaseObject<TV2, TV3>>]
   ) {
     if (typeof params[0] === "object") {
       Object.assign(this, params);
     } else {
       this.time = params[0] ?? 0;
-      this.customData = params[1] ?? {};
     }
   }
 

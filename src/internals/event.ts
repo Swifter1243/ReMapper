@@ -6,24 +6,38 @@ import { ColorType, copy, jsonGet, jsonSet } from "../general.ts";
 import { BaseObject } from "../object.ts";
 import { EventInternals } from "./mod.ts";
 
-export function event(params: ConstructorParameters<typeof BaseEvent>) {
-  return new BaseEvent(...params);
-}
-
-class BaseEvent extends BaseObject<bsmap.v2.IEventBase, bsmap.v3.IEventBase> {
-  
+abstract class BaseEvent<
+  TV2 extends bsmap.v2.IEventBase,
+  TV3 extends bsmap.v3.IBasicEvent,
+> extends BaseObject<TV2, TV3> {
   /** The bare minimum event. */
-  constructor(time: number | Json) {
-    super();
-    this.value = 0;
-    if (time instanceof Object) {
-      this.json = time;
-      return;
+  constructor(
+    time?: number,
+    type?: number,
+    value?: number,
+    floatValue?: number,
+  );
+  constructor(obj: Readonly<BaseEvent<TV2, TV3>>);
+  
+  // deno-lint-ignore constructor-super
+  constructor(
+    ...params: [
+      time?: number,
+      type?: number,
+      value?: number,
+      floatValue?: number,
+    ] | [obj: Readonly<BaseEvent<TV2, TV3>>]
+  ) {
+    if (typeof params[0] === "object") {
+      super(params[0]);
+      Object.assign(this, params[0]);
+    } else {
+      const [time, type, value, floatValue] = params;
+      super(time);
+      this.type = type ?? 0;
+      this.value = value ?? 0;
+      this.floatValue = floatValue ?? 1;
     }
-    this.time = time;
-    this.floatValue = 1;
-
-    bsmap.v2.
   }
 
   /** Push this event to the difficulty
@@ -35,25 +49,11 @@ class BaseEvent extends BaseObject<bsmap.v2.IEventBase, bsmap.v3.IEventBase> {
   }
 
   /** The type of the event. */
-  type: number
+  type = 0;
   /** The value of the event. */
-  get value() {
-    return this.json.i;
-  }
+  value = 0;
   /** The value of the event, but allowing decimals. */
-  get floatValue() {
-    return this.json.f;
-  }
-
-  set type(value: number) {
-    this.json.et = value;
-  }
-  set value(value: number) {
-    this.json.i = value;
-  }
-  set floatValue(value: number) {
-    this.json.f = value;
-  }
+  floatValue = 1;
 }
 
 export class LightEvent extends EventInternals.BaseEvent {
