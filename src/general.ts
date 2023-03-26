@@ -557,6 +557,22 @@ export const getSeconds = (decimals = 2) =>
   setDecimals(performance.now() / 1000, decimals);
 
 /**
+ * Copies @param obj with the new properties in @param overwrite
+ * @param obj Original
+ * @param overwrite New values
+ * @returns The copy
+ */
+export function copyWith<T extends Record<string | number | symbol, never>>(
+  obj: T,
+  overwrite: Partial<T>,
+) {
+  const copied = copy<T>(obj);
+  Object.assign(copied, overwrite);
+
+  return copied;
+}
+
+/**
  * Creates a new instance of an object, recursively.
  * @param obj Object to clone.
  */
