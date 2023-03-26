@@ -259,50 +259,74 @@ export class LaserSpeedEvent
           _lockPosition: this.lockRotation,
           _preciseSpeed: this.speed,
           _speed: this.speed,
-          ...this.customData
+          ...this.customData,
         },
       } satisfies bsmap.v2.IEventLaser;
     }
   }
 }
 
-export class RingZoomEvent extends EventInternals.BaseEvent {
+export class RingZoomEvent
+  extends BaseEvent<bsmap.v2.IEventZoom, bsmap.v3.IBasicEventRing> {
   /**
    * Controls ring zoom.
    * @param json Json to import.
    * @param step The position offset between each ring.
    * @param speed The speed of the zoom.
    */
-  constructor(json: Json, step?: number, speed?: number) {
-    super(json);
-    this.type = EVENTGROUP.RING_ZOOM;
-
-    if (step !== undefined) this.step = step;
-    if (speed !== undefined) this.speed = speed;
+  constructor(time?: number, step?: number, speed?: number);
+  constructor(obj: Fields<RingZoomEvent>);
+  // deno-lint-ignore constructor-super
+  constructor(
+    ...params: [time?: number, step?: number, speed?: number] | [
+      obj: Omit<Fields<RingZoomEvent>, "type">,
+    ]
+  ) {
+    if (typeof params[0] === "object") {
+      super({
+        ...params[0],
+        type: EVENTGROUP.RING_ZOOM,
+      });
+      this.type = EVENTGROUP.RING_ZOOM;
+    } else {
+      const [time, step, speed] = params;
+      super(time, EVENTGROUP.RING_ZOOM);
+      this.step = step;
+      this.speed = speed;
+    }
   }
 
-  /**
-   * Remove the subclass of the event, giving access to all properties, but can allow for invalid data.
-   * @returns {AbstractEvent}
-   */
-  abstract() {
-    return new Event().import(this.json);
-  }
+  step?: number;
+  speed?: number;
 
-  /** The position offset between each ring. */
-  get step() {
-    return jsonGet(this.json, "customData.step");
-  }
-  /** The speed of the zoom. */
-  get speed() {
-    return jsonGet(this.json, "customData.speed");
-  }
-
-  set step(value: number) {
-    jsonSet(this.json, "customData.step", value);
-  }
-  set speed(value: number) {
-    jsonSet(this.json, "customData.speed", value);
+  toJson(v3: true): bsmap.v3.IBasicEventRing;
+  toJson(v3: false): bsmap.v2.IEventZoom;
+  toJson(v3: boolean): bsmap.v2.IEventZoom | bsmap.v3.IBasicEventRing {
+    if (v3) {
+      return {
+        b: this.time,
+        et: this.type,
+        f: this.floatValue,
+        i: this.value,
+        customData: {
+          speed: this.speed,
+          step: this.step,
+          ...this.customData,
+        },
+      } satisfies bsmap.v3.IBasicEventRing;
+    }
+    return {
+      _floatValue: this.floatValue,
+      _time: this.time,
+      // deno-lint-ignore no-explicit-any
+      _type: this.type as any,
+      _value: this.value,
+      _customData: {
+        _speed: this.speed,
+        _step: this.step,
+        ...this.customData
+      }
+    } satisfies bsmap.v2.IEventZoom;
   }
 }
 
