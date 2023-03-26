@@ -46,8 +46,8 @@ export class Wall extends BaseGameplayObject {
     super();
     this.time = time;
     this.duration = duration;
-    this.x = x;
-    this.y = y;
+    this.lineIndex = x;
+    this.lineLayer = y;
     this.height = height;
     this.width = width;
   }

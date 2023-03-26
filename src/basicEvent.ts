@@ -9,6 +9,7 @@ import {
 import { activeDiffGet, Json } from "./beatmap.ts";
 import { ColorType, copy, jsonGet, jsonSet } from "./general.ts";
 import { BaseObject } from "./object.ts";
+import { EventInternals } from "./internals/mod.ts";
 
 export type LightID = number | number[];
 

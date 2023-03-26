@@ -1,6 +1,7 @@
 import { LightID } from "../basicEvent.ts";
 import { activeDiffGet, Json } from "../beatmap.ts";
 import { EASE, EVENTACTION, EVENTGROUP, ROTATIONACTION } from "../constants.ts";
+import { bsmap } from "../deps.ts";
 import { ColorType, copy, jsonGet, jsonSet } from "../general.ts";
 import { BaseObject } from "../object.ts";
 import { EventInternals } from "./mod.ts";
@@ -9,7 +10,8 @@ export function event(params: ConstructorParameters<typeof BaseEvent>) {
   return new BaseEvent(...params);
 }
 
-class BaseEvent extends BaseObject {
+class BaseEvent extends BaseObject<bsmap.v2.IEventBase, bsmap.v3.IEventBase> {
+  
   /** The bare minimum event. */
   constructor(time: number | Json) {
     super();
@@ -20,6 +22,8 @@ class BaseEvent extends BaseObject {
     }
     this.time = time;
     this.floatValue = 1;
+
+    bsmap.v2.
   }
 
   /** Push this event to the difficulty
@@ -31,9 +35,7 @@ class BaseEvent extends BaseObject {
   }
 
   /** The type of the event. */
-  get type() {
-    return this.json.et;
-  }
+  type: number
   /** The value of the event. */
   get value() {
     return this.json.i;

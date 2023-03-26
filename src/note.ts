@@ -39,8 +39,8 @@ export class Note extends BaseGameplayObject {
     this.time = time;
     this.type = type;
     this.direction = direction;
-    this.x = x;
-    this.y = y;
+    this.lineIndex = x;
+    this.lineLayer = y;
   }
 
   /**
@@ -149,8 +149,8 @@ export class Bomb extends BaseGameplayObject {
   constructor(time = 0, x = 0, y = 0) {
     super();
     this.time = time;
-    this.x = x;
-    this.y = y;
+    this.lineIndex = x;
+    this.lineLayer = y;
   }
 
   /**
@@ -264,8 +264,8 @@ export class Chain extends BaseSliderObject {
     this.tailTime = tailTime;
     this.type = type;
     this.headDirection = direction;
-    this.x = x;
-    this.y = y;
+    this.lineIndex = x;
+    this.lineLayer = y;
     this.tailX = tailX;
     this.tailY = tailY;
     this.links = links;
@@ -392,8 +392,8 @@ export class Arc extends BaseSliderObject {
     this.type = type;
     this.headDirection = headDirection;
     this.tailDirection = tailDirection;
-    this.x = x;
-    this.y = y;
+    this.lineIndex = x;
+    this.lineLayer = y;
     this.tailX = tailX;
     this.tailY = tailY;
   }

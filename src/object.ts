@@ -2,6 +2,7 @@
 import { Track } from "./animation.ts";
 import { activeDiffGet, info, Json } from "./beatmap.ts";
 import { NOTETYPE } from "./constants.ts";
+import { bsmap } from "./deps.ts";
 import {
   ColorType,
   copy,
@@ -15,26 +16,30 @@ import {
   Vec2,
   Vec3,
 } from "./general.ts";
+import { NoteAnimation, WallAnimation } from "./internals/animation.ts";
+import { JsonWrapper } from "./types.ts";
 
-export class BaseObject {
+export abstract class BaseObject<
+  TV2 extends bsmap.v2.IBaseObject,
+  TV3 extends bsmap.v3.IBaseObject,
+> implements JsonWrapper<TV2, TV3> {
   /** The time that this object is scheduled for. */
   time: number = 0;
   /** Any community made data on this object. */
   customData: Record<string, unknown> = {};
 
-  constructor(time?: number, obj?: BaseObject);
-  constructor(obj: BaseObject);
+  constructor(time?: number, obj?: Record<string, unknown>);
+  constructor(obj: Readonly<BaseObject<TV2, TV3>>);
   constructor(
-    ...params: [
-      obj: BaseObject | number | undefined,
-      obj?: BaseObject | undefined,
-    ]
+    ...params:
+      | [time?: number, obj?: Record<string, unknown>]
+      | [obj: Readonly<BaseObject<TV2, TV3>>]
   ) {
-    if (typeof params === "object") {
+    if (typeof params[0] === "object") {
       Object.assign(this, params);
     } else {
-      this.time = params[0];
-      this.customData = params[1];
+      this.time = params[0] ?? 0;
+      this.customData = params[1] ?? {};
     }
   }
 
@@ -44,11 +49,41 @@ export class BaseObject {
 
     return !isEmptyObject(this.customData);
   }
+
+  abstract toJson(v3: true): TV3;
+  abstract toJson(v3: false): TV2;
+  abstract toJson(v3: boolean): TV2 | TV3;
+  abstract toJson(v3: unknown): TV2 | TV3;
 }
 
-export class BaseGameplayObject extends BaseObject {
-  x: number;
-  y: number;
+export abstract class BaseGameplayObject extends BaseObject<
+  bsmap.v2.INote | bsmap.v2.IObstacle,
+  bsmap.v3.IColorNote | bsmap.v3.IBombNote | bsmap.v3.IObstacle
+> {
+  constructor(beat: number, x: number, y: number);
+  constructor(obj: Readonly<BaseGameplayObject>);
+  constructor(
+    ...params: [beat: number, x: number, y: number] | [
+      obj: Readonly<BaseGameplayObject>,
+    ]
+  ) {
+    // beat, x, y
+    if (typeof params[0] === "number") {
+      const [beat, x, y] = params;
+      super(beat);
+      this.lineIndex = x ?? 0;
+      this.lineLayer = y ?? 0;
+    } else {
+      super(params[0]);
+      this.lineIndex = 0;
+      this.lineLayer = 0;
+      // this will overwrite everything
+      Object.assign(this, params[0]);
+    }
+  }
+
+  lineIndex: number;
+  lineLayer: number;
   position?: Vec2;
 
   /** The rotation added to an object around the world origin. */
@@ -56,19 +91,32 @@ export class BaseGameplayObject extends BaseObject {
   /** The rotation added to an object around it's anchor point. */
   localRotation?: Vec3;
 
-  njs: number;
+  localNJS?: number;
+  localOffset?: number;
+
+  /** Whether this object is interactable. */
+  interactable?: boolean;
+
+  /** The track class for this event.
+   * @see Track
+   */
+  track?: Track;
+
+  /** The chroma color of the object. */
+  color?: ColorType;
+
+  /** The animation json on the object. */
+  animation?: NoteAnimation | WallAnimation;
 
   get NJS() {
-    if (this.json.customData.noteJumpMovementSpeed !== undefined) {
-      return this.json.customData.noteJumpMovementSpeed;
-    } else return activeDiffGet().NJS;
+    return this.localNJS ?? activeDiffGet().NJS;
   }
+
   /** The note offset of an object. */
   get offset() {
-    if (this.json.customData.noteJumpStartBeatOffset !== undefined) {
-      return this.json.customData.noteJumpStartBeatOffset;
-    } else return activeDiffGet().offset;
+    return this.localOffset ?? activeDiffGet().offset;
   }
+
   /**
    * A "jump" is the period when the object "jumps" in (indicated by spawning light on notes) to when it's deleted.
    * Jump Duration is the time in beats that the object will be jumping for.
@@ -92,46 +140,7 @@ export class BaseGameplayObject extends BaseObject {
   get lifeStart() {
     return this.time - this.life / 2;
   }
-  /** Whether this object is interactable. */
-  get interactable() {
-    return !this.json.customData.uninteractable;
-  }
-  /** The track class for this event.
-   * Please read the properties of this class to see how it works.
-   */
-  get track() {
-    return new Track(this.json.customData);
-  }
-  /** The chroma color of the object. */
-  get color() {
-    return this.json.customData.color;
-  }
-  /** The animation json on the object. */
-  get animation() {
-    return this.json.customData.animation;
-  }
 
-  set x(value: number) {
-    this.json.x = value;
-  }
-  set y(value: number) {
-    this.json.y = value;
-  }
-  set position(value: Vec2) {
-    this.json.customData.coordinates = value;
-  }
-  set rotation(value: Vec3 | number) {
-    this.json.customData.worldRotation = value;
-  }
-  set localRotation(value: Vec3) {
-    this.json.customData.localRotation = value;
-  }
-  set NJS(value: number) {
-    this.json.customData.noteJumpMovementSpeed = value;
-  }
-  set offset(value: number) {
-    this.json.customData.noteJumpStartBeatOffset = value;
-  }
   set life(value: number) {
     if (value < 0.25) {
       console.log(
@@ -139,19 +148,10 @@ export class BaseGameplayObject extends BaseObject {
       );
     }
     const defaultJumps = getJumps(this.NJS, 0, info.BPM);
-    this.offset = (value - 2 * defaultJumps.halfDur) / 2;
+    this.localOffset = (value - 2 * defaultJumps.halfDur) / 2;
   }
   set lifeStart(value: number) {
     this.time = value + this.life / 2;
-  }
-  set interactable(value: boolean) {
-    this.json.customData.uninteractable = !value;
-  }
-  set color(value: ColorType) {
-    this.json.customData.color = value;
-  }
-  set animation(value) {
-    this.json.customData.animation = value;
   }
 
   get isModded() {
