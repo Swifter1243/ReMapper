@@ -17,7 +17,7 @@ import {
   Vec3,
 } from "./general.ts";
 import { NoteAnimation, WallAnimation } from "./internals/animation.ts";
-import { JsonWrapper } from "./types.ts";
+import { Fields, JsonWrapper } from "./types.ts";
 
 export abstract class BaseObject<
   TV2 extends bsmap.v2.IBaseObject,
@@ -26,14 +26,14 @@ export abstract class BaseObject<
   /** The time that this object is scheduled for. */
   time: number = 0;
   /** Any community made data on this object. */
-  customData: Record<string, unknown> = {};
+  customData: TV2["_customData"] | TV3["customData"] = {};
 
   constructor(time?: number);
-  constructor(obj: Readonly<BaseObject<TV2, TV3>>);
+  constructor(obj: Fields<BaseObject<TV2, TV3>>);
   constructor(
     ...params:
       | [time?: number]
-      | [obj: Readonly<BaseObject<TV2, TV3>>]
+      | [obj: Fields<BaseObject<TV2, TV3>>]
   ) {
     if (typeof params[0] === "object") {
       Object.assign(this, params);
@@ -43,27 +43,29 @@ export abstract class BaseObject<
   }
 
   /** Checks if the object has modded properties. */
-  get isModded() {
-    if (this.customData === undefined) return false;
-
-    return !isEmptyObject(this.customData);
+  isModded() {
+    return this.customData && !isEmptyObject(this.customData);
   }
 
   abstract toJson(v3: true): TV3;
   abstract toJson(v3: false): TV2;
   abstract toJson(v3: boolean): TV2 | TV3;
-  abstract toJson(v3: unknown): TV2 | TV3;
 }
 
-export abstract class BaseGameplayObject extends BaseObject<
-  bsmap.v2.INote | bsmap.v2.IObstacle,
-  bsmap.v3.IColorNote | bsmap.v3.IBombNote | bsmap.v3.IObstacle
-> {
+export abstract class BaseGameplayObject<
+  TV2 extends bsmap.v2.INote | bsmap.v2.IObstacle,
+  TV3 extends
+    | bsmap.v3.IColorNote
+    | bsmap.v3.IBombNote
+    | bsmap.v3.IBaseSlider
+    | bsmap.v3.IObstacle,
+> // | bsmap.v3.IGridObject,
+  extends BaseObject<TV2, TV3> {
   constructor(beat: number, x: number, y: number);
-  constructor(obj: Readonly<BaseGameplayObject>);
+  constructor(obj: Fields<BaseGameplayObject<TV2, TV3>>);
   constructor(
     ...params: [beat: number, x: number, y: number] | [
-      obj: Readonly<BaseGameplayObject>,
+      obj: Fields<BaseGameplayObject<TV2, TV3>>,
     ]
   ) {
     // beat, x, y
@@ -83,7 +85,6 @@ export abstract class BaseGameplayObject extends BaseObject<
 
   lineIndex: number;
   lineLayer: number;
-  position?: Vec2;
 
   /** The rotation added to an object around the world origin. */
   rotation?: Vec3;
@@ -171,48 +172,41 @@ export abstract class BaseGameplayObject extends BaseObject<
   }
 }
 
-export class BaseSliderObject extends BaseGameplayObject {
+export abstract class BaseSliderObject<TV3 extends bsmap.v3.IBaseSlider>
+  extends BaseGameplayObject<never, TV3> {
   /** The color of the object. */
-  get type() {
-    return this.json.c;
-  }
+  type: NOTETYPE;
   /** The cut direction of the head. */
-  get headDirection() {
-    return this.json.d;
-  }
+  headDirection: number = 0;
   /** The time the tail arrives at the player. */
-  get tailTime() {
-    return this.json.tb;
-  }
+  tailTime: number = 0;
   /** The lane of the tail. */
-  get tailX() {
-    return this.json.tx;
-  }
+  tailX: number = 0;
   /** The vertical row of the tail. */
-  get tailY() {
-    return this.json.ty;
-  }
-  /** The position of the tail. */
-  get tailPos() {
-    return this.json.customData.tailCoordinates;
-  }
+  tailY: number = 0;
 
-  set type(value: NOTETYPE) {
-    this.json.c = value;
-  }
-  set headDirection(value: number) {
-    this.json.d = value;
-  }
-  set tailTime(value: number) {
-    this.json.tb = value;
-  }
-  set tailX(value: number) {
-    this.json.tx = value;
-  }
-  set tailY(value: number) {
-    this.json.ty = value;
-  }
-  set tailPos(value: Vec2) {
-    this.json.customData.tailCoordinates = value;
+  /** The position of the tail. */
+  tailCoordinates?: Vec2;
+
+  constructor(beat: number, x: number, y: number, type: NOTETYPE);
+  constructor(obj: Fields<BaseSliderObject<TV3>>);
+  constructor(
+    ...params: [beat: number, x: number, y: number, type: NOTETYPE] | [
+      obj: Fields<BaseSliderObject<TV3>>,
+    ]
+  ) {
+    // beat, x, y
+    if (typeof params[0] === "number") {
+      const [beat, x, y, type] = params;
+      super(beat, x!, y!);
+      this.type = type!;
+    } else {
+      super(params[0]);
+      this.type = 0;
+      this.lineIndex = 0;
+      this.lineLayer = 0;
+      // this will overwrite everything
+      Object.assign(this, params[0]);
+    }
   }
 }

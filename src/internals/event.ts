@@ -4,6 +4,7 @@ import { EASE, EVENTACTION, EVENTGROUP, ROTATIONACTION } from "../constants.ts";
 import { bsmap } from "../deps.ts";
 import { ColorType, copy, jsonGet, jsonSet } from "../general.ts";
 import { BaseObject } from "../object.ts";
+import { Fields } from "../types.ts";
 import { EventInternals } from "./mod.ts";
 
 abstract class BaseEvent<
@@ -13,20 +14,20 @@ abstract class BaseEvent<
   /** The bare minimum event. */
   constructor(
     time?: number,
-    type?: number,
-    value?: number,
+    type?: TV2["_type"] | TV3["et"],
+    value?: TV2["_value"] | TV3["i"],
     floatValue?: number,
   );
-  constructor(obj: Readonly<BaseEvent<TV2, TV3>>);
-  
+  constructor(obj: Fields<BaseEvent<TV2, TV3>>);
+
   // deno-lint-ignore constructor-super
   constructor(
     ...params: [
       time?: number,
-      type?: number,
-      value?: number,
+      type?: TV2["_type"] | TV3["et"],
+      value?: TV2["_value"] | TV3["i"],
       floatValue?: number,
-    ] | [obj: Readonly<BaseEvent<TV2, TV3>>]
+    ] | [obj: Fields<BaseEvent<TV2, TV3>>]
   ) {
     if (typeof params[0] === "object") {
       super(params[0]);
@@ -49,18 +50,16 @@ abstract class BaseEvent<
   }
 
   /** The type of the event. */
-  type = 0;
+  type: TV2["_type"] | TV3["et"] = 0!;
   /** The value of the event. */
-  value = 0;
+  value: TV2["_value"] | TV3["i"] = 0!;
   /** The value of the event, but allowing decimals. */
-  floatValue = 1;
+  floatValue = 0;
 }
 
-export class LightEvent extends EventInternals.BaseEvent {
-  constructor(json: Json, type: number) {
-    super(json);
-    this.type = type;
-  }
+export class LightEvent
+  extends BaseEvent<bsmap.v2.IEventLight, bsmap.v3.IBasicEventLight> {
+
 
   /** Create an event that turns lights off
    * @param lightID The lightIDs to target.
@@ -128,41 +127,59 @@ export class LightEvent extends EventInternals.BaseEvent {
     return this;
   }
 
-  /** Remove the subclass of the event, giving access to all properties, but can allow for invalid data. */
-  abstract() {
-    return new Event().import(this.json);
-  }
-
   /** The lightIDs to target. */
-  get lightID() {
-    return jsonGet(this.json, "customData.lightID");
-  }
+  lightID?: LightID;
   /** The color of the event. */
-  get color() {
-    return jsonGet(this.json, "customData.color");
-  }
+  color?: ColorType;
   /** The easing for transition events. Goes on start event. */
-  get easing() {
-    return jsonGet(this.json, "customData.easing");
-  }
+  easing?: EASE;
   /** The color interpolation for transition events. Goes on start event. */
-  get lerpType() {
-    return jsonGet(this.json, "customData.lerpType");
-  }
+  lerpType?: "RGB" | "HSV";
 
-  set lightID(value: LightID) {
-    jsonSet(this.json, "customData.lightID", value);
-  }
-  set color(value: ColorType) {
-    jsonSet(this.json, "customData.color", value);
-  }
-  set easing(value: EASE) {
-    jsonSet(this.json, "customData.easing", value);
-  }
-  set lerpType(value: "RGB" | "HSV") {
-    jsonSet(this.json, "customData.lerpType", value);
+  toJson(v3: true): bsmap.v3.IBasicEventLight;
+  toJson(v3: false): bsmap.v2.IEventLight;
+  toJson(v3: boolean): bsmap.v3.IBasicEventLight | bsmap.v2.IEventLight {
+    if (v3) {
+      return {
+        b: this.time,
+        et: this.type,
+        f: this.floatValue,
+        i: this.value,
+        customData: {
+          color: this.color,
+          easing: this.easing,
+          lerpType: this.lerpType,
+          lightID: this.lightID,
+          ...this.customData,
+        },
+      } satisfies bsmap.v3.IBasicEventLight;
+    } else {
+      return {
+        _floatValue: this.floatValue,
+        _time: this.time,
+        _type: this.type,
+        _value: this.value,
+        _customData: {
+          _color: this.color,
+          _easing: this.easing,
+          _lerpType: this.lerpType,
+          _lightID: this.lightID,
+          ...this.customData
+        }
+      } satisfies bsmap.v2.IEventLight;
+    }
   }
 }
+
+// new LightEvent(1, 2100, 30)
+// new LightEvent(1, 3, 3)
+// new LightEvent({
+//   time: 0,
+//   type: 2,
+//   value: 3,
+//   floatValue: 4,
+//   customData: {}
+// })
 
 export class LaserSpeedEvent extends EventInternals.BaseEvent {
   /**
