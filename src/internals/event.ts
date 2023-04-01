@@ -477,86 +477,87 @@ export class RotationEvent extends BaseEvent<
   }
 }
 
-export class AbstractEvent extends EventInternals.BaseEvent {
-  /** Whether the existing rotation should be kept. */
-  get lockRotation() {
-    return jsonGet(this.json, "customData.lockRotation");
-  }
-  /** The lightIDs to target. */
-  get lightID() {
-    return jsonGet(this.json, "customData.lightID");
-  }
-  /** The color of the event. */
-  get color() {
-    return jsonGet(this.json, "customData.color");
-  }
-  /** The easing for transition events. Goes on start event. */
-  get easing() {
-    return jsonGet(this.json, "customData.easing");
-  }
-  /** The color interpolation for transition events. Goes on start event. */
-  get lerpType() {
-    return jsonGet(this.json, "customData.lerpType");
-  }
-  /** The speed of the event. Only for ring spins & zooms, and laser rotations. */
-  get speed() {
-    return jsonGet(this.json, "customData.speed");
-  }
-  /** Direction of the spin/lasers. Only for laser rotations and ring spins. */
-  get direction() {
-    return jsonGet(this.json, "customData.direction");
-  }
-  /** The ring object name to target. Only for ring spins. */
-  get nameFilter() {
-    return jsonGet(this.json, "customData.nameFilter");
-  }
-  /** Degrees of the spin. Only for ring spins. */
-  get rotation() {
-    return jsonGet(this.json, "customData.rotation");
-  }
-  /** The angle between each ring. Only for ring spins. */
-  get step() {
-    return jsonGet(this.json, "customData.step");
-  }
-  /** The rate at which physics propogate through the rings.
-   * High values will cause rings to move simultneously, low values gives them significant delay.
-   * Only for ring spins.
-   */
-  get prop() {
-    return jsonGet(this.json, "customData.prop");
-  }
+// TODO: Necessary?
+// export class AbstractEvent extends BaseEvent<bsmap.v2.Ev {
+//   /** Whether the existing rotation should be kept. */
+//   get lockRotation() {
+//     return jsonGet(this.json, "customData.lockRotation");
+//   }
+//   /** The lightIDs to target. */
+//   get lightID() {
+//     return jsonGet(this.json, "customData.lightID");
+//   }
+//   /** The color of the event. */
+//   get color() {
+//     return jsonGet(this.json, "customData.color");
+//   }
+//   /** The easing for transition events. Goes on start event. */
+//   get easing() {
+//     return jsonGet(this.json, "customData.easing");
+//   }
+//   /** The color interpolation for transition events. Goes on start event. */
+//   get lerpType() {
+//     return jsonGet(this.json, "customData.lerpType");
+//   }
+//   /** The speed of the event. Only for ring spins & zooms, and laser rotations. */
+//   get speed() {
+//     return jsonGet(this.json, "customData.speed");
+//   }
+//   /** Direction of the spin/lasers. Only for laser rotations and ring spins. */
+//   get direction() {
+//     return jsonGet(this.json, "customData.direction");
+//   }
+//   /** The ring object name to target. Only for ring spins. */
+//   get nameFilter() {
+//     return jsonGet(this.json, "customData.nameFilter");
+//   }
+//   /** Degrees of the spin. Only for ring spins. */
+//   get rotation() {
+//     return jsonGet(this.json, "customData.rotation");
+//   }
+//   /** The angle between each ring. Only for ring spins. */
+//   get step() {
+//     return jsonGet(this.json, "customData.step");
+//   }
+//   /** The rate at which physics propogate through the rings.
+//    * High values will cause rings to move simultneously, low values gives them significant delay.
+//    * Only for ring spins.
+//    */
+//   get prop() {
+//     return jsonGet(this.json, "customData.prop");
+//   }
 
-  set lockRotation(value: boolean) {
-    jsonSet(this.json, "customData.lockRotation", value);
-  }
-  set speed(value: number) {
-    jsonSet(this.json, "customData.speed", value);
-  }
-  set direction(value: number) {
-    jsonSet(this.json, "customData.direction", value);
-  }
-  set nameFilter(value: string) {
-    jsonSet(this.json, "customData.nameFilter", value);
-  }
-  set rotation(value: number) {
-    jsonSet(this.json, "customData.rotation", value);
-  }
-  set step(value: number) {
-    jsonSet(this.json, "customData.step", value);
-  }
-  set prop(value: number) {
-    jsonSet(this.json, "customData.prop", value);
-  }
-  set lightID(value: LightID) {
-    jsonSet(this.json, "customData.lightID", value);
-  }
-  set color(value: ColorType) {
-    jsonSet(this.json, "customData.color", value);
-  }
-  set easing(value: EASE) {
-    jsonSet(this.json, "customData.easing", value);
-  }
-  set lerpType(value: string) {
-    jsonSet(this.json, "customData.lerpType", value);
-  }
-}
+//   set lockRotation(value: boolean) {
+//     jsonSet(this.json, "customData.lockRotation", value);
+//   }
+//   set speed(value: number) {
+//     jsonSet(this.json, "customData.speed", value);
+//   }
+//   set direction(value: number) {
+//     jsonSet(this.json, "customData.direction", value);
+//   }
+//   set nameFilter(value: string) {
+//     jsonSet(this.json, "customData.nameFilter", value);
+//   }
+//   set rotation(value: number) {
+//     jsonSet(this.json, "customData.rotation", value);
+//   }
+//   set step(value: number) {
+//     jsonSet(this.json, "customData.step", value);
+//   }
+//   set prop(value: number) {
+//     jsonSet(this.json, "customData.prop", value);
+//   }
+//   set lightID(value: LightID) {
+//     jsonSet(this.json, "customData.lightID", value);
+//   }
+//   set color(value: ColorType) {
+//     jsonSet(this.json, "customData.color", value);
+//   }
+//   set easing(value: EASE) {
+//     jsonSet(this.json, "customData.easing", value);
+//   }
+//   set lerpType(value: string) {
+//     jsonSet(this.json, "customData.lerpType", value);
+//   }
+// }
