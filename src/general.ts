@@ -1,4 +1,3 @@
-// deno-lint-ignore-file no-explicit-any adjacent-overload-signatures
 const EPSILON = 1e-3;
 import * as easings from "./easings.ts";
 import {
@@ -13,10 +12,10 @@ import { Wall } from "./wall.ts";
 import { EASE, FILENAME, FILEPATH } from "./constants.ts";
 import { activeDiffGet, Json } from "./beatmap.ts";
 import { Note } from "./note.ts";
-import { EventInternals } from "./basicEvent.ts";
 import { fs, path, three } from "./deps.ts";
 import { BloomFogEnvironment, Environment } from "./environment.ts";
 import { CustomEvent, CustomEventInternals } from "./custom_event.ts";
+import { EventInternals } from "./internals/mod.ts";
 
 /** An array with 2 numbers. */
 export type Vec2 = [x: number, y: number];
@@ -34,14 +33,14 @@ export type NumberTuple = number[] | [];
 /** Cached data saved in the ReMapper cache. */
 type CachedData = {
   processing: string;
-  data: any;
+  data: unknown;
   accessed?: boolean;
 };
 
 class ReMapperJson {
   /** Filename of the cache. */
   readonly fileName = "RM_Cache.json";
-  
+
   /** Amount of times the ReMapper script has been run. */
   runs = 0;
   /** The cached data in the cache. */
@@ -250,7 +249,7 @@ export function wallsBetween(
 export function eventsBetween(
   min: number,
   max: number,
-  forEach: (note: EventInternals.AbstractEvent) => void,
+  forEach: (note: EventInternals.AsbractEvent) => void,
 ) {
   filterObjects(activeDiffGet().events, min, max, "time").forEach((x) => {
     forEach(x);

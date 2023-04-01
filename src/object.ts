@@ -19,6 +19,12 @@ import {
 import { NoteAnimation, WallAnimation } from "./internals/animation.ts";
 import { Fields, JsonWrapper } from "./types.ts";
 
+export type ObjectFields<T extends { customData: V }, V = T["customData"]> =
+  & Omit<Fields<T>, "customData">
+  & {
+    customData?: T["customData"];
+  };
+
 export abstract class BaseObject<
   TV2 extends bsmap.v2.IBaseObject,
   TV3 extends bsmap.v3.IBaseObject,
@@ -28,18 +34,8 @@ export abstract class BaseObject<
   /** Any community made data on this object. */
   customData: TV2["_customData"] | TV3["customData"] = {};
 
-  constructor(time?: number);
-  constructor(obj: Fields<BaseObject<TV2, TV3>>);
-  constructor(
-    ...params:
-      | [time?: number]
-      | [obj: Fields<BaseObject<TV2, TV3>>]
-  ) {
-    if (typeof params[0] === "object") {
-      Object.assign(this, params);
-    } else {
-      this.time = params[0] ?? 0;
-    }
+  constructor(obj: ObjectFields<BaseObject<TV2, TV3>> | Record<string, unknown>) {
+    Object.assign(this, obj);
   }
 
   /** Checks if the object has modded properties. */
@@ -61,30 +57,12 @@ export abstract class BaseGameplayObject<
     | bsmap.v3.IObstacle,
 > // | bsmap.v3.IGridObject,
   extends BaseObject<TV2, TV3> {
-  constructor(beat: number, x: number, y: number);
-  constructor(obj: Fields<BaseGameplayObject<TV2, TV3>>);
-  constructor(
-    ...params: [beat: number, x: number, y: number] | [
-      obj: Fields<BaseGameplayObject<TV2, TV3>>,
-    ]
-  ) {
-    // beat, x, y
-    if (typeof params[0] === "number") {
-      const [beat, x, y] = params;
-      super(beat);
-      this.lineIndex = x ?? 0;
-      this.lineLayer = y ?? 0;
-    } else {
-      super(params[0]);
-      this.lineIndex = 0;
-      this.lineLayer = 0;
-      // this will overwrite everything
-      Object.assign(this, params[0]);
-    }
+  constructor(obj: Fields<BaseGameplayObject<TV2, TV3>>) {
+    super(obj);
   }
 
-  lineIndex: number;
-  lineLayer: number;
+  lineIndex = 0;
+  lineLayer = 0;
 
   /** The rotation added to an object around the world origin. */
   rotation?: Vec3;
@@ -154,14 +132,12 @@ export abstract class BaseGameplayObject<
     this.time = value + this.life / 2;
   }
 
-  get isModded() {
+  isModded() {
     if (this.customData === undefined) return false;
-    const customData = copy(this.customData);
-    jsonPrune(customData);
-    return !isEmptyObject(customData);
+    return !isEmptyObject(this.customData);
   }
 
-  get isGameplayModded() {
+  isGameplayModded() {
     if (this.customData === undefined) return false;
     const customData = copy(this.customData);
     jsonRemove(customData, "color");
@@ -188,25 +164,12 @@ export abstract class BaseSliderObject<TV3 extends bsmap.v3.IBaseSlider>
   /** The position of the tail. */
   tailCoordinates?: Vec2;
 
-  constructor(beat: number, x: number, y: number, type: NOTETYPE);
-  constructor(obj: Fields<BaseSliderObject<TV3>>);
-  constructor(
-    ...params: [beat: number, x: number, y: number, type: NOTETYPE] | [
-      obj: Fields<BaseSliderObject<TV3>>,
-    ]
-  ) {
-    // beat, x, y
-    if (typeof params[0] === "number") {
-      const [beat, x, y, type] = params;
-      super(beat, x!, y!);
-      this.type = type!;
-    } else {
-      super(params[0]);
-      this.type = 0;
-      this.lineIndex = 0;
-      this.lineLayer = 0;
-      // this will overwrite everything
-      Object.assign(this, params[0]);
-    }
+  constructor(obj: Fields<BaseSliderObject<TV3>>) {
+    super(obj);
+    this.type = 0;
+    this.lineIndex = 0;
+    this.lineLayer = 0;
+    // this will overwrite everything
+    Object.assign(this, obj);
   }
 }

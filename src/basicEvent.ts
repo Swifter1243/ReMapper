@@ -10,197 +10,435 @@ import { activeDiffGet, Json } from "./beatmap.ts";
 import { ColorType, copy, jsonGet, jsonSet } from "./general.ts";
 import { BaseObject } from "./object.ts";
 import { EventInternals } from "./internals/mod.ts";
+import { Fields } from "./types.ts";
 
 export type LightID = number | number[];
 
-export class Event extends EventInternals.BaseEvent {
-  /**
-   * The starting event class builder.
-   * From this point you should select one of the attached methods to continue initialization.
-   * @param time Time of the event.
-   */
-  constructor(time = 0) {
-    super(time);
+type LightParameters =
+  | [
+    time?: EventInternals.LightEvent["time"],
+    value?: EventInternals.LightEvent["value"],
+    floatValue?: EventInternals.LightEvent["floatValue"],
+  ]
+  | [data: Fields<EventInternals.LightEvent>]
+  | ConstructorParameters<typeof EventInternals.LightEvent>;
+
+function fixupParams<TG extends EventInternals.LightEvent["type"]>(
+  group: TG,
+  ...params: LightParameters
+): ConstructorParameters<typeof EventInternals.LightEvent> {
+  if (typeof params[0] === "object") {
+    const obj = params[0];
+    return [obj];
   }
 
-  /**
-   * Iniitialize an event from a type.
-   * @param type The type of the event.
-   */
-  setType(type: number) {
-    return new EventInternals.LightEvent(this.json, type);
+  const [time, value, floatValue] = params;
+
+  return [{
+    time: time ?? 0,
+    customData: {},
+    floatValue: floatValue ?? 1,
+    value: value ?? 1,
+    type: group,
+  }] satisfies ConstructorParameters<typeof EventInternals.LightEvent>;
+}
+
+/** Controls the back lasers. (Type 0) */
+export const backLasers = (...params: LightParameters) =>
+  new EventInternals.LightEvent(
+    ...fixupParams(EVENTGROUP.BACK_LASERS, ...params),
+  );
+
+/** Controls the ring lights. (Type 1) */
+export const ringLights = (...params: LightParameters) =>
+  new EventInternals.LightEvent(
+    ...fixupParams(EVENTGROUP.RING_LIGHTS, ...params),
+  );
+
+/** Controls the left lasers. (Type 2) */
+export const leftLasers = (...params: LightParameters) =>
+  new EventInternals.LightEvent(
+    ...fixupParams(EVENTGROUP.LEFT_LASERS, ...params),
+  );
+
+/** Controls the right lasers. (Type 3) */
+export const rightLasers = (...params: LightParameters) =>
+  new EventInternals.LightEvent(
+    ...fixupParams(EVENTGROUP.RIGHT_LASERS, ...params),
+  );
+
+/** Controls the center lasers. (Type 4) */
+export const centerLasers = (...params: LightParameters) =>
+  new EventInternals.LightEvent(
+    ...fixupParams(EVENTGROUP.CENTER_LASERS, ...params),
+  );
+
+/** Controls the extra left lasers in some environments. (Type 6) */
+export const extraLeft = (...params: LightParameters) =>
+  new EventInternals.LightEvent(
+    ...fixupParams(EVENTGROUP.LEFT_EXTRA, ...params),
+  );
+
+/** Controls the extra right lasers in some environments. (Type 7) */
+export const extraRight = (...params: LightParameters) =>
+  new EventInternals.LightEvent(
+    ...fixupParams(EVENTGROUP.RIGHT_EXTRA, ...params),
+  );
+
+/** Controls the left lasers in the Billie environment. (Type 10) */
+export const billieLeft = (...params: LightParameters) =>
+  new EventInternals.LightEvent(
+    ...fixupParams(EVENTGROUP.BILLIE_LEFT, ...params),
+  );
+
+/** Controls the right lasers in the Billie environment. (Type 11) */
+export const billieRight = (...params: LightParameters) =>
+  new EventInternals.LightEvent(
+    ...fixupParams(EVENTGROUP.BILLIE_RIGHT, ...params),
+  );
+
+/** Controls the outer left tower height in the Gaga environment. (Type 18) */
+export const gagaLeft = (...params: LightParameters) =>
+  new EventInternals.LightEvent(
+    ...fixupParams(EVENTGROUP.GAGA_LEFT, ...params),
+  );
+
+/** Controls the outer left tower height in the Gaga environment. (Type 19) */
+export const gagaRight = (...params: LightParameters) =>
+  new EventInternals.LightEvent(
+    ...fixupParams(EVENTGROUP.GAGA_RIGHT, ...params),
+  );
+
+/**
+ * Move cars in the interscope environment.
+ * @param value The group of cars to target.
+ */
+export function moveCars(
+  ...params: Omit<
+    ConstructorParameters<typeof EventInternals.RingSpinEvent>,
+    "type"
+  >
+): EventInternals.RingSpinEvent;
+export function moveCars(
+  time: number,
+  value: INTERSCOPEGROUP,
+): EventInternals.RingSpinEvent;
+export function moveCars(
+  ...params:
+    | [time: number, value: INTERSCOPEGROUP]
+    | Omit<ConstructorParameters<typeof EventInternals.RingSpinEvent>, "type">
+) {
+  if (typeof params[0] === "object") {
+    return new EventInternals.RingSpinEvent(params[0]);
   }
+  const [time, value] = params;
 
-  /** Controls the back lasers. (Type 0) */
-  backLasers = () =>
-    new EventInternals.LightEvent(this.json, EVENTGROUP.BACK_LASERS);
+  return new EventInternals.RingSpinEvent({
+    time: time,
+    value: value as INTERSCOPEGROUP,
+  });
+}
 
-  /** Controls the ring lights. (Type 1) */
-  ringLights = () =>
-    new EventInternals.LightEvent(this.json, EVENTGROUP.RING_LIGHTS);
+// TODO: Event extras
+/** Lower the hydraulics of the cars in the interscope environment. */
+export function lowerHydraulics(time: number) {
+  return new EventInternals.LightEvent({
+    time: time,
+    type: EVENTGROUP.LOWER_HYDRAULICS as any,
+    value: 0,
+  });
+}
 
-  /** Controls the left lasers. (Type 2) */
-  leftLasers = () =>
-    new EventInternals.LightEvent(this.json, EVENTGROUP.LEFT_LASERS);
+/** Raise the hydraulics of the cars in the interscope environment. */
+export function raiseHydraulics(time: number) {
+  return new EventInternals.LightEvent({
+    time: time,
+    type: EVENTGROUP.RAISE_HYDRAULICS as any,
+    value: 0,
+  });
+}
 
-  /** Controls the right lasers. (Type 3) */
-  rightLasers = () =>
-    new EventInternals.LightEvent(this.json, EVENTGROUP.RIGHT_LASERS);
+export function ringSpin(
+  time: number,
+  rotation?: number,
+  direction?: EventInternals.RingSpinEvent["direction"],
+  step?: number,
+  speed?: number,
+  prop?: number,
+  nameFilter?: string,
+): EventInternals.RingSpinEvent;
+export function ringSpin(
+  ...obj: ConstructorParameters<typeof EventInternals.RingSpinEvent>
+): EventInternals.RingSpinEvent;
 
-  /** Controls the center lasers. (Type 4) */
-  centerLasers = () =>
-    new EventInternals.LightEvent(this.json, EVENTGROUP.CENTER_LASERS);
-
-  /** Controls the extra left lasers in some environments. (Type 6) */
-  extraLeft = () =>
-    new EventInternals.LightEvent(this.json, EVENTGROUP.LEFT_EXTRA);
-
-  /** Controls the extra right lasers in some environments. (Type 7) */
-  extraRight = () =>
-    new EventInternals.LightEvent(this.json, EVENTGROUP.RIGHT_EXTRA);
-
-  /** Controls the left lasers in the Billie environment. (Type 10) */
-  billieLeft = () =>
-    new EventInternals.LightEvent(this.json, EVENTGROUP.BILLIE_LEFT);
-
-  /** Controls the right lasers in the Billie environment. (Type 11) */
-  billieRight = () =>
-    new EventInternals.LightEvent(this.json, EVENTGROUP.BILLIE_RIGHT);
-
-  /** Controls the outer left tower height in the Gaga environment. (Type 18) */
-  gagaLeft = () =>
-    new EventInternals.LightEvent(this.json, EVENTGROUP.GAGA_LEFT);
-
-  /** Controls the outer left tower height in the Gaga environment. (Type 19) */
-  gagaRight = () =>
-    new EventInternals.LightEvent(this.json, EVENTGROUP.GAGA_RIGHT);
-
-  /**
-   * Create an event using Json.
-   * @param json The Json to import.
-   */
-  import = (json: Json) => new EventInternals.AbstractEvent(json);
-
-  /** Create an event with no particular identity. */
-  abstract = () => this.import({});
-
-  /**
-   * Move cars in the interscope environment.
-   * @param value The group of cars to target.
-   */
-  moveCars(value: INTERSCOPEGROUP) {
-    this.type = EVENTGROUP.RING_SPIN;
-    this.value = value;
-    return new EventInternals.BaseEvent(this.json);
-  }
-
-  /** Lower the hydraulics of the cars in the interscope environment. */
-  lowerHydraulics() {
-    this.type = EVENTGROUP.LOWER_HYDRAULICS;
-    return new EventInternals.BaseEvent(this.json);
-  }
-
-  /** Raise the hydraulics of the cars in the interscope environment. */
-  raiseHydraulics() {
-    this.type = EVENTGROUP.RAISE_HYDRAULICS;
-    return new EventInternals.BaseEvent(this.json);
-  }
-
-  /**
-   * Spin the rings of an environment.
-   * @param rotation Degrees of the spin.
-   * @param direction Direction of the spin. 1 is clockwise, 0 is counterclockwise.
-   * @param step The angle between each ring.
-   * @param speed The speed multiplier of the spin.
-   * @param prop The rate at which physics propogate through the rings.
-   * High values will cause rings to move simultneously, low values gives them significant delay.
-   * @param nameFilter The ring object name to target.
-   */
-  ringSpin = (
+/**
+ * Spin the rings of an environment.
+ * @param rotation Degrees of the spin.
+ * @param direction Direction of the spin. 1 is clockwise, 0 is counterclockwise.
+ * @param step The angle between each ring.
+ * @param speed The speed multiplier of the spin.
+ * @param prop The rate at which physics propogate through the rings.
+ * High values will cause rings to move simultneously, low values gives them significant delay.
+ * @param nameFilter The ring object name to target.
+ */
+export function ringSpin(
+  ...params: [
+    time: number,
     rotation?: number,
-    direction?: number,
+    direction?: EventInternals.RingSpinEvent["direction"],
     step?: number,
     speed?: number,
     prop?: number,
     nameFilter?: string,
-  ) =>
-    new EventInternals.RingSpinEvent(
-      this.json,
-      rotation,
-      direction,
-      step,
-      speed,
-      prop,
-      nameFilter,
-    );
+  ] | ConstructorParameters<typeof EventInternals.RingSpinEvent>
+): EventInternals.RingSpinEvent {
+  if (typeof params[0] === "object") {
+    const obj = params[0];
+    return new EventInternals.RingSpinEvent(obj);
+  }
+  const [time, rotation, direction, step, speed, prop, nameFilter] = params;
 
-  /**
-   * Controls ring zoom.
-   * @param step The position offset between each ring.
-   * @param speed The speed of the zoom.
-   */
-  ringZoom = (step?: number, speed?: number) =>
-    new EventInternals.RingZoomEvent(this.json, step, speed);
+  return new EventInternals.RingSpinEvent({
+    time,
+    value: rotation ?? 0,
+    rotation,
+    direction,
+    step,
+    speed,
+    prop,
+    nameFilter,
+  });
+}
 
-  /**
-   * Controls left rotating laser speed.
-   * @param speed Speed of the rotating lasers.
-   * @param direction Direction of the rotating lasers.
-   * @param lockRotation Whether the existing rotation should be kept.
-   */
-  leftLaserSpeed = (
-    speed: number,
-    direction?: number,
+export function ringZoom(
+  time: number,
+  speed?: number,
+): EventInternals.RingZoomEvent;
+export function ringZoom(
+  ...obj: ConstructorParameters<typeof EventInternals.RingZoomEvent>
+): EventInternals.RingZoomEvent;
+
+/**
+ * Controls ring zoom.
+ * @param step The position offset between each ring.
+ * @param speed The speed of the zoom.
+ */
+export function ringZoom(
+  ...params: [
+    time: number,
+    rotation?: number,
+    direction?: EventInternals.RingSpinEvent["direction"],
+    step?: number,
+    speed?: number,
+    prop?: number,
+    nameFilter?: string,
+  ] | ConstructorParameters<typeof EventInternals.RingZoomEvent>
+): EventInternals.RingZoomEvent {
+  if (typeof params[0] === "object") {
+    const obj = params[0];
+    return new EventInternals.RingZoomEvent(obj);
+  }
+  const [time, speed] = params;
+
+  return new EventInternals.RingZoomEvent({
+    time,
+    value: speed ?? 0,
+    speed,
+  });
+}
+
+export function leftLaserSpeed(
+  time: number,
+  speed?: number,
+  direction?: EventInternals.RingSpinEvent["direction"],
+  lockRotation?: boolean,
+): EventInternals.LaserSpeedEvent;
+export function leftLaserSpeed(
+  ...obj: [
+    Omit<
+      ConstructorParameters<typeof EventInternals.LaserSpeedEvent>[0],
+      "type"
+    >,
+  ]
+): EventInternals.LaserSpeedEvent;
+
+/**
+ * Controls left rotating laser speed.
+ * @param speed Speed of the rotating lasers.
+ * @param direction Direction of the rotating lasers.
+ * @param lockRotation Whether the existing rotation should be kept.
+ */
+export function leftLaserSpeed(
+  ...params: [
+    time: number,
+    speed?: number,
+    direction?: EventInternals.RingSpinEvent["direction"],
     lockRotation?: boolean,
-  ) =>
-    new EventInternals.LaserSpeedEvent(
-      this.json,
-      EVENTGROUP.LEFT_ROTATING,
-      speed,
-      direction,
-      lockRotation,
-    );
+  ] | [
+    Omit<
+      ConstructorParameters<typeof EventInternals.LaserSpeedEvent>[0],
+      "type"
+    >,
+  ]
+): EventInternals.LaserSpeedEvent {
+  if (typeof params[0] === "object") {
+    const obj = params[0];
+    return new EventInternals.LaserSpeedEvent({
+      ...obj,
+      type: EVENTGROUP.LEFT_ROTATING,
+    });
+  }
+  const [time, speed, direction, lockRotation] = params;
 
-  /**
-   * Controls right rotating laser speed.
-   * @param speed Speed of the rotating lasers.
-   * @param direction Direction of the rotating lasers.
-   * @param lockRotation Whether the existing rotation should be kept.
-   */
-  rightLaserSpeed = (
-    speed: number,
-    direction?: number,
+  return new EventInternals.LaserSpeedEvent({
+    time,
+    type: EVENTGROUP.LEFT_ROTATING,
+    value: speed ?? 0,
+    lockRotation,
+    direction,
+    speed,
+  });
+}
+
+export function rightLaserSpeed(
+  time: number,
+  speed?: number,
+  direction?: EventInternals.RingSpinEvent["direction"],
+  lockRotation?: boolean,
+): EventInternals.LaserSpeedEvent;
+export function rightLaserSpeed(
+  ...obj: [
+    Omit<
+      ConstructorParameters<typeof EventInternals.LaserSpeedEvent>[0],
+      "type"
+    >,
+  ]
+): EventInternals.LaserSpeedEvent;
+
+/**
+ * Controls right rotating laser speed.
+ * @param speed Speed of the rotating lasers.
+ * @param direction Direction of the rotating lasers.
+ * @param lockRotation Whether the existing rotation should be kept.
+ */
+export function rightLaserSpeed(
+  ...params: [
+    time: number,
+    speed?: number,
+    direction?: EventInternals.RingSpinEvent["direction"],
     lockRotation?: boolean,
-  ) =>
-    new EventInternals.LaserSpeedEvent(
-      this.json,
-      EVENTGROUP.RIGHT_ROTATING,
-      speed,
-      direction,
-      lockRotation,
-    );
+  ] | [
+    Omit<
+      ConstructorParameters<typeof EventInternals.LaserSpeedEvent>[0],
+      "type"
+    >,
+  ]
+): EventInternals.LaserSpeedEvent {
+  if (typeof params[0] === "object") {
+    const obj = params[0];
+    return new EventInternals.LaserSpeedEvent({
+      ...obj,
+      type: EVENTGROUP.RIGHT_ROTATING,
+    });
+  }
+  const [time, speed, direction, lockRotation] = params;
 
-  /**
-   * Used for 360 mode, rotates future objects and active objects.
-   * @param rotation The rotation of the event.
-   * Must be a multiple of 15 between -60 and 60.
-   */
-  earlyRotation = (rotation: number) =>
-    new EventInternals.RotationEvent(
-      this.json,
-      EVENTGROUP.EARLY_ROTATION,
-      rotation,
-    );
+  return new EventInternals.LaserSpeedEvent({
+    time,
+    type: EVENTGROUP.RIGHT_ROTATING,
+    value: speed ?? 0,
+    lockRotation,
+    direction,
+    speed,
+  });
+}
 
-  /**
-   * Used for 360 mode, rotates future objects only.
-   * @param rotation The rotation of the event.
-   * Must be a multiple of 15 between -60 and 60.
-   */
-  lateRotation = (rotation: number) =>
-    new EventInternals.RotationEvent(
-      this.json,
-      EVENTGROUP.LATE_ROTATION,
-      rotation,
-    );
+export function earlyRotation(
+  time: number,
+  rotation?: number,
+): EventInternals.RotationEvent;
+export function earlyRotation(
+  ...obj: [
+    Omit<
+      ConstructorParameters<typeof EventInternals.RotationEvent>[0],
+      "type"
+    >,
+  ]
+): EventInternals.RotationEvent;
+
+/**
+ * Used for 360 mode, rotates future objects and active objects.
+ * @param rotation The rotation of the event.
+ * Must be a multiple of 15 between -60 and 60.
+ */
+export function earlyRotation(
+  ...params: [
+    time: number,
+    rotation?: number,
+  ] | [
+    Omit<
+      ConstructorParameters<typeof EventInternals.RotationEvent>[0],
+      "type"
+    >,
+  ]
+): EventInternals.RotationEvent {
+  if (typeof params[0] === "object") {
+    const obj = params[0];
+    return new EventInternals.RotationEvent({
+      ...obj,
+      type: EVENTGROUP.EARLY_ROTATION,
+    });
+  }
+  const [time, rotation] = params;
+
+  return new EventInternals.RotationEvent({
+    time,
+    type: EVENTGROUP.EARLY_ROTATION,
+    value: rotation ?? 0,
+  });
+}
+
+export function lateRotation(
+  time: number,
+  rotation?: number,
+): EventInternals.RotationEvent;
+export function lateRotation(
+  ...obj: [
+    Omit<
+      ConstructorParameters<typeof EventInternals.RotationEvent>[0],
+      "type"
+    >,
+  ]
+): EventInternals.RotationEvent;
+
+/**
+ * Used for 360 mode, rotates future objects only.
+ * @param rotation The rotation of the event.
+ * Must be a multiple of 15 between -60 and 60.
+ */
+export function lateRotation(
+  ...params: [
+    time: number,
+    rotation?: number,
+  ] | [
+    Omit<
+      ConstructorParameters<typeof EventInternals.RotationEvent>[0],
+      "type"
+    >,
+  ]
+): EventInternals.RotationEvent {
+  if (typeof params[0] === "object") {
+    const obj = params[0];
+    return new EventInternals.RotationEvent({
+      ...obj,
+      type: EVENTGROUP.LATE_ROTATION,
+    });
+  }
+  const [time, rotation] = params;
+
+  return new EventInternals.RotationEvent({
+    time,
+    type: EVENTGROUP.LATE_ROTATION,
+    value: rotation ?? 0,
+  });
 }
