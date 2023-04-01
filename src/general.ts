@@ -41,19 +41,21 @@ type CachedData = {
 class ReMapperJson {
   /** Filename of the cache. */
   readonly fileName = "RM_Cache.json";
-  /** Json internals for the cache. */
+  
   /** Amount of times the ReMapper script has been run. */
-
   runs = 0;
-
   /** The cached data in the cache. */
-
   cachedData = {} as Record<string, CachedData>;
 
   /** Handler for the RM_Cache file. */
   constructor() {
     if (!fs.existsSync(this.fileName)) this.save();
-    Object.assign(this, JSON.parse(Deno.readTextFileSync(this.fileName)));
+    try {
+      Object.assign(this, JSON.parse(Deno.readTextFileSync(this.fileName)));
+    } catch (e) {
+      console.error(`Suffered from error, invalidating cache: ${e}`);
+      this.save();
+    }
     this.runs++;
     Object.keys(this.cachedData).forEach((x) => {
       const data = this.cachedData[x];
