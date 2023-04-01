@@ -324,13 +324,14 @@ export class RingZoomEvent
       _customData: {
         _speed: this.speed,
         _step: this.step,
-        ...this.customData
-      }
+        ...this.customData,
+      },
     } satisfies bsmap.v2.IEventZoom;
   }
 }
 
-export class RingSpinEvent extends EventInternals.BaseEvent {
+export class RingSpinEvent
+  extends BaseEvent<bsmap.v2.IEventRing, bsmap.v3.IBasicEventRing> {
   /**
    * Controls spinning the rings.
    * @param json Json to import.
@@ -342,79 +343,84 @@ export class RingSpinEvent extends EventInternals.BaseEvent {
    * High values will cause rings to move simultneously, low values gives them significant delay.
    * @param nameFilter The ring object name to target.
    */
+  constructor(time?: number, step?: number, speed?: number);
+  constructor(obj: Fields<RingSpinEvent>);
+  // deno-lint-ignore constructor-super
   constructor(
-    json: Json,
-    rotation?: number,
-    direction?: number,
-    step?: number,
-    speed?: number,
-    prop?: number,
-    nameFilter?: string,
+    ...params: [time?: number, step?: number, speed?: number] | [
+      obj: Omit<Fields<RingSpinEvent>, "type">,
+    ]
   ) {
-    super(json);
-    this.type = EVENTGROUP.RING_SPIN;
-
-    if (rotation !== undefined) this.rotation = rotation;
-    if (direction !== undefined) this.direction = direction;
-    if (step !== undefined) this.step = step;
-    if (speed !== undefined) this.speed = speed;
-    if (prop !== undefined) this.prop = prop;
-    if (nameFilter !== undefined) this.nameFilter = nameFilter;
-  }
-
-  /** Remove the subclass of the event, giving access to all properties, but can allow for invalid data. */
-  abstract() {
-    return new Event().import(this.json);
+    if (typeof params[0] === "object") {
+      super({
+        ...params[0],
+        type: EVENTGROUP.RING_SPIN,
+      });
+      this.type = EVENTGROUP.RING_SPIN;
+    } else {
+      const [time, step, speed] = params;
+      super(time, EVENTGROUP.RING_SPIN);
+      this.step = step;
+      this.speed = speed;
+    }
   }
 
   /** The speed multiplier of the spin. */
-  get speed() {
-    return jsonGet(this.json, "customData.speed");
-  }
+
+  speed?: number;
   /** Direction of the spin. 1 is clockwise, 0 is counterclockwise. */
-  get direction() {
-    return jsonGet(this.json, "customData.direction");
-  }
+
+  direction?: 0 | 1;
   /** The ring object name to target. */
-  get nameFilter() {
-    return jsonGet(this.json, "customData.nameFilter");
-  }
+  nameFilter?: string;
   /** Degrees of the spin. */
-  get rotation() {
-    return jsonGet(this.json, "customData.rotation");
-  }
+  rotation?: number;
   /** The angle between each ring. */
-  get step() {
-    return jsonGet(this.json, "customData.step");
-  }
+  step?: number;
   /** The rate at which physics propogate through the rings.
    * High values will cause rings to move simultneously, low values gives them significant delay.
    */
-  get prop() {
-    return jsonGet(this.json, "customData.prop");
-  }
+  prop?: number;
 
-  set speed(value: number) {
-    jsonSet(this.json, "customData.speed", value);
-  }
-  set direction(value: number) {
-    jsonSet(this.json, "customData.direction", value);
-  }
-  set nameFilter(value: string) {
-    jsonSet(this.json, "customData.nameFilter", value);
-  }
-  set rotation(value: number) {
-    jsonSet(this.json, "customData.rotation", value);
-  }
-  set step(value: number) {
-    jsonSet(this.json, "customData.step", value);
-  }
-  set prop(value: number) {
-    jsonSet(this.json, "customData.prop", value);
+  toJson(v3: true): bsmap.v3.IBasicEventRing;
+  toJson(v3: false): bsmap.v2.IEventRing;
+  toJson(v3: boolean): bsmap.v2.IEventRing | bsmap.v3.IBasicEventRing {
+    if (v3) {
+      return {
+        b: this.time,
+        et: EVENTGROUP.RING_SPIN,
+        f: this.floatValue,
+        i: this.value,
+        customData: {
+          direction: this.direction,
+          nameFilter: this.nameFilter,
+          prop: this.prop,
+          rotation: this.rotation,
+          speed: this.speed,
+          step: this.step,
+        },
+      } satisfies bsmap.v3.IBasicEventRing;
+    }
+
+    return {
+      _floatValue: this.floatValue,
+      _time: this.time,
+      _type: EVENTGROUP.RING_SPIN,
+      _value: this.value,
+      _customData: {
+        _direction: this.direction,
+        _nameFilter: this.nameFilter,
+        _prop: this.prop,
+        _rotation: this.rotation,
+        _speed: this.speed,
+        _step: this.step,
+        ...this.customData,
+      },
+    } satisfies bsmap.v2.IEventRing;
   }
 }
 
-export class RotationEvent extends EventInternals.BaseEvent {
+export class RotationEvent extends BaseEvent<bsmap.v2.IEventLaneRotation, bsmap.v3.IBasicEventLaneRotation> {
   /**
    * Event to spin the gameplay objects in the map.
    * The new rotation events should be used instead.
