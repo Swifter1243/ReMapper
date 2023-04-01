@@ -420,26 +420,60 @@ export class RingSpinEvent
   }
 }
 
-export class RotationEvent extends BaseEvent<bsmap.v2.IEventLaneRotation, bsmap.v3.IBasicEventLaneRotation> {
+export class RotationEvent extends BaseEvent<
+  bsmap.v2.IEventLaneRotation,
+  bsmap.v3.IBasicEventLaneRotation
+> {
   /**
    * Event to spin the gameplay objects in the map.
    * The new rotation events should be used instead.
-   * @param json Json to import.
    * @param type Type of the event.
    * @param rotation The rotation of the event.
    * Must be a multiple of 15 between -60 and 60.
    */
-  constructor(json: Json, type: number, rotation: number) {
-    super(json);
-    this.type = type;
-    this.value = (ROTATIONACTION as Json)[
-      `${(rotation < 0 ? "CCW_" : "CW_") + Math.abs(rotation)}`
-    ];
+  constructor(time?: number, type?: RotationEvent["type"], rotation?: number);
+  constructor(obj: Fields<RotationEvent>);
+  // deno-lint-ignore constructor-super
+  constructor(
+    ...params:
+      | [time?: number, type?: RotationEvent["type"], rotation?: number]
+      | [
+        obj: Fields<RotationEvent>,
+      ]
+  ) {
+    if (typeof params[0] === "object") {
+      super({
+        ...params[0],
+      });
+    } else {
+      const [time, type, rotation] = params;
+      super(time, type, rotation);
+    }
   }
 
-  /** Remove the subclass of the event, giving access to all properties, but can allow for invalid data. */
-  abstract() {
-    return new Event().import(this.json);
+  toJson(v3: true): bsmap.v3.IBasicEventLaneRotation;
+  toJson(v3: false): bsmap.v2.IEventLaneRotation;
+  toJson(
+    v3: boolean,
+  ): bsmap.v2.IEventLaneRotation | bsmap.v3.IBasicEventLaneRotation {
+    if (v3) {
+      return {
+        b: this.time,
+        f: this.floatValue,
+        i: this.value,
+        et: this.type,
+        customData: this.customData,
+      } satisfies bsmap.v3.IBasicEventLaneRotation;
+    }
+    return {
+      _time: this.time,
+      _floatValue: this.floatValue,
+      _type: this.type,
+      _value: this.value,
+      _customData: {
+        _rotation: this.value,
+      },
+    } satisfies bsmap.v2.IEventLaneRotation;
   }
 }
 
