@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-namespace adjacent-overload-signatures
 import { copy, jsonGet, jsonSet } from "./general.ts";
-import { activeDiffGet, Json } from "./beatmap.ts";
+import { activeDiffGet, TJson } from "./beatmap.ts";
 import {
   Animation,
   AnimationInternals,
@@ -18,13 +18,13 @@ import {
 export namespace CustomEventInternals {
   export class BaseEvent {
     /** The Json for this event. */
-    json: Json = {
+    json: TJson = {
       b: 0,
       t: "",
       d: {},
     };
 
-    constructor(time: number | Json) {
+    constructor(time: number | TJson) {
       if (typeof time === "object") {
         Object.assign(this.json, time);
         return;
@@ -59,7 +59,7 @@ export namespace CustomEventInternals {
     set type(value: string) {
       this.json.t = value;
     }
-    set data(value: Json) {
+    set data(value: TJson) {
       this.json.d = value;
     }
   }
@@ -77,10 +77,10 @@ export namespace CustomEventInternals {
      * @param easing The easing on this event's animation.
      */
     constructor(
-      json: Json,
+      json: TJson,
       track?: TrackValue,
       duration?: number,
-      animation?: Json,
+      animation?: TJson,
       easing?: EASE,
     ) {
       super(json);
@@ -96,7 +96,7 @@ export namespace CustomEventInternals {
      * Set the properties for animation.
      * @param data The properties to replace.
      */
-    setProperties(data: Json) {
+    setProperties(data: TJson) {
       const oldData = copy(this.data);
 
       Object.keys(this.data).forEach((key) => {
@@ -170,10 +170,10 @@ export namespace CustomEventInternals {
      * @param easing The easing on this event's animation.
      */
     constructor(
-      json: Json,
+      json: TJson,
       track?: TrackValue,
       duration?: number,
-      animation?: Json,
+      animation?: TJson,
       easing?: EASE,
     ) {
       super(json);
@@ -189,7 +189,7 @@ export namespace CustomEventInternals {
      * Set the properties for animation.
      * @param data The properties to replace.
      */
-    setProperties(data: Json) {
+    setProperties(data: TJson) {
       const oldData = copy(this.data);
 
       Object.keys(this.data).forEach((key) => {
@@ -252,7 +252,7 @@ export namespace CustomEventInternals {
      * @param worldPositionStays Modifies the transform of children objects to remain in the same place relative to world space.
      */
     constructor(
-      json: Json,
+      json: TJson,
       childrenTracks: string[],
       parentTrack: string,
       worldPositionStays?: boolean,
@@ -302,7 +302,7 @@ export namespace CustomEventInternals {
      * @param json Json to import.
      * @param track Track the player will be assigned to.
      */
-    constructor(json: Json, track?: string) {
+    constructor(json: TJson, track?: string) {
       super(json);
       this.type = "AssignPlayerToTrack";
       if (track) this.track = track;
@@ -332,7 +332,7 @@ export namespace CustomEventInternals {
      * @param easing The easing on the animation.
      */
     constructor(
-      json: Json,
+      json: TJson,
       track?: TrackValue,
       duration?: number,
       easing?: EASE,
@@ -401,7 +401,7 @@ export namespace CustomEventInternals {
      * A custom event that has an unknown type.
      * @param json Json to import.
      */
-    constructor(json: Json) {
+    constructor(json: TJson) {
       super(json);
       this.animate = new Animation().abstract(this.data);
     }
@@ -410,7 +410,7 @@ export namespace CustomEventInternals {
      * Add properties to the data.
      * @param data Properties to add.
      */
-    appendData(data: Json) {
+    appendData(data: TJson) {
       Object.keys(data).forEach((x) => {
         this.json._data[x] = data[x];
       });
@@ -511,7 +511,7 @@ export class CustomEvent extends CustomEventInternals.BaseEvent {
    * Create a custom event using Json.
    * @param json Json to import.
    */
-  import(json: Json) {
+  import(json: TJson) {
     return new CustomEventInternals.AbstractEvent(json);
   }
 
@@ -530,7 +530,7 @@ export class CustomEvent extends CustomEventInternals.BaseEvent {
   animateTrack = (
     track?: TrackValue,
     duration?: number,
-    animation?: Json,
+    animation?: TJson,
     easing?: EASE,
   ) =>
     new CustomEventInternals.AnimateTrack(
@@ -551,7 +551,7 @@ export class CustomEvent extends CustomEventInternals.BaseEvent {
   assignPathAnimation = (
     track?: TrackValue,
     duration?: number,
-    animation: Json = {},
+    animation: TJson = {},
     easing?: EASE,
   ) =>
     new CustomEventInternals.AssignPathAnimation(

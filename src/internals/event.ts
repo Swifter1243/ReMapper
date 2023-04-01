@@ -1,5 +1,5 @@
 import { LightID } from "../basicEvent.ts";
-import { activeDiffGet, Json } from "../beatmap.ts";
+import { activeDiffGet, TJson } from "../beatmap.ts";
 import { EASE, EVENTACTION, EVENTGROUP, ROTATIONACTION } from "../constants.ts";
 import { bsmap } from "../deps.ts";
 import { ColorType, copy, jsonGet, jsonSet } from "../general.ts";

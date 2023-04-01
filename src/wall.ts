@@ -1,5 +1,5 @@
 // deno-lint-ignore-file adjacent-overload-signatures
-import { activeDiffGet, Json } from "./beatmap.ts";
+import { activeDiffGet, TJson } from "./beatmap.ts";
 import { copy, Vec3, worldToWall } from "./general.ts";
 import {
   Animation,
@@ -19,7 +19,7 @@ import { getModel, ModelObject } from "./model.ts";
 import { optimizeAnimation, OptimizeSettings } from "./anim_optimizer.ts";
 
 export class Wall extends BaseGameplayObject {
-  json: Json = {
+  json: TJson = {
     b: 0,
     x: 0,
     y: 0,
@@ -56,7 +56,7 @@ export class Wall extends BaseGameplayObject {
    * Create a wall using Json.
    * @param json Json to import.
    */
-  import(json: Json) {
+  import(json: TJson) {
     this.json = json;
     if (this.customData === undefined) this.customData = {};
     if (this.animation === undefined) this.animation = {};

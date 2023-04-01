@@ -1,6 +1,6 @@
 // deno-lint-ignore-file
 import { Track } from "./animation.ts";
-import { activeDiffGet, info, Json } from "./beatmap.ts";
+import { activeDiffGet, info, TJson } from "./beatmap.ts";
 import { NOTETYPE } from "./constants.ts";
 import { bsmap } from "./deps.ts";
 import {
@@ -34,7 +34,9 @@ export abstract class BaseObject<
   /** Any community made data on this object. */
   customData: TV2["_customData"] | TV3["customData"] = {};
 
-  constructor(obj: ObjectFields<BaseObject<TV2, TV3>> | Record<string, unknown>) {
+  constructor(
+    obj: ObjectFields<BaseObject<TV2, TV3>> | Record<string, unknown>,
+  ) {
     Object.assign(this, obj);
   }
 

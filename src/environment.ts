@@ -6,7 +6,7 @@ import {
   KeyframesVec3,
   Track,
 } from "./animation.ts";
-import { activeDiffGet, Json } from "./beatmap.ts";
+import { activeDiffGet, TJson } from "./beatmap.ts";
 import { ColorType, copy, jsonGet, jsonSet, Vec3 } from "./general.ts";
 import { CustomEvent } from "./custom_event.ts";
 import { ANIM, EASE, GEO_SHADER, GEO_TYPE, LOOKUP } from "./constants.ts";
@@ -16,13 +16,13 @@ let envCount = 0;
 export namespace EnvironmentInternals {
   export class BaseEnvironment {
     /** The Json data on this object. */
-    json: Json = {};
+    json: TJson = {};
 
     /**
      * Create an environment/geometry object using Json.
      * @param json The Json to import.
      */
-    import(json: Json) {
+    import(json: TJson) {
       this.json = json;
       return this;
     }
@@ -170,7 +170,7 @@ export class Environment extends EnvironmentInternals.BaseEnvironment {
 }
 
 export class Geometry extends EnvironmentInternals.BaseEnvironment {
-  json: Json = {
+  json: TJson = {
     geometry: {},
   };
 

@@ -10,12 +10,14 @@ import {
 } from "./animation.ts";
 import { Wall } from "./wall.ts";
 import { EASE, FILENAME, FILEPATH } from "./constants.ts";
-import { activeDiffGet, Json } from "./beatmap.ts";
+import { activeDiffGet, TJson } from "./beatmap.ts";
 import { Note } from "./note.ts";
 import { fs, path, three } from "./deps.ts";
 import { BloomFogEnvironment, Environment } from "./environment.ts";
 import { CustomEvent, CustomEventInternals } from "./custom_event.ts";
 import { EventInternals } from "./internals/mod.ts";
+import { Only } from "https://raw.githubusercontent.com/Fernthedev/BeatSaber-Deno/feat/export-types/types/utils.ts";
+import { OnlyNumbers, OnlyNumbersOptional } from "./types.ts";
 
 /** An array with 2 numbers. */
 export type Vec2 = [x: number, y: number];
@@ -37,36 +39,40 @@ type CachedData = {
   accessed?: boolean;
 };
 
-class ReMapperJson {
-  /** Filename of the cache. */
-  readonly fileName = "RM_Cache.json";
+/** Filename of the cache. */
+const RMCacheFilename = "RM_Cache.json";
 
+async function readRemapperJson(): Promise<ReMapperJson> {
+  const json = new ReMapperJson();
+
+  if (!fs.existsSync(RMCacheFilename)) json.save();
+  try {
+    Object.assign(json, JSON.parse(await Deno.readTextFile(RMCacheFilename)));
+  } catch (e) {
+    console.error(`Suffered from error, invalidating cache: ${e}`);
+    json.save();
+  }
+
+  json.runs++;
+  Object.keys(json.cachedData).forEach((x) => {
+    const data = json.cachedData[x];
+    if (!data.accessed) delete json.cachedData[x];
+    else data.accessed = false;
+  });
+
+  return json;
+}
+
+class ReMapperJson {
   /** Amount of times the ReMapper script has been run. */
   runs = 0;
   /** The cached data in the cache. */
   cachedData = {} as Record<string, CachedData>;
 
-  /** Handler for the RM_Cache file. */
-  constructor() {
-    if (!fs.existsSync(this.fileName)) this.save();
-    try {
-      Object.assign(this, JSON.parse(Deno.readTextFileSync(this.fileName)));
-    } catch (e) {
-      console.error(`Suffered from error, invalidating cache: ${e}`);
-      this.save();
-    }
-    this.runs++;
-    Object.keys(this.cachedData).forEach((x) => {
-      const data = this.cachedData[x];
-      if (!data.accessed) delete this.cachedData[x];
-      else data.accessed = false;
-    });
-  }
-
   /** Save the cache. */
   save() {
     Deno.writeTextFileSync(
-      this.fileName,
+      RMCacheFilename,
       JSON.stringify({
         runs: this.runs,
         cachedData: this.cachedData,
@@ -76,7 +82,7 @@ class ReMapperJson {
 }
 
 /** The ReMapper cache. */
-export const RMJson = new ReMapperJson();
+export const RMJson = readRemapperJson();
 
 /**
  * Store data in the ReMapper cache.
@@ -85,12 +91,12 @@ export const RMJson = new ReMapperJson();
  * @param process Function to generate new data if the parameters are changed.
  * @param processing Parameters to compare to see if data should be re-cached.
  */
-export function cacheData<T>(
+export async function cacheData<T>(
   name: string,
   process: () => T,
-  processing: any[] = [],
-): T {
-  let outputData: any;
+  processing: unknown[] = [],
+): Promise<T> {
+  let outputData: unknown;
   const processingJSON = JSON.stringify(processing).replaceAll('"', "");
 
   function getData() {
@@ -99,21 +105,25 @@ export function cacheData<T>(
     return outputData;
   }
 
-  const cachedData = RMJson.cachedData[name];
+  const rmCache = await RMJson;
+
+  const cachedData = rmCache.cachedData[name];
   if (cachedData !== undefined) {
     if (processingJSON !== cachedData.processing) {
       cachedData.processing = processingJSON;
       cachedData.data = getData();
-    } else outputData = cachedData.data;
+    } else {
+      outputData = cachedData.data;
+    }
   } else {
-    RMJson.cachedData[name] = {
+    rmCache.cachedData[name] = {
       processing: processingJSON,
       data: getData(),
     };
   }
 
-  RMJson.cachedData[name].accessed = true;
-  RMJson.save();
+  rmCache.cachedData[name].accessed = true;
+  rmCache.save();
 
   return outputData as T;
 }
@@ -125,13 +135,13 @@ export function cacheData<T>(
  * @param objects Array of objects to check.
  * @param property What property to check for.
  */
-export function filterObjects(
-  objects: any[],
+export function filterObjects<T extends OnlyNumbersOptional<T>>(
+  objects: T[],
   min: number,
   max: number,
-  property: string,
+  property: keyof T,
 ) {
-  const passedObjects: any[] = [];
+  const passedObjects: T[] = [];
 
   objects.forEach((obj) => {
     if (obj[property] + EPSILON >= min && obj[property] < max) {
@@ -148,9 +158,9 @@ export function filterObjects(
  * @param property What property to sort.
  * @param smallestToLargest Whether to sort smallest to largest. True by default.
  */
-export function sortObjects(
-  objects: Json[],
-  property: string,
+export function sortObjects<T extends Record<string, number>>(
+  objects: T[],
+  property: keyof T,
   smallestToLargest = true,
 ) {
   if (objects === undefined) return;
@@ -169,11 +179,9 @@ export function sortObjects(
 export function notesBetween(
   min: number,
   max: number,
-  forEach: (note: Note) => void,
 ) {
-  filterObjects(activeDiffGet().notes, min, max, "time").forEach((x) => {
-    forEach(x);
-  });
+  new Note().time
+  return filterObjects(activeDiffGet().notes, min, max, "time");
 }
 
 /**
@@ -201,11 +209,8 @@ export function bombsBetween(
 export function arcsBetween(
   min: number,
   max: number,
-  forEach: (note: Note) => void,
 ) {
-  filterObjects(activeDiffGet().arcs, min, max, "time").forEach((x) => {
-    forEach(x);
-  });
+  return filterObjects(activeDiffGet().arcs, min, max, "time")
 }
 
 /**
@@ -578,31 +583,32 @@ export function copyWith<T extends Record<string | number | symbol, never>>(
  * @param obj Object to clone.
  */
 export function copy<T>(obj: T): T {
-  if (obj === null || typeof obj !== "object") return obj;
+  return structuredClone(obj)
+  // if (obj === null || typeof obj !== "object") return obj;
 
-  const newObj = Array.isArray(obj) ? [] : {};
-  const keys = Object.getOwnPropertyNames(obj);
+  // const newObj: T = Array.isArray(obj) ? [] : {};
+  // const keys = Object.getOwnPropertyNames(obj);
 
-  keys.forEach((x) => {
-    const value = copy((obj as any)[x]);
-    (newObj as any)[x] = value;
-  });
+  // keys.forEach((x) => {
+  //   const value = copy((obj)[x]);
+  //   newObj[x] = value;
+  // });
 
-  Object.setPrototypeOf(newObj, obj as any);
-  return newObj as T;
+  // Object.setPrototypeOf(newObj, obj);
+  // return newObj as T;
 }
 
 /**
  * Checks if an object is empty.
  * @param o Object to check.
  */
-export function isEmptyObject(o: Json): boolean {
+export function isEmptyObject(o: unknown): boolean {
   if (typeof o !== "object") return false;
-  if (Object.keys(o).length === 0) {
+  if (Object.keys(o as TJson).length === 0) {
     return true;
   }
 
-  return !Object.values(o).some((v) => isEmptyObject(v));
+  return !Object.values(o as TJson).some((v) => isEmptyObject(v));
 }
 
 /**
@@ -751,25 +757,28 @@ export function combineTransforms(
  * Delete empty objects/arrays from an object recursively.
  * @param obj Object to prune.
  */
-export function jsonPrune(obj: Json) {
+export function jsonPrune(obj: TJson) {
   Object.keys(obj).forEach((prop) => {
     if (obj[prop] == null) {
       delete obj[prop];
       return;
     }
-    const type = typeof obj[prop];
+
+    const v = obj[prop];
+    const type = typeof v;
     if (type === "object") {
-      if (Array.isArray(obj[prop])) {
-        if (obj[prop].length === 0) {
+      if (Array.isArray(v)) {
+        if (v.length === 0) {
           delete obj[prop];
         }
       } else {
-        jsonPrune(obj[prop]);
-        if (isEmptyObject(obj[prop])) {
+        const rec = v as Record<string, unknown>
+        jsonPrune(rec);
+        if (isEmptyObject(rec)) {
           delete obj[prop];
         }
       }
-    } else if (type === "string" && obj[prop].length === 0) {
+    } else if (type === "string" && (v as string).length === 0) {
       delete obj[prop];
     }
   });
@@ -781,7 +790,11 @@ export function jsonPrune(obj: Json) {
  * @param prop Property on this object to check. Can be multiple objects deep.
  * @param init Optional value to initialize the property if it doesn't exist yet.
  */
-export function jsonGet(obj: Json, prop: string, init?: any) {
+export function jsonGet<T = unknown>(
+  obj: TJson,
+  prop: string,
+  init?: T,
+): T | undefined {
   // If the property doesn't exist, initialize it.
   if (init != null) jsonFill(obj, prop, init);
 
@@ -789,12 +802,12 @@ export function jsonGet(obj: Json, prop: string, init?: any) {
   const steps = prop.split(".");
   let currentObj = obj;
   for (let i = 0; i < steps.length - 1; i++) {
-    currentObj = currentObj[steps[i]];
+    currentObj = currentObj[steps[i]] as Record<string, unknown>;
     if (currentObj === undefined) return;
   }
 
   // Return the needed property.
-  return currentObj[steps[steps.length - 1]];
+  return currentObj[steps[steps.length - 1]] as T;
 }
 
 /**
@@ -803,13 +816,16 @@ export function jsonGet(obj: Json, prop: string, init?: any) {
  * @param prop Property on this object to check. Can be multiple objects deep.
  * @param value Value to set the property to.
  */
-export function jsonFill(obj: Json, prop: string, value: any) {
+export function jsonFill<T>(obj: TJson, prop: string, value: T) {
   const steps = prop.split(".");
 
   // Create empty objects along the path
-  const nestedObject: any = [...steps].reverse().reduce((prev, current, i) => {
-    return i === 0 ? { [current]: value } : { [current]: prev };
-  }, {});
+  const nestedObject: Record<string, unknown> = [...steps].reverse().reduce(
+    (prev, current, i) => {
+      return i === 0 ? { [current]: value } : { [current]: prev };
+    },
+    {},
+  );
 
   // Merge the original object into the nested object (if the original object is empty, it will just take the nested object)
   obj[steps[0]] = Object.assign({}, nestedObject[steps[0]], obj[steps[0]]);
@@ -821,14 +837,14 @@ export function jsonFill(obj: Json, prop: string, value: any) {
  * @param prop Property on this object to check. Can be multiple objects deep.
  * @param value Value to set the property to.
  */
-export function jsonSet(obj: Json, prop: string, value: any) {
+export function jsonSet<T>(obj: TJson, prop: string, value: T) {
   const steps = prop.split(".");
   let currentObj = obj;
   for (let i = 0; i < steps.length - 1; i++) {
     if (!(steps[i] in currentObj)) {
       currentObj[steps[i]] = {};
     }
-    currentObj = currentObj[steps[i]];
+    currentObj = currentObj[steps[i]] as Record<string, unknown>;
   }
   currentObj[steps[steps.length - 1]] = value;
 }
@@ -839,7 +855,7 @@ export function jsonSet(obj: Json, prop: string, value: any) {
  * @param prop
  * @returns
  */
-export function jsonCheck(obj: Json, prop: string) {
+export function jsonCheck(obj: TJson, prop: string) {
   const value = jsonGet(obj, prop);
   if (value != null) return true;
   return false;
@@ -850,11 +866,11 @@ export function jsonCheck(obj: Json, prop: string) {
  * @param obj Base object.
  * @param prop Property on this object to check. Can be multiple objects deep.
  */
-export function jsonRemove(obj: Json, prop: string) {
+export function jsonRemove(obj: TJson, prop: string) {
   const steps = prop.split(".");
   let currentObj = obj;
   for (let i = 0; i < steps.length - 1; i++) {
-    currentObj = currentObj[steps[i]];
+    currentObj = currentObj[steps[i]] as Record<string, unknown>;
     if (currentObj === undefined) return;
   }
   delete currentObj[steps[steps.length - 1]];

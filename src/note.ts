@@ -1,12 +1,13 @@
 // deno-lint-ignore-file adjacent-overload-signatures
-import { activeDiffGet, Json } from "./beatmap.ts";
+import { activeDiffGet, TJson } from "./beatmap.ts";
 import { Animation, AnimationInternals } from "./animation.ts";
 import { ANCHORMODE, CUT, NOTETYPE } from "./constants.ts";
 import { BaseGameplayObject, BaseSliderObject } from "./object.ts";
 import { copy, Vec2 } from "./general.ts";
+import { bsmap } from "./deps.ts";
 
-export class Note extends BaseGameplayObject {
-  json: Json = {
+export class Note extends BaseGameplayObject<bsmap.v2. {
+  json: TJson = {
     b: 0,
     x: 0,
     y: 0,
@@ -47,7 +48,7 @@ export class Note extends BaseGameplayObject {
    * Create a note using Json.
    * @param json Json to import.
    */
-  import(json: Json) {
+  import(json: TJson) {
     this.json = json;
     if (this.customData === undefined) this.customData = {};
     if (this.animation === undefined) this.animation = {};
@@ -129,7 +130,7 @@ export class Note extends BaseGameplayObject {
 }
 
 export class Bomb extends BaseGameplayObject {
-  json: Json = {
+  json: TJson = {
     b: 0,
     x: 0,
     y: 0,
@@ -157,7 +158,7 @@ export class Bomb extends BaseGameplayObject {
    * Create a bomb using Json.
    * @param json Json to import.
    */
-  import(json: Json) {
+  import(json: TJson) {
     this.json = json;
     if (this.customData === undefined) this.customData = {};
     if (this.animation === undefined) this.animation = {};
@@ -218,7 +219,7 @@ export class Bomb extends BaseGameplayObject {
 }
 
 export class Chain extends BaseSliderObject {
-  json: Json = {
+  json: TJson = {
     b: 0,
     x: 0,
     y: 0,
@@ -275,7 +276,7 @@ export class Chain extends BaseSliderObject {
    * Create a chain using Json.
    * @param json Json to import.
    */
-  import(json: Json) {
+  import(json: TJson) {
     this.json = json;
     if (this.customData === undefined) this.customData = {};
     if (this.animation === undefined) this.animation = {};
@@ -343,7 +344,7 @@ export class Chain extends BaseSliderObject {
 }
 
 export class Arc extends BaseSliderObject {
-  json: Json = {
+  json: TJson = {
     b: 0,
     c: 0,
     x: 0,
@@ -403,7 +404,7 @@ export class Arc extends BaseSliderObject {
    * @param json
    * @returns {Note}
    */
-  import(json: Json) {
+  import(json: TJson) {
     this.json = json;
     if (this.customData === undefined) this.customData = {};
     if (this.animation === undefined) this.animation = {};

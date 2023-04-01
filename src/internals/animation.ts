@@ -13,20 +13,20 @@ import {
   simplifyArray,
 } from "../animation.ts";
 import { optimizeAnimation, OptimizeSettings } from "../anim_optimizer.ts";
-import { Json } from "../beatmap.ts";
+import { TJson } from "../beatmap.ts";
 import { ANIM } from "../constants.ts";
 
 /** Bare minimum animation class. */
 export class BaseAnimation {
   /** The JSON data of this animation. */
-  json: Json = {};
+  json: TJson = {};
   /**
    * The time in each keyframe is divided by the length.
    * Use a negative number or don't specify a length to use a range between 0 and 1.
    */
   length: number;
 
-  constructor(length?: number, data?: Json) {
+  constructor(length?: number, data?: TJson) {
     length ??= 1;
 
     this.length = length;

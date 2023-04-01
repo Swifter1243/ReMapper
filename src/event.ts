@@ -1,5 +1,5 @@
 // deno-lint-ignore-file adjacent-overload-signatures
-import { activeDiff, info, Json } from "./beatmap.ts";
+import { activeDiff, info, TJson } from "./beatmap.ts";
 import {
   AXIS,
   DISTTYPE,
@@ -29,7 +29,7 @@ export class BPMChange extends BaseObject {
    * Create a BPM change using Json.
    * @param json The Json to import.
    */
-  import(json: Json) {
+  import(json: TJson) {
     this.json = json;
     return this;
   }
@@ -70,7 +70,7 @@ export class RotationEvent extends BaseObject {
    * Create a rotation event using Json.
    * @param json The Json to import.
    */
-  import(json: Json) {
+  import(json: TJson) {
     this.json = json;
     return this;
   }
@@ -116,7 +116,7 @@ export class BoostEvent extends BaseObject {
    * Create a boost event using JSON.
    * @param json The Json to import.
    */
-  import(json: Json) {
+  import(json: TJson) {
     this.json = json;
     return this;
   }
@@ -140,7 +140,7 @@ export class BoostEvent extends BaseObject {
 }
 
 class EventBox extends BaseObject {
-  json: Json = {
+  json: TJson = {
     b: 0,
     g: 0,
     e: [],
@@ -156,7 +156,7 @@ class EventBox extends BaseObject {
    * Create an event box using Json.
    * @param json The Json to import.
    */
-  import(json: Json) {
+  import(json: TJson) {
     this.json = json;
     return this;
   }
@@ -217,13 +217,13 @@ interface EventFilter {
 }
 
 export class EventBoxGroup {
-  json: Json = {};
+  json: TJson = {};
 
   /**
    * Create a light event box group using Json.
    * @param json Json to import.
    */
-  import(json: Json) {
+  import(json: TJson) {
     this.json = json;
     return this;
   }
@@ -307,7 +307,7 @@ export class EventBoxGroup {
 }
 
 export class LightEventBoxGroup extends EventBoxGroup {
-  json: Json = {
+  json: TJson = {
     f: {
       f: 1,
       p: 0,
@@ -360,7 +360,7 @@ export class LightEventBoxGroup extends EventBoxGroup {
 }
 
 export class LightRotationBoxGroup extends EventBoxGroup {
-  json: Json = {
+  json: TJson = {
     f: {
       f: 1,
       p: 0,
@@ -430,7 +430,7 @@ export class LightRotationBoxGroup extends EventBoxGroup {
 
 export class LightEvent {
   /** The Json of this light event. */
-  json: Json = {
+  json: TJson = {
     b: 0,
     i: 0,
     c: 0,
@@ -442,7 +442,7 @@ export class LightEvent {
    * Create a light event using JSON.
    * @param json Json to import.
    */
-  import(json: Json) {
+  import(json: TJson) {
     this.json = json;
     return this;
   }
@@ -493,7 +493,7 @@ export class LightEvent {
 
 export class LightRotation {
   /** The Json of this light rotation. */
-  json: Json = {
+  json: TJson = {
     b: 0,
     p: 0,
     e: 0,
@@ -506,7 +506,7 @@ export class LightRotation {
    * Create a light rotation using Json.
    * @param json Json to import.
    */
-  import(json: Json) {
+  import(json: TJson) {
     this.json = json;
     return this;
   }

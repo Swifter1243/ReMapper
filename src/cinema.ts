@@ -1,9 +1,9 @@
 // deno-lint-ignore-file adjacent-overload-signatures
-import { Json } from "./beatmap.ts";
+import { TJson } from "./beatmap.ts";
 import { jsonGet } from "./general.ts";
 
 export class CinemaScreen {
-  json: Json = {
+  json: TJson = {
     "videoID": undefined,
     "screenPosition": {
       "x": 0.0,
@@ -41,7 +41,7 @@ export class CinemaScreen {
    * Create a Cinema Screen using Json.
    * @param json Json to import.
    */
-  import(json: Json) {
+  import(json: TJson) {
     this.json = json;
     return this;
   }

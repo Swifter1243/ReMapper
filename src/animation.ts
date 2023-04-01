@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-namespace adjacent-overload-signatures no-explicit-any
 import { OptimizeSettings } from "./anim_optimizer.ts";
-import { Json } from "./beatmap.ts";
+import { TJson } from "./beatmap.ts";
 import { Color, lerpColor } from "./color.ts";
 import { ANIM, EASE, SPLINE } from "./constants.ts";
 import {
@@ -114,7 +114,7 @@ class SimpleAnimation extends AnimationInternals.BaseAnimation {
    * Create an animation using JSON.
    * @param json The json to create the animation with.
    */
-  import(json: Json) {
+  import(json: TJson) {
     return new AnimationInternals.AbstractAnimation(this.length, json);
   }
 
@@ -122,7 +122,7 @@ class SimpleAnimation extends AnimationInternals.BaseAnimation {
    * Create an animation that can animate any object.
    * @param json The json to create the animation with.
    */
-  abstract(json: Json = {}) {
+  abstract(json: TJson = {}) {
     return this.import(json);
   }
 
@@ -130,7 +130,7 @@ class SimpleAnimation extends AnimationInternals.BaseAnimation {
    * State that this animation is for a note.
    * @param json The json to create the animation with.
    */
-  noteAnimation(json?: Json) {
+  noteAnimation(json?: TJson) {
     return new AnimationInternals.NoteAnimation(this.length, json);
   }
 
@@ -138,7 +138,7 @@ class SimpleAnimation extends AnimationInternals.BaseAnimation {
    * State that this animation is for a wall.
    * @param json The json to create the animation with.
    */
-  wallAnimation(json?: Json) {
+  wallAnimation(json?: TJson) {
     return new AnimationInternals.WallAnimation(this.length, json);
   }
 
@@ -146,7 +146,7 @@ class SimpleAnimation extends AnimationInternals.BaseAnimation {
    * State that this animation is for an environment object.
    * @param json The json to create the animation with.
    */
-  environmentAnimation(json?: Json) {
+  environmentAnimation(json?: TJson) {
     return new AnimationInternals.EnvironmentAnimation(this.length, json);
   }
 }
@@ -245,13 +245,13 @@ export class Keyframe {
 }
 
 export class Track {
-  private reference: Json;
+  private reference: TJson;
 
   /**
    * Handler for the track property.
    * @param reference The object that contains the "track" key.
    */
-  constructor(reference: Json) {
+  constructor(reference: TJson) {
     this.reference = reference;
   }
 
