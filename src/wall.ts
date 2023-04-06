@@ -10,7 +10,7 @@ import {
   ComplexKeyframesVec3,
   isSimple,
   Keyframe,
-  KeyframesVec3,
+  PointDefinitionVec3,
   RawKeyframesAny,
   RawKeyframesVec3,
 } from "./animation.ts";
@@ -186,9 +186,9 @@ export function debugWall(
 
     wall.scale = [1, 1, 1];
     wall.animate.length = wall.life;
-    wall.animate.definitePosition = transform.pos as KeyframesVec3;
-    wall.animate.localRotation = transform.rot as KeyframesVec3;
-    wall.animate.scale = transform.scale as KeyframesVec3;
+    wall.animate.definitePosition = transform.pos as PointDefinitionVec3;
+    wall.animate.localRotation = transform.rot as PointDefinitionVec3;
+    wall.animate.scale = transform.scale as PointDefinitionVec3;
   } else {
     const wtw = worldToWall(pos as Vec3, rot as Vec3, scale as Vec3);
     wall.animate.definitePosition = wtw.pos;

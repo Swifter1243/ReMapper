@@ -3,10 +3,10 @@ import * as easings from "./easings.ts";
 import {
   complexifyArray,
   ComplexKeyframesLinear,
-  KeyframesLinear,
-  RawKeyframesAbstract,
+  KeyframeAbstract,
+  PointDefinitionLinear,
+  RawPointDefinition,
   simplifyArray,
-  SingleKeyframeAbstract,
 } from "./animation.ts";
 import { Wall } from "./wall.ts";
 import { EASE, FILENAME, FILEPATH } from "./constants.ts";
@@ -180,7 +180,7 @@ export function notesBetween(
   min: number,
   max: number,
 ) {
-  new Note().time
+  new Note().time;
   return filterObjects(activeDiffGet().notes, min, max, "time");
 }
 
@@ -210,7 +210,7 @@ export function arcsBetween(
   min: number,
   max: number,
 ) {
-  return filterObjects(activeDiffGet().arcs, min, max, "time")
+  return filterObjects(activeDiffGet().arcs, min, max, "time");
 }
 
 /**
@@ -583,7 +583,7 @@ export function copyWith<T extends Record<string | number | symbol, never>>(
  * @param obj Object to clone.
  */
 export function copy<T>(obj: T): T {
-  return structuredClone(obj)
+  return structuredClone(obj);
   // if (obj === null || typeof obj !== "object") return obj;
 
   // const newObj: T = Array.isArray(obj) ? [] : {};
@@ -772,7 +772,7 @@ export function jsonPrune(obj: TJson) {
           delete obj[prop];
         }
       } else {
-        const rec = v as Record<string, unknown>
+        const rec = v as Record<string, unknown>;
         jsonPrune(rec);
         if (isEmptyObject(rec)) {
           delete obj[prop];
@@ -952,8 +952,8 @@ export const RMLog = (message: string) =>
  * @param fn Function to run on each keyframe.
  */
 export function iterateKeyframes<T extends NumberTuple>(
-  keyframes: RawKeyframesAbstract<T>,
-  fn: (values: SingleKeyframeAbstract<T>, index: number) => void,
+  keyframes: RawPointDefinition<T>,
+  fn: (values: KeyframeAbstract<T>, index: number) => void,
 ) {
   // TODO: Lookup point def
   if (typeof keyframes === "string") return;
@@ -1051,7 +1051,7 @@ export function adjustFog(
       if (typeof x[1] === "number") (anyFog as any)[x[0]] = [x[1]];
     });
 
-    fogEvent.fog = anyFog as BloomFogEnvironment<KeyframesLinear>;
+    fogEvent.fog = anyFog as BloomFogEnvironment<PointDefinitionLinear>;
     if (event) event(fogEvent);
     fogEvent.push();
   }

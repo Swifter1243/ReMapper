@@ -6,18 +6,7 @@ import { BaseGameplayObject, BaseSliderObject } from "./object.ts";
 import { copy, Vec2 } from "./general.ts";
 import { bsmap } from "./deps.ts";
 
-export class Note extends BaseGameplayObject<bsmap.v2. {
-  json: TJson = {
-    b: 0,
-    x: 0,
-    y: 0,
-    c: 0,
-    d: 0,
-    a: 0,
-    customData: {
-      animation: {},
-    },
-  };
+export class Note extends BaseGameplayObject<bsmap.v2.INote, bsmap.v3.IColorNote> {
   /** The animation of this note. */
   animate = new Animation().noteAnimation(this.animation);
 

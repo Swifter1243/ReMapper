@@ -4,7 +4,7 @@ import { activeDiffGet, TJson } from "./beatmap.ts";
 import {
   Animation,
   AnimationInternals,
-  KeyframesLinear,
+  PointDefinitionLinear,
   Track,
   TrackValue,
 } from "./animation.ts";
@@ -382,13 +382,13 @@ export namespace CustomEventInternals {
     set easing(value: EASE) {
       this.data.easing = value;
     }
-    set lightID(value: ILightWithId<KeyframesLinear>) {
+    set lightID(value: ILightWithId<PointDefinitionLinear>) {
       jsonSet(this.data, "ILightWithId", value);
     }
-    set fog(value: BloomFogEnvironment<KeyframesLinear>) {
+    set fog(value: BloomFogEnvironment<PointDefinitionLinear>) {
       jsonSet(this.data, "BloomFogEnvironment", value);
     }
-    set lightMultiplier(value: TubeBloomPrePassLight<KeyframesLinear>) {
+    set lightMultiplier(value: TubeBloomPrePassLight<PointDefinitionLinear>) {
       jsonSet(this.data, "TubeBloomPrePassLight", value);
     }
   }
@@ -486,13 +486,13 @@ export namespace CustomEventInternals {
     set worldPositionStays(value: boolean) {
       this.data.worldPositionStays = value;
     }
-    set lightID(value: ILightWithId<KeyframesLinear>) {
+    set lightID(value: ILightWithId<PointDefinitionLinear>) {
       jsonSet(this.data, "ILightWithId", value);
     }
-    set fog(value: BloomFogEnvironment<KeyframesLinear>) {
+    set fog(value: BloomFogEnvironment<PointDefinitionLinear>) {
       jsonSet(this.data, "BloomFogEnvironment", value);
     }
-    set lightMultiplier(value: TubeBloomPrePassLight<KeyframesLinear>) {
+    set lightMultiplier(value: TubeBloomPrePassLight<PointDefinitionLinear>) {
       jsonSet(this.data, "TubeBloomPrePassLight", value);
     }
   }

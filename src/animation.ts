@@ -1,4 +1,3 @@
-// deno-lint-ignore-file no-namespace adjacent-overload-signatures no-explicit-any
 import { OptimizeSettings } from "./anim_optimizer.ts";
 import { TJson } from "./beatmap.ts";
 import { Color, lerpColor } from "./color.ts";
@@ -20,6 +19,7 @@ import {
   Vec3,
   Vec4,
 } from "./general.ts";
+import { NoteAnimation } from "./internals/animation.ts";
 
 import { AnimationInternals } from "./internals/mod.ts";
 
@@ -96,59 +96,28 @@ export type RawKeyframesAny = SingleKeyframe | ComplexKeyframesAny;
 /** A track or multiple tracks. */
 export type TrackValue = string | string[];
 
-export default function animation(length = 1) {
-  return new SimpleAnimation(length);
+/**
+ * State that this animation is for a note.
+ * @param json The json to create the animation with.
+ */
+function noteAnimation(...params: ConstructorParameters<NoteAnimation>) {
+  return new AnimationInternals.NoteAnimation(...params);
 }
 
-class SimpleAnimation extends AnimationInternals.BaseAnimation {
-  /**
-   * Noodle animation manager.
-   * @param length The time in each keyframe is divided by the length.
-   * Use a negative number or don't specify a length to use a range between 0 and 1.
-   */
-  constructor(length = 1) {
-    super(length);
-  }
+/**
+ * State that this animation is for a wall.
+ * @param json The json to create the animation with.
+ */
+function wallAnimation(json?: TJson) {
+  return new AnimationInternals.WallAnimation(this.length, json);
+}
 
-  /**
-   * Create an animation using JSON.
-   * @param json The json to create the animation with.
-   */
-  import(json: TJson) {
-    return new AnimationInternals.AbstractAnimation(this.length, json);
-  }
-
-  /**
-   * Create an animation that can animate any object.
-   * @param json The json to create the animation with.
-   */
-  abstract(json: TJson = {}) {
-    return this.import(json);
-  }
-
-  /**
-   * State that this animation is for a note.
-   * @param json The json to create the animation with.
-   */
-  noteAnimation(json?: TJson) {
-    return new AnimationInternals.NoteAnimation(this.length, json);
-  }
-
-  /**
-   * State that this animation is for a wall.
-   * @param json The json to create the animation with.
-   */
-  wallAnimation(json?: TJson) {
-    return new AnimationInternals.WallAnimation(this.length, json);
-  }
-
-  /**
-   * State that this animation is for an environment object.
-   * @param json The json to create the animation with.
-   */
-  environmentAnimation(json?: TJson) {
-    return new AnimationInternals.EnvironmentAnimation(this.length, json);
-  }
+/**
+ * State that this animation is for an environment object.
+ * @param json The json to create the animation with.
+ */
+function environmentAnimation(json?: TJson) {
+  return new AnimationInternals.EnvironmentAnimation(this.length, json);
 }
 
 export class Keyframe {
@@ -245,30 +214,17 @@ export class Keyframe {
 }
 
 export class Track {
-  private reference: TJson;
-
-  /**
-   * Handler for the track property.
-   * @param reference The object that contains the "track" key.
-   */
-  constructor(reference: TJson) {
-    this.reference = reference;
-  }
+  /** The value of the track. */
+  value?: TrackValue;
 
   private expandArray(array: TrackValue) {
     return typeof array === "string" ? [array] : array;
   }
 
-  private simplifyArray(array: string[]) {
-    return array.length === 1 ? array[0] : array;
-  }
+  private simplifyArray(array: TrackValue) {
+    if (typeof array === "string") return array;
 
-  /** The value of the track. */
-  set value(value: TrackValue) {
-    this.reference.track = value;
-  }
-  get value() {
-    return this.reference.track;
+    return array.length === 1 ? array[0] : array;
   }
 
   /**
@@ -278,7 +234,8 @@ export class Track {
   has(value: string) {
     if (!this.value) return false;
     if (typeof this.value === "string") return this.value === value;
-    else return this.value.some((x) => x === value);
+
+    return this.value.some((x) => x === value);
   }
 
   /**
@@ -286,11 +243,16 @@ export class Track {
    * @param value Can be one track or multiple.
    */
   add(value: TrackValue) {
-    if (!this.value) this.value = [];
+    if (!this.value) {
+      this.value = this.simplifyArray(value);
+      return this;
+    }
+
     const arrValue = this.expandArray(this.value).concat(
       this.expandArray(value),
     );
     this.value = this.simplifyArray(arrValue);
+    return this;
   }
 
   /**
@@ -298,6 +260,8 @@ export class Track {
    * @param value Can be one track or multiple.
    */
   remove(value: TrackValue) {
+    if (!this.value) return;
+
     const removeValues = this.expandArray(value);
     const thisValue = this.expandArray(this.value);
     const removed: Record<number, boolean> = {};
@@ -311,15 +275,16 @@ export class Track {
     const returnArr = thisValue.filter((_x, i) => !removed[i]);
 
     if (returnArr.length === 0) {
-      delete this.reference.track;
       return;
     }
     this.value = this.simplifyArray(returnArr);
+
+    return this;
   }
 
   /** Get the track value as an array. */
-  get array() {
-    return this.expandArray(this.value);
+  array() {
+    return this.value && this.expandArray(this.value);
   }
 
   /**
@@ -327,13 +292,11 @@ export class Track {
    * @param condition Function to run for each track, must return boolean
    */
   check(condition: (track: string) => boolean) {
-    let passed = false;
+    if (!this.value) return false;
 
-    this.expandArray(this.value).forEach((x) => {
-      if (condition(x)) passed = true;
+    return this.expandArray(this.value).some((x) => {
+      return condition(x);
     });
-
-    return passed;
   }
 }
 
@@ -345,7 +308,6 @@ export class Track {
 export function complexifyArray<T extends NumberTuple>(
   array: RawKeyframesAbstract<T> | RawKeyframesAny,
 ) {
-  if (array === undefined) return [];
   if (!isSimple(array)) return array as ComplexKeyframesAbstract<T>;
   return [[...array, 0]] as ComplexKeyframesAbstract<T>;
 }
@@ -357,8 +319,7 @@ export function complexifyArray<T extends NumberTuple>(
  */
 export function simplifyArray<T extends NumberTuple>(
   array: RawKeyframesAbstract<T>,
-) {
-  if (array === undefined) return [];
+): RawKeyframesAbstract<T> {
   if (array.length <= 1 && !isSimple(array)) {
     const keyframe = new Keyframe(array[0] as KeyframeValues);
     if (keyframe.time === 0) return keyframe.values as RawKeyframesAbstract<T>;
@@ -379,11 +340,15 @@ export const isSimple = (array: RawKeyframesAny) =>
  * @param animation The keyframes.
  * @param time The time to get the value at.
  */
-export function getValuesAtTime(
-  property: ANIM,
-  animation: RawKeyframesAny,
+export function getValuesAtTime<K extends string = ANIM>(
+  property: K,
+  animation: KeyframesAny,
   time: number,
 ) {
+  if (typeof animation === "string") {
+    throw "Does not support point definitions!"
+  }
+
   animation = complexifyArray(animation);
   const timeInfo = timeInKeyframes(time, animation);
   if (timeInfo.interpolate && timeInfo.r && timeInfo.l) {
@@ -410,13 +375,13 @@ export function getValuesAtTime(
       );
       return lerp.export();
     }
-    // TODO: Move this into its own function, this is bad
     if (timeInfo.r.spline === "splineCatmullRom") {
       return splineCatmullRomLerp(timeInfo, animation);
     }
 
     return arrLerp(timeInfo.l.values, timeInfo.r.values, timeInfo.normalTime);
-  } else return (timeInfo.l as Keyframe).values;
+  }
+  return (timeInfo.l as Keyframe).values;
 }
 
 export function splineCatmullRomLerp(
@@ -551,6 +516,13 @@ export function combineAnimations(
   return complexArr;
 }
 
+export interface TransformKeyframe {
+  pos: Vec3;
+  rot: Vec3;
+  scale: Vec3;
+  time: number;
+}
+
 /**
  * Generate keyframes from an animation.
  * Useful for doing things such as having objects rotate around points other than their anchor.
@@ -565,12 +537,7 @@ export function bakeAnimation(
     rot?: RawKeyframesVec3;
     scale?: RawKeyframesVec3;
   },
-  forKeyframe?: (transform: {
-    pos: Vec3;
-    rot: Vec3;
-    scale: Vec3;
-    time: number;
-  }) => void,
+  forKeyframe?: (transform: TransformKeyframe) => void,
   animFreq?: number,
   animOptimizer?: OptimizeSettings,
 ) {
@@ -622,7 +589,7 @@ export function bakeAnimation(
       rot: dataAnim.get("rotation", i),
       scale: dataAnim.get("scale", i),
       time: i,
-    };
+    } satisfies TransformKeyframe;
 
     if (forKeyframe) forKeyframe(keyframe);
 

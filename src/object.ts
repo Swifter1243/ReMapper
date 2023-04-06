@@ -80,7 +80,7 @@ export abstract class BaseGameplayObject<
   /** The track class for this event.
    * @see Track
    */
-  track?: Track;
+  track: Track;
 
   /** The chroma color of the object. */
   color?: ColorType;

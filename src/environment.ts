@@ -2,8 +2,8 @@
 import {
   AnimationInternals,
   combineAnimations,
-  KeyframesLinear,
-  KeyframesVec3,
+  PointDefinitionLinear,
+  PointDefinitionVec3,
   Track,
 } from "./animation.ts";
 import { activeDiffGet, TJson } from "./beatmap.ts";
@@ -76,11 +76,11 @@ export namespace EnvironmentInternals {
     /** All the animateable properties of this object. */
     get animationProperties() {
       const returnObj: {
-        position?: KeyframesVec3;
-        localPosition?: KeyframesVec3;
-        rotation?: KeyframesVec3;
-        localRotation?: KeyframesVec3;
-        scale?: KeyframesVec3;
+        position?: PointDefinitionVec3;
+        localPosition?: PointDefinitionVec3;
+        rotation?: PointDefinitionVec3;
+        localRotation?: PointDefinitionVec3;
+        scale?: PointDefinitionVec3;
       } = {};
       if (this.position) returnObj.position = this.position;
       if (this.localPosition) returnObj.localPosition = this.localPosition;
@@ -321,14 +321,14 @@ export type Components = {
 
 /** The "ILightWithId" environment component.
  * Allows both animated and non animated variants. */
-export type ILightWithId<T extends number | KeyframesLinear> = {
+export type ILightWithId<T extends number | PointDefinitionLinear> = {
   lightID: T;
   type: T;
 };
 
 /** The "BloomFogEnvironment" environment component.
  * Allows both animated and non animated variants. */
-export type BloomFogEnvironment<T extends number | KeyframesLinear> = {
+export type BloomFogEnvironment<T extends number | PointDefinitionLinear> = {
   attenuation?: T;
   offset?: T;
   startY?: T;
@@ -337,7 +337,7 @@ export type BloomFogEnvironment<T extends number | KeyframesLinear> = {
 
 /** The "TubeBloomPrePassLight" environment component.
  * Allows both animated and non animated variants. */
-export type TubeBloomPrePassLight<T extends number | KeyframesLinear> = {
+export type TubeBloomPrePassLight<T extends number | PointDefinitionLinear> = {
   colorAlphaMultiplier?: T;
   bloomFogIntensityMultiplier?: T;
 };
