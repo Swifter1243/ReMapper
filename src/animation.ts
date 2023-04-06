@@ -19,7 +19,7 @@ import {
   Vec3,
   Vec4,
 } from "./general.ts";
-import { NoteAnimation } from "./internals/animation.ts";
+import { AbstractAnimation, EnvironmentAnimation, NoteAnimation, WallAnimation } from "./internals/animation.ts";
 
 import { AnimationInternals } from "./internals/mod.ts";
 
@@ -100,7 +100,7 @@ export type TrackValue = string | string[];
  * State that this animation is for a note.
  * @param json The json to create the animation with.
  */
-function noteAnimation(...params: ConstructorParameters<NoteAnimation>) {
+function noteAnimation(...params: ConstructorParameters<typeof NoteAnimation>) {
   return new AnimationInternals.NoteAnimation(...params);
 }
 
@@ -108,16 +108,16 @@ function noteAnimation(...params: ConstructorParameters<NoteAnimation>) {
  * State that this animation is for a wall.
  * @param json The json to create the animation with.
  */
-function wallAnimation(json?: TJson) {
-  return new AnimationInternals.WallAnimation(this.length, json);
+function wallAnimation(...params: ConstructorParameters<typeof WallAnimation>) {
+  return new AnimationInternals.WallAnimation(...params);
 }
 
 /**
  * State that this animation is for an environment object.
  * @param json The json to create the animation with.
  */
-function environmentAnimation(json?: TJson) {
-  return new AnimationInternals.EnvironmentAnimation(this.length, json);
+function environmentAnimation(...params: ConstructorParameters<typeof EnvironmentAnimation>) {
+  return new AnimationInternals.EnvironmentAnimation(...params);
 }
 
 export class Keyframe {
@@ -192,10 +192,10 @@ export class Keyframe {
    * @param value The flag to be set.
    * @param old An existing flag containing this will be replaced by the value.
    */
-  setFlag(value: string, old?: string) {
+  setFlag(value: KeyframeFlag, old?: string) {
     let index = this.getFlagIndex(old ? old : value, old === undefined);
     if (index === -1) index = this.data.length;
-    this.data[index] = value as any;
+    this.data[index] = value;
   }
 
   /**
@@ -546,7 +546,7 @@ export function bakeAnimation(
   animation.rot ??= [0, 0, 0];
   animation.scale ??= [1, 1, 1];
 
-  const dataAnim = new SimpleAnimation().abstract();
+  const dataAnim = new AbstractAnimation();
   dataAnim.position = copy(animation.pos);
   dataAnim.rotation = copy(animation.rot);
   dataAnim.scale = copy(animation.scale);
