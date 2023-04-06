@@ -18,7 +18,7 @@ export type Property<T, V> = {
 /** A valid value for material properties. */
 export type MaterialPropertyValue = FILEPATH | KeyframesLinear | KeyframesColor;
 /** A valid value for animator properties. */
-export type AnimatorPropertyValue = boolean | KeyframesLinear;
+export type AnimatorPropertyValue = boolean | KeyframesLinear | number;
 /** A property for a material. */
 export type MaterialProperty = Property<MATERIAL_PROP_TYPE, MaterialPropertyValue>;
 /** A property for an animator. */
@@ -376,16 +376,16 @@ export namespace CustomEventInternals {
          * Assigns a material to the camera and allows you to call a SetMaterialProperty from within.
          * @param json Json to import.
          * @param asset File path to the material.
-         * @param properties Properties to set.
          * @param duration The duration of the animation.
+         * @param properties Properties to set.
          * @param easing An easing for the animation to follow.
          */
-        constructor(json: Json, asset: string, properties: MaterialProperty[], duration?: number, easing?: EASE) {
+        constructor(json: Json, asset: string, duration?: number, properties?: MaterialProperty[], easing?: EASE) {
             super(json);
             this.type = "ApplyPostProcessing";
             this.asset = asset;
-            this.properties = properties;
             if (duration) this.duration = duration;
+            if (properties) this.properties = properties;
             if (easing) this.easing = easing;
         }
 
@@ -671,12 +671,12 @@ export class CustomEvent extends CustomEventInternals.BaseEvent {
     /**
      * Assigns a material to the camera and allows you to call a SetMaterialProperty from within.
      * @param asset File path to the material.
-     * @param properties Properties to set.
      * @param duration The duration of the animation.
+     * @param properties Properties to set.
      * @param easing An easing for the animation to follow.
      */
-    applyPostProcessing = (asset: string, properties: MaterialProperty[], duration?: number, easing?: EASE) =>
-        new CustomEventInternals.ApplyPostProcessing(this.json, asset, properties, duration, easing);
+    applyPostProcessing = (asset: string, duration?: number, properties?: MaterialProperty[], easing?: EASE) =>
+        new CustomEventInternals.ApplyPostProcessing(this.json, asset, duration, properties, easing);
 
     /**
      * Declares a culling mask where selected tracks are culled.
