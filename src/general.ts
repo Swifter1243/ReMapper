@@ -93,14 +93,14 @@ export const RMJson = readRemapperJson();
  */
 export async function cacheData<T>(
   name: string,
-  process: () => T,
+  process: () => Promise<T>,
   processing: unknown[] = [],
 ): Promise<T> {
   let outputData: unknown;
   const processingJSON = JSON.stringify(processing).replaceAll('"', "");
 
-  function getData() {
-    outputData = process();
+  async function getData() {
+    outputData = await process();
     RMLog(`cached ${name}`);
     return outputData;
   }
@@ -111,14 +111,14 @@ export async function cacheData<T>(
   if (cachedData !== undefined) {
     if (processingJSON !== cachedData.processing) {
       cachedData.processing = processingJSON;
-      cachedData.data = getData();
+      cachedData.data = await getData();
     } else {
       outputData = cachedData.data;
     }
   } else {
     rmCache.cachedData[name] = {
       processing: processingJSON,
-      data: getData(),
+      data: await getData(),
     };
   }
 
@@ -254,7 +254,7 @@ export function wallsBetween(
 export function eventsBetween(
   min: number,
   max: number,
-  forEach: (note: EventInternals.AsbractEvent) => void,
+  forEach: (note: EventInternals.AbstractEvent) => void,
 ) {
   filterObjects(activeDiffGet().events, min, max, "time").forEach((x) => {
     forEach(x);
@@ -1039,6 +1039,7 @@ export function adjustFog(
 
   if (isStatic) {
     const env = getBaseEnvironment();
+    env.components ??= {};
     env.components.BloomFogEnvironment = anyFog as BloomFogEnvironment<number>;
     env.push();
     fogInitialized = true;

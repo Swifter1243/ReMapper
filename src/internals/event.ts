@@ -12,7 +12,10 @@ type LightFields<T extends { customData: T["customData"] }> =
     floatValue?: number;
   };
 
-export type AsbractEvent = BaseEvent<bsmap.v2.IEventBase, bsmap.v3.IBasicEvent>;
+export type AbstractEvent = BaseEvent<
+  bsmap.v2.IEventBase,
+  bsmap.v3.IBasicEvent
+>;
 
 export abstract class BaseEvent<
   TV2 extends bsmap.v2.IEventBase,

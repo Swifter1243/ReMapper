@@ -788,9 +788,9 @@ export function getModel(
 
   name ??= parsedPath.name;
 
-  return cacheData(name, () => {
+  return cacheData(name, async () => {
     const data = JSON.parse(
-      Deno.readTextFileSync(parseFilePath(filePath, ".rmmodel").path),
+      await Deno.readTextFile(parseFilePath(filePath, ".rmmodel").path),
     );
     if (process) process(data.objects);
     return data.objects as ModelObject[];

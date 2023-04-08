@@ -1,109 +1,13 @@
-// deno-lint-ignore-file no-namespace
 import { activeDiff } from "./beatmap.ts";
-import { Event, EventInternals, LightID } from "./basicEvent.ts";
+import { LightID } from "./basicEvent.ts";
 import { arrHas, copy } from "./general.ts";
+import { EventInternals, LightRemapperInternals } from "./internals/mod.ts";
 
-type Condition = (event: EventInternals.AbstractEvent) => boolean;
-type Process = (event: EventInternals.AbstractEvent) => void;
 
-export namespace LightRemapperInternals {
-  export class BaseLightRemapper {
-    /** Conditions that each event needs to pass. */
-    conditions: Condition[] = [];
-    /** Function to run on each event. */
-    processes: Process[] = [];
+type Condition = LightRemapperInternals.Condition;
 
-    /**
-     * Class used to iterate through every event in the map.
-     * Has various tools to transform the events.
-     * @param condition Optional initializing condition each event needs to pass.
-     */
-    constructor(condition?: Condition) {
-      if (condition) this.conditions.push(condition);
-    }
+export type { Condition };
 
-    /**
-     * Add a condition that events must pass.
-     * @param condition Input condition.
-     */
-    addCondition(condition: Condition) {
-      this.conditions.push(condition);
-      return this;
-    }
-
-    /**
-     * Add a function to edit the event.
-     * @param process Input function.
-     */
-    addProcess(process: Process) {
-      this.processes.push(process);
-      return this;
-    }
-
-    /**
-     * Sets the type of the event.
-     * @param type Input type.
-     */
-    setType = (type: number) =>
-      this.addProcess((x) => {
-        x.type = type;
-      });
-
-    /**
-     * Multiplies the colors of the event.
-     * @param rgb Multiplier for r, g, and b values.
-     * @param alpha Multiplier for alpha.
-     */
-    multiplyColor = (rgb: number, alpha = 1) =>
-      this.addProcess((x) => {
-        if (x.color) {
-          x.color[0] *= rgb;
-          x.color[1] *= rgb;
-          x.color[2] *= rgb;
-          if (x.color[3]) x.color[3] *= alpha;
-        }
-      });
-
-    /**
-     * Test the algorithm with some lightIDs which will be logged.
-     * @param ids IDs to test.
-     */
-    test(ids: number[]) {
-      this.conditions = [];
-
-      const event = new Event().abstract();
-      event.lightID = ids;
-
-      this.processEvents([event], true);
-    }
-
-    /**
-     * Run the algorithm.
-     * @param log Log the output JSON of each event.
-     */
-    run = (log = false) => this.processEvents(activeDiff.events, log);
-
-    /**
-     * Process events through the algorithm.
-     * @param events Events to process.
-     * @param log Whether passing events should be logged.
-     */
-    processEvents(events: EventInternals.AbstractEvent[], log = false) {
-      events.forEach((x) => {
-        let passed = true;
-        this.conditions.forEach((p) => {
-          if (!p(x)) passed = false;
-        });
-        if (!passed) return;
-
-        this.processes.forEach((p) => {
-          p(x);
-        });
-        if (log) console.log(x.json);
-      });
-    }
-  }
-}
 
 export class LightRemapper extends LightRemapperInternals.BaseLightRemapper {
   private complexifyLightIDs(

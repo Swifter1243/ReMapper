@@ -1,139 +1,17 @@
-// deno-lint-ignore-file adjacent-overload-signatures no-namespace
 import { combineAnimations, Track } from "./animation.ts";
 import { activeDiffGet, TJson } from "./beatmap.ts";
 import { ColorType, copy, jsonGet, jsonSet, Vec3 } from "./general.ts";
 import { CustomEvent } from "./custom_event.ts";
 import { ANIM, EASE, GEO_SHADER, GEO_TYPE, LOOKUP } from "./constants.ts";
-import { KeyframesLinear } from "./mod.ts";
+import { bsmap, KeyframesLinear } from "./mod.ts";
+import { AnimationInternals, EnvironmentInternals } from "./internals/mod.ts";
 
 let envCount = 0;
 
-export namespace EnvironmentInternals {
-  export class BaseEnvironment {
-    /** The Json data on this object. */
-    json: TJson = {};
-
-    /**
-     * Create an environment/geometry object using Json.
-     * @param json The Json to import.
-     */
-    import(json: TJson) {
-      this.json = json;
-      return this;
-    }
-
-    /** Push this environment/geometry object to the difficulty.
-     * @param clone Whether this object will be copied before being pushed.
-     */
-    push(clone = true) {
-      activeDiffGet().rawEnvironment.push(clone ? copy(this) : this);
-      return this;
-    }
-
-    /** How many times to duplicate this object. */
-    get duplicate() {
-      return this.json.duplicate;
-    }
-    /** Whether this object is enabled. */
-    get active() {
-      return this.json.active;
-    }
-    /** The scale of this object. */
-    get scale() {
-      return this.json.scale;
-    }
-    /** The worldspace position of this object. */
-    get position() {
-      return this.json.position;
-    }
-    /** The position of this object relative to it's parent. */
-    get localPosition() {
-      return this.json.localPosition;
-    }
-    /** The worldspace rotation of this object. */
-    get rotation() {
-      return this.json.rotation;
-    }
-    /** The rotation of this object relative to it's parent. */
-    get localRotation() {
-      return this.json.localRotation;
-    }
-    /** The track class for this object.
-     * Please read the properties of this class to see how it works.
-     */
-    get track() {
-      return new Track(this.json);
-    }
-    /** Group used with "animateEnvGroup". Not saved to the difficulty. */
-    get group() {
-      return this.json.group;
-    }
-    /** All the animateable properties of this object. */
-    get animationProperties() {
-      const returnObj: {
-        position?: PointDefinitionVec3;
-        localPosition?: PointDefinitionVec3;
-        rotation?: PointDefinitionVec3;
-        localRotation?: PointDefinitionVec3;
-        scale?: PointDefinitionVec3;
-      } = {};
-      if (this.position) returnObj.position = this.position;
-      if (this.localPosition) returnObj.localPosition = this.localPosition;
-      if (this.rotation) returnObj.rotation = this.rotation;
-      if (this.localRotation) returnObj.localRotation = this.localRotation;
-      if (this.scale) returnObj.scale = this.scale;
-      return returnObj;
-    }
-    /** All of the components on this object. */
-    get components() {
-      return jsonGet(this.json, "components", {});
-    }
-    /** Sets the "lightID" value on the "ILightWithID" component. */
-    get lightID() {
-      return jsonGet(jsonGet(this.components, "ILightWithId", {}), "lightID");
-    }
-    /** Sets the "type" value on the "ILightWithID" component. */
-    get lightType() {
-      return jsonGet(jsonGet(this.components, "ILightWithId", {}), "type");
-    }
-
-    set duplicate(value: number) {
-      this.json.duplicate = value;
-    }
-    set active(value: boolean) {
-      this.json.active = value;
-    }
-    set scale(value: Vec3) {
-      this.json.scale = value;
-    }
-    set position(value: Vec3) {
-      this.json.position = value;
-    }
-    set localPosition(value: Vec3) {
-      this.json.localPosition = value;
-    }
-    set rotation(value: Vec3) {
-      this.json.rotation = value;
-    }
-    set localRotation(value: Vec3) {
-      this.json.localRotation = value;
-    }
-    set group(value: string) {
-      this.json.group = value;
-    }
-    set components(value: Components) {
-      this.json.components = value;
-    }
-    set lightID(value: number) {
-      jsonSet(jsonGet(this.components, "ILightWithId", {}), "lightID", value);
-    }
-    set lightType(value: number) {
-      jsonSet(jsonGet(this.components, "ILightWithId", {}), "type", value);
-    }
-  }
-}
-
-export class Environment extends EnvironmentInternals.BaseEnvironment {
+export class Environment extends EnvironmentInternals.BaseEnvironment<
+  bsmap.v2.IChromaEnvironmentID,
+  bsmap.v3.IChromaEnvironmentID
+> {
   /**
    * Environment object for ease of creation and additional tools.
    * @param id The object name to look up in the environment.
@@ -148,27 +26,59 @@ export class Environment extends EnvironmentInternals.BaseEnvironment {
   }
 
   /** The object name to look up in the environment. */
-  get id() {
-    return this.json.id;
-  }
+  id: string;
   /** The method of looking up the object name in the environment. */
-  get lookupMethod() {
-    return this.json.lookupMethod;
-  }
+  lookupMethod: LOOKUP;
 
-  set id(value: string) {
-    this.json.id = value;
-  }
-  set lookupMethod(value: LOOKUP) {
-    this.json.lookupMethod = value;
+  toJson(v3: true): bsmap.v3.IChromaEnvironmentID;
+  toJson(v3: false): bsmap.v2.IChromaEnvironmentID;
+  toJson(
+    v3: boolean,
+  ): bsmap.v2.IChromaEnvironmentID | bsmap.v3.IChromaEnvironmentID {
+    if (v3) {
+      return {
+        id: this.id,
+        lookupMethod: this.lookupMethod,
+        active: this.active,
+        components: {
+          ILightWithId: {
+            lightID: this.lightsID,
+            type: this.lightsType,
+          },
+          ...this.components,
+        },
+        duplicate: this.duplicate,
+        localPosition: this.localPosition,
+        localRotation: this.localRotation,
+        position: this.position,
+        rotation: this.rotation,
+        scale: this.scale,
+        track: this.track?.value as string,
+      } satisfies bsmap.v3.IChromaEnvironmentID;
+    }
+
+    if (this.components) throw "Components are not supported in v2";
+
+    return {
+      _id: this.id,
+      _lookupMethod: this.lookupMethod,
+      _active: this.active,
+      _duplicate: this.duplicate,
+      _lightID: this.lightsID,
+      _localPosition: this.localPosition,
+      _localRotation: this.localRotation,
+      _position: this.position,
+      _rotation: this.rotation,
+      _scale: this.scale,
+      _track: this.track?.value as string,
+    } satisfies bsmap.v2.IChromaEnvironmentID;
   }
 }
 
-export class Geometry extends EnvironmentInternals.BaseEnvironment {
-  json: TJson = {
-    geometry: {},
-  };
-
+export class Geometry extends EnvironmentInternals.BaseEnvironment<
+  bsmap.v2.IChromaEnvironmentGeometry,
+  bsmap.v3.IChromaEnvironmentGeometry
+> {
   /**
    * Geometry object for ease of creation and additional tools.
    * @param type The geometry shape type.
@@ -185,26 +95,62 @@ export class Geometry extends EnvironmentInternals.BaseEnvironment {
   }
 
   /** The geometry shape type. */
-  get type() {
-    return this.json.geometry.type;
-  }
+  type: GEO_TYPE;
   /** The material on this geometry object. */
-  get material() {
-    return this.json.geometry.material;
-  }
+  material: GeometryMaterial | string;
   /** Whether this geometry object has collision. */
-  get collision() {
-    return this.json.geometry.collision;
-  }
+  collision?: boolean;
 
-  set type(value: GEO_TYPE) {
-    this.json.geometry.type = value;
-  }
-  set material(value: GeometryMaterial | string) {
-    this.json.geometry.material = value;
-  }
-  set collision(value: boolean) {
-    this.json.geometry.collision = value;
+  toJson(v3: true): bsmap.v3.IChromaEnvironmentGeometry;
+  toJson(v3: false): bsmap.v2.IChromaEnvironmentGeometry;
+  toJson(
+    v3: boolean,
+  ): bsmap.v2.IChromaEnvironmentGeometry | bsmap.v3.IChromaEnvironmentGeometry {
+    if (v3) {
+      return {
+        geometry: {
+          material: this.material,
+          type: this.type,
+          collision: this.collision,
+        },
+        active: this.active,
+        components: {
+          ILightWithId: {
+            lightID: this.lightsID,
+            type: this.lightsType,
+          },
+          ...this.components,
+        },
+        duplicate: this.duplicate,
+        localPosition: this.localPosition,
+        localRotation: this.localRotation,
+        position: this.position,
+        rotation: this.rotation,
+        scale: this.scale,
+        track: this.track?.value as string,
+      } satisfies bsmap.v3.IChromaEnvironmentGeometry;
+    }
+
+    return {
+      _geometry: {
+        _material: typeof this.material === "string" ? this.material : {
+          _shader: this.material?.shader,
+          _color: this.material?.color,
+          _shaderKeywords: this.material?.shaderKeywords,
+        },
+        _type: this.type,
+        _collision: this.collision,
+      },
+      _active: this.active,
+      _duplicate: this.duplicate,
+      _lightID: this.lightsID,
+      _localPosition: this.localPosition,
+      _localRotation: this.localRotation,
+      _position: this.position,
+      _rotation: this.rotation,
+      _scale: this.scale,
+      _track: this.track?.value as string,
+    } satisfies bsmap.v2.IChromaEnvironmentGeometry;
   }
 }
 

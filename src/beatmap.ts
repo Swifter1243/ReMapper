@@ -48,6 +48,7 @@ import {
   LightRotationBoxGroup,
   RotationEvent,
 } from "./event.ts";
+import { AnimationInternals } from "./internals/mod.ts";
 
 type PostProcessFn<T> = (object: T, diff: AbstractDifficulty) => void;
 
@@ -125,7 +126,7 @@ export async function readDifficulty(
     }
 
     json.basicBeatmapEvents.forEach((x: TJson) => {
-      const customData = x.customData as TJson
+      const customData = x.customData as TJson;
       if (customData && typeof customData === "object") {
         const keys = [
           "lightID",
@@ -174,7 +175,7 @@ export async function readDifficulty(
     arrJsonToClass(this.fakeChains, Chain);
   });
 
-  await Promise.all([jsonPromise, infoPromise])
+  await Promise.all([jsonPromise, infoPromise]);
 }
 
 export abstract class AbstractDifficulty {
@@ -196,19 +197,33 @@ export abstract class AbstractDifficulty {
     unknown[] | undefined,
     PostProcessFn<unknown>[]
   >();
-  private registerProcessors() {
-    this.addPostProcess(undefined, reduceDecimalsPostProcess);
-  }
 
-  /**
+    /**
    * Creates a difficulty. Can be used to access various information and the map data.
    * Will set the active difficulty to this.
    * @param input Filename for the input.
    * @param input Filename for the output. If left blank, input will be used.
    */
-  constructor() {
-    this.registerProcessors();
+  constructor(
+    json: bsmap.v2.IDifficulty,
+    diffSet: bsmap.IInfoSetDifficulty,
+    diffSetMap: bsmap.IInfoSet,
+    mapFile: DIFFPATH,
+    relativeMapFile: DIFFNAME,
+  ) {
+    this.json = json;
+    this.diffSet = diffSet;
+    this.diffSetMap = diffSetMap
+    this.mapFile = mapFile;
+    this.relativeMapFile = relativeMapFile;
   }
+
+  private registerProcessors() {
+    this.addPostProcess(undefined, reduceDecimalsPostProcess);
+  }
+
+
+
 
   /**
    * Go through every animation in this difficulty and optimize it.
