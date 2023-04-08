@@ -13,6 +13,7 @@ import {
   simplifyArray,
 } from "../animation.ts";
 import { optimizeAnimation, OptimizeSettings } from "../anim_optimizer.ts";
+import { copy } from "../general.ts";
 
 /** Bare minimum animation class. */
 export class BaseAnimation {

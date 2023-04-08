@@ -1,5 +1,5 @@
 // deno-lint-ignore-file no-explicit-any adjacent-overload-signatures
-import { adbDeno, compress, fs, path } from "./deps.ts";
+import { adbDeno, bsmap, compress, fs, path } from "./deps.ts";
 import { Arc, Bomb, Chain, Note } from "./note.ts";
 import { Wall } from "./wall.ts";
 import { Event, EventInternals } from "./basicEvent.ts";
@@ -49,7 +49,7 @@ import {
   RotationEvent,
 } from "./event.ts";
 
-type PostProcessFn<T> = (object: T, diff: Difficulty) => void;
+type PostProcessFn<T> = (object: T, diff: AbstractDifficulty) => void;
 
 /** Absolute or relative path to a difficulty. Extension is optional. */
 export type DIFFPATH = FILEPATH<DIFFS>;
@@ -77,90 +77,46 @@ export function arrJsonToClass<T>(
   }
 }
 
-/**
- * Converts an array of classes to Json.
- * Used internally in Difficulty to export to Json.
- * @param arr Array to convert.
- * @param outputJSON Parent Json that array is attached to.
- * @param prop Property of the array in the outputJSON value.
- * @param callback Optional callback to run on each class copy before conversion.
- */
-export function arrClassToJson<T>(
-  arr: T[],
-  outputJSON: TJson,
-  prop: string,
-  callback?: (obj: T) => void,
-) {
-  const jsonArr = jsonGet(outputJSON, prop);
-  if (jsonArr === undefined) return;
+export async function readDifficulty(
+  input: DIFFPATH,
+  output?: DIFFPATH,
+  process: boolean = true,
+): Promise<AbstractDifficulty> {
+  const parsedInput = parseFilePath(input, ".dat");
+  const parsedOutput = parseFilePath(output ?? input, ".dat");
 
-  if (callback) {
-    arr.forEach((x) => {
-      const obj = copy(x) as any;
-      callback(obj);
-      jsonArr?.push(obj.json);
-    });
-  } else arr.forEach((x) => jsonArr.push((x as any).json));
+  const mapFile = parsedOutput.path as DIFFPATH;
+  const relativeMapFile = parsedOutput.name as DIFFNAME;
 
-  sortObjects(jsonArr, "b");
-}
+  // If the path contains a separator of any kind, use it instead of the default "Info.dat"
+  const infoPromise = Deno.readTextFile(
+    path.join(parsedOutput.dir ?? Deno.cwd(), "Info.dat"),
+  ).then((j) => {
+    info = JSON.parse(j);
 
-export class Difficulty {
-  /** The Json of the entire difficulty. */
-  json: TJson = {};
-  /** The Json of the difficulty set
-   * (e.g. Standard) that this difficulty is contained in inside of the Info.dat.
-   */
-  diffSet: TJson = {};
-  /** The Json of the difficulty set map
-   * (e.g. Hard) that this difficulty is contained in inside of the Info.dat.
-   */
-  diffSetMap: TJson = {};
-  /** The path to the output file of this difficulty. */
-  mapFile: DIFFPATH;
-  /** The filename of the output file of this difficulty. */
-  relativeMapFile: DIFFNAME;
-  private postProcesses = new Map<
-    unknown[] | undefined,
-    PostProcessFn<unknown>[]
-  >();
-  private registerProcessors() {
-    this.addPostProcess(undefined, reduceDecimalsPostProcess);
-  }
+    let diffSetMap: bsmap.IInfoSetDifficulty | undefined;
 
-  /**
-   * Creates a difficulty. Can be used to access various information and the map data.
-   * Will set the active difficulty to this.
-   * @param input Filename for the input.
-   * @param input Filename for the output. If left blank, input will be used.
-   */
-  constructor(input: DIFFPATH, output?: DIFFPATH) {
-    const parsedInput = parseFilePath(input, ".dat");
-    const parsedOutput = parseFilePath(output ?? input, ".dat");
-
-    // If the path contains a separator of any kind, use it instead of the default "Info.dat"
-    info.load(
-      parsedOutput.dir ? path.join(parsedOutput.dir, "Info.dat") : undefined,
-    );
-
-    this.mapFile = parsedOutput.path as DIFFPATH;
-    this.relativeMapFile = parsedOutput.name as DIFFNAME;
-    this.json = JSON.parse(Deno.readTextFileSync(parsedInput.path));
-
-    info.json._difficultyBeatmapSets.forEach((set: TJson) => {
-      set._difficultyBeatmaps.forEach((setmap: TJson) => {
-        if (this.relativeMapFile === setmap._beatmapFilename) {
-          this.diffSet = set;
-          this.diffSetMap = setmap;
-        }
-      });
-    });
-
-    if (this.diffSet === undefined) {
-      throw new Error(
-        `The difficulty ${parsedOutput.name} does not exist in your Info.dat`,
+    const diffSet = info._difficultyBeatmapSets.find((e) => {
+      diffSetMap = e._difficultyBeatmaps.find((s) =>
+        s._beatmapFilename === relativeMapFile
       );
+
+      return diffSetMap;
+    });
+
+    if (!diffSet || !diffSetMap) {
+      throw `The difficulty ${parsedOutput.name} does not exist in your Info.dat`;
     }
+
+    return {
+      diffSet,
+      diffSetMap,
+      info,
+    };
+  });
+
+  const jsonPromise = Deno.readTextFile(parsedInput.path).then((j) => {
+    const json = JSON.parse(j);
 
     function transferKey(obj: TJson, old: string, value: string) {
       if (obj[old] === undefined) return;
@@ -168,8 +124,9 @@ export class Difficulty {
       delete obj[old];
     }
 
-    this.json.basicBeatmapEvents.forEach((x: TJson) => {
-      if (x.customData) {
+    json.basicBeatmapEvents.forEach((x: TJson) => {
+      const customData = x.customData as TJson
+      if (customData && typeof customData === "object") {
         const keys = [
           "lightID",
           "color",
@@ -183,7 +140,7 @@ export class Difficulty {
           "direction",
         ];
 
-        keys.forEach((k) => transferKey(x.customData, `_${k}`, k));
+        keys.forEach((k) => transferKey(customData, `_${k}`, k));
       }
     });
 
@@ -215,9 +172,41 @@ export class Difficulty {
     arrJsonToClass(this.fakeBombs, Bomb);
     arrJsonToClass(this.fakeWalls, Wall);
     arrJsonToClass(this.fakeChains, Chain);
+  });
 
-    activeDiff = this;
+  await Promise.all([jsonPromise, infoPromise])
+}
 
+export abstract class AbstractDifficulty {
+  /** The Json of the entire difficulty. */
+  json: bsmap.v2.IDifficulty;
+  /** The Json of the difficulty set
+   * (e.g. Standard) that this difficulty is contained in inside of the Info.dat.
+   */
+  diffSet: bsmap.IInfoSetDifficulty;
+  /** The Json of the difficulty set map
+   * (e.g. Hard) that this difficulty is contained in inside of the Info.dat.
+   */
+  diffSetMap: bsmap.IInfoSet;
+  /** The path to the output file of this difficulty. */
+  mapFile: DIFFPATH;
+  /** The filename of the output file of this difficulty. */
+  relativeMapFile: DIFFNAME;
+  private postProcesses = new Map<
+    unknown[] | undefined,
+    PostProcessFn<unknown>[]
+  >();
+  private registerProcessors() {
+    this.addPostProcess(undefined, reduceDecimalsPostProcess);
+  }
+
+  /**
+   * Creates a difficulty. Can be used to access various information and the map data.
+   * Will set the active difficulty to this.
+   * @param input Filename for the input.
+   * @param input Filename for the output. If left blank, input will be used.
+   */
+  constructor() {
     this.registerProcessors();
   }
 
@@ -908,181 +897,8 @@ export class Difficulty {
   }
 }
 
-export class Info {
-  /** The Json for this info */
-  json: TJson = {};
-  /** The filename of this info */
-  fileName = "Info.dat";
-
-  /**
-   * Loads the Json into this info.
-   * @param path Path to the file to load from.
-   */
-  load(path?: string) {
-    const fileName = path ? parseFilePath(path, ".dat").path : this.fileName;
-    this.json = JSON.parse(Deno.readTextFileSync(fileName));
-    this.fileName = fileName;
-  }
-
-  /** Saves the info. */
-  save() {
-    if (!this.json) throw new Error("The Info object has not been loaded.");
-    Deno.writeTextFileSync(this.fileName, JSON.stringify(this.json, null, 2));
-  }
-
-  /** Info version. */
-  get version() {
-    return jsonGet(this.json, "_version");
-  }
-  /** Name of the song. */
-  get name() {
-    return jsonGet(this.json, "_songName");
-  }
-  /** Song subname. */
-  get subName() {
-    return jsonGet(this.json, "_songSubName");
-  }
-  /** Name of the song author. */
-  get authorName() {
-    return jsonGet(this.json, "_songAuthorName");
-  }
-  /** Name of the mapper(s). */
-  get mapper() {
-    return jsonGet(this.json, "_levelAuthorName");
-  }
-  /** BPM of the song. */
-  get BPM() {
-    return jsonGet(this.json, "_beatsPerMinute");
-  }
-  /** Start (in seconds) of the song preview when clicking on the song. */
-  get previewStart() {
-    return jsonGet(this.json, "_previewStartTime");
-  }
-  /** Duration (in seconds) of the song preview when clicking on the song. */
-  get previewDuration() {
-    return jsonGet(this.json, "_previewDuration");
-  }
-  /** Offsets the song audio in seconds. */
-  get songOffset() {
-    return jsonGet(this.json, "_songTimeOffset");
-  }
-  /**
-   * Value that is meant to correct some beats being offset in a measure.
-   * This value works in tangent with shufflePeriod.
-   * More info can be found here: https://bsmg.wiki/mapping/map-format.html#shuffle
-   */
-  get shuffle() {
-    return jsonGet(this.json, "_shuffle");
-  }
-  /**
-   * Value that is meant to correct some beats being offset in a measure.
-   * This value works in tangent with shuffle.
-   * More info can be found here: https://bsmg.wiki/mapping/map-format.html#shuffleperiod
-   */
-  get shufflePeriod() {
-    return jsonGet(this.json, "_shufflePeriod");
-  }
-  /** Filename of the cover art. */
-  get coverFileName() {
-    return jsonGet(this.json, "_coverImageFilename");
-  }
-  /** Filename of the song. */
-  get songFileName() {
-    return jsonGet(this.json, "_songFilename");
-  }
-  /** Name of the environment. */
-  get environment() {
-    return jsonGet(this.json, "_environmentName");
-  }
-  /** Name of the environment for 360 levels. */
-  get environment360() {
-    return jsonGet(this.json, "_allDirectionsEnvironmentName");
-  }
-  /** Custom data for the info. */
-  get customData() {
-    return jsonGet(this.json, "_customData");
-  }
-  /** Editors that have edited this map. */
-  get editors() {
-    return jsonGet(this.json, "_customData._editors");
-  }
-  /** Contributors who have worked on this map. */
-  get contributors() {
-    return jsonGet(this.json, "_customData._contributors");
-  }
-  /** A custom platform to use. */
-  get customEnvironment() {
-    return jsonGet(this.json, "_customData._customEnvironment");
-  }
-  /** The hash for a custom platform used. */
-  get customEnvironmentHash() {
-    return jsonGet(this.json, "_customData._customEnvironmentHash");
-  }
-
-  set version(value: string) {
-    jsonSet(this.json, "_version", value);
-  }
-  set name(value: string) {
-    jsonSet(this.json, "_songName", value);
-  }
-  set subName(value: string) {
-    jsonSet(this.json, "_songSubName", value);
-  }
-  set authorName(value: string) {
-    jsonSet(this.json, "_songAuthorName", value);
-  }
-  set mapper(value: string) {
-    jsonSet(this.json, "_levelAuthorName", value);
-  }
-  set BPM(value: number) {
-    jsonSet(this.json, "_beatsPerMinute", value);
-  }
-  set previewStart(value: number) {
-    jsonSet(this.json, "_previewStartTime", value);
-  }
-  set previewDuration(value: number) {
-    jsonSet(this.json, "_previewDuration", value);
-  }
-  set songOffset(value: number) {
-    jsonSet(this.json, "_songTimeOffset", value);
-  }
-  set shuffle(value: boolean) {
-    jsonSet(this.json, "_shuffle", value);
-  }
-  set shufflePeriod(value: number) {
-    jsonSet(this.json, "_shufflePeriod", value);
-  }
-  set coverFileName(value: string) {
-    jsonSet(this.json, "_coverImageFilename", value);
-  }
-  set songFileName(value: string) {
-    jsonSet(this.json, "_songFilename", value);
-  }
-  set environment(value: ENV_NAMES) {
-    jsonSet(this.json, "_environmentName", value);
-  }
-  set environment360(value: string) {
-    jsonSet(this.json, "_allDirectionsEnvironmentName", value);
-  }
-  set customData(value: TJson) {
-    jsonSet(this.json, "_customData", value);
-  }
-  set editors(value: TJson) {
-    jsonSet(this.json, "_customData._editors", value);
-  }
-  set contributors(value: TJson[]) {
-    jsonSet(this.json, "_customData._contributors", value);
-  }
-  set customEnvironment(value: string) {
-    jsonSet(this.json, "_customData._customEnvironment", value);
-  }
-  set customEnvironmentHash(value: string) {
-    jsonSet(this.json, "_customData._customEnvironmentHash", value);
-  }
-}
-
-export const info = new Info();
-export let activeDiff: Difficulty;
+export let info: bsmap.IInfo;
+export let activeDiff: AbstractDifficulty;
 export const settings = {
   forceJumpsForNoodle: true,
   decimals: 7 as number | undefined,
@@ -1092,7 +908,7 @@ export const settings = {
  * Set the difficulty that objects are being created for.
  * @param diff The difficulty to set to.
  */
-export function activeDiffSet(diff: Difficulty) {
+export function activeDiffSet(diff: AbstractDifficulty) {
   activeDiff = diff;
 }
 

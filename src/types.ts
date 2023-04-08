@@ -4,6 +4,20 @@ export interface JsonWrapper<TV2 extends object, TV3 extends object> {
   toJson(v3: false): TV2;
   toJson(v3: boolean): TV2 | TV3;
 }
+
+export type MapTypes<T, U, V> =
+  & ExcludeTypes<T, U>
+  & {
+    [K in keyof T]: T[K] extends U ? V : never;
+  }[keyof T];
+
+export type MapRecursiveTypes<T, U, V> =
+  & ExcludeTypes<T, U>
+  & {
+    [K in keyof T]: T[K] extends U ? V
+      : (T[K] extends object ? MapRecursiveTypes<T[K], U, V> : never);
+  }[keyof T];
+
 export type FilterTypes<T, U> = Pick<
   T,
   {

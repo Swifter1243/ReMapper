@@ -585,9 +585,9 @@ export function bakeAnimation(
 
   for (let i = totalMin; i <= totalMax; i += animFreq) {
     const keyframe = {
-      pos: dataAnim.get("position", i),
-      rot: dataAnim.get("rotation", i),
-      scale: dataAnim.get("scale", i),
+      pos: dataAnim.get("position", i)! as Vec3,
+      rot: dataAnim.get("rotation", i)! as Vec3,
+      scale: dataAnim.get("scale", i)! as Vec3,
       time: i,
     } satisfies TransformKeyframe;
 

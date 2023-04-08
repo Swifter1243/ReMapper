@@ -1,15 +1,10 @@
 // deno-lint-ignore-file adjacent-overload-signatures no-namespace
-import {
-  AnimationInternals,
-  combineAnimations,
-  PointDefinitionLinear,
-  PointDefinitionVec3,
-  Track,
-} from "./animation.ts";
+import { combineAnimations, Track } from "./animation.ts";
 import { activeDiffGet, TJson } from "./beatmap.ts";
 import { ColorType, copy, jsonGet, jsonSet, Vec3 } from "./general.ts";
 import { CustomEvent } from "./custom_event.ts";
 import { ANIM, EASE, GEO_SHADER, GEO_TYPE, LOOKUP } from "./constants.ts";
+import { KeyframesLinear } from "./mod.ts";
 
 let envCount = 0;
 
@@ -313,22 +308,22 @@ export function animateEnvTrack(
 }
 
 /** All components on environment objects. */
-export type Components = {
-  ILightWithId?: ILightWithId<number>;
-  BloomFogEnvironment?: BloomFogEnvironment<number>;
-  TubeBloomPrePassLight?: TubeBloomPrePassLight<number>;
+export type Components<N extends number | KeyframesLinear = number> = {
+  ILightWithId?: ILightWithId<N>;
+  BloomFogEnvironment?: BloomFogEnvironment<N>;
+  TubeBloomPrePassLight?: TubeBloomPrePassLight<N>;
 };
 
 /** The "ILightWithId" environment component.
  * Allows both animated and non animated variants. */
-export type ILightWithId<T extends number | PointDefinitionLinear> = {
+export type ILightWithId<T extends number | KeyframesLinear> = {
   lightID: T;
   type: T;
 };
 
 /** The "BloomFogEnvironment" environment component.
  * Allows both animated and non animated variants. */
-export type BloomFogEnvironment<T extends number | PointDefinitionLinear> = {
+export type BloomFogEnvironment<T extends number | KeyframesLinear> = {
   attenuation?: T;
   offset?: T;
   startY?: T;
@@ -337,7 +332,7 @@ export type BloomFogEnvironment<T extends number | PointDefinitionLinear> = {
 
 /** The "TubeBloomPrePassLight" environment component.
  * Allows both animated and non animated variants. */
-export type TubeBloomPrePassLight<T extends number | PointDefinitionLinear> = {
+export type TubeBloomPrePassLight<T extends number | KeyframesLinear> = {
   colorAlphaMultiplier?: T;
   bloomFogIntensityMultiplier?: T;
 };
