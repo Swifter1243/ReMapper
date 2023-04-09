@@ -13,10 +13,19 @@ import {
   simplifyArray,
 } from "../animation.ts";
 import { optimizeAnimation, OptimizeSettings } from "../anim_optimizer.ts";
-import { copy } from "../general.ts";
+import { JsonWrapper } from "../types.ts";
+import { bsmap } from "../mod.ts";
+import {
+  ColorPointDefinition,
+  PercentPointDefinition,
+  Vector3PointDefinition,
+} from "https://raw.githubusercontent.com/Fernthedev/BeatSaber-Deno/feat/export-types/types/beatmap/mod.ts";
+
+type AnimateV2 = Required<bsmap.v2.IAnimation>["_animation"];
+type AnimateV3 = Required<bsmap.v3.IAnimation>["animation"];
 
 /** Bare minimum animation class. */
-export class BaseAnimation {
+export class BaseAnimation implements JsonWrapper<AnimateV2, AnimateV3> {
   properties: Partial<Record<string, KeyframesAny>> = {};
 
   /**
@@ -28,6 +37,49 @@ export class BaseAnimation {
   constructor(duration?: number, data?: BaseAnimation["properties"]) {
     this.duration = duration ?? 1;
     this.properties = data ?? this.properties;
+  }
+  toJson(v3: true): AnimateV3;
+  toJson(v3: false): AnimateV2;
+  toJson(v3: boolean): AnimateV2 | AnimateV3 {
+    if (v3) {
+      return {
+        color: this.properties["color"]! as ColorPointDefinition[],
+        definitePosition: this
+          .properties["definitePosition"] as Vector3PointDefinition[],
+        dissolve: this.properties["dissolve"] as PercentPointDefinition[],
+        dissolveArrow: this
+          .properties["dissolveArrow"] as PercentPointDefinition[],
+        interactable: this
+          .properties["interactable"] as PercentPointDefinition[], // TODO: Fixup
+        localRotation: this
+          .properties["localRotation"] as Vector3PointDefinition[],
+        offsetPosition: this
+          .properties["offsetPosition"] as Vector3PointDefinition[],
+        offsetRotation: this
+          .properties["offsetRotation"] as Vector3PointDefinition[],
+        scale: this.properties["scale"] as Vector3PointDefinition[],
+        time: this.properties["time"] as PercentPointDefinition[],
+        ...this.properties,
+      } satisfies AnimateV3;
+    }
+
+    return {
+      _color: this.properties["color"]! as ColorPointDefinition[],
+      _definitePosition: this
+        .properties["definitePosition"] as Vector3PointDefinition[],
+      _dissolve: this.properties["dissolve"] as PercentPointDefinition[],
+      _dissolveArrow: this
+        .properties["dissolveArrow"] as PercentPointDefinition[],
+      _interactable: this
+        .properties["interactable"] as PercentPointDefinition[], // TODO: Fixup
+      _localRotation: this
+        .properties["localRotation"] as Vector3PointDefinition[],
+      _position: this.properties["offsetPosition"] as Vector3PointDefinition[],
+      _rotation: this.properties["offsetRotation"] as Vector3PointDefinition[],
+      _scale: this.properties["scale"] as Vector3PointDefinition[],
+      _time: this.properties["time"] as PercentPointDefinition[],
+      ...this.properties,
+    } satisfies AnimateV2;
   }
 
   /**

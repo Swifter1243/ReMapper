@@ -54,25 +54,25 @@ export class AnimateTrack extends BaseEvent<
       return {
         b: this.time,
         d: {
-          color: this.animate.color as bsmap.ColorPointDefinition[],
-          time: this.animate.time as bsmap.PercentPointDefinition[],
-          dissolve: this.animate.dissolve as bsmap.PercentPointDefinition[],
-          dissolveArrow: this.animate
-            .dissolveArrow as bsmap.PercentPointDefinition[],
-          interactable: this.animate
-            .uninteractable as bsmap.PercentPointDefinition[], // TODO: fixup
-          localRotation: this.animate
-            .localRotation as bsmap.Vector3PointDefinition[],
-          position: this.animate.position as bsmap.Vector3PointDefinition[],
-          rotation: this.animate.rotation as bsmap.Vector3PointDefinition[],
-          scale: this.animate.scale as bsmap.Vector3PointDefinition[],
+          // color: this.animate.color as bsmap.ColorPointDefinition[],
+          // time: this.animate.time as bsmap.PercentPointDefinition[],
+          // dissolve: this.animate.dissolve as bsmap.PercentPointDefinition[],
+          // dissolveArrow: this.animate
+          //   .dissolveArrow as bsmap.PercentPointDefinition[],
+          // interactable: this.animate
+          //   .uninteractable as bsmap.PercentPointDefinition[], // TODO: fixup
+          // localRotation: this.animate
+          //   .localRotation as bsmap.Vector3PointDefinition[],
+          // position: this.animate.position as bsmap.Vector3PointDefinition[],
+          // rotation: this.animate.rotation as bsmap.Vector3PointDefinition[],
+          // scale: this.animate.scale as bsmap.Vector3PointDefinition[],
 
           repeat: this.repeat,
           easing: this.ease,
           track: this.track.value,
           duration: this.duration,
           ...this.data,
-          ...this.animate.properties,
+          ...this.animate.toJson(v3),
         },
         t: "AnimateTrack",
       } satisfies bsmap.v3.ICustomEventAnimateTrack;
@@ -87,24 +87,24 @@ export class AnimateTrack extends BaseEvent<
     return {
       _time: this.time,
       _data: {
-        _color: this.animate.color as bsmap.ColorPointDefinition[],
-        _time: this.animate.time as bsmap.PercentPointDefinition[],
-        _dissolve: this.animate.dissolve as bsmap.PercentPointDefinition[],
-        _dissolveArrow: this.animate
-          .dissolveArrow as bsmap.PercentPointDefinition[],
-        _interactable: this.animate
-          .uninteractable as bsmap.PercentPointDefinition[], // TODO: fixup
-        _localRotation: this.animate
-          .localRotation as bsmap.Vector3PointDefinition[],
-        _position: this.animate.position as bsmap.Vector3PointDefinition[],
-        _rotation: this.animate.rotation as bsmap.Vector3PointDefinition[],
-        _scale: this.animate.scale as bsmap.Vector3PointDefinition[],
+        // _color: this.animate.color as bsmap.ColorPointDefinition[],
+        // _time: this.animate.time as bsmap.PercentPointDefinition[],
+        // _dissolve: this.animate.dissolve as bsmap.PercentPointDefinition[],
+        // _dissolveArrow: this.animate
+        //   .dissolveArrow as bsmap.PercentPointDefinition[],
+        // _interactable: this.animate
+        //   .uninteractable as bsmap.PercentPointDefinition[], // TODO: fixup
+        // _localRotation: this.animate
+        //   .localRotation as bsmap.Vector3PointDefinition[],
+        // _position: this.animate.position as bsmap.Vector3PointDefinition[],
+        // _rotation: this.animate.rotation as bsmap.Vector3PointDefinition[],
+        // _scale: this.animate.scale as bsmap.Vector3PointDefinition[],
 
         _easing: this.ease,
         _track: this.track.value,
         _duration: this.duration,
         ...this.data,
-        ...this.animate.properties,
+        ...this.animate.toJson(v3),
       },
       _type: "AnimateTrack",
     } satisfies bsmap.v2.ICustomEventAnimateTrack;
@@ -172,22 +172,22 @@ export class AssignPathAnimation extends BaseEvent<
       return {
         b: this.time,
         d: {
-          color: this.animate.color as bsmap.ColorPointDefinition[],
-          dissolve: this.animate.dissolve as bsmap.PercentPointDefinition[],
-          dissolveArrow: this.animate
-            .dissolveArrow as bsmap.PercentPointDefinition[],
-          interactable: this.animate
-            .uninteractable as bsmap.PercentPointDefinition[], // TODO: fixup
-          localRotation: this.animate
-            .localRotation as bsmap.Vector3PointDefinition[],
-          position: this.animate.position as bsmap.Vector3PointDefinition[],
-          rotation: this.animate.rotation as bsmap.Vector3PointDefinition[],
-          scale: this.animate.scale as bsmap.Vector3PointDefinition[],
+          // color: this.animate.color as bsmap.ColorPointDefinition[],
+          // dissolve: this.animate.dissolve as bsmap.PercentPointDefinition[],
+          // dissolveArrow: this.animate
+          //   .dissolveArrow as bsmap.PercentPointDefinition[],
+          // interactable: this.animate
+          //   .uninteractable as bsmap.PercentPointDefinition[], // TODO: fixup
+          // localRotation: this.animate
+          //   .localRotation as bsmap.Vector3PointDefinition[],
+          // position: this.animate.position as bsmap.Vector3PointDefinition[],
+          // rotation: this.animate.rotation as bsmap.Vector3PointDefinition[],
+          // scale: this.animate.scale as bsmap.Vector3PointDefinition[],
 
           easing: this.ease,
           track: this.track.value,
           ...this.data,
-          ...this.animate.properties,
+          ...this.animate.toJson(v3),
         },
         t: "AssignPathAnimation",
       } satisfies bsmap.v3.ICustomEventAssignPathAnimation;
@@ -196,22 +196,22 @@ export class AssignPathAnimation extends BaseEvent<
     return {
       _time: this.time,
       _data: {
-        _color: this.animate.color as bsmap.ColorPointDefinition[],
-        _dissolve: this.animate.dissolve as bsmap.PercentPointDefinition[],
-        _dissolveArrow: this.animate
-          .dissolveArrow as bsmap.PercentPointDefinition[],
-        _interactable: this.animate
-          .uninteractable as bsmap.PercentPointDefinition[], // TODO: fixup
-        _localRotation: this.animate
-          .localRotation as bsmap.Vector3PointDefinition[],
-        _position: this.animate.position as bsmap.Vector3PointDefinition[],
-        _rotation: this.animate.rotation as bsmap.Vector3PointDefinition[],
-        _scale: this.animate.scale as bsmap.Vector3PointDefinition[],
+        // _color: this.animate.color as bsmap.ColorPointDefinition[],
+        // _dissolve: this.animate.dissolve as bsmap.PercentPointDefinition[],
+        // _dissolveArrow: this.animate
+        //   .dissolveArrow as bsmap.PercentPointDefinition[],
+        // _interactable: this.animate
+        //   .uninteractable as bsmap.PercentPointDefinition[], // TODO: fixup
+        // _localRotation: this.animate
+        //   .localRotation as bsmap.Vector3PointDefinition[],
+        // _position: this.animate.position as bsmap.Vector3PointDefinition[],
+        // _rotation: this.animate.rotation as bsmap.Vector3PointDefinition[],
+        // _scale: this.animate.scale as bsmap.Vector3PointDefinition[],
 
         _easing: this.ease,
         _track: this.track.value,
         ...this.data,
-        ...this.animate.properties,
+        ...this.animate.toJson(v3),
       },
       _type: "AssignPathAnimation",
     } satisfies bsmap.v2.ICustomEventAssignPathAnimation;
