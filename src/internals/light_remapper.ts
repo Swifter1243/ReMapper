@@ -1,7 +1,8 @@
+import { LightEvent } from "../event.ts";
 import { AbstractEvent } from "./event.ts";
 
-export type Condition = (event: AbstractEvent) => boolean;
-export type Process = (event: AbstractEvent) => void;
+export type Condition = (event: LightEvent) => boolean;
+export type Process = (event: LightEvent) => void;
 
 export class BaseLightRemapper {
     /** Conditions that each event needs to pass. */

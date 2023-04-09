@@ -13,7 +13,7 @@ type LightFields<T extends { customData: T["customData"] }> =
   };
 
 export type AbstractEvent = BaseEvent<
-  bsmap.v2.IEventBase,
+  bsmap.v2.IEvent,
   bsmap.v3.IBasicEvent
 >;
 

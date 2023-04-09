@@ -1,9 +1,8 @@
-import { combineAnimations, Track } from "./animation.ts";
+import { combineAnimations, RawKeyframesAny, Track } from "./animation.ts";
 import { activeDiffGet, TJson } from "./beatmap.ts";
-import { ColorType, copy, jsonGet, jsonSet, Vec3 } from "./general.ts";
-import { CustomEvent } from "./custom_event.ts";
+import { ColorType } from "./general.ts";
 import { ANIM, EASE, GEO_SHADER, GEO_TYPE, LOOKUP } from "./constants.ts";
-import { bsmap, KeyframesLinear } from "./mod.ts";
+import { animateTrack, bsmap, KeyframesLinear } from "./mod.ts";
 import { AnimationInternals, EnvironmentInternals } from "./internals/mod.ts";
 
 let envCount = 0;
@@ -190,15 +189,15 @@ export function animateEnvGroup(
           envCount++;
         }
 
-        const event = new CustomEvent(time).animateTrack(x.track.value);
+        const event = animateTrack(x.track.value);
         if (duration) event.duration = duration;
-        if (easing) event.easing = easing;
+        if (easing) event.ease = easing;
 
-        Object.keys(newAnimation.json).forEach((key) => {
-          event.animate.json[key] = newAnimation.json[key];
+        Object.keys(newAnimation.properties).forEach((key) => {
+          event.animate.properties[key] = newAnimation.properties[key];
           if (x.json[key]) {
-            event.animate.json[key] = combineAnimations(
-              event.animate.json[key],
+            event.animate.properties[key] = combineAnimations(
+              event.animate.properties[key]! as RawKeyframesAny,
               x.json[key],
               key as ANIM,
             );
@@ -232,15 +231,15 @@ export function animateEnvTrack(
         const newAnimation = new AnimationInternals.AbstractAnimation();
         animation(newAnimation);
 
-        const event = new CustomEvent(time).animateTrack(x.track.value);
+        const event = animateTrack(x.track.value);
         if (duration) event.duration = duration;
-        if (easing) event.easing = easing;
+        if (easing) event.ease = easing;
 
-        Object.keys(newAnimation.json).forEach((key) => {
-          event.animate.json[key] = newAnimation.json[key];
+        Object.keys(newAnimation.properties).forEach((key) => {
+          event.animate.properties[key] = newAnimation.properties[key];
           if (x.json[key]) {
-            event.animate.json[key] = combineAnimations(
-              event.animate.json[key],
+            event.animate.properties[key] = combineAnimations(
+              event.animate.properties[key] as RawKeyframesAny,
               x.json[key],
               key as ANIM,
             );

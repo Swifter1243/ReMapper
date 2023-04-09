@@ -1,4 +1,3 @@
-// deno-lint-ignore-file no-explicit-any no-namespace adjacent-overload-signatures
 import {
   EASE,
   EVENTACTION,
