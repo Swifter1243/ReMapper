@@ -28,6 +28,9 @@ import { activeDiff, activeDiffGet } from "./beatmap.ts";
 import { Regex } from "./regex.ts";
 import { FILEPATH } from "./constants.ts";
 import { modelToWall, Wall } from "./wall.ts";
+import { CustomEventInternals } from "./internals/mod.ts";
+import { animateComponent, animateTrack } from "./custom_event.ts";
+import { backLasers } from "./basicEvent.ts";
 
 let modelSceneCount = 0;
 let noYeet = true;
@@ -203,7 +206,7 @@ export class ModelScene {
   enableModelColors = (group?: string) =>
     this.groups[group as string].defaultMaterial = undefined;
 
-  private getObjects(input: AnimatedObjectInput) {
+  private async getObjects(input: AnimatedObjectInput) {
     let objectInput = input as ObjectInput;
     let options = {} as AnimatedOptions;
 
@@ -315,7 +318,7 @@ export class ModelScene {
         },
         processing,
       );
-      if (options.objects) options.objects(model);
+      if (options.objects) options.objects(await model);
       return model;
     } else {
       const outputObjects: ModelObject[] = [];
@@ -442,13 +445,11 @@ export class ModelScene {
    * @param forObject Function to run on each spawned object.
    * @param forAssigned Function to run on each assigned object.
    */
-  static(
+  async static(
     input: StaticObjectInput,
     forObject?: (object: GroupObjectTypes) => void,
     forAssigned?: (event: CustomEventInternals.AnimateTrack) => void,
   ) {
-    const data = this.getObjects(input);
-
     // Initialize info
     Object.keys(this.groups).forEach((x) => {
       this.objectInfo[x] = {
@@ -459,64 +460,67 @@ export class ModelScene {
       };
     });
 
-    data.forEach((x) => {
-      // Getting info about group
-      const groupKey = x.track as string;
-      const group = this.groups[groupKey];
+    const dataPromise = this.getObjects(input).then((data) =>
+      data.forEach((x) => {
+        // Getting info about group
+        const groupKey = x.track as string;
+        const group = this.groups[groupKey];
 
-      // Registering data about object amounts
-      const objectInfo = this.objectInfo[groupKey];
-      if (!objectInfo) return;
-      objectInfo.perSwitch[0]++;
-      if (objectInfo.perSwitch[0] > objectInfo.max) {
-        objectInfo.max = objectInfo.perSwitch[0];
-      }
-
-      const track = this.getPieceTrack(
-        group.object,
-        groupKey,
-        objectInfo.perSwitch[0] - 1,
-      );
-
-      // Get transforms
-      const pos = this.getFirstValues(x.pos);
-      const rot = this.getFirstValues(x.rot);
-      const scale = this.getFirstValues(x.scale);
-
-      // Creating objects
-      if (group.object) {
-        const object = copy(group.object);
-
-        if (group.defaultMaterial) {
-          const materialName = `modelScene${this.trackID}_${groupKey}_material`;
-          activeDiff.geoMaterials[materialName] = group.defaultMaterial;
-          (object as Geometry).material = materialName;
+        // Registering data about object amounts
+        const objectInfo = this.objectInfo[groupKey];
+        if (!objectInfo) return;
+        objectInfo.perSwitch[0]++;
+        if (objectInfo.perSwitch[0] > objectInfo.max) {
+          objectInfo.max = objectInfo.perSwitch[0];
         }
 
-        if (
-          object instanceof Geometry &&
-          !group.defaultMaterial &&
-          typeof object.material !== "string" &&
-          !object.material.color &&
-          x.color
-        ) object.material.color = x.color;
+        const track = this.getPieceTrack(
+          group.object,
+          groupKey,
+          objectInfo.perSwitch[0] - 1,
+        );
 
-        object.track.value = track;
-        object.position = pos;
-        object.rotation = rot;
-        object.scale = scale;
-        if (forObject) forObject(object);
-        object.push(false);
-      } // Creating event for assigned
-      else {
-        const event = new CustomEvent().animateTrack(track);
-        event.animate.set("position", x.pos, false);
-        event.animate.set("rotation", x.rot, false);
-        event.animate.set("scale", x.scale, false);
-        if (forAssigned) forAssigned(event);
-        activeDiff.customEvents.push(event);
-      }
-    });
+        // Get transforms
+        const pos = this.getFirstValues(x.pos);
+        const rot = this.getFirstValues(x.rot);
+        const scale = this.getFirstValues(x.scale);
+
+        // Creating objects
+        if (group.object) {
+          const object = copy(group.object);
+
+          if (group.defaultMaterial) {
+            const materialName =
+              `modelScene${this.trackID}_${groupKey}_material`;
+            activeDiff.geoMaterials[materialName] = group.defaultMaterial;
+            (object as Geometry).material = materialName;
+          }
+
+          if (
+            object instanceof Geometry &&
+            !group.defaultMaterial &&
+            typeof object.material !== "string" &&
+            !object.material.color &&
+            x.color
+          ) object.material.color = x.color;
+
+          object.track.value = track;
+          object.position = pos;
+          object.rotation = rot;
+          object.scale = scale;
+          if (forObject) forObject(object);
+          object.push(false);
+        } // Creating event for assigned
+        else {
+          const event = animateTrack(0, track);
+          event.animate.set("position", x.pos, false);
+          event.animate.set("rotation", x.rot, false);
+          event.animate.set("scale", x.scale, false);
+          if (forAssigned) forAssigned(event);
+          activeDiff.customEvents.push(event);
+        }
+      })
+    );
 
     Object.keys(this.groups).forEach((x) => {
       const objectInfo = this.objectInfo[x];
@@ -524,11 +528,13 @@ export class ModelScene {
 
       if (objectInfo.max === 0 && !group.object && group.disappearWhenAbsent) {
         createYeetDef();
-        const event = new CustomEvent().animateTrack(x);
+        const event = animateTrack(0, x);
         event.animate.position = "yeet";
         event.push(false);
       }
     });
+
+    await dataPromise;
   }
 
   /**
@@ -569,7 +575,6 @@ export class ModelScene {
       const duration = x[2] ?? 0;
       const start = x[3] ?? 0;
       const forEvent = x[4];
-      const data = this.getObjects(input);
 
       const firstInitializing = this.initializePositions && switchIndex === 0 &&
         time !== 0;
@@ -579,91 +584,91 @@ export class ModelScene {
         if (firstInitializing) this.objectInfo[x].initialPos = [];
       });
 
-      data.forEach((x, i) => {
-        // Getting info about group
-        const key = x.track as string;
-        const group = this.groups[key];
+      const dataPromise = this.getObjects(input).then((data) =>
+        data.forEach((x, i) => {
+          // Getting info about group
+          const key = x.track as string;
+          const group = this.groups[key];
 
-        // Registering data about object amounts
-        const objectInfo = this.objectInfo[key];
-        if (!objectInfo) return;
-        objectInfo.perSwitch[time]++;
-        if (objectInfo.perSwitch[time] > objectInfo.max) {
-          objectInfo.max = objectInfo.perSwitch[time];
-        }
+          // Registering data about object amounts
+          const objectInfo = this.objectInfo[key];
+          if (!objectInfo) return;
+          objectInfo.perSwitch[time]++;
+          if (objectInfo.perSwitch[time] > objectInfo.max) {
+            objectInfo.max = objectInfo.perSwitch[time];
+          }
 
-        const track = this.getPieceTrack(
-          group.object,
-          key,
-          objectInfo.perSwitch[time] - 1,
-        );
+          const track = this.getPieceTrack(
+            group.object,
+            key,
+            objectInfo.perSwitch[time] - 1,
+          );
 
-        // Set initializing data
-        if (firstInitializing) {
-          objectInfo.initialPos![i] = this.getFirstTransform(x);
-        }
+          // Set initializing data
+          if (firstInitializing) {
+            objectInfo.initialPos![i] = this.getFirstTransform(x);
+          }
 
-        // Initialize assigned object position
-        if (!group.object && firstInitializing) {
-          const event = new CustomEvent().animateTrack(track);
-          const initalizePos = objectInfo.initialPos![i];
-          event.animate.position = initalizePos.pos as Vec3;
-          event.animate.rotation = initalizePos.rot as Vec3;
-          event.animate.scale = initalizePos.scale as Vec3;
-          if (forEvent) forEvent(event, objectInfo.perSwitch[time]);
-          event.push(false);
-        }
-
-        // Creating event
-        if (
-          group.object &&
-          group.object instanceof Geometry &&
-          !group.defaultMaterial &&
-          typeof group.object.material !== "string" &&
-          !group.object.material.color &&
-          x.color
-        ) {
-          x.color[3] ??= 1;
-          animatedMaterials.push(track);
-
-          if (firstInitializing) objectInfo.initialPos![i].color = x.color;
-          else {
-            const event = new CustomEvent(time).animateTrack(
-              track + "_material",
-            );
-            event.animate.color = x.color as Vec4;
+          // Initialize assigned object position
+          if (!group.object && firstInitializing) {
+            const event = animateTrack(0, track);
+            const initalizePos = objectInfo.initialPos![i];
+            event.animate.position = initalizePos.pos as Vec3;
+            event.animate.rotation = initalizePos.rot as Vec3;
+            event.animate.scale = initalizePos.scale as Vec3;
+            if (forEvent) forEvent(event, objectInfo.perSwitch[time]);
             event.push(false);
           }
-        }
 
-        const event = new CustomEvent(time).animateTrack(track, duration);
+          // Creating event
+          if (
+            group.object &&
+            group.object instanceof Geometry &&
+            !group.defaultMaterial &&
+            typeof group.object.material !== "string" &&
+            !group.object.material.color &&
+            x.color
+          ) {
+            x.color[3] ??= 1;
+            animatedMaterials.push(track);
 
-        if (delaying) {
-          event.animate.set("position", this.getFirstValues(x.pos), false);
-          event.animate.set("rotation", this.getFirstValues(x.rot), false);
-          event.animate.set("scale", this.getFirstValues(x.scale), false);
+            if (firstInitializing) objectInfo.initialPos![i].color = x.color;
+            else {
+              const event = animateTrack(time, track + "_material");
+              event.animate.color = x.color as Vec4;
+              event.push(false);
+            }
+          }
+
+          const event = animateTrack(time, track, duration);
+
+          if (delaying) {
+            event.animate.set("position", this.getFirstValues(x.pos), false);
+            event.animate.set("rotation", this.getFirstValues(x.rot), false);
+            event.animate.set("scale", this.getFirstValues(x.scale), false);
+            if (forEvent) forEvent(event, objectInfo.perSwitch[time]);
+            event.push();
+          }
+
+          event.time = time + start;
+          event.animate.set("position", x.pos, false);
+          event.animate.set("rotation", x.rot, false);
+          event.animate.set("scale", x.scale, false);
+
+          if (
+            typeof input === "object" &&
+            !Array.isArray(input) &&
+            input.loop !== undefined &&
+            input.loop > 1
+          ) {
+            event.repeat = input.loop - 1;
+            event.duration /= input.loop;
+          }
+
           if (forEvent) forEvent(event, objectInfo.perSwitch[time]);
-          event.push();
-        }
-
-        event.time = time + start;
-        event.animate.set("position", x.pos, false);
-        event.animate.set("rotation", x.rot, false);
-        event.animate.set("scale", x.scale, false);
-
-        if (
-          typeof input === "object" &&
-          !Array.isArray(input) &&
-          input.loop !== undefined &&
-          input.loop > 1
-        ) {
-          event.repeat = input.loop - 1;
-          event.duration /= input.loop;
-        }
-
-        if (forEvent) forEvent(event, objectInfo.perSwitch[time]);
-        event.push(false);
-      });
+          event.push(false);
+        })
+      );
     });
 
     const yeetEvents: Record<number, CustomEventInternals.AnimateTrack> = {};
@@ -684,7 +689,7 @@ export class ModelScene {
         if (group.disappearWhenAbsent || group.object) {
           for (let i = amount; i < objectInfo.max; i++) {
             if (!yeetEvents[numSwitchTime]) {
-              const event = new CustomEvent(eventTime).animateTrack();
+              const event = animateTrack(eventTime);
               event.animate.position = "yeet";
               yeetEvents[numSwitchTime] = event;
             }
@@ -816,10 +821,10 @@ export function debugObject(
   activeDiff.customEvents = [];
   activeDiff.rawEnvironment = [];
 
-  new Event().backLasers().on([3, 3, 3, 1]).push(false);
+  backLasers().on([3, 3, 3, 1]).push(false);
 
   baseEnvironmentTrack("fog");
-  const fogEvent = new CustomEvent().animateComponent("fog");
+  const fogEvent = animateComponent(0, "fog");
   fogEvent.fog.attenuation = [0.000001];
   fogEvent.fog.startY = [-69420];
   fogEvent.push(false);
@@ -938,8 +943,8 @@ export class Text {
    * Import a model for the text.
    * @param input The model data of the text. Can be either a path to a model or a collection of objects.
    */
-  import(input: string | TextObject[]) {
-    if (typeof input === "string") this.model = getModel(input) as TextObject[];
+  async import(input: string | TextObject[]) {
+    if (typeof input === "string") this.model = await getModel(input) as TextObject[];
     else this.model = input;
     const bounds = getBoxBounds(this.model);
     this.modelHeight = bounds.highBound[1];

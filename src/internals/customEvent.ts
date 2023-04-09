@@ -386,9 +386,9 @@ export class AnimateComponent
     this.duration = params.duration;
     this.easing = params.easing;
 
-    this.fog = params.components.BloomFogEnvironment;
-    this.lightID = params.components.ILightWithId;
-    this.lightMultiplier = params.components.TubeBloomPrePassLight;
+    this.fog = params.components.BloomFogEnvironment ?? {};
+    this.lightID = params.components.ILightWithId ?? {};
+    this.lightMultiplier = params.components.TubeBloomPrePassLight ?? {};
   }
 
   /** The track class for this event.
@@ -400,11 +400,11 @@ export class AnimateComponent
   /** The easing on this event's animation. */
   easing?: EASE;
   /** The "ILightWithId" component to animate. */
-  lightID?: ILightWithId<KeyframesLinear>;
+  lightID: ILightWithId<KeyframesLinear> = {};
   /** The "BloomFogEnvironment" component to animate. */
-  fog?: BloomFogEnvironment<KeyframesLinear>;
+  fog: BloomFogEnvironment<KeyframesLinear> = {};
   /** The "TubeBloomPrePassLight component to animate." */
-  lightMultiplier?: TubeBloomPrePassLight<KeyframesLinear>;
+  lightMultiplier: TubeBloomPrePassLight<KeyframesLinear> = {};
 
   toJson(v3: true): bsmap.v3.ICustomEventAnimateComponent;
   toJson(v3: false): never;

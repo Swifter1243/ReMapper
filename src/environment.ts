@@ -262,8 +262,8 @@ export type Components<N extends number | KeyframesLinear = number> = {
 /** The "ILightWithId" environment component.
  * Allows both animated and non animated variants. */
 export type ILightWithId<T extends number | KeyframesLinear> = {
-  lightID: T;
-  type: T;
+  lightID?: T;
+  type?: T;
 };
 
 /** The "BloomFogEnvironment" environment component.
