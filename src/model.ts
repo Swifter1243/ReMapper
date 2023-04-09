@@ -24,10 +24,8 @@ import {
 } from "./animation.ts";
 import { Environment, Geometry, RawGeometryMaterial } from "./environment.ts";
 import { optimizeAnimation, OptimizeSettings } from "./anim_optimizer.ts";
-import { CustomEvent, CustomEventInternals } from "./custom_event.ts";
 import { activeDiff, activeDiffGet } from "./beatmap.ts";
 import { Regex } from "./regex.ts";
-import { Event } from "./basicEvent.ts";
 import { FILEPATH } from "./constants.ts";
 import { modelToWall, Wall } from "./wall.ts";
 

@@ -1,14 +1,49 @@
 // deno-lint-ignore-file adjacent-overload-signatures
 import { activeDiffGet, TJson } from "./beatmap.ts";
-import { Animation, AnimationInternals } from "./animation.ts";
 import { ANCHORMODE, CUT, NOTETYPE } from "./constants.ts";
 import { BaseGameplayObject, BaseSliderObject } from "./object.ts";
 import { copy, Vec2 } from "./general.ts";
 import { bsmap } from "./deps.ts";
+import { NoteAnimation } from "./internals/animation.ts";
+import { Fields } from "./types.ts";
 
-export class Note extends BaseGameplayObject<bsmap.v2.INote, bsmap.v3.IColorNote> {
+export function note(
+  time?: number,
+  type?: NOTETYPE,
+  direction?: CUT,
+  x?: number,
+  y?: number,
+): Note;
+export function note(...params: ConstructorParameters<typeof Note>): Note;
+export function note(
+  ...params: ConstructorParameters<typeof Note> | [
+    time?: number,
+    type?: NOTETYPE,
+    direction?: CUT,
+    x?: number,
+    y?: number,
+  ]
+): Note {
+  const [first] = params;
+  if (typeof first === "object") {
+    return new Note(first);
+  }
+
+  const [time, type, direction, x, y] = params;
+
+  return new Note({
+    time: time as number ?? 0,
+    type: type ?? NOTETYPE.BLUE,
+    direction: direction ?? CUT.DOWN,
+    lineIndex: x ?? 0,
+    lineLayer: y ?? 0,
+  });
+}
+
+export class Note
+  extends BaseGameplayObject<bsmap.v2.INote, bsmap.v3.IColorNote> {
   /** The animation of this note. */
-  animate = new Animation().noteAnimation(this.animation);
+  animate = new NoteAnimation();
 
   /**
    * Note object for ease of creation.
@@ -19,30 +54,9 @@ export class Note extends BaseGameplayObject<bsmap.v2.INote, bsmap.v3.IColorNote
    * @param y The vertical row of the note.
    */
   constructor(
-    time = 0,
-    type = NOTETYPE.BLUE,
-    direction = CUT.DOWN,
-    x = 0,
-    y = 0,
+    fields: Partial<Fields<Note>>,
   ) {
-    super();
-    this.time = time;
-    this.type = type;
-    this.direction = direction;
-    this.lineIndex = x;
-    this.lineLayer = y;
-  }
-
-  /**
-   * Create a note using Json.
-   * @param json Json to import.
-   */
-  import(json: TJson) {
-    this.json = json;
-    if (this.customData === undefined) this.customData = {};
-    if (this.animation === undefined) this.animation = {};
-    this.animate = new Animation().noteAnimation(this.animation);
-    return this;
+    super(fields);
   }
 
   /**
@@ -56,79 +70,65 @@ export class Note extends BaseGameplayObject<bsmap.v2.INote, bsmap.v3.IColorNote
     return this;
   }
 
-  /**
-   * Apply an animation through the Animation class.
-   * @param animation Animation to apply.
-   */
-  importAnimation(animation: AnimationInternals.BaseAnimation) {
-    this.animation = animation.json;
-    this.animate = new Animation().noteAnimation(this.animation);
-    return this;
-  }
-
   /** The color of the note. */
-  get type() {
-    return this.json.c;
-  }
+  type: NOTETYPE = 0;
   /** The direction the note will be cut. */
-  get direction() {
-    return this.json.d;
-  }
+  direction: CUT = 0;
   /** The angle added to the note's rotation. */
-  get angleOffset() {
-    return this.json.a;
-  }
+  angleOffset = 0;
   /** Specifies an initial position the note will spawn at before going to it's unmodified position.  */
-  get flip() {
-    return this.json.customData.flip;
-  }
+  flip?: Vec2;
   /** Whether note gravity (the effect where notes move to their vertical row from the bottom row) is enabled. */
-  get noteGravity() {
-    return !this.json.customData.disableNoteGravity;
-  }
+  noteGravity?: boolean;
   /** Whether this note will look at the player. */
-  get noteLook() {
-    return !this.json.customData.disableNoteLook;
-  }
+  noteLook?: boolean;
   /** Whether this note will have a spawn effect. */
-  get spawnEffect() {
-    return this.json.customData.spawnEffect;
-  }
+  spawnEffect?: boolean;
 
-  set type(value: NOTETYPE) {
-    this.json.c = value;
-  }
-  set direction(value: CUT) {
-    this.json.d = value;
-  }
-  set angleOffset(value: number) {
-    this.json.a = value;
-  }
-  set flip(value: Vec2) {
-    this.json.customData.flip = value;
-  }
-  set noteGravity(value: boolean) {
-    this.json.customData.disableNoteGravity = !value;
-  }
-  set noteLook(value: boolean) {
-    this.json.customData.disableNoteLook = !value;
-  }
-  set spawnEffect(value: boolean) {
-    this.json.customData.spawnEffect = value;
+  toJson(v3: true): bsmap.v3.IColorNote;
+  toJson(v3: false): bsmap.v2.INote;
+  toJson(v3: boolean): bsmap.v2.INote | bsmap.v3.IColorNote {
+    if (v3) {
+      return {
+        a: this.angleOffset,
+        b: this.time,
+        c: this.type,
+        d: this.direction,
+        x: this.lineIndex,
+        y: this.lineLayer,
+        customData: {
+          animation: this.animate.toJson(v3),
+          flip: this.flip,
+          disableNoteGravity: !this.noteGravity,
+          disableNoteLook: !this.noteLook,
+          spawnEffect: this.spawnEffect,
+          ...this.customData,
+        },
+      } satisfies bsmap.v3.IColorNote;
+    }
+
+    return {
+      _cutDirection: this.direction,
+      _lineIndex: this.lineIndex,
+      _lineLayer: this.lineLayer,
+      _time: this.time,
+      _type: this.type,
+      _customData: {
+        _animation: this.animate.toJson(v3),
+        _flip: this.flip,
+        _disableNoteGravity: !this.noteGravity,
+        _disableNoteLook: !this.noteLook,
+        _disableSpawnEffect: !this.spawnEffect,
+        ...this.customData,
+      },
+    } satisfies bsmap.v2.INote;
   }
 }
 
-export class Bomb extends BaseGameplayObject {
-  json: TJson = {
-    b: 0,
-    x: 0,
-    y: 0,
-    customData: {
-      animation: {},
-    },
-  };
+export class Bomb
+  extends BaseGameplayObject<bsmap.v2.INote, bsmap.v3.IBombNote> {
   /** The animation of this bomb. */
-  animate = new Animation().noteAnimation(this.animation);
+  animate = new NoteAnimation();
 
   /**
    * Bomb object for ease of creation.
@@ -136,23 +136,9 @@ export class Bomb extends BaseGameplayObject {
    * @param x The lane of the note.
    * @param y The vertical row of the note.
    */
-  constructor(time = 0, x = 0, y = 0) {
-    super();
-    this.time = time;
-    this.lineIndex = x;
-    this.lineLayer = y;
-  }
-
-  /**
-   * Create a bomb using Json.
-   * @param json Json to import.
-   */
-  import(json: TJson) {
-    this.json = json;
-    if (this.customData === undefined) this.customData = {};
-    if (this.animation === undefined) this.animation = {};
-    this.animate = new Animation().noteAnimation(this.animation);
-    return this;
+  // time = 0, x = 0, y = 0
+  constructor(fields: Partial<Fields<Bomb>>) {
+    super(fields);
   }
 
   /**
@@ -166,44 +152,52 @@ export class Bomb extends BaseGameplayObject {
     return this;
   }
 
-  /**
-   * Apply an animation through the Animation class.
-   * @param animation Animation to apply.
-   */
-  importAnimation(animation: AnimationInternals.BaseAnimation) {
-    this.animation = animation.json;
-    this.animate = new Animation().noteAnimation(this.animation);
-    return this;
-  }
-
-  /** Specifies an initial position the bomb will spawn at before going to it's unmodified position.  */
-  get flip() {
-    return this.json.customData.flip;
-  }
+  /** Specifies an initial position the note will spawn at before going to it's unmodified position.  */
+  flip?: Vec2;
   /** Whether note gravity (the effect where notes move to their vertical row from the bottom row) is enabled. */
-  get noteGravity() {
-    return !this.json.customData.disableNoteGravity;
-  }
-  /** Whether this bomb will look at the player. */
-  get noteLook() {
-    return !this.json.customData.disableNoteLook;
-  }
-  /** Whether this bomb will have a spawn effect. */
-  get spawnEffect() {
-    return this.json.customData.spawnEffect;
-  }
+  noteGravity?: boolean;
+  /** Whether this note will look at the player. */
+  noteLook?: boolean;
+  /** Whether this note will have a spawn effect. */
+  spawnEffect?: boolean;
 
-  set flip(value: boolean) {
-    this.json.customData.flip = value;
-  }
-  set noteGravity(value: boolean) {
-    this.json.customData.disableNoteGravity = !value;
-  }
-  set noteLook(value: boolean) {
-    this.json.customData.disableNoteLook = !value;
-  }
-  set spawnEffect(value: boolean) {
-    this.json.customData.spawnEffect = value;
+  // TODO: Move to base note class
+  toJson(v3: true): bsmap.v3.IBombNote;
+  toJson(v3: false): bsmap.v2.INote;
+  toJson(v3: boolean): bsmap.v2.INote | bsmap.v3.IBombNote {
+    if (v3) {
+      return {
+        b: this.time,
+        x: this.lineIndex,
+        y: this.lineLayer,
+        customData: {
+          animation: this.animate.toJson(v3),
+          flip: this.flip,
+          disableNoteLook: !this.noteLook,
+          disableNoteGravity: !this.noteGravity,
+
+          spawnEffect: this.spawnEffect,
+
+          ...this.customData,
+        },
+      } satisfies bsmap.v3.IBombNote;
+    }
+
+    return {
+      _cutDirection: 0,
+      _lineIndex: this.lineIndex,
+      _lineLayer: this.lineLayer,
+      _time: this.time,
+      _type: 3,
+      _customData: {
+        _animation: this.animate.toJson(v3),
+        _flip: this.flip,
+        _disableNoteGravity: !this.noteGravity,
+        _disableNoteLook: !this.noteLook,
+        _disableSpawnEffect: !this.spawnEffect,
+        ...this.customData,
+      },
+    } satisfies bsmap.v2.INote;
   }
 }
 

@@ -59,7 +59,7 @@ export abstract class BaseGameplayObject<
     | bsmap.v3.IObstacle,
 > // | bsmap.v3.IGridObject,
   extends BaseObject<TV2, TV3> {
-  constructor(obj: Fields<BaseGameplayObject<TV2, TV3>>) {
+  constructor(obj: Partial<Fields<BaseGameplayObject<TV2, TV3>>>) {
     super(obj);
   }
 
@@ -80,7 +80,7 @@ export abstract class BaseGameplayObject<
   /** The track class for this event.
    * @see Track
    */
-  track: Track;
+  track = new Track();
 
   /** The chroma color of the object. */
   color?: ColorType;
