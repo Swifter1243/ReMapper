@@ -3,9 +3,7 @@ import * as easings from "./easings.ts";
 import {
   complexifyArray,
   ComplexKeyframesLinear,
-  KeyframeAbstract,
-  PointDefinitionLinear,
-  RawPointDefinition,
+  KeyframesLinear,
   simplifyArray,
 } from "./animation.ts";
 import { Wall } from "./wall.ts";
@@ -14,10 +12,9 @@ import { activeDiffGet, TJson } from "./beatmap.ts";
 import { Note } from "./note.ts";
 import { fs, path, three } from "./deps.ts";
 import { BloomFogEnvironment, Environment } from "./environment.ts";
-import { CustomEvent, CustomEventInternals } from "./custom_event.ts";
 import { EventInternals } from "./internals/mod.ts";
-import { Only } from "https://raw.githubusercontent.com/Fernthedev/BeatSaber-Deno/feat/export-types/types/utils.ts";
 import { OnlyNumbers, OnlyNumbersOptional } from "./types.ts";
+import { animateComponent } from "./custom_event.ts";
 
 /** An array with 2 numbers. */
 export type Vec2 = [x: number, y: number];
@@ -180,7 +177,6 @@ export function notesBetween(
   min: number,
   max: number,
 ) {
-  new Note().time;
   return filterObjects(activeDiffGet().notes, min, max, "time");
 }
 
@@ -193,11 +189,8 @@ export function notesBetween(
 export function bombsBetween(
   min: number,
   max: number,
-  forEach: (note: Note) => void,
 ) {
-  filterObjects(activeDiffGet().bombs, min, max, "time").forEach((x) => {
-    forEach(x);
-  });
+  return filterObjects(activeDiffGet().bombs, min, max, "time")
 }
 
 /**
@@ -222,11 +215,8 @@ export function arcsBetween(
 export function chainsBetween(
   min: number,
   max: number,
-  forEach: (note: Note) => void,
 ) {
-  filterObjects(activeDiffGet().chains, min, max, "time").forEach((x) => {
-    forEach(x);
-  });
+  return filterObjects(activeDiffGet().chains, min, max, "time");
 }
 
 /**
@@ -238,11 +228,8 @@ export function chainsBetween(
 export function wallsBetween(
   min: number,
   max: number,
-  forEach: (note: Wall) => void,
 ) {
-  filterObjects(activeDiffGet().walls, min, max, "time").forEach((x) => {
-    forEach(x);
-  });
+  return filterObjects(activeDiffGet().walls, min, max, "time")
 }
 
 /**
@@ -254,11 +241,8 @@ export function wallsBetween(
 export function eventsBetween(
   min: number,
   max: number,
-  forEach: (note: EventInternals.AbstractEvent) => void,
 ) {
-  filterObjects(activeDiffGet().events, min, max, "time").forEach((x) => {
-    forEach(x);
-  });
+  return filterObjects(activeDiffGet().events, min, max, "time")
 }
 
 /**
@@ -1046,13 +1030,14 @@ export function adjustFog(
   } else {
     baseEnvironmentTrack("fog");
 
-    const fogEvent = new CustomEvent(time).animateComponent("fog", duration);
+    const fogEvent = animateComponent(time ?? 0, "fog", duration);
 
     Object.entries(anyFog).forEach((x) => {
+      // TODO: what?
       if (typeof x[1] === "number") (anyFog as any)[x[0]] = [x[1]];
     });
 
-    fogEvent.fog = anyFog as BloomFogEnvironment<PointDefinitionLinear>;
+    fogEvent.fog = anyFog as BloomFogEnvironment<KeyframesLinear>;
     if (event) event(fogEvent);
     fogEvent.push();
   }
