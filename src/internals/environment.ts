@@ -31,7 +31,7 @@ export abstract class BaseEnvironment<
   /** The track class for this object.
    * Please read the properties of this class to see how it works.
    */
-  track: Track = new Track()
+  track: Track = new Track();
 
   components?: TV3["components"];
 

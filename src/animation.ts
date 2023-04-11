@@ -19,7 +19,12 @@ import {
   Vec3,
   Vec4,
 } from "./general.ts";
-import { AbstractAnimation, EnvironmentAnimation, NoteAnimation, WallAnimation } from "./internals/animation.ts";
+import {
+  AbstractAnimation,
+  EnvironmentAnimation,
+  NoteAnimation,
+  WallAnimation,
+} from "./internals/animation.ts";
 
 import { AnimationInternals } from "./internals/mod.ts";
 
@@ -116,7 +121,9 @@ function wallAnimation(...params: ConstructorParameters<typeof WallAnimation>) {
  * State that this animation is for an environment object.
  * @param json The json to create the animation with.
  */
-function environmentAnimation(...params: ConstructorParameters<typeof EnvironmentAnimation>) {
+function environmentAnimation(
+  ...params: ConstructorParameters<typeof EnvironmentAnimation>
+) {
   return new AnimationInternals.EnvironmentAnimation(...params);
 }
 
@@ -346,7 +353,7 @@ export function getValuesAtTime<K extends string = ANIM>(
   time: number,
 ) {
   if (typeof animation === "string") {
-    throw "Does not support point definitions!"
+    throw "Does not support point definitions!";
   }
 
   animation = complexifyArray(animation);

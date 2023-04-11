@@ -3,11 +3,9 @@ import { LightID } from "./basicEvent.ts";
 import { arrHas, copy } from "./general.ts";
 import { EventInternals, LightRemapperInternals } from "./internals/mod.ts";
 
-
 type Condition = LightRemapperInternals.Condition;
 
 export type { Condition };
-
 
 export class LightRemapper extends LightRemapperInternals.BaseLightRemapper {
   private complexifyLightIDs(

@@ -3,7 +3,9 @@ import * as easings from "./easings.ts";
 import {
   complexifyArray,
   ComplexKeyframesLinear,
+  KeyframesAbstract,
   KeyframesLinear,
+  RawKeyframesAbstract,
   simplifyArray,
 } from "./animation.ts";
 import { Wall } from "./wall.ts";
@@ -12,7 +14,7 @@ import { activeDiffGet, TJson } from "./beatmap.ts";
 import { Note } from "./note.ts";
 import { fs, path, three } from "./deps.ts";
 import { BloomFogEnvironment, Environment } from "./environment.ts";
-import { EventInternals } from "./internals/mod.ts";
+import { CustomEventInternals, EventInternals } from "./internals/mod.ts";
 import { OnlyNumbers, OnlyNumbersOptional } from "./types.ts";
 import { animateComponent } from "./custom_event.ts";
 
@@ -67,8 +69,8 @@ class ReMapperJson {
   cachedData = {} as Record<string, CachedData>;
 
   /** Save the cache. */
-  save() {
-    Deno.writeTextFileSync(
+  async save(): Promise<void> {
+    await Deno.writeTextFile(
       RMCacheFilename,
       JSON.stringify({
         runs: this.runs,
@@ -120,7 +122,7 @@ export async function cacheData<T>(
   }
 
   rmCache.cachedData[name].accessed = true;
-  rmCache.save();
+  await rmCache.save();
 
   return outputData as T;
 }
@@ -190,7 +192,7 @@ export function bombsBetween(
   min: number,
   max: number,
 ) {
-  return filterObjects(activeDiffGet().bombs, min, max, "time")
+  return filterObjects(activeDiffGet().bombs, min, max, "time");
 }
 
 /**
@@ -229,7 +231,7 @@ export function wallsBetween(
   min: number,
   max: number,
 ) {
-  return filterObjects(activeDiffGet().walls, min, max, "time")
+  return filterObjects(activeDiffGet().walls, min, max, "time");
 }
 
 /**
@@ -242,7 +244,7 @@ export function eventsBetween(
   min: number,
   max: number,
 ) {
-  return filterObjects(activeDiffGet().events, min, max, "time")
+  return filterObjects(activeDiffGet().events, min, max, "time");
 }
 
 /**
@@ -936,8 +938,8 @@ export const RMLog = (message: string) =>
  * @param fn Function to run on each keyframe.
  */
 export function iterateKeyframes<T extends NumberTuple>(
-  keyframes: RawPointDefinition<T>,
-  fn: (values: KeyframeAbstract<T>, index: number) => void,
+  keyframes: RawKeyframesAbstract<T>,
+  fn: (values: KeyframesAbstract<T>, index: number) => void,
 ) {
   // TODO: Lookup point def
   if (typeof keyframes === "string") return;

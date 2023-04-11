@@ -944,8 +944,9 @@ export class Text {
    * @param input The model data of the text. Can be either a path to a model or a collection of objects.
    */
   async import(input: string | TextObject[]) {
-    if (typeof input === "string") this.model = await getModel(input) as TextObject[];
-    else this.model = input;
+    if (typeof input === "string") {
+      this.model = await getModel(input) as TextObject[];
+    } else this.model = input;
     const bounds = getBoxBounds(this.model);
     this.modelHeight = bounds.highBound[1];
   }
