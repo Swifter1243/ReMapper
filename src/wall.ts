@@ -2,66 +2,127 @@
 import { activeDiffGet, TJson } from "./beatmap.ts";
 import { copy, Vec3, worldToWall } from "./general.ts";
 import {
-  Animation,
-  AnimationInternals,
   bakeAnimation,
   complexifyArray,
   ComplexKeyframesAny,
   ComplexKeyframesVec3,
   isSimple,
   Keyframe,
-  PointDefinitionVec3,
   RawKeyframesAny,
   RawKeyframesVec3,
 } from "./animation.ts";
 import { BaseGameplayObject } from "./object.ts";
 import { getModel, ModelObject } from "./model.ts";
 import { optimizeAnimation, OptimizeSettings } from "./anim_optimizer.ts";
+import { bsmap, KeyframesVec3, wallAnimation } from "./mod.ts";
+import { WallAnimation } from "./internals/animation.ts";
+import { Fields } from "./types.ts";
 
-export class Wall extends BaseGameplayObject {
-  json: TJson = {
-    b: 0,
-    x: 0,
-    y: 0,
-    d: 0,
-    w: 1,
-    h: 1,
-    customData: {
-      animation: {},
-    },
-  };
-  /** The animation of this wall. */
-  animate = new Animation().wallAnimation(this.animation);
+/**
+ * Wall object for ease of creation.
+ * @param time The time this wall will arrive at the player.
+ * @param duration The duration of the wall.
+ * @param x The lane of the wall.
+ * @param y The vertical row of the wall.
+ * @param height The height of the wall.
+ * @param width The width of the wall.
+ */
 
-  /**
-   * Wall object for ease of creation.
-   * @param time The time this wall will arrive at the player.
-   * @param duration The duration of the wall.
-   * @param x The lane of the wall.
-   * @param y The vertical row of the wall.
-   * @param height The height of the wall.
-   * @param width The width of the wall.
-   */
-  constructor(time = 0, duration = 1, x = 0, y = 0, height = 1, width = 1) {
-    super();
-    this.time = time;
-    this.duration = duration;
-    this.lineIndex = x;
-    this.lineLayer = y;
-    this.height = height;
-    this.width = width;
+export function wall(
+  time?: number,
+  duration?: number,
+  x?: number,
+  y?: number,
+  height?: number,
+  width?: number,
+): Wall;
+export function wall(...params: ConstructorParameters<typeof Wall>): Wall;
+export function wall(
+  ...params: ConstructorParameters<typeof Wall> | [
+    time?: number,
+    duration?: number,
+    x?: number,
+    y?: number,
+    height?: number,
+    width?: number,
+  ]
+): Wall {
+  const [first] = params;
+  if (typeof first === "object") {
+    return new Wall(first);
   }
 
-  /**
-   * Create a wall using Json.
-   * @param json Json to import.
-   */
-  import(json: TJson) {
-    this.json = json;
-    if (this.customData === undefined) this.customData = {};
-    if (this.animation === undefined) this.animation = {};
-    this.animate = new Animation().wallAnimation(this.animation);
-    return this;
+  const [time, duration, x, y, height, width] = params;
+
+  return new Wall({
+    time: time as number ?? 0,
+    duration: duration ?? 1,
+    lineIndex: x ?? 0,
+    lineLayer: y ?? 0,
+    height: height,
+    width: width,
+  });
+}
+
+export class Wall
+  extends BaseGameplayObject<bsmap.v2.IObstacle, bsmap.v3.IObstacle> {
+  toJson(v3: true): bsmap.v3.IObstacle;
+  toJson(v3: false): bsmap.v2.IObstacle;
+  toJson(v3: boolean): bsmap.v2.IObstacle | bsmap.v3.IObstacle {
+    if (v3) {
+      return {
+        b: this.time,
+        d: this.duration,
+        h: this.height,
+        w: this.width,
+        x: this.lineIndex,
+        y: this.lineLayer,
+        customData: {
+          animation: this.animate.toJson(v3),
+          size: this.scale,
+          noteJumpMovementSpeed: this.localNJS,
+          noteJumpStartBeatOffset: this.localBeatOffset,
+          localRotation: this.localRotation,
+          coordinates: this.coordinates,
+          worldRotation: this.rotation,
+          track: this.track.value,
+          color: this.color,
+          uninteractable: !(this.interactable ?? false),
+          fake: this.fake ?? true,
+          ...this.customData,
+        },
+      } satisfies bsmap.v3.IObstacle;
+    }
+
+    return {
+      _duration: this.duration,
+      _lineIndex: this.lineIndex,
+      _time: this.time,
+      _type: 0,
+      _width: this.width,
+      _customData: {
+        _animation: this.animate.toJson(v3),
+        _scale: this.scale,
+        _noteJumpMovementSpeed: this.localNJS,
+        _noteJumpStartBeatOffset: this.localBeatOffset,
+        _localRotation: this.localRotation,
+        _position: this.coordinates,
+        _rotation: this.rotation,
+        _track: this.track.value,
+        _color: this.color,
+        _interactable: this.interactable ?? false,
+        _fake: this.fake ?? true,
+        ...this.customData,
+      },
+    } satisfies bsmap.v2.IObstacle;
+  }
+  /** The animation of this wall. */
+  animate = wallAnimation();
+
+  constructor(
+    fields: Partial<Fields<Wall>>,
+  ) {
+    super(fields);
   }
 
   /**
@@ -69,38 +130,20 @@ export class Wall extends BaseGameplayObject {
    * @param fake Whether this wall will be pushed to the fakeWalls array.
    * @param clone Whether this object will be copied before being pushed.
    */
-  push(fake = false, clone = true) {
-    if (fake) activeDiffGet().fakeWalls.push(clone ? copy(this) : this);
-    else activeDiffGet().walls.push(clone ? copy(this) : this);
-    return this;
-  }
-
-  /**
-   * Apply an animation through the Animation class.
-   * @param animation Animation to apply.
-   */
-  importAnimation(animation: AnimationInternals.BaseAnimation) {
-    this.animation = animation.json;
-    this.animate = new Animation().wallAnimation(this.animation);
+  push(clone = true) {
+    activeDiffGet().walls.push(clone ? copy(this) : this);
     return this;
   }
 
   /** The duration of the wall. */
-  get duration() {
-    return this.json.d;
-  }
+  duration = 0;
   /** The height of the wall. */
-  get height() {
-    return this.json.h;
-  }
+  height = 1;
   /** The width of the wall. */
-  get width() {
-    return this.json.w;
-  }
+  width = 1;
   /** The scale of the wall. */
-  get scale() {
-    return this.json.customData.size;
-  }
+  scale?: Vec3;
+
   get life() {
     return this.halfJumpDur * 2 + this.duration;
   }
@@ -108,18 +151,6 @@ export class Wall extends BaseGameplayObject {
     return this.time - this.halfJumpDur;
   }
 
-  set duration(value: number) {
-    this.json.d = value;
-  }
-  set height(value: number) {
-    this.json.h = value;
-  }
-  set width(value: number) {
-    this.json.w = value;
-  }
-  set scale(value: Vec3) {
-    this.json.customData.size = value;
-  }
   set life(value: number) {
     this.duration = value - (this.halfJumpDur * 2);
   }
@@ -155,11 +186,11 @@ export function debugWall(
   const rot = transform.rot ?? [0, 0, 0];
   const scale = transform.scale ?? [1, 1, 1];
 
-  const wall = new Wall();
-  wall.life = animDur + 69420;
-  wall.lifeStart = 0;
-  wall.color = [0, 0, 0, 1];
-  wall.position = [0, 0];
+  const w = wall();
+  w.life = animDur + 69420;
+  w.lifeStart = 0;
+  w.color = [0, 0, 0, 1];
+  w.coordinates = [0, 0];
 
   if (
     !isSimple(pos) ||
@@ -184,19 +215,19 @@ export function debugWall(
       animOptimizer,
     );
 
-    wall.scale = [1, 1, 1];
-    wall.animate.length = wall.life;
-    wall.animate.definitePosition = transform.pos as PointDefinitionVec3;
-    wall.animate.localRotation = transform.rot as PointDefinitionVec3;
-    wall.animate.scale = transform.scale as PointDefinitionVec3;
+    w.scale = [1, 1, 1];
+    w.animate.duration = w.life;
+    w.animate.definitePosition = transform.pos as KeyframesVec3;
+    w.animate.localRotation = transform.rot as KeyframesVec3;
+    w.animate.scale = transform.scale as KeyframesVec3;
   } else {
     const wtw = worldToWall(pos as Vec3, rot as Vec3, scale as Vec3);
-    wall.animate.definitePosition = wtw.pos;
-    wall.scale = wtw.scale;
-    wall.localRotation = rot as Vec3;
+    w.animate.definitePosition = wtw.pos;
+    w.scale = wtw.scale;
+    w.localRotation = rot as Vec3;
   }
 
-  wall.push();
+  w.push();
 }
 
 let modelToWallCount = 0;
@@ -206,17 +237,17 @@ let modelToWallCount = 0;
  * @param input Can be a path to a model or an array of objects.
  * @param start Wall's lifespan start.
  * @param end Wall's lifespan end.
- * @param wall A callback for each wall being spawned.
+ * @param wallCall A callback for each wall being spawned.
  * @param distribution Beats to spread spawning of walls out.
  * Animations are adjusted, but keep in mind path animation events for these walls might be messed up.
  * @param animFreq The frequency for the animation baking (if using array of objects).
  * @param animOptimizer The optimizer for the animation baking (if using array of objects).
  */
-export function modelToWall(
+export async function modelToWall(
   input: string | ModelObject[],
   start: number,
   end: number,
-  wall?: (wall: Wall) => void,
+  wallCall?: (wall: Wall) => void,
   distribution?: number,
   animFreq?: number,
   animOptimizer = new OptimizeSettings(),
@@ -226,7 +257,6 @@ export function modelToWall(
 
   const dur = end - start;
 
-  let objects: ModelObject[] = [];
   modelToWallCount++;
 
   function isAnimated(obj: ModelObject) {
@@ -277,15 +307,17 @@ export function modelToWall(
     });
   }
 
-  const w = new Wall();
+  const w = wall();
   w.life = end - start;
   w.lifeStart = start;
   w.animate.dissolve = [[0, 0], [1, 0]];
-  w.position = [0, 0];
+  w.coordinates = [0, 0];
   w.interactable = false;
 
+  let objects: ModelObject[];
+
   if (typeof input === "string") {
-    objects = getModel(input, `modelToWall_${modelToWallCount}`, (o) => {
+     objects = await getModel(input, `modelToWall_${modelToWallCount}`, (o) => {
       o.forEach((x, i) => {
         const animated = isAnimated(x);
 
@@ -354,7 +386,6 @@ export function modelToWall(
 
   objects.forEach((x, i) => {
     const o = copy(w);
-    o.animate = new Animation().wallAnimation(o.animation);
 
     o.animate.definitePosition = x.pos;
     if (x.color) o.color = x.color;
@@ -370,7 +401,7 @@ export function modelToWall(
 
     distributeWall(o, i, objects.length);
 
-    if (wall) wall(o);
-    o.push(true, false);
+    if (wallCall) wallCall(o);
+    o.push(false);
   });
 }

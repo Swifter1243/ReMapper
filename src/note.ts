@@ -102,6 +102,14 @@ export class Note
           disableNoteGravity: !this.noteGravity,
           disableNoteLook: !this.noteLook,
           spawnEffect: this.spawnEffect,
+          color: this.color,
+          coordinates: this.coordinates,
+          localRotation: this.localRotation,
+          noteJumpMovementSpeed: this.NJS,
+          noteJumpStartBeatOffset: this.localBeatOffset,
+          track: this.track.value,
+          uninteractable: !this.interactable,
+          worldRotation: this.rotation,
           ...this.customData,
         },
       } satisfies bsmap.v3.IColorNote;
@@ -119,6 +127,16 @@ export class Note
         _disableNoteGravity: !this.noteGravity,
         _disableNoteLook: !this.noteLook,
         _disableSpawnEffect: !this.spawnEffect,
+        _color: this.color,
+        _position: this.coordinates,
+        _localRotation: this.localRotation,
+        _noteJumpMovementSpeed: this.NJS,
+        _noteJumpStartBeatOffset: this.localBeatOffset,
+        _track: this.track.value,
+        _interactable: this.interactable,
+        _rotation: this.rotation,
+        _fake: this.fake,
+        _cutDirection: this.angleOffset, //?
         ...this.customData,
       },
     } satisfies bsmap.v2.INote;
@@ -146,9 +164,8 @@ export class Bomb
    * @param fake Whether this bomb will be pushed to the fakeBombs array.
    * @param clone Whether this object will be copied before being pushed.
    */
-  push(fake = false, clone = true) {
-    if (fake) activeDiffGet().fakeBombs.push(clone ? copy(this) : this);
-    else activeDiffGet().bombs.push(clone ? copy(this) : this);
+  push(clone = true) {
+    activeDiffGet().bombs.push(clone ? copy(this) : this);
     return this;
   }
 

@@ -66,13 +66,17 @@ export abstract class BaseGameplayObject<
   lineIndex = 0;
   lineLayer = 0;
 
+  fake?: boolean;
+
+  coordinates?: Vec2;
+
   /** The rotation added to an object around the world origin. */
   rotation?: Vec3;
   /** The rotation added to an object around it's anchor point. */
   localRotation?: Vec3;
 
   localNJS?: number;
-  localOffset?: number;
+  localBeatOffset?: number;
 
   /** Whether this object is interactable. */
   interactable?: boolean;
@@ -94,7 +98,7 @@ export abstract class BaseGameplayObject<
 
   /** The note offset of an object. */
   get offset() {
-    return this.localOffset ?? activeDiffGet().offset;
+    return this.localBeatOffset ?? activeDiffGet().offset;
   }
 
   /**
@@ -103,14 +107,14 @@ export abstract class BaseGameplayObject<
    * This function will output half of this, so it will end when the note is supposed to be hit.
    */
   get halfJumpDur() {
-    return getJumps(this.NJS, this.offset, info.BPM).halfDur;
+    return getJumps(this.NJS, this.offset, info._beatsPerMinute).halfDur;
   }
   /**
    * A "jump" is the period when the object "jumps" in (indicated by spawning light on notes) to when it's deleted.
    * Jump Distance is the Z distance from when the object starts it's jump to when it's deleted.
    */
   get jumpDist() {
-    return getJumps(this.NJS, this.offset, info.BPM).dist;
+    return getJumps(this.NJS, this.offset, info._beatsPerMinute).dist;
   }
   /** The lifespan of the object. */
   get life() {
@@ -127,8 +131,8 @@ export abstract class BaseGameplayObject<
         "Warning: The lifespan of a note has a minimum of 0.25 beats.",
       );
     }
-    const defaultJumps = getJumps(this.NJS, 0, info.BPM);
-    this.localOffset = (value - 2 * defaultJumps.halfDur) / 2;
+    const defaultJumps = getJumps(this.NJS, 0, info._beatsPerMinute);
+    this.localBeatOffset = (value - 2 * defaultJumps.halfDur) / 2;
   }
   set lifeStart(value: number) {
     this.time = value + this.life / 2;

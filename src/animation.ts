@@ -105,7 +105,7 @@ export type TrackValue = string | string[];
  * State that this animation is for a note.
  * @param json The json to create the animation with.
  */
-function noteAnimation(...params: ConstructorParameters<typeof NoteAnimation>) {
+export function noteAnimation(...params: ConstructorParameters<typeof NoteAnimation>) {
   return new AnimationInternals.NoteAnimation(...params);
 }
 
@@ -113,7 +113,7 @@ function noteAnimation(...params: ConstructorParameters<typeof NoteAnimation>) {
  * State that this animation is for a wall.
  * @param json The json to create the animation with.
  */
-function wallAnimation(...params: ConstructorParameters<typeof WallAnimation>) {
+export function wallAnimation(...params: ConstructorParameters<typeof WallAnimation>) {
   return new AnimationInternals.WallAnimation(...params);
 }
 
@@ -121,7 +121,7 @@ function wallAnimation(...params: ConstructorParameters<typeof WallAnimation>) {
  * State that this animation is for an environment object.
  * @param json The json to create the animation with.
  */
-function environmentAnimation(
+export function environmentAnimation(
   ...params: ConstructorParameters<typeof EnvironmentAnimation>
 ) {
   return new AnimationInternals.EnvironmentAnimation(...params);
@@ -171,7 +171,7 @@ export class Keyframe {
   }
   /** Whether this keyframe has the "hsvLerp" flag. */
   get hsvLerp() {
-    return this.getFlagIndex("hsvLerp") !== -1;
+    return thithis.animations.getFlagIndex("hsvLerp") !== -1;
   }
 
   set time(value: number) {
