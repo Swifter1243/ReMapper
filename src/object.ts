@@ -53,14 +53,15 @@ export abstract class BaseObject<
 export abstract class BaseGameplayObject<
   TV2 extends bsmap.v2.INote | bsmap.v2.IObstacle,
   TV3 extends
-    | bsmap.v3.IColorNote
-    | bsmap.v3.IBombNote
-    | bsmap.v3.IBaseSlider
-    | bsmap.v3.IObstacle,
+  | bsmap.v3.IColorNote
+  | bsmap.v3.IBombNote
+  | bsmap.v3.IBaseSlider
+  | bsmap.v3.IObstacle,
 > // | bsmap.v3.IGridObject,
   extends BaseObject<TV2, TV3> {
-  constructor(obj: Partial<Fields<BaseGameplayObject<TV2, TV3>>>) {
+  constructor(obj: Partial<Fields<BaseGameplayObject<TV2, TV3>>>, animation: WallAnimation | NoteAnimation) {
     super(obj);
+    this.animation = animation;
   }
 
   lineIndex = 0;
@@ -90,7 +91,7 @@ export abstract class BaseGameplayObject<
   color?: ColorType;
 
   /** The animation json on the object. */
-  animation?: NoteAnimation | WallAnimation;
+  animation: NoteAnimation | WallAnimation;
 
   get NJS() {
     return this.localNJS ?? activeDiffGet().NJS;

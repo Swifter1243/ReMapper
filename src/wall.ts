@@ -116,13 +116,12 @@ export class Wall
       },
     } satisfies bsmap.v2.IObstacle;
   }
-  /** The animation of this wall. */
-  animate = wallAnimation();
+
 
   constructor(
     fields: Partial<Fields<Wall>>,
   ) {
-    super(fields);
+    super(fields, wallAnimation());
   }
 
   /**

@@ -224,6 +224,10 @@ export class Track {
   /** The value of the track. */
   value?: TrackValue;
 
+  constructor(value?: TrackValue) {
+    this.value = value
+  }
+
   private expandArray(array: TrackValue) {
     return typeof array === "string" ? [array] : array;
   }

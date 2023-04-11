@@ -123,7 +123,7 @@ export async function readDifficulty(
   return new V2Difficulty();
 }
 
-interface RMDifficulty {
+export interface RMDifficulty {
   version: string;
   notes: Note[];
   bombs: Bomb[];
@@ -592,7 +592,7 @@ export async function exportZip(
   zipName = `${zipName}.zip`;
   zipName = zipName.replaceAll(" ", "_");
 
-  const files = await collectBeatmapFiles(excludeDiffs)
+  const files = (await collectBeatmapFiles(excludeDiffs))
     .map((v) => `"${v}"`); // surround with quotes for safety
 
   compress(files, zipName, { overwrite: true }).then(() => {
@@ -655,46 +655,47 @@ export async function exportToQuest(
  */
 export function transferVisuals(
   diffs: DIFFPATH[],
-  forDiff?: (diff: Difficulty) => void,
+  forDiff?: (diff: RMDifficulty) => void,
   walls = true,
 ) {
-  const startActive = activeDiff as Difficulty;
+  throw "TODO: Implement"
+  // const startActive = activeDiff;
 
-  diffs.forEach((x) => {
-    const workingDiff = new Difficulty(
-      parseFilePath(x, ".dat").path as DIFFPATH,
-    );
+  // diffs.forEach((x) => {
+  //   const workingDiff = new RMDifficulty(
+  //     parseFilePath(x, ".dat").path as DIFFPATH,
+  //   );
 
-    workingDiff.rawEnvironment = startActive.rawEnvironment;
-    workingDiff.pointDefinitions = startActive.pointDefinitions;
-    workingDiff.customEvents = startActive.customEvents;
-    workingDiff.events = startActive.events;
-    workingDiff.geoMaterials = startActive.geoMaterials;
-    workingDiff.boostEvents = startActive.boostEvents;
-    workingDiff.lightEventBoxes = startActive.lightEventBoxes;
-    workingDiff.lightRotationBoxes = startActive.lightRotationBoxes;
-    workingDiff.fakeNotes = startActive.fakeNotes;
-    workingDiff.fakeBombs = startActive.fakeBombs;
-    workingDiff.fakeWalls = startActive.fakeWalls;
-    workingDiff.fakeChains = startActive.fakeChains;
+  //   workingDiff.rawEnvironment = startActive.rawEnvironment;
+  //   workingDiff.pointDefinitions = startActive.pointDefinitions;
+  //   workingDiff.customEvents = startActive.customEvents;
+  //   workingDiff.events = startActive.events;
+  //   workingDiff.geoMaterials = startActive.geoMaterials;
+  //   workingDiff.boostEvents = startActive.boostEvents;
+  //   workingDiff.lightEventBoxes = startActive.lightEventBoxes;
+  //   workingDiff.lightRotationBoxes = startActive.lightRotationBoxes;
+  //   workingDiff.fakeNotes = startActive.fakeNotes;
+  //   workingDiff.fakeBombs = startActive.fakeBombs;
+  //   workingDiff.fakeWalls = startActive.fakeWalls;
+  //   workingDiff.fakeChains = startActive.fakeChains;
 
-    if (walls) {
-      for (let y = 0; y < workingDiff.walls.length; y++) {
-        const obstacle = workingDiff.walls[y];
-        if (obstacle.isModded) {
-          arrRemove(workingDiff.walls, y);
-          y--;
-        }
-      }
+  //   if (walls) {
+  //     for (let y = 0; y < workingDiff.walls.length; y++) {
+  //       const obstacle = workingDiff.walls[y];
+  //       if (obstacle.isModded) {
+  //         arrRemove(workingDiff.walls, y);
+  //         y--;
+  //       }
+  //     }
 
-      startActive.walls.forEach((y) => {
-        if (y.isModded) workingDiff.walls.push(y);
-      });
-    }
+  //     startActive.walls.forEach((y) => {
+  //       if (y.isModded) workingDiff.walls.push(y);
+  //     });
+  //   }
 
-    if (forDiff !== undefined) forDiff(workingDiff);
-    workingDiff.save();
-  });
+  //   if (forDiff !== undefined) forDiff(workingDiff);
+  //   workingDiff.save();
+  // });
 
-  activeDiffSet(startActive);
+  // activeDiffSet(startActive);
 }

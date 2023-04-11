@@ -6,6 +6,7 @@ import { copy, Vec2 } from "./general.ts";
 import { bsmap } from "./deps.ts";
 import { NoteAnimation } from "./internals/animation.ts";
 import { Fields } from "./types.ts";
+import { noteAnimation } from "./animation.ts";
 
 export function note(
   time?: number,
@@ -42,8 +43,6 @@ export function note(
 
 export class Note
   extends BaseGameplayObject<bsmap.v2.INote, bsmap.v3.IColorNote> {
-  /** The animation of this note. */
-  animate = new NoteAnimation();
 
   /**
    * Note object for ease of creation.
@@ -56,7 +55,7 @@ export class Note
   constructor(
     fields: Partial<Fields<Note>>,
   ) {
-    super(fields);
+    super(fields, noteAnimation());
   }
 
   /**
@@ -64,9 +63,8 @@ export class Note
    * @param fake Whether this note will be pushed to the fakeNotes array.
    * @param clone Whether this object will be copied before being pushed.
    */
-  push(fake = false, clone = true) {
-    if (fake) activeDiffGet().fakeNotes.push(clone ? copy(this) : this);
-    else activeDiffGet().notes.push(clone ? copy(this) : this);
+  push(clone = true) {
+    activeDiffGet().notes.push(clone ? copy(this) : this);
     return this;
   }
 
@@ -97,7 +95,7 @@ export class Note
         x: this.lineIndex,
         y: this.lineLayer,
         customData: {
-          animation: this.animate.toJson(v3),
+          animation: this.animation.toJson(v3),
           flip: this.flip,
           disableNoteGravity: !this.noteGravity,
           disableNoteLook: !this.noteLook,
@@ -122,7 +120,7 @@ export class Note
       _time: this.time,
       _type: this.type,
       _customData: {
-        _animation: this.animate.toJson(v3),
+        _animation: this.animation.toJson(v3),
         _flip: this.flip,
         _disableNoteGravity: !this.noteGravity,
         _disableNoteLook: !this.noteLook,
@@ -234,8 +232,6 @@ export class Chain extends BaseSliderObject {
       animation: {},
     },
   };
-  /** The animation of this chain. */
-  animate = new Animation().noteAnimation(this.animation);
 
   /**
    * Chain object for ease of creation.
