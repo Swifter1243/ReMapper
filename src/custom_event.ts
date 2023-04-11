@@ -1,6 +1,3 @@
-// deno-lint-ignore-file no-namespace adjacent-overload-signatures
-import { copy, jsonGet, jsonSet } from "./general.ts";
-import { activeDiffGet, TJson } from "./beatmap.ts";
 import { KeyframesLinear, Track, TrackValue } from "./animation.ts";
 import { EASE } from "./constants.ts";
 import {
@@ -10,6 +7,9 @@ import {
   TubeBloomPrePassLight,
 } from "./environment.ts";
 import { CustomEventInternals } from "./internals/mod.ts";
+import { bsmap } from "./mod.ts";
+
+export type CustomEvent = CustomEventInternals.BaseEvent<bsmap.v2.ICustomEvent, bsmap.v3.ICustomEvent>
 
 /**
  * Animate a track.

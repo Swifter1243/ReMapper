@@ -31,8 +31,13 @@ import {
   SUGGEST_MODS,
 } from "./constants.ts";
 
-import { AnimationInternals } from "./internals/mod.ts";
-import { CharacteristicName } from "https://raw.githubusercontent.com/Fernthedev/BeatSaber-Deno/feat/export-types/types/beatmap/mod.ts";
+import {
+  AnimationInternals,
+  CustomEventInternals,
+  EventInternals,
+} from "./internals/mod.ts";
+import { CustomEvent } from "./custom_event.ts";
+import { Event } from "./basicEvent.ts";
 
 type PostProcessFn<T> = (
   object: T,
@@ -112,7 +117,7 @@ export async function readDifficulty(
     | bsmap.v3.IDifficulty;
 
   const v3 = !Object.hasOwn(json, "version") ||
-    semver.satisfies(json.version, ">=3.0.0");
+    semver.satisfies(json as any["version"], ">=3.0.0");
   if (v3) return new V3Difficulty();
 
   return new V2Difficulty();
@@ -165,7 +170,7 @@ export abstract class AbstractDifficulty<
   chains!: Chain[];
   walls!: Wall[];
   events!: Event[];
-  customEvents!: CustomEvent<any>[];
+  customEvents!: CustomEvent[];
   pointDefinitions!: Record<string, unknown>;
   customData!: Record<string, unknown>;
   environment!: Environment[];
@@ -520,12 +525,12 @@ function pruneCustomData(
  * Returns all of the files that are in the directory.
  * @param excludeDiffs Difficulties to exclude.
  */
-export function collectBeatmapFiles(
+export async function collectBeatmapFiles(
   excludeDiffs: FILENAME<DIFFS>[] = [],
 ) {
-  if (!info.json) throw new Error("The Info object has not been loaded.");
+  if (!info) throw new Error("The Info object has not been loaded.");
 
-  const exportInfo = copy(info.json);
+  const exportInfo = copy(info);
   const unsanitizedFiles: (string | undefined)[] = [
     exportInfo._songFilename,
     exportInfo._coverImageFilename,
@@ -555,14 +560,18 @@ export function collectBeatmapFiles(
   }
 
   const workingDir = Deno.cwd();
-  const files = unsanitizedFiles
+  const filesPromise: [string, Promise<boolean>][] = unsanitizedFiles
     .filter((v) => v) // check not undefined or null
     .map((v) => path.join(workingDir, v!)) // prepend workspace dir
-    .filter((v) => fs.existsSync(v)); // ensure file exists
+    .map((v) => [v, fs.exists(v)]); // ensure file exists
 
-  const tempDir = Deno.makeTempDirSync();
+  const files: string[] = filesPromise.filter(async (v) => await v[1]).map((
+    v,
+  ) => v[0]);
+
+  const tempDir = await Deno.makeTempDir();
   const tempInfo = tempDir + `\\Info.dat`;
-  Deno.writeTextFileSync(tempInfo, JSON.stringify(exportInfo, null, 0));
+  await Deno.writeTextFile(tempInfo, JSON.stringify(exportInfo, null, 0));
 
   files.push(tempInfo); // add temp info
 
@@ -574,7 +583,7 @@ export function collectBeatmapFiles(
  * @param excludeDiffs Difficulties to exclude.
  * @param zipName Name of the zip (don't include ".zip"). Uses folder name if undefined.
  */
-export function exportZip(
+export async function exportZip(
   excludeDiffs: FILENAME<DIFFS>[] = [],
   zipName?: string,
 ) {
@@ -583,7 +592,7 @@ export function exportZip(
   zipName = `${zipName}.zip`;
   zipName = zipName.replaceAll(" ", "_");
 
-  const files = collectBeatmapFiles(excludeDiffs)
+  const files = await collectBeatmapFiles(excludeDiffs)
     .map((v) => `"${v}"`); // surround with quotes for safety
 
   compress(files, zipName, { overwrite: true }).then(() => {
@@ -605,16 +614,20 @@ export async function exportToQuest(
   const adbBinary = adbDeno.getADBBinary(adbDeno.defaultADBPath());
 
   // Download ADB
-  if (!fs.existsSync(adbBinary)) {
+  const adbPromise = fs.exists(adbBinary).then(async exists => {
+    if (!exists) return
+
     console.log("ADB not found, downloading");
     await adbDeno.downloadADB(options?.downloadPath);
-  }
+  })
 
-  const files = collectBeatmapFiles(excludeDiffs); // surround with quotes for safety
+
+  const files = await collectBeatmapFiles(excludeDiffs); // surround with quotes for safety
   const cwd = Deno.cwd();
 
-  const questSongFolder = `${QUEST_WIP_PATH}/${info.name}`;
+  const questSongFolder = `${QUEST_WIP_PATH}/${info._songName}`;
 
+  await adbPromise;
   await adbDeno.mkdir(questSongFolder);
 
   const tasks = files.map((v) => {

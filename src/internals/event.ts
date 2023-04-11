@@ -18,7 +18,7 @@ export type AbstractEvent = BaseEvent<
 >;
 
 export abstract class BaseEvent<
-  TV2 extends bsmap.v2.IEventBase,
+  TV2 extends bsmap.v2.IEvent,
   TV3 extends bsmap.v3.IBasicEvent,
 > extends BaseObject<TV2, TV3> {
   /** The bare minimum event. */
