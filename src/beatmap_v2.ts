@@ -1,7 +1,8 @@
 import { AbstractDifficulty } from "./beatmap.ts";
 import { bsmap, DIFFNAME, DIFFPATH, Track } from "./mod.ts";
-import { note } from "./note.ts";
+import { Bomb, bomb, Note, note } from "./note.ts";
 import { ColorType } from "./general.ts";
+import { KeyframesAny, noteAnimation } from "./animation.ts";
 
 export class V2Difficulty extends AbstractDifficulty {
   constructor(
@@ -10,36 +11,66 @@ export class V2Difficulty extends AbstractDifficulty {
     mapFile: DIFFPATH,
     relativeMapFile: DIFFNAME,
     json: bsmap.v2.IDifficulty,
+    process?: (keyof bsmap.v2.IDifficulty)[],
   ) {
-    const notes = json._notes.filter((e) => e._type != 3).map((e) =>
-      note(
-        {
-          time: e._time,
-          type: e._type as 0 | 1,
-          direction: e._cutDirection,
-          lineLayer: e._lineLayer,
-          lineIndex: e._lineIndex,
-          customData: e._customData,
+    // run only if explicitly allowed
+    function runProcess<K extends keyof bsmap.v2.IDifficulty, V>(
+      key: K,
+      callback: (v: bsmap.v2.IDifficulty[K]) => V,
+    ) {
+      if (process && !process.some((s) => s === key)) return;
 
-          localRotation: e._customData?._localRotation,
-          fake: e._customData?._fake,
-          color: e._customData?._color as ColorType,
-          flip: e._customData?._flip,
-          interactable: e._customData?._interactable,
-          localNJS: e._customData?._noteJumpMovementSpeed,
-          localBeatOffset: e._customData?._noteJumpStartBeatOffset,
+      return callback(json[key]);
+    }
 
-          rotation: typeof e._customData?._rotation === "number"
-            ? [0, e._customData._rotation, 0]
-            : e._customData?._rotation,
-          noteLook: !e._customData?._disableNoteLook ?? false,
-          noteGravity: !e._customData?._disableNoteGravity ?? false,
-          spawnEffect: !e._customData?._disableSpawnEffect ?? false,
-          coordinates: e._customData?._position,
-          track: new Track(e._customData?._track),
-        },
-      )
-    );
+    function toNoteOrBomb(b: bsmap.v2.INote): Note | Bomb {
+      const params:
+        | Parameters<typeof note>
+        | Parameters<typeof bomb> = [{
+          time: b._time,
+          type: b._type as 0 | 1,
+          direction: b._cutDirection,
+          lineLayer: b._lineLayer,
+          lineIndex: b._lineIndex,
+          customData: b._customData,
+
+          localRotation: b._customData?._localRotation,
+          fake: b._customData?._fake,
+          color: b._customData?._color as ColorType,
+          flip: b._customData?._flip,
+          interactable: b._customData?._interactable,
+          localNJS: b._customData?._noteJumpMovementSpeed,
+          localBeatOffset: b._customData?._noteJumpStartBeatOffset,
+
+          rotation: typeof b._customData?._rotation === "number"
+            ? [0, b._customData._rotation, 0]
+            : b._customData?._rotation,
+          noteLook: !b._customData?._disableNoteLook ?? false,
+          noteGravity: !b._customData?._disableNoteGravity ?? false,
+          spawnEffect: !b._customData?._disableSpawnEffect ?? false,
+          coordinates: b._customData?._position,
+          track: new Track(b._customData?._track),
+          animation: noteAnimation(
+            undefined,
+            b._customData?._animation as Record<string, KeyframesAny>,
+          ),
+        }];
+
+      if (b._type === 3) {
+        return bomb(...params);
+      }
+
+      return note(...params);
+    }
+
+    const notes: Note[] = runProcess(
+      "_notes",
+      (notes) => notes.filter((n) => n._type !== 3).map(toNoteOrBomb) as Note[],
+    ) ?? [];
+    const bombs: Bomb[] = runProcess(
+      "_notes",
+      (notes) => notes.filter((n) => n._type === 3).map(toNoteOrBomb) as Bomb[],
+    ) ?? [];
 
     super(
       json,
@@ -49,8 +80,8 @@ export class V2Difficulty extends AbstractDifficulty {
       relativeMapFile,
       {
         notes,
+        bombs,
         version: "",
-        bombs: [],
         arcs: [],
         chains: [],
         walls: [],
@@ -65,8 +96,13 @@ export class V2Difficulty extends AbstractDifficulty {
   }
 
   toJSON(): bsmap.v2.IDifficulty {
+    const sortItems = (a: { _time: number }, b: { _time: number }) =>
+      a._time - b._time;
+
     return {
-      _notes: this.notes.map((e) => e.toJson(false)),
+      _notes: [...this.notes, ...this.bombs].map((e) => e.toJson(false)).sort(
+        sortItems,
+      ),
       _events: [],
       _obstacles: [],
       _sliders: [],

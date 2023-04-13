@@ -41,9 +41,35 @@ export function note(
   });
 }
 
+export function bomb(
+  time?: number,
+  x?: number,
+  y?: number,
+): Bomb;
+export function bomb(...params: ConstructorParameters<typeof Bomb>): Bomb;
+export function bomb(
+  ...params: ConstructorParameters<typeof Bomb> | [
+    time?: number,
+    x?: number,
+    y?: number,
+  ]
+): Note {
+  const [first] = params;
+  if (typeof first === "object") {
+    return new Note(first);
+  }
+
+  const [time, x, y] = params;
+
+  return new Note({
+    time: time as number ?? 0,
+    lineIndex: x ?? 0,
+    lineLayer: y ?? 0,
+  });
+}
+
 export class Note
   extends BaseGameplayObject<bsmap.v2.INote, bsmap.v3.IColorNote> {
-
   /**
    * Note object for ease of creation.
    * @param time Time this note will be hit.
@@ -143,9 +169,6 @@ export class Note
 
 export class Bomb
   extends BaseGameplayObject<bsmap.v2.INote, bsmap.v3.IBombNote> {
-  /** The animation of this bomb. */
-  animate = new NoteAnimation();
-
   /**
    * Bomb object for ease of creation.
    * @param time The time this bomb will reach the player.
@@ -154,7 +177,7 @@ export class Bomb
    */
   // time = 0, x = 0, y = 0
   constructor(fields: Partial<Fields<Bomb>>) {
-    super(fields);
+    super(fields, noteAnimation());
   }
 
   /**
@@ -186,7 +209,7 @@ export class Bomb
         x: this.lineIndex,
         y: this.lineLayer,
         customData: {
-          animation: this.animate.toJson(v3),
+          animation: this.animation.toJson(v3),
           flip: this.flip,
           disableNoteLook: !this.noteLook,
           disableNoteGravity: !this.noteGravity,
@@ -205,7 +228,7 @@ export class Bomb
       _time: this.time,
       _type: 3,
       _customData: {
-        _animation: this.animate.toJson(v3),
+        _animation: this.animation.toJson(v3),
         _flip: this.flip,
         _disableNoteGravity: !this.noteGravity,
         _disableNoteLook: !this.noteLook,
