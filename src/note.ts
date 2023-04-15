@@ -68,8 +68,41 @@ export function bomb(
   });
 }
 
-export class Note
-  extends BaseGameplayObject<bsmap.v2.INote, bsmap.v3.IColorNote> {
+export abstract class BaseNote<
+  TV3 extends bsmap.v3.IColorNote | bsmap.v3.IBombNote,
+> extends BaseGameplayObject<bsmap.v2.INote, TV3> {
+  /**
+   * Note object for ease of creation.
+   * @param time Time this note will be hit.
+   * @param type The color of the note.
+   * @param direction The direction the note will be cut.
+   * @param x The lane of the note.
+   * @param y The vertical row of the note.
+   */
+  constructor(
+    fields: Partial<Fields<BaseNote<TV3>>>,
+  ) {
+    super(fields, noteAnimation());
+  }
+
+  /** Specifies an initial position the note will spawn at before going to it's unmodified position.  */
+  flip?: Vec2;
+  /** Whether note gravity (the effect where notes move to their vertical row from the bottom row) is enabled. */
+  noteGravity?: boolean;
+  /** Whether this note will look at the player. */
+  noteLook?: boolean;
+  /** Whether this note will have a spawn effect. */
+  spawnEffect?: boolean;
+
+  /**
+   * Push this note to the difficulty.
+   * @param fake Whether this note will be pushed to the fakeNotes array.
+   * @param clone Whether this object will be copied before being pushed.
+   */
+  abstract push(clone: boolean): void;
+}
+
+export class Note extends BaseNote<bsmap.v3.IColorNote> {
   /**
    * Note object for ease of creation.
    * @param time Time this note will be hit.
@@ -81,8 +114,15 @@ export class Note
   constructor(
     fields: Partial<Fields<Note>>,
   ) {
-    super(fields, noteAnimation());
+    super(fields);
   }
+
+  /** The color of the note. */
+  type: NOTETYPE = 0;
+  /** The direction the note will be cut. */
+  direction: CUT = 0;
+  /** The angle added to the note's rotation. */
+  angleOffset = 0;
 
   /**
    * Push this note to the difficulty.
@@ -93,21 +133,6 @@ export class Note
     activeDiffGet().notes.push(clone ? copy(this) : this);
     return this;
   }
-
-  /** The color of the note. */
-  type: NOTETYPE = 0;
-  /** The direction the note will be cut. */
-  direction: CUT = 0;
-  /** The angle added to the note's rotation. */
-  angleOffset = 0;
-  /** Specifies an initial position the note will spawn at before going to it's unmodified position.  */
-  flip?: Vec2;
-  /** Whether note gravity (the effect where notes move to their vertical row from the bottom row) is enabled. */
-  noteGravity?: boolean;
-  /** Whether this note will look at the player. */
-  noteLook?: boolean;
-  /** Whether this note will have a spawn effect. */
-  spawnEffect?: boolean;
 
   toJson(v3: true): bsmap.v3.IColorNote;
   toJson(v3: false): bsmap.v2.INote;
@@ -167,8 +192,7 @@ export class Note
   }
 }
 
-export class Bomb
-  extends BaseGameplayObject<bsmap.v2.INote, bsmap.v3.IBombNote> {
+export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
   /**
    * Bomb object for ease of creation.
    * @param time The time this bomb will reach the player.
@@ -177,7 +201,7 @@ export class Bomb
    */
   // time = 0, x = 0, y = 0
   constructor(fields: Partial<Fields<Bomb>>) {
-    super(fields, noteAnimation());
+    super(fields);
   }
 
   /**
@@ -189,15 +213,6 @@ export class Bomb
     activeDiffGet().bombs.push(clone ? copy(this) : this);
     return this;
   }
-
-  /** Specifies an initial position the note will spawn at before going to it's unmodified position.  */
-  flip?: Vec2;
-  /** Whether note gravity (the effect where notes move to their vertical row from the bottom row) is enabled. */
-  noteGravity?: boolean;
-  /** Whether this note will look at the player. */
-  noteLook?: boolean;
-  /** Whether this note will have a spawn effect. */
-  spawnEffect?: boolean;
 
   // TODO: Move to base note class
   toJson(v3: true): bsmap.v3.IBombNote;
