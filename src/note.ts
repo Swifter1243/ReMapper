@@ -53,15 +53,15 @@ export function bomb(
     x?: number,
     y?: number,
   ]
-): Note {
+): Bomb {
   const [first] = params;
   if (typeof first === "object") {
-    return new Note(first);
+    return new Bomb(first);
   }
 
   const [time, x, y] = params;
 
-  return new Note({
+  return new Bomb({
     time: time as number ?? 0,
     lineIndex: x ?? 0,
     lineLayer: y ?? 0,
