@@ -1,7 +1,7 @@
 // deno-lint-ignore-file
 import { Track } from "./animation.ts";
 import { activeDiffGet, info, TJson } from "./beatmap.ts";
-import { NOTETYPE } from "./constants.ts";
+import { NoteType } from "./constants.ts";
 import { bsmap } from "./deps.ts";
 import {
   ColorType,
@@ -17,6 +17,7 @@ import {
   Vec3,
 } from "./general.ts";
 import { NoteAnimation, WallAnimation } from "./internals/animation.ts";
+import { noteAnimation } from "./mod.ts";
 import { Fields, JsonWrapper } from "./types.ts";
 
 export type ObjectFields<T extends { customData: V }, V = T["customData"]> =
@@ -53,13 +54,16 @@ export abstract class BaseObject<
 export abstract class BaseGameplayObject<
   TV2 extends bsmap.v2.INote | bsmap.v2.IObstacle,
   TV3 extends
-  | bsmap.v3.IColorNote
-  | bsmap.v3.IBombNote
-  | bsmap.v3.IBaseSlider
-  | bsmap.v3.IObstacle,
+    | bsmap.v3.IColorNote
+    | bsmap.v3.IBombNote
+    | bsmap.v3.IBaseSlider
+    | bsmap.v3.IObstacle,
 > // | bsmap.v3.IGridObject,
   extends BaseObject<TV2, TV3> {
-  constructor(obj: Partial<Fields<BaseGameplayObject<TV2, TV3>>>, animation: WallAnimation | NoteAnimation) {
+  constructor(
+    obj: Partial<Fields<BaseGameplayObject<TV2, TV3>>>,
+    animation: WallAnimation | NoteAnimation,
+  ) {
     super(obj);
     this.animation = animation;
   }
@@ -158,7 +162,7 @@ export abstract class BaseGameplayObject<
 export abstract class BaseSliderObject<TV3 extends bsmap.v3.IBaseSlider>
   extends BaseGameplayObject<never, TV3> {
   /** The color of the object. */
-  type: NOTETYPE;
+  type: NoteType = NoteType.RED;
   /** The cut direction of the head. */
   headDirection: number = 0;
   /** The time the tail arrives at the player. */
@@ -172,11 +176,6 @@ export abstract class BaseSliderObject<TV3 extends bsmap.v3.IBaseSlider>
   tailCoordinates?: Vec2;
 
   constructor(obj: Fields<BaseSliderObject<TV3>>) {
-    super(obj);
-    this.type = 0;
-    this.lineIndex = 0;
-    this.lineLayer = 0;
-    // this will overwrite everything
-    Object.assign(this, obj);
+    super(obj, noteAnimation());
   }
 }

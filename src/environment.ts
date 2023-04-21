@@ -1,7 +1,13 @@
 import { combineAnimations, RawKeyframesAny, Track } from "./animation.ts";
 import { activeDiffGet, TJson } from "./beatmap.ts";
 import { ColorType } from "./general.ts";
-import { ANIM, EASE, GEO_SHADER, GEO_TYPE, LOOKUP } from "./constants.ts";
+import {
+  AnimationKeys,
+  EASE,
+  GeoShader,
+  GeoType,
+  Lookup,
+} from "./constants.ts";
 import { animateTrack, bsmap, KeyframesLinear } from "./mod.ts";
 import { AnimationInternals, EnvironmentInternals } from "./internals/mod.ts";
 
@@ -16,7 +22,7 @@ export class Environment extends EnvironmentInternals.BaseEnvironment<
    * @param id The object name to look up in the environment.
    * @param lookupMethod The method of looking up the object name in the environment.
    */
-  constructor(id?: string, lookupMethod: LOOKUP | undefined = undefined) {
+  constructor(id?: string, lookupMethod: Lookup | undefined = undefined) {
     super();
     id ??= "";
     lookupMethod ??= "Contains";
@@ -27,7 +33,7 @@ export class Environment extends EnvironmentInternals.BaseEnvironment<
   /** The object name to look up in the environment. */
   id: string;
   /** The method of looking up the object name in the environment. */
-  lookupMethod: LOOKUP;
+  lookupMethod: Lookup;
 
   toJson(v3: true): bsmap.v3.IChromaEnvironmentID;
   toJson(v3: false): bsmap.v2.IChromaEnvironmentID;
@@ -83,7 +89,7 @@ export class Geometry extends EnvironmentInternals.BaseEnvironment<
    * @param type The geometry shape type.
    * @param material The material on this geometry object.
    */
-  constructor(type?: GEO_TYPE, material?: GeometryMaterial | string) {
+  constructor(type?: GeoType, material?: GeometryMaterial | string) {
     super();
     type ??= "Cube";
     material ??= {
@@ -94,7 +100,7 @@ export class Geometry extends EnvironmentInternals.BaseEnvironment<
   }
 
   /** The geometry shape type. */
-  type: GEO_TYPE;
+  type: GeoType;
   /** The material on this geometry object. */
   material: GeometryMaterial | string;
   /** Whether this geometry object has collision. */
@@ -157,7 +163,7 @@ export class Geometry extends EnvironmentInternals.BaseEnvironment<
 export type GeometryMaterial = RawGeometryMaterial | string;
 /** All properties allowed for a material used on a geometry object. */
 export type RawGeometryMaterial = {
-  shader: GEO_SHADER;
+  shader: GeoShader;
   color?: ColorType;
   track?: string;
   shaderKeywords?: string[];
@@ -199,7 +205,7 @@ export function animateEnvGroup(
             event.animate.properties[key] = combineAnimations(
               event.animate.properties[key]! as RawKeyframesAny,
               x.json[key],
-              key as ANIM,
+              key as AnimationKeys,
             );
           }
         });
@@ -241,7 +247,7 @@ export function animateEnvTrack(
             event.animate.properties[key] = combineAnimations(
               event.animate.properties[key] as RawKeyframesAny,
               x.json[key],
-              key as ANIM,
+              key as AnimationKeys,
             );
           }
         });

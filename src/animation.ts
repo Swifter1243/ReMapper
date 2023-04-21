@@ -1,7 +1,7 @@
 import { OptimizeSettings } from "./anim_optimizer.ts";
 import { TJson } from "./beatmap.ts";
 import { Color, lerpColor } from "./color.ts";
-import { ANIM, EASE, SPLINE } from "./constants.ts";
+import { AnimationKeys, EASE, SPLINE } from "./constants.ts";
 import {
   arrAdd,
   arrLast,
@@ -105,7 +105,9 @@ export type TrackValue = string | string[];
  * State that this animation is for a note.
  * @param json The json to create the animation with.
  */
-export function noteAnimation(...params: ConstructorParameters<typeof NoteAnimation>) {
+export function noteAnimation(
+  ...params: ConstructorParameters<typeof NoteAnimation>
+) {
   return new AnimationInternals.NoteAnimation(...params);
 }
 
@@ -113,7 +115,9 @@ export function noteAnimation(...params: ConstructorParameters<typeof NoteAnimat
  * State that this animation is for a wall.
  * @param json The json to create the animation with.
  */
-export function wallAnimation(...params: ConstructorParameters<typeof WallAnimation>) {
+export function wallAnimation(
+  ...params: ConstructorParameters<typeof WallAnimation>
+) {
   return new AnimationInternals.WallAnimation(...params);
 }
 
@@ -225,7 +229,7 @@ export class Track {
   value?: TrackValue;
 
   constructor(value?: TrackValue) {
-    this.value = value
+    this.value = value;
   }
 
   private expandArray(array: TrackValue) {
@@ -351,7 +355,7 @@ export const isSimple = (array: RawKeyframesAny) =>
  * @param animation The keyframes.
  * @param time The time to get the value at.
  */
-export function getValuesAtTime<K extends string = ANIM>(
+export function getValuesAtTime<K extends string = AnimationKeys>(
   property: K,
   animation: KeyframesAny,
   time: number,
@@ -481,7 +485,7 @@ function timeInKeyframes(time: number, animation: ComplexKeyframesAny) {
 export function combineAnimations(
   anim1: RawKeyframesAny,
   anim2: RawKeyframesAny,
-  property: ANIM,
+  property: AnimationKeys,
 ) {
   let simpleArr = copy(anim1);
   let complexArr: ComplexKeyframesAny = [];

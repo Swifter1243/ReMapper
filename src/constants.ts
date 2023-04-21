@@ -1,4 +1,3 @@
-import { Difficulty } from "./beatmap.ts";
 import { Vec3 } from "./general.ts";
 import { Regex } from "./regex.ts";
 
@@ -91,88 +90,83 @@ export type EASE =
 export type SPLINE = "splineCatmullRom";
 
 /** Handler to alias settings. */
-export class settingsHandler {
-  private diff: Difficulty;
-  constructor(diff: Difficulty) {
-    this.diff = diff;
-  }
-
-  leftHanded = "_playerOptions._leftHanded" as unknown as boolean;
-  playerHeight = "_playerOptions._playerHeight" as unknown as number;
-  automaticPlayerHeight =
-    "_playerOptions._automaticPlayerHeight" as unknown as boolean;
-  sfxVolume = "_playerOptions._sfxVolume" as unknown as number;
-  reduceDebris = "_playerOptions._reduceDebris" as unknown as boolean;
-  noHud = "_playerOptions._noTextsAndHuds" as unknown as boolean;
-  hideMisses = "_playerOptions._noFailEffects" as unknown as boolean;
-  advancedHud = "_playerOptions._advancedHud" as unknown as boolean;
-  autoRestart = "_playerOptions._autoRestart" as unknown as boolean;
-  trailIntensity = "_playerOptions._saberTrailIntensity" as unknown as number;
-  JDtype = "_playerOptions._noteJumpDurationTypeSettings" as unknown as
+export const SettingsHandler = {
+  leftHanded: "_playerOptions._leftHanded" as unknown as boolean,
+  playerHeight: "_playerOptions._playerHeight" as unknown as number,
+  automaticPlayerHeight:
+    "_playerOptions._automaticPlayerHeight" as unknown as boolean,
+  sfxVolume: "_playerOptions._sfxVolume" as unknown as number,
+  reduceDebris: "_playerOptions._reduceDebris" as unknown as boolean,
+  noHud: "_playerOptions._noTextsAndHuds" as unknown as boolean,
+  hideMisses: "_playerOptions._noFailEffects" as unknown as boolean,
+  advancedHud: "_playerOptions._advancedHud" as unknown as boolean,
+  autoRestart: "_playerOptions._autoRestart" as unknown as boolean,
+  trailIntensity: "_playerOptions._saberTrailIntensity" as unknown as number,
+  JDtype: "_playerOptions._noteJumpDurationTypeSettings" as unknown as
     | "Dynamic"
-    | "Static";
-  hideSpawnEffect = "_playerOptions._hideNoteSpawnEffect" as unknown as boolean;
-  adaptiveSfx = "_playerOptions._adaptiveSfx" as unknown as boolean;
-  lights = ["_playerOptions._environmentEffectsFilterDefaultPreset", {
+    | "Static",
+  hideSpawnEffect: "_playerOptions._hideNoteSpawnEffect" as unknown as boolean,
+  adaptiveSfx: "_playerOptions._adaptiveSfx" as unknown as boolean,
+  lights: ["_playerOptions._environmentEffectsFilterDefaultPreset", {
     All: "AllEffects",
     NoFlicker: "Strobefilter",
     None: "NoEffects",
-  }] as unknown as "All" | "NoFlicker" | "None";
-  lightsExPlus = ["_playerOptions._environmentEffectsFilterExpertPlusPreset", {
+  }] as unknown as "All" | "NoFlicker" | "None",
+  lightsExPlus: ["_playerOptions._environmentEffectsFilterExpertPlusPreset", {
     All: "AllEffects",
     NoFlicker: "Strobefilter",
     None: "NoEffects",
-  }] as unknown as "All" | "NoFlicker" | "None";
-  energyType = "_modifiers._energyType" as unknown as "Bar" | "Battery";
-  noFail = "_modifiers._noFailOn0Energy" as unknown as boolean;
-  instaFail = "_modifiers._instaFail" as unknown as boolean;
-  saberClashFail = "_modifiers._failOnSaberClash" as unknown as boolean;
-  enabledObstacles = ["_modifiers._enabledObstacleType", {
+  }] as unknown as "All" | "NoFlicker" | "None",
+  energyType: "_modifiers._energyType" as unknown as "Bar" | "Battery",
+  noFail: "_modifiers._noFailOn0Energy" as unknown as boolean,
+  instaFail: "_modifiers._instaFail" as unknown as boolean,
+  saberClashFail: "_modifiers._failOnSaberClash" as unknown as boolean,
+  enabledObstacles: ["_modifiers._enabledObstacleType", {
     All: "All",
     FullOnly: "FullHeightOnly",
     None: "NoObstacles",
-  }] as unknown as "All" | "FullOnly" | "None";
-  fastNotes = "_modifiers._fastNotes" as unknown as boolean;
-  strictAngles = "_modifiers._strictAngles" as unknown as boolean;
-  disappearingArrows = "_modifiers._disappearingArrows" as unknown as boolean;
-  ghostNotes = "_modifiers._ghostNotes" as unknown as boolean;
-  noBombs = "_modifiers._noBombs" as unknown as boolean;
-  songSpeed = "_modifiers._songSpeed" as unknown as
+  }] as unknown as "All" | "FullOnly" | "None",
+  fastNotes: "_modifiers._fastNotes" as unknown as boolean,
+  strictAngles: "_modifiers._strictAngles" as unknown as boolean,
+  disappearingArrows: "_modifiers._disappearingArrows" as unknown as boolean,
+  ghostNotes: "_modifiers._ghostNotes" as unknown as boolean,
+  noBombs: "_modifiers._noBombs" as unknown as boolean,
+  songSpeed: "_modifiers._songSpeed" as unknown as
     | "Slower"
     | "Normal"
     | "Faster"
-    | "SuperFast";
-  noArrows = "_modifiers._noArrows" as unknown as boolean;
-  proMode = "_modifiers._proMode" as unknown as boolean;
-  zenMode = "_modifiers._proMode" as unknown as boolean;
-  smallCubes = "_modifiers._smallCubes" as unknown as boolean;
-  overrideEnvironments =
-    "_environments._overrideEnvironments" as unknown as boolean;
-  overrideColors = "_environments._overrideDefaultColors" as unknown as boolean;
-  mirrorQuality = ["_graphics._mirrorGraphicsSettings", {
+    | "SuperFast",
+  noArrows: "_modifiers._noArrows" as unknown as boolean,
+  proMode: "_modifiers._proMode" as unknown as boolean,
+  zenMode: "_modifiers._proMode" as unknown as boolean,
+  smallCubes: "_modifiers._smallCubes" as unknown as boolean,
+  overrideEnvironments:
+    "_environments._overrideEnvironments" as unknown as boolean,
+  overrideColors: "_environments._overrideDefaultColors" as unknown as boolean,
+  mirrorQuality: ["_graphics._mirrorGraphicsSettings", {
     OFF: 0,
     LOW: 1,
     MEDIUM: 2,
     HIGH: 3,
-  }] as unknown as "OFF" | "LOW" | "MEDIUM" | "HIGH";
-  bloom = ["_graphics._mainEffectGraphicsSettings", {
+  }] as unknown as "OFF" | "LOW" | "MEDIUM" | "HIGH",
+  bloom: ["_graphics._mainEffectGraphicsSettings", {
     false: 0,
     true: 1,
-  }] as unknown as boolean;
-  smoke = ["_graphics._smokeGraphicsSettings", {
+  }] as unknown as boolean,
+  smoke: ["_graphics._smokeGraphicsSettings", {
     false: 0,
     true: 1,
-  }] as unknown as boolean;
-  burnMarks = "_graphics._burnMarkTrailsEnabled" as unknown as boolean;
-  screenDistortion =
-    "_graphics._screenDisplacementEffectsEnabled" as unknown as boolean;
-  maxShockwaveParticles =
-    "_graphics._maxShockwaveParticles" as unknown as number;
-  disableChroma = "_chroma._disableChromaEvents" as unknown as boolean;
-  disableEnvironmentEnhancements =
-    "_chroma._disableEnvironmentEnhancements" as unknown as boolean;
-  zenModeWalls = "_chroma._forceZenModeWalls" as unknown as boolean;
-}
+  }] as unknown as boolean,
+  burnMarks: "_graphics._burnMarkTrailsEnabled" as unknown as boolean,
+  screenDistortion:
+    "_graphics._screenDisplacementEffectsEnabled" as unknown as boolean,
+  maxShockwaveParticles:
+    "_graphics._maxShockwaveParticles" as unknown as number,
+  disableChroma: "_chroma._disableChromaEvents" as unknown as boolean,
+  disableEnvironmentEnhancements:
+    "_chroma._disableEnvironmentEnhancements" as unknown as boolean,
+  zenModeWalls: "_chroma._forceZenModeWalls" as unknown as boolean,
+};
 
 /** Setting presets. You would set these equal to the "rawSettings" property on a difficulty. */
 export const PRESET = {
@@ -214,58 +208,58 @@ export const PRESET = {
 };
 
 /** The type for a note. */
-export enum NOTETYPE {
+export enum NoteType {
   RED = 0,
   BLUE = 1,
 }
 
 /** The mid anchor mode for arcs. */
-export enum ANCHORMODE {
+export enum AnchorMode {
   STRAIGHT = 0,
   CW = 1,
   CCW = 2,
 }
 
 /** The distribution types for V3 lights. */
-export enum DISTTYPE {
+export enum DistType {
   WAVE = 1,
   STEP,
 }
 
 /** The filter types for V3 lights. */
-export enum FILTERTYPE {
+export enum FilterType {
   SECTIONS = 1,
   STEPANDOFFSET,
 }
 
 /** The transitions for V3 lights. */
-export enum LIGHTTRANS {
+export enum LightTransition {
   INSTANT,
   TRANSITION,
   EXTEND,
 }
 
 /** The transitions for V3 light rotations. */
-export enum ROTTRANS {
+export enum RotationTransition {
   TRANSITION,
   EXTEND,
 }
 
 /** The colors for V3 lights. */
-export enum LIGHTCOL {
+export enum LightColor {
   RED,
   BLUE,
   WHITE,
 }
 
 /** The rotation axis for V3 light rotations. */
-export enum AXIS {
+export enum Axis {
   X,
   Y,
 }
 
 /** The easings for V3 light rotations. */
-export enum ROTEASE {
+export enum RotationEase {
   NONE = -1,
   LINEAR,
   EASEINQUAD,
@@ -274,14 +268,14 @@ export enum ROTEASE {
 }
 
 /** The direction of rotation for V3 light rotations. */
-export enum ROTDIR {
+export enum RotationDir {
   AUTOMATIC,
   CLOCKWISE,
   COUNTERCLOCKWISE,
 }
 
 /** Note cut directions. */
-export enum CUT {
+export enum NoteCut {
   UP,
   DOWN,
   LEFT,
@@ -294,7 +288,7 @@ export enum CUT {
 }
 
 /** Basic event groups/types. */
-export enum EVENTGROUP {
+export enum EventGroup {
   BACK_LASERS,
   RING_LIGHTS,
   LEFT_LASERS,
@@ -318,7 +312,7 @@ export enum EVENTGROUP {
 }
 
 /** Basic lighting event actions. */
-export enum EVENTACTION {
+export enum EventAction {
   OFF,
   BLUE_ON,
   BLUE_FLASH,
@@ -331,7 +325,7 @@ export enum EVENTACTION {
 }
 
 /** Interscope car groups. */
-export enum INTERSCOPEGROUP {
+export enum InterscopeGroup {
   NO_HYDRAULICS,
   ALL_CARS,
   LEFT_CARS,
@@ -343,7 +337,7 @@ export enum INTERSCOPEGROUP {
 }
 
 /** Rotation basic event values. */
-export enum ROTATIONACTION {
+export enum RotationAction {
   CCW_60,
   CCW_45,
   CCW_30,
@@ -355,7 +349,7 @@ export enum ROTATIONACTION {
 }
 
 /** Animation properties. */
-export type ANIM =
+export type AnimationKeys =
   | "position"
   | "offsetPosition"
   | "definitePosition"
@@ -471,12 +465,12 @@ export const ENV = {
 };
 
 /** Color formats. */
-export type COLOR =
+export type ColorFormat =
   | "RGB"
   | "HSV";
 
 /** Lookup methods for environment objects. */
-export type LOOKUP =
+export type Lookup =
   | "Contains"
   | "Regex"
   | "Exact"
@@ -484,7 +478,7 @@ export type LOOKUP =
   | "EndsWith";
 
 /** Geometry shape types. */
-export type GEO_TYPE =
+export type GeoType =
   | "Sphere"
   | "Capsule"
   | "Cylinder"
@@ -494,7 +488,7 @@ export type GEO_TYPE =
   | "Triangle";
 
 /** Shaders available for geometry materials. */
-export type GEO_SHADER =
+export type GeoShader =
   | "Standard"
   | "OpaqueLight"
   | "TransparentLight"

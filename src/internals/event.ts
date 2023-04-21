@@ -1,6 +1,6 @@
 import { LightID } from "../basicEvent.ts";
 import { activeDiffGet, TJson } from "../beatmap.ts";
-import { EASE, EVENTACTION, EVENTGROUP, ROTATIONACTION } from "../constants.ts";
+import { EASE, EventAction, EventGroup, RotationAction } from "../constants.ts";
 import { bsmap } from "../deps.ts";
 import { ColorType, copy, jsonGet, jsonSet } from "../general.ts";
 import { BaseObject, ObjectFields } from "../object.ts";
@@ -40,8 +40,8 @@ export abstract class BaseEvent<
   type:
     | TV2["_type"]
     | TV3["et"]
-    | EVENTGROUP.GAGA_LEFT
-    | EVENTGROUP.GAGA_RIGHT = 0!;
+    | EventGroup.GAGA_LEFT
+    | EventGroup.GAGA_RIGHT = 0!;
   /** The value of the event. */
   value: TV2["_value"] | TV3["i"] = 0!;
   /** The value of the event, but allowing decimals. */
@@ -54,7 +54,7 @@ export class LightEvent
    * @param lightID The lightIDs to target.
    */
   off(lightID?: LightID) {
-    this.value = EVENTACTION.OFF;
+    this.value = EventAction.OFF;
     if (lightID) this.lightID = lightID;
     return this;
   }
@@ -66,8 +66,8 @@ export class LightEvent
    */
   on(color: ColorType | boolean = true, lightID?: LightID) {
     this.value = typeof color === "boolean" && color
-      ? EVENTACTION.BLUE_ON
-      : EVENTACTION.RED_ON;
+      ? EventAction.BLUE_ON
+      : EventAction.RED_ON;
     if (typeof color !== "boolean") this.color = color;
     if (lightID) this.lightID = lightID;
     return this;
@@ -80,8 +80,8 @@ export class LightEvent
    */
   flash(color: ColorType | boolean = true, lightID?: LightID) {
     this.value = typeof color === "boolean" && color
-      ? EVENTACTION.BLUE_FLASH
-      : EVENTACTION.RED_FLASH;
+      ? EventAction.BLUE_FLASH
+      : EventAction.RED_FLASH;
     if (typeof color !== "boolean") this.color = color;
     if (lightID) this.lightID = lightID;
     return this;
@@ -94,8 +94,8 @@ export class LightEvent
    */
   fade(color: ColorType | boolean = true, lightID?: LightID) {
     this.value = typeof color === "boolean" && color
-      ? EVENTACTION.BLUE_FADE
-      : EVENTACTION.RED_FADE;
+      ? EventAction.BLUE_FADE
+      : EventAction.RED_FADE;
     if (typeof color !== "boolean") this.color = color;
     if (lightID) this.lightID = lightID;
     return this;
@@ -109,8 +109,8 @@ export class LightEvent
    */
   in(color: ColorType | boolean = true, lightID?: LightID) {
     this.value = typeof color === "boolean" && color
-      ? EVENTACTION.BLUE_IN
-      : EVENTACTION.RED_IN;
+      ? EventAction.BLUE_IN
+      : EventAction.RED_IN;
     if (typeof color !== "boolean") this.color = color;
     if (lightID !== undefined) this.lightID = lightID;
     return this;
@@ -239,7 +239,7 @@ export class RingZoomEvent
   constructor(obj: Omit<LightFields<RingZoomEvent>, "type">) {
     super({
       ...obj,
-      type: EVENTGROUP.RING_ZOOM,
+      type: EventGroup.RING_ZOOM,
     });
   }
 
@@ -293,9 +293,9 @@ export class RingSpinEvent
   constructor(obj: Omit<LightFields<RingSpinEvent>, "type">) {
     super({
       ...obj,
-      type: EVENTGROUP.RING_SPIN,
+      type: EventGroup.RING_SPIN,
     });
-    this.type = EVENTGROUP.RING_SPIN;
+    this.type = EventGroup.RING_SPIN;
   }
 
   /** The speed multiplier of the spin. */
@@ -321,7 +321,7 @@ export class RingSpinEvent
     if (v3) {
       return {
         b: this.time,
-        et: EVENTGROUP.RING_SPIN,
+        et: EventGroup.RING_SPIN,
         f: this.floatValue,
         i: this.value,
         customData: {
@@ -338,7 +338,7 @@ export class RingSpinEvent
     return {
       _floatValue: this.floatValue,
       _time: this.time,
-      _type: EVENTGROUP.RING_SPIN,
+      _type: EventGroup.RING_SPIN,
       _value: this.value,
       _customData: {
         _direction: this.direction,

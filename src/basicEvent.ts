@@ -1,9 +1,9 @@
 import {
   EASE,
-  EVENTACTION,
-  EVENTGROUP,
-  INTERSCOPEGROUP,
-  ROTATIONACTION,
+  EventAction,
+  EventGroup,
+  InterscopeGroup,
+  RotationAction,
 } from "./constants.ts";
 import { activeDiffGet, TJson } from "./beatmap.ts";
 import { ColorType, copy, jsonGet, jsonSet } from "./general.ts";
@@ -12,7 +12,10 @@ import { EventInternals } from "./internals/mod.ts";
 import { Fields } from "./types.ts";
 import { bsmap } from "./deps.ts";
 
-export type Event = EventInternals.BaseEvent<bsmap.v2.IEvent, bsmap.v3.IBasicEvent>
+export type Event = EventInternals.BaseEvent<
+  bsmap.v2.IEvent,
+  bsmap.v3.IBasicEvent
+>;
 export type LightID = number | number[];
 
 type LightParameters =
@@ -47,67 +50,67 @@ function fixupParams<TG extends EventInternals.LightEvent["type"]>(
 /** Controls the back lasers. (Type 0) */
 export const backLasers = (...params: LightParameters) =>
   new EventInternals.LightEvent(
-    ...fixupParams(EVENTGROUP.BACK_LASERS, ...params),
+    ...fixupParams(EventGroup.BACK_LASERS, ...params),
   );
 
 /** Controls the ring lights. (Type 1) */
 export const ringLights = (...params: LightParameters) =>
   new EventInternals.LightEvent(
-    ...fixupParams(EVENTGROUP.RING_LIGHTS, ...params),
+    ...fixupParams(EventGroup.RING_LIGHTS, ...params),
   );
 
 /** Controls the left lasers. (Type 2) */
 export const leftLasers = (...params: LightParameters) =>
   new EventInternals.LightEvent(
-    ...fixupParams(EVENTGROUP.LEFT_LASERS, ...params),
+    ...fixupParams(EventGroup.LEFT_LASERS, ...params),
   );
 
 /** Controls the right lasers. (Type 3) */
 export const rightLasers = (...params: LightParameters) =>
   new EventInternals.LightEvent(
-    ...fixupParams(EVENTGROUP.RIGHT_LASERS, ...params),
+    ...fixupParams(EventGroup.RIGHT_LASERS, ...params),
   );
 
 /** Controls the center lasers. (Type 4) */
 export const centerLasers = (...params: LightParameters) =>
   new EventInternals.LightEvent(
-    ...fixupParams(EVENTGROUP.CENTER_LASERS, ...params),
+    ...fixupParams(EventGroup.CENTER_LASERS, ...params),
   );
 
 /** Controls the extra left lasers in some environments. (Type 6) */
 export const extraLeft = (...params: LightParameters) =>
   new EventInternals.LightEvent(
-    ...fixupParams(EVENTGROUP.LEFT_EXTRA, ...params),
+    ...fixupParams(EventGroup.LEFT_EXTRA, ...params),
   );
 
 /** Controls the extra right lasers in some environments. (Type 7) */
 export const extraRight = (...params: LightParameters) =>
   new EventInternals.LightEvent(
-    ...fixupParams(EVENTGROUP.RIGHT_EXTRA, ...params),
+    ...fixupParams(EventGroup.RIGHT_EXTRA, ...params),
   );
 
 /** Controls the left lasers in the Billie environment. (Type 10) */
 export const billieLeft = (...params: LightParameters) =>
   new EventInternals.LightEvent(
-    ...fixupParams(EVENTGROUP.BILLIE_LEFT, ...params),
+    ...fixupParams(EventGroup.BILLIE_LEFT, ...params),
   );
 
 /** Controls the right lasers in the Billie environment. (Type 11) */
 export const billieRight = (...params: LightParameters) =>
   new EventInternals.LightEvent(
-    ...fixupParams(EVENTGROUP.BILLIE_RIGHT, ...params),
+    ...fixupParams(EventGroup.BILLIE_RIGHT, ...params),
   );
 
 /** Controls the outer left tower height in the Gaga environment. (Type 18) */
 export const gagaLeft = (...params: LightParameters) =>
   new EventInternals.LightEvent(
-    ...fixupParams(EVENTGROUP.GAGA_LEFT, ...params),
+    ...fixupParams(EventGroup.GAGA_LEFT, ...params),
   );
 
 /** Controls the outer left tower height in the Gaga environment. (Type 19) */
 export const gagaRight = (...params: LightParameters) =>
   new EventInternals.LightEvent(
-    ...fixupParams(EVENTGROUP.GAGA_RIGHT, ...params),
+    ...fixupParams(EventGroup.GAGA_RIGHT, ...params),
   );
 
 /**
@@ -122,11 +125,11 @@ export function moveCars(
 ): EventInternals.RingSpinEvent;
 export function moveCars(
   time: number,
-  value: INTERSCOPEGROUP,
+  value: InterscopeGroup,
 ): EventInternals.RingSpinEvent;
 export function moveCars(
   ...params:
-    | [time: number, value: INTERSCOPEGROUP]
+    | [time: number, value: InterscopeGroup]
     | Omit<ConstructorParameters<typeof EventInternals.RingSpinEvent>, "type">
 ) {
   if (typeof params[0] === "object") {
@@ -136,7 +139,7 @@ export function moveCars(
 
   return new EventInternals.RingSpinEvent({
     time: time,
-    value: value as INTERSCOPEGROUP,
+    value: value as InterscopeGroup,
   });
 }
 
@@ -145,7 +148,7 @@ export function moveCars(
 export function lowerHydraulics(time: number) {
   return new EventInternals.LightEvent({
     time: time,
-    type: EVENTGROUP.LOWER_HYDRAULICS as any,
+    type: EventGroup.LOWER_HYDRAULICS as any,
     value: 0,
   });
 }
@@ -154,7 +157,7 @@ export function lowerHydraulics(time: number) {
 export function raiseHydraulics(time: number) {
   return new EventInternals.LightEvent({
     time: time,
-    type: EVENTGROUP.RAISE_HYDRAULICS as any,
+    type: EventGroup.RAISE_HYDRAULICS as any,
     value: 0,
   });
 }
@@ -286,14 +289,14 @@ export function leftLaserSpeed(
     const obj = params[0];
     return new EventInternals.LaserSpeedEvent({
       ...obj,
-      type: EVENTGROUP.LEFT_ROTATING,
+      type: EventGroup.LEFT_ROTATING,
     });
   }
   const [time, speed, direction, lockRotation] = params;
 
   return new EventInternals.LaserSpeedEvent({
     time,
-    type: EVENTGROUP.LEFT_ROTATING,
+    type: EventGroup.LEFT_ROTATING,
     value: speed ?? 0,
     lockRotation,
     direction,
@@ -339,14 +342,14 @@ export function rightLaserSpeed(
     const obj = params[0];
     return new EventInternals.LaserSpeedEvent({
       ...obj,
-      type: EVENTGROUP.RIGHT_ROTATING,
+      type: EventGroup.RIGHT_ROTATING,
     });
   }
   const [time, speed, direction, lockRotation] = params;
 
   return new EventInternals.LaserSpeedEvent({
     time,
-    type: EVENTGROUP.RIGHT_ROTATING,
+    type: EventGroup.RIGHT_ROTATING,
     value: speed ?? 0,
     lockRotation,
     direction,
@@ -387,14 +390,14 @@ export function earlyRotation(
     const obj = params[0];
     return new EventInternals.RotationEvent({
       ...obj,
-      type: EVENTGROUP.EARLY_ROTATION,
+      type: EventGroup.EARLY_ROTATION,
     });
   }
   const [time, rotation] = params;
 
   return new EventInternals.RotationEvent({
     time,
-    type: EVENTGROUP.EARLY_ROTATION,
+    type: EventGroup.EARLY_ROTATION,
     value: rotation ?? 0,
   });
 }
@@ -432,14 +435,14 @@ export function lateRotation(
     const obj = params[0];
     return new EventInternals.RotationEvent({
       ...obj,
-      type: EVENTGROUP.LATE_ROTATION,
+      type: EventGroup.LATE_ROTATION,
     });
   }
   const [time, rotation] = params;
 
   return new EventInternals.RotationEvent({
     time,
-    type: EVENTGROUP.LATE_ROTATION,
+    type: EventGroup.LATE_ROTATION,
     value: rotation ?? 0,
   });
 }

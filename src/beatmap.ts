@@ -27,7 +27,7 @@ import {
   FILEPATH,
   QUEST_WIP_PATH,
   REQUIRE_MODS,
-  settingsHandler,
+  SettingsHandler,
   SUGGEST_MODS,
 } from "./constants.ts";
 
@@ -614,13 +614,12 @@ export async function exportToQuest(
   const adbBinary = adbDeno.getADBBinary(adbDeno.defaultADBPath());
 
   // Download ADB
-  const adbPromise = fs.exists(adbBinary).then(async exists => {
-    if (!exists) return
+  const adbPromise = fs.exists(adbBinary).then(async (exists) => {
+    if (!exists) return;
 
     console.log("ADB not found, downloading");
     await adbDeno.downloadADB(options?.downloadPath);
-  })
-
+  });
 
   const files = await collectBeatmapFiles(excludeDiffs); // surround with quotes for safety
   const cwd = Deno.cwd();
@@ -658,7 +657,7 @@ export function transferVisuals(
   forDiff?: (diff: RMDifficulty) => void,
   walls = true,
 ) {
-  throw "TODO: Implement"
+  throw "TODO: Implement";
   // const startActive = activeDiff;
 
   // diffs.forEach((x) => {

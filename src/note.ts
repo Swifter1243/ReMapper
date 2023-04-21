@@ -1,6 +1,6 @@
 // deno-lint-ignore-file adjacent-overload-signatures
 import { activeDiffGet, TJson } from "./beatmap.ts";
-import { ANCHORMODE, CUT, NOTETYPE } from "./constants.ts";
+import { AnchorMode, NoteCut, NoteType } from "./constants.ts";
 import { BaseGameplayObject, BaseSliderObject } from "./object.ts";
 import { copy, Vec2 } from "./general.ts";
 import { bsmap } from "./deps.ts";
@@ -10,8 +10,8 @@ import { noteAnimation } from "./animation.ts";
 
 export function note(
   time?: number,
-  type?: NOTETYPE,
-  direction?: CUT,
+  type?: NoteType,
+  direction?: NoteCut,
   x?: number,
   y?: number,
 ): Note;
@@ -19,8 +19,8 @@ export function note(...params: ConstructorParameters<typeof Note>): Note;
 export function note(
   ...params: ConstructorParameters<typeof Note> | [
     time?: number,
-    type?: NOTETYPE,
-    direction?: CUT,
+    type?: NoteType,
+    direction?: NoteCut,
     x?: number,
     y?: number,
   ]
@@ -34,8 +34,8 @@ export function note(
 
   return new Note({
     time: time as number ?? 0,
-    type: type ?? NOTETYPE.BLUE,
-    direction: direction ?? CUT.DOWN,
+    type: type ?? NoteType.BLUE,
+    direction: direction ?? NoteCut.DOWN,
     lineIndex: x ?? 0,
     lineLayer: y ?? 0,
   });
@@ -118,9 +118,9 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
   }
 
   /** The color of the note. */
-  type: NOTETYPE = 0;
+  type: NoteType = 0;
   /** The direction the note will be cut. */
-  direction: CUT = 0;
+  direction: NoteCut = 0;
   /** The angle added to the note's rotation. */
   angleOffset = 0;
 
@@ -286,8 +286,8 @@ export class Chain extends BaseSliderObject {
   constructor(
     time = 0,
     tailTime = 0,
-    type = NOTETYPE.BLUE,
-    direction = CUT.DOWN,
+    type = NoteType.BLUE,
+    direction = NoteCut.DOWN,
     x = 0,
     y = 0,
     tailX = 0,
@@ -413,9 +413,9 @@ export class Arc extends BaseSliderObject {
   constructor(
     time = 0,
     tailTime = 0,
-    type = NOTETYPE.BLUE,
-    headDirection = CUT.DOWN,
-    tailDirection = CUT.DOWN,
+    type = NoteType.BLUE,
+    headDirection = NoteCut.DOWN,
+    tailDirection = NoteCut.DOWN,
     x = 0,
     y = 0,
     tailX = 0,
@@ -489,7 +489,7 @@ export class Arc extends BaseSliderObject {
     return !this.json.customData.disableNoteGravity;
   }
 
-  set tailDirection(value: CUT) {
+  set tailDirection(value: NoteCut) {
     this.json.tc = value;
   }
   set headLength(value: number) {
@@ -498,7 +498,7 @@ export class Arc extends BaseSliderObject {
   set tailLength(value: number) {
     this.json.tmu = value;
   }
-  set anchorMode(value: ANCHORMODE) {
+  set anchorMode(value: AnchorMode) {
     this.json.m = value;
   }
   set flip(value: Vec2) {
