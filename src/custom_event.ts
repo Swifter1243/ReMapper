@@ -1,15 +1,18 @@
-import { KeyframesLinear, Track, TrackValue } from "./animation.ts";
-import { EASE } from "./constants.ts";
+import { KeyframesLinear, Track, TrackValue } from './animation.ts'
+import { EASE } from './constants.ts'
 import {
-  BloomFogEnvironment,
-  Components,
-  ILightWithId,
-  TubeBloomPrePassLight,
-} from "./environment.ts";
-import { CustomEventInternals } from "./internals/mod.ts";
-import { bsmap } from "./mod.ts";
+    BloomFogEnvironment,
+    Components,
+    ILightWithId,
+    TubeBloomPrePassLight,
+} from './environment.ts'
+import { CustomEventInternals } from './internals/mod.ts'
+import { bsmap } from './mod.ts'
 
-export type CustomEvent = CustomEventInternals.BaseEvent<bsmap.v2.ICustomEvent, bsmap.v3.ICustomEvent>
+export type CustomEvent = CustomEventInternals.BaseEvent<
+    bsmap.v2.ICustomEvent,
+    bsmap.v3.ICustomEvent
+>
 
 /**
  * Animate a track.
@@ -19,45 +22,47 @@ export type CustomEvent = CustomEventInternals.BaseEvent<bsmap.v2.ICustomEvent, 
  * @param easing The easing on this event's animation.
  */
 export function animateTrack(
-  time: number,
-  track?: TrackValue,
-  duration?: number,
-  animation?: CustomEventInternals.AnimateTrack["animate"],
-  easing?: EASE,
-): CustomEventInternals.AnimateTrack;
-export function animateTrack(
-  ...params: ConstructorParameters<typeof CustomEventInternals.AnimateTrack>
-): CustomEventInternals.AnimateTrack;
-export function animateTrack(
-  ...params: ConstructorParameters<typeof CustomEventInternals.AnimateTrack> | [
     time: number,
     track?: TrackValue,
     duration?: number,
-    animation?: CustomEventInternals.AnimateTrack["animate"],
+    animation?: CustomEventInternals.AnimateTrack['animate'],
     easing?: EASE,
-  ]
+): CustomEventInternals.AnimateTrack
+export function animateTrack(
+    ...params: ConstructorParameters<typeof CustomEventInternals.AnimateTrack>
+): CustomEventInternals.AnimateTrack
+export function animateTrack(
+    ...params:
+        | ConstructorParameters<typeof CustomEventInternals.AnimateTrack>
+        | [
+            time: number,
+            track?: TrackValue,
+            duration?: number,
+            animation?: CustomEventInternals.AnimateTrack['animate'],
+            easing?: EASE,
+        ]
 ) {
-  const [first, ...rest] = params;
+    const [first, ...rest] = params
 
-  if (typeof first === "object") {
+    if (typeof first === 'object') {
+        return new CustomEventInternals.AnimateTrack(
+            ...params as ConstructorParameters<
+                typeof CustomEventInternals.AnimateTrack
+            >,
+        )
+    }
+
+    const [time, track, duration, animation, easing] = params
+
     return new CustomEventInternals.AnimateTrack(
-      ...params as ConstructorParameters<
-        typeof CustomEventInternals.AnimateTrack
-      >,
-    );
-  }
-
-  const [time, track, duration, animation, easing] = params;
-
-  return new CustomEventInternals.AnimateTrack(
-    {
-      time: time as number,
-      track,
-      duration,
-      animation,
-      easing,
-    },
-  );
+        {
+            time: time as number,
+            track,
+            duration,
+            animation,
+            easing,
+        },
+    )
 }
 
 /**
@@ -68,49 +73,49 @@ export function animateTrack(
  * @param easing The easing on this event's animation.
  */
 export function assignPathAnimation(
-  time: number,
-  track?: TrackValue,
-  duration?: number,
-  animation?: CustomEventInternals.AnimateTrack["animate"],
-  easing?: EASE,
-): CustomEventInternals.AssignPathAnimation;
+    time: number,
+    track?: TrackValue,
+    duration?: number,
+    animation?: CustomEventInternals.AnimateTrack['animate'],
+    easing?: EASE,
+): CustomEventInternals.AssignPathAnimation
 export function assignPathAnimation(
-  ...params: ConstructorParameters<
-    typeof CustomEventInternals.AssignPathAnimation
-  >
-): CustomEventInternals.AssignPathAnimation;
-export function assignPathAnimation(
-  ...params:
-    | ConstructorParameters<typeof CustomEventInternals.AssignPathAnimation>
-    | [
-      time: number,
-      track?: TrackValue,
-      duration?: number,
-      animation?: CustomEventInternals.AssignPathAnimation["animate"],
-      easing?: EASE,
-    ]
-) {
-  const [first, ...rest] = params;
-
-  if (typeof first === "object") {
-    return new CustomEventInternals.AssignPathAnimation(
-      ...params as ConstructorParameters<
+    ...params: ConstructorParameters<
         typeof CustomEventInternals.AssignPathAnimation
-      >,
-    );
-  }
+    >
+): CustomEventInternals.AssignPathAnimation
+export function assignPathAnimation(
+    ...params:
+        | ConstructorParameters<typeof CustomEventInternals.AssignPathAnimation>
+        | [
+            time: number,
+            track?: TrackValue,
+            duration?: number,
+            animation?: CustomEventInternals.AssignPathAnimation['animate'],
+            easing?: EASE,
+        ]
+) {
+    const [first, ...rest] = params
 
-  const [time, track, duration, animation, easing] = params;
+    if (typeof first === 'object') {
+        return new CustomEventInternals.AssignPathAnimation(
+            ...params as ConstructorParameters<
+                typeof CustomEventInternals.AssignPathAnimation
+            >,
+        )
+    }
 
-  return new CustomEventInternals.AssignPathAnimation(
-    {
-      time: time as number,
-      track,
-      duration,
-      animation,
-      easing,
-    },
-  );
+    const [time, track, duration, animation, easing] = params
+
+    return new CustomEventInternals.AssignPathAnimation(
+        {
+            time: time as number,
+            track,
+            duration,
+            animation,
+            easing,
+        },
+    )
 }
 
 /**
@@ -120,46 +125,46 @@ export function assignPathAnimation(
  * @param worldPositionStays Modifies the transform of children objects to remain in the same place relative to world space.
  */
 export function assignTrackParent(
-  time: number,
-  childrenTracks: string[],
-  parentTrack: string,
-  worldPositionStays?: boolean,
-): CustomEventInternals.AssignTrackParent;
+    time: number,
+    childrenTracks: string[],
+    parentTrack: string,
+    worldPositionStays?: boolean,
+): CustomEventInternals.AssignTrackParent
 export function assignTrackParent(
-  ...params: ConstructorParameters<
-    typeof CustomEventInternals.AssignTrackParent
-  >
-): CustomEventInternals.AssignTrackParent;
-export function assignTrackParent(
-  ...params:
-    | ConstructorParameters<typeof CustomEventInternals.AssignTrackParent>
-    | [
-      time: number,
-      childrenTracks: string[],
-      parentTrack: string,
-      worldPositionStays?: boolean,
-    ]
-) {
-  const [first] = params;
-
-  if (typeof first === "object") {
-    return new CustomEventInternals.AssignTrackParent(
-      ...params as ConstructorParameters<
+    ...params: ConstructorParameters<
         typeof CustomEventInternals.AssignTrackParent
-      >,
-    );
-  }
+    >
+): CustomEventInternals.AssignTrackParent
+export function assignTrackParent(
+    ...params:
+        | ConstructorParameters<typeof CustomEventInternals.AssignTrackParent>
+        | [
+            time: number,
+            childrenTracks: string[],
+            parentTrack: string,
+            worldPositionStays?: boolean,
+        ]
+) {
+    const [first] = params
 
-  const [time, childrenTracks, parentTrack, worldPositionStays] = params;
+    if (typeof first === 'object') {
+        return new CustomEventInternals.AssignTrackParent(
+            ...params as ConstructorParameters<
+                typeof CustomEventInternals.AssignTrackParent
+            >,
+        )
+    }
 
-  return new CustomEventInternals.AssignTrackParent(
-    {
-      time: time as number,
-      childrenTracks: childrenTracks!,
-      parentTrack: parentTrack!,
-      worldPositionStays,
-    },
-  );
+    const [time, childrenTracks, parentTrack, worldPositionStays] = params
+
+    return new CustomEventInternals.AssignTrackParent(
+        {
+            time: time as number,
+            childrenTracks: childrenTracks!,
+            parentTrack: parentTrack!,
+            worldPositionStays,
+        },
+    )
 }
 
 /**
@@ -167,7 +172,7 @@ export function assignTrackParent(
  * @param track Track the player will be assigned to.
  */
 export const assignPlayerToTrack = (time: number, track?: string) =>
-  new CustomEventInternals.AssignPlayerToTrack(time, track);
+    new CustomEventInternals.AssignPlayerToTrack(time, track)
 
 /**
  * Animate components on a track.
@@ -176,46 +181,48 @@ export const assignPlayerToTrack = (time: number, track?: string) =>
  * @param easing The easing on the animation.
  */
 export function animateComponent(
-  time: number,
-  track?: TrackValue,
-  duration?: number,
-  easing?: EASE,
-  components?: Components<KeyframesLinear>,
-): CustomEventInternals.AnimateComponent;
+    time: number,
+    track?: TrackValue,
+    duration?: number,
+    easing?: EASE,
+    components?: Components<KeyframesLinear>,
+): CustomEventInternals.AnimateComponent
 export function animateComponent(
-  ...params: ConstructorParameters<typeof CustomEventInternals.AnimateComponent>
-): CustomEventInternals.AnimateComponent;
-export function animateComponent(
-  ...params:
-    | ConstructorParameters<typeof CustomEventInternals.AnimateComponent>
-    | [
-      time: number,
-      track?: TrackValue,
-      duration?: number,
-      easing?: EASE,
-
-      components?: Components<KeyframesLinear>,
-    ]
-) {
-  const [first, ...rest] = params;
-
-  if (typeof first === "object") {
-    return new CustomEventInternals.AnimateComponent(
-      ...params as ConstructorParameters<
+    ...params: ConstructorParameters<
         typeof CustomEventInternals.AnimateComponent
-      >,
-    );
-  }
+    >
+): CustomEventInternals.AnimateComponent
+export function animateComponent(
+    ...params:
+        | ConstructorParameters<typeof CustomEventInternals.AnimateComponent>
+        | [
+            time: number,
+            track?: TrackValue,
+            duration?: number,
+            easing?: EASE,
 
-  const [time, track, duration, easing, components] = params;
+            components?: Components<KeyframesLinear>,
+        ]
+) {
+    const [first, ...rest] = params
 
-  return new CustomEventInternals.AnimateComponent(
-    {
-      time: time as number,
-      track,
-      duration,
-      components: components!,
-      easing,
-    },
-  );
+    if (typeof first === 'object') {
+        return new CustomEventInternals.AnimateComponent(
+            ...params as ConstructorParameters<
+                typeof CustomEventInternals.AnimateComponent
+            >,
+        )
+    }
+
+    const [time, track, duration, easing, components] = params
+
+    return new CustomEventInternals.AnimateComponent(
+        {
+            time: time as number,
+            track,
+            duration,
+            components: components!,
+            easing,
+        },
+    )
 }

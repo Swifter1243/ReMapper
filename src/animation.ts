@@ -1,114 +1,115 @@
-import { OptimizeSettings } from "./anim_optimizer.ts";
-import { TJson } from "./beatmap.ts";
-import { Color, lerpColor } from "./color.ts";
-import { AnimationKeys, EASE, SPLINE } from "./constants.ts";
+// deno-lint-ignore-file adjacent-overload-signatures
+import { OptimizeSettings } from './anim_optimizer.ts'
+import { TJson } from './beatmap.ts'
+import { Color, lerpColor } from './color.ts'
+import { AnimationKeys, EASE, SPLINE } from './constants.ts'
 import {
-  arrAdd,
-  arrLast,
-  arrLerp,
-  arrMul,
-  arrRemove,
-  ceilTo,
-  copy,
-  findFraction,
-  floorTo,
-  iterateKeyframes,
-  lerpEasing,
-  lerpRotation,
-  NumberTuple,
-  Vec3,
-  Vec4,
-} from "./general.ts";
+    arrAdd,
+    arrLast,
+    arrLerp,
+    arrMul,
+    arrRemove,
+    ceilTo,
+    copy,
+    findFraction,
+    floorTo,
+    iterateKeyframes,
+    lerpEasing,
+    lerpRotation,
+    NumberTuple,
+    Vec3,
+    Vec4,
+} from './general.ts'
 import {
-  AbstractAnimation,
-  EnvironmentAnimation,
-  NoteAnimation,
-  WallAnimation,
-} from "./internals/animation.ts";
+    AbstractAnimation,
+    EnvironmentAnimation,
+    NoteAnimation,
+    WallAnimation,
+} from './internals/animation.ts'
 
-import { AnimationInternals } from "./internals/mod.ts";
+import { AnimationInternals } from './internals/mod.ts'
 
 /** Any flag that could be in a keyframe. E.g. easings, splines */
-export type KeyframeFlag = Interpolation | "hsvLerp";
+export type KeyframeFlag = Interpolation | 'hsvLerp'
 /** Easings and splines. */
-export type Interpolation = EASE | SPLINE;
+export type Interpolation = EASE | SPLINE
 /** Time value in a keyframe. */
-export type TimeValue = number;
+export type TimeValue = number
 
 /** Helper type for single keyframes. */
 export type SingleKeyframeAbstract<T extends number[]> = [
-  ...T,
-  TimeValue,
-  KeyframeFlag?,
-  KeyframeFlag?,
-  KeyframeFlag?,
-];
+    ...T,
+    TimeValue,
+    KeyframeFlag?,
+    KeyframeFlag?,
+    KeyframeFlag?,
+]
 /** Helper type for complex keyframes. */
 export type ComplexKeyframesAbstract<T extends number[]> =
-  SingleKeyframeAbstract<T>[];
+    SingleKeyframeAbstract<T>[]
 /** Helper type for raw keyframes. */
 export type RawKeyframesAbstract<T extends number[]> =
-  | ComplexKeyframesAbstract<T>
-  | T;
+    | ComplexKeyframesAbstract<T>
+    | T
 /** Helper type for keyframe arrays. */
 export type KeyframesAbstract<T extends number[]> =
-  | RawKeyframesAbstract<T>
-  | T
-  | string;
+    | RawKeyframesAbstract<T>
+    | T
+    | string
 
 /** Keyframe or array of keyframes with 1 value. [[x, time]...] or [x] */
-export type KeyframesLinear = KeyframesAbstract<[number]>;
+export type KeyframesLinear = KeyframesAbstract<[number]>
 /** Array of keyframes with 1 value. [[x, time]...] */
-export type ComplexKeyframesLinear = ComplexKeyframesAbstract<[number]>;
+export type ComplexKeyframesLinear = ComplexKeyframesAbstract<[number]>
 /** Keyframe or array of keyframes with 1 value.
  * [[x,time]...] or [x]
  */
-export type RawKeyframesLinear = RawKeyframesAbstract<[number]>;
+export type RawKeyframesLinear = RawKeyframesAbstract<[number]>
 
 /** Keyframe or array of keyframes with 3 values. Allows point definitions.
  * [[x,y,z,time]...] or [x,y,z]
  */
-export type KeyframesVec3 = KeyframesAbstract<Vec3>;
+export type KeyframesVec3 = KeyframesAbstract<Vec3>
 /** Array of keyframes with 3 values. [[x,y,z,time]...] */
-export type ComplexKeyframesVec3 = ComplexKeyframesAbstract<Vec3>;
+export type ComplexKeyframesVec3 = ComplexKeyframesAbstract<Vec3>
 /** Keyframe or array of keyframes with 3 values.
  * [[x,y,z,time]...] or [x,y,z]
  */
-export type RawKeyframesVec3 = RawKeyframesAbstract<Vec3>;
+export type RawKeyframesVec3 = RawKeyframesAbstract<Vec3>
 
 /** Keyframe or array of keyframes with 4 values. Allows point definitions.
  * [[x,y,z,w,time]...] or [x,y,z,w]
  */
-export type KeyframesVec4 = KeyframesAbstract<Vec4>;
+export type KeyframesVec4 = KeyframesAbstract<Vec4>
 /** Array of keyframes with 4 values. [[x,y,z,w,time]...] */
-export type ComplexKeyframesVec4 = ComplexKeyframesAbstract<Vec4>;
+export type ComplexKeyframesVec4 = ComplexKeyframesAbstract<Vec4>
 /** Keyframe or array of keyframes with 4 values.
  * [[x,y,z,w,time]...] or [x,y,z,w]
  */
-export type RawKeyframesVec4 = RawKeyframesAbstract<Vec4>;
+export type RawKeyframesVec4 = RawKeyframesAbstract<Vec4>
 
 /** Keyframe which isn't in an array with other keyframes, has any amount of values. */
-export type SingleKeyframe = SingleKeyframeAbstract<number[]>;
+export type SingleKeyframe = SingleKeyframeAbstract<number[]>
 /** Keyframe which is in an array with other keyframes, has any amount of values. */
-export type KeyframeValues = (number | (KeyframeFlag | undefined))[];
+export type KeyframeValues = (number | (KeyframeFlag | undefined))[]
 /** Array of keyframes which have any amount of values. */
-export type ComplexKeyframesAny = ComplexKeyframesAbstract<number[]>;
+export type ComplexKeyframesAny = ComplexKeyframesAbstract<number[]>
 /** Keyframe or array of keyframes with any amount of values. Allows point definitions. */
-export type KeyframesAny = SingleKeyframe | ComplexKeyframesAny | string;
+export type KeyframesAny = SingleKeyframe | ComplexKeyframesAny | string
 /** Keyframe or array of keyframes with any amount of values. */
-export type RawKeyframesAny = SingleKeyframe | ComplexKeyframesAny;
+export type RawKeyframesAny = SingleKeyframe | ComplexKeyframesAny
 
 /** A track or multiple tracks. */
-export type TrackValue = string | string[];
+export type TrackValue = string | string[]
 
 /**
  * State that this animation is for a note.
  * @param json The json to create the animation with.
  */
 export function noteAnimation(
-  ...params: ConstructorParameters<typeof NoteAnimation>
+    ...params: ConstructorParameters<typeof NoteAnimation>
 ) {
-  return new AnimationInternals.NoteAnimation(...params);
+    return new AnimationInternals.NoteAnimation(...params)
 }
 
 /**
@@ -116,9 +117,9 @@ export function noteAnimation(
  * @param json The json to create the animation with.
  */
 export function wallAnimation(
-  ...params: ConstructorParameters<typeof WallAnimation>
+    ...params: ConstructorParameters<typeof WallAnimation>
 ) {
-  return new AnimationInternals.WallAnimation(...params);
+    return new AnimationInternals.WallAnimation(...params)
 }
 
 /**
@@ -126,193 +127,195 @@ export function wallAnimation(
  * @param json The json to create the animation with.
  */
 export function environmentAnimation(
-  ...params: ConstructorParameters<typeof EnvironmentAnimation>
+    ...params: ConstructorParameters<typeof EnvironmentAnimation>
 ) {
-  return new AnimationInternals.EnvironmentAnimation(...params);
+    return new AnimationInternals.EnvironmentAnimation(...params)
 }
 
 export class Keyframe {
-  /** The data stored in this keyframe. */
-  data: KeyframeValues;
+    /** The data stored in this keyframe. */
+    data: KeyframeValues
 
-  /**
-   * Interface for keyframes in animations.
-   * A keyframe looks something like [x,y,z,time,easing].
-   * It is separated into values (x,y,z), time, and flags (easings, splines.. etc).
-   * Anything that is a string is considered a flag.
-   * A keyframe can have any amount of values.
-   * @param data The data stored in this keyframe.
-   */
-  constructor(data: KeyframeValues) {
-    this.data = data;
-  }
-
-  /** The index of the time value. */
-  get timeIndex() {
-    for (let i = this.data.length - 1; i >= 0; i--) {
-      if (typeof this.data[i] !== "string") return i;
+    /**
+     * Interface for keyframes in animations.
+     * A keyframe looks something like [x,y,z,time,easing].
+     * It is separated into values (x,y,z), time, and flags (easings, splines.. etc).
+     * Anything that is a string is considered a flag.
+     * A keyframe can have any amount of values.
+     * @param data The data stored in this keyframe.
+     */
+    constructor(data: KeyframeValues) {
+        this.data = data
     }
-    return -1;
-  }
 
-  /** The time value. */
-  get time() {
-    return this.data[this.timeIndex] as number;
-  }
-  /** The values in the keyframes.
-   * For example [x,y,z,time] would have [x,y,z] as values.
-   */
-  get values() {
-    return this.data.slice(0, this.timeIndex) as number[];
-  }
-  /** The easing in the keyframe. Returns undefined if not found. */
-  get easing() {
-    return this.data[this.getFlagIndex("ease", false)] as EASE;
-  }
-  /** The spline in the keyframe. Returns undefined if not found. */
-  get spline() {
-    return this.data[this.getFlagIndex("spline", false)] as SPLINE;
-  }
-  /** Whether this keyframe has the "hsvLerp" flag. */
-  get hsvLerp() {
-    return thithis.animations.getFlagIndex("hsvLerp") !== -1;
-  }
-
-  set time(value: number) {
-    this.data[this.timeIndex] = value;
-  }
-  set values(value: number[]) {
-    for (let i = 0; i < this.timeIndex; i++) this.data[i] = value[i];
-  }
-  set easing(value: EASE) {
-    this.setFlag(value, "ease");
-  }
-  set spline(value: SPLINE) {
-    this.setFlag(value, "spline");
-  }
-  set hsvLerp(value: boolean) {
-    if (value) this.setFlag("hsvLerp");
-    else {
-      const flagIndex = this.getFlagIndex("hsvLerp");
-      if (flagIndex !== -1) arrRemove(this.data, flagIndex);
+    /** The index of the time value. */
+    get timeIndex() {
+        for (let i = this.data.length - 1; i >= 0; i--) {
+            if (typeof this.data[i] !== 'string') return i
+        }
+        return -1
     }
-  }
 
-  /**
-   * Set a flag in the keyframe.
-   * @param value The flag to be set.
-   * @param old An existing flag containing this will be replaced by the value.
-   */
-  setFlag(value: KeyframeFlag, old?: string) {
-    let index = this.getFlagIndex(old ? old : value, old === undefined);
-    if (index === -1) index = this.data.length;
-    this.data[index] = value;
-  }
-
-  /**
-   * Gets the index of a flag.
-   * @param flag The flag to look for.
-   * @param exact Whether it should be an exact match, or just contain the flag argument.
-   */
-  getFlagIndex(flag: string, exact = true) {
-    if (exact) {
-      return this.data.findIndex((x) => typeof x === "string" && x === flag);
+    /** The time value. */
+    get time() {
+        return this.data[this.timeIndex] as number
     }
-    return this.data.findIndex(
-      (x) => typeof x === "string" && x.includes(flag),
-    );
-  }
+    /** The values in the keyframes.
+     * For example [x,y,z,time] would have [x,y,z] as values.
+     */
+    get values() {
+        return this.data.slice(0, this.timeIndex) as number[]
+    }
+    /** The easing in the keyframe. Returns undefined if not found. */
+    get easing() {
+        return this.data[this.getFlagIndex('ease', false)] as EASE
+    }
+    /** The spline in the keyframe. Returns undefined if not found. */
+    get spline() {
+        return this.data[this.getFlagIndex('spline', false)] as SPLINE
+    }
+    /** Whether this keyframe has the "hsvLerp" flag. */
+    get hsvLerp() {
+        return this.getFlagIndex('hsvLerp') !== -1
+    }
+
+    set time(value: number) {
+        this.data[this.timeIndex] = value
+    }
+    set values(value: number[]) {
+        for (let i = 0; i < this.timeIndex; i++) this.data[i] = value[i]
+    }
+    set easing(value: EASE) {
+        this.setFlag(value, 'ease')
+    }
+    set spline(value: SPLINE) {
+        this.setFlag(value, 'spline')
+    }
+    set hsvLerp(value: boolean) {
+        if (value) this.setFlag('hsvLerp')
+        else {
+            const flagIndex = this.getFlagIndex('hsvLerp')
+            if (flagIndex !== -1) arrRemove(this.data, flagIndex)
+        }
+    }
+
+    /**
+     * Set a flag in the keyframe.
+     * @param value The flag to be set.
+     * @param old An existing flag containing this will be replaced by the value.
+     */
+    setFlag(value: KeyframeFlag, old?: string) {
+        let index = this.getFlagIndex(old ? old : value, old === undefined)
+        if (index === -1) index = this.data.length
+        this.data[index] = value
+    }
+
+    /**
+     * Gets the index of a flag.
+     * @param flag The flag to look for.
+     * @param exact Whether it should be an exact match, or just contain the flag argument.
+     */
+    getFlagIndex(flag: string, exact = true) {
+        if (exact) {
+            return this.data.findIndex((x) =>
+                typeof x === 'string' && x === flag
+            )
+        }
+        return this.data.findIndex(
+            (x) => typeof x === 'string' && x.includes(flag),
+        )
+    }
 }
 
 export class Track {
-  /** The value of the track. */
-  value?: TrackValue;
+    /** The value of the track. */
+    value?: TrackValue
 
-  constructor(value?: TrackValue) {
-    this.value = value;
-  }
-
-  private expandArray(array: TrackValue) {
-    return typeof array === "string" ? [array] : array;
-  }
-
-  private simplifyArray(array: TrackValue) {
-    if (typeof array === "string") return array;
-
-    return array.length === 1 ? array[0] : array;
-  }
-
-  /**
-   * Safely check if the track contains this value.
-   * @param value
-   */
-  has(value: string) {
-    if (!this.value) return false;
-    if (typeof this.value === "string") return this.value === value;
-
-    return this.value.some((x) => x === value);
-  }
-
-  /**
-   * Safely add tracks.
-   * @param value Can be one track or multiple.
-   */
-  add(value: TrackValue) {
-    if (!this.value) {
-      this.value = this.simplifyArray(value);
-      return this;
+    constructor(value?: TrackValue) {
+        this.value = value
     }
 
-    const arrValue = this.expandArray(this.value).concat(
-      this.expandArray(value),
-    );
-    this.value = this.simplifyArray(arrValue);
-    return this;
-  }
-
-  /**
-   * Remove tracks.
-   * @param value Can be one track or multiple.
-   */
-  remove(value: TrackValue) {
-    if (!this.value) return;
-
-    const removeValues = this.expandArray(value);
-    const thisValue = this.expandArray(this.value);
-    const removed: Record<number, boolean> = {};
-
-    removeValues.forEach((x) => {
-      thisValue.forEach((y, i) => {
-        if (y === x) removed[i] = true;
-      });
-    });
-
-    const returnArr = thisValue.filter((_x, i) => !removed[i]);
-
-    if (returnArr.length === 0) {
-      return;
+    private expandArray(array: TrackValue) {
+        return typeof array === 'string' ? [array] : array
     }
-    this.value = this.simplifyArray(returnArr);
 
-    return this;
-  }
+    private simplifyArray(array: TrackValue) {
+        if (typeof array === 'string') return array
 
-  /** Get the track value as an array. */
-  array() {
-    return this.value && this.expandArray(this.value);
-  }
+        return array.length === 1 ? array[0] : array
+    }
 
-  /**
-   * Check that each track passes a condition.
-   * @param condition Function to run for each track, must return boolean
-   */
-  check(condition: (track: string) => boolean) {
-    if (!this.value) return false;
+    /**
+     * Safely check if the track contains this value.
+     * @param value
+     */
+    has(value: string) {
+        if (!this.value) return false
+        if (typeof this.value === 'string') return this.value === value
 
-    return this.expandArray(this.value).some((x) => {
-      return condition(x);
-    });
-  }
+        return this.value.some((x) => x === value)
+    }
+
+    /**
+     * Safely add tracks.
+     * @param value Can be one track or multiple.
+     */
+    add(value: TrackValue) {
+        if (!this.value) {
+            this.value = this.simplifyArray(value)
+            return this
+        }
+
+        const arrValue = this.expandArray(this.value).concat(
+            this.expandArray(value),
+        )
+        this.value = this.simplifyArray(arrValue)
+        return this
+    }
+
+    /**
+     * Remove tracks.
+     * @param value Can be one track or multiple.
+     */
+    remove(value: TrackValue) {
+        if (!this.value) return
+
+        const removeValues = this.expandArray(value)
+        const thisValue = this.expandArray(this.value)
+        const removed: Record<number, boolean> = {}
+
+        removeValues.forEach((x) => {
+            thisValue.forEach((y, i) => {
+                if (y === x) removed[i] = true
+            })
+        })
+
+        const returnArr = thisValue.filter((_x, i) => !removed[i])
+
+        if (returnArr.length === 0) {
+            return
+        }
+        this.value = this.simplifyArray(returnArr)
+
+        return this
+    }
+
+    /** Get the track value as an array. */
+    array() {
+        return this.value && this.expandArray(this.value)
+    }
+
+    /**
+     * Check that each track passes a condition.
+     * @param condition Function to run for each track, must return boolean
+     */
+    check(condition: (track: string) => boolean) {
+        if (!this.value) return false
+
+        return this.expandArray(this.value).some((x) => {
+            return condition(x)
+        })
+    }
 }
 
 /**
@@ -321,10 +324,10 @@ export class Track {
  * @param array The keyframe or array of keyframes.
  */
 export function complexifyArray<T extends NumberTuple>(
-  array: RawKeyframesAbstract<T> | RawKeyframesAny,
+    array: RawKeyframesAbstract<T> | RawKeyframesAny,
 ) {
-  if (!isSimple(array)) return array as ComplexKeyframesAbstract<T>;
-  return [[...array, 0]] as ComplexKeyframesAbstract<T>;
+    if (!isSimple(array)) return array as ComplexKeyframesAbstract<T>
+    return [[...array, 0]] as ComplexKeyframesAbstract<T>
 }
 
 /**
@@ -333,21 +336,22 @@ export function complexifyArray<T extends NumberTuple>(
  * @param array The array of keyframes.
  */
 export function simplifyArray<T extends NumberTuple>(
-  array: RawKeyframesAbstract<T>,
+    array: RawKeyframesAbstract<T>,
 ): RawKeyframesAbstract<T> {
-  if (array.length <= 1 && !isSimple(array)) {
-    const keyframe = new Keyframe(array[0] as KeyframeValues);
-    if (keyframe.time === 0) return keyframe.values as RawKeyframesAbstract<T>;
-  }
-  return array;
+    if (array.length <= 1 && !isSimple(array)) {
+        const keyframe = new Keyframe(array[0] as KeyframeValues)
+        if (keyframe.time === 0) {
+            return keyframe.values as RawKeyframesAbstract<T>
+        }
+    }
+    return array
 }
 
 /**
  * Checks if value is an array of keyframes.
  * @param array The keyframe or array of keyframes.
  */
-export const isSimple = (array: RawKeyframesAny) =>
-  typeof array[0] !== "object";
+export const isSimple = (array: RawKeyframesAny) => typeof array[0] !== 'object'
 
 /**
  * Get the value of keyframes at a given time.
@@ -356,123 +360,127 @@ export const isSimple = (array: RawKeyframesAny) =>
  * @param time The time to get the value at.
  */
 export function getValuesAtTime<K extends string = AnimationKeys>(
-  property: K,
-  animation: KeyframesAny,
-  time: number,
+    property: K,
+    animation: KeyframesAny,
+    time: number,
 ) {
-  if (typeof animation === "string") {
-    throw "Does not support point definitions!";
-  }
-
-  animation = complexifyArray(animation);
-  const timeInfo = timeInKeyframes(time, animation);
-  if (timeInfo.interpolate && timeInfo.r && timeInfo.l) {
-    if (
-      property === "rotation" ||
-      property === "localRotation" ||
-      property === "offsetWorldRotation"
-    ) {
-      return lerpRotation(
-        timeInfo.l.values as Vec3,
-        timeInfo.r.values as Vec3,
-        timeInfo.normalTime,
-      );
-    }
-    if (property === "color" && timeInfo.r.hsvLerp) {
-      const color1 = new Color(timeInfo.l.values as Vec4, "RGB");
-      const color2 = new Color(timeInfo.r.values as Vec4, "RGB");
-      const lerp = lerpColor(
-        color1,
-        color2,
-        timeInfo.normalTime,
-        undefined,
-        "HSV",
-      );
-      return lerp.export();
-    }
-    if (timeInfo.r.spline === "splineCatmullRom") {
-      return splineCatmullRomLerp(timeInfo, animation);
+    if (typeof animation === 'string') {
+        throw 'Does not support point definitions!'
     }
 
-    return arrLerp(timeInfo.l.values, timeInfo.r.values, timeInfo.normalTime);
-  }
-  return (timeInfo.l as Keyframe).values;
+    animation = complexifyArray(animation)
+    const timeInfo = timeInKeyframes(time, animation)
+    if (timeInfo.interpolate && timeInfo.r && timeInfo.l) {
+        if (
+            property === 'rotation' ||
+            property === 'localRotation' ||
+            property === 'offsetWorldRotation'
+        ) {
+            return lerpRotation(
+                timeInfo.l.values as Vec3,
+                timeInfo.r.values as Vec3,
+                timeInfo.normalTime,
+            )
+        }
+        if (property === 'color' && timeInfo.r.hsvLerp) {
+            const color1 = new Color(timeInfo.l.values as Vec4, 'RGB')
+            const color2 = new Color(timeInfo.r.values as Vec4, 'RGB')
+            const lerp = lerpColor(
+                color1,
+                color2,
+                timeInfo.normalTime,
+                undefined,
+                'HSV',
+            )
+            return lerp.export()
+        }
+        if (timeInfo.r.spline === 'splineCatmullRom') {
+            return splineCatmullRomLerp(timeInfo, animation)
+        }
+
+        return arrLerp(
+            timeInfo.l.values,
+            timeInfo.r.values,
+            timeInfo.normalTime,
+        )
+    }
+    return (timeInfo.l as Keyframe).values
 }
 
 export function splineCatmullRomLerp(
-  timeInfo: Required<ReturnType<typeof timeInKeyframes>>,
-  animation: ComplexKeyframesAny,
+    timeInfo: Required<ReturnType<typeof timeInKeyframes>>,
+    animation: ComplexKeyframesAny,
 ) {
-  const p0 = timeInfo.leftIndex - 1 < 0
-    ? timeInfo.l.values
-    : new Keyframe(animation[timeInfo.leftIndex - 1]).values;
-  const p1 = timeInfo.l.values;
-  const p2 = timeInfo.r.values;
-  const p3 = timeInfo.rightIndex + 1 > animation.length - 1
-    ? timeInfo.r.values
-    : new Keyframe(animation[timeInfo.rightIndex + 1]).values;
+    const p0 = timeInfo.leftIndex - 1 < 0
+        ? timeInfo.l.values
+        : new Keyframe(animation[timeInfo.leftIndex - 1]).values
+    const p1 = timeInfo.l.values
+    const p2 = timeInfo.r.values
+    const p3 = timeInfo.rightIndex + 1 > animation.length - 1
+        ? timeInfo.r.values
+        : new Keyframe(animation[timeInfo.rightIndex + 1]).values
 
-  const t = timeInfo.normalTime;
-  const tt = t * t;
-  const ttt = tt * t;
+    const t = timeInfo.normalTime
+    const tt = t * t
+    const ttt = tt * t
 
-  const q0 = -ttt + 2 * tt - t;
-  const q1 = 3 * ttt - 5 * tt + 2;
-  const q2 = -3 * ttt + 4 * tt + t;
-  const q3 = ttt - tt;
+    const q0 = -ttt + 2 * tt - t
+    const q1 = 3 * ttt - 5 * tt + 2
+    const q2 = -3 * ttt + 4 * tt + t
+    const q3 = ttt - tt
 
-  const o0 = arrMul(p0, q0);
-  const o1 = arrMul(p1, q1);
-  const o2 = arrMul(p2, q2);
-  const o3 = arrMul(p3, q3);
+    const o0 = arrMul(p0, q0)
+    const o1 = arrMul(p1, q1)
+    const o2 = arrMul(p2, q2)
+    const o3 = arrMul(p3, q3)
 
-  return arrMul(arrAdd(arrAdd(o0, o1), arrAdd(o2, o3)), 0.5);
+    return arrMul(arrAdd(arrAdd(o0, o1), arrAdd(o2, o3)), 0.5)
 }
 
 function timeInKeyframes(time: number, animation: ComplexKeyframesAny) {
-  let l: Keyframe;
-  let normalTime = 0;
+    let l: Keyframe
+    let normalTime = 0
 
-  if (animation.length === 0) return { interpolate: false };
+    if (animation.length === 0) return { interpolate: false }
 
-  const first = new Keyframe(animation[0]);
-  if (first.time >= time) {
-    l = first;
-    return { interpolate: false, l: l };
-  }
+    const first = new Keyframe(animation[0])
+    if (first.time >= time) {
+        l = first
+        return { interpolate: false, l: l }
+    }
 
-  const last = new Keyframe(arrLast(animation));
-  if (last.time <= time) {
-    l = last;
-    return { interpolate: false, l: l };
-  }
+    const last = new Keyframe(arrLast(animation))
+    if (last.time <= time) {
+        l = last
+        return { interpolate: false, l: l }
+    }
 
-  let leftIndex = 0;
-  let rightIndex = animation.length;
+    let leftIndex = 0
+    let rightIndex = animation.length
 
-  while (leftIndex < rightIndex - 1) {
-    const m = Math.floor((leftIndex + rightIndex) / 2);
-    const pointTime = new Keyframe(animation[m]).time;
+    while (leftIndex < rightIndex - 1) {
+        const m = Math.floor((leftIndex + rightIndex) / 2)
+        const pointTime = new Keyframe(animation[m]).time
 
-    if (pointTime < time) leftIndex = m;
-    else rightIndex = m;
-  }
+        if (pointTime < time) leftIndex = m
+        else rightIndex = m
+    }
 
-  l = new Keyframe(animation[leftIndex]);
-  // eslint-disable-next-line prefer-const
-  const r = new Keyframe(animation[rightIndex]);
+    l = new Keyframe(animation[leftIndex])
+    // eslint-disable-next-line prefer-const
+    const r = new Keyframe(animation[rightIndex])
 
-  normalTime = findFraction(l.time, r.time - l.time, time);
-  if (r.easing) normalTime = lerpEasing(r.easing, normalTime);
+    normalTime = findFraction(l.time, r.time - l.time, time)
+    if (r.easing) normalTime = lerpEasing(r.easing, normalTime)
 
-  return {
-    interpolate: true,
-    l: l,
-    r: r,
-    normalTime: normalTime,
-    leftIndex: leftIndex,
-    rightIndex: rightIndex,
-  };
+    return {
+        interpolate: true,
+        l: l,
+        r: r,
+        normalTime: normalTime,
+        leftIndex: leftIndex,
+        rightIndex: rightIndex,
+    }
 }
 
 /**
@@ -483,59 +491,59 @@ function timeInKeyframes(time: number, animation: ComplexKeyframesAny) {
  * @param property The property that this animation came from.
  */
 export function combineAnimations(
-  anim1: RawKeyframesAny,
-  anim2: RawKeyframesAny,
-  property: AnimationKeys,
+    anim1: RawKeyframesAny,
+    anim2: RawKeyframesAny,
+    property: AnimationKeys,
 ) {
-  let simpleArr = copy(anim1);
-  let complexArr: ComplexKeyframesAny = [];
+    let simpleArr = copy(anim1)
+    let complexArr: ComplexKeyframesAny = []
 
-  if (isSimple(anim1) && isSimple(anim2)) complexArr = complexifyArray(anim2);
-  else if (!isSimple(anim1) && isSimple(anim2)) {
-    simpleArr = copy(anim2);
-    complexArr = copy(anim1) as ComplexKeyframesAny;
-  } else if (!isSimple(anim1) && !isSimple(anim2)) {
-    console.error(`[${anim1}] and [${anim2}] are unable to combine!`);
-  } else {
-    complexArr = copy(anim2) as ComplexKeyframesAny;
-  }
+    if (isSimple(anim1) && isSimple(anim2)) complexArr = complexifyArray(anim2)
+    else if (!isSimple(anim1) && isSimple(anim2)) {
+        simpleArr = copy(anim2)
+        complexArr = copy(anim1) as ComplexKeyframesAny
+    } else if (!isSimple(anim1) && !isSimple(anim2)) {
+        console.error(`[${anim1}] and [${anim2}] are unable to combine!`)
+    } else {
+        complexArr = copy(anim2) as ComplexKeyframesAny
+    }
 
-  const editElem = function (e: number, e2: number) {
-    if (
-      property === "position" ||
-      property === "localPosition" ||
-      property === "definitePosition" ||
-      property === "offsetPosition"
-    ) {
-      e += e2;
+    const editElem = function (e: number, e2: number) {
+        if (
+            property === 'position' ||
+            property === 'localPosition' ||
+            property === 'definitePosition' ||
+            property === 'offsetPosition'
+        ) {
+            e += e2
+        }
+        if (
+            property === 'rotation' ||
+            property === 'localRotation' ||
+            property === 'offsetWorldRotation'
+        ) {
+            e = (e + e2) % 360
+        }
+        if (property === 'scale') e *= e2
+        return e
     }
-    if (
-      property === "rotation" ||
-      property === "localRotation" ||
-      property === "offsetWorldRotation"
-    ) {
-      e = (e + e2) % 360;
-    }
-    if (property === "scale") e *= e2;
-    return e;
-  };
 
-  for (let j = 0; j < complexArr.length; j++) {
-    for (let i = 0; i < simpleArr.length; i++) {
-      complexArr[j][i] = editElem(
-        complexArr[j][i] as number,
-        simpleArr[i] as number,
-      );
+    for (let j = 0; j < complexArr.length; j++) {
+        for (let i = 0; i < simpleArr.length; i++) {
+            complexArr[j][i] = editElem(
+                complexArr[j][i] as number,
+                simpleArr[i] as number,
+            )
+        }
     }
-  }
-  return complexArr;
+    return complexArr
 }
 
 export interface TransformKeyframe {
-  pos: Vec3;
-  rot: Vec3;
-  scale: Vec3;
-  time: number;
+    pos: Vec3
+    rot: Vec3
+    scale: Vec3
+    time: number
 }
 
 /**
@@ -547,83 +555,85 @@ export interface TransformKeyframe {
  * @param animOptimizer The optional optimizer for the keyframes.
  */
 export function bakeAnimation(
-  animation: {
-    pos?: RawKeyframesVec3;
-    rot?: RawKeyframesVec3;
-    scale?: RawKeyframesVec3;
-  },
-  forKeyframe?: (transform: TransformKeyframe) => void,
-  animFreq?: number,
-  animOptimizer?: OptimizeSettings,
+    animation: {
+        pos?: RawKeyframesVec3
+        rot?: RawKeyframesVec3
+        scale?: RawKeyframesVec3
+    },
+    forKeyframe?: (transform: TransformKeyframe) => void,
+    animFreq?: number,
+    animOptimizer?: OptimizeSettings,
 ) {
-  animFreq ??= 1 / 32;
-  animation.pos ??= [0, 0, 0];
-  animation.rot ??= [0, 0, 0];
-  animation.scale ??= [1, 1, 1];
+    animFreq ??= 1 / 32
+    animation.pos ??= [0, 0, 0]
+    animation.rot ??= [0, 0, 0]
+    animation.scale ??= [1, 1, 1]
 
-  const dataAnim = new AbstractAnimation();
-  dataAnim.position = copy(animation.pos);
-  dataAnim.rotation = copy(animation.rot);
-  dataAnim.scale = copy(animation.scale);
+    const dataAnim = new AbstractAnimation()
+    dataAnim.position = copy(animation.pos)
+    dataAnim.rotation = copy(animation.rot)
+    dataAnim.scale = copy(animation.scale)
 
-  const data = {
-    pos: <number[][]> [],
-    rot: <number[][]> [],
-    scale: <number[][]> [],
-  };
+    const data = {
+        pos: <number[][]> [],
+        rot: <number[][]> [],
+        scale: <number[][]> [],
+    }
 
-  function getDomain(arr: RawKeyframesAny) {
-    let newArr = complexifyArray(arr);
-    newArr = newArr.sort((a, b) => new Keyframe(a).time - new Keyframe(b).time);
-    let min = 1;
-    let max = 0;
-    newArr.forEach((x) => {
-      const time = new Keyframe(x).time;
-      if (time < min) min = time;
-      if (time > max) max = time;
-    });
-    return { min: min, max: max };
-  }
+    function getDomain(arr: RawKeyframesAny) {
+        let newArr = complexifyArray(arr)
+        newArr = newArr.sort((a, b) =>
+            new Keyframe(a).time - new Keyframe(b).time
+        )
+        let min = 1
+        let max = 0
+        newArr.forEach((x) => {
+            const time = new Keyframe(x).time
+            if (time < min) min = time
+            if (time > max) max = time
+        })
+        return { min: min, max: max }
+    }
 
-  const posDomain = getDomain(animation.pos);
-  const rotDomain = getDomain(animation.rot);
-  const scaleDomain = getDomain(animation.scale);
+    const posDomain = getDomain(animation.pos)
+    const rotDomain = getDomain(animation.rot)
+    const scaleDomain = getDomain(animation.scale)
 
-  const totalMin = floorTo(
-    getDomain([[posDomain.min], [rotDomain.min], [scaleDomain.min]]).min,
-    animFreq,
-  );
-  const totalMax = ceilTo(
-    getDomain([[posDomain.max], [rotDomain.max], [scaleDomain.max]]).max,
-    animFreq,
-  );
+    const totalMin = floorTo(
+        getDomain([[posDomain.min], [rotDomain.min], [scaleDomain.min]]).min,
+        animFreq,
+    )
+    const totalMax = ceilTo(
+        getDomain([[posDomain.max], [rotDomain.max], [scaleDomain.max]]).max,
+        animFreq,
+    )
 
-  for (let i = totalMin; i <= totalMax; i += animFreq) {
-    const keyframe = {
-      pos: dataAnim.get("position", i)! as Vec3,
-      rot: dataAnim.get("rotation", i)! as Vec3,
-      scale: dataAnim.get("scale", i)! as Vec3,
-      time: i,
-    } satisfies TransformKeyframe;
+    for (let i = totalMin; i <= totalMax; i += animFreq) {
+        const keyframe = {
+            pos: dataAnim.get('position', i)! as Vec3,
+            rot: dataAnim.get('rotation', i)! as Vec3,
+            scale: dataAnim.get('scale', i)! as Vec3,
+            time: i,
+        } satisfies TransformKeyframe
 
-    if (forKeyframe) forKeyframe(keyframe);
+        if (forKeyframe) forKeyframe(keyframe)
 
-    data.pos.push([...keyframe.pos, keyframe.time]);
-    data.rot.push([...keyframe.rot, keyframe.time]);
-    data.scale.push([...keyframe.scale, keyframe.time]);
-  }
+        data.pos.push([...keyframe.pos, keyframe.time])
+        data.rot.push([...keyframe.rot, keyframe.time])
+        data.scale.push([...keyframe.scale, keyframe.time])
+    }
 
-  dataAnim.position = data.pos as KeyframesVec3;
-  dataAnim.rotation = data.rot as KeyframesVec3;
-  dataAnim.scale = data.scale as KeyframesVec3;
+    dataAnim.position = data.pos as KeyframesVec3
+    dataAnim.rotation = data.rot as KeyframesVec3
+    dataAnim.scale = data.scale as KeyframesVec3
 
-  dataAnim.optimize(undefined, animOptimizer);
+    dataAnim.optimize(undefined, animOptimizer)
 
-  return {
-    pos: dataAnim.position as RawKeyframesVec3,
-    rot: dataAnim.rotation as RawKeyframesVec3,
-    scale: dataAnim.scale as RawKeyframesVec3,
-  };
+    return {
+        pos: dataAnim.position as RawKeyframesVec3,
+        rot: dataAnim.rotation as RawKeyframesVec3,
+        scale: dataAnim.scale as RawKeyframesVec3,
+    }
 }
 
 /**
@@ -631,36 +641,35 @@ export function bakeAnimation(
  * @param animation Animation to reverse.
  */
 export function reverseAnimation<T extends NumberTuple>(
-  animation: RawKeyframesAbstract<T>,
+    animation: RawKeyframesAbstract<T>,
 ) {
-  if (isSimple(animation)) return animation;
-  const keyframes: Keyframe[] = [];
+    if (isSimple(animation)) return animation
+    const keyframes: Keyframe[] = []
+    ;(animation as ComplexKeyframesAbstract<T>).forEach((x, i) => {
+        const k = new Keyframe(copy(x))
+        k.time = 1 - k.time
+        keyframes[animation.length - 1 - i] = k
+    })
 
-  (animation as ComplexKeyframesAbstract<T>).forEach((x, i) => {
-    const k = new Keyframe(copy(x));
-    k.time = 1 - k.time;
-    keyframes[animation.length - 1 - i] = k;
-  });
+    for (let i = keyframes.length - 1; i >= 0; i--) {
+        const current = keyframes[i]
 
-  for (let i = keyframes.length - 1; i >= 0; i--) {
-    const current = keyframes[i];
+        if (current.easing) {
+            if (current.easing && !current.easing.includes('InOut')) {
+                if (current.easing.includes('In')) {
+                    current.easing = current.easing.replace('In', 'Out') as EASE
+                } else if (current.easing.includes('Out')) {
+                    current.easing = current.easing.replace('Out', 'In') as EASE
+                }
+            }
 
-    if (current.easing) {
-      if (current.easing && !current.easing.includes("InOut")) {
-        if (current.easing.includes("In")) {
-          current.easing = current.easing.replace("In", "Out") as EASE;
-        } else if (current.easing.includes("Out")) {
-          current.easing = current.easing.replace("Out", "In") as EASE;
+            const last = keyframes[i + 1]
+            last.easing = current.easing
+            arrRemove(current.data, current.getFlagIndex('ease', false))
         }
-      }
-
-      const last = keyframes[i + 1];
-      last.easing = current.easing;
-      arrRemove(current.data, current.getFlagIndex("ease", false));
     }
-  }
 
-  return keyframes.map((x) => x.data) as RawKeyframesAbstract<T>;
+    return keyframes.map((x) => x.data) as RawKeyframesAbstract<T>
 }
 
 /**
@@ -668,22 +677,22 @@ export function reverseAnimation<T extends NumberTuple>(
  * @param animation Animation to mirror.
  */
 export function mirrorAnimation<T extends NumberTuple>(
-  animation: RawKeyframesAbstract<T>,
+    animation: RawKeyframesAbstract<T>,
 ) {
-  const reversedAnim = reverseAnimation(animation);
-  const output: Keyframe[] = [];
+    const reversedAnim = reverseAnimation(animation)
+    const output: Keyframe[] = []
 
-  iterateKeyframes(animation, (x) => {
-    const k = new Keyframe(copy(x));
-    k.time = k.time / 2;
-    output.push(k);
-  });
+    iterateKeyframes(animation, (x) => {
+        const k = new Keyframe(copy(x))
+        k.time = k.time / 2
+        output.push(k)
+    })
 
-  iterateKeyframes(reversedAnim, (x) => {
-    const k = new Keyframe(x);
-    k.time = k.time / 2 + 0.5;
-    output.push(k);
-  });
+    iterateKeyframes(reversedAnim, (x) => {
+        const k = new Keyframe(x)
+        k.time = k.time / 2 + 0.5
+        output.push(k)
+    })
 
-  return output.map((x) => x.data) as ComplexKeyframesAbstract<T>;
+    return output.map((x) => x.data) as ComplexKeyframesAbstract<T>
 }
