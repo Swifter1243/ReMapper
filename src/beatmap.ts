@@ -38,6 +38,7 @@ import {
 } from './internals/mod.ts'
 import { CustomEvent } from './custom_event.ts'
 import { Event } from './basicEvent.ts'
+import { V2Difficulty } from "./beatmap_v2.ts";
 
 type PostProcessFn<T> = (
     object: T,
