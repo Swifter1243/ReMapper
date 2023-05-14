@@ -1,5 +1,5 @@
 // deno-lint-ignore-file adjacent-overload-signatures
-import { activeDiffGet, TJson } from './beatmap.ts'
+import { activeDiffGet } from './beatmap.ts'
 import { copy, Vec3, worldToWall } from './general.ts'
 import {
     bakeAnimation,
@@ -15,7 +15,6 @@ import { BaseGameplayObject } from './object.ts'
 import { getModel, ModelObject } from './model.ts'
 import { optimizeAnimation, OptimizeSettings } from './anim_optimizer.ts'
 import { bsmap, KeyframesVec3, wallAnimation } from './mod.ts'
-import { WallAnimation } from './internals/animation.ts'
 import { Fields } from './types.ts'
 
 /**
@@ -78,7 +77,7 @@ export class Wall
                 x: this.lineIndex,
                 y: this.lineLayer,
                 customData: {
-                    animation: this.animate.toJson(v3),
+                    animation: this.animation.toJson(v3),
                     size: this.scale,
                     noteJumpMovementSpeed: this.localNJS,
                     noteJumpStartBeatOffset: this.localBeatOffset,
@@ -101,7 +100,7 @@ export class Wall
             _type: 0,
             _width: this.width,
             _customData: {
-                _animation: this.animate.toJson(v3),
+                _animation: this.animation.toJson(v3),
                 _scale: this.scale,
                 _noteJumpMovementSpeed: this.localNJS,
                 _noteJumpStartBeatOffset: this.localBeatOffset,
@@ -214,13 +213,13 @@ export function debugWall(
         )
 
         w.scale = [1, 1, 1]
-        w.animate.duration = w.life
-        w.animate.definitePosition = transform.pos as KeyframesVec3
-        w.animate.localRotation = transform.rot as KeyframesVec3
-        w.animate.scale = transform.scale as KeyframesVec3
+        w.animation.duration = w.life
+        w.animation.definitePosition = transform.pos as KeyframesVec3
+        w.animation.localRotation = transform.rot as KeyframesVec3
+        w.animation.scale = transform.scale as KeyframesVec3
     } else {
         const wtw = worldToWall(pos as Vec3, rot as Vec3, scale as Vec3)
-        w.animate.definitePosition = wtw.pos
+        w.animation.definitePosition = wtw.pos
         w.scale = wtw.scale
         w.localRotation = rot as Vec3
     }
@@ -286,7 +285,7 @@ export async function modelToWall(
 
         o.life = nums.newLife
         o.lifeStart = start - nums.backwardOffset
-        distributeAnim(o.animate.dissolve as RawKeyframesAny, index, length)
+        distributeAnim(o.animation.dissolve as RawKeyframesAny, index, length)
     }
 
     function distributeAnim(
@@ -311,7 +310,7 @@ export async function modelToWall(
     const w = wall();
     w.life = end - start
     w.lifeStart = start
-    w.animate.dissolve = [[0, 0], [1, 0]]
+    w.animation.dissolve = [[0, 0], [1, 0]]
     w.coordinates = [0, 0]
     w.interactable = false
 
@@ -395,16 +394,16 @@ export async function modelToWall(
     objects.forEach((x, i) => {
         const o = copy(w)
 
-        o.animate.definitePosition = x.pos
+        o.animation.definitePosition = x.pos
         if (x.color) o.color = x.color
 
         if (isSimple(x.rot)) o.localRotation = x.rot as Vec3
-        else o.animate.localRotation = x.rot
+        else o.animation.localRotation = x.rot
 
         if (isSimple(x.scale)) o.scale = x.scale as Vec3
         else {
             o.scale = [1, 1, 1]
-            o.animate.scale = x.scale
+            o.animation.scale = x.scale
         }
 
         distributeWall(o, i, objects.length)
