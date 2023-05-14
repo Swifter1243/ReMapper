@@ -68,6 +68,96 @@ export function bomb(
     })
 }
 
+
+export function chain(
+        time?: number,
+        tailTime?: number,
+        type?: NoteType,
+        direction?: NoteCut,
+        x?: number,
+        y?: number,
+        tailX?: number,
+        tailY?: number,
+        links?: number,
+): Chain
+export function chain(...params: ConstructorParameters<typeof Chain>): Chain
+export function chain(
+    ...params: ConstructorParameters<typeof Chain> | [
+        time?: number,
+        tailTime?: number,
+        type?: NoteType,
+        headDirection?: NoteCut,
+        tailDirection?: NoteCut,
+        x?: number,
+        y?: number,
+        tailX?: number,
+        tailY?: number,
+    ]
+): Chain {
+    const [first] = params
+    if (typeof first === 'object') {
+        return new Chain(first)
+    }
+
+    const [time, tailTime, type, direction, x, y, tailX, tailY, links] = params
+
+    return new Chain({
+        time: time as number ?? 0,
+        tailTime: tailTime ?? 0,
+        type: type ?? NoteType.BLUE,
+        headDirection: direction ?? NoteCut.DOWN,
+        lineIndex: x ?? 0,
+        lineLayer: y ?? 0,
+        tailX: tailX ?? 0,
+        tailY: tailY ?? 0,
+        links: links ?? 4
+    })
+}
+export function arc(
+        time?: number,
+        tailTime?: number,
+        type?: NoteType,
+        headDirection?: NoteCut,
+        tailDirection?: NoteCut,
+        x?: number,
+        y?: number,
+        tailX?: number,
+        tailY?: number,
+): Arc
+export function arc(...params: ConstructorParameters<typeof Arc>): Arc
+export function arc(
+    ...params: ConstructorParameters<typeof Arc> | [
+        time?: number,
+        tailTime?: number,
+        type?: NoteType,
+        headDirection?: NoteCut,
+        tailDirection?: NoteCut,
+        x?: number,
+        y?: number,
+        tailX?: number,
+        tailY?: number,
+    ]
+): Arc {
+    const [first] = params
+    if (typeof first === 'object') {
+        return new Arc(first)
+    }
+
+    const [time, tailTime, type, headDirection, tailDirection, x, y, tailX, tailY] = params
+
+    return new Arc({
+        time: time as number ?? 0,
+        type: type ?? NoteType.BLUE,
+        tailTime: tailTime ?? 0,
+        headDirection: headDirection ?? NoteCut.DOWN,
+        tailDirection: tailDirection ?? NoteCut.DOWN,
+        lineIndex: x ?? 0,
+        lineLayer: y ?? 0,
+        tailX: tailX ?? 0,
+        tailY: tailY ?? 0
+    })
+}
+
 export abstract class BaseNote<
     TV3 extends bsmap.v3.IColorNote | bsmap.v3.IBombNote,
 > extends BaseGameplayObject<bsmap.v2.INote, TV3> {
@@ -254,22 +344,7 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
     }
 }
 
-export class Chain extends BaseSliderObject {
-    json: TJson = {
-        b: 0,
-        x: 0,
-        y: 0,
-        c: 0,
-        d: 0,
-        tb: 0,
-        tx: 0,
-        ty: 0,
-        sc: 4,
-        s: 1,
-        customData: {
-            animation: {},
-        },
-    }
+export class Chain extends BaseSliderObject<bsmap.v3.IBurstSlider> {
 
     /**
      * Chain object for ease of creation.
@@ -283,120 +358,94 @@ export class Chain extends BaseSliderObject {
      * @param tailY The vertical row of the chain's tail.
      * @param links The amount of links in the chain.
      */
-    constructor(
-        time = 0,
-        tailTime = 0,
-        type = NoteType.BLUE,
-        direction = NoteCut.DOWN,
-        x = 0,
-        y = 0,
-        tailX = 0,
-        tailY = 0,
-        links = 4,
-    ) {
-        super()
-        this.time = time
-        this.tailTime = tailTime
-        this.type = type
-        this.headDirection = direction
-        this.lineIndex = x
-        this.lineLayer = y
-        this.tailX = tailX
-        this.tailY = tailY
-        this.links = links
+    // constructor(
+    //     time = 0,
+    //     tailTime = 0,
+    //     type = NoteType.BLUE,
+    //     direction = NoteCut.DOWN,
+    //     x = 0,
+    //     y = 0,
+    //     tailX = 0,
+    //     tailY = 0,
+    //     links = 4,
+    // ) {
+    //     super()
+    //     this.time = time
+    //     this.tailTime = tailTime
+    //     this.type = type
+    //     this.headDirection = direction
+    //     this.lineIndex = x
+    //     this.lineLayer = y
+    //     this.tailX = tailX
+    //     this.tailY = tailY
+    //     this.links = links
+    // }
+    constructor(fields: Partial<Fields<Chain>>) {
+        super(fields)
     }
 
-    /**
-     * Create a chain using Json.
-     * @param json Json to import.
-     */
-    import(json: TJson) {
-        this.json = json
-        if (this.customData === undefined) this.customData = {}
-        if (this.animation === undefined) this.animation = {}
-        this.animate = new Animation().noteAnimation(this.animation)
-        return this
-    }
 
     /**
      * Push this chain to the difficulty.
      * @param fake Whether this chain will be pushed to the fakeChains array.
      * @param clone Whether this object will be copied before being pushed.
      */
-    push(fake = false, clone = true) {
-        if (fake) activeDiffGet().fakeChains.push(clone ? copy(this) : this)
-        else activeDiffGet().chains.push(clone ? copy(this) : this)
+    push(clone = true) {
+        activeDiffGet().chains.push(clone ? copy(this) : this)
         return this
     }
 
-    /**
-     * Apply an animation through the Animation class.
-     * @param animation Animation to apply.
-     */
-    importAnimation(animation: AnimationInternals.BaseAnimation) {
-        this.animation = animation.json
-        this.animate = new Animation().noteAnimation(this.animation)
-        return this
+
+
+    toJson(v3: true): bsmap.v3.IBurstSlider;
+    toJson(v3: false): never;
+    toJson(v3: boolean): bsmap.v3.IBurstSlider {
+        if (!v3) throw "V2 is not supported for chains";
+
+        return {
+            b: this.time,
+            c: this.type,
+            d: this.headDirection,
+            sc: this.links,
+            s: this.squish,
+            tb: this.tailTime,
+            tx: this.tailX,
+            ty: this.tailY,
+            x: this.lineIndex,
+            y: this.lineLayer,
+            customData: {
+                animation: this.animation.toJson(true),
+                color: this.color,
+                coordinates: this.coordinates,
+                tailCoordinates: this.tailCoordinates,
+                flip: this.flip,
+                noteJumpMovementSpeed: this.localNJS,
+                noteJumpStartBeatOffset: this.localBeatOffset,
+                uninteractable: !this.interactable,
+                localRotation: this.localRotation,
+                disableNoteGravity: !this.noteGravity,
+                disableNoteLook: !this.noteLook,
+                track: this.track.value,
+                worldRotation: this.rotation,
+                ...this.customData
+            }
+        } satisfies bsmap.v3.IBurstSlider
     }
 
     /** The amount of links in the chain. */
-    get links() {
-        return this.json.sc
-    }
+    links = 4
     /** An interpolation or extrapolation of the path between the head and tail. */
-    get squish() {
-        return this.json.s
-    }
+    squish = 0
     /** Specifies an initial position the chain will spawn at before going to it's unmodified position.  */
-    get flip() {
-        return this.json.customData.flip
-    }
+    flip?: Vec2
     /** Whether note gravity (the effect where notes move to their vertical row from the bottom row) is enabled. */
-    get noteGravity() {
-        return !this.json.customData.disableNoteGravity
-    }
+    noteGravity?: boolean
     /** Whether this chain will look at the player. */
-    get noteLook() {
-        return !this.json.customData.disableNoteLook
-    }
+    noteLook?: boolean
 
-    set links(value: number) {
-        this.json.sc = value
-    }
-    set squish(value: number) {
-        this.json.s = value
-    }
-    set flip(value: Vec2) {
-        this.json.customData.flip = value
-    }
-    set noteGravity(value: boolean) {
-        this.json.customData.disableNoteGravity = !value
-    }
-    set noteLook(value: boolean) {
-        this.json.customData.disableNoteLook = !value
-    }
 }
 
-export class Arc extends BaseSliderObject {
-    json: TJson = {
-        b: 0,
-        c: 0,
-        x: 0,
-        y: 0,
-        d: 0,
-        mu: 1,
-        tb: 0,
-        tx: 0,
-        ty: 0,
-        tc: 0,
-        tmu: 1,
-        m: 0,
-        customData: {
-            animation: {},
-        },
-    }
-    /** The animation of this arc. */
-    animate = new Animation().noteAnimation(this.animation)
+export class Arc extends BaseSliderObject<bsmap.v3.ISlider> {
 
     /**
      * Arc object for ease of creation.
@@ -410,41 +459,73 @@ export class Arc extends BaseSliderObject {
      * @param tailX The lane of the arc's tail.
      * @param tailY The vertical row of the arc's tail.
      */
-    constructor(
-        time = 0,
-        tailTime = 0,
-        type = NoteType.BLUE,
-        headDirection = NoteCut.DOWN,
-        tailDirection = NoteCut.DOWN,
-        x = 0,
-        y = 0,
-        tailX = 0,
-        tailY = 0,
-    ) {
-        super()
-        this.time = time
-        this.tailTime = tailTime
-        this.type = type
-        this.headDirection = headDirection
-        this.tailDirection = tailDirection
-        this.lineIndex = x
-        this.lineLayer = y
-        this.tailX = tailX
-        this.tailY = tailY
+    constructor(fields: Partial<Fields<Arc>>) {
+        super(fields)
+    }
+    // constructor(
+    //     time = 0,
+    //     tailTime = 0,
+    //     type = NoteType.BLUE,
+    //     headDirection = NoteCut.DOWN,
+    //     tailDirection = NoteCut.DOWN,
+    //     x = 0,
+    //     y = 0,
+    //     tailX = 0,
+    //     tailY = 0,
+    // ) {
+    //     super()
+    //     this.time = time
+    //     this.tailTime = tailTime
+    //     this.type = type
+    //     this.headDirection = headDirection
+    //     this.tailDirection = tailDirection
+    //     this.lineIndex = x
+    //     this.lineLayer = y
+    //     this.tailX = tailX
+    //     this.tailY = tailY
+    // }
+
+
+    toJson(v3: true): bsmap.v3.ISlider;
+    toJson(v3: false): never;
+    toJson(v3: boolean): bsmap.v3.ISlider {
+        if (!v3) throw "V2 is not supported for chains";
+
+        return {
+            b: this.time,
+            c: this.type,
+            d: this.headDirection,
+
+            m: this.anchorMode,
+            mu: this.headLength,
+            tmu: this.tailLength,
+            tc: this.tailDirection,
+
+            tb: this.tailTime,
+            tx: this.tailX,
+            ty: this.tailY,
+            x: this.lineIndex,
+            y: this.lineLayer,
+            customData: {
+                animation: this.animation.toJson(true),
+                color: this.color,
+                coordinates: this.coordinates,
+                tailCoordinates: this.tailCoordinates,
+                flip: this.flip,
+                noteJumpMovementSpeed: this.localNJS,
+                noteJumpStartBeatOffset: this.localBeatOffset,
+                uninteractable: !this.interactable,
+                localRotation: this.localRotation,
+                disableNoteGravity: !this.noteGravity,
+                track: this.track.value,
+                worldRotation: this.rotation,
+                ...this.customData
+            }
+        } satisfies bsmap.v3.ISlider
     }
 
-    /**
-     * Create an arc using JSON.
-     * @param json
-     * @returns {Note}
-     */
-    import(json: TJson) {
-        this.json = json
-        if (this.customData === undefined) this.customData = {}
-        if (this.animation === undefined) this.animation = {}
-        this.animate = new Animation().noteAnimation(this.animation)
-        return this
-    }
+
+
 
     /**
      * Push this arc to the difficulty
@@ -454,57 +535,18 @@ export class Arc extends BaseSliderObject {
         return this
     }
 
-    /**
-     * Apply an animation through the Animation class.
-     * @param {Animation} animation
-     */
-    importAnimation(animation: AnimationInternals.BaseAnimation) {
-        this.animation = animation.json
-        this.animate = new Animation().noteAnimation(this.animation)
-        return this
-    }
+ 
 
     /** The cut direction of the tail of the arc. */
-    get tailDirection() {
-        return this.json.tc
-    }
+    tailDirection: NoteCut = NoteCut.DOT
     /** Multiplier for the distance the start of the arc shoots outward. */
-    get headLength() {
-        return this.json.mu
-    }
+    headLength = 0
     /** Multiplier for the distance the end of the arc shoots outward. */
-    get tailLength() {
-        return this.json.tmu
-    }
+    tailLength = 0
     /** How the arc curves from the head to the midpoint. */
-    get anchorMode() {
-        return this.json.m
-    }
+    anchorMode: AnchorMode =  AnchorMode.STRAIGHT
     /** Specifies an initial position the arc will spawn at before going to it's unmodified position.  */
-    get flip() {
-        return this.json.customData.flip
-    }
+    flip?: Vec2
     /** Whether note gravity (the effect where notes move to their vertical row from the bottom row) is enabled. */
-    get noteGravity() {
-        return !this.json.customData.disableNoteGravity
-    }
-
-    set tailDirection(value: NoteCut) {
-        this.json.tc = value
-    }
-    set headLength(value: number) {
-        this.json.mu = value
-    }
-    set tailLength(value: number) {
-        this.json.tmu = value
-    }
-    set anchorMode(value: AnchorMode) {
-        this.json.m = value
-    }
-    set flip(value: Vec2) {
-        this.json.customData.flip = value
-    }
-    set noteGravity(value: boolean) {
-        this.json.customData.disableNoteGravity = !value
-    }
+    noteGravity?: boolean
 }
