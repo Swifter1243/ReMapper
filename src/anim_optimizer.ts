@@ -1,6 +1,7 @@
 import {
     complexifyArray,
     Keyframe,
+    RawKeyframesAbstract,
     RawPointDefinition,
     simplifyArray,
 } from './animation.ts'
@@ -489,7 +490,7 @@ function optimizeKeyframes(
  * @returns
  */
 export function optimizeAnimation<T extends NumberTuple>(
-    animation: RawPointDefinition<T>,
+    animation: RawKeyframesAbstract<T>,
     settings: OptimizeSettings,
 ) {
     const keyframes: Keyframe[] = copy(complexifyArray(animation)).map((x) =>

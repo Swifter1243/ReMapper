@@ -175,7 +175,7 @@ export abstract class BaseSliderObject<TV3 extends bsmap.v3.IBaseSlider>
     /** The position of the tail. */
     tailCoordinates?: Vec2
 
-    constructor(obj: Fields<BaseSliderObject<TV3>>) {
+    constructor(obj: Partial<Fields<BaseSliderObject<TV3>>>) {
         super(obj, noteAnimation())
     }
 }

@@ -963,14 +963,14 @@ export function iterateKeyframes<T extends NumberTuple>(
  * @param ext Force extension on the file.
  * @param error Throw an error if the file doesn't exist.
  */
-export function parseFilePath(
+export async function parseFilePath(
     input: FILEPATH,
     ext?: `.${string}`,
     error = true,
 ) {
     if (ext && !path.extname(input)) input += ext
 
-    if (error && !fs.existsSync(input)) {
+    if (error && !await fs.exists(input)) {
         throw new Error(`The file "${input}" does not exist`)
     }
 

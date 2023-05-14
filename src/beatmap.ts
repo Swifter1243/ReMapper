@@ -1,40 +1,30 @@
-// deno-lint-ignore-file no-explicit-any adjacent-overload-signatures
+// deno-lint-ignore-file adjacent-overload-signatures
 import { adbDeno, bsmap, compress, fs, path, semver } from './deps.ts'
 import { Arc, Bomb, Chain, Note } from './note.ts'
 import { Wall } from './wall.ts'
-import { Environment, Geometry, RawGeometryMaterial } from './environment.ts'
+import { Environment, Geometry } from './environment.ts'
 import {
     arrRemove,
     copy,
-    isEmptyObject,
-    jsonGet,
     jsonPrune,
-    jsonRemove,
-    jsonSet,
     parseFilePath,
     RMJson,
     RMLog,
     setDecimals,
-    sortObjects,
-    Vec3,
 } from './general.ts'
-import { RawKeyframesAny } from './animation.ts'
 import { OptimizeSettings } from './anim_optimizer.ts'
 import {
     DIFFS,
-    ENV_NAMES,
     FILENAME,
     FILEPATH,
     QUEST_WIP_PATH,
     REQUIRE_MODS,
-    SettingsHandler,
     SUGGEST_MODS,
 } from './constants.ts'
 
 import {
     AnimationInternals,
     CustomEventInternals,
-    EventInternals,
 } from './internals/mod.ts'
 import { CustomEvent } from './custom_event.ts'
 import { Event } from './basicEvent.ts'
@@ -72,6 +62,39 @@ export function arrJsonToClass<T>(
     }
 }
 
+export async function readInfoDat(parsedOutput: Awaited<ReturnType<typeof parseFilePath>>, relativeMapFile: string) {
+    infoPath = path.join(parsedOutput.dir ?? Deno.cwd(), 'Info.dat')
+    const json = await Deno.readTextFile(
+        infoPath,
+    )
+    
+    info = JSON.parse(json)
+
+    let diffSet: bsmap.IInfoSetDifficulty | undefined
+
+    const diffSetMap = info._difficultyBeatmapSets.find((e) => {
+        diffSet = e._difficultyBeatmaps.find((s) =>
+            s._beatmapFilename === relativeMapFile
+        )
+
+        return diffSet
+    })
+
+    if (!diffSetMap || !diffSet) {
+        throw `The difficulty ${parsedOutput.name} does not exist in your Info.dat`
+    }
+
+    return {
+        diffSetMap,
+        diffSet,
+        info,
+    }
+}
+
+export async function saveInfoDat() {
+    await Deno.writeTextFile(infoPath, JSON.stringify(info))
+}
+
 export async function readDifficulty(
     input: DIFFPATH,
     output?: DIFFPATH,
@@ -80,39 +103,17 @@ export async function readDifficulty(
     const parsedInput = parseFilePath(input, '.dat')
     const parsedOutput = parseFilePath(output ?? input, '.dat')
 
-    const mapFile = parsedOutput.path as DIFFPATH
-    const relativeMapFile = parsedOutput.name as DIFFNAME
+    await Promise.all([parsedInput, parsedOutput]);
+
+    const mapFile = (await parsedOutput).path as DIFFPATH
+    const relativeMapFile = (await parsedOutput).name as DIFFNAME
 
     // If the path contains a separator of any kind, use it instead of the default "Info.dat"
-    const infoPromise = Deno.readTextFile(
-        path.join(parsedOutput.dir ?? Deno.cwd(), 'Info.dat'),
-    ).then((j) => {
-        info = JSON.parse(j)
+    const infoPromise = readInfoDat(await parsedOutput, relativeMapFile);
 
-        let diffSetMap: bsmap.IInfoSetDifficulty | undefined
+    const jsonPromise = Deno.readTextFile((await parsedInput).path)
 
-        const diffSet = info._difficultyBeatmapSets.find((e) => {
-            diffSetMap = e._difficultyBeatmaps.find((s) =>
-                s._beatmapFilename === relativeMapFile
-            )
-
-            return diffSetMap
-        })
-
-        if (!diffSet || !diffSetMap) {
-            throw `The difficulty ${parsedOutput.name} does not exist in your Info.dat`
-        }
-
-        return {
-            diffSet,
-            diffSetMap,
-            info,
-        }
-    })
-
-    const jsonPromise = Deno.readTextFile(parsedInput.path)
-
-    await infoPromise
+    const infoData = await infoPromise
     const json = JSON.parse(await jsonPromise) as
         | bsmap.v2.IDifficulty
         | bsmap.v3.IDifficulty
@@ -121,7 +122,7 @@ export async function readDifficulty(
         semver.satisfies(json as any['version'], '>=3.0.0')
     if (v3) return new V3Difficulty()
 
-    return new V2Difficulty()
+    return new V2Difficulty(infoData.diffSet, infoData.diffSetMap, mapFile, relativeMapFile, json as bsmap.v2.IDifficulty);
 }
 
 export interface RMDifficulty {
@@ -218,8 +219,8 @@ export abstract class AbstractDifficulty<
             animation.optimize(undefined, optimize)
         }
 
-        this.notes.forEach((e) => optimizeAnimation(e.animate))
-        this.walls.forEach((e) => optimizeAnimation(e.animate))
+        this.notes.forEach((e) => optimizeAnimation(e.animation))
+        this.walls.forEach((e) => optimizeAnimation(e.animation))
         this.customEvents.filter((e) =>
             e instanceof CustomEventInternals.AnimateTrack
         ).forEach((e) =>
@@ -250,7 +251,7 @@ export abstract class AbstractDifficulty<
      * Runs the post process functions in this difficulty.
      * @param object The object to process. If undefined, the difficulty will be processed.
      */
-    doPostProcess<T = unknown>(object: T[] | undefined = undefined) {
+    doPostProcess<T = unknown>(object: T[] | undefined = undefined, json: ReturnType<AbstractDifficulty["toJSON"]>) {
         type Tuple = [unknown[] | undefined, PostProcessFn<unknown>[]]
 
         const functionsMap: Tuple[] = object === undefined
@@ -262,9 +263,9 @@ export abstract class AbstractDifficulty<
             const functions = tuple[1]
 
             if (arr === undefined) {
-                functions.forEach((fn) => fn(undefined, this))
+                functions.forEach((fn) => fn(undefined, this, json))
             } else {
-                arr.forEach((i) => functions.forEach((fn) => fn(i, this)))
+                arr.forEach((i) => functions.forEach((fn) => fn(i, this, json)))
             }
         })
     }
@@ -278,21 +279,22 @@ export abstract class AbstractDifficulty<
      */
     async save(diffName?: DIFFPATH) {
         if (diffName) {
-            diffName = parseFilePath(diffName, '.dat').path as DIFFPATH
+            diffName = (await parseFilePath(diffName, '.dat')).path as DIFFPATH
         } else diffName = this.mapFile
 
-        this.doPostProcess()
 
         const outputJSON = this.toJSON()
 
-        const promise3 = info.save()
+        this.doPostProcess(undefined, outputJSON)
+
+        const promise3 = saveInfoDat()
 
         const promise1 = RMJson.then((rm) => rm.save())
         const promise2 = Deno.writeTextFile(
             diffName,
             JSON.stringify(outputJSON, null, 0),
         )
-        await Promise.all([promise1, promise2])
+        await Promise.all([promise1, promise2, promise3])
         RMLog(`${diffName} successfully saved!`)
     }
 
@@ -438,6 +440,7 @@ export abstract class AbstractDifficulty<
 }
 
 export let info: bsmap.IInfo
+export let infoPath: string
 export let activeDiff: AbstractDifficulty
 export const settings = {
     forceJumpsForNoodle: true,
@@ -546,8 +549,8 @@ export async function collectBeatmapFiles(
         for (let m = 0; m < set._difficultyBeatmaps.length; m++) {
             const map = set._difficultyBeatmaps[m]
             let passed = true
-            excludeDiffs.forEach((d) => {
-                if (map._beatmapFilename === parseFilePath(d, '.dat').path) {
+            excludeDiffs.forEach(async (d) => {
+                if (map._beatmapFilename === (await parseFilePath(d, '.dat')).path) {
                     arrRemove(set._difficultyBeatmaps, m)
                     m--
                     passed = false

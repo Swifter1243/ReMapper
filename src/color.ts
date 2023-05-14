@@ -1,6 +1,7 @@
+import { ColorFormat } from "./constants.ts";
 import { clamp, ColorType, lerp, lerpEasing, lerpWrap } from './general.ts'
 
-export type ColorFormat = 'RGB' | 'HSV'
+// export type ColorFormat = 'RGB' | 'HSV'
 
 export class Color {
     private internalValue: ColorType = [0, 0, 0, 1]
