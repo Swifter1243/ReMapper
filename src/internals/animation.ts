@@ -38,47 +38,68 @@ export class BaseAnimation implements JsonWrapper<AnimateV2, AnimateV3> {
     this.duration = duration ?? 1;
     this.properties = data ?? this.properties;
   }
+
+  filteredCustomProperties(v3: boolean) {
+    return Object.fromEntries(
+      Object.entries(this.properties).filter(([k, v]) => {
+        if (v3 && k.startsWith("_")) return false;
+        if (!v3 && !k.startsWith("_")) return false;
+
+        return true;
+      }),
+    );
+  }
+
   toJson(v3: true): AnimateV3;
   toJson(v3: false): AnimateV2;
   toJson(v3: boolean): AnimateV2 | AnimateV3 {
+    const color = this.properties["color"]! as ColorPointDefinition[];
+    const definitePosition = this
+      .properties["definitePosition"] as Vector3PointDefinition[];
+    const dissolve = this.properties["dissolve"] as PercentPointDefinition[];
+    const dissolveArrow = this
+      .properties["dissolveArrow"] as PercentPointDefinition[];
+    const interactable = this
+      .properties["interactable"] as PercentPointDefinition[];
+    const localRotation = this
+      .properties["localRotation"] as Vector3PointDefinition[];
+    const offsetPosition = this
+      .properties["offsetPosition"] as Vector3PointDefinition[];
+    const offsetRotation = this
+      .properties["offsetRotation"] as Vector3PointDefinition[];
+    const scale = this.properties["scale"] as Vector3PointDefinition[];
+    const time = this.properties["time"] as PercentPointDefinition[];
+
+    const filteredProperties = this.filteredCustomProperties(v3);
+
     if (v3) {
       return {
-        color: this.properties["color"]! as ColorPointDefinition[],
-        definitePosition: this
-          .properties["definitePosition"] as Vector3PointDefinition[],
-        dissolve: this.properties["dissolve"] as PercentPointDefinition[],
-        dissolveArrow: this
-          .properties["dissolveArrow"] as PercentPointDefinition[],
-        interactable: this
-          .properties["interactable"] as PercentPointDefinition[], // TODO: Fixup
-        localRotation: this
-          .properties["localRotation"] as Vector3PointDefinition[],
-        offsetPosition: this
-          .properties["offsetPosition"] as Vector3PointDefinition[],
-        offsetRotation: this
-          .properties["offsetRotation"] as Vector3PointDefinition[],
-        scale: this.properties["scale"] as Vector3PointDefinition[],
-        time: this.properties["time"] as PercentPointDefinition[],
-        ...this.properties,
+        color: color,
+        definitePosition: definitePosition,
+        dissolve: dissolve,
+        dissolveArrow: dissolveArrow,
+        interactable: interactable, // TODO: Fixup, invert
+        localRotation: localRotation,
+        offsetPosition: offsetPosition,
+        offsetRotation: offsetRotation,
+        scale: scale,
+        time: time,
+        ...filteredProperties,
       } satisfies AnimateV3;
     }
 
     return {
-      _color: this.properties["color"]! as ColorPointDefinition[],
-      _definitePosition: this
-        .properties["definitePosition"] as Vector3PointDefinition[],
-      _dissolve: this.properties["dissolve"] as PercentPointDefinition[],
-      _dissolveArrow: this
-        .properties["dissolveArrow"] as PercentPointDefinition[],
-      _interactable: this
-        .properties["interactable"] as PercentPointDefinition[], // TODO: Fixup
-      _localRotation: this
-        .properties["localRotation"] as Vector3PointDefinition[],
-      _position: this.properties["offsetPosition"] as Vector3PointDefinition[],
-      _rotation: this.properties["offsetRotation"] as Vector3PointDefinition[],
-      _scale: this.properties["scale"] as Vector3PointDefinition[],
-      _time: this.properties["time"] as PercentPointDefinition[],
-      ...this.properties,
+      _color: color,
+      _definitePosition: definitePosition,
+      _dissolve: dissolve,
+      _dissolveArrow: dissolveArrow,
+      _interactable: interactable, // TODO: Fixup
+      _localRotation: localRotation,
+      _position: offsetPosition,
+      _rotation: offsetRotation,
+      _scale: scale,
+      _time: time,
+      ...filteredProperties,
     } satisfies AnimateV2;
   }
 
