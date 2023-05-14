@@ -1,5 +1,6 @@
-import { LightEvent } from "../event.ts";
-import { AbstractEvent } from "./event.ts";
+import { activeDiffGet } from "../mod.ts";
+import { LightEvent } from "./event.ts";
+import { EventInternals } from "./mod.ts";
 
 export type Condition = (event: LightEvent) => boolean;
 export type Process = (event: LightEvent) => void;
@@ -68,8 +69,15 @@ export class BaseLightRemapper {
   test(ids: number[]) {
     this.conditions = [];
 
-    const event = new Event().abstract();
-    event.lightID = ids;
+    const event = new LightEvent({
+      time: 0,
+      type: 0,
+      value: 0,
+      floatValue: 1,
+      customData: {
+        lightID: ids
+      }
+    });
 
     this.processEvents([event], true);
   }
@@ -78,14 +86,14 @@ export class BaseLightRemapper {
    * Run the algorithm.
    * @param log Log the output JSON of each event.
    */
-  run = (log = false) => this.processEvents(activeDiff.events, log);
+  run = (log = false) => this.processEvents(activeDiffGet().events, log);
 
   /**
    * Process events through the algorithm.
    * @param events Events to process.
    * @param log Whether passing events should be logged.
    */
-  processEvents(events: EventInternals.AbstractEvent[], log = false) {
+  processEvents(events: EventInternals.LightEvent[], log = false) {
     events.forEach((x) => {
       let passed = true;
       this.conditions.forEach((p) => {
@@ -96,7 +104,7 @@ export class BaseLightRemapper {
       this.processes.forEach((p) => {
         p(x);
       });
-      if (log) console.log(x.json);
+      if (log) console.log(x.toJson(true));
     });
   }
 }

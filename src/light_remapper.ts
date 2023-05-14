@@ -1,7 +1,6 @@
-import { activeDiff } from './beatmap.ts'
 import { LightID } from './basicEvent.ts'
 import { arrHas, copy } from './general.ts'
-import { EventInternals, LightRemapperInternals } from './internals/mod.ts'
+import { LightRemapperInternals } from './internals/mod.ts'
 
 type Condition = LightRemapperInternals.Condition
 
@@ -83,7 +82,7 @@ export class LightRemapper extends LightRemapperInternals.BaseLightRemapper {
             }
 
             this.complexifyLightIDs(lightID, (ids1) => {
-                x.lightID = this.complexifyLightIDs(x.lightID, (ids2) => {
+                x.lightID = this.complexifyLightIDs(x.lightID!, (ids2) => {
                     return ids2.concat(ids1)
                 })
                 return ids1
@@ -266,7 +265,7 @@ function applyLightMap(map: (number | number[])[], ids: number[]) {
     }
 }
 
-function isInID(lightID: LightID, start: number, end: number) {
+function isInID(lightID: LightID | undefined, start: number, end: number) {
     if (lightID === undefined) return false
     if (typeof lightID === 'object') {
         let passed = false

@@ -1,6 +1,6 @@
-// deno-lint-ignore-file
+// deno-lint-ignore-file adjacent-overload-signatures
 import { Track } from './animation.ts'
-import { activeDiffGet, info, TJson } from './beatmap.ts'
+import { activeDiffGet, info } from './beatmap.ts'
 import { NoteType } from './constants.ts'
 import { bsmap } from './deps.ts'
 import {
@@ -8,11 +8,8 @@ import {
     copy,
     getJumps,
     isEmptyObject,
-    jsonCheck,
-    jsonGet,
     jsonPrune,
     jsonRemove,
-    jsonSet,
     Vec2,
     Vec3,
 } from './general.ts'
@@ -31,7 +28,7 @@ export abstract class BaseObject<
     TV3 extends bsmap.v3.IBaseObject,
 > implements JsonWrapper<TV2, TV3> {
     /** The time that this object is scheduled for. */
-    time: number = 0
+    time = 0
     /** Any community made data on this object. */
     customData: TV2['_customData'] | TV3['customData'] = {}
 
@@ -164,13 +161,13 @@ export abstract class BaseSliderObject<TV3 extends bsmap.v3.IBaseSlider>
     /** The color of the object. */
     type: NoteType = NoteType.RED
     /** The cut direction of the head. */
-    headDirection: number = 0
+    headDirection = 0
     /** The time the tail arrives at the player. */
-    tailTime: number = 0
+    tailTime = 0
     /** The lane of the tail. */
-    tailX: number = 0
+    tailX = 0
     /** The vertical row of the tail. */
-    tailY: number = 0
+    tailY = 0
 
     /** The position of the tail. */
     tailCoordinates?: Vec2

@@ -15,11 +15,6 @@ import {
 import { optimizeAnimation, OptimizeSettings } from "../anim_optimizer.ts";
 import { JsonWrapper } from "../types.ts";
 import { bsmap } from "../mod.ts";
-import {
-  ColorPointDefinition,
-  PercentPointDefinition,
-  Vector3PointDefinition,
-} from "https://raw.githubusercontent.com/Fernthedev/BeatSaber-Deno/feat/export-types/types/beatmap/mod.ts";
 
 type AnimateV2 = Required<bsmap.v2.IAnimation>["_animation"];
 type AnimateV3 = Required<bsmap.v3.IAnimation>["animation"];
@@ -53,22 +48,22 @@ export class BaseAnimation implements JsonWrapper<AnimateV2, AnimateV3> {
   toJson(v3: true): AnimateV3;
   toJson(v3: false): AnimateV2;
   toJson(v3: boolean): AnimateV2 | AnimateV3 {
-    const color = this.properties["color"]! as ColorPointDefinition[];
+    const color = this.properties["color"]! as bsmap.ColorPointDefinition[];
     const definitePosition = this
-      .properties["definitePosition"] as Vector3PointDefinition[];
-    const dissolve = this.properties["dissolve"] as PercentPointDefinition[];
+      .properties["definitePosition"] as bsmap.Vector3PointDefinition[];
+    const dissolve = this.properties["dissolve"] as bsmap.PercentPointDefinition[];
     const dissolveArrow = this
-      .properties["dissolveArrow"] as PercentPointDefinition[];
+      .properties["dissolveArrow"] as bsmap.PercentPointDefinition[];
     const interactable = this
-      .properties["interactable"] as PercentPointDefinition[];
+      .properties["interactable"] as bsmap.PercentPointDefinition[];
     const localRotation = this
-      .properties["localRotation"] as Vector3PointDefinition[];
+      .properties["localRotation"] as bsmap.Vector3PointDefinition[];
     const offsetPosition = this
-      .properties["offsetPosition"] as Vector3PointDefinition[];
+      .properties["offsetPosition"] as bsmap.Vector3PointDefinition[];
     const offsetRotation = this
-      .properties["offsetRotation"] as Vector3PointDefinition[];
-    const scale = this.properties["scale"] as Vector3PointDefinition[];
-    const time = this.properties["time"] as PercentPointDefinition[];
+      .properties["offsetRotation"] as bsmap.Vector3PointDefinition[];
+    const scale = this.properties["scale"] as bsmap.Vector3PointDefinition[];
+    const time = this.properties["time"] as bsmap.PercentPointDefinition[];
 
     const filteredProperties = this.filteredCustomProperties(v3);
 

@@ -1,21 +1,11 @@
 import {
-    EASE,
-    EventAction,
     EventGroup,
     InterscopeGroup,
-    RotationAction,
 } from './constants.ts'
-import { activeDiffGet, TJson } from './beatmap.ts'
-import { ColorType, copy, jsonGet, jsonSet } from './general.ts'
-import { BaseObject } from './object.ts'
 import { EventInternals } from './internals/mod.ts'
 import { Fields } from './types.ts'
-import { bsmap } from './deps.ts'
 
-export type Event = EventInternals.BaseEvent<
-    bsmap.v2.IEvent,
-    bsmap.v3.IBasicEvent
->
+
 export type LightID = number | number[]
 
 type LightParameters =

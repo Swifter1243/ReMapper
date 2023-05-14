@@ -1,6 +1,5 @@
 // deno-lint-ignore-file adjacent-overload-signatures
 import { OptimizeSettings } from './anim_optimizer.ts'
-import { TJson } from './beatmap.ts'
 import { Color, lerpColor } from './color.ts'
 import { AnimationKeys, EASE, SPLINE } from './constants.ts'
 import {
@@ -20,12 +19,7 @@ import {
     Vec3,
     Vec4,
 } from './general.ts'
-import {
-    AbstractAnimation,
-    EnvironmentAnimation,
-    NoteAnimation,
-    WallAnimation,
-} from './internals/animation.ts'
+
 
 import { AnimationInternals } from './internals/mod.ts'
 
@@ -107,7 +101,7 @@ export type TrackValue = string | string[]
  * @param json The json to create the animation with.
  */
 export function noteAnimation(
-    ...params: ConstructorParameters<typeof NoteAnimation>
+    ...params: ConstructorParameters<typeof AnimationInternals.NoteAnimation>
 ) {
     return new AnimationInternals.NoteAnimation(...params)
 }
@@ -117,7 +111,7 @@ export function noteAnimation(
  * @param json The json to create the animation with.
  */
 export function wallAnimation(
-    ...params: ConstructorParameters<typeof WallAnimation>
+    ...params: ConstructorParameters<typeof AnimationInternals.WallAnimation>
 ) {
     return new AnimationInternals.WallAnimation(...params)
 }
@@ -127,7 +121,7 @@ export function wallAnimation(
  * @param json The json to create the animation with.
  */
 export function environmentAnimation(
-    ...params: ConstructorParameters<typeof EnvironmentAnimation>
+    ...params: ConstructorParameters<typeof AnimationInternals.EnvironmentAnimation>
 ) {
     return new AnimationInternals.EnvironmentAnimation(...params)
 }
@@ -569,7 +563,7 @@ export function bakeAnimation(
     animation.rot ??= [0, 0, 0]
     animation.scale ??= [1, 1, 1]
 
-    const dataAnim = new AbstractAnimation()
+    const dataAnim = new AnimationInternals.AbstractAnimation()
     dataAnim.position = copy(animation.pos)
     dataAnim.rotation = copy(animation.rot)
     dataAnim.scale = copy(animation.scale)

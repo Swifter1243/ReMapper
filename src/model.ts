@@ -219,7 +219,7 @@ export class ModelScene {
         }
 
         if (typeof objectInput === 'string') {
-            const inputPath = parseFilePath(objectInput, '.rmmodel').path
+            const inputPath = (await parseFilePath(objectInput, '.rmmodel')).path
             const onCache = options.onCache
                 ? options.onCache.toString()
                 : undefined
@@ -307,12 +307,12 @@ export class ModelScene {
                                 )
                             }
 
-                            ;(x.pos)[i] = [...(objPos as Vec3), (x.pos)[i][3]]
-                            ;(x.rot)[i] = [...(objRot as Vec3), (x.rot)[i][3]]
-                            ;(x.scale)[i] = [
+                            (x.pos)[i] = [...(objPos as Vec3), (x.pos)[i][3]];
+                            (x.rot)[i] = [...(objRot as Vec3), (x.rot)[i][3]];
+                            (x.scale)[i] = [
                                 ...(objScale as Vec3),
                                 (x.scale)[i][3],
-                            ]
+                            ];
                         }
 
                         // Optimizing object
@@ -768,19 +768,19 @@ export class ModelScene {
                         object.rotation = initialPos.rot as Vec3
                         object.scale = initialPos.scale as Vec3
                         if (initialPos.color) {
-                            ;((object as Geometry)
+                            ((object as Geometry)
                                 .material as RawGeometryMaterial).color =
                                     initialPos.color
                         }
                     }
 
                     if (materialName) {
-                        ;(object as Geometry).material = materialName
+                        (object as Geometry).material = materialName
                     }
                     if (
                         animatedMaterials.some((x) => x === object.track.value)
                     ) {
-                        ;((object as Geometry).material as RawGeometryMaterial)
+                        ((object as Geometry).material as RawGeometryMaterial)
                             .track = object.track.value + '_material'
                     }
 
@@ -830,13 +830,13 @@ function createYeetDef() {
  * @param process Function to run for each object on the cached data.
  * @param processing Parameters that will re-process the data if changed.
  */
-export function getModel(
+export async function getModel(
     filePath: FILEPATH,
     name?: string,
     process?: (objects: ModelObject[]) => void,
     processing?: any[],
 ) {
-    const parsedPath = parseFilePath(filePath, '.rmmodel')
+    const parsedPath = await parseFilePath(filePath, '.rmmodel')
     const inputPath = parsedPath.path
     const mTime = Deno.statSync(inputPath).mtime?.toString()
     processing ??= []
@@ -846,7 +846,7 @@ export function getModel(
 
     return cacheData(name, async () => {
         const data = JSON.parse(
-            await Deno.readTextFile(parseFilePath(filePath, '.rmmodel').path),
+            await Deno.readTextFile((await parseFilePath(filePath, '.rmmodel')).path),
         )
         if (process) process(data.objects)
         return data.objects as ModelObject[]
@@ -872,7 +872,8 @@ export function debugObject(
     activeDiff.notes = []
     activeDiff.walls = []
     activeDiff.customEvents = []
-    activeDiff.rawEnvironment = []
+    activeDiff.environment = []
+    activeDiff.geometry = []
 
     backLasers().on([3, 3, 3, 1]).push(false)
 

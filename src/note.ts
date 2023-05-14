@@ -1,10 +1,9 @@
 // deno-lint-ignore-file adjacent-overload-signatures
-import { activeDiffGet, TJson } from './beatmap.ts'
+import { activeDiffGet } from './beatmap.ts'
 import { AnchorMode, NoteCut, NoteType } from './constants.ts'
 import { BaseGameplayObject, BaseSliderObject } from './object.ts'
 import { copy, Vec2 } from './general.ts'
 import { bsmap } from './deps.ts'
-import { NoteAnimation } from './internals/animation.ts'
 import { Fields } from './types.ts'
 import { noteAnimation } from './animation.ts'
 

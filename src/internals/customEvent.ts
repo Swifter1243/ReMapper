@@ -6,7 +6,7 @@ import { bsmap } from "../deps.ts";
 import { Components, TubeBloomPrePassLight } from "../environment.ts";
 import { BloomFogEnvironment } from "../environment.ts";
 import { ILightWithId } from "../environment.ts";
-import { copy, Vec4 } from "../general.ts";
+import { copy } from "../general.ts";
 import { Fields, JsonWrapper } from "../types.ts";
 import { AbstractAnimation, BaseAnimation } from "./animation.ts";
 

@@ -1,6 +1,8 @@
 import { Vec3 } from "../general.ts";
-import { activeDiffGet, bsmap, copy, Track } from "../mod.ts";
+import { bsmap, Track } from "../mod.ts";
 import { JsonWrapper } from "../types.ts";
+
+export type AbstractEnvironment = BaseEnvironment<bsmap.v2.IChromaEnvironmentBase, bsmap.v3.IChromaEnvironmentBase>
 
 export abstract class BaseEnvironment<
   TV2 extends bsmap.v2.IChromaEnvironmentBase,
@@ -9,10 +11,7 @@ export abstract class BaseEnvironment<
   /** Push this environment/geometry object to the difficulty.
    * @param clone Whether this object will be copied before being pushed.
    */
-  push(clone = true) {
-    activeDiffGet().rawEnvironment.push(clone ? copy(this) : this);
-    return this;
-  }
+  abstract push(clone: boolean): void;
 
   /** How many times to duplicate this object. */
   duplicate?: number;

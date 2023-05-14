@@ -2,7 +2,7 @@
 import { adbDeno, bsmap, compress, fs, path, semver } from './deps.ts'
 import { Arc, Bomb, Chain, Note } from './note.ts'
 import { Wall } from './wall.ts'
-import { Environment, Geometry } from './environment.ts'
+import { Environment, Geometry, GeometryMaterial } from './environment.ts'
 import {
     arrRemove,
     copy,
@@ -22,13 +22,12 @@ import {
     SUGGEST_MODS,
 } from './constants.ts'
 
-import {
-    AnimationInternals,
-    CustomEventInternals,
-} from './internals/mod.ts'
+import { AnimationInternals, CustomEventInternals, EventInternals } from './internals/mod.ts'
 import { CustomEvent } from './custom_event.ts'
-import { Event } from './basicEvent.ts'
-import { V2Difficulty } from "./beatmap_v2.ts";
+import { V2Difficulty } from './beatmap_v2.ts'
+import {
+    AbstractEnvironment,
+} from './internals/environment.ts'
 
 type PostProcessFn<T> = (
     object: T,
@@ -62,12 +61,15 @@ export function arrJsonToClass<T>(
     }
 }
 
-export async function readInfoDat(parsedOutput: Awaited<ReturnType<typeof parseFilePath>>, relativeMapFile: string) {
+export async function readInfoDat(
+    parsedOutput: Awaited<ReturnType<typeof parseFilePath>>,
+    relativeMapFile: string,
+) {
     infoPath = path.join(parsedOutput.dir ?? Deno.cwd(), 'Info.dat')
     const json = await Deno.readTextFile(
         infoPath,
     )
-    
+
     info = JSON.parse(json)
 
     let diffSet: bsmap.IInfoSetDifficulty | undefined
@@ -103,13 +105,13 @@ export async function readDifficulty(
     const parsedInput = parseFilePath(input, '.dat')
     const parsedOutput = parseFilePath(output ?? input, '.dat')
 
-    await Promise.all([parsedInput, parsedOutput]);
+    await Promise.all([parsedInput, parsedOutput])
 
     const mapFile = (await parsedOutput).path as DIFFPATH
     const relativeMapFile = (await parsedOutput).name as DIFFNAME
 
     // If the path contains a separator of any kind, use it instead of the default "Info.dat"
-    const infoPromise = readInfoDat(await parsedOutput, relativeMapFile);
+    const infoPromise = readInfoDat(await parsedOutput, relativeMapFile)
 
     const jsonPromise = Deno.readTextFile((await parsedInput).path)
 
@@ -122,7 +124,13 @@ export async function readDifficulty(
         semver.satisfies(json as any['version'], '>=3.0.0')
     if (v3) return new V3Difficulty()
 
-    return new V2Difficulty(infoData.diffSet, infoData.diffSetMap, mapFile, relativeMapFile, json as bsmap.v2.IDifficulty);
+    return new V2Difficulty(
+        infoData.diffSet,
+        infoData.diffSetMap,
+        mapFile,
+        relativeMapFile,
+        json as bsmap.v2.IDifficulty,
+    )
 }
 
 export interface RMDifficulty {
@@ -132,7 +140,7 @@ export interface RMDifficulty {
     arcs: Arc[]
     chains: Chain[]
     walls: Wall[]
-    events: Event[]
+    events: EventInternals.AbstractEvent[]
     customEvents: CustomEvent[]
     pointDefinitions: Record<string, unknown>
     customData: Record<string, unknown>
@@ -171,12 +179,13 @@ export abstract class AbstractDifficulty<
     arcs!: Arc[]
     chains!: Chain[]
     walls!: Wall[]
-    events!: Event[]
+    events!: EventInternals.AbstractEvent[] // TODO: Rework this
     customEvents!: CustomEvent[]
     pointDefinitions!: Record<string, unknown>
     customData!: Record<string, unknown>
     environment!: Environment[]
     geometry!: Geometry[]
+    geoMaterials!: Record<string, GeometryMaterial>
 
     /**
      * Creates a difficulty. Can be used to access various information and the map data.
@@ -251,7 +260,10 @@ export abstract class AbstractDifficulty<
      * Runs the post process functions in this difficulty.
      * @param object The object to process. If undefined, the difficulty will be processed.
      */
-    doPostProcess<T = unknown>(object: T[] | undefined = undefined, json: ReturnType<AbstractDifficulty["toJSON"]>) {
+    doPostProcess<T = unknown>(
+        object: T[] | undefined = undefined,
+        json: ReturnType<AbstractDifficulty['toJSON']>,
+    ) {
         type Tuple = [unknown[] | undefined, PostProcessFn<unknown>[]]
 
         const functionsMap: Tuple[] = object === undefined
@@ -281,7 +293,6 @@ export abstract class AbstractDifficulty<
         if (diffName) {
             diffName = (await parseFilePath(diffName, '.dat')).path as DIFFPATH
         } else diffName = this.mapFile
-
 
         const outputJSON = this.toJSON()
 
@@ -340,6 +351,11 @@ export abstract class AbstractDifficulty<
             if (suggestions[key] === true) suggestionsArr.push(key)
         }
         this.suggestions = suggestionsArr
+    }
+
+    *environemntEnhancementsCombined(): IterableIterator<AbstractEnvironment> {
+        yield* this.geometry
+        yield* this.environment
     }
 
     // Info.dat
@@ -550,7 +566,10 @@ export async function collectBeatmapFiles(
             const map = set._difficultyBeatmaps[m]
             let passed = true
             excludeDiffs.forEach(async (d) => {
-                if (map._beatmapFilename === (await parseFilePath(d, '.dat')).path) {
+                if (
+                    map._beatmapFilename ===
+                        (await parseFilePath(d, '.dat')).path
+                ) {
                     arrRemove(set._difficultyBeatmaps, m)
                     m--
                     passed = false

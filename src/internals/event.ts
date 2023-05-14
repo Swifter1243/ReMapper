@@ -1,10 +1,9 @@
 import { LightID } from "../basicEvent.ts";
-import { activeDiffGet, TJson } from "../beatmap.ts";
-import { EASE, EventAction, EventGroup, RotationAction } from "../constants.ts";
+import { activeDiffGet } from "../beatmap.ts";
+import { EASE, EventAction, EventGroup } from "../constants.ts";
 import { bsmap } from "../deps.ts";
-import { ColorType, copy, jsonGet, jsonSet } from "../general.ts";
+import { ColorType, copy } from "../general.ts";
 import { BaseObject, ObjectFields } from "../object.ts";
-import { Fields } from "../types.ts";
 
 type LightFields<T extends { customData: T["customData"] }> =
   & Omit<ObjectFields<T>, "floatValue">

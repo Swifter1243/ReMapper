@@ -1,8 +1,8 @@
-import { combineAnimations, RawKeyframesAny, Track } from './animation.ts'
-import { activeDiffGet, TJson } from './beatmap.ts'
+import { combineAnimations, RawKeyframesAny } from './animation.ts'
+import { activeDiffGet } from './beatmap.ts'
 import { ColorType } from './general.ts'
 import { AnimationKeys, EASE, GeoShader, GeoType, Lookup } from './constants.ts'
-import { animateTrack, bsmap, KeyframesLinear } from './mod.ts'
+import { animateTrack, bsmap, copy, KeyframesLinear } from './mod.ts'
 import { AnimationInternals, EnvironmentInternals } from './internals/mod.ts'
 
 let envCount = 0
@@ -11,6 +11,10 @@ export class Environment extends EnvironmentInternals.BaseEnvironment<
     bsmap.v2.IChromaEnvironmentID,
     bsmap.v3.IChromaEnvironmentID
 > {
+    push(clone = true): void {
+        activeDiffGet().environment.push(clone ? copy(this) : this)
+    }
+
     /**
      * Environment object for ease of creation and additional tools.
      * @param id The object name to look up in the environment.
@@ -78,6 +82,10 @@ export class Geometry extends EnvironmentInternals.BaseEnvironment<
     bsmap.v2.IChromaEnvironmentGeometry,
     bsmap.v3.IChromaEnvironmentGeometry
 > {
+    push(clone = true): void {
+        activeDiffGet().geometry.push(clone ? copy(this) : this)
+    }
+
     /**
      * Geometry object for ease of creation and additional tools.
      * @param type The geometry shape type.
@@ -180,35 +188,38 @@ export function animateEnvGroup(
     duration?: number,
     easing?: EASE,
 ) {
-    if (activeDiffGet().rawEnvironment !== undefined) {
-        activeDiffGet().rawEnvironment.forEach((x) => {
-            if (x.group === group) {
-                const newAnimation = new AnimationInternals.AbstractAnimation()
-                animation(newAnimation)
+    const environmentCombined = activeDiffGet().environemntEnhancementsCombined()
 
-                if (!x.track.value) {
-                    x.track.value = `environment_${envCount}`
-                    envCount++
-                }
 
-                const event = animateTrack(x.track.value)
-                if (duration) event.duration = duration
-                if (easing) event.ease = easing
+    for (const x of environmentCombined) {
+        if (x.group === group) {
+            const newAnimation = new AnimationInternals.AbstractAnimation()
+            animation(newAnimation)
 
-                Object.keys(newAnimation.properties).forEach((key) => {
-                    event.animate.properties[key] = newAnimation.properties[key]
-                    if (x.json[key]) {
-                        event.animate.properties[key] = combineAnimations(
-                            event.animate.properties[key]! as RawKeyframesAny,
-                            x.json[key],
-                            key as AnimationKeys,
-                        )
-                    }
-                })
-
-                event.push()
+            if (!x.track.value) {
+                x.track.value = `environment_${envCount}`
+                envCount++
             }
-        })
+
+            const event = animateTrack(time, x.track.value)
+            if (duration) event.duration = duration
+            if (easing) event.ease = easing
+
+            Object.keys(newAnimation.properties).forEach((key) => {
+                event.animate.properties[key] = newAnimation.properties[key]
+                // TODO: Rework
+                const prop = (x as any)[key];
+                if (prop) {
+                    event.animate.properties[key] = combineAnimations(
+                        event.animate.properties[key]! as RawKeyframesAny,
+                        prop,
+                        key as AnimationKeys,
+                    )
+                }
+            })
+
+            event.push()
+        }
     }
 }
 
@@ -227,31 +238,34 @@ export function animateEnvTrack(
     duration?: number,
     easing?: EASE,
 ) {
-    if (activeDiffGet().rawEnvironment !== undefined) {
-        activeDiffGet().rawEnvironment.forEach((x) => {
-            if (x.track.value === track) {
-                const newAnimation = new AnimationInternals.AbstractAnimation()
-                animation(newAnimation)
+    const environmentCombined = activeDiffGet().environemntEnhancementsCombined()
 
-                const event = animateTrack(x.track.value)
-                if (duration) event.duration = duration
-                if (easing) event.ease = easing
 
-                Object.keys(newAnimation.properties).forEach((key) => {
-                    event.animate.properties[key] = newAnimation.properties[key]
-                    if (x.json[key]) {
-                        event.animate.properties[key] = combineAnimations(
-                            event.animate.properties[key] as RawKeyframesAny,
-                            x.json[key],
-                            key as AnimationKeys,
-                        )
-                    }
-                })
+    for (const x of environmentCombined) {
+        if (x.track.value === track) {
+            const newAnimation = new AnimationInternals.AbstractAnimation()
+            animation(newAnimation)
 
-                event.push()
-            }
-        })
+            const event = animateTrack(time, x.track.value)
+            if (duration) event.duration = duration
+            if (easing) event.ease = easing
+
+            Object.keys(newAnimation.properties).forEach((key) => {
+                event.animate.properties[key] = newAnimation.properties[key]
+                const prop = (x as any)[key]
+                if (prop) {
+                    event.animate.properties[key] = combineAnimations(
+                        event.animate.properties[key] as RawKeyframesAny,
+                        prop,
+                        key as AnimationKeys,
+                    )
+                }
+            })
+
+            event.push()
+        }
     }
+    
 }
 
 /** All components on environment objects. */

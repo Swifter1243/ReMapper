@@ -8,14 +8,12 @@ import {
     RawKeyframesAbstract,
     simplifyArray,
 } from './animation.ts'
-import { Wall } from './wall.ts'
 import { EASE, FILENAME, FILEPATH } from './constants.ts'
 import { activeDiffGet, TJson } from './beatmap.ts'
-import { Note } from './note.ts'
 import { fs, path, three } from './deps.ts'
 import { BloomFogEnvironment, Environment } from './environment.ts'
-import { CustomEventInternals, EventInternals } from './internals/mod.ts'
-import { OnlyNumbers, OnlyNumbersOptional } from './types.ts'
+import { CustomEventInternals } from './internals/mod.ts'
+import { OnlyNumbersOptional } from './types.ts'
 import { animateComponent } from './custom_event.ts'
 
 /** An array with 2 numbers. */
@@ -1048,7 +1046,7 @@ export function adjustFog(
         Object.entries(anyFog).forEach((x) => {
             // TODO: what?
             if (typeof x[1] === 'number') {
-                ;(anyFog as any)[x[0]] = [x[1]]
+                (anyFog as any)[x[0]] = [x[1]]
             }
         })
 
@@ -1116,10 +1114,10 @@ export function getBoxBounds(boxes: Transform | Transform[]): Bounds {
 
             c.forEach((x, i) => {
                 if ((lowBound as Vec3)[i] > x) {
-                    ;(lowBound as Vec3)[i] = x
+                    (lowBound as Vec3)[i] = x
                 }
                 if ((highBound as Vec3)[i] < x) {
-                    ;(highBound as Vec3)[i] = x
+                    (highBound as Vec3)[i] = x
                 }
             })
         })

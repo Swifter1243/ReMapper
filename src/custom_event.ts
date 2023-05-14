@@ -1,10 +1,7 @@
-import { KeyframesLinear, Track, TrackValue } from './animation.ts'
+import { KeyframesLinear, TrackValue } from './animation.ts'
 import { EASE } from './constants.ts'
 import {
-    BloomFogEnvironment,
     Components,
-    ILightWithId,
-    TubeBloomPrePassLight,
 } from './environment.ts'
 import { CustomEventInternals } from './internals/mod.ts'
 import { bsmap } from './mod.ts'
@@ -42,7 +39,7 @@ export function animateTrack(
             easing?: EASE,
         ]
 ) {
-    const [first, ...rest] = params
+    const [first] = params
 
     if (typeof first === 'object') {
         return new CustomEventInternals.AnimateTrack(
@@ -95,7 +92,7 @@ export function assignPathAnimation(
             easing?: EASE,
         ]
 ) {
-    const [first, ...rest] = params
+    const [first] = params
 
     if (typeof first === 'object') {
         return new CustomEventInternals.AssignPathAnimation(
@@ -204,7 +201,7 @@ export function animateComponent(
             components?: Components<KeyframesLinear>,
         ]
 ) {
-    const [first, ...rest] = params
+    const [first] = params
 
     if (typeof first === 'object') {
         return new CustomEventInternals.AnimateComponent(
