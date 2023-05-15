@@ -1,10 +1,10 @@
 {
-  "fmt": {
-    "options": {
-      "indentWidth": 4,
-      "singleQuote": true,
-      "proseWrap": "preserve",
-      "semiColons": false
+    "fmt": {
+        "options": {
+            "indentWidth": 4,
+            "singleQuote": true,
+            "proseWrap": "preserve",
+            "semiColons": false
+        }
     }
-  }
 }

@@ -1,8 +1,6 @@
 import { KeyframesLinear, TrackValue } from './animation.ts'
 import { EASE } from './constants.ts'
-import {
-    Components,
-} from './environment.ts'
+import { Components } from './environment.ts'
 import { CustomEventInternals } from './internals/mod.ts'
 import { bsmap } from './mod.ts'
 

@@ -10,19 +10,19 @@ Normal way:
 
 ```js
 map.colorNotes.push({
-  b: 20,
-  x: 1,
-  y: 1,
-  c: 1,
-  d: 3,
-  a: 0,
-});
+    b: 20,
+    x: 1,
+    y: 1,
+    c: 1,
+    d: 3,
+    a: 0,
+})
 ```
 
 ReMapper:
 
 ```js
-new Note(20, NOTETYPE.RED, CUT.RIGHT, 1, 1).push();
+new Note(20, NOTETYPE.RED, CUT.RIGHT, 1, 1).push()
 ```
 
 Here are some notable features:

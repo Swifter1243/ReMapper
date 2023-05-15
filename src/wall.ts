@@ -307,7 +307,7 @@ export async function modelToWall(
         })
     }
 
-    const w = wall();
+    const w = wall()
     w.life = end - start
     w.lifeStart = start
     w.animation.dissolve = [[0, 0], [1, 0]]

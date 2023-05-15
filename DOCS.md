@@ -25,19 +25,16 @@ ReMapper, you'll need to import them. Initialize an import statement like so
 (the setup tool would have already done this for you):
 
 ```js
-import {} from "https://deno.land/x/remapper@3.0.0/src/mod.ts"; // MAKE SURE TO USE THE LATEST REMAPPER VERSION HERE
+import {} from 'https://deno.land/x/remapper@3.0.0/src/mod.ts' // MAKE SURE TO USE THE LATEST REMAPPER VERSION HERE
 ```
 
 If you know exactly what you want to import, as you're typing it, press tab, and
 it'll be added to the import statement at the top like so:
 
 ```js
-import {
-  Difficulty,
-  info,
-} from "https://deno.land/x/remapper@3.0.0/src/mod.ts";
+import { Difficulty, info } from 'https://deno.land/x/remapper@3.0.0/src/mod.ts'
 
-info; // press tab while typing to import
+info // press tab while typing to import
 ```
 
 Keep in mind that some things may already exist in JS/TS (such as CustomEvent),
@@ -56,7 +53,7 @@ In order to get started, you'll need a difficulty. Here you'll enter your input
 and output files. Input will be used as output if the output isn't specified.
 
 ```js
-const map = new Difficulty("ExpertPlusLawless", "ExpertPlusStandard");
+const map = new Difficulty('ExpertPlusLawless', 'ExpertPlusStandard')
 // "map" isn't reassigned, so we use const to save on resources
 ```
 
@@ -64,7 +61,7 @@ After you're done scripting this difficulty, you would use the save method to
 export your map.
 
 ```js
-map.save(); // Uses output specified earlier
+map.save() // Uses output specified earlier
 ```
 
 Creating a difficulty will make any objects from here on out relavant to the
@@ -75,8 +72,8 @@ You can access a bunch of properties on the difficulties, as well as the
 Info.dat wrapper.
 
 ```js
-map.NJS = 20; // When typing "map" and then adding a period, all your options for properties will be revealed. This goes for all wrappers.
-console.log(info.version);
+map.NJS = 20 // When typing "map" and then adding a period, all your options for properties will be revealed. This goes for all wrappers.
+console.log(info.version)
 ```
 
 # Constants
@@ -90,7 +87,7 @@ the options, and whatever property you access will be the equivalent of the
 correct number.
 
 ```js
-new Note(10, NOTETYPE.BLUE).push();
+new Note(10, NOTETYPE.BLUE).push()
 ```
 
 # Objects (Notes, Walls)
@@ -102,30 +99,30 @@ to access a bunch of useful properties.
 
 ```js
 notesBetween(0, 10, (note) => {
-  note.color = [0, 0, 0];
-  console.log(note.NJS); // Gets NJS from the relavant difficulty's NJS if it isn't specified on the note.
-});
+    note.color = [0, 0, 0]
+    console.log(note.NJS) // Gets NJS from the relavant difficulty's NJS if it isn't specified on the note.
+})
 ```
 
 You can also create a new object:
 
 ```js
-const wall = new Wall(0, 10);
+const wall = new Wall(0, 10)
 ```
 
 After making changes to this wall, push it to the difficulty.
 
 ```js
-wall.life = 4; // Wall lasts 4 beats
-wall.lifeStart = 2; // Wall starts at beat 2
-wall.push();
+wall.life = 4 // Wall lasts 4 beats
+wall.lifeStart = 2 // Wall starts at beat 2
+wall.push()
 ```
 
 If you don't plan on referencing an object again, you don't need a variable for
 it.
 
 ```js
-new Note(3, NOTETYPE.BLUE, CUT.LEFT, 0, 1).push();
+new Note(3, NOTETYPE.BLUE, CUT.LEFT, 0, 1).push()
 ```
 
 # Animation
@@ -139,27 +136,27 @@ Firstly, you can set the length of the animation to divide each keyframe's time.
 In this case we're using the wall from before with a lifetime of 4 beats.
 
 ```js
-wall.animate.length = wall.life;
+wall.animate.length = wall.life
 ```
 
 Single keyframes are supported by using a single array, time will be interpreted
 as 0 here.
 
 ```js
-wall.animate.definitePosition = [0, 0, 0];
+wall.animate.definitePosition = [0, 0, 0]
 ```
 
 You can add to an animation by using the add method and ANIM constant.
 
 ```js
-wall.animate.add(_definitePosition, [0, 1, 0, 4, "easeInOutExpo"]); // Easings and splines work too!
+wall.animate.add(_definitePosition, [0, 1, 0, 4, 'easeInOutExpo']) // Easings and splines work too!
 ```
 
 You can use a negative number for time to return to a range of 0-1, it will be
 converted to positive internally.
 
 ```js
-wall.animate.add(_definitePosition, [0, 2, 0, -0.5]);
+wall.animate.add(_definitePosition, [0, 2, 0, -0.5])
 ```
 
 This wrapper also allows you to grab what the values of a property would be at a
@@ -167,7 +164,7 @@ certain time. It accounts for easings, splines, and what the property actually
 is (rotations interpolate differently than positions, for example).
 
 ```js
-console.log(wall.animate.get("definitePosition", 3)); // Get values at time 3, which is also divided by the length.
+console.log(wall.animate.get('definitePosition', 3)) // Get values at time 3, which is also divided by the length.
 ```
 
 So far this animation would end up as:
@@ -176,9 +173,9 @@ So far this animation would end up as:
 You can also create an animation and import it, if you'd like.
 
 ```js
-const animation = new Animation().wallAnimation(); // You'll need to specify what type of animation this will be.
-animation.scale = [[1, 1, 1, 0], [2, 2, 2, 1]];
-wall.importAnimation(animation);
+const animation = new Animation().wallAnimation() // You'll need to specify what type of animation this will be.
+animation.scale = [[1, 1, 1, 0], [2, 2, 2, 1]]
+wall.importAnimation(animation)
 ```
 
 If you are dealing with animations with a large amount of points, like keyframe
@@ -192,7 +189,7 @@ Events are similar to making Notes and Walls, but they have subclasses, which
 means you will need to further specify what kind of event it will be.
 
 ```js
-new Event(2).backLasers().fade(true).push(); // This will create a blue (blue = true) fade event on the back lasers at beat 2.
+new Event(2).backLasers().fade(true).push() // This will create a blue (blue = true) fade event on the back lasers at beat 2.
 ```
 
 You'll know initialization is completed when you can see `push()` as an option,
@@ -204,15 +201,15 @@ Custom events are also similar to events, they have subclasses and will require
 an extra method to initialize.
 
 ```js
-new CustomEvent().assignPlayerToTrack("player").push();
+new CustomEvent().assignPlayerToTrack('player').push()
 ```
 
 Animation related events have an animation class attached to them.
 
 ```js
-const event = new CustomEvent(2).animateTrack("player", 10);
-event.animate.position = [[0, 0, 0, 0], [0, 10, 0, 1, "easeInOutExpo"]];
-event.push();
+const event = new CustomEvent(2).animateTrack('player', 10)
+event.animate.position = [[0, 0, 0, 0], [0, 10, 0, 1, 'easeInOutExpo']]
+event.push()
 ```
 
 # Environment
@@ -221,10 +218,10 @@ Environment objects also have wrappers to make use of them easier.
 
 ```js
 // Only a handful of environment pieces have constants for their ID, feel free to PR more!
-const env = new Environment(ENV.BTS.PILLAR.ID, LOOKUP.REGEX);
-env.duplicate = 1;
-env.position = [0, 10, 0];
-env.push();
+const env = new Environment(ENV.BTS.PILLAR.ID, LOOKUP.REGEX)
+env.duplicate = 1
+env.position = [0, 10, 0]
+env.push()
 ```
 
 Regex classes also exist to easily generate regex statements for environment
@@ -232,8 +229,9 @@ stuff.
 
 ```js
 const regex =
-  new Regex().start().add("PillarPair").vary(4).seperate().add("PillarL").end()
-    .string;
+    new Regex().start().add('PillarPair').vary(4).seperate().add('PillarL')
+        .end()
+        .string
 ```
 
 This would result in `\\]PillarPair \\(4\\)\\.\\[\\d*\\]PillarL$`. You can also
@@ -245,13 +243,13 @@ animation's.
 
 ```js
 // Make sure your object has the track specified
-env.track.value = "pillar";
-env.push();
+env.track.value = 'pillar'
+env.push()
 
-animateEnvTrack("pillar", 3, (animation) => {
-  animation.length = 5;
-  animation.position = [[0, 0, 0, 0], [0, -10, 0, 5, "easeInOutExpo"]];
-}, 5);
+animateEnvTrack('pillar', 3, (animation) => {
+    animation.length = 5
+    animation.position = [[0, 0, 0, 0], [0, -10, 0, 5, 'easeInOutExpo']]
+}, 5)
 ```
 
 The expected animation as a result of this would be:
@@ -268,22 +266,22 @@ duplicating/moving existing pieces, it spawns in entirely new ones.
 Geometry uses materials, which can either be initialized with the object:
 
 ```js
-new Geometry("Cube", {
-  shader: "Standard",
-  color: [1, 1, 1, 1],
-  track: "cube",
-}).push();
+new Geometry('Cube', {
+    shader: 'Standard',
+    color: [1, 1, 1, 1],
+    track: 'cube',
+}).push()
 ```
 
 Or added to the `geoMaterials` object in the map:
 
 ```js
 map.geoMaterials.white = {
-  shader: "Standard",
-  color: [1, 1, 1, 1],
-  track: "cube",
-};
-new Geometry("Cube", "white").push();
+    shader: 'Standard',
+    color: [1, 1, 1, 1],
+    track: 'cube',
+}
+new Geometry('Cube', 'white').push()
 ```
 
 NOTE: At this point in time, the standard shader for geometry has issues that
@@ -333,7 +331,7 @@ The `object` field will determine which object is spawned, currently
 `Environment` and `Geometry` are supported.
 
 ```js
-const scene = new ModelScene(new Geometry()); // Defaults to Cube type;
+const scene = new ModelScene(new Geometry()) // Defaults to Cube type;
 ```
 
 You can add new primary objects with `addPrimaryGroups`, which takes the
@@ -342,12 +340,12 @@ the object.
 
 ```js
 scene.addPrimaryGroups(
-  "red sphere",
-  new Geometry("Sphere", {
-    shader: "Standard",
-    color: [1, 0, 0], // Note: This overrides colors from the model data.
-  }),
-);
+    'red sphere',
+    new Geometry('Sphere', {
+        shader: 'Standard',
+        color: [1, 0, 0], // Note: This overrides colors from the model data.
+    }),
+)
 ```
 
 You can assign objects with `assignObjects`, which is written the same as
@@ -366,12 +364,12 @@ iterate over each object being spawned.
 
 ```js
 // Standard use
-scene.static("model");
+scene.static('model')
 
 // Or iterate through each object
-scene.static("model", (object) => {
-  object.duplicate = 3;
-});
+scene.static('model', (object) => {
+    object.duplicate = 3
+})
 ```
 
 `animate()` works by inputting an array of switches, with the time and
@@ -382,21 +380,21 @@ on each object being spawned.
 ```js
 // Standard use
 scene.animate([
-  ["model1", 0],
-  ["model2", 20, 40],
-]);
+    ['model1', 0],
+    ['model2', 20, 40],
+])
 
 // Or some ways to iterate things
 scene.animate([
-  ["model1", 0],
-  ["model2", 20, 40, (event) => { // Iterate moving events
-    if (event.track.has("water")) {
-      event.duration = 1;
-    }
-  }],
+    ['model1', 0],
+    ['model2', 20, 40, (event) => { // Iterate moving events
+        if (event.track.has('water')) {
+            event.duration = 1
+        }
+    }],
 ], (object) => { // Iterate spawned objects
-  object.duplicate = 5;
-});
+    object.duplicate = 5
+})
 ```
 
 ## Anchor, Scale, & Rotation
@@ -433,12 +431,12 @@ how expressing colors with HSV could be useful:
 ```js
 // Rainbow notes!
 for (let i = 0; i <= 1; i++) {
-  const time = 2 + (i * 4); // Starts at beat 2, for 4 beats.
-  const color = new Color([i, 1, 1], COLOR.HSV); // Hue will be cycled through in for loop, saturation and value will be full.
+    const time = 2 + (i * 4) // Starts at beat 2, for 4 beats.
+    const color = new Color([i, 1, 1], COLOR.HSV) // Hue will be cycled through in for loop, saturation and value will be full.
 
-  const note = new Note(time);
-  note.color = color.export(); // Converts to RGB and returns value array.
-  note.push();
+    const note = new Note(time)
+    note.color = color.export() // Converts to RGB and returns value array.
+    note.push()
 }
 ```
 
@@ -454,7 +452,7 @@ conditions that each event will need to pass. There are some built in such as
 `type` or `IDs`, or you can add your own.
 
 ```js
-new LightRemapper().type(EVENT.RING_LIGHTS).run();
+new LightRemapper().type(EVENT.RING_LIGHTS).run()
 // This will target the events in the ring lights.
 ```
 
@@ -462,7 +460,7 @@ Processes are a chain of functions that will run on each event. Again some are
 built in, such as `setType` or `setIDs`, or you can add your own.
 
 ```js
-new LightRemapper().type(EVENT.RING_LIGHTS).setType(EVENT.CENTER_LASERS).run();
+new LightRemapper().type(EVENT.RING_LIGHTS).setType(EVENT.CENTER_LASERS).run()
 // This will convert ring lights to center lights.
 ```
 
@@ -475,14 +473,14 @@ In the most basic example, you can simply add a number to the end of all the
 lightIDs.
 
 ```js
-lightRemapper.addToEnd(1); // [1, 2, 3] --> [2, 3, 4]
+lightRemapper.addToEnd(1) // [1, 2, 3] --> [2, 3, 4]
 ```
 
 If the sequence starts at 1 and the differences are 1 (sequence is normalized),
 you can also provide a step value to change the distance between each lightID.
 
 ```js
-lightRemapper.addToEnd(1, 3); // [1, 2, 3] --> [2, 5, 8]
+lightRemapper.addToEnd(1, 3) // [1, 2, 3] --> [2, 5, 8]
 // Look at the differences from number to number. It changes from 1 to 3, and then 1 is also added.
 ```
 
@@ -490,7 +488,7 @@ Again assuming the sequence is normalized, You can also specify the points at
 which the differences between values change.
 
 ```js
-lightRemapper.remapEnd([[1, 1], [3, 2]]); // [1, 2, 3, 4, 5] --> [1, 2, 3, 5, 7]
+lightRemapper.remapEnd([[1, 1], [3, 2]]) // [1, 2, 3, 4, 5] --> [1, 2, 3, 5, 7]
 // At the first number, the differences are 1. At the third number, they become 2.
 ```
 
@@ -499,7 +497,7 @@ you can normalize it. There's 2 ways to do this, if there is a consistent
 difference the entire way, you can use `normalizeLinear()`:
 
 ```js
-lightRemapper.normalizeLinear(2, 3); // [2, 5, 8, 11, 14] --> [1, 2, 3, 4, 5]
+lightRemapper.normalizeLinear(2, 3) // [2, 5, 8, 11, 14] --> [1, 2, 3, 4, 5]
 // The sequence starts at 2, and the differences between numbers is 3.
 ```
 
@@ -509,7 +507,7 @@ BTS using lights behind the player for the last 4 IDs, which use less IDs than
 the previous 8.
 
 ```js
-lightRemapper.normalizeWithChanges([[1, 2], [3, 1]]); // [1, 3, 5, 6, 7] --> [1, 2, 3, 4, 5]
+lightRemapper.normalizeWithChanges([[1, 2], [3, 1]]) // [1, 3, 5, 6, 7] --> [1, 2, 3, 4, 5]
 // At the first number, the differences are 2. At the third number, the differences are 1.
 ```
 
@@ -529,12 +527,12 @@ a suggestion or requirement, as it will not work if you don't do that!
 
 ```ts
 // If you want to control all properties of the screen
-const screen = new CinemaScreen("YoutubeID", "dQw4w9WgXcQ");
-screen.videoFile = "haha";
-screen.push();
+const screen = new CinemaScreen('YoutubeID', 'dQw4w9WgXcQ')
+screen.videoFile = 'haha'
+screen.push()
 
 // If you don't plan on changing any properties of the screen
-new CinemaScreen("YoutubeID", "dQw4w9WgXcQ");
+new CinemaScreen('YoutubeID', 'dQw4w9WgXcQ')
 ```
 
 ReMapper does not support additional screens in the `cinema-video.json` file,

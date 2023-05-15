@@ -67,17 +67,16 @@ export function bomb(
     })
 }
 
-
 export function chain(
-        time?: number,
-        tailTime?: number,
-        type?: NoteType,
-        direction?: NoteCut,
-        x?: number,
-        y?: number,
-        tailX?: number,
-        tailY?: number,
-        links?: number,
+    time?: number,
+    tailTime?: number,
+    type?: NoteType,
+    direction?: NoteCut,
+    x?: number,
+    y?: number,
+    tailX?: number,
+    tailY?: number,
+    links?: number,
 ): Chain
 export function chain(...params: ConstructorParameters<typeof Chain>): Chain
 export function chain(
@@ -109,19 +108,19 @@ export function chain(
         lineLayer: y ?? 0,
         tailX: tailX ?? 0,
         tailY: tailY ?? 0,
-        links: links ?? 4
+        links: links ?? 4,
     })
 }
 export function arc(
-        time?: number,
-        tailTime?: number,
-        type?: NoteType,
-        headDirection?: NoteCut,
-        tailDirection?: NoteCut,
-        x?: number,
-        y?: number,
-        tailX?: number,
-        tailY?: number,
+    time?: number,
+    tailTime?: number,
+    type?: NoteType,
+    headDirection?: NoteCut,
+    tailDirection?: NoteCut,
+    x?: number,
+    y?: number,
+    tailX?: number,
+    tailY?: number,
 ): Arc
 export function arc(...params: ConstructorParameters<typeof Arc>): Arc
 export function arc(
@@ -142,7 +141,17 @@ export function arc(
         return new Arc(first)
     }
 
-    const [time, tailTime, type, headDirection, tailDirection, x, y, tailX, tailY] = params
+    const [
+        time,
+        tailTime,
+        type,
+        headDirection,
+        tailDirection,
+        x,
+        y,
+        tailX,
+        tailY,
+    ] = params
 
     return new Arc({
         time: time as number ?? 0,
@@ -153,7 +162,7 @@ export function arc(
         lineIndex: x ?? 0,
         lineLayer: y ?? 0,
         tailX: tailX ?? 0,
-        tailY: tailY ?? 0
+        tailY: tailY ?? 0,
     })
 }
 
@@ -344,7 +353,6 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
 }
 
 export class Chain extends BaseSliderObject<bsmap.v3.IBurstSlider> {
-
     /**
      * Chain object for ease of creation.
      * @param time The time this chain will be hit.
@@ -383,7 +391,6 @@ export class Chain extends BaseSliderObject<bsmap.v3.IBurstSlider> {
         super(fields)
     }
 
-
     /**
      * Push this chain to the difficulty.
      * @param fake Whether this chain will be pushed to the fakeChains array.
@@ -394,12 +401,10 @@ export class Chain extends BaseSliderObject<bsmap.v3.IBurstSlider> {
         return this
     }
 
-
-
-    toJson(v3: true): bsmap.v3.IBurstSlider;
-    toJson(v3: false): never;
+    toJson(v3: true): bsmap.v3.IBurstSlider
+    toJson(v3: false): never
     toJson(v3: boolean): bsmap.v3.IBurstSlider {
-        if (!v3) throw "V2 is not supported for chains";
+        if (!v3) throw 'V2 is not supported for chains'
 
         return {
             b: this.time,
@@ -426,8 +431,8 @@ export class Chain extends BaseSliderObject<bsmap.v3.IBurstSlider> {
                 disableNoteLook: !this.noteLook,
                 track: this.track.value,
                 worldRotation: this.rotation,
-                ...this.customData
-            }
+                ...this.customData,
+            },
         } satisfies bsmap.v3.IBurstSlider
     }
 
@@ -441,11 +446,9 @@ export class Chain extends BaseSliderObject<bsmap.v3.IBurstSlider> {
     noteGravity?: boolean
     /** Whether this chain will look at the player. */
     noteLook?: boolean
-
 }
 
 export class Arc extends BaseSliderObject<bsmap.v3.ISlider> {
-
     /**
      * Arc object for ease of creation.
      * @param time The time this arc will be hit.
@@ -484,11 +487,10 @@ export class Arc extends BaseSliderObject<bsmap.v3.ISlider> {
     //     this.tailY = tailY
     // }
 
-
-    toJson(v3: true): bsmap.v3.ISlider;
-    toJson(v3: false): never;
+    toJson(v3: true): bsmap.v3.ISlider
+    toJson(v3: false): never
     toJson(v3: boolean): bsmap.v3.ISlider {
-        if (!v3) throw "V2 is not supported for chains";
+        if (!v3) throw 'V2 is not supported for chains'
 
         return {
             b: this.time,
@@ -518,13 +520,10 @@ export class Arc extends BaseSliderObject<bsmap.v3.ISlider> {
                 disableNoteGravity: !this.noteGravity,
                 track: this.track.value,
                 worldRotation: this.rotation,
-                ...this.customData
-            }
+                ...this.customData,
+            },
         } satisfies bsmap.v3.ISlider
     }
-
-
-
 
     /**
      * Push this arc to the difficulty
@@ -534,8 +533,6 @@ export class Arc extends BaseSliderObject<bsmap.v3.ISlider> {
         return this
     }
 
- 
-
     /** The cut direction of the tail of the arc. */
     tailDirection: NoteCut = NoteCut.DOT
     /** Multiplier for the distance the start of the arc shoots outward. */
@@ -543,7 +540,7 @@ export class Arc extends BaseSliderObject<bsmap.v3.ISlider> {
     /** Multiplier for the distance the end of the arc shoots outward. */
     tailLength = 0
     /** How the arc curves from the head to the midpoint. */
-    anchorMode: AnchorMode =  AnchorMode.STRAIGHT
+    anchorMode: AnchorMode = AnchorMode.STRAIGHT
     /** Specifies an initial position the arc will spawn at before going to it's unmodified position.  */
     flip?: Vec2
     /** Whether note gravity (the effect where notes move to their vertical row from the bottom row) is enabled. */

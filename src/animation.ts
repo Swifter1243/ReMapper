@@ -20,7 +20,6 @@ import {
     Vec4,
 } from './general.ts'
 
-
 import { AnimationInternals } from './internals/mod.ts'
 
 /** Any flag that could be in a keyframe. E.g. easings, splines */
@@ -121,7 +120,9 @@ export function wallAnimation(
  * @param json The json to create the animation with.
  */
 export function environmentAnimation(
-    ...params: ConstructorParameters<typeof AnimationInternals.EnvironmentAnimation>
+    ...params: ConstructorParameters<
+        typeof AnimationInternals.EnvironmentAnimation
+    >
 ) {
     return new AnimationInternals.EnvironmentAnimation(...params)
 }

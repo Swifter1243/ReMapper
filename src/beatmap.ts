@@ -22,12 +22,14 @@ import {
     SUGGEST_MODS,
 } from './constants.ts'
 
-import { AnimationInternals, CustomEventInternals, EventInternals } from './internals/mod.ts'
+import {
+    AnimationInternals,
+    CustomEventInternals,
+    EventInternals,
+} from './internals/mod.ts'
 import { CustomEvent } from './custom_event.ts'
 import { V2Difficulty } from './beatmap_v2.ts'
-import {
-    AbstractEnvironment,
-} from './internals/environment.ts'
+import { AbstractEnvironment } from './internals/environment.ts'
 
 type PostProcessFn<T> = (
     object: T,

@@ -188,8 +188,8 @@ export function animateEnvGroup(
     duration?: number,
     easing?: EASE,
 ) {
-    const environmentCombined = activeDiffGet().environemntEnhancementsCombined()
-
+    const environmentCombined = activeDiffGet()
+        .environemntEnhancementsCombined()
 
     for (const x of environmentCombined) {
         if (x.group === group) {
@@ -208,7 +208,7 @@ export function animateEnvGroup(
             Object.keys(newAnimation.properties).forEach((key) => {
                 event.animate.properties[key] = newAnimation.properties[key]
                 // TODO: Rework
-                const prop = (x as any)[key];
+                const prop = (x as any)[key]
                 if (prop) {
                     event.animate.properties[key] = combineAnimations(
                         event.animate.properties[key]! as RawKeyframesAny,
@@ -238,8 +238,8 @@ export function animateEnvTrack(
     duration?: number,
     easing?: EASE,
 ) {
-    const environmentCombined = activeDiffGet().environemntEnhancementsCombined()
-
+    const environmentCombined = activeDiffGet()
+        .environemntEnhancementsCombined()
 
     for (const x of environmentCombined) {
         if (x.track.value === track) {
@@ -265,7 +265,6 @@ export function animateEnvTrack(
             event.push()
         }
     }
-    
 }
 
 /** All components on environment objects. */
