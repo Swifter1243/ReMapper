@@ -13,7 +13,7 @@ import {
     Vec2,
     Vec3,
 } from './general.ts'
-import { NoteAnimation, WallAnimation } from './internals/animation.ts'
+import { AnimationInternals } from './internals/mod.ts'
 import { noteAnimation } from './mod.ts'
 import { Fields, JsonWrapper } from './types.ts'
 
@@ -59,7 +59,7 @@ export abstract class BaseGameplayObject<
     extends BaseObject<TV2, TV3> {
     constructor(
         obj: Partial<Fields<BaseGameplayObject<TV2, TV3>>>,
-        animation: WallAnimation | NoteAnimation,
+        animation: AnimationInternals.WallAnimation | AnimationInternals.NoteAnimation,
     ) {
         super(obj)
         this.animation = animation
@@ -92,7 +92,7 @@ export abstract class BaseGameplayObject<
     color?: ColorType
 
     /** The animation json on the object. */
-    animation: NoteAnimation | WallAnimation
+    animation: AnimationInternals.NoteAnimation | AnimationInternals.WallAnimation
 
     get NJS() {
         return this.localNJS ?? activeDiffGet().NJS
