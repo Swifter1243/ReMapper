@@ -1,5 +1,6 @@
 /** Contains subclasses for animation related classes. */
 
+// TODO: Move some of this into animationUtils
 import {
     complexifyArray,
     ComplexKeyframesAny,
@@ -14,7 +15,7 @@ import {
 } from '../animation.ts'
 import { optimizeAnimation, OptimizeSettings } from '../anim_optimizer.ts'
 import { JsonWrapper } from '../types.ts'
-import { bsmap } from '../mod.ts'
+import { bsmap } from "../deps.ts";
 
 type AnimateV2 = Required<bsmap.v2.IAnimation>['_animation']
 type AnimateV3 = Required<bsmap.v3.IAnimation>['animation']

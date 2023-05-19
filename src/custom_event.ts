@@ -1,8 +1,8 @@
 import { KeyframesLinear, TrackValue } from './animation.ts'
 import { EASE } from './constants.ts'
+import { bsmap } from "./deps.ts";
 import { Components } from './environment.ts'
 import { CustomEventInternals } from './internals/mod.ts'
-import { bsmap } from './mod.ts'
 
 export type CustomEvent = CustomEventInternals.BaseEvent<
     bsmap.v2.ICustomEvent,

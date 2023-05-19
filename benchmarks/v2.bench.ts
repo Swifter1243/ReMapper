@@ -1,6 +1,5 @@
 import { V2Difficulty } from '../src/beatmap_v2.ts'
 import { bsmap } from '../src/deps.ts'
-import { readDifficulty } from '../src/mod.ts'
 
 const json = {
     _notes: [],
@@ -15,8 +14,10 @@ const json = {
     },
 } satisfies bsmap.v2.IDifficulty
 
-Deno.bench('parseJSON', { group: 'rm4' }, () => {
-    new V2Difficulty(undefined!, undefined!, undefined!, undefined!, json)
+console.log("Benching")
+
+Deno.bench('rm4.parseJSON', { group: 'parseJSON', }, () => {
+    new V2Difficulty(undefined!, undefined!, undefined!, undefined!, json, ["_notes"])
 })
 
 const diff = new V2Difficulty(
@@ -27,6 +28,6 @@ const diff = new V2Difficulty(
     json,
 )
 
-Deno.bench('save', { group: 'rm4' }, () => {
+Deno.bench('rm4.save', { group: 'save' }, () => {
     diff.toJSON()
 })

@@ -1,5 +1,5 @@
 // deno-lint-ignore-file adjacent-overload-signatures
-import { Track } from './animation.ts'
+import { Track, noteAnimation } from './animation.ts'
 import { activeDiffGet, info } from './beatmap.ts'
 import { NoteType } from './constants.ts'
 import { bsmap } from './deps.ts'
@@ -14,7 +14,6 @@ import {
     Vec3,
 } from './general.ts'
 import { AnimationInternals } from './internals/mod.ts'
-import { noteAnimation } from './mod.ts'
 import { Fields, JsonWrapper } from './types.ts'
 
 export type ObjectFields<T extends { customData: V }, V = T['customData']> =
@@ -50,16 +49,14 @@ export abstract class BaseObject<
 
 export abstract class BaseGameplayObject<
     TV2 extends bsmap.v2.INote | bsmap.v2.IObstacle,
-    TV3 extends
-        | bsmap.v3.IColorNote
-        | bsmap.v3.IBombNote
-        | bsmap.v3.IBaseSlider
-        | bsmap.v3.IObstacle,
-> // | bsmap.v3.IGridObject,
+    TV3 extends bsmap.v3.IGridObject,
+>
     extends BaseObject<TV2, TV3> {
     constructor(
         obj: Partial<Fields<BaseGameplayObject<TV2, TV3>>>,
-        animation: AnimationInternals.WallAnimation | AnimationInternals.NoteAnimation,
+        animation:
+            | AnimationInternals.WallAnimation
+            | AnimationInternals.NoteAnimation,
     ) {
         super(obj)
         this.animation = animation
@@ -92,7 +89,9 @@ export abstract class BaseGameplayObject<
     color?: ColorType
 
     /** The animation json on the object. */
-    animation: AnimationInternals.NoteAnimation | AnimationInternals.WallAnimation
+    animation:
+        | AnimationInternals.NoteAnimation
+        | AnimationInternals.WallAnimation
 
     get NJS() {
         return this.localNJS ?? activeDiffGet().NJS

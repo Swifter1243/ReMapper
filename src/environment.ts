@@ -1,9 +1,10 @@
-import { combineAnimations, RawKeyframesAny } from './animation.ts'
+import { combineAnimations, KeyframesLinear, RawKeyframesAny } from './animation.ts'
 import { activeDiffGet } from './beatmap.ts'
-import { ColorType } from './general.ts'
+import { ColorType, copy } from './general.ts'
 import { AnimationKeys, EASE, GeoShader, GeoType, Lookup } from './constants.ts'
-import { animateTrack, bsmap, copy, KeyframesLinear } from './mod.ts'
 import { AnimationInternals, EnvironmentInternals } from './internals/mod.ts'
+import { bsmap } from "./deps.ts";
+import { animateTrack } from "./custom_event.ts";
 
 let envCount = 0
 

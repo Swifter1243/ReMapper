@@ -7,4 +7,4 @@ export * as adbDeno from 'https://deno.land/x/adb_deno@0.1.4/lib.ts'
 
 // Temporary measure
 // export * as bsmap from 'https://raw.githubusercontent.com/Fernthedev/BeatSaber-Deno/feat/export-types/types/beatmap/mod.ts'
-export * as bsmap from "https://deno.land/x/bsmap@1.3.4/types/beatmap/mod.ts";
+export * as bsmap from 'https://deno.land/x/bsmap@1.3.4/types/beatmap/mod.ts'

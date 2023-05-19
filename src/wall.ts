@@ -8,14 +8,16 @@ import {
     ComplexKeyframesVec3,
     isSimple,
     Keyframe,
+    KeyframesVec3,
     RawKeyframesAny,
     RawKeyframesVec3,
+wallAnimation,
 } from './animation.ts'
 import { BaseGameplayObject } from './object.ts'
 import { getModel, ModelObject } from './model.ts'
 import { optimizeAnimation, OptimizeSettings } from './anim_optimizer.ts'
-import { bsmap, KeyframesVec3, wallAnimation } from './mod.ts'
 import { Fields } from './types.ts'
+import { bsmap } from "./deps.ts";
 
 /**
  * Wall object for ease of creation.

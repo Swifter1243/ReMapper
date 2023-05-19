@@ -1,9 +1,9 @@
-import { AbstractDifficulty } from './beatmap.ts'
-import { bsmap, DIFFNAME, DIFFPATH, Track, Vec3, wallAnimation } from './mod.ts'
+import { AbstractDifficulty, DIFFNAME, DIFFPATH } from './beatmap.ts'
 import { Bomb, bomb, Note, note } from './note.ts'
-import { ColorType } from './general.ts'
-import { KeyframesAny, noteAnimation } from './animation.ts'
+import { ColorType, Vec3 } from './general.ts'
+import { KeyframesAny, noteAnimation, Track } from './animation.ts'
 import { wall } from './wall.ts'
+import { bsmap } from "./deps.ts";
 
 function toNoteOrBomb(b: bsmap.v2.INote): Note | Bomb {
     const params:
@@ -45,6 +45,8 @@ function toNoteOrBomb(b: bsmap.v2.INote): Note | Bomb {
     return note(...params)
 }
 export class V2Difficulty extends AbstractDifficulty {
+    declare version: bsmap.v2.IDifficulty['_version']
+
     constructor(
         diffSet: bsmap.IInfoSetDifficulty,
         diffSetMap: bsmap.IInfoSet,
@@ -111,7 +113,7 @@ export class V2Difficulty extends AbstractDifficulty {
             {
                 notes,
                 bombs,
-                version: '',
+                version: json._version,
                 arcs: [],
                 chains: [],
                 walls: obstacles,

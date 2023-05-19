@@ -1,6 +1,5 @@
-import { activeDiffGet } from '../mod.ts'
+import { activeDiffGet } from "../beatmap.ts";
 import { LightEvent } from './event.ts'
-import { EventInternals } from './mod.ts'
 
 export type Condition = (event: LightEvent) => boolean
 export type Process = (event: LightEvent) => void
@@ -93,7 +92,7 @@ export class BaseLightRemapper {
      * @param events Events to process.
      * @param log Whether passing events should be logged.
      */
-    processEvents(events: EventInternals.LightEvent[], log = false) {
+    processEvents(events: LightEvent[], log = false) {
         events.forEach((x) => {
             let passed = true
             this.conditions.forEach((p) => {

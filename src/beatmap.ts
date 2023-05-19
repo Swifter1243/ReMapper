@@ -136,7 +136,7 @@ export async function readDifficulty(
 }
 
 export interface RMDifficulty {
-    version: string
+    version: bsmap.v2.IDifficulty["_version"] | bsmap.v3.IDifficulty["version"]
     notes: Note[]
     bombs: Bomb[]
     arcs: Arc[]
