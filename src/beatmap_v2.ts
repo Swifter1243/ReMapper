@@ -118,7 +118,7 @@ export class V2Difficulty extends AbstractDifficulty {
                 events: [],
                 customEvents: [],
                 pointDefinitions: {},
-                customData: {},
+                customData: json._customData ?? {},
                 environment: [],
                 geometry: [],
             },
