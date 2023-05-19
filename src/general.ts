@@ -24,8 +24,9 @@ export type Vec3 = [x: number, y: number, z: number]
 export type Vec4 = [x: number, y: number, z: number, w: number]
 /** An array with [r,g,b] or [r,g,b,a]. */
 export type ColorType =
-    | [number, number, number]
+    | [number, number, number, number?]
     | [number, number, number, number]
+    | [number, number, number]
 /** A type that can be used to prefer a tuple on an array of numbers. */
 export type NumberTuple = number[] | []
 

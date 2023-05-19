@@ -1,8 +1,9 @@
 import { AbstractDifficulty } from './beatmap.ts'
-import { bsmap, DIFFNAME, DIFFPATH, Track } from './mod.ts'
+import { bsmap, DIFFNAME, DIFFPATH, Track, Vec3, wallAnimation } from './mod.ts'
 import { Bomb, bomb, Note, note } from './note.ts'
 import { ColorType } from './general.ts'
 import { KeyframesAny, noteAnimation } from './animation.ts'
+import { wall } from './wall.ts'
 
 function toNoteOrBomb(b: bsmap.v2.INote): Note | Bomb {
     const params:
@@ -73,6 +74,34 @@ export class V2Difficulty extends AbstractDifficulty {
                 notes.filter((n) => n._type === 3).map(toNoteOrBomb) as Bomb[],
         ) ?? []
 
+        const obstacles = runProcess(
+            '_obstacles',
+            (obstacles) =>
+                obstacles.map((o) =>
+                    wall({
+                        time: o._time,
+                        // animation: wallAnimation(undefined, o._customData?._animation as Record<string, KeyframesAny>),
+                        color: o._customData?._color,
+                        coordinates: o._customData?._position,
+                        customData: o._customData,
+                        duration: o._duration,
+                        fake: o._customData?._fake,
+                        interactable: o._customData?._interactable,
+                        lineIndex: o._lineIndex,
+                        lineLayer: o._type,
+                        width: o._width,
+                        localNJS: o._customData?._noteJumpMovementSpeed,
+                        localBeatOffset: o._customData
+                            ?._noteJumpStartBeatOffset,
+                        localRotation: o._customData?._localRotation,
+                        rotation: o._customData?._rotation as Vec3 | undefined,
+                        scale: o._customData?._scale as Vec3,
+                        track: new Track(o._customData?._track),
+                        // TODO: height
+                    })
+                ),
+        ) ?? []
+
         super(
             json,
             diffSet,
@@ -85,7 +114,7 @@ export class V2Difficulty extends AbstractDifficulty {
                 version: '',
                 arcs: [],
                 chains: [],
-                walls: [],
+                walls: obstacles,
                 events: [],
                 customEvents: [],
                 pointDefinitions: {},
@@ -106,11 +135,11 @@ export class V2Difficulty extends AbstractDifficulty {
                     sortItems,
                 ),
             _events: [],
-            _obstacles: [],
+            _obstacles: this.walls.map((o) => o.toJson(false)),
             _sliders: [],
             _version: '2.6.0',
             _waypoints: [],
-            _customData: {},
+            _customData: this.customData,
             _specialEventsKeywordFilters: { _keywords: [] },
         }
     }
