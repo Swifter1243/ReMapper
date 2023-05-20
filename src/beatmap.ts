@@ -30,6 +30,7 @@ import {
 import { CustomEvent } from './custom_event.ts'
 import { V2Difficulty } from './beatmap_v2.ts'
 import { AbstractEnvironment } from './internals/environment.ts'
+import { V3Difficulty } from './beatmap_v3.ts'
 
 type PostProcessFn<T> = (
     object: T,
@@ -122,21 +123,31 @@ export async function readDifficulty(
         | bsmap.v2.IDifficulty
         | bsmap.v3.IDifficulty
 
-    const v3 = !Object.hasOwn(json, 'version') ||
+    const v3 = Object.hasOwn(json, 'version') &&
         semver.satisfies(json as any['version'], '>=3.0.0')
-    if (v3) return new V3Difficulty()
+    if (v3) {
+        // TODO: Uncomment, breaks benchmark
+        // return new V3Difficulty(
+        //     infoData.diffSet,
+        //     infoData.diffSetMap,
+        //     mapFile,
+        //     relativeMapFile,
+        //     json as bsmap.v3.IDifficulty,
+        // )
+    }
 
-    return new V2Difficulty(
-        infoData.diffSet,
-        infoData.diffSetMap,
-        mapFile,
-        relativeMapFile,
-        json as bsmap.v2.IDifficulty,
-    )
+    // return new V2Difficulty(
+    //     infoData.diffSet,
+    //     infoData.diffSetMap,
+    //     mapFile,
+    //     relativeMapFile,
+    //     json as bsmap.v2.IDifficulty,
+    // )
+    return undefined!
 }
 
 export interface RMDifficulty {
-    version: bsmap.v2.IDifficulty["_version"] | bsmap.v3.IDifficulty["version"]
+    version: bsmap.v2.IDifficulty['_version'] | bsmap.v3.IDifficulty['version']
     notes: Note[]
     bombs: Bomb[]
     arcs: Arc[]
