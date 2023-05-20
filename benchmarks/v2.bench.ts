@@ -2,9 +2,21 @@ import { V2Difficulty } from '../src/beatmap_v2.ts'
 import { bsmap } from '../src/deps.ts'
 
 import * as remapperv2 from 'https://deno.land/x/remapper@2.1.0/src/mod.ts'
+import { rand } from '../src/general.ts'
+import { activeDiff, activeDiffSet } from '../src/beatmap.ts'
+
+// TODO: Seed, otherwise results will NEVER be consistent
+const notes: bsmap.v2.INote[] = [...Array(1000).keys()].map(() => ({
+    _time: rand(0, 1000),
+    _cutDirection: rand(0, 8),
+    _lineIndex: rand(0, 3),
+    _lineLayer: rand(0, 3),
+    _type: rand(0, 1) as any,
+    _customData: {},
+} satisfies bsmap.v2.INote))
 
 const json = {
-    _notes: [],
+    _notes: notes,
     _events: [],
     _obstacles: [],
     _sliders: [],
@@ -22,18 +34,14 @@ const v2OldDiff = Object.create(
 v2OldDiff.json = json
 remapperv2.activeDiffSet(remapperv2.copy(v2OldDiff))
 
-console.log('Benching')
-
 Deno.bench('rm4.parseJSON', { group: 'parseJSON' }, () => {
-    new V2Difficulty(undefined!, undefined!, undefined!, undefined!, json, [
-        '_notes',
-    ])
+    new V2Difficulty(undefined!, undefined!, undefined!, undefined!, json)
 })
 Deno.bench('rm2.parseJSON', { group: 'parseJSON' }, () => {
     // This affects the performance of the benchmark
     // but it is necessary
     // the results without it change drastically
-    remapperv2.activeDiffSet(remapperv2.copy(v2OldDiff))
+    // remapperv2.activeDiffSet(remapperv2.copy(v2OldDiff))
 
     for (let i = 0; i < remapperv2.activeDiffGet().notes.length; i++) {
         remapperv2.activeDiffGet().notes[i] = new remapperv2.Note().import(
@@ -52,21 +60,31 @@ Deno.bench('rm2.parseJSON', { group: 'parseJSON' }, () => {
     }
     if (remapperv2.activeDiffGet().customEvents !== undefined) {
         for (let i = 0; i < v2OldDiff.customEvents.length; i++) {
-            remapperv2.activeDiffGet().customEvents[i] = new remapperv2.CustomEvent().import(
-                remapperv2.activeDiffGet().customEvents[i] as Record<string, any>,
-            )
+            remapperv2.activeDiffGet().customEvents[i] = new remapperv2
+                .CustomEvent().import(
+                    remapperv2.activeDiffGet().customEvents[i] as Record<
+                        string,
+                        any
+                    >,
+                )
         }
     }
     if (remapperv2.activeDiffGet().rawEnvironment !== undefined) {
         for (let i = 0; i < v2OldDiff.rawEnvironment.length; i++) {
-            remapperv2.activeDiffGet().rawEnvironment[i] = new remapperv2.EnvironmentInternals
+            remapperv2.activeDiffGet().rawEnvironment[i] = new remapperv2
+                .EnvironmentInternals
                 .BaseEnvironment().import(
-                    remapperv2.activeDiffGet().rawEnvironment[i] as Record<string, any>,
+                    remapperv2.activeDiffGet().rawEnvironment[i] as Record<
+                        string,
+                        any
+                    >,
                 )
         }
     }
 
-    if (remapperv2.activeDiffGet().version === undefined) v2OldDiff.version = '2.2.0'
+    if (remapperv2.activeDiffGet().version === undefined) {
+        v2OldDiff.version = '2.2.0'
+    }
     // new V2Difficulty(undefined!, undefined!, undefined!, undefined!, json, ["_notes"])
 })
 
@@ -79,6 +97,7 @@ const diff = new V2Difficulty(
 )
 
 remapperv2.activeDiffSet(remapperv2.copy(v2OldDiff))
+activeDiffSet(diff)
 
 Deno.bench('rm4.save', { group: 'save' }, () => {
     diff.toJSON()

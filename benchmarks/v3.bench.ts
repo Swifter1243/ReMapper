@@ -2,9 +2,20 @@ import { V3Difficulty } from '../src/beatmap_v3.ts'
 import { bsmap } from '../src/deps.ts'
 
 import * as remapperv3 from 'https://deno.land/x/remapper@3.1.1/src/mod.ts'
+import { rand } from '../src/general.ts'
+
+const notes: bsmap.v3.IColorNote[] = [...Array(1000).keys()].map(() => ({
+    b: rand(0, 1000),
+    d: rand(0, 8),
+    x: rand(0, 3),
+    y: rand(0, 3),
+    c: rand(0, 3) as any,
+    a: 0,
+    customData: {},
+} satisfies bsmap.v3.IColorNote))
 
 const json = {
-    colorNotes: [],
+    colorNotes: notes,
     bombNotes: [],
     sliders: [],
     burstSliders: [],
@@ -29,8 +40,6 @@ const v3OldDiff = Object.create(
 v3OldDiff.json = json
 remapperv3.activeDiffSet(remapperv3.copy(v3OldDiff))
 
-console.log('Benching')
-
 Deno.bench('rm4.parseJSON', { group: 'parseJSON' }, () => {
     new V3Difficulty(undefined!, undefined!, undefined!, undefined!, json)
 })
@@ -38,7 +47,7 @@ Deno.bench('rm3.parseJSON', { group: 'parseJSON' }, () => {
     // remapperv3.activeDiffGet() affects the performance of the benchmark
     // but it is necessary
     // the results without it change drastically
-    remapperv3.activeDiffSet(remapperv3.copy(v3OldDiff))
+    // remapperv3.activeDiffSet(remapperv3.copy(v3OldDiff))
 
     function transferKey(obj: remapperv3.Json, old: string, value: string) {
         if (obj[old] === undefined) return
@@ -169,14 +178,20 @@ Deno.bench('rm3.save', { group: 'save' }, () => {
     const outputJSON = {} as remapperv3.Json
 
     Object.keys(remapperv3.activeDiffGet().json).forEach((x) => {
-        if (Array.isArray(remapperv3.activeDiffGet().json[x])) outputJSON[x] = []
-        else if (x === 'customData') {
+        if (Array.isArray(remapperv3.activeDiffGet().json[x])) {
+            outputJSON[x] = []
+        } else if (x === 'customData') {
             Object.keys(remapperv3.activeDiffGet().json[x]).forEach((y) => {
                 if (!outputJSON[x]) outputJSON[x] = {}
-                if (Array.isArray(remapperv3.activeDiffGet().json[x][y])) outputJSON[x][y] = []
-                else outputJSON[x][y] = remapperv3.copy(remapperv3.activeDiffGet().json[x][y])
+                if (Array.isArray(remapperv3.activeDiffGet().json[x][y])) {
+                    outputJSON[x][y] = []
+                } else {outputJSON[x][y] = remapperv3.copy(
+                        remapperv3.activeDiffGet().json[x][y],
+                    )}
             })
-        } else outputJSON[x] = remapperv3.copy(remapperv3.activeDiffGet().json[x])
+        } else {outputJSON[x] = remapperv3.copy(
+                remapperv3.activeDiffGet().json[x],
+            )}
     })
 
     const diffArrClassToJson = <T>(
@@ -204,16 +219,41 @@ Deno.bench('rm3.save', { group: 'save' }, () => {
     gameplayArrClassToJson(remapperv3.activeDiffGet().walls, 'obstacles')
     diffArrClassToJson(remapperv3.activeDiffGet().events, 'basicBeatmapEvents')
     diffArrClassToJson(remapperv3.activeDiffGet().BPMChanges, 'bpmEvents')
-    diffArrClassToJson(remapperv3.activeDiffGet().rotationEvents, 'rotationEvents')
-    diffArrClassToJson(remapperv3.activeDiffGet().boostEvents, 'colorBoostBeatmapEvents')
-    diffArrClassToJson(remapperv3.activeDiffGet().customEvents, 'customData.customEvents')
-    diffArrClassToJson(remapperv3.activeDiffGet().rawEnvironment, 'customData.environment', (x) => {
-        remapperv3.jsonRemove(x.json, 'group')
-    })
-    gameplayArrClassToJson(remapperv3.activeDiffGet().fakeNotes, 'customData.fakeColorNotes')
-    gameplayArrClassToJson(remapperv3.activeDiffGet().fakeBombs, 'customData.fakeBombNotes')
-    gameplayArrClassToJson(remapperv3.activeDiffGet().fakeWalls, 'customData.fakeObstacles')
-    gameplayArrClassToJson(remapperv3.activeDiffGet().fakeChains, 'customData.fakeBurstSliders')
+    diffArrClassToJson(
+        remapperv3.activeDiffGet().rotationEvents,
+        'rotationEvents',
+    )
+    diffArrClassToJson(
+        remapperv3.activeDiffGet().boostEvents,
+        'colorBoostBeatmapEvents',
+    )
+    diffArrClassToJson(
+        remapperv3.activeDiffGet().customEvents,
+        'customData.customEvents',
+    )
+    diffArrClassToJson(
+        remapperv3.activeDiffGet().rawEnvironment,
+        'customData.environment',
+        (x) => {
+            remapperv3.jsonRemove(x.json, 'group')
+        },
+    )
+    gameplayArrClassToJson(
+        remapperv3.activeDiffGet().fakeNotes,
+        'customData.fakeColorNotes',
+    )
+    gameplayArrClassToJson(
+        remapperv3.activeDiffGet().fakeBombs,
+        'customData.fakeBombNotes',
+    )
+    gameplayArrClassToJson(
+        remapperv3.activeDiffGet().fakeWalls,
+        'customData.fakeObstacles',
+    )
+    gameplayArrClassToJson(
+        remapperv3.activeDiffGet().fakeChains,
+        'customData.fakeBurstSliders',
+    )
 
     function safeCloneJSON(json: remapperv3.Json) {
         const output: remapperv3.Json = {}
