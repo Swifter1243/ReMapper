@@ -1,4 +1,3 @@
-import { Difficulty } from 'https://deno.land/x/remapper@2.1.0/src/beatmap.ts'
 import { V2Difficulty } from '../src/beatmap_v2.ts'
 import { bsmap } from '../src/deps.ts'
 
@@ -36,38 +35,38 @@ Deno.bench('rm2.parseJSON', { group: 'parseJSON' }, () => {
     // the results without it change drastically
     remapperv2.activeDiffSet(remapperv2.copy(v2OldDiff))
 
-    for (let i = 0; i < v2OldDiff.notes.length; i++) {
-        v2OldDiff.notes[i] = new remapperv2.Note().import(
-            v2OldDiff.notes[i] as Record<string, any>,
+    for (let i = 0; i < remapperv2.activeDiffGet().notes.length; i++) {
+        remapperv2.activeDiffGet().notes[i] = new remapperv2.Note().import(
+            remapperv2.activeDiffGet().notes[i] as Record<string, any>,
         )
     }
-    for (let i = 0; i < v2OldDiff.walls.length; i++) {
-        v2OldDiff.walls[i] = new remapperv2.Wall().import(
-            v2OldDiff.walls[i] as Record<string, any>,
+    for (let i = 0; i < remapperv2.activeDiffGet().walls.length; i++) {
+        remapperv2.activeDiffGet().walls[i] = new remapperv2.Wall().import(
+            remapperv2.activeDiffGet().walls[i] as Record<string, any>,
         )
     }
-    for (let i = 0; i < v2OldDiff.events.length; i++) {
-        v2OldDiff.events[i] = new remapperv2.Event().import(
-            v2OldDiff.events[i] as Record<string, any>,
+    for (let i = 0; i < remapperv2.activeDiffGet().events.length; i++) {
+        remapperv2.activeDiffGet().events[i] = new remapperv2.Event().import(
+            remapperv2.activeDiffGet().events[i] as Record<string, any>,
         )
     }
-    if (v2OldDiff.customEvents !== undefined) {
+    if (remapperv2.activeDiffGet().customEvents !== undefined) {
         for (let i = 0; i < v2OldDiff.customEvents.length; i++) {
-            v2OldDiff.customEvents[i] = new remapperv2.CustomEvent().import(
-                v2OldDiff.customEvents[i] as Record<string, any>,
+            remapperv2.activeDiffGet().customEvents[i] = new remapperv2.CustomEvent().import(
+                remapperv2.activeDiffGet().customEvents[i] as Record<string, any>,
             )
         }
     }
-    if (v2OldDiff.rawEnvironment !== undefined) {
+    if (remapperv2.activeDiffGet().rawEnvironment !== undefined) {
         for (let i = 0; i < v2OldDiff.rawEnvironment.length; i++) {
-            v2OldDiff.rawEnvironment[i] = new remapperv2.EnvironmentInternals
+            remapperv2.activeDiffGet().rawEnvironment[i] = new remapperv2.EnvironmentInternals
                 .BaseEnvironment().import(
-                    v2OldDiff.rawEnvironment[i] as Record<string, any>,
+                    remapperv2.activeDiffGet().rawEnvironment[i] as Record<string, any>,
                 )
         }
     }
 
-    if (v2OldDiff.version === undefined) v2OldDiff.version = '2.2.0'
+    if (remapperv2.activeDiffGet().version === undefined) v2OldDiff.version = '2.2.0'
     // new V2Difficulty(undefined!, undefined!, undefined!, undefined!, json, ["_notes"])
 })
 
