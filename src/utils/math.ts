@@ -1,9 +1,10 @@
 // deno-lint-ignore-file no-extra-semi
 import {three} from "../deps.ts";
 import * as easings from "../data/easings.ts";
-import {Bounds, EASE, Transform, Vec3} from "../data/types.ts";
+import {EASE} from "../types/animation_types.ts";
 
 import {arrAdd, arrMul, arrSubtract, toArr} from "./array_utils.ts";
+import {Bounds, Transform, Vec3} from "../types/data_types.ts";
 
 export const EPSILON = 1e-3
 

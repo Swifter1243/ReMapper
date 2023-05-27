@@ -1,7 +1,6 @@
 // deno-lint-ignore-file adjacent-overload-signatures
 import { adbDeno, compress, fs, path } from '../deps.ts'
 
-import { DIFFPATH, DIFFS, FILENAME } from '../data/types.ts'
 import { QUEST_WIP_PATH } from '../data/constants.ts'
 import { info } from '../data/beatmap_handler.ts'
 
@@ -11,6 +10,7 @@ import { parseFilePath, RMLog } from '../general.ts'
 
 import { Environment } from './environment.ts'
 import type { RMDifficulty } from './abstract_beatmap.ts'
+import {DIFFPATH, DIFFS, FILENAME} from "../types/beatmap_types.ts";
 
 /**
  * Converts an array of Json objects to a class counterpart.

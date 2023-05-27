@@ -1,7 +1,8 @@
 // deno-lint-ignore-file adjacent-overload-signatures
 
 import { jsonGet } from '../utils/json.ts'
-import { TJson } from '../data/types.ts'
+
+import {TJson} from "../types/util_types.ts";
 
 export class CinemaScreen {
     json: TJson = {

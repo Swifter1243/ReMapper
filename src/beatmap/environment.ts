@@ -7,11 +7,9 @@ import { animateTrack } from './custom_event.ts'
 import {
     AnimationKeys,
     EASE,
-    GeoType,
-    Lookup,
     RawKeyframesAny,
-} from '../data/types.ts'
-import { GeometryMaterial } from '../data/environment_types.ts'
+} from '../types/animation_types.ts'
+import {GeometryMaterial, GeoType, Lookup} from '../types/environment_types.ts'
 import { activeDiffGet } from '../data/beatmap_handler.ts'
 import { combineAnimations } from "../animation/animation_utils.ts";
 

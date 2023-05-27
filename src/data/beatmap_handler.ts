@@ -1,11 +1,11 @@
 import { bsmap, path, semver } from '../deps.ts'
-import { DIFFNAME, DIFFPATH } from './types.ts'
 
 import { parseFilePath } from '../general.ts'
 
 import type { AbstractDifficulty } from '../beatmap/abstract_beatmap.ts'
 import { V3Difficulty } from "../beatmap/beatmap_v3.ts";
 import { V2Difficulty } from "../beatmap/beatmap_v2.ts";
+import {DIFFNAME, DIFFPATH} from "../types/beatmap_types.ts";
 
 export let info: bsmap.IInfo
 export let infoPath: string

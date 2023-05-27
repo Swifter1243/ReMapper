@@ -3,9 +3,8 @@ import {
     ComplexKeyframesVec3,
     KeyframesVec3,
     RawKeyframesAny,
-    RawKeyframesVec3,
-    Vec3
-} from "../data/types.ts";
+    RawKeyframesVec3
+} from "../types/animation_types.ts";
 
 import {arrAdd} from "../utils/array_utils.ts";
 import {rotatePoint} from "../utils/math.ts";
@@ -19,7 +18,8 @@ import {wall} from "../beatmap/wall.ts";
 import {Wall} from "../internals/wall.ts";
 
 import {getModel} from "./model.ts";
-import {ModelObject} from "../data/model_types.ts";
+import {ModelObject} from "../types/model_types.ts";
+import {Vec3} from "../types/data_types.ts";
 
 let modelToWallCount = 0
 

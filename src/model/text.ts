@@ -1,4 +1,3 @@
-import {Bounds, ColorType, Transform, Vec3} from "../data/types.ts";
 import {combineTransforms, getBoxBounds} from "../utils/math.ts";
 
 import {OptimizeSettings} from "../animation/anim_optimizer.ts";
@@ -6,12 +5,13 @@ import {OptimizeSettings} from "../animation/anim_optimizer.ts";
 import {Wall} from "../internals/wall.ts";
 import {modelToWall} from "./wall.ts";
 import {getModel} from "./model.ts";
+import {Bounds, ColorVec, Transform, Vec3} from "../types/data_types.ts";
 
 type TextObject = {
     pos: Vec3
     rot: Vec3
     scale: Vec3
-    color?: ColorType
+    color?: ColorVec
     track?: string
 }
 

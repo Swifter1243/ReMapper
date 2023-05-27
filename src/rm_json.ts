@@ -1,6 +1,6 @@
 import {RMCacheFilename} from "./data/constants.ts";
-import {CachedData} from "./data/types.ts";
 import {fs} from "./deps.ts";
+import {CachedData} from "./types/beatmap_types.ts";
 
 async function readRemapperJson(): Promise<ReMapperJson> {
     const json = new ReMapperJson()

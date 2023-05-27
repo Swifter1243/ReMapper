@@ -1,12 +1,13 @@
 import {bsmap} from "../deps.ts";
 
-import {Fields, Vec3} from "../data/types.ts";
 import {activeDiffGet} from "../data/beatmap_handler.ts";
 
 import {wallAnimation} from "../animation/animation.ts";
 
 
 import {BaseGameplayObject} from "./object.ts";
+import {Fields} from "../types/util_types.ts";
+import {Vec3} from "../types/data_types.ts";
 
 export class Wall
     extends BaseGameplayObject<bsmap.v2.IObstacle, bsmap.v3.IObstacle> {

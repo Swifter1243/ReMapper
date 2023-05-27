@@ -1,5 +1,6 @@
 import { Regex } from '../utils/regex.ts'
-import { Vec3 } from './types.ts'
+
+import {Vec3} from "../types/data_types.ts";
 
 export const QUEST_WIP_PATH =
     '/sdcard/ModData/com.beatgames.beatsaber/Mods/SongLoader/CustomWIPLevels'

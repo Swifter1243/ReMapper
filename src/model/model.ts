@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-explicit-any no-extra-semi
-import {FILEPATH, KeyframeValues, RawKeyframesVec3, Vec3, Vec4,} from '../data/types.ts'
-import {RawGeometryMaterial} from '../data/environment_types.ts'
+import {KeyframeValues, RawKeyframesVec3,  } from '../types/animation_types.ts'
+import {RawGeometryMaterial} from '../types/environment_types.ts'
 import {activeDiff, activeDiffGet} from '../data/beatmap_handler.ts'
 import {
     AnimatedObjectInput,
@@ -13,7 +13,7 @@ import {
     ModelObject,
     ObjectInput,
     StaticObjectInput
-} from "../data/model_types.ts";
+} from "../types/model_types.ts";
 
 
 import {arrAdd} from '../utils/array_utils.ts'
@@ -33,6 +33,8 @@ import {backLasers} from '../beatmap/basic_event.ts'
 
 import {optimizeAnimation, OptimizeSettings} from "../animation/anim_optimizer.ts";
 import {bakeAnimation, complexifyArray, iterateKeyframes, mirrorAnimation} from "../animation/animation_utils.ts";
+import {FILEPATH} from "../types/beatmap_types.ts";
+import {Vec3, Vec4} from "../types/data_types.ts";
 
 
 let modelSceneCount = 0

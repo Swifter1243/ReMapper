@@ -2,16 +2,15 @@ import { bomb, note } from './note.ts'
 import { wall } from './wall.ts'
 import { bsmap } from '../deps.ts'
 import {
-    ColorType,
-    DIFFNAME,
-    DIFFPATH,
     KeyframesAny,
-    Vec3,
-} from '../data/types.ts'
+
+} from '../types/animation_types.ts'
 import { AbstractDifficulty } from './abstract_beatmap.ts'
 import {Bomb, Note} from "../internals/note.ts";
 import { Track } from "../animation/track.ts";
 import { noteAnimation, wallAnimation } from "../animation/animation.ts";
+import {DIFFNAME, DIFFPATH} from "../types/beatmap_types.ts";
+import {ColorVec, Vec3} from "../types/data_types.ts";
 
 function toNoteOrBomb(b: bsmap.v2.INote): Note | Bomb {
     const params:
@@ -26,7 +25,7 @@ function toNoteOrBomb(b: bsmap.v2.INote): Note | Bomb {
 
             localRotation: b._customData?._localRotation,
             fake: b._customData?._fake,
-            color: b._customData?._color as ColorType,
+            color: b._customData?._color as ColorVec,
             flip: b._customData?._flip,
             interactable: b._customData?._interactable,
             localNJS: b._customData?._noteJumpMovementSpeed,

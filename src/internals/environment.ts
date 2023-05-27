@@ -1,6 +1,7 @@
 import { bsmap } from '../deps.ts'
-import { JsonWrapper, Vec3 } from '../data/types.ts'
 import { Track } from '../animation/track.ts'
+import {Vec3} from "../types/data_types.ts";
+import {JsonWrapper} from "../types/beatmap_types.ts";
 
 export type AbstractEnvironment = BaseEnvironmentEnhancement<
     bsmap.v2.IChromaEnvironmentBase,

@@ -1,9 +1,8 @@
 import {CustomEvent} from './custom_event.ts'
 import {Environment, Geometry} from './environment.ts'
-import {GeometryMaterial} from '../data/environment_types.ts'
+import {GeometryMaterial} from '../types/environment_types.ts'
 import {parseFilePath, RMLog} from '../general.ts'
 import {RMJson} from '../rm_json.ts'
-import {DIFFNAME, DIFFPATH, REQUIRE_MODS, SUGGEST_MODS, TJson,} from '../data/types.ts'
 import {saveInfoDat, settings} from '../data/beatmap_handler.ts' // TODO: Cyclic, fix
 import {bsmap} from '../deps.ts'
 import * as AnimationInternals from '../internals/animation.ts'
@@ -15,6 +14,8 @@ import {Arc, Bomb, Chain, Note} from "../internals/note.ts";
 import {Wall} from "../internals/wall.ts";
 import {AbstractEvent} from "./basic_event.ts";
 import { OptimizeSettings } from "../animation/anim_optimizer.ts";
+import {TJson} from "../types/util_types.ts";
+import {DIFFNAME, DIFFPATH, REQUIRE_MODS, SUGGEST_MODS} from "../types/beatmap_types.ts";
 
 export interface RMDifficulty {
     version: bsmap.v2.IDifficulty['_version'] | bsmap.v3.IDifficulty['version']

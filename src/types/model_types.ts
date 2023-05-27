@@ -1,9 +1,14 @@
-import {ColorType, FILEPATH, RawKeyframesVec3, Transform, Vec3} from "./types.ts";
+import {RawKeyframesVec3} from "./animation_types.ts";
 import {RawGeometryMaterial} from "./environment_types.ts";
 
 // TODO: Stink
 import type * as CustomEventInternals from "../internals/custom_event.ts";
+
 import type {Environment, Geometry} from "../beatmap/environment.ts";
+
+import {FILEPATH} from "./beatmap_types.ts";
+import {ColorVec, Transform, Vec3} from "./data_types.ts";
+
 
 /** Objects that are allowed to be spawned with a ModelScene. */
 export type GroupObjectTypes = Environment | Geometry
@@ -55,7 +60,7 @@ export interface ModelObject {
     pos: RawKeyframesVec3
     rot: RawKeyframesVec3
     scale: RawKeyframesVec3
-    color?: ColorType
+    color?: ColorVec
     track?: string
 }
 

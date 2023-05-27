@@ -1,11 +1,12 @@
 import {bsmap} from "../deps.ts";
 
-import {Fields, Vec2} from "../data/types.ts";
 import {AnchorMode, NoteCut, NoteType} from "../data/constants.ts";
 import {activeDiffGet} from "../data/beatmap_handler.ts";
 
 import {noteAnimation} from "../animation/animation.ts";
 import {BaseGameplayObject, BaseSliderObject} from "./object.ts";
+import {Fields} from "../types/util_types.ts";
+import {Vec2} from "../types/data_types.ts";
 
 export abstract class BaseNote<
     TV3 extends bsmap.v3.IColorNote | bsmap.v3.IBombNote,

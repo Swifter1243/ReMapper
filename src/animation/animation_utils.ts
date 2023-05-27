@@ -7,14 +7,12 @@ import {
     KeyframesAny,
     KeyframesVec3,
     KeyframeValues,
-    NumberTuple,
     RawKeyframesAbstract,
     RawKeyframesAny,
     RawKeyframesVec3,
-    TransformKeyframe,
-    Vec3,
-    Vec4,
-} from '../data/types.ts'
+
+
+} from '../types/animation_types.ts'
 
 import {
     arrAdd,
@@ -37,6 +35,8 @@ import { Color, lerpColor } from '../data/color.ts'
 import { Keyframe } from './keyframe.ts'
 
 import * as AnimationInternals from '../internals/animation.ts'
+import {NumberTuple} from "../types/util_types.ts";
+import {TransformKeyframe, Vec3, Vec4} from "../types/data_types.ts";
 
 /**
  * Ensures that this value is in the format of an array of keyframes.

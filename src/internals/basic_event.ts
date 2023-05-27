@@ -1,8 +1,11 @@
 import {EventAction, EventGroup} from '../data/constants.ts'
 import {bsmap} from '../deps.ts'
-import {ColorType, EASE, LightID, ObjectFields} from '../data/types.ts'
+import {EASE} from '../types/animation_types.ts'
 import {BaseObject} from './object.ts'
 import {activeDiffGet} from '../data/beatmap_handler.ts'
+import {ObjectFields} from "../types/util_types.ts";
+import {LightID} from "../types/environment_types.ts";
+import {ColorVec} from "../types/data_types.ts";
 
 type LightFields<T extends { customData: T['customData'] }> =
     & Omit<ObjectFields<T>, 'floatValue'>
@@ -57,7 +60,7 @@ export class LightEvent
      * @param color Can be boolean to determine if the light is blue (true), or a color.
      * @param lightID The lightIDs to target.
      */
-    on(color: ColorType | boolean = true, lightID?: LightID) {
+    on(color: ColorVec | boolean = true, lightID?: LightID) {
         this.value = typeof color === 'boolean' && color
             ? EventAction.BLUE_ON
             : EventAction.RED_ON
@@ -71,7 +74,7 @@ export class LightEvent
      * @param color Can be boolean to determine if the light is blue (true), or a color.
      * @param lightID The lightIDs to target.
      */
-    flash(color: ColorType | boolean = true, lightID?: LightID) {
+    flash(color: ColorVec | boolean = true, lightID?: LightID) {
         this.value = typeof color === 'boolean' && color
             ? EventAction.BLUE_FLASH
             : EventAction.RED_FLASH
@@ -85,7 +88,7 @@ export class LightEvent
      * @param color Can be boolean to determine if the light is blue (true), or a color.
      * @param lightID The lightIDs to target.
      */
-    fade(color: ColorType | boolean = true, lightID?: LightID) {
+    fade(color: ColorVec | boolean = true, lightID?: LightID) {
         this.value = typeof color === 'boolean' && color
             ? EventAction.BLUE_FADE
             : EventAction.RED_FADE
@@ -100,7 +103,7 @@ export class LightEvent
      * @param lightID The lightIDs to target.
      * @returns
      */
-    in(color: ColorType | boolean = true, lightID?: LightID) {
+    in(color: ColorVec | boolean = true, lightID?: LightID) {
         this.value = typeof color === 'boolean' && color
             ? EventAction.BLUE_IN
             : EventAction.RED_IN
@@ -112,7 +115,7 @@ export class LightEvent
     /** The lightIDs to target. */
     lightID?: LightID
     /** The color of the event. */
-    color?: ColorType
+    color?: ColorVec
     /** The easing for transition events. Goes on start event. */
     easing?: EASE
     /** The color interpolation for transition events. Goes on start event. */

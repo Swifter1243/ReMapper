@@ -1,6 +1,5 @@
 import {bsmap} from '../deps.ts'
 
-import {ColorType, Fields, JsonWrapper, ObjectFields, Vec2, Vec3} from '../data/types.ts'
 import {NoteType} from "../data/constants.ts";
 import {activeDiffGet, info} from "../data/beatmap_handler.ts";
 
@@ -9,6 +8,9 @@ import {isEmptyObject, jsonPrune, jsonRemove} from '../utils/json.ts'
 
 import {Track} from "../animation/track.ts";
 import {noteAnimation} from "../animation/animation.ts";
+import {Fields, ObjectFields} from "../types/util_types.ts";
+import {ColorVec, Vec2, Vec3} from "../types/data_types.ts";
+import {JsonWrapper} from "../types/beatmap_types.ts";
 
 
 export abstract class BaseObject<
@@ -74,7 +76,7 @@ export abstract class BaseGameplayObject<
     track = new Track()
 
     /** The chroma color of the object. */
-    color?: ColorType
+    color?: ColorVec
 
     /** The animation json on the object. */
     animation:

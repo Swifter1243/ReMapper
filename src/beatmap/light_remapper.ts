@@ -1,6 +1,7 @@
 import * as LightRemapperInternals from '../internals/light_remapper.ts'
 import { arrHas } from '../utils/array_utils.ts'
-import { LightID } from '../data/types.ts'
+
+import {LightID} from "../types/environment_types.ts";
 
 export class LightRemapper extends LightRemapperInternals.BaseLightRemapper {
     private complexifyLightIDs(

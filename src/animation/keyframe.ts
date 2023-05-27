@@ -1,5 +1,5 @@
 // deno-lint-ignore-file adjacent-overload-signatures
-import { EASE, KeyframeFlag, KeyframeValues, SPLINE } from '../data/types.ts'
+import { EASE, KeyframeFlag, KeyframeValues, SPLINE } from '../types/animation_types.ts'
 import { arrRemove } from '../utils/array_utils.ts'
 
 export class Keyframe {

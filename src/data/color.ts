@@ -1,10 +1,11 @@
-import { ColorFormat, ColorType } from './types.ts'
+import { ColorFormat } from '../types/animation_types.ts'
 import { clamp, lerp, lerpEasing, lerpWrap } from '../utils/math.ts'
+import {ColorVec} from "../types/data_types.ts";
 
 // export type ColorFormat = 'RGB' | 'HSV'
 
 export class Color {
-    private internalValue: ColorType = [0, 0, 0, 1]
+    private internalValue: ColorVec = [0, 0, 0, 1]
     /** The format for the color. */
     format: ColorFormat = 'RGB'
 
@@ -12,7 +13,7 @@ export class Color {
      * @param value The value of the color.
      * @param format The format of the color. Defaults to RGB.
      */
-    constructor(value: ColorType, format: ColorFormat) {
+    constructor(value: ColorVec, format: ColorFormat) {
         if (value === undefined) value = this.internalValue
         if (format === undefined) format = this.format
         this.internalValue = this.processValue(value)
@@ -34,13 +35,13 @@ export class Color {
     }
 
     /** Returns RGB form. */
-    export(): ColorType {
+    export(): ColorVec {
         this.toFormat('RGB')
         return this.internalValue
     }
 
-    private processValue(value: ColorType) {
-        value = value.map((x) => clamp(x, 0)) as ColorType
+    private processValue(value: ColorVec) {
+        value = value.map((x) => clamp(x, 0)) as ColorVec
         if (value[3] === undefined) value[3] = 1
         return value
     }

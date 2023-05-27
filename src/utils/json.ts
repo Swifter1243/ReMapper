@@ -1,4 +1,4 @@
-import { TJson } from '../data/types.ts'
+import {TJson} from "../types/util_types.ts";
 
 /**
  * Checks if an object is empty.

@@ -1,8 +1,9 @@
 import {EPSILON, getSeconds} from './utils/math.ts'
 import {fs, path} from './deps.ts'
-import {FILENAME, FILEPATH, OnlyNumbersOptional} from './data/types.ts'
 import {RMJson} from './rm_json.ts'
 import {activeDiffGet} from './data/beatmap_handler.ts'
+import {OnlyNumbersOptional} from "./types/util_types.ts";
+import {FILENAME, FILEPATH} from "./types/beatmap_types.ts";
 
 /**
  * Store data in the ReMapper cache.

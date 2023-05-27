@@ -1,21 +1,20 @@
 import { bsmap } from '../deps.ts'
 import {
     EASE,
-    Fields,
-    JsonWrapper,
     KeyframesLinear,
-    TJson,
     TrackValue,
-} from '../data/types.ts'
+} from '../types/animation_types.ts'
 import {
     BloomFogEnvironment,
     Components,
     ILightWithId,
     TubeBloomPrePassLight,
-} from '../data/environment_types.ts'
+} from '../types/environment_types.ts'
 import { activeDiffGet } from '../data/beatmap_handler.ts'
 import { Track } from '../animation/track.ts'
 import { AbstractAnimation, BaseAnimation } from './animation.ts'
+import {Fields, TJson} from "../types/util_types.ts";
+import {JsonWrapper} from "../types/beatmap_types.ts";
 
 export abstract class BaseCustomEvent<
     TV2 extends bsmap.v2.ICustomEvent,

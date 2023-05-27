@@ -17,13 +17,13 @@ import {
 
 import {
     ComplexKeyframesAny,
-    JsonWrapper,
     KeyframesAny,
     KeyframesLinear,
     KeyframesVec3,
     KeyframesVec4,
     KeyframeValues,
-} from '../data/types.ts'
+} from '../types/animation_types.ts'
+import {JsonWrapper} from "../types/beatmap_types.ts";
 
 type AnimateV2 = Required<bsmap.v2.IAnimation>['_animation']
 type AnimateV3 = Required<bsmap.v3.IAnimation>['animation']

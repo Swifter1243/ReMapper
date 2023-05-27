@@ -1,6 +1,7 @@
-import { NumberTuple, RawKeyframesAbstract } from '../data/types.ts'
+import { RawKeyframesAbstract } from '../types/animation_types.ts'
 import { complexifyArray, simplifyArray } from './animation_utils.ts'
 import { Keyframe } from './keyframe.ts'
+import {NumberTuple} from "../types/util_types.ts";
 
 function areArrayElementsIdentical<T>(
     enumerable1: T[],

@@ -1,4 +1,5 @@
-import { ColorType, GeoShader, KeyframesLinear } from './types.ts'
+import {KeyframesLinear} from './animation_types.ts'
+import {ColorVec} from "./data_types.ts";
 
 /** The "BloomFogEnvironment" environment component.
  * Allows both animated and non animated variants. */
@@ -17,10 +18,39 @@ export type TubeBloomPrePassLight<T extends number | KeyframesLinear> = {
 
 /** A material used on a geometry object. Allows difficulty material references. */
 export type GeometryMaterial = RawGeometryMaterial | string
+/** Lookup methods for environment objects. */
+export type Lookup =
+    | 'Contains'
+    | 'Regex'
+    | 'Exact'
+    | 'StartsWith'
+    | 'EndsWith'
+/** Geometry shape types. */
+export type GeoType =
+    | 'Sphere'
+    | 'Capsule'
+    | 'Cylinder'
+    | 'Cube'
+    | 'Plane'
+    | 'Quad'
+    | 'Triangle'
+/** Shaders available for geometry materials. */
+export type GeoShader =
+    | 'Standard'
+    | 'OpaqueLight'
+    | 'TransparentLight'
+    | 'BaseWater'
+    | 'BillieWater'
+    | 'BTSPillar'
+    | 'InterscopeConcrete'
+    | 'InterscopeCar'
+    | 'Obstacle'
+    | 'WaterfallMirror'
+export type LightID = number | number[]
 /** All properties allowed for a material used on a geometry object. */
 export type RawGeometryMaterial = {
     shader: GeoShader
-    color?: ColorType
+    color?: ColorVec
     track?: string
     shaderKeywords?: string[]
 }
