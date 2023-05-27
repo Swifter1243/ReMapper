@@ -199,7 +199,7 @@ export abstract class AbstractDifficulty<
 
         const outputJSON = this.toJSON()
 
-        this.doPostProcess(undefined, outputJSON)
+        // this.doPostProcess(undefined, outputJSON)
 
         const promise3 = saveInfoDat()
 

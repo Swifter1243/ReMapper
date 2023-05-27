@@ -11,6 +11,7 @@ import { Track } from "../animation/track.ts";
 import { noteAnimation, wallAnimation } from "../animation/animation.ts";
 import {DIFFNAME, DIFFPATH} from "../types/beatmap_types.ts";
 import {ColorVec, Vec3} from "../types/data_types.ts";
+import { jsonPrune } from '../mod.ts'
 
 function toNoteOrBomb(b: bsmap.v2.INote): Note | Bomb {
     const params:
@@ -145,12 +146,12 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
             a._time - b._time
 
         return {
-            _notes: [...this.notes, ...this.bombs].map((e) => e.toJson(false))
+            _notes: [...this.notes, ...this.bombs].map((e) => jsonPrune(e.toJson(false)))
                 .sort(
                     sortItems,
                 ),
             _events: [],
-            _obstacles: this.walls.map((o) => o.toJson(false)),
+            _obstacles: this.walls.map((o) => jsonPrune(o.toJson(false))),
             _sliders: [],
             _version: '2.6.0',
             _waypoints: [],

@@ -8,6 +8,7 @@ import { noteAnimation, wallAnimation } from '../animation/animation.ts'
 import { Track } from '../animation/track.ts'
 import { DIFFNAME, DIFFPATH } from '../types/beatmap_types.ts'
 import { ColorVec, Vec3 } from '../types/data_types.ts'
+import { jsonPrune } from '../mod.ts'
 
 function toNoteOrBomb(
     obj: bsmap.v3.IColorNote | bsmap.v3.IBombNote,
@@ -151,11 +152,11 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         const sortItems = (a: { b: number }, b: { b: number }) => a.b - b.b
 
         return {
-            colorNotes: this.notes.map((e) => e.toJson(true))
+            colorNotes: this.notes.map((e) => jsonPrune(e.toJson(true)))
                 .sort(
                     sortItems,
                 ),
-            bombNotes: this.bombs.map((e) => e.toJson(true))
+            bombNotes: this.bombs.map((e) => jsonPrune(e.toJson(true)))
                 .sort(
                     sortItems,
                 ),
@@ -167,7 +168,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
             lightRotationEventBoxGroups: [],
             lightTranslationEventBoxGroups: [],
             rotationEvents: [],
-            obstacles: this.walls.map((o) => o.toJson(true)),
+            obstacles: this.walls.map((o) => jsonPrune(o.toJson(true))),
             sliders: [],
             version: '3.2.0',
             waypoints: [],

@@ -18,7 +18,7 @@ export function isEmptyObject(o: unknown): boolean {
  * Delete empty objects/arrays from an object recursively.
  * @param obj Object to prune.
  */
-export function jsonPrune(obj: Record<string, any>) {
+export function jsonPrune<T extends Record<string, any>>(obj: T) {
     Object.keys(obj).forEach((prop) => {
         if (obj[prop] == null) {
             delete obj[prop]
@@ -43,6 +43,8 @@ export function jsonPrune(obj: Record<string, any>) {
             delete obj[prop]
         }
     })
+
+    return obj as T
 }
 
 /**
