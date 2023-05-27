@@ -124,7 +124,7 @@ export async function readDifficulty(
         | bsmap.v3.IDifficulty
 
     const v3 = Object.hasOwn(json, 'version') &&
-        semver.satisfies(json as any['version'], '>=3.0.0')
+        semver.satisfies((json as any)['version'], '>=3.0.0')
     if (v3) {
         // TODO: Uncomment, breaks benchmark
         // return new V3Difficulty(
