@@ -1,10 +1,16 @@
-import {AnimationInternals, EnvironmentInternals} from '../internals/mod.ts'
-import {bsmap} from "../deps.ts";
-import {animateTrack} from "./custom_event.ts";
-import {AnimationKeys, EASE, GeoType, Lookup, RawKeyframesAny} from "../data/types.ts";
-import {combineAnimations} from "../animation/animation_utils.ts";
-import {GeometryMaterial} from "../data/environment_types.ts";
-import {activeDiffGet} from "../data/beatmap_handler.ts";
+import { AnimationInternals, EnvironmentInternals } from '../internals/mod.ts'
+import { bsmap } from '../deps.ts'
+import { animateTrack } from './custom_event.ts'
+import {
+    AnimationKeys,
+    EASE,
+    GeoType,
+    Lookup,
+    RawKeyframesAny,
+} from '../data/types.ts'
+import { combineAnimations } from '../animation/animation_utils.ts'
+import { GeometryMaterial } from '../data/environment_types.ts'
+import { activeDiffGet } from '../data/beatmap_handler.ts'
 
 let envCount = 0
 
@@ -257,4 +263,3 @@ export function animateEnvTrack(
         }
     }
 }
-

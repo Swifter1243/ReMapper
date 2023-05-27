@@ -1,9 +1,21 @@
 import { bsmap } from '../deps.ts'
-import {EASE, Fields, JsonWrapper, KeyframesLinear, TJson, TrackValue} from '../data/types.ts'
+import {
+    EASE,
+    Fields,
+    JsonWrapper,
+    KeyframesLinear,
+    TJson,
+    TrackValue,
+} from '../data/types.ts'
 import { AbstractAnimation, BaseAnimation } from './animation.ts'
-import {BloomFogEnvironment, Components, ILightWithId, TubeBloomPrePassLight} from "../data/environment_types.ts";
-import {activeDiffGet} from "../data/beatmap_handler.ts";
-import {Track} from "../animation/track.ts";
+import {
+    BloomFogEnvironment,
+    Components,
+    ILightWithId,
+    TubeBloomPrePassLight,
+} from '../data/environment_types.ts'
+import { activeDiffGet } from '../data/beatmap_handler.ts'
+import { Track } from '../animation/track.ts'
 
 export abstract class BaseEvent<
     TV2 extends bsmap.v2.ICustomEvent,
@@ -135,7 +147,9 @@ export class AnimateTrack extends BaseEvent<
         if (params.track) this.track.value = params.track
         if (params.duration) this.duration = params.duration
         if (params.animation) {
-            this.animate.properties = structuredClone(params.animation.properties)
+            this.animate.properties = structuredClone(
+                params.animation.properties,
+            )
         }
         if (params.easing) this.ease = params.easing
     }
@@ -239,7 +253,9 @@ export class AssignPathAnimation extends BaseEvent<
         if (params.track) this.track.value = params.track
         if (params.duration) this.duration = params.duration
         if (params.animation) {
-            this.animate.properties = structuredClone(params.animation.properties)
+            this.animate.properties = structuredClone(
+                params.animation.properties,
+            )
         }
         if (params.easing) this.ease = params.easing
     }

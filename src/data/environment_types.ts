@@ -1,4 +1,4 @@
-import {ColorType, GeoShader, KeyframesLinear} from "./types.ts";
+import { ColorType, GeoShader, KeyframesLinear } from './types.ts'
 
 /** The "BloomFogEnvironment" environment component.
  * Allows both animated and non animated variants. */

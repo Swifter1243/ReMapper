@@ -1,10 +1,16 @@
 import { Bomb, bomb, Note, note } from './note.ts'
 import { noteAnimation, wallAnimation } from '../animation/animation.ts'
 import { wall } from './wall.ts'
-import { bsmap } from "../deps.ts";
-import {ColorType, DIFFNAME, DIFFPATH, KeyframesAny, Vec3} from "../data/types.ts";
-import {AbstractDifficulty} from "./abstract_beatmap.ts";
-import {Track} from "../animation/track.ts";
+import { bsmap } from '../deps.ts'
+import {
+    ColorType,
+    DIFFNAME,
+    DIFFPATH,
+    KeyframesAny,
+    Vec3,
+} from '../data/types.ts'
+import { AbstractDifficulty } from './abstract_beatmap.ts'
+import { Track } from '../animation/track.ts'
 
 function toNoteOrBomb(b: bsmap.v2.INote): Note | Bomb {
     const params:
@@ -83,7 +89,13 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
                 obstacles.map((o) =>
                     wall({
                         time: o._time,
-                        animation: wallAnimation(undefined, o._customData?._animation as Record<string, KeyframesAny>),
+                        animation: wallAnimation(
+                            undefined,
+                            o._customData?._animation as Record<
+                                string,
+                                KeyframesAny
+                            >,
+                        ),
                         color: o._customData?._color,
                         coordinates: o._customData?._position,
                         customData: o._customData,

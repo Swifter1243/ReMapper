@@ -1,20 +1,19 @@
 // deno-lint-ignore-file adjacent-overload-signatures
-import {noteAnimation} from '../animation/animation.ts'
-import {NoteType} from '../data/constants.ts'
-import {bsmap} from '../deps.ts'
-import {AnimationInternals} from '../internals/mod.ts'
-import {ColorType, Fields, Vec2, Vec3} from '../data/types.ts'
-import {getJumps} from "../utils/math.ts";
-import {isEmptyObject, jsonPrune, jsonRemove} from "../utils/json.ts";
-import {BaseObject} from "../internals/object.ts";
-import {activeDiffGet, info} from "../data/beatmap_handler.ts";
-import {Track} from "../animation/track.ts";
+import { noteAnimation } from '../animation/animation.ts'
+import { NoteType } from '../data/constants.ts'
+import { bsmap } from '../deps.ts'
+import { AnimationInternals } from '../internals/mod.ts'
+import { ColorType, Fields, Vec2, Vec3 } from '../data/types.ts'
+import { getJumps } from '../utils/math.ts'
+import { isEmptyObject, jsonPrune, jsonRemove } from '../utils/json.ts'
+import { BaseObject } from '../internals/object.ts'
+import { activeDiffGet, info } from '../data/beatmap_handler.ts'
+import { Track } from '../animation/track.ts'
 
 export abstract class BaseGameplayObject<
     TV2 extends bsmap.v2.INote | bsmap.v2.IObstacle,
     TV3 extends bsmap.v3.IGridObject,
->
-    extends BaseObject<TV2, TV3> {
+> extends BaseObject<TV2, TV3> {
     constructor(
         obj: Partial<Fields<BaseGameplayObject<TV2, TV3>>>,
         animation:

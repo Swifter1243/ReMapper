@@ -1,6 +1,6 @@
 import { LightRemapperInternals } from '../internals/mod.ts'
-import {arrHas} from "../utils/array_utils.ts";
-import {LightID} from "../data/types.ts";
+import { arrHas } from '../utils/array_utils.ts'
+import { LightID } from '../data/types.ts'
 
 type Condition = LightRemapperInternals.Condition
 

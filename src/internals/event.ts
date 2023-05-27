@@ -1,8 +1,8 @@
 import { EventAction, EventGroup } from '../data/constants.ts'
 import { bsmap } from '../deps.ts'
-import {ColorType, EASE, LightID, ObjectFields} from "../data/types.ts";
-import {BaseObject} from "./object.ts";
-import {activeDiffGet} from "../data/beatmap_handler.ts";
+import { ColorType, EASE, LightID, ObjectFields } from '../data/types.ts'
+import { BaseObject } from './object.ts'
+import { activeDiffGet } from '../data/beatmap_handler.ts'
 
 type LightFields<T extends { customData: T['customData'] }> =
     & Omit<ObjectFields<T>, 'floatValue'>

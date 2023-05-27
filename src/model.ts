@@ -1,26 +1,36 @@
-// deno-lint-ignore-file no-explicit-any
-import {
-    cacheData,
-    copy,
-    parseFilePath,
-
-
-
-} from './general.ts'
+// deno-lint-ignore-file no-explicit-any no-extra-semi
+import { cacheData, parseFilePath } from './general.ts'
 import { Environment, Geometry } from './beatmap/environment.ts'
-import { optimizeAnimation, OptimizeSettings } from './animation/anim_optimizer.ts'
-import {baseEnvironmentTrack} from './beatmap/beatmap.ts'
+import {
+    optimizeAnimation,
+    OptimizeSettings,
+} from './animation/anim_optimizer.ts'
+import { baseEnvironmentTrack } from './beatmap/beatmap.ts'
 import { Regex } from './utils/regex.ts'
 import { modelToWall, Wall } from './beatmap/wall.ts'
 import { CustomEventInternals } from './internals/mod.ts'
 import { animateComponent, animateTrack } from './beatmap/custom_event.ts'
 import { backLasers } from './beatmap/basicEvent.ts'
-import {Bounds, ColorType, FILEPATH, KeyframeValues, RawKeyframesVec3, Transform, Vec3, Vec4} from "./data/types.ts";
-import {combineTransforms, getBoxBounds, rotatePoint} from "./utils/math.ts";
-import {arrAdd} from "./utils/array_utils.ts";
-import {bakeAnimation, complexifyArray, iterateKeyframes, mirrorAnimation} from "./animation/animation_utils.ts";
-import {RawGeometryMaterial} from "./data/environment_types.ts";
-import {activeDiff, activeDiffGet} from "./data/beatmap_handler.ts";
+import {
+    Bounds,
+    ColorType,
+    FILEPATH,
+    KeyframeValues,
+    RawKeyframesVec3,
+    Transform,
+    Vec3,
+    Vec4,
+} from './data/types.ts'
+import { combineTransforms, getBoxBounds, rotatePoint } from './utils/math.ts'
+import { arrAdd } from './utils/array_utils.ts'
+import {
+    bakeAnimation,
+    complexifyArray,
+    iterateKeyframes,
+    mirrorAnimation,
+} from './animation/animation_utils.ts'
+import { RawGeometryMaterial } from './data/environment_types.ts'
+import { activeDiff, activeDiffGet } from './data/beatmap_handler.ts'
 
 let modelSceneCount = 0
 let noYeet = true
@@ -257,9 +267,15 @@ export class ModelScene {
 
                         // Applying transformation to each keyframe
                         for (let i = 0; i < x.pos.length; i++) {
-                            let objPos = structuredClone(x.pos[i]) as KeyframeValues
-                            let objRot = structuredClone(x.rot[i]) as KeyframeValues
-                            let objScale = structuredClone(x.scale[i]) as KeyframeValues
+                            let objPos = structuredClone(
+                                x.pos[i],
+                            ) as KeyframeValues
+                            let objRot = structuredClone(
+                                x.rot[i],
+                            ) as KeyframeValues
+                            let objScale = structuredClone(
+                                x.scale[i],
+                            ) as KeyframeValues
                             objPos.pop()
                             objRot.pop()
                             objScale.pop()

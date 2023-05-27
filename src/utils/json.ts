@@ -1,4 +1,4 @@
-import {TJson} from "../data/types.ts";
+import { TJson } from '../data/types.ts'
 
 /**
  * Checks if an object is empty.
@@ -83,7 +83,7 @@ export function jsonFill<T>(obj: TJson, prop: string, value: T) {
     const nestedObject: Record<string, unknown> = [...steps].reverse()
         .reduce(
             (prev, current, i) => {
-                return i === 0 ? {[current]: value} : {[current]: prev}
+                return i === 0 ? { [current]: value } : { [current]: prev }
             },
             {},
         )

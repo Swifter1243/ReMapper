@@ -1,9 +1,10 @@
-import {CustomEventInternals} from "../internals/mod.ts";
-import {animateComponent} from "./custom_event.ts";
-import {ComplexKeyframesLinear, KeyframesLinear} from "../data/types.ts";
+// deno-lint-ignore-file no-extra-semi
+import { CustomEventInternals } from '../internals/mod.ts'
+import { animateComponent } from './custom_event.ts'
+import { ComplexKeyframesLinear, KeyframesLinear } from '../data/types.ts'
 
-import {baseEnvironmentTrack, getBaseEnvironment} from "./beatmap.ts";
-import {BloomFogEnvironment} from "../data/environment_types.ts";
+import { baseEnvironmentTrack, getBaseEnvironment } from './beatmap.ts'
+import { BloomFogEnvironment } from '../data/environment_types.ts'
 
 let fogInitialized = false
 type AnyFog = BloomFogEnvironment<number | ComplexKeyframesLinear>

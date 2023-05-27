@@ -1,17 +1,29 @@
-import {Arc, Bomb, Chain, Note} from "./note.ts";
-import {Wall} from "./wall.ts";
-import {CustomEvent} from "./custom_event.ts";
-import {Environment, Geometry} from "./environment.ts";
-import {GeometryMaterial} from "../data/environment_types.ts";
-import {OptimizeSettings} from "../animation/anim_optimizer.ts";
-import {parseFilePath, RMLog} from "../general.ts";
-import {RMJson} from "../rm_json.ts";
-import {DIFFNAME, DIFFPATH, PostProcessFn, REQUIRE_MODS, SUGGEST_MODS, TJson} from "../data/types.ts";
-import {saveInfoDat, settings} from "../data/beatmap_handler.ts"; // TODO: Cyclic, fix
-import {bsmap} from "../deps.ts"
-import {EventInternals, AnimationInternals, CustomEventInternals, EnvironmentInternals} from "../internals/mod.ts"
-import {jsonPrune} from "../utils/json.ts";
-import {setDecimals} from "../utils/math.ts";
+import { Arc, Bomb, Chain, Note } from './note.ts'
+import { Wall } from './wall.ts'
+import { CustomEvent } from './custom_event.ts'
+import { Environment, Geometry } from './environment.ts'
+import { GeometryMaterial } from '../data/environment_types.ts'
+import { OptimizeSettings } from '../animation/anim_optimizer.ts'
+import { parseFilePath, RMLog } from '../general.ts'
+import { RMJson } from '../rm_json.ts'
+import {
+    DIFFNAME,
+    DIFFPATH,
+    PostProcessFn,
+    REQUIRE_MODS,
+    SUGGEST_MODS,
+    TJson,
+} from '../data/types.ts'
+import { saveInfoDat, settings } from '../data/beatmap_handler.ts' // TODO: Cyclic, fix
+import { bsmap } from '../deps.ts'
+import {
+    AnimationInternals,
+    CustomEventInternals,
+    EnvironmentInternals,
+    EventInternals,
+} from '../internals/mod.ts'
+import { jsonPrune } from '../utils/json.ts'
+import { setDecimals } from '../utils/math.ts'
 
 export interface RMDifficulty {
     version: bsmap.v2.IDifficulty['_version'] | bsmap.v3.IDifficulty['version']
@@ -30,7 +42,7 @@ export interface RMDifficulty {
 
 export abstract class AbstractDifficulty<
     TD extends bsmap.v2.IDifficulty | bsmap.v3.IDifficulty =
-            | bsmap.v2.IDifficulty
+        | bsmap.v2.IDifficulty
         | bsmap.v3.IDifficulty,
 > implements RMDifficulty {
     /** The Json of the entire difficulty. Readonly since it is not outputted in the resulting diff */
@@ -233,7 +245,9 @@ export abstract class AbstractDifficulty<
         this.suggestions = suggestionsArr
     }
 
-    * environemntEnhancementsCombined(): IterableIterator<EnvironmentInternals.AbstractEnvironment> {
+    *environemntEnhancementsCombined(): IterableIterator<
+        EnvironmentInternals.AbstractEnvironment
+    > {
         yield* this.geometry
         yield* this.environment
     }

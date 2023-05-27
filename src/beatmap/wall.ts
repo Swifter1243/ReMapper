@@ -1,11 +1,12 @@
-// deno-lint-ignore-file adjacent-overload-signatures
-import { copy, worldToWall } from '../general.ts'
-import {
-    wallAnimation,
-} from '../animation/animation.ts'
+// deno-lint-ignore-file adjacent-overload-signatures no-extra-semi
+import { worldToWall } from '../general.ts'
+import { wallAnimation } from '../animation/animation.ts'
 import { BaseGameplayObject } from './object.ts'
 import { getModel, ModelObject } from '../model.ts'
-import { optimizeAnimation, OptimizeSettings } from '../animation/anim_optimizer.ts'
+import {
+    optimizeAnimation,
+    OptimizeSettings,
+} from '../animation/anim_optimizer.ts'
 import {
     ComplexKeyframesAny,
     ComplexKeyframesVec3,
@@ -13,12 +14,16 @@ import {
     KeyframesVec3,
     RawKeyframesAny,
     RawKeyframesVec3,
-    Vec3
+    Vec3,
 } from '../data/types.ts'
-import { bsmap } from "../deps.ts";
-import {bakeAnimation, complexifyArray, isSimple} from "../animation/animation_utils.ts";
-import {Keyframe} from "../animation/keyframe.ts";
-import {activeDiffGet} from "../data/beatmap_handler.ts";
+import { bsmap } from '../deps.ts'
+import {
+    bakeAnimation,
+    complexifyArray,
+    isSimple,
+} from '../animation/animation_utils.ts'
+import { Keyframe } from '../animation/keyframe.ts'
+import { activeDiffGet } from '../data/beatmap_handler.ts'
 
 /**
  * Wall object for ease of creation.

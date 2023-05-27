@@ -1,10 +1,10 @@
-// deno-lint-ignore-file adjacent-overload-signatures
-import {AnchorMode, NoteCut, NoteType} from '../data/constants.ts'
-import {BaseGameplayObject, BaseSliderObject} from './object.ts'
-import {bsmap} from '../deps.ts'
-import {Fields, Vec2} from '../data/types.ts'
-import {noteAnimation} from '../animation/animation.ts'
-import {activeDiffGet} from "../data/beatmap_handler.ts";
+// deno-lint-ignore-file
+import { AnchorMode, NoteCut, NoteType } from '../data/constants.ts'
+import { BaseGameplayObject, BaseSliderObject } from './object.ts'
+import { bsmap } from '../deps.ts'
+import { Fields, Vec2 } from '../data/types.ts'
+import { noteAnimation } from '../animation/animation.ts'
+import { activeDiffGet } from '../data/beatmap_handler.ts'
 
 export function note(
     time?: number,

@@ -1,6 +1,6 @@
-import {Vec3} from "../data/types.ts";
-import {lerp} from "./math.ts";
-import {three} from "../deps.ts";
+import { Vec3 } from '../data/types.ts'
+import { lerp } from './math.ts'
+import { three } from '../deps.ts'
 
 /**
  * Get the last element in an array.
@@ -123,19 +123,22 @@ export function arrRemove(arr: any[], index: number) {
  * @param value Value to check for.
  */
 export const arrHas = (arr: any[], value: any) => arr.some((x) => x === value)
+
 /**
  * Add values of one array to another.
  * @param arr Array to add values to.
  * @param arr2 Values to add.
  */
 export const arrAppend = (arr: any[], arr2: any[]) => arr.push.apply(arr, arr2)
+
 /**
  * Generate an array from a range of numbers.
  * @param start Starting number.
  * @param start Ending number.
  */
 export const arrFill = (start: number, end: number) =>
-    Array.from({length: end - start + 1}, (_, i) => i + start)
+    Array.from({ length: end - start + 1 }, (_, i) => i + start)
+
 /**
  * Convert three Vector3 and Euler classes to a three number array.
  * @param v Vector or Euler to convert.

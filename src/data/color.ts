@@ -1,5 +1,5 @@
-import {ColorFormat, ColorType} from "./types.ts";
-import {clamp, lerp, lerpEasing, lerpWrap} from "../utils/math.ts";
+import { ColorFormat, ColorType } from './types.ts'
+import { clamp, lerp, lerpEasing, lerpWrap } from '../utils/math.ts'
 
 // export type ColorFormat = 'RGB' | 'HSV'
 

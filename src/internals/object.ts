@@ -1,6 +1,6 @@
-import {JsonWrapper, ObjectFields} from "../data/types.ts";
-import {isEmptyObject} from "../utils/json.ts";
-import {bsmap} from "../deps.ts";
+import { JsonWrapper, ObjectFields } from '../data/types.ts'
+import { isEmptyObject } from '../utils/json.ts'
+import { bsmap } from '../deps.ts'
 
 export abstract class BaseObject<
     TV2 extends bsmap.v2.IBaseObject,

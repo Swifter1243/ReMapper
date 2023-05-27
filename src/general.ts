@@ -1,9 +1,9 @@
-import {EPSILON, getSeconds, rotatePoint} from "./utils/math.ts";
-import {fs, path} from './deps.ts'
-import {FILENAME, FILEPATH, OnlyNumbersOptional, Vec3} from './data/types.ts'
-import {RMJson} from "./rm_json.ts";
-import {arrAdd} from "./utils/array_utils.ts";
-import {activeDiffGet} from "./data/beatmap_handler.ts";
+import { EPSILON, getSeconds, rotatePoint } from './utils/math.ts'
+import { fs, path } from './deps.ts'
+import { FILENAME, FILEPATH, OnlyNumbersOptional, Vec3 } from './data/types.ts'
+import { RMJson } from './rm_json.ts'
+import { arrAdd } from './utils/array_utils.ts'
+import { activeDiffGet } from './data/beatmap_handler.ts'
 
 /**
  * Store data in the ReMapper cache.
@@ -252,4 +252,3 @@ export async function parseFilePath(
 
     return output
 }
-

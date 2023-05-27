@@ -1,12 +1,12 @@
 // deno-lint-ignore-file adjacent-overload-signatures
-import {adbDeno, compress, fs, path} from '../deps.ts'
-import {Environment} from './environment.ts'
-import {parseFilePath, RMLog,} from '../general.ts'
-import {QUEST_WIP_PATH,} from '../data/constants.ts'
-import {arrRemove} from "../utils/array_utils.ts";
-import {DIFFPATH, DIFFS, FILENAME} from "../data/types.ts";
-import {info} from "../data/beatmap_handler.ts";
-import {RMDifficulty} from "./abstract_beatmap.ts";
+import { adbDeno, compress, fs, path } from '../deps.ts'
+import { Environment } from './environment.ts'
+import { parseFilePath, RMLog } from '../general.ts'
+import { QUEST_WIP_PATH } from '../data/constants.ts'
+import { arrRemove } from '../utils/array_utils.ts'
+import { DIFFPATH, DIFFS, FILENAME } from '../data/types.ts'
+import { info } from '../data/beatmap_handler.ts'
+import { RMDifficulty } from './abstract_beatmap.ts'
 
 /**
  * Converts an array of Json objects to a class counterpart.
@@ -105,7 +105,7 @@ export async function exportZip(
     const files = (await collectBeatmapFiles(excludeDiffs))
         .map((v) => `"${v}"`) // surround with quotes for safety
 
-    compress(files, zipName, {flags: [], overwrite: true }).then(() => {
+    compress(files, zipName, { flags: [], overwrite: true }).then(() => {
         RMLog(`${zipName} has been zipped!`)
     })
 }

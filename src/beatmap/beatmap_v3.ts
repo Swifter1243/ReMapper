@@ -1,13 +1,16 @@
 import { Bomb, bomb, Note, note } from './note.ts'
-import {
-    noteAnimation,
-    wallAnimation,
-} from '../animation/animation.ts'
+import { noteAnimation, wallAnimation } from '../animation/animation.ts'
 import { wall } from './wall.ts'
 import { bsmap } from '../deps.ts'
-import {ColorType, DIFFNAME, DIFFPATH, KeyframesAny, Vec3} from "../data/types.ts";
-import {AbstractDifficulty} from "./abstract_beatmap.ts";
-import {Track} from "../animation/track.ts";
+import {
+    ColorType,
+    DIFFNAME,
+    DIFFPATH,
+    KeyframesAny,
+    Vec3,
+} from '../data/types.ts'
+import { AbstractDifficulty } from './abstract_beatmap.ts'
+import { Track } from '../animation/track.ts'
 
 function toNoteOrBomb(
     obj: bsmap.v3.IColorNote | bsmap.v3.IBombNote,

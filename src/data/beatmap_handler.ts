@@ -1,7 +1,7 @@
-import {bsmap, path, semver} from "../deps.ts";
-import {AbstractDifficulty} from "../beatmap/abstract_beatmap.ts";
-import {parseFilePath} from "../general.ts";
-import {DIFFNAME, DIFFPATH} from "./types.ts";
+import { bsmap, path, semver } from '../deps.ts'
+import { AbstractDifficulty } from '../beatmap/abstract_beatmap.ts'
+import { parseFilePath } from '../general.ts'
+import { DIFFNAME, DIFFPATH } from './types.ts'
 
 export let info: bsmap.IInfo
 export let infoPath: string
