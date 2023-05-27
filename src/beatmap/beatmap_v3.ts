@@ -1,16 +1,13 @@
 import { bomb, note } from './note.ts'
 import { wall } from './wall.ts'
 import { bsmap } from '../deps.ts'
-import {
-    KeyframesAny,
-
-} from '../types/animation_types.ts'
+import { KeyframesAny } from '../types/animation_types.ts'
 import { AbstractDifficulty } from './abstract_beatmap.ts'
-import {Bomb, Note} from "../internals/note.ts";
-import { noteAnimation, wallAnimation } from "../animation/animation.ts";
-import { Track } from "../animation/track.ts";
-import {DIFFNAME, DIFFPATH} from "../types/beatmap_types.ts";
-import {ColorVec, Vec3} from "../types/data_types.ts";
+import { Bomb, Note } from '../internals/note.ts'
+import { noteAnimation, wallAnimation } from '../animation/animation.ts'
+import { Track } from '../animation/track.ts'
+import { DIFFNAME, DIFFPATH } from '../types/beatmap_types.ts'
+import { ColorVec, Vec3 } from '../types/data_types.ts'
 
 function toNoteOrBomb(
     obj: bsmap.v3.IColorNote | bsmap.v3.IBombNote,
@@ -50,12 +47,14 @@ function toNoteOrBomb(
     }
 
     const colorNote = obj as bsmap.v3.IColorNote
-    return note({
+    const n = note({
         type: colorNote.c,
         direction: colorNote.d,
         angleOffset: colorNote.a,
-        ...params,
+        ...params[0],
     })
+
+    return n
 }
 export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
     declare version: bsmap.v3.IDifficulty['version']
@@ -152,7 +151,11 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         const sortItems = (a: { b: number }, b: { b: number }) => a.b - b.b
 
         return {
-            colorNotes: this.notes.map((e) => e.toJson(true))
+            colorNotes: this.notes.map((e) => {
+                console.log('e')
+                console.log(Object.getPrototypeOf(e))
+                return e.toJson(true)
+            })
                 .sort(
                     sortItems,
                 ),
