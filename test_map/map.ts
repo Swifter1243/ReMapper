@@ -15,7 +15,7 @@ for (let i = 0; i < 1000; i++) {
         time: i,
         type: i % 2,
         fake: i % 2 === 0
-    })
+    }).push()
 }
 
 await map.save()
