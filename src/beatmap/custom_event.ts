@@ -3,7 +3,7 @@ import { CustomEventInternals } from '../internals/mod.ts'
 import { EASE, KeyframesLinear, TrackValue } from '../data/types.ts'
 import { Components } from '../data/environment_types.ts'
 
-export type CustomEvent = CustomEventInternals.BaseEvent<
+export type CustomEvent = CustomEventInternals.BaseCustomEvent<
     bsmap.v2.ICustomEvent,
     bsmap.v3.ICustomEvent
 >

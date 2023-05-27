@@ -1,4 +1,4 @@
-import {TrackValue} from "../data/types.ts";
+import { TrackValue } from '../data/types.ts'
 
 export class Track {
     /** The value of the track. */

@@ -17,7 +17,7 @@ import {
 import { activeDiffGet } from '../data/beatmap_handler.ts'
 import { Track } from '../animation/track.ts'
 
-export abstract class BaseEvent<
+export abstract class BaseCustomEvent<
     TV2 extends bsmap.v2.ICustomEvent,
     TV3 extends bsmap.v3.ICustomEvent,
 > implements JsonWrapper<TV2, TV3> {
@@ -25,7 +25,7 @@ export abstract class BaseEvent<
     type = ''
     data: TJson = {}
 
-    constructor(time: number | Fields<BaseEvent<TV2, TV3>>) {
+    constructor(time: number | Fields<BaseCustomEvent<TV2, TV3>>) {
         if (typeof time === 'object') {
             Object.assign(this, time)
         } else {
@@ -46,7 +46,7 @@ export abstract class BaseEvent<
     abstract toJson(v3: boolean): TV2 | TV3
 }
 
-export class AnimateTrack extends BaseEvent<
+export class AnimateTrack extends BaseCustomEvent<
     bsmap.v2.ICustomEventAnimateTrack,
     bsmap.v3.ICustomEventAnimateTrack
 > {
@@ -164,7 +164,7 @@ export class AnimateTrack extends BaseEvent<
     }
 }
 
-export class AssignPathAnimation extends BaseEvent<
+export class AssignPathAnimation extends BaseCustomEvent<
     bsmap.v2.ICustomEventAssignPathAnimation,
     bsmap.v3.ICustomEventAssignPathAnimation
 > {
@@ -270,7 +270,7 @@ export class AssignPathAnimation extends BaseEvent<
     }
 }
 
-export class AssignTrackParent extends BaseEvent<
+export class AssignTrackParent extends BaseCustomEvent<
     bsmap.v2.ICustomEventAssignTrackParent,
     bsmap.v3.ICustomEventAssignTrackParent
 > {
@@ -331,7 +331,7 @@ export class AssignTrackParent extends BaseEvent<
     worldPositionStays?: boolean
 }
 
-export class AssignPlayerToTrack extends BaseEvent<
+export class AssignPlayerToTrack extends BaseCustomEvent<
     bsmap.v2.ICustomEventAssignPlayerToTrack,
     bsmap.v3.ICustomEventAssignPlayerToTrack
 > {
@@ -376,7 +376,7 @@ export class AssignPlayerToTrack extends BaseEvent<
 }
 
 export class AnimateComponent
-    extends BaseEvent<never, bsmap.v3.ICustomEventAnimateComponent> {
+    extends BaseCustomEvent<never, bsmap.v3.ICustomEventAnimateComponent> {
     /**
      * Animate components on a track.
      * @param json Json to import.

@@ -1,5 +1,5 @@
-// deno-lint-ignore-file adjacent-overload-signatures
-import {AnimationInternals} from '../internals/mod.ts'
+// deno-lint-ignore-file
+import { AnimationInternals } from '../internals/mod.ts'
 
 /**
  * State that this animation is for a note.
@@ -32,4 +32,3 @@ export function environmentAnimation(
 ) {
     return new AnimationInternals.EnvironmentAnimation(...params)
 }
-

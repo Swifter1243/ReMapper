@@ -1,5 +1,6 @@
-import {EASE, KeyframeFlag, KeyframeValues, SPLINE} from "../data/types.ts";
-import {arrRemove} from "../utils/array_utils.ts";
+// deno-lint-ignore-file adjacent-overload-signatures
+import { EASE, KeyframeFlag, KeyframeValues, SPLINE } from '../data/types.ts'
+import { arrRemove } from '../utils/array_utils.ts'
 
 export class Keyframe {
     /** The data stored in this keyframe. */

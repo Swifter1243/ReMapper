@@ -13,16 +13,28 @@ import {
     RawKeyframesVec3,
     TransformKeyframe,
     Vec3,
-    Vec4
-} from "../data/types.ts";
-import {arrAdd, arrLast, arrLerp, arrMul, arrRemove} from "../utils/array_utils.ts";
-import {ceilTo, findFraction, floorTo, lerpEasing, lerpRotation} from "../utils/math.ts";
-import {OptimizeSettings} from "./anim_optimizer.ts";
-import {Color, lerpColor} from "../data/color.ts";
+    Vec4,
+} from '../data/types.ts'
+import {
+    arrAdd,
+    arrLast,
+    arrLerp,
+    arrMul,
+    arrRemove,
+} from '../utils/array_utils.ts'
+import {
+    ceilTo,
+    findFraction,
+    floorTo,
+    lerpEasing,
+    lerpRotation,
+} from '../utils/math.ts'
+import { OptimizeSettings } from './anim_optimizer.ts'
+import { Color, lerpColor } from '../data/color.ts'
 
-import {Keyframe} from "./keyframe.ts";
+import { Keyframe } from './keyframe.ts'
 
-import {AnimationInternals} from "../internals/mod.ts"
+import { AnimationInternals } from '../internals/mod.ts'
 
 /**
  * Ensures that this value is in the format of an array of keyframes.
@@ -147,18 +159,18 @@ function timeInKeyframes(time: number, animation: ComplexKeyframesAny) {
     let l: Keyframe
     let normalTime = 0
 
-    if (animation.length === 0) return {interpolate: false}
+    if (animation.length === 0) return { interpolate: false }
 
     const first = new Keyframe(animation[0])
     if (first.time >= time) {
         l = first
-        return {interpolate: false, l: l}
+        return { interpolate: false, l: l }
     }
 
     const last = new Keyframe(arrLast(animation))
     if (last.time <= time) {
         l = last
-        return {interpolate: false, l: l}
+        return { interpolate: false, l: l }
     }
 
     let leftIndex = 0
@@ -274,9 +286,9 @@ export function bakeAnimation(
     dataAnim.scale = structuredClone(animation.scale)
 
     const data = {
-        pos: <number[][]>[],
-        rot: <number[][]>[],
-        scale: <number[][]>[],
+        pos: <number[][]> [],
+        rot: <number[][]> [],
+        scale: <number[][]> [],
     }
 
     function getDomain(arr: RawKeyframesAny) {
@@ -291,7 +303,7 @@ export function bakeAnimation(
             if (time < min) min = time
             if (time > max) max = time
         })
-        return {min: min, max: max}
+        return { min: min, max: max }
     }
 
     const posDomain = getDomain(animation.pos)
