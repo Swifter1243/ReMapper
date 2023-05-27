@@ -1,29 +1,42 @@
-import {CustomEvent} from './custom_event.ts'
-import {Environment, Geometry} from './environment.ts'
-import {GeometryMaterial} from '../types/environment_types.ts'
-import {parseFilePath, RMLog} from '../general.ts'
-import {RMJson} from '../rm_json.ts'
-import {saveInfoDat, settings} from '../data/beatmap_handler.ts' // TODO: Cyclic, fix
 import {bsmap} from '../deps.ts'
+
+import { DIFFNAME, DIFFPATH, REQUIRE_MODS, SUGGEST_MODS } from "../types/beatmap_types.ts";
+import { GeometryMaterial } from '../types/environment_types.ts'
+
+import {TJson} from "../types/util_types.ts";
+
+import {jsonPrune} from '../utils/json.ts'
+import {setDecimals} from '../utils/math.ts'
+
+
+import { OptimizeSettings } from "../animation/anim_optimizer.ts";
+import { parseFilePath, RMLog } from '../general.ts'
+
+import {RMJson} from '../rm_json.ts'
+import {settings} from '../data/beatmap_handler.ts' // TODO: Cyclic, fix
+
 import * as AnimationInternals from '../internals/animation.ts'
 import * as CustomEventInternals from '../internals/custom_event.ts'
 import * as EnvironmentInternals from '../internals/environment.ts'
-import {jsonPrune} from '../utils/json.ts'
-import {setDecimals} from '../utils/math.ts'
-import {Arc, Bomb, Chain, Note} from "../internals/note.ts";
-import {Wall} from "../internals/wall.ts";
+import * as NoteInternals from "../internals/note.ts";
+import * as WallInternals from "../internals/wall.ts";
+
+
+import { CustomEvent } from './custom_event.ts'
+import {Environment, Geometry} from './environment.ts'
 import {AbstractEvent} from "./basic_event.ts";
-import { OptimizeSettings } from "../animation/anim_optimizer.ts";
-import {TJson} from "../types/util_types.ts";
-import {DIFFNAME, DIFFPATH, REQUIRE_MODS, SUGGEST_MODS} from "../types/beatmap_types.ts";
+import {saveInfoDat} from "../data/info_file.ts";
+
+
+
 
 export interface RMDifficulty {
     version: bsmap.v2.IDifficulty['_version'] | bsmap.v3.IDifficulty['version']
-    notes: Note[]
-    bombs: Bomb[]
-    arcs: Arc[]
-    chains: Chain[]
-    walls: Wall[]
+    notes: NoteInternals.Note[]
+    bombs: NoteInternals.Bomb[]
+    arcs: NoteInternals.Arc[]
+    chains: NoteInternals.Chain[]
+    walls: WallInternals.Wall[]
     events: AbstractEvent[]
     customEvents: CustomEvent[]
     pointDefinitions: Record<string, unknown>
@@ -64,11 +77,11 @@ export abstract class AbstractDifficulty<
 
     // Initialized by constructor using Object.assign
     version!: bsmap.v2.IDifficulty['_version'] | bsmap.v3.IDifficulty['version']
-    notes!: Note[]
-    bombs!: Bomb[]
-    arcs!: Arc[]
-    chains!: Chain[]
-    walls!: Wall[]
+    notes!: NoteInternals.Note[]
+    bombs!: NoteInternals.Bomb[]
+    arcs!: NoteInternals.Arc[]
+    chains!: NoteInternals.Chain[]
+    walls!: WallInternals.Wall[]
     events!: AbstractEvent[] // TODO: Rework this
     customEvents!: CustomEvent[]
     pointDefinitions!: Record<string, unknown>
