@@ -1,3 +1,4 @@
+// deno-lint-ignore-file no-explicit-any
 import {TJson} from "../types/util_types.ts";
 
 /**
@@ -17,7 +18,7 @@ export function isEmptyObject(o: unknown): boolean {
  * Delete empty objects/arrays from an object recursively.
  * @param obj Object to prune.
  */
-export function jsonPrune(obj: TJson) {
+export function jsonPrune(obj: Record<string, any>) {
     Object.keys(obj).forEach((prop) => {
         if (obj[prop] == null) {
             delete obj[prop]
@@ -32,7 +33,7 @@ export function jsonPrune(obj: TJson) {
                     delete obj[prop]
                 }
             } else {
-                const rec = v as Record<string, unknown>
+                const rec = v as TJson
                 jsonPrune(rec)
                 if (isEmptyObject(rec)) {
                     delete obj[prop]

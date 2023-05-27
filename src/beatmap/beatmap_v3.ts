@@ -151,11 +151,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         const sortItems = (a: { b: number }, b: { b: number }) => a.b - b.b
 
         return {
-            colorNotes: this.notes.map((e) => {
-                console.log('e')
-                console.log(Object.getPrototypeOf(e))
-                return e.toJson(true)
-            })
+            colorNotes: this.notes.map((e) => e.toJson(true))
                 .sort(
                     sortItems,
                 ),
