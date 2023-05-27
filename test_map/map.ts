@@ -1,7 +1,7 @@
 import * as rm from "../src/mod.ts"
-import {readDifficulty} from "../src/data/beatmap_file.ts";
+import {readDifficultyV3} from "../src/data/beatmap_file.ts";
 
-const map = await readDifficulty("ExpertPlusLawless", "ExpertPlusStandard")
+const map = await readDifficultyV3("ExpertPlusLawless", "ExpertPlusStandard")
 
 
 for (let i = 0; i < 1000; i++) {

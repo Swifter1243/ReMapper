@@ -1,4 +1,4 @@
-import { bsmap, semver } from '../deps.ts'
+import { asserts, bsmap, semver } from '../deps.ts'
 
 import { DIFFNAME, DIFFPATH } from '../types/beatmap_types.ts'
 
@@ -61,25 +61,21 @@ export async function readDifficulty(
     return diff
 }
 
-export async function readV2Difficulty(
+export async function readDifficultyV2(
     ...params: Parameters<typeof readDifficulty>
 ) {
     const diff = await readDifficulty(...params)
 
-    if (diff! instanceof V2Difficulty) {
-        throw `Not a v2 difficulty! ${diff.version}`
-    }
+    asserts.assertInstanceOf(diff, V2Difficulty, `Not a v2 difficulty! ${diff.version}`)
 
     return diff
 }
-export async function readV3Difficulty(
+export async function readDifficultyV3(
     ...params: Parameters<typeof readDifficulty>
 ) {
     const diff = await readDifficulty(...params)
 
-    if (diff! instanceof V3Difficulty) {
-        throw `Not a v3 difficulty! ${diff.version}`
-    }
+    asserts.assertInstanceOf(diff, V3Difficulty, `Not a v3 difficulty! ${diff.version}`)
 
     return diff
 }
