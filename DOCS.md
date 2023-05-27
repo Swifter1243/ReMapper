@@ -306,8 +306,8 @@ objects only.
     pos: RawKeyframesVec3;
     rot: RawKeyframesVec3;
     scale: RawKeyframesVec3;
-    color?: ColorType;
-    track?: string;
+    color ? : ColorVec;
+    track ? : string;
 }
 ```
 
