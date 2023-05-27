@@ -1,10 +1,10 @@
-import { combineAnimations, KeyframesLinear, RawKeyframesAny } from './animation.ts'
-import { activeDiffGet } from './beatmap.ts'
-import { ColorType, copy } from './general.ts'
-import { AnimationKeys, EASE, GeoShader, GeoType, Lookup } from './constants.ts'
-import { AnimationInternals, EnvironmentInternals } from './internals/mod.ts'
-import { bsmap } from "./deps.ts";
-import { animateTrack } from "./custom_event.ts";
+import {AnimationInternals, EnvironmentInternals} from '../internals/mod.ts'
+import {bsmap} from "../deps.ts";
+import {animateTrack} from "./custom_event.ts";
+import {AnimationKeys, EASE, GeoType, Lookup, RawKeyframesAny} from "../data/types.ts";
+import {combineAnimations} from "../animation/animation_utils.ts";
+import {GeometryMaterial} from "../data/environment_types.ts";
+import {activeDiffGet} from "../data/beatmap_handler.ts";
 
 let envCount = 0
 
@@ -13,7 +13,7 @@ export class Environment extends EnvironmentInternals.BaseEnvironment<
     bsmap.v3.IChromaEnvironmentID
 > {
     push(clone = true): void {
-        activeDiffGet().environment.push(clone ? copy(this) : this)
+        activeDiffGet().environment.push(clone ? structuredClone(this) : this)
     }
 
     /**
@@ -84,7 +84,7 @@ export class Geometry extends EnvironmentInternals.BaseEnvironment<
     bsmap.v3.IChromaEnvironmentGeometry
 > {
     push(clone = true): void {
-        activeDiffGet().geometry.push(clone ? copy(this) : this)
+        activeDiffGet().geometry.push(clone ? structuredClone(this) : this)
     }
 
     /**
@@ -162,16 +162,6 @@ export class Geometry extends EnvironmentInternals.BaseEnvironment<
             _track: this.track?.value as string,
         } satisfies bsmap.v2.IChromaEnvironmentGeometry
     }
-}
-
-/** A material used on a geometry object. Allows difficulty material references. */
-export type GeometryMaterial = RawGeometryMaterial | string
-/** All properties allowed for a material used on a geometry object. */
-export type RawGeometryMaterial = {
-    shader: GeoShader
-    color?: ColorType
-    track?: string
-    shaderKeywords?: string[]
 }
 
 /**
@@ -268,32 +258,3 @@ export function animateEnvTrack(
     }
 }
 
-/** All components on environment objects. */
-export type Components<N extends number | KeyframesLinear = number> = {
-    ILightWithId?: ILightWithId<N>
-    BloomFogEnvironment?: BloomFogEnvironment<N>
-    TubeBloomPrePassLight?: TubeBloomPrePassLight<N>
-}
-
-/** The "ILightWithId" environment component.
- * Allows both animated and non animated variants. */
-export type ILightWithId<T extends number | KeyframesLinear> = {
-    lightID?: T
-    type?: T
-}
-
-/** The "BloomFogEnvironment" environment component.
- * Allows both animated and non animated variants. */
-export type BloomFogEnvironment<T extends number | KeyframesLinear> = {
-    attenuation?: T
-    offset?: T
-    startY?: T
-    height?: T
-}
-
-/** The "TubeBloomPrePassLight" environment component.
- * Allows both animated and non animated variants. */
-export type TubeBloomPrePassLight<T extends number | KeyframesLinear> = {
-    colorAlphaMultiplier?: T
-    bloomFogIntensityMultiplier?: T
-}

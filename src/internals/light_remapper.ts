@@ -1,5 +1,5 @@
-import { activeDiffGet } from "../beatmap.ts";
 import { LightEvent } from './event.ts'
+import {activeDiffGet} from "../data/beatmap_handler.ts";
 
 export type Condition = (event: LightEvent) => boolean
 export type Process = (event: LightEvent) => void

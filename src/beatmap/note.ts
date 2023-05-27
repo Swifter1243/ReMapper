@@ -1,11 +1,10 @@
 // deno-lint-ignore-file adjacent-overload-signatures
-import { activeDiffGet } from './beatmap.ts'
-import { AnchorMode, NoteCut, NoteType } from './constants.ts'
-import { BaseGameplayObject, BaseSliderObject } from './object.ts'
-import { copy, Vec2 } from './general.ts'
-import { bsmap } from './deps.ts'
-import { Fields } from './types.ts'
-import { noteAnimation } from './animation.ts'
+import {AnchorMode, NoteCut, NoteType} from '../data/constants.ts'
+import {BaseGameplayObject, BaseSliderObject} from './object.ts'
+import {bsmap} from '../deps.ts'
+import {Fields, Vec2} from '../data/types.ts'
+import {noteAnimation} from '../animation/animation.ts'
+import {activeDiffGet} from "../data/beatmap_handler.ts";
 
 export function note(
     time?: number,
@@ -111,6 +110,7 @@ export function chain(
         links: links ?? 4,
     })
 }
+
 export function arc(
     time?: number,
     tailTime?: number,
@@ -228,7 +228,7 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        activeDiffGet().notes.push(clone ? copy(this) : this)
+        activeDiffGet().notes.push(clone ? structuredClone(this) : this)
         return this
     }
 
@@ -308,7 +308,7 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        activeDiffGet().bombs.push(clone ? copy(this) : this)
+        activeDiffGet().bombs.push(clone ? structuredClone(this) : this)
         return this
     }
 
@@ -397,7 +397,7 @@ export class Chain extends BaseSliderObject<bsmap.v3.IBurstSlider> {
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        activeDiffGet().chains.push(clone ? copy(this) : this)
+        activeDiffGet().chains.push(clone ? structuredClone(this) : this)
         return this
     }
 
@@ -464,6 +464,7 @@ export class Arc extends BaseSliderObject<bsmap.v3.ISlider> {
     constructor(fields: Partial<Fields<Arc>>) {
         super(fields)
     }
+
     // constructor(
     //     time = 0,
     //     tailTime = 0,
@@ -529,7 +530,7 @@ export class Arc extends BaseSliderObject<bsmap.v3.ISlider> {
      * Push this arc to the difficulty
      */
     push(clone = true) {
-        activeDiffGet().arcs.push(clone ? copy(this) : this)
+        activeDiffGet().arcs.push(clone ? structuredClone(this) : this)
         return this
     }
 

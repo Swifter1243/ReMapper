@@ -1,9 +1,10 @@
-import { AbstractDifficulty, DIFFNAME, DIFFPATH } from './beatmap.ts'
 import { Bomb, bomb, Note, note } from './note.ts'
-import { ColorType, Vec3 } from './general.ts'
-import { KeyframesAny, noteAnimation, Track, wallAnimation } from './animation.ts'
+import { noteAnimation, wallAnimation } from '../animation/animation.ts'
 import { wall } from './wall.ts'
-import { bsmap } from "./deps.ts";
+import { bsmap } from "../deps.ts";
+import {ColorType, DIFFNAME, DIFFPATH, KeyframesAny, Vec3} from "../data/types.ts";
+import {AbstractDifficulty} from "./abstract_beatmap.ts";
+import {Track} from "../animation/track.ts";
 
 function toNoteOrBomb(b: bsmap.v2.INote): Note | Bomb {
     const params:

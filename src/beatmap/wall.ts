@@ -1,23 +1,24 @@
 // deno-lint-ignore-file adjacent-overload-signatures
-import { activeDiffGet } from './beatmap.ts'
-import { copy, Vec3, worldToWall } from './general.ts'
+import { copy, worldToWall } from '../general.ts'
 import {
-    bakeAnimation,
-    complexifyArray,
+    wallAnimation,
+} from '../animation/animation.ts'
+import { BaseGameplayObject } from './object.ts'
+import { getModel, ModelObject } from '../model.ts'
+import { optimizeAnimation, OptimizeSettings } from '../animation/anim_optimizer.ts'
+import {
     ComplexKeyframesAny,
     ComplexKeyframesVec3,
-    isSimple,
-    Keyframe,
+    Fields,
     KeyframesVec3,
     RawKeyframesAny,
     RawKeyframesVec3,
-wallAnimation,
-} from './animation.ts'
-import { BaseGameplayObject } from './object.ts'
-import { getModel, ModelObject } from './model.ts'
-import { optimizeAnimation, OptimizeSettings } from './anim_optimizer.ts'
-import { Fields } from './types.ts'
-import { bsmap } from "./deps.ts";
+    Vec3
+} from '../data/types.ts'
+import { bsmap } from "../deps.ts";
+import {bakeAnimation, complexifyArray, isSimple} from "../animation/animation_utils.ts";
+import {Keyframe} from "../animation/keyframe.ts";
+import {activeDiffGet} from "../data/beatmap_handler.ts";
 
 /**
  * Wall object for ease of creation.
@@ -130,7 +131,7 @@ export class Wall
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        activeDiffGet().walls.push(clone ? copy(this) : this)
+        activeDiffGet().walls.push(clone ? structuredClone(this) : this)
         return this
     }
 
@@ -363,7 +364,7 @@ export async function modelToWall(
         )
     } else {
         objects = input.map((x, i) => {
-            x = copy(x)
+            x = structuredClone(x)
             const animated = isAnimated(x)
 
             const anim = bakeAnimation(
@@ -394,7 +395,7 @@ export async function modelToWall(
     }
 
     objects.forEach((x, i) => {
-        const o = copy(w)
+        const o = structuredClone(w)
 
         o.animation.definitePosition = x.pos
         if (x.color) o.color = x.color

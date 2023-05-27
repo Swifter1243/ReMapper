@@ -1,8 +1,9 @@
-import { V3Difficulty } from '../src/beatmap_v3.ts'
+import { V3Difficulty } from '../src/beatmap/beatmap_v3.ts'
 import { bsmap } from '../src/deps.ts'
 
 import * as remapperv3 from 'https://deno.land/x/remapper@3.1.1/src/mod.ts'
-import { rand } from '../src/general.ts'
+
+import {rand} from "../src/utils/math.ts";
 
 const notes: bsmap.v3.IColorNote[] = [...Array(1000).keys()].map(() => ({
     b: rand(0, 1000),

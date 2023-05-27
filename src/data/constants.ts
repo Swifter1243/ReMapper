@@ -1,93 +1,8 @@
-import { Vec3 } from './general.ts'
-import { Regex } from './regex.ts'
+import {Regex} from '../utils/regex.ts'
+import {Vec3} from "./types.ts";
 
 export const QUEST_WIP_PATH =
     '/sdcard/ModData/com.beatgames.beatsaber/Mods/SongLoader/CustomWIPLevels'
-
-// TODO: If possible, try to figure out a way to default to a string with no extension or path
-export type FILENAME<T extends string = string> = T | `${T}.${string}`
-export type FILEPATH<T extends string = string> =
-    | FILENAME<T>
-    | `${string}/${FILENAME<T>}`
-
-type DiffNameBase<T extends string> =
-    | `Easy${T}`
-    | `Normal${T}`
-    | `Hard${T}`
-    | `Expert${T}`
-    | `ExpertPlus${T}`
-
-/** All difficulty names. */
-export type DIFFS =
-    | DiffNameBase<'Standard'>
-    | DiffNameBase<'NoArrows'>
-    | DiffNameBase<'OneSaber'>
-    | DiffNameBase<'360Degree'>
-    | DiffNameBase<'90Degree'>
-    | DiffNameBase<'Lightshow'>
-    | DiffNameBase<'Lawless'>
-
-/** All mods to suggest. */
-export type SUGGEST_MODS =
-    | 'Chroma'
-    | 'Cinema'
-
-/** All mods to require. */
-export type REQUIRE_MODS =
-    | 'Chroma'
-    | 'Noodle Extensions'
-
-/** All environment names. */
-export type ENV_NAMES =
-    | 'BTSEnvironment'
-    | 'BigMirrorEnvironment'
-    | 'BillieEnvironment'
-    | 'CrabRaveEnvironment'
-    | 'DefaultEnvironment'
-    | 'DragonsEnvironment'
-    | 'FitBeatEnvironment'
-    | 'GagaEnvironment'
-    | 'GreenDayEnvironment'
-    | 'GreenDayGrenadeEnvironment'
-    | 'InterscopeEnvironment'
-    | 'KDAEnvironment'
-    | 'KaleidoscopeEnvironment'
-    | 'LinkinParkEnvironment'
-    | 'MonstercatEnvironment'
-    | 'NiceEnvironment'
-    | 'OriginsEnvironment'
-    | 'PanicEnvironment'
-    | 'RocketEnvironment'
-    | 'SkrillexEnvironment'
-    | 'HalloweenEnvironment'
-    | 'TimbalandEnvironment'
-    | 'TriangleEnvironment'
-    | 'WeaveEnvironment'
-    | 'PyroEnvironment'
-    | 'TheSecondEnvironment'
-    | 'EDMEnvironment'
-
-type EaseBase<T extends string> =
-    | `easeIn${T}`
-    | `easeOut${T}`
-    | `easeInOut${T}`
-/** All easings. */
-export type EASE =
-    | 'easeLinear'
-    | 'easeStep'
-    | EaseBase<'Quad'>
-    | EaseBase<'Cubic'>
-    | EaseBase<'Quart'>
-    | EaseBase<'Quint'>
-    | EaseBase<'Sine'>
-    | EaseBase<'Expo'>
-    | EaseBase<'Circ'>
-    | EaseBase<'Elastic'>
-    | EaseBase<'Back'>
-    | EaseBase<'Bounce'>
-
-/** All splines. */
-export type SPLINE = 'splineCatmullRom'
 
 /** Handler to alias settings. */
 export const SettingsHandler = {
@@ -350,26 +265,6 @@ export enum RotationAction {
     CW_60,
 }
 
-/** Animation properties. */
-export type AnimationKeys =
-    | 'position'
-    | 'offsetPosition'
-    | 'definitePosition'
-    | 'localPosition'
-    | 'rotation'
-    | 'offsetWorldRotation'
-    | 'localRotation'
-    | 'scale'
-    | 'dissolve'
-    | 'dissolveArrow'
-    | 'color'
-    | 'uninteractable'
-    | 'attenuation'
-    | 'offset'
-    | 'startY'
-    | 'height'
-    | 'time'
-
 /**
  * Known transforms for objects with ModelScene.
  * ModelScene is NOT limited to these!
@@ -467,38 +362,5 @@ export const ENV = {
     },
 }
 
-/** Color formats. */
-export type ColorFormat =
-    | 'RGB'
-    | 'HSV'
-
-/** Lookup methods for environment objects. */
-export type Lookup =
-    | 'Contains'
-    | 'Regex'
-    | 'Exact'
-    | 'StartsWith'
-    | 'EndsWith'
-
-/** Geometry shape types. */
-export type GeoType =
-    | 'Sphere'
-    | 'Capsule'
-    | 'Cylinder'
-    | 'Cube'
-    | 'Plane'
-    | 'Quad'
-    | 'Triangle'
-
-/** Shaders available for geometry materials. */
-export type GeoShader =
-    | 'Standard'
-    | 'OpaqueLight'
-    | 'TransparentLight'
-    | 'BaseWater'
-    | 'BillieWater'
-    | 'BTSPillar'
-    | 'InterscopeConcrete'
-    | 'InterscopeCar'
-    | 'Obstacle'
-    | 'WaterfallMirror'
+/** Filename of the cache. */
+export const RMCacheFilename = 'RM_Cache.json'

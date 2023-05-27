@@ -1,9 +1,9 @@
-import { V2Difficulty } from '../src/beatmap_v2.ts'
+import { V2Difficulty } from '../src/beatmap/beatmap_v2.ts'
 import { bsmap } from '../src/deps.ts'
 
 import * as remapperv2 from 'https://deno.land/x/remapper@2.1.0/src/mod.ts'
-import { rand } from '../src/general.ts'
-import { activeDiff, activeDiffSet } from '../src/beatmap.ts'
+import {rand} from "../src/utils/math.ts";
+import {activeDiffSet} from "../src/data/beatmap_handler.ts";
 
 // TODO: Seed, otherwise results will NEVER be consistent
 const notes: bsmap.v2.INote[] = [...Array(1000).keys()].map(() => ({

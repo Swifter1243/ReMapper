@@ -1,36 +1,26 @@
 // deno-lint-ignore-file no-explicit-any
 import {
-    arrAdd,
-    baseEnvironmentTrack,
-    Bounds,
     cacheData,
-    ColorType,
-    combineTransforms,
     copy,
-    getBoxBounds,
-    iterateKeyframes,
     parseFilePath,
-    rotatePoint,
-    Transform,
-    Vec3,
-    Vec4,
+
+
+
 } from './general.ts'
-import {
-    bakeAnimation,
-    complexifyArray,
-    KeyframeValues,
-    mirrorAnimation,
-    RawKeyframesVec3,
-} from './animation.ts'
-import { Environment, Geometry, RawGeometryMaterial } from './environment.ts'
-import { optimizeAnimation, OptimizeSettings } from './anim_optimizer.ts'
-import { activeDiff, activeDiffGet } from './beatmap.ts'
-import { Regex } from './regex.ts'
-import { FILEPATH } from './constants.ts'
-import { modelToWall, Wall } from './wall.ts'
+import { Environment, Geometry } from './beatmap/environment.ts'
+import { optimizeAnimation, OptimizeSettings } from './animation/anim_optimizer.ts'
+import {baseEnvironmentTrack} from './beatmap/beatmap.ts'
+import { Regex } from './utils/regex.ts'
+import { modelToWall, Wall } from './beatmap/wall.ts'
 import { CustomEventInternals } from './internals/mod.ts'
-import { animateComponent, animateTrack } from './custom_event.ts'
-import { backLasers } from './basicEvent.ts'
+import { animateComponent, animateTrack } from './beatmap/custom_event.ts'
+import { backLasers } from './beatmap/basicEvent.ts'
+import {Bounds, ColorType, FILEPATH, KeyframeValues, RawKeyframesVec3, Transform, Vec3, Vec4} from "./data/types.ts";
+import {combineTransforms, getBoxBounds, rotatePoint} from "./utils/math.ts";
+import {arrAdd} from "./utils/array_utils.ts";
+import {bakeAnimation, complexifyArray, iterateKeyframes, mirrorAnimation} from "./animation/animation_utils.ts";
+import {RawGeometryMaterial} from "./data/environment_types.ts";
+import {activeDiff, activeDiffGet} from "./data/beatmap_handler.ts";
 
 let modelSceneCount = 0
 let noYeet = true
@@ -267,9 +257,9 @@ export class ModelScene {
 
                         // Applying transformation to each keyframe
                         for (let i = 0; i < x.pos.length; i++) {
-                            let objPos = copy(x.pos[i]) as KeyframeValues
-                            let objRot = copy(x.rot[i]) as KeyframeValues
-                            let objScale = copy(x.scale[i]) as KeyframeValues
+                            let objPos = structuredClone(x.pos[i]) as KeyframeValues
+                            let objRot = structuredClone(x.rot[i]) as KeyframeValues
+                            let objScale = structuredClone(x.scale[i]) as KeyframeValues
                             objPos.pop()
                             objRot.pop()
                             objScale.pop()
@@ -437,7 +427,7 @@ export class ModelScene {
     ) => object ? `modelScene${this.trackID}_${track}_${index}` : track
 
     private getFirstValues(keyframes: RawKeyframesVec3) {
-        const complexTransform = complexifyArray(copy(keyframes))[0]
+        const complexTransform = complexifyArray(structuredClone(keyframes))[0]
         return [
             complexTransform[0],
             complexTransform[1],
@@ -501,7 +491,7 @@ export class ModelScene {
 
                 // Creating objects
                 if (group.object) {
-                    const object = copy(group.object)
+                    const object = structuredClone(group.object)
 
                     if (group.defaultMaterial) {
                         const materialName =
@@ -756,7 +746,7 @@ export class ModelScene {
                 }
 
                 for (let i = 0; i < objectInfo.max; i++) {
-                    const object = copy(group.object)
+                    const object = structuredClone(group.object)
                     object.track.value = this.getPieceTrack(
                         group.object,
                         groupKey,
@@ -1049,9 +1039,9 @@ export class Text {
 
             letter.model.forEach((x) => {
                 const letterModel = {
-                    pos: copy(x.pos),
-                    rot: copy(x.rot),
-                    scale: copy(x.scale),
+                    pos: structuredClone(x.pos),
+                    rot: structuredClone(x.rot),
+                    scale: structuredClone(x.scale),
                 }
                 letterModel.pos[0] -= letter.bounds.lowBound[0]
                 letterModel.pos[2] -= letter.bounds.lowBound[2]

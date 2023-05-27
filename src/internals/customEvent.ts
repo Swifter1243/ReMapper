@@ -1,14 +1,9 @@
-import { KeyframesLinear, Track, TrackValue } from '../animation.ts'
-import { activeDiffGet } from '../beatmap.ts'
-import { TJson } from '../beatmap.ts'
-import { EASE } from '../constants.ts'
 import { bsmap } from '../deps.ts'
-import { Components, TubeBloomPrePassLight } from '../environment.ts'
-import { BloomFogEnvironment } from '../environment.ts'
-import { ILightWithId } from '../environment.ts'
-import { copy } from '../general.ts'
-import { Fields, JsonWrapper } from '../types.ts'
+import {EASE, Fields, JsonWrapper, KeyframesLinear, TJson, TrackValue} from '../data/types.ts'
 import { AbstractAnimation, BaseAnimation } from './animation.ts'
+import {BloomFogEnvironment, Components, ILightWithId, TubeBloomPrePassLight} from "../data/environment_types.ts";
+import {activeDiffGet} from "../data/beatmap_handler.ts";
+import {Track} from "../animation/track.ts";
 
 export abstract class BaseEvent<
     TV2 extends bsmap.v2.ICustomEvent,
@@ -30,7 +25,7 @@ export abstract class BaseEvent<
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        activeDiffGet().customEvents.push(clone ? copy(this) : this)
+        activeDiffGet().customEvents.push(clone ? structuredClone(this) : this)
         return this
     }
 
@@ -140,7 +135,7 @@ export class AnimateTrack extends BaseEvent<
         if (params.track) this.track.value = params.track
         if (params.duration) this.duration = params.duration
         if (params.animation) {
-            this.animate.properties = copy(params.animation.properties)
+            this.animate.properties = structuredClone(params.animation.properties)
         }
         if (params.easing) this.ease = params.easing
     }
@@ -244,7 +239,7 @@ export class AssignPathAnimation extends BaseEvent<
         if (params.track) this.track.value = params.track
         if (params.duration) this.duration = params.duration
         if (params.animation) {
-            this.animate.properties = copy(params.animation.properties)
+            this.animate.properties = structuredClone(params.animation.properties)
         }
         if (params.easing) this.ease = params.easing
     }

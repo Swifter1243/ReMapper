@@ -1,9 +1,8 @@
-import { LightID } from '../basicEvent.ts'
-import { activeDiffGet } from '../beatmap.ts'
-import { EASE, EventAction, EventGroup } from '../constants.ts'
+import { EventAction, EventGroup } from '../data/constants.ts'
 import { bsmap } from '../deps.ts'
-import { ColorType, copy } from '../general.ts'
-import { BaseObject, ObjectFields } from '../object.ts'
+import {ColorType, EASE, LightID, ObjectFields} from "../data/types.ts";
+import {BaseObject} from "./object.ts";
+import {activeDiffGet} from "../data/beatmap_handler.ts";
 
 type LightFields<T extends { customData: T['customData'] }> =
     & Omit<ObjectFields<T>, 'floatValue'>
@@ -31,7 +30,7 @@ export abstract class BaseEvent<
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        activeDiffGet().events.push(clone ? copy(this) : this)
+        activeDiffGet().events.push(clone ? structuredClone(this) : this)
         return this
     }
 

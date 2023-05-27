@@ -1,8 +1,6 @@
-import { EventGroup, InterscopeGroup } from './constants.ts'
-import { EventInternals } from './internals/mod.ts'
-import { Fields } from './types.ts'
-
-export type LightID = number | number[]
+import {EventGroup, InterscopeGroup} from '../data/constants.ts'
+import {EventInternals} from '../internals/mod.ts'
+import {Fields} from '../data/types.ts'
 
 type LightParameters =
     | [

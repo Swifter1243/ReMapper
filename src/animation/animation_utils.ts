@@ -1,317 +1,28 @@
-// deno-lint-ignore-file adjacent-overload-signatures
-import { OptimizeSettings } from './anim_optimizer.ts'
-import { Color, lerpColor } from './color.ts'
-import { AnimationKeys, EASE, SPLINE } from './constants.ts'
 import {
-    arrAdd,
-    arrLast,
-    arrLerp,
-    arrMul,
-    arrRemove,
-    ceilTo,
-    copy,
-    findFraction,
-    floorTo,
-    iterateKeyframes,
-    lerpEasing,
-    lerpRotation,
+    AnimationKeys,
+    ComplexKeyframesAbstract,
+    ComplexKeyframesAny,
+    EASE,
+    KeyframesAbstract,
+    KeyframesAny,
+    KeyframesVec3,
+    KeyframeValues,
     NumberTuple,
+    RawKeyframesAbstract,
+    RawKeyframesAny,
+    RawKeyframesVec3,
+    TransformKeyframe,
     Vec3,
-    Vec4,
-} from './general.ts'
+    Vec4
+} from "../data/types.ts";
+import {arrAdd, arrLast, arrLerp, arrMul, arrRemove} from "../utils/array_utils.ts";
+import {ceilTo, findFraction, floorTo, lerpEasing, lerpRotation} from "../utils/math.ts";
+import {OptimizeSettings} from "./anim_optimizer.ts";
+import {Color, lerpColor} from "../data/color.ts";
 
-import { AnimationInternals } from './internals/mod.ts'
+import {Keyframe} from "./keyframe.ts";
 
-/** Any flag that could be in a keyframe. E.g. easings, splines */
-export type KeyframeFlag = Interpolation | 'hsvLerp'
-/** Easings and splines. */
-export type Interpolation = EASE | SPLINE
-/** Time value in a keyframe. */
-export type TimeValue = number
-
-/** Helper type for single keyframes. */
-export type SingleKeyframeAbstract<T extends number[]> = [
-    ...T,
-    TimeValue,
-    KeyframeFlag?,
-    KeyframeFlag?,
-    KeyframeFlag?,
-]
-/** Helper type for complex keyframes. */
-export type ComplexKeyframesAbstract<T extends number[]> =
-    SingleKeyframeAbstract<T>[]
-/** Helper type for raw keyframes. */
-export type RawKeyframesAbstract<T extends number[]> =
-    | ComplexKeyframesAbstract<T>
-    | T
-/** Helper type for keyframe arrays. */
-export type KeyframesAbstract<T extends number[]> =
-    | RawKeyframesAbstract<T>
-    | T
-    | string
-
-/** Keyframe or array of keyframes with 1 value. [[x, time]...] or [x] */
-export type KeyframesLinear = KeyframesAbstract<[number]>
-/** Array of keyframes with 1 value. [[x, time]...] */
-export type ComplexKeyframesLinear = ComplexKeyframesAbstract<[number]>
-/** Keyframe or array of keyframes with 1 value.
- * [[x,time]...] or [x]
- */
-export type RawKeyframesLinear = RawKeyframesAbstract<[number]>
-
-/** Keyframe or array of keyframes with 3 values. Allows point definitions.
- * [[x,y,z,time]...] or [x,y,z]
- */
-export type KeyframesVec3 = KeyframesAbstract<Vec3>
-/** Array of keyframes with 3 values. [[x,y,z,time]...] */
-export type ComplexKeyframesVec3 = ComplexKeyframesAbstract<Vec3>
-/** Keyframe or array of keyframes with 3 values.
- * [[x,y,z,time]...] or [x,y,z]
- */
-export type RawKeyframesVec3 = RawKeyframesAbstract<Vec3>
-
-/** Keyframe or array of keyframes with 4 values. Allows point definitions.
- * [[x,y,z,w,time]...] or [x,y,z,w]
- */
-export type KeyframesVec4 = KeyframesAbstract<Vec4>
-/** Array of keyframes with 4 values. [[x,y,z,w,time]...] */
-export type ComplexKeyframesVec4 = ComplexKeyframesAbstract<Vec4>
-/** Keyframe or array of keyframes with 4 values.
- * [[x,y,z,w,time]...] or [x,y,z,w]
- */
-export type RawKeyframesVec4 = RawKeyframesAbstract<Vec4>
-
-/** Keyframe which isn't in an array with other keyframes, has any amount of values. */
-export type SingleKeyframe = SingleKeyframeAbstract<number[]>
-/** Keyframe which is in an array with other keyframes, has any amount of values. */
-export type KeyframeValues = (number | (KeyframeFlag | undefined))[]
-/** Array of keyframes which have any amount of values. */
-export type ComplexKeyframesAny = ComplexKeyframesAbstract<number[]>
-/** Keyframe or array of keyframes with any amount of values. Allows point definitions. */
-export type KeyframesAny = SingleKeyframe | ComplexKeyframesAny | string
-/** Keyframe or array of keyframes with any amount of values. */
-export type RawKeyframesAny = SingleKeyframe | ComplexKeyframesAny
-
-/** A track or multiple tracks. */
-export type TrackValue = string | string[]
-
-/**
- * State that this animation is for a note.
- * @param json The json to create the animation with.
- */
-export function noteAnimation(
-    ...params: ConstructorParameters<typeof AnimationInternals.NoteAnimation>
-) {
-    return new AnimationInternals.NoteAnimation(...params)
-}
-
-/**
- * State that this animation is for a wall.
- * @param json The json to create the animation with.
- */
-export function wallAnimation(
-    ...params: ConstructorParameters<typeof AnimationInternals.WallAnimation>
-) {
-    return new AnimationInternals.WallAnimation(...params)
-}
-
-/**
- * State that this animation is for an environment object.
- * @param json The json to create the animation with.
- */
-export function environmentAnimation(
-    ...params: ConstructorParameters<
-        typeof AnimationInternals.EnvironmentAnimation
-    >
-) {
-    return new AnimationInternals.EnvironmentAnimation(...params)
-}
-
-export class Keyframe {
-    /** The data stored in this keyframe. */
-    data: KeyframeValues
-
-    /**
-     * Interface for keyframes in animations.
-     * A keyframe looks something like [x,y,z,time,easing].
-     * It is separated into values (x,y,z), time, and flags (easings, splines.. etc).
-     * Anything that is a string is considered a flag.
-     * A keyframe can have any amount of values.
-     * @param data The data stored in this keyframe.
-     */
-    constructor(data: KeyframeValues) {
-        this.data = data
-    }
-
-    /** The index of the time value. */
-    get timeIndex() {
-        for (let i = this.data.length - 1; i >= 0; i--) {
-            if (typeof this.data[i] !== 'string') return i
-        }
-        return -1
-    }
-
-    /** The time value. */
-    get time() {
-        return this.data[this.timeIndex] as number
-    }
-    /** The values in the keyframes.
-     * For example [x,y,z,time] would have [x,y,z] as values.
-     */
-    get values() {
-        return this.data.slice(0, this.timeIndex) as number[]
-    }
-    /** The easing in the keyframe. Returns undefined if not found. */
-    get easing() {
-        return this.data[this.getFlagIndex('ease', false)] as EASE
-    }
-    /** The spline in the keyframe. Returns undefined if not found. */
-    get spline() {
-        return this.data[this.getFlagIndex('spline', false)] as SPLINE
-    }
-    /** Whether this keyframe has the "hsvLerp" flag. */
-    get hsvLerp() {
-        return this.getFlagIndex('hsvLerp') !== -1
-    }
-
-    set time(value: number) {
-        this.data[this.timeIndex] = value
-    }
-    set values(value: number[]) {
-        for (let i = 0; i < this.timeIndex; i++) this.data[i] = value[i]
-    }
-    set easing(value: EASE) {
-        this.setFlag(value, 'ease')
-    }
-    set spline(value: SPLINE) {
-        this.setFlag(value, 'spline')
-    }
-    set hsvLerp(value: boolean) {
-        if (value) this.setFlag('hsvLerp')
-        else {
-            const flagIndex = this.getFlagIndex('hsvLerp')
-            if (flagIndex !== -1) arrRemove(this.data, flagIndex)
-        }
-    }
-
-    /**
-     * Set a flag in the keyframe.
-     * @param value The flag to be set.
-     * @param old An existing flag containing this will be replaced by the value.
-     */
-    setFlag(value: KeyframeFlag, old?: string) {
-        let index = this.getFlagIndex(old ? old : value, old === undefined)
-        if (index === -1) index = this.data.length
-        this.data[index] = value
-    }
-
-    /**
-     * Gets the index of a flag.
-     * @param flag The flag to look for.
-     * @param exact Whether it should be an exact match, or just contain the flag argument.
-     */
-    getFlagIndex(flag: string, exact = true) {
-        if (exact) {
-            return this.data.findIndex((x) =>
-                typeof x === 'string' && x === flag
-            )
-        }
-        return this.data.findIndex(
-            (x) => typeof x === 'string' && x.includes(flag),
-        )
-    }
-}
-
-export class Track {
-    /** The value of the track. */
-    value?: TrackValue
-
-    constructor(value?: TrackValue) {
-        this.value = value
-    }
-
-    private expandArray(array: TrackValue) {
-        return typeof array === 'string' ? [array] : array
-    }
-
-    private simplifyArray(array: TrackValue) {
-        if (typeof array === 'string') return array
-
-        return array.length === 1 ? array[0] : array
-    }
-
-    /**
-     * Safely check if the track contains this value.
-     * @param value
-     */
-    has(value: string) {
-        if (!this.value) return false
-        if (typeof this.value === 'string') return this.value === value
-
-        return this.value.some((x) => x === value)
-    }
-
-    /**
-     * Safely add tracks.
-     * @param value Can be one track or multiple.
-     */
-    add(value: TrackValue) {
-        if (!this.value) {
-            this.value = this.simplifyArray(value)
-            return this
-        }
-
-        const arrValue = this.expandArray(this.value).concat(
-            this.expandArray(value),
-        )
-        this.value = this.simplifyArray(arrValue)
-        return this
-    }
-
-    /**
-     * Remove tracks.
-     * @param value Can be one track or multiple.
-     */
-    remove(value: TrackValue) {
-        if (!this.value) return
-
-        const removeValues = this.expandArray(value)
-        const thisValue = this.expandArray(this.value)
-        const removed: Record<number, boolean> = {}
-
-        removeValues.forEach((x) => {
-            thisValue.forEach((y, i) => {
-                if (y === x) removed[i] = true
-            })
-        })
-
-        const returnArr = thisValue.filter((_x, i) => !removed[i])
-
-        if (returnArr.length === 0) {
-            return
-        }
-        this.value = this.simplifyArray(returnArr)
-
-        return this
-    }
-
-    /** Get the track value as an array. */
-    array() {
-        return this.value && this.expandArray(this.value)
-    }
-
-    /**
-     * Check that each track passes a condition.
-     * @param condition Function to run for each track, must return boolean
-     */
-    check(condition: (track: string) => boolean) {
-        if (!this.value) return false
-
-        return this.expandArray(this.value).some((x) => {
-            return condition(x)
-        })
-    }
-}
+import {AnimationInternals} from "../internals/mod.ts"
 
 /**
  * Ensures that this value is in the format of an array of keyframes.
@@ -436,18 +147,18 @@ function timeInKeyframes(time: number, animation: ComplexKeyframesAny) {
     let l: Keyframe
     let normalTime = 0
 
-    if (animation.length === 0) return { interpolate: false }
+    if (animation.length === 0) return {interpolate: false}
 
     const first = new Keyframe(animation[0])
     if (first.time >= time) {
         l = first
-        return { interpolate: false, l: l }
+        return {interpolate: false, l: l}
     }
 
     const last = new Keyframe(arrLast(animation))
     if (last.time <= time) {
         l = last
-        return { interpolate: false, l: l }
+        return {interpolate: false, l: l}
     }
 
     let leftIndex = 0
@@ -490,17 +201,17 @@ export function combineAnimations(
     anim2: RawKeyframesAny,
     property: AnimationKeys,
 ) {
-    let simpleArr = copy(anim1)
+    let simpleArr = structuredClone(anim1)
     let complexArr: ComplexKeyframesAny = []
 
     if (isSimple(anim1) && isSimple(anim2)) complexArr = complexifyArray(anim2)
     else if (!isSimple(anim1) && isSimple(anim2)) {
-        simpleArr = copy(anim2)
-        complexArr = copy(anim1) as ComplexKeyframesAny
+        simpleArr = structuredClone(anim2)
+        complexArr = structuredClone(anim1) as ComplexKeyframesAny
     } else if (!isSimple(anim1) && !isSimple(anim2)) {
         console.error(`[${anim1}] and [${anim2}] are unable to combine!`)
     } else {
-        complexArr = copy(anim2) as ComplexKeyframesAny
+        complexArr = structuredClone(anim2) as ComplexKeyframesAny
     }
 
     const editElem = function (e: number, e2: number) {
@@ -534,13 +245,6 @@ export function combineAnimations(
     return complexArr
 }
 
-export interface TransformKeyframe {
-    pos: Vec3
-    rot: Vec3
-    scale: Vec3
-    time: number
-}
-
 /**
  * Generate keyframes from an animation.
  * Useful for doing things such as having objects rotate around points other than their anchor.
@@ -565,14 +269,14 @@ export function bakeAnimation(
     animation.scale ??= [1, 1, 1]
 
     const dataAnim = new AnimationInternals.AbstractAnimation()
-    dataAnim.position = copy(animation.pos)
-    dataAnim.rotation = copy(animation.rot)
-    dataAnim.scale = copy(animation.scale)
+    dataAnim.position = structuredClone(animation.pos)
+    dataAnim.rotation = structuredClone(animation.rot)
+    dataAnim.scale = structuredClone(animation.scale)
 
     const data = {
-        pos: <number[][]> [],
-        rot: <number[][]> [],
-        scale: <number[][]> [],
+        pos: <number[][]>[],
+        rot: <number[][]>[],
+        scale: <number[][]>[],
     }
 
     function getDomain(arr: RawKeyframesAny) {
@@ -587,7 +291,7 @@ export function bakeAnimation(
             if (time < min) min = time
             if (time > max) max = time
         })
-        return { min: min, max: max }
+        return {min: min, max: max}
     }
 
     const posDomain = getDomain(animation.pos)
@@ -641,7 +345,7 @@ export function reverseAnimation<T extends NumberTuple>(
     if (isSimple(animation)) return animation
     const keyframes: Keyframe[] = []
     ;(animation as ComplexKeyframesAbstract<T>).forEach((x, i) => {
-        const k = new Keyframe(copy(x))
+        const k = new Keyframe(structuredClone(x))
         k.time = 1 - k.time
         keyframes[animation.length - 1 - i] = k
     })
@@ -668,6 +372,25 @@ export function reverseAnimation<T extends NumberTuple>(
 }
 
 /**
+ * Safely iterate through an array of keyframes.
+ * @param keyframes Keyframes to iterate.
+ * @param fn Function to run on each keyframe.
+ */
+export function iterateKeyframes<T extends NumberTuple>(
+    keyframes: RawKeyframesAbstract<T>,
+    fn: (values: KeyframesAbstract<T>, index: number) => void,
+) {
+    // TODO: Lookup point def
+    if (typeof keyframes === 'string') return
+
+    const newKeyframes = complexifyArray(keyframes)
+    newKeyframes.forEach((x, i) => fn(x, i))
+    const newSimpleKeyframes = simplifyArray(newKeyframes)
+    newSimpleKeyframes.forEach((x, i) => (keyframes[i] = x))
+    keyframes.length = newSimpleKeyframes.length
+}
+
+/**
  * Get an animation with a reversed animation after.
  * @param animation Animation to mirror.
  */
@@ -678,7 +401,7 @@ export function mirrorAnimation<T extends NumberTuple>(
     const output: Keyframe[] = []
 
     iterateKeyframes(animation, (x) => {
-        const k = new Keyframe(copy(x))
+        const k = new Keyframe(structuredClone(x))
         k.time = k.time / 2
         output.push(k)
     })

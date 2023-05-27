@@ -1,6 +1,6 @@
-import { LightID } from './basicEvent.ts'
-import { arrHas, copy } from './general.ts'
-import { LightRemapperInternals } from './internals/mod.ts'
+import { LightRemapperInternals } from '../internals/mod.ts'
+import {arrHas} from "../utils/array_utils.ts";
+import {LightID} from "../data/types.ts";
 
 type Condition = LightRemapperInternals.Condition
 
@@ -219,7 +219,7 @@ function solveLightMap(map: number[][], ids: number[]) {
 
 // This too, I cba to add type stuff here cause IDK how it works lol
 function applyLightMap(map: (number | number[])[], ids: number[]) {
-    map = copy(map)
+    map = structuredClone(map)
     const offset = map.splice(0, 1)[0]
 
     // deno-lint-ignore no-explicit-any

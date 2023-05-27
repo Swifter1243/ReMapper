@@ -1,51 +1,14 @@
 // deno-lint-ignore-file adjacent-overload-signatures
-import { Track, noteAnimation } from './animation.ts'
-import { activeDiffGet, info } from './beatmap.ts'
-import { NoteType } from './constants.ts'
-import { bsmap } from './deps.ts'
-import {
-    ColorType,
-    copy,
-    getJumps,
-    isEmptyObject,
-    jsonPrune,
-    jsonRemove,
-    Vec2,
-    Vec3,
-} from './general.ts'
-import { AnimationInternals } from './internals/mod.ts'
-import { Fields, JsonWrapper } from './types.ts'
-
-export type ObjectFields<T extends { customData: V }, V = T['customData']> =
-    & Omit<Fields<T>, 'customData'>
-    & {
-        customData?: T['customData']
-    }
-
-export abstract class BaseObject<
-    TV2 extends bsmap.v2.IBaseObject,
-    TV3 extends bsmap.v3.IBaseObject,
-> implements JsonWrapper<TV2, TV3> {
-    /** The time that this object is scheduled for. */
-    time = 0
-    /** Any community made data on this object. */
-    customData: TV2['_customData'] | TV3['customData'] = {}
-
-    constructor(
-        obj: ObjectFields<BaseObject<TV2, TV3>> | Record<string, unknown>,
-    ) {
-        Object.assign(this, obj)
-    }
-
-    /** Checks if the object has modded properties. */
-    isModded() {
-        return this.customData && !isEmptyObject(this.customData)
-    }
-
-    abstract toJson(v3: true): TV3
-    abstract toJson(v3: false): TV2
-    abstract toJson(v3: boolean): TV2 | TV3
-}
+import {noteAnimation} from '../animation/animation.ts'
+import {NoteType} from '../data/constants.ts'
+import {bsmap} from '../deps.ts'
+import {AnimationInternals} from '../internals/mod.ts'
+import {ColorType, Fields, Vec2, Vec3} from '../data/types.ts'
+import {getJumps} from "../utils/math.ts";
+import {isEmptyObject, jsonPrune, jsonRemove} from "../utils/json.ts";
+import {BaseObject} from "../internals/object.ts";
+import {activeDiffGet, info} from "../data/beatmap_handler.ts";
+import {Track} from "../animation/track.ts";
 
 export abstract class BaseGameplayObject<
     TV2 extends bsmap.v2.INote | bsmap.v2.IObstacle,
@@ -146,7 +109,7 @@ export abstract class BaseGameplayObject<
 
     isGameplayModded() {
         if (this.customData === undefined) return false
-        const customData = copy(this.customData)
+        const customData = structuredClone(this.customData)
         jsonRemove(customData, 'color')
         jsonRemove(customData, 'spawnEffect')
         jsonRemove(customData, 'animation.color')

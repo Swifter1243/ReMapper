@@ -1,10 +1,6 @@
-import {
-    complexifyArray,
-    Keyframe,
-    RawKeyframesAbstract,
-    simplifyArray,
-} from './animation.ts'
-import { copy, NumberTuple } from './general.ts'
+import {NumberTuple, RawKeyframesAbstract} from "../data/types.ts";
+import {complexifyArray, simplifyArray} from "./animation_utils.ts";
+import {Keyframe} from "./keyframe.ts";
 
 function areArrayElementsIdentical<T>(
     enumerable1: T[],
@@ -492,7 +488,7 @@ export function optimizeAnimation<T extends NumberTuple>(
     animation: RawKeyframesAbstract<T>,
     settings: OptimizeSettings,
 ) {
-    const keyframes: Keyframe[] = copy(complexifyArray(animation)).map((x) =>
+    const keyframes: Keyframe[] = structuredClone(complexifyArray(animation)).map((x) =>
         new Keyframe(x)
     )
 
