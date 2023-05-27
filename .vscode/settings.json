@@ -1,6 +1,7 @@
 {
     "deno.enable": true,
     "deno.unstable": true,
+    "deno.config": "./deno.json",
     "[javascript]": {
         "editor.defaultFormatter": "denoland.vscode-deno"
     },

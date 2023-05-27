@@ -1,9 +1,8 @@
-import { EPSILON, getSeconds, rotatePoint } from './utils/math.ts'
-import { fs, path } from './deps.ts'
-import { FILENAME, FILEPATH, OnlyNumbersOptional, Vec3 } from './data/types.ts'
-import { RMJson } from './rm_json.ts'
-import { arrAdd } from './utils/array_utils.ts'
-import { activeDiffGet } from './data/beatmap_handler.ts'
+import {EPSILON, getSeconds} from './utils/math.ts'
+import {fs, path} from './deps.ts'
+import {FILENAME, FILEPATH, OnlyNumbersOptional} from './data/types.ts'
+import {RMJson} from './rm_json.ts'
+import {activeDiffGet} from './data/beatmap_handler.ts'
 
 /**
  * Store data in the ReMapper cache.
@@ -185,37 +184,6 @@ export function copyWith<T extends Record<string | number | symbol, never>>(
     Object.assign(copied, overwrite)
 
     return copied
-}
-
-/**
- * Calculate the correct position for a wall to line up with a position in the world.
- * Assumes that position is set to [0,0].
- * @param pos Position of the wall in world space.
- * @param rot Rotation of the wall in world space.
- * @param scale Scale of the wall in world space.
- * @param animated Corrects for animated scale. If you are using this, plug [1,1,1] into static scale.
- */
-export function worldToWall(
-    pos: Vec3 = [0, 0, 0],
-    rot: Vec3 = [0, 0, 0],
-    scale: Vec3 = [1, 1, 1],
-    animated = false,
-) {
-    scale = scale.map((x) => x / 0.6) as Vec3
-
-    pos = [pos[0] /= 0.6, pos[1] /= 0.6, pos[2] /= 0.6]
-
-    let offset = [0, -0.5, -0.5] as Vec3
-    offset = rotatePoint(offset.map((x, i) => x * scale[i]) as Vec3, rot)
-    pos = arrAdd(pos, offset)
-
-    pos[1] += 0.2
-    pos[0] -= animated ? 0.5 : scale[0] / 2
-
-    return {
-        pos: pos,
-        scale: scale,
-    }
 }
 
 /**

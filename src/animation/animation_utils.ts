@@ -15,6 +15,7 @@ import {
     Vec3,
     Vec4,
 } from '../data/types.ts'
+
 import {
     arrAdd,
     arrLast,
@@ -22,6 +23,7 @@ import {
     arrMul,
     arrRemove,
 } from '../utils/array_utils.ts'
+
 import {
     ceilTo,
     findFraction,
@@ -29,7 +31,7 @@ import {
     lerpEasing,
     lerpRotation,
 } from '../utils/math.ts'
-import { OptimizeSettings } from './anim_optimizer.ts'
+import type { OptimizeSettings } from './anim_optimizer.ts'
 import { Color, lerpColor } from '../data/color.ts'
 
 import { Keyframe } from './keyframe.ts'

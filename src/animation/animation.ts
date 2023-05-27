@@ -1,4 +1,3 @@
-// deno-lint-ignore-file
 import * as AnimationInternals from '../internals/animation.ts'
 
 /**

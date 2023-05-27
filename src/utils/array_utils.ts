@@ -1,6 +1,6 @@
+import { three } from '../deps.ts'
 import { Vec3 } from '../data/types.ts'
 import { lerp } from './math.ts'
-import { three } from '../deps.ts'
 
 /**
  * Get the last element in an array.

@@ -1,6 +1,8 @@
+import { bsmap } from '../deps.ts'
+
 import * as AnimationInternals from '../internals/animation.ts'
 import * as EnvironmentInternals from '../internals/environment.ts'
-import { bsmap } from '../deps.ts'
+
 import { animateTrack } from './custom_event.ts'
 import {
     AnimationKeys,
@@ -9,13 +11,13 @@ import {
     Lookup,
     RawKeyframesAny,
 } from '../data/types.ts'
-import { combineAnimations } from '../animation/animation_utils.ts'
+import { combineAnimations } from '../animation/mod.ts'
 import { GeometryMaterial } from '../data/environment_types.ts'
 import { activeDiffGet } from '../data/beatmap_handler.ts'
 
 let envCount = 0
 
-export class Environment extends EnvironmentInternals.BaseEnvironment<
+export class Environment extends EnvironmentInternals.BaseEnvironmentEnhancement<
     bsmap.v2.IChromaEnvironmentID,
     bsmap.v3.IChromaEnvironmentID
 > {
@@ -86,7 +88,7 @@ export class Environment extends EnvironmentInternals.BaseEnvironment<
     }
 }
 
-export class Geometry extends EnvironmentInternals.BaseEnvironment<
+export class Geometry extends EnvironmentInternals.BaseEnvironmentEnhancement<
     bsmap.v2.IChromaEnvironmentGeometry,
     bsmap.v3.IChromaEnvironmentGeometry
 > {

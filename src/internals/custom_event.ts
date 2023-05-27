@@ -7,7 +7,6 @@ import {
     TJson,
     TrackValue,
 } from '../data/types.ts'
-import { AbstractAnimation, BaseAnimation } from './animation.ts'
 import {
     BloomFogEnvironment,
     Components,
@@ -16,6 +15,7 @@ import {
 } from '../data/environment_types.ts'
 import { activeDiffGet } from '../data/beatmap_handler.ts'
 import { Track } from '../animation/track.ts'
+import { AbstractAnimation, BaseAnimation } from './animation.ts'
 
 export abstract class BaseCustomEvent<
     TV2 extends bsmap.v2.ICustomEvent,

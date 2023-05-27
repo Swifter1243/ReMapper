@@ -1,10 +1,20 @@
 /** Contains subclasses for animation related classes. */
 
-// TODO: Move some of this into animationUtils
+
+import { bsmap } from '../deps.ts'
+
+import { Keyframe } from '../animation/keyframe.ts'
+
+import {
+    complexifyArray,
+    getValuesAtTime,
+    simplifyArray,
+} from '../animation/animation_utils.ts'
 import {
     optimizeAnimation,
     OptimizeSettings,
 } from '../animation/anim_optimizer.ts'
+
 import {
     ComplexKeyframesAny,
     JsonWrapper,
@@ -14,13 +24,6 @@ import {
     KeyframesVec4,
     KeyframeValues,
 } from '../data/types.ts'
-import { bsmap } from '../deps.ts'
-import {
-    complexifyArray,
-    getValuesAtTime,
-    simplifyArray,
-} from '../animation/animation_utils.ts'
-import { Keyframe } from '../animation/keyframe.ts'
 
 type AnimateV2 = Required<bsmap.v2.IAnimation>['_animation']
 type AnimateV3 = Required<bsmap.v3.IAnimation>['animation']

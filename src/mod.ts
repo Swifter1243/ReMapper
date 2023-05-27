@@ -5,7 +5,7 @@ export * from './animation/keyframe.ts'
 export * from './animation/track.ts'
 
 export * from './beatmap/abstract_beatmap.ts'
-export * from './beatmap/basicEvent.ts'
+export * from './beatmap/basic_event.ts'
 export * from './beatmap/beatmap_v2.ts'
 export * from './beatmap/beatmap_v3.ts'
 export * from './beatmap/beatmap.ts'
@@ -26,9 +26,9 @@ export * from './data/environment_types.ts'
 export * from './data/types.ts'
 
 export * from './internals/animation.ts'
-export * from './internals/customEvent.ts'
+export * from './internals/custom_event.ts'
 export * from './internals/environment.ts'
-export * from './internals/event.ts'
+export * from './internals/basic_event.ts'
 export * from './internals/light_remapper.ts'
 export * from './internals/object.ts'
 
@@ -38,7 +38,7 @@ export * from './utils/math.ts'
 export * from './utils/regex.ts'
 
 export * from './general.ts'
-export * from './model.ts'
+// TODO: Finish
+// export * from './model.ts'
 export * from './rm_json.ts'
-
-export { adbDeno, bsmap, three } from './deps.ts'
+export {debugWall} from "./model/wall.ts";

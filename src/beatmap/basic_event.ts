@@ -1,6 +1,7 @@
-import { EventGroup, InterscopeGroup } from '../data/constants.ts'
-import * as EventInternals from '../internals/event.ts'
-import { Fields } from '../data/types.ts'
+import {EventGroup, InterscopeGroup} from '../data/constants.ts'
+import * as EventInternals from '../internals/basic_event.ts'
+import {BaseEvent} from '../internals/basic_event.ts'
+import {Fields} from '../data/types.ts'
 
 type LightParameters =
     | [
@@ -433,3 +434,8 @@ export function lateRotation(
         value: rotation ?? 0,
     })
 }
+
+export type AbstractEvent = BaseEvent<
+    bsmap.v2.IEvent,
+    bsmap.v3.IBasicEvent
+>

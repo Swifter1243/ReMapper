@@ -2,12 +2,12 @@ import { bsmap } from '../deps.ts'
 import { JsonWrapper, Vec3 } from '../data/types.ts'
 import { Track } from '../animation/track.ts'
 
-export type AbstractEnvironment = BaseEnvironment<
+export type AbstractEnvironment = BaseEnvironmentEnhancement<
     bsmap.v2.IChromaEnvironmentBase,
     bsmap.v3.IChromaEnvironmentBase
 >
 
-export abstract class BaseEnvironment<
+export abstract class BaseEnvironmentEnhancement<
     TV2 extends bsmap.v2.IChromaEnvironmentBase,
     TV3 extends bsmap.v3.IChromaEnvironmentBase,
 > implements JsonWrapper<TV2, TV3> {
