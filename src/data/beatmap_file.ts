@@ -52,3 +52,18 @@ export async function readDifficulty(
         json as bsmap.v2.IDifficulty,
     )
 }
+
+export async function readV2Difficulty(...params: Parameters<typeof readDifficulty>) {
+    const diff = await readDifficulty(...params)
+
+    if (diff! instanceof V2Difficulty) throw `Not a v2 difficulty! ${diff.version}`
+    
+    return diff
+}
+export async function readV3Difficulty(...params: Parameters<typeof readDifficulty>) {
+    const diff = await readDifficulty(...params)
+
+    if (diff! instanceof V3Difficulty) throw `Not a v3 difficulty! ${diff.version}`
+    
+    return diff
+}
