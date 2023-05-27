@@ -1,4 +1,3 @@
-// deno-lint-ignore-file
 import {NoteCut, NoteType} from '../data/constants.ts'
 import {Arc, Bomb, Chain, Note} from "../internals/note.ts";
 

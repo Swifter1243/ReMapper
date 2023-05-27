@@ -11,9 +11,9 @@ import {
     Lookup,
     RawKeyframesAny,
 } from '../data/types.ts'
-import { combineAnimations } from '../animation/mod.ts'
 import { GeometryMaterial } from '../data/environment_types.ts'
 import { activeDiffGet } from '../data/beatmap_handler.ts'
+import { combineAnimations } from "../animation/animation_utils.ts";
 
 let envCount = 0
 

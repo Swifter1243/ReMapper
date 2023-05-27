@@ -26,18 +26,13 @@ import * as CustomEventInternals from '../internals/custom_event.ts'
 
 
 import {Environment, Geometry} from '../beatmap/environment.ts'
-import {
-    bakeAnimation,
-    complexifyArray,
-    iterateKeyframes,
-    mirrorAnimation,
-    optimizeAnimation,
-    OptimizeSettings,
-} from '../animation/mod.ts'
 
 import {baseEnvironmentTrack} from '../beatmap/beatmap.ts'
 import {animateComponent, animateTrack} from '../beatmap/custom_event.ts'
 import {backLasers} from '../beatmap/basic_event.ts'
+
+import {optimizeAnimation, OptimizeSettings} from "../animation/anim_optimizer.ts";
+import {bakeAnimation, complexifyArray, iterateKeyframes, mirrorAnimation} from "../animation/animation_utils.ts";
 
 
 let modelSceneCount = 0

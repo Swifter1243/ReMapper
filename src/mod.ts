@@ -1,44 +1,17 @@
-export * from './animation/anim_optimizer.ts'
-export * from './animation/animation_utils.ts'
-export * from './animation/animation.ts'
-export * from './animation/keyframe.ts'
-export * from './animation/track.ts'
+export * from './animation/mod.ts'
 
-export * from './beatmap/abstract_beatmap.ts'
-export * from './beatmap/basic_event.ts'
-export * from './beatmap/beatmap_v2.ts'
-export * from './beatmap/beatmap_v3.ts'
-export * from './beatmap/beatmap.ts'
-export * from './beatmap/cinema.ts'
-export * from './beatmap/custom_event.ts'
-export * from './beatmap/environment.ts'
-export * from './beatmap/fog.ts'
-export * from './beatmap/light_remapper.ts'
-export * from './beatmap/note.ts'
-export * from './beatmap/object.ts'
-export * from './beatmap/wall.ts'
+export * from './beatmap/mod.ts'
 
-export * from './data/beatmap_handler.ts'
-export * from './data/color.ts'
-export * from './data/constants.ts'
-export * from './data/easings.ts'
-export * from './data/environment_types.ts'
-export * from './data/types.ts'
+export * from './data/mod.ts'
 
-export * from './internals/animation.ts'
-export * from './internals/custom_event.ts'
-export * from './internals/environment.ts'
-export * from './internals/basic_event.ts'
-export * from './internals/light_remapper.ts'
-export * from './internals/object.ts'
+export * from './internals/mod.ts'
 
-export * from './utils/array_utils.ts'
-export * from './utils/json.ts'
-export * from './utils/math.ts'
-export * from './utils/regex.ts'
+export * from './utils/mod.ts'
 
 export * from './general.ts'
+
 // TODO: Finish
-// export * from './model.ts'
+// export * from './model/mod.ts'
 export * from './rm_json.ts'
-export {debugWall} from "./model/wall.ts";
+
+export * from './deps.ts'

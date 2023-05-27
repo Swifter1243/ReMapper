@@ -1,5 +1,4 @@
 import { bomb, note } from './note.ts'
-import { noteAnimation, wallAnimation, Track } from '../animation/mod.ts'
 import { wall } from './wall.ts'
 import { bsmap } from '../deps.ts'
 import {
@@ -11,6 +10,8 @@ import {
 } from '../data/types.ts'
 import { AbstractDifficulty } from './abstract_beatmap.ts'
 import {Bomb, Note} from "../internals/note.ts";
+import { Track } from "../animation/track.ts";
+import { noteAnimation, wallAnimation } from "../animation/animation.ts";
 
 function toNoteOrBomb(b: bsmap.v2.INote): Note | Bomb {
     const params:

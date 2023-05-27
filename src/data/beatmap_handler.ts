@@ -4,8 +4,8 @@ import { DIFFNAME, DIFFPATH } from './types.ts'
 import { parseFilePath } from '../general.ts'
 
 import type { AbstractDifficulty } from '../beatmap/abstract_beatmap.ts'
-import type { V3Difficulty } from "../beatmap/beatmap_v3.ts";
-import type { V2Difficulty } from "../beatmap/beatmap_v2.ts";
+import { V3Difficulty } from "../beatmap/beatmap_v3.ts";
+import { V2Difficulty } from "../beatmap/beatmap_v2.ts";
 
 export let info: bsmap.IInfo
 export let infoPath: string

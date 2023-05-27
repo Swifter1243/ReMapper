@@ -1,7 +1,10 @@
+import {bsmap} from "../deps.ts"
+
 import {EventGroup, InterscopeGroup} from '../data/constants.ts'
+import {Fields} from '../data/types.ts'
+
 import * as EventInternals from '../internals/basic_event.ts'
 import {BaseEvent} from '../internals/basic_event.ts'
-import {Fields} from '../data/types.ts'
 
 type LightParameters =
     | [
