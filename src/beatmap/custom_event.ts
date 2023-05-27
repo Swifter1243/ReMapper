@@ -1,5 +1,5 @@
 import { bsmap } from '../deps.ts'
-import { CustomEventInternals } from '../internals/mod.ts'
+import * as CustomEventInternals from '../internals/customEvent.ts'
 import { EASE, KeyframesLinear, TrackValue } from '../data/types.ts'
 import { Components } from '../data/environment_types.ts'
 

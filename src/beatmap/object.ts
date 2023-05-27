@@ -2,7 +2,7 @@
 import { noteAnimation } from '../animation/animation.ts'
 import { NoteType } from '../data/constants.ts'
 import { bsmap } from '../deps.ts'
-import { AnimationInternals } from '../internals/mod.ts'
+import * as AnimationInternals from '../internals/animation.ts'
 import { ColorType, Fields, Vec2, Vec3 } from '../data/types.ts'
 import { getJumps } from '../utils/math.ts'
 import { isEmptyObject, jsonPrune, jsonRemove } from '../utils/json.ts'

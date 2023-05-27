@@ -8,7 +8,7 @@ import {
 import { baseEnvironmentTrack } from './beatmap/beatmap.ts'
 import { Regex } from './utils/regex.ts'
 import { modelToWall, Wall } from './beatmap/wall.ts'
-import { CustomEventInternals } from './internals/mod.ts'
+import * as CustomEventInternals from './internals/customEvent.ts'
 import { animateComponent, animateTrack } from './beatmap/custom_event.ts'
 import { backLasers } from './beatmap/basicEvent.ts'
 import {

@@ -2,6 +2,8 @@ import { bsmap, path, semver } from '../deps.ts'
 import { AbstractDifficulty } from '../beatmap/abstract_beatmap.ts'
 import { parseFilePath } from '../general.ts'
 import { DIFFNAME, DIFFPATH } from './types.ts'
+import { V3Difficulty } from "../beatmap/beatmap_v3.ts";
+import { V2Difficulty } from "../beatmap/beatmap_v2.ts";
 
 export let info: bsmap.IInfo
 export let infoPath: string
@@ -86,24 +88,24 @@ export async function readDifficulty(
         | bsmap.v3.IDifficulty
 
     const v3 = Object.hasOwn(json, 'version') &&
-        semver.satisfies(json as any['version'], '>=3.0.0')
+        semver.satisfies((json as any)['version'], '>=3.0.0')
     if (v3) {
         // TODO: Uncomment, breaks benchmark
-        // return new V3Difficulty(
-        //     infoData.diffSet,
-        //     infoData.diffSetMap,
-        //     mapFile,
-        //     relativeMapFile,
-        //     json as bsmap.v3.IDifficulty,
-        // )
+        return new V3Difficulty(
+            infoData.diffSet,
+            infoData.diffSetMap,
+            mapFile,
+            relativeMapFile,
+            json as bsmap.v3.IDifficulty,
+        )
     }
 
-    // return new V2Difficulty(
-    //     infoData.diffSet,
-    //     infoData.diffSetMap,
-    //     mapFile,
-    //     relativeMapFile,
-    //     json as bsmap.v2.IDifficulty,
-    // )
+    return new V2Difficulty(
+        infoData.diffSet,
+        infoData.diffSetMap,
+        mapFile,
+        relativeMapFile,
+        json as bsmap.v2.IDifficulty,
+    )
     return undefined!
 }

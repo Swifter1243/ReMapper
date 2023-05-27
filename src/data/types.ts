@@ -1,7 +1,5 @@
 // deno-lint-ignore ban-types
 
-import { AbstractDifficulty } from '../beatmap/abstract_beatmap.ts'
-
 export interface JsonWrapper<TV2 extends object, TV3 extends object> {
     toJson(v3: true): TV3
     toJson(v3: false): TV2
@@ -340,11 +338,5 @@ export type DIFFPATH = FILEPATH<DIFFS>
 
 /** Filename for a difficulty. Extension is optional. */
 export type DIFFNAME = FILENAME<DIFFS>
-
-export type PostProcessFn<T> = (
-    object: T,
-    diff: AbstractDifficulty,
-    json: ReturnType<AbstractDifficulty['toJSON']>,
-) => void
 
 export type LightID = number | number[]

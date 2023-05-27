@@ -9,19 +9,16 @@ import { RMJson } from '../rm_json.ts'
 import {
     DIFFNAME,
     DIFFPATH,
-    PostProcessFn,
     REQUIRE_MODS,
     SUGGEST_MODS,
     TJson,
 } from '../data/types.ts'
 import { saveInfoDat, settings } from '../data/beatmap_handler.ts' // TODO: Cyclic, fix
 import { bsmap } from '../deps.ts'
-import {
-    AnimationInternals,
-    CustomEventInternals,
-    EnvironmentInternals,
-    EventInternals,
-} from '../internals/mod.ts'
+import * as AnimationInternals from '../internals/animation.ts'
+import * as CustomEventInternals from '../internals/customEvent.ts'
+import * as EnvironmentInternals from '../internals/environment.ts'
+import * as EventInternals from '../internals/event.ts'
 import { jsonPrune } from '../utils/json.ts'
 import { setDecimals } from '../utils/math.ts'
 
@@ -39,6 +36,12 @@ export interface RMDifficulty {
     environment: Environment[]
     geometry: Geometry[]
 }
+
+export type PostProcessFn<T> = (
+    object: T,
+    diff: AbstractDifficulty,
+    json: ReturnType<AbstractDifficulty['toJSON']>,
+) => void
 
 export abstract class AbstractDifficulty<
     TD extends bsmap.v2.IDifficulty | bsmap.v3.IDifficulty =

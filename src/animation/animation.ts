@@ -1,5 +1,5 @@
 // deno-lint-ignore-file
-import { AnimationInternals } from '../internals/mod.ts'
+import * as AnimationInternals from '../internals/animation.ts'
 
 /**
  * State that this animation is for a note.

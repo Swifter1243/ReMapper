@@ -1,4 +1,4 @@
-import { LightRemapperInternals } from '../internals/mod.ts'
+import * as LightRemapperInternals from '../internals/light_remapper.ts'
 import { arrHas } from '../utils/array_utils.ts'
 import { LightID } from '../data/types.ts'
 

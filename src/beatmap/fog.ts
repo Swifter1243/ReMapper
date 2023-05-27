@@ -1,5 +1,5 @@
 // deno-lint-ignore-file no-extra-semi
-import { CustomEventInternals } from '../internals/mod.ts'
+import * as CustomEventInternals from '../internals/customEvent.ts'
 import { animateComponent } from './custom_event.ts'
 import { ComplexKeyframesLinear, KeyframesLinear } from '../data/types.ts'
 

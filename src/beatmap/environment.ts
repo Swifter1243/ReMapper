@@ -1,4 +1,5 @@
-import { AnimationInternals, EnvironmentInternals } from '../internals/mod.ts'
+import * as AnimationInternals from '../internals/animation.ts'
+import * as EnvironmentInternals from '../internals/environment.ts'
 import { bsmap } from '../deps.ts'
 import { animateTrack } from './custom_event.ts'
 import {

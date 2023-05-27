@@ -1,5 +1,5 @@
 import { EventGroup, InterscopeGroup } from '../data/constants.ts'
-import { EventInternals } from '../internals/mod.ts'
+import * as EventInternals from '../internals/event.ts'
 import { Fields } from '../data/types.ts'
 
 type LightParameters =

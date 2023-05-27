@@ -34,7 +34,7 @@ import { Color, lerpColor } from '../data/color.ts'
 
 import { Keyframe } from './keyframe.ts'
 
-import { AnimationInternals } from '../internals/mod.ts'
+import * as AnimationInternals from '../internals/animation.ts'
 
 /**
  * Ensures that this value is in the format of an array of keyframes.
