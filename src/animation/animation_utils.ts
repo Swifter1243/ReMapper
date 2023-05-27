@@ -37,6 +37,7 @@ import { Keyframe } from './keyframe.ts'
 import * as AnimationInternals from '../internals/animation.ts'
 import {NumberTuple} from "../types/util_types.ts";
 import {TransformKeyframe, Vec3, Vec4} from "../types/data_types.ts";
+import { copy } from '../utils/general.ts'
 
 /**
  * Ensures that this value is in the format of an array of keyframes.
@@ -215,17 +216,17 @@ export function combineAnimations(
     anim2: RawKeyframesAny,
     property: AnimationKeys,
 ) {
-    let simpleArr = structuredClone(anim1)
+    let simpleArr = copy(anim1)
     let complexArr: ComplexKeyframesAny = []
 
     if (isSimple(anim1) && isSimple(anim2)) complexArr = complexifyArray(anim2)
     else if (!isSimple(anim1) && isSimple(anim2)) {
-        simpleArr = structuredClone(anim2)
-        complexArr = structuredClone(anim1) as ComplexKeyframesAny
+        simpleArr = copy(anim2)
+        complexArr = copy(anim1) as ComplexKeyframesAny
     } else if (!isSimple(anim1) && !isSimple(anim2)) {
         console.error(`[${anim1}] and [${anim2}] are unable to combine!`)
     } else {
-        complexArr = structuredClone(anim2) as ComplexKeyframesAny
+        complexArr = copy(anim2) as ComplexKeyframesAny
     }
 
     const editElem = function (e: number, e2: number) {
@@ -283,9 +284,9 @@ export function bakeAnimation(
     animation.scale ??= [1, 1, 1]
 
     const dataAnim = new AnimationInternals.AbstractAnimation()
-    dataAnim.position = structuredClone(animation.pos)
-    dataAnim.rotation = structuredClone(animation.rot)
-    dataAnim.scale = structuredClone(animation.scale)
+    dataAnim.position = copy(animation.pos)
+    dataAnim.rotation = copy(animation.rot)
+    dataAnim.scale = copy(animation.scale)
 
     const data = {
         pos: <number[][]> [],
@@ -359,7 +360,7 @@ export function reverseAnimation<T extends NumberTuple>(
     if (isSimple(animation)) return animation
     const keyframes: Keyframe[] = []
     ;(animation as ComplexKeyframesAbstract<T>).forEach((x, i) => {
-        const k = new Keyframe(structuredClone(x))
+        const k = new Keyframe(copy(x))
         k.time = 1 - k.time
         keyframes[animation.length - 1 - i] = k
     })
@@ -415,7 +416,7 @@ export function mirrorAnimation<T extends NumberTuple>(
     const output: Keyframe[] = []
 
     iterateKeyframes(animation, (x) => {
-        const k = new Keyframe(structuredClone(x))
+        const k = new Keyframe(copy(x))
         k.time = k.time / 2
         output.push(k)
     })

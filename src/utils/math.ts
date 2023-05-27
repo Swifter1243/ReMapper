@@ -1,10 +1,11 @@
 // deno-lint-ignore-file no-extra-semi
-import {three} from "../deps.ts";
-import * as easings from "../data/easings.ts";
-import {EASE} from "../types/animation_types.ts";
+import { three } from '../deps.ts'
+import * as easings from '../data/easings.ts'
+import { EASE } from '../types/animation_types.ts'
 
-import {arrAdd, arrMul, arrSubtract, toArr} from "./array_utils.ts";
-import {Bounds, Transform, Vec3} from "../types/data_types.ts";
+import { arrAdd, arrMul, arrSubtract, toArr } from './array_utils.ts'
+import { Bounds, Transform, Vec3 } from '../types/data_types.ts'
+import { copy } from './general.ts'
 
 export const EPSILON = 1e-3
 
@@ -81,7 +82,7 @@ export function lerpRotation(
  */
 export function rotFromQuaternion(q: three.Quaternion) {
     let euler = new three.Euler(0, 0, 0, 'YXZ').setFromQuaternion(q)
-        .toArray()
+        .toArray() as number[]
     euler.pop()
     euler = toDegrees(euler)
     return euler as Vec3
@@ -127,6 +128,7 @@ export function rand(start: number, end: number, roundResult?: number) {
  */
 export const round = (input: number, number: number) =>
     Math.round(input / number) * number
+
 /**
  * Floors a number to the nearest multiple of another number.
  * @param input Number to floor.
@@ -134,6 +136,7 @@ export const round = (input: number, number: number) =>
  */
 export const floorTo = (input: number, number: number) =>
     Math.floor(input / number) * number
+
 /**
  * Ceils a number to the nearest multiple of another number.
  * @param input Number to ceil.
@@ -225,11 +228,13 @@ export function toDegrees<T extends number[] | []>(values: T) {
  * @param v Array to convert.
  */
 export const toVec3 = (v: Vec3) => new three.Vector3(...v)
+
 /**
  * Converts a three number array to three Euler.
  * @param v Array to convert.
  */
 export const toEuler = (v: Vec3) => new three.Euler(...toRadians(v), 'YXZ')
+
 /**
  * Converts a three number array to three Quaternion.
  * @param v Array to convert.
@@ -279,8 +284,8 @@ export function combineTransforms(
     transform: Transform,
     anchor: Vec3 = [0, 0, 0],
 ) {
-    target = structuredClone(target)
-    transform = structuredClone(transform)
+    target = copy(target)
+    transform = copy(transform)
 
     target.pos ??= [0, 0, 0]
     target.pos = arrSubtract(target.pos, anchor)
@@ -329,8 +334,8 @@ export function getBoxBounds(boxes: Transform | Transform[]): Bounds {
             c = arrAdd(c, pos)
 
             if (lowBound === undefined) {
-                lowBound = structuredClone(c)
-                highBound = structuredClone(c)
+                lowBound = copy(c)
+                highBound = copy(c)
                 return
             }
 
@@ -396,5 +401,5 @@ export function getJumps(NJS: number, offset: number, BPM: number) {
     const jumpDur = halfDur * 2 * oneBeatDur
     const jumpDist = NJS * jumpDur
 
-    return {halfDur: halfDur, dist: jumpDist}
+    return { halfDur: halfDur, dist: jumpDist }
 }

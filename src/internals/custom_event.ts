@@ -15,6 +15,7 @@ import { Track } from '../animation/track.ts'
 import { AbstractAnimation, BaseAnimation } from './animation.ts'
 import {Fields, TJson} from "../types/util_types.ts";
 import {JsonWrapper} from "../types/beatmap_types.ts";
+import { copy } from '../utils/general.ts'
 
 export abstract class BaseCustomEvent<
     TV2 extends bsmap.v2.ICustomEvent,
@@ -36,7 +37,7 @@ export abstract class BaseCustomEvent<
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        activeDiffGet().customEvents.push(clone ? structuredClone(this) : this)
+        activeDiffGet().customEvents.push(clone ? copy(this) : this)
         return this
     }
 
@@ -146,7 +147,7 @@ export class AnimateTrack extends BaseCustomEvent<
         if (params.track) this.track.value = params.track
         if (params.duration) this.duration = params.duration
         if (params.animation) {
-            this.animate.properties = structuredClone(
+            this.animate.properties = copy(
                 params.animation.properties,
             )
         }
@@ -252,7 +253,7 @@ export class AssignPathAnimation extends BaseCustomEvent<
         if (params.track) this.track.value = params.track
         if (params.duration) this.duration = params.duration
         if (params.animation) {
-            this.animate.properties = structuredClone(
+            this.animate.properties = copy(
                 params.animation.properties,
             )
         }

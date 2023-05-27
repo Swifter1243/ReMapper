@@ -172,22 +172,6 @@ export function eventsBetween(
 }
 
 /**
- * Copies @param obj with the new properties in @param overwrite
- * @param obj Original
- * @param overwrite New values
- * @returns The copy
- */
-export function copyWith<T extends Record<string | number | symbol, never>>(
-    obj: T,
-    overwrite: Partial<T>,
-) {
-    const copied = structuredClone(obj)
-    Object.assign(copied, overwrite)
-
-    return copied
-}
-
-/**
  * Log a message as ReMapper, displaying seconds.
  * @param message Message to log.
  */

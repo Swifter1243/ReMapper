@@ -35,6 +35,7 @@ import {optimizeAnimation, OptimizeSettings} from "../animation/anim_optimizer.t
 import {bakeAnimation, complexifyArray, iterateKeyframes, mirrorAnimation} from "../animation/animation_utils.ts";
 import {FILEPATH} from "../types/beatmap_types.ts";
 import {Vec3, Vec4} from "../types/data_types.ts";
+import { copy } from '../utils/general.ts';
 
 
 let modelSceneCount = 0
@@ -208,13 +209,13 @@ export class ModelScene {
 
                         // Applying transformation to each keyframe
                         for (let i = 0; i < x.pos.length; i++) {
-                            let objPos = structuredClone(
+                            let objPos = copy(
                                 x.pos[i],
                             ) as KeyframeValues
-                            let objRot = structuredClone(
+                            let objRot = copy(
                                 x.rot[i],
                             ) as KeyframeValues
-                            let objScale = structuredClone(
+                            let objScale = copy(
                                 x.scale[i],
                             ) as KeyframeValues
                             objPos.pop()
@@ -384,7 +385,7 @@ export class ModelScene {
     ) => object ? `modelScene${this.trackID}_${track}_${index}` : track
 
     private getFirstValues(keyframes: RawKeyframesVec3) {
-        const complexTransform = complexifyArray(structuredClone(keyframes))[0]
+        const complexTransform = complexifyArray(copy(keyframes))[0]
         return [
             complexTransform[0],
             complexTransform[1],
@@ -448,7 +449,7 @@ export class ModelScene {
 
                 // Creating objects
                 if (group.object) {
-                    const object = structuredClone(group.object)
+                    const object = copy(group.object)
 
                     if (group.defaultMaterial) {
                         const materialName =
@@ -703,7 +704,7 @@ export class ModelScene {
                 }
 
                 for (let i = 0; i < objectInfo.max; i++) {
-                    const object = structuredClone(group.object)
+                    const object = copy(group.object)
                     object.track.value = this.getPieceTrack(
                         group.object,
                         groupKey,

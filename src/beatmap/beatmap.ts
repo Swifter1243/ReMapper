@@ -11,6 +11,7 @@ import { parseFilePath, RMLog } from '../general.ts'
 import { Environment } from './environment.ts'
 import type { RMDifficulty } from './abstract_beatmap.ts'
 import {DIFFPATH, DIFFS, FILENAME} from "../types/beatmap_types.ts";
+import { copy } from '../utils/general.ts'
 
 /**
  * Converts an array of Json objects to a class counterpart.
@@ -41,7 +42,7 @@ export async function collectBeatmapFiles(
 ) {
     if (!info) throw new Error('The Info object has not been loaded.')
 
-    const exportInfo = structuredClone(info)
+    const exportInfo = copy(info)
     const unsanitizedFiles: (string | undefined)[] = [
         exportInfo._songFilename,
         exportInfo._coverImageFilename,

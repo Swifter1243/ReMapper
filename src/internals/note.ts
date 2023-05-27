@@ -7,6 +7,7 @@ import {noteAnimation} from "../animation/animation.ts";
 import {BaseGameplayObject, BaseSliderObject} from "./object.ts";
 import {Fields} from "../types/util_types.ts";
 import {Vec2} from "../types/data_types.ts";
+import { copy } from "../utils/general.ts";
 
 export abstract class BaseNote<
     TV3 extends bsmap.v3.IColorNote | bsmap.v3.IBombNote,
@@ -70,7 +71,7 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        activeDiffGet().notes.push(clone ? structuredClone(this) : this)
+        activeDiffGet().notes.push(clone ? copy(this) : this)
         return this
     }
 
@@ -150,7 +151,7 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        activeDiffGet().bombs.push(clone ? structuredClone(this) : this)
+        activeDiffGet().bombs.push(clone ? copy(this) : this)
         return this
     }
 
@@ -239,7 +240,7 @@ export class Chain extends BaseSliderObject<bsmap.v3.IBurstSlider> {
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        activeDiffGet().chains.push(clone ? structuredClone(this) : this)
+        activeDiffGet().chains.push(clone ? copy(this) : this)
         return this
     }
 
@@ -372,7 +373,7 @@ export class Arc extends BaseSliderObject<bsmap.v3.ISlider> {
      * Push this arc to the difficulty
      */
     push(clone = true) {
-        activeDiffGet().arcs.push(clone ? structuredClone(this) : this)
+        activeDiffGet().arcs.push(clone ? copy(this) : this)
         return this
     }
 

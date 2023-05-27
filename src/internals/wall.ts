@@ -8,6 +8,7 @@ import {wallAnimation} from "../animation/animation.ts";
 import {BaseGameplayObject} from "./object.ts";
 import {Fields} from "../types/util_types.ts";
 import {Vec3} from "../types/data_types.ts";
+import { copy } from "../utils/general.ts";
 
 export class Wall
     extends BaseGameplayObject<bsmap.v2.IObstacle, bsmap.v3.IObstacle> {
@@ -74,7 +75,7 @@ export class Wall
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        activeDiffGet().walls.push(clone ? structuredClone(this) : this)
+        activeDiffGet().walls.push(clone ? copy(this) : this)
         return this
     }
 

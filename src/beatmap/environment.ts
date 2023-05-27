@@ -12,6 +12,7 @@ import {
 import {GeometryMaterial, GeoType, Lookup} from '../types/environment_types.ts'
 import { activeDiffGet } from '../data/beatmap_handler.ts'
 import { combineAnimations } from "../animation/animation_utils.ts";
+import { copy } from '../utils/general.ts'
 
 let envCount = 0
 
@@ -20,7 +21,7 @@ export class Environment extends EnvironmentInternals.BaseEnvironmentEnhancement
     bsmap.v3.IChromaEnvironmentID
 > {
     push(clone = true): void {
-        activeDiffGet().environment.push(clone ? structuredClone(this) : this)
+        activeDiffGet().environment.push(clone ? copy(this) : this)
     }
 
     /**
@@ -91,7 +92,7 @@ export class Geometry extends EnvironmentInternals.BaseEnvironmentEnhancement<
     bsmap.v3.IChromaEnvironmentGeometry
 > {
     push(clone = true): void {
-        activeDiffGet().geometry.push(clone ? structuredClone(this) : this)
+        activeDiffGet().geometry.push(clone ? copy(this) : this)
     }
 
     /**

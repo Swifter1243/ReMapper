@@ -11,6 +11,7 @@ import {noteAnimation} from "../animation/animation.ts";
 import {Fields, ObjectFields} from "../types/util_types.ts";
 import {ColorVec, Vec2, Vec3} from "../types/data_types.ts";
 import {JsonWrapper} from "../types/beatmap_types.ts";
+import { copy } from '../utils/general.ts';
 
 
 export abstract class BaseObject<
@@ -140,7 +141,7 @@ export abstract class BaseGameplayObject<
 
     isGameplayModded() {
         if (this.customData === undefined) return false
-        const customData = structuredClone(this.customData)
+        const customData = copy(this.customData)
         jsonRemove(customData, 'color')
         jsonRemove(customData, 'spawnEffect')
         jsonRemove(customData, 'animation.color')

@@ -2,6 +2,7 @@ import * as LightRemapperInternals from '../internals/light_remapper.ts'
 import { arrHas } from '../utils/array_utils.ts'
 
 import {LightID} from "../types/environment_types.ts";
+import { copy } from '../utils/general.ts';
 
 export class LightRemapper extends LightRemapperInternals.BaseLightRemapper {
     private complexifyLightIDs(
@@ -216,7 +217,7 @@ function solveLightMap(map: number[][], ids: number[]) {
 
 // This too, I cba to add type stuff here cause IDK how it works lol
 function applyLightMap(map: (number | number[])[], ids: number[]) {
-    map = structuredClone(map)
+    map = copy(map)
     const offset = map.splice(0, 1)[0]
 
     // deno-lint-ignore no-explicit-any

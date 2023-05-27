@@ -20,6 +20,7 @@ import {Wall} from "../internals/wall.ts";
 import {getModel} from "./model.ts";
 import {ModelObject} from "../types/model_types.ts";
 import {Vec3} from "../types/data_types.ts";
+import { copy } from "../utils/general.ts";
 
 let modelToWallCount = 0
 
@@ -186,7 +187,7 @@ export async function modelToWall(
         )
     } else {
         objects = input.map((x, i) => {
-            x = structuredClone(x)
+            x = copy(x)
             const animated = isAnimated(x)
 
             const anim = bakeAnimation(
@@ -217,7 +218,7 @@ export async function modelToWall(
     }
 
     objects.forEach((x, i) => {
-        const o = structuredClone(w)
+        const o = copy(w)
 
         o.animation.definitePosition = x.pos
         if (x.color) o.color = x.color
