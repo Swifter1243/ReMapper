@@ -2,6 +2,7 @@ import { bsmap } from '../deps.ts'
 import { Track } from '../animation/track.ts'
 import {Vec3} from "../types/data_types.ts";
 import {JsonWrapper} from "../types/beatmap_types.ts";
+import { Cloneable } from '../mod.ts';
 
 export type AbstractEnvironment = BaseEnvironmentEnhancement<
     bsmap.v2.IChromaEnvironmentBase,
@@ -11,7 +12,9 @@ export type AbstractEnvironment = BaseEnvironmentEnhancement<
 export abstract class BaseEnvironmentEnhancement<
     TV2 extends bsmap.v2.IChromaEnvironmentBase,
     TV3 extends bsmap.v3.IChromaEnvironmentBase,
-> implements JsonWrapper<TV2, TV3> {
+> implements JsonWrapper<TV2, TV3>, Cloneable<BaseEnvironmentEnhancement<TV2, TV3>>, Cloneable<BaseEnvironmentEnhancement<TV2, TV3>> {
+    abstract clone(): BaseEnvironmentEnhancement<TV2, TV3>;
+    
     /** Push this environment/geometry object to the difficulty.
      * @param clone Whether this object will be copied before being pushed.
      */

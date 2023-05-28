@@ -1,12 +1,13 @@
-import {EventAction, EventGroup} from '../data/constants.ts'
-import {bsmap} from '../deps.ts'
-import {EASE} from '../types/animation_types.ts'
-import {BaseObject} from './object.ts'
-import {activeDiffGet} from '../data/beatmap_handler.ts'
-import {ObjectFields} from "../types/util_types.ts";
-import {LightID} from "../types/environment_types.ts";
-import {ColorVec} from "../types/data_types.ts";
+import { EventAction, EventGroup } from '../data/constants.ts'
+import { bsmap } from '../deps.ts'
+import { EASE } from '../types/animation_types.ts'
+import { BaseObject } from './object.ts'
+import { activeDiffGet } from '../data/beatmap_handler.ts'
+import { ObjectFields } from '../types/util_types.ts'
+import { LightID } from '../types/environment_types.ts'
+import { ColorVec } from '../types/data_types.ts'
 import { copy } from '../utils/general.ts'
+import { Cloneable } from '../types/beatmap_types.ts'
 
 type LightFields<T extends { customData: T['customData'] }> =
     & Omit<ObjectFields<T>, 'floatValue'>
@@ -17,7 +18,7 @@ type LightFields<T extends { customData: T['customData'] }> =
 export abstract class BaseEvent<
     TV2 extends bsmap.v2.IEvent,
     TV3 extends bsmap.v3.IBasicEvent,
-> extends BaseObject<TV2, TV3> {
+> extends BaseObject<TV2, TV3> implements Cloneable<BaseEvent<TV2, TV3>> {
     /** The bare minimum event. */
 
     constructor(obj: LightFields<BaseEvent<TV2, TV3>>) {
@@ -25,11 +26,13 @@ export abstract class BaseEvent<
         this.floatValue ??= 1
     }
 
+    abstract clone(): BaseEvent<TV2, TV3>
+
     /** Push this event to the difficulty
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        activeDiffGet().events.push(clone ? copy(this) : this)
+        activeDiffGet().events.push(clone ? this.clone() : this)
         return this
     }
 
@@ -47,6 +50,16 @@ export abstract class BaseEvent<
 
 export class LightEvent
     extends BaseEvent<bsmap.v2.IEventLight, bsmap.v3.IBasicEventLight> {
+    clone(): LightEvent {
+        return new LightEvent({
+            time: this.time,
+            type: this.type,
+            value: this.value,
+            customData: this.customData && copy(this.customData),
+            floatValue: this.floatValue,
+        })
+    }
+
     /** Create an event that turns lights off
      * @param lightID The lightIDs to target.
      */
@@ -169,7 +182,20 @@ export class LightEvent
 // })
 
 export class LaserSpeedEvent
-    extends BaseEvent<bsmap.v2.IEventLaser, bsmap.v3.IBasicEventLaserRotation> {
+    extends BaseEvent<bsmap.v2.IEventLaser, bsmap.v3.IBasicEventLaserRotation>
+    implements Cloneable<LaserSpeedEvent> {
+    clone(): LaserSpeedEvent {
+        return new LaserSpeedEvent({
+            time: this.time,
+            type: this.type,
+            value: this.value,
+            customData: this.customData && copy(this.customData),
+            floatValue: this.floatValue,
+            direction: this.direction,
+            lockRotation: this.lockRotation,
+            speed: this.speed,
+        })
+    }
     /**
      * Controls rotating laser speed.
      * @param json Json to import.
@@ -226,7 +252,19 @@ export class LaserSpeedEvent
 }
 
 export class RingZoomEvent
-    extends BaseEvent<bsmap.v2.IEventZoom, bsmap.v3.IBasicEventRing> {
+    extends BaseEvent<bsmap.v2.IEventZoom, bsmap.v3.IBasicEventRing>
+    implements Cloneable<RingZoomEvent> {
+    clone(): RingZoomEvent {
+        return new RingZoomEvent({
+            time: this.time,
+            value: this.value,
+            customData: this.customData && copy(this.customData),
+            floatValue: this.floatValue,
+            speed: this.speed,
+            step: this.step,
+        })
+    }
+
     /**
      * Controls ring zoom.
      * @param json Json to import.
@@ -275,7 +313,8 @@ export class RingZoomEvent
 }
 
 export class RingSpinEvent
-    extends BaseEvent<bsmap.v2.IEventRing, bsmap.v3.IBasicEventRing> {
+    extends BaseEvent<bsmap.v2.IEventRing, bsmap.v3.IBasicEventRing>
+    implements Cloneable<RingSpinEvent> {
     /**
      * Controls spinning the rings.
      * @param json Json to import.
@@ -295,6 +334,20 @@ export class RingSpinEvent
         this.type = EventGroup.RING_SPIN
     }
 
+    clone(): RingSpinEvent {
+        return new RingSpinEvent({
+            time: this.time,
+            value: this.value,
+            customData: this.customData && copy(this.customData),
+            floatValue: this.floatValue,
+            direction: this.direction,
+            nameFilter: this.nameFilter,
+            prop: this.prop,
+            rotation: this.rotation,
+            speed: this.speed,
+            step: this.step,
+        })
+    }
     /** The speed multiplier of the spin. */
 
     speed?: number
@@ -353,7 +406,7 @@ export class RingSpinEvent
 export class RotationEvent extends BaseEvent<
     bsmap.v2.IEventLaneRotation,
     bsmap.v3.IBasicEventLaneRotation
-> {
+> implements Cloneable<RotationEvent> {
     /**
      * Event to spin the gameplay objects in the map.
      * The new rotation events should be used instead.
@@ -363,6 +416,16 @@ export class RotationEvent extends BaseEvent<
      */
     constructor(obj: LightFields<RotationEvent>) {
         super(obj)
+    }
+
+    clone(): RotationEvent {
+        return new RotationEvent({
+            time: this.time,
+            type: this.type,
+            value: this.value,
+            customData: this.customData && copy(this.customData),
+            floatValue: this.floatValue,
+        })
     }
 
     toJson(v3: true): bsmap.v3.IBasicEventLaneRotation

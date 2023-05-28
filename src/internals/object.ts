@@ -13,6 +13,7 @@ import {ColorVec, Vec2, Vec3} from "../types/data_types.ts";
 import {JsonWrapper} from "../types/beatmap_types.ts";
 import { copy } from '../utils/general.ts';
 import * as AnimationInternals from "./animation.ts";
+import { Cloneable } from '../types/beatmap_types.ts';
 
 export type ExcludeObjectFields = { 
     NJS: never,
@@ -22,7 +23,7 @@ export type ExcludeObjectFields = {
 export abstract class BaseObject<
     TV2 extends bsmap.v2.IBaseObject,
     TV3 extends bsmap.v3.IBaseObject,
-> implements JsonWrapper<TV2, TV3> {
+> implements JsonWrapper<TV2, TV3>, Cloneable<BaseObject<TV2, TV3>> {
     /** The time that this object is scheduled for. */
     time: number
     /** Any community made data on this object. */
@@ -35,10 +36,13 @@ export abstract class BaseObject<
         this.customData = obj.customData ?? {}
     }
 
+    
     /** Checks if the object has modded properties. */
     isModded() {
         return this.customData && !isEmptyObject(this.customData)
     }
+    
+    abstract clone(): BaseObject<TV2, TV3>;
 
     abstract toJson(v3: true): TV3
     abstract toJson(v3: false): TV2

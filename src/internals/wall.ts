@@ -5,13 +5,38 @@ import {activeDiffGet} from "../data/beatmap_handler.ts";
 import {wallAnimation} from "../animation/animation.ts";
 
 
-import {BaseGameplayObject, ExcludeObjectFields} from "./object.ts";
+import {BaseGameplayObject, BaseObject, ExcludeObjectFields} from "./object.ts";
 import {Fields} from "../types/util_types.ts";
 import {Vec3} from "../types/data_types.ts";
 import { copy } from "../utils/general.ts";
+import { Cloneable } from "../types/beatmap_types.ts";
 
 export class Wall
-    extends BaseGameplayObject<bsmap.v2.IObstacle, bsmap.v3.IObstacle> {
+    extends BaseGameplayObject<bsmap.v2.IObstacle, bsmap.v3.IObstacle> implements Cloneable<Wall> {
+    clone(): Wall {
+        return new Wall({
+            animation: this.animation.clone(),
+            color: this.color && [...this.color],
+            coordinates: this.coordinates && [...this.coordinates],
+            customData: this.customData && copy(this.customData),
+            fake: this.fake,
+            interactable: this.interactable,
+            time: this.time,
+            lineIndex: this.lineIndex,
+            lineLayer: this.lineLayer,
+            localNJS: this.localNJS,
+            localOffset: this.localOffset,
+            localRotation: this.localRotation && [...this.localRotation],
+            track: this.track.clone(),
+            rotation: this.rotation && [...this.rotation],
+            duration: this.duration,
+            height: this.height,
+            life: this.life,
+            scale: this.scale && [...this.scale],
+            width: this.width,
+
+        })
+    }
     toJson(v3: true): bsmap.v3.IObstacle
     toJson(v3: false): bsmap.v2.IObstacle
     toJson(v3: boolean): bsmap.v2.IObstacle | bsmap.v3.IObstacle {
@@ -79,7 +104,7 @@ export class Wall
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        activeDiffGet().walls.push(clone ? copy(this) : this)
+        activeDiffGet().walls.push(clone ? this.clone() : this)
         return this
     }
 

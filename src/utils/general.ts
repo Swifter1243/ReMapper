@@ -1,4 +1,7 @@
 // deno-lint-ignore-file no-explicit-any
+
+import { Cloneable } from "../types/beatmap_types.ts"
+
 /**
  * Copies @param obj with the new properties in @param overwrite
  * @param obj Original
@@ -23,7 +26,10 @@ export function copyWith<T extends Record<string | number | symbol, never>>(
 export function copy<T>(obj: T): T {
     if (obj === null || obj === undefined || typeof obj !== 'object') return obj
 
-    Object.getPrototypeOf(obj)
+    if (Object.hasOwn(obj, "clone")) {
+        return (obj as unknown as Cloneable<T>).clone();
+    }
+
     const newObj = Object.create(obj)
 
     const entries = Object.entries(obj) as [keyof T, any]
