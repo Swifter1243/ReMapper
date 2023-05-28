@@ -1,9 +1,15 @@
-import { V2Difficulty } from '../src/beatmap/beatmap_v2.ts'
-import { bsmap } from '../src/deps.ts'
+import { notesBetween } from '../src/general.ts'
+import {
+    activeDiffSet,
+    bsmap,
+    copy,
+    note,
+    NoteType,
+    rand,
+    V2Difficulty,
+} from '../src/mod.ts'
 
 import * as remapperv2 from 'https://deno.land/x/remapper@2.1.0/src/mod.ts'
-import {rand} from "../src/utils/math.ts";
-import {activeDiffSet} from "../src/data/beatmap_handler.ts";
 
 // TODO: Seed, otherwise results will NEVER be consistent
 const notes: bsmap.v2.INote[] = [...Array(1000).keys()].map(() => ({
@@ -38,6 +44,77 @@ Deno.bench('rm4.parseJSON', { group: 'parseJSON' }, () => {
     new V2Difficulty(undefined!, undefined!, undefined!, undefined!, json)
 })
 Deno.bench('rm2.parseJSON', { group: 'parseJSON' }, () => {
+    rm2ParseJson()
+})
+
+const diff = new V2Difficulty(
+    undefined!,
+    undefined!,
+    undefined!,
+    undefined!,
+    json,
+)
+
+resetToEmptyDiff()
+
+Deno.bench('rm4.save', { group: 'save' }, () => {
+    diff.toJSON()
+})
+Deno.bench('rm2.save', { group: 'save' }, () => {
+    remapperv2Save()
+})
+
+resetToEmptyDiff()
+
+Deno.bench('rm4.notePushObj', { group: 'notePush' }, () => {
+    note({
+        time: rand(0, 1000),
+        fake: rand(0, 2) === 0,
+        lineIndex: 3,
+        lineLayer: 2,
+        direction: rand(0, 8),
+        type: NoteType.BLUE,
+    }).push()
+})
+Deno.bench('rm4.notePushArgs', { group: 'notePush' }, () => {
+    const n = note(rand(0, 1000), NoteType.BLUE)
+
+    n.lineIndex = 3
+    n.lineLayer = 2
+    n.direction = rand(0, 8)
+    n.fake = rand(0, 2) === 0
+
+    n.push()
+})
+Deno.bench('rm2.notePush', { group: 'notePush' }, () => {
+    const n = new remapperv2.Note(rand(0, 1000), remapperv2.NOTE.BLUE)
+
+    n.position = [3, 2]
+    n.direction = rand(0, 8)
+    n.fake = rand(0, 2) === 0
+
+    n.push()
+})
+
+// Using the same variable is intentional, as that means we are benchmarking
+// the copy function itself
+Deno.bench('rm4.copy', { group: 'copy' }, () => {
+    copy(diff)
+    copy(v2OldDiff)
+})
+Deno.bench('rm2.copy', { group: 'copy' }, () => {
+    remapperv2.copy(diff)
+    remapperv2.copy(v2OldDiff)
+})
+
+Deno.bench('rm4.notesBetween', { group: 'notesBetween' }, () => {
+    notesBetween(0, 10000)
+})
+Deno.bench('rm2.notesBetween', { group: 'notesBetween' }, () => {
+    remapperv2.notesBetween(0, 10000, (n) => n)
+})
+
+function rm2ParseJson() {
     // This affects the performance of the benchmark
     // but it is necessary
     // the results without it change drastically
@@ -85,24 +162,16 @@ Deno.bench('rm2.parseJSON', { group: 'parseJSON' }, () => {
     if (remapperv2.activeDiffGet().version === undefined) {
         v2OldDiff.version = '2.2.0'
     }
+
     // new V2Difficulty(undefined!, undefined!, undefined!, undefined!, json, ["_notes"])
-})
+}
 
-const diff = new V2Difficulty(
-    undefined!,
-    undefined!,
-    undefined!,
-    undefined!,
-    json,
-)
+function resetToEmptyDiff() {
+    activeDiffSet(copy(diff))
+    remapperv2.activeDiffSet(remapperv2.copy(v2OldDiff))
+}
 
-remapperv2.activeDiffSet(remapperv2.copy(v2OldDiff))
-activeDiffSet(diff)
-
-Deno.bench('rm4.save', { group: 'save' }, () => {
-    diff.toJSON()
-})
-Deno.bench('rm2.save', { group: 'save' }, () => {
+function remapperv2Save() {
     const outputJSON = {} as Record<string, any>
     Object.keys(v2OldDiff.json).forEach((x) => {
         if (
@@ -174,4 +243,4 @@ Deno.bench('rm2.save', { group: 'save' }, () => {
     remapperv2.sortObjects(outputJSON._notes, '_time')
     remapperv2.sortObjects(outputJSON._obstacles, '_time')
     // v2DumbDiff.save()
-})
+}

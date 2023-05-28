@@ -1,9 +1,15 @@
-import { V3Difficulty } from '../src/beatmap/beatmap_v3.ts'
-import { bsmap } from '../src/deps.ts'
+import {
+    activeDiffSet,
+    bsmap,
+    copy,
+    note,
+    notesBetween,
+    NoteType,
+    rand,
+    V3Difficulty,
+} from '../src/mod.ts'
 
 import * as remapperv3 from 'https://deno.land/x/remapper@3.1.1/src/mod.ts'
-
-import {rand} from "../src/utils/math.ts";
 
 const notes: bsmap.v3.IColorNote[] = [...Array(1000).keys()].map(() => ({
     b: rand(0, 1000),
@@ -45,13 +51,87 @@ Deno.bench('rm4.parseJSON', { group: 'parseJSON' }, () => {
     new V3Difficulty(undefined!, undefined!, undefined!, undefined!, json)
 })
 Deno.bench('rm3.parseJSON', { group: 'parseJSON' }, () => {
+    rm3ParseJson()
+})
+
+const diff = new V3Difficulty(
+    undefined!,
+    undefined!,
+    undefined!,
+    undefined!,
+    json,
+)
+
+remapperv3.activeDiffSet(remapperv3.copy(v3OldDiff))
+
+Deno.bench('rm4.save', { group: 'save' }, () => {
+    diff.toJSON()
+})
+Deno.bench('rm3.save', { group: 'save' }, () => remapperv3Save())
+
+resetToEmptyDiff()
+
+Deno.bench('rm4.notePushObj', { group: 'notePush' }, () => {
+    note({
+        time: rand(0, 1000),
+        fake: rand(0, 2) === 0,
+        lineIndex: 3,
+        lineLayer: 2,
+        direction: rand(0, 8),
+        type: NoteType.BLUE,
+    }).push()
+})
+Deno.bench('rm4.notePushArgs', { group: 'notePush' }, () => {
+    const n = note(rand(0, 1000), NoteType.BLUE)
+
+    n.lineIndex = 3
+    n.lineLayer = 2
+    n.direction = rand(0, 8)
+    n.fake = rand(0, 2) === 0
+
+    n.push()
+})
+
+Deno.bench('rm3.notePush', { group: 'notePush' }, () => {
+    const n = new remapperv3.Note(rand(0, 1000), remapperv3.NOTETYPE.BLUE)
+
+    n.x = 3
+    n.y = 2
+    n.direction = rand(0, 8)
+
+    n.push(rand(0, 2) === 0)
+})
+
+// Using the same variable is intentional, as that means we are benchmarking
+// the copy function itself
+// Using the same variable is intentional, as that means we are benchmarking
+// the copy function itself
+Deno.bench('rm4.copy', { group: 'copy' }, () => {
+    copy(diff)
+    copy(v3OldDiff)
+})
+Deno.bench('rm3.copy', { group: 'copy' }, () => {
+    remapperv3.copy(diff)
+    remapperv3.copy(v3OldDiff)
+})
+
+Deno.bench('rm4.notesBetween', { group: 'notesBetween' }, () => {
+    notesBetween(0, 10000)
+})
+Deno.bench('rm3.notesBetween', { group: 'notesBetween' }, () => {
+    remapperv3.notesBetween(0, 10000, (n) => n)
+})
+
+function rm3ParseJson() {
     // remapperv3.activeDiffGet() affects the performance of the benchmark
     // but it is necessary
     // the results without it change drastically
     // remapperv3.activeDiffSet(remapperv3.copy(v3OldDiff))
 
     function transferKey(obj: remapperv3.Json, old: string, value: string) {
-        if (obj[old] === undefined) return
+        if (obj[old] === undefined) {
+            return
+        }
         obj[value] = obj[old]
         delete obj[old]
     }
@@ -158,24 +238,19 @@ Deno.bench('rm3.parseJSON', { group: 'parseJSON' }, () => {
         remapperv3.Chain,
     )
 
-    if (v3OldDiff.version === undefined) v3OldDiff.version = '3.2.0'
+    if (v3OldDiff.version === undefined) {
+        v3OldDiff.version = '3.2.0'
+    }
+
     // new remapperv3.Difficulty(undefined!, undefined!, undefined!, undefined!, json, ["_notes"])
-})
+}
 
-const diff = new V3Difficulty(
-    undefined!,
-    undefined!,
-    undefined!,
-    undefined!,
-    json,
-)
+function resetToEmptyDiff() {
+    activeDiffSet(copy(diff))
+    remapperv3.activeDiffSet(remapperv3.copy(v3OldDiff))
+}
 
-remapperv3.activeDiffSet(remapperv3.copy(v3OldDiff))
-
-Deno.bench('rm4.save', { group: 'save' }, () => {
-    diff.toJSON()
-})
-Deno.bench('rm3.save', { group: 'save' }, () => {
+function remapperv3Save() {
     const outputJSON = {} as remapperv3.Json
 
     Object.keys(remapperv3.activeDiffGet().json).forEach((x) => {
@@ -186,13 +261,17 @@ Deno.bench('rm3.save', { group: 'save' }, () => {
                 if (!outputJSON[x]) outputJSON[x] = {}
                 if (Array.isArray(remapperv3.activeDiffGet().json[x][y])) {
                     outputJSON[x][y] = []
-                } else {outputJSON[x][y] = remapperv3.copy(
+                } else {
+                    outputJSON[x][y] = remapperv3.copy(
                         remapperv3.activeDiffGet().json[x][y],
-                    )}
+                    )
+                }
             })
-        } else {outputJSON[x] = remapperv3.copy(
+        } else {
+            outputJSON[x] = remapperv3.copy(
                 remapperv3.activeDiffGet().json[x],
-            )}
+            )
+        }
     })
 
     const diffArrClassToJson = <T>(
@@ -203,7 +282,10 @@ Deno.bench('rm3.save', { group: 'save' }, () => {
 
     function gameplayArrClassToJson<T>(arr: T[], prop: string) {
         diffArrClassToJson(arr, prop, (x) => {
-            if (remapperv3.settings.forceJumpsForNoodle && x.isGameplayModded) {
+            if (
+                remapperv3.settings.forceJumpsForNoodle &&
+                x.isGameplayModded
+            ) {
                 // deno-lint-ignore no-self-assign
                 x.NJS = x.NJS
                 // deno-lint-ignore no-self-assign
@@ -216,9 +298,15 @@ Deno.bench('rm3.save', { group: 'save' }, () => {
     gameplayArrClassToJson(remapperv3.activeDiffGet().notes, 'colorNotes')
     gameplayArrClassToJson(remapperv3.activeDiffGet().bombs, 'bombNotes')
     gameplayArrClassToJson(remapperv3.activeDiffGet().arcs, 'sliders')
-    gameplayArrClassToJson(remapperv3.activeDiffGet().chains, 'burstSliders')
+    gameplayArrClassToJson(
+        remapperv3.activeDiffGet().chains,
+        'burstSliders',
+    )
     gameplayArrClassToJson(remapperv3.activeDiffGet().walls, 'obstacles')
-    diffArrClassToJson(remapperv3.activeDiffGet().events, 'basicBeatmapEvents')
+    diffArrClassToJson(
+        remapperv3.activeDiffGet().events,
+        'basicBeatmapEvents',
+    )
     diffArrClassToJson(remapperv3.activeDiffGet().BPMChanges, 'bpmEvents')
     diffArrClassToJson(
         remapperv3.activeDiffGet().rotationEvents,
@@ -301,4 +389,4 @@ Deno.bench('rm3.save', { group: 'save' }, () => {
         outputJSON.lightRotationEventBoxGroups.push(json)
     })
     // v3OldDiff.save()
-})
+}
