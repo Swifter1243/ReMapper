@@ -1,5 +1,6 @@
 // deno-lint-ignore-file no-explicit-any
-import {TJson} from "../types/util_types.ts";
+import { bsmap } from '../deps.ts'
+import { TJson } from '../types/util_types.ts'
 
 /**
  * Checks if an object is empty.
@@ -19,13 +20,12 @@ export function isEmptyObject(o: unknown): boolean {
  * @param obj Object to prune.
  */
 export function jsonPrune<T extends Record<string, any>>(obj: T) {
-    Object.keys(obj).forEach((prop) => {
-        if (obj[prop] == null) {
+    Object.entries(obj).forEach(([prop, v]) => {
+        if (v === null || v === undefined) {
             delete obj[prop]
             return
         }
 
-        const v = obj[prop]
         const type = typeof v
         if (type === 'object') {
             if (Array.isArray(v)) {
@@ -39,7 +39,7 @@ export function jsonPrune<T extends Record<string, any>>(obj: T) {
                     delete obj[prop]
                 }
             }
-        } else if (type === 'string' && (v as string).length === 0) {
+        } else if (type === 'string' && v.length === 0) {
             delete obj[prop]
         }
     })
