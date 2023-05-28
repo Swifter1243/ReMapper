@@ -30,8 +30,10 @@ export function copy<T>(obj: T): T {
         // This causes a big speed boost, reaching 50%
         // the JIT can just skip primitives with this
         // keep in mind that's practically 6ms -> 3ms, but still
-        if (typeof v !== "object") return
-
+        if (typeof v !== "object") {
+            newObj[k] = v;
+            return
+        }
         const newValue = copy(v);
         newObj[k] = newValue
     })
