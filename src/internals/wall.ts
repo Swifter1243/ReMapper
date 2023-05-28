@@ -5,7 +5,7 @@ import {activeDiffGet} from "../data/beatmap_handler.ts";
 import {wallAnimation} from "../animation/animation.ts";
 
 
-import {BaseGameplayObject} from "./object.ts";
+import {BaseGameplayObject, ExcludeObjectFields} from "./object.ts";
 import {Fields} from "../types/util_types.ts";
 import {Vec3} from "../types/data_types.ts";
 import { copy } from "../utils/general.ts";
@@ -27,7 +27,7 @@ export class Wall
                     animation: this.animation.toJson(v3),
                     size: this.scale,
                     noteJumpMovementSpeed: this.localNJS,
-                    noteJumpStartBeatOffset: this.localBeatOffset,
+                    noteJumpStartBeatOffset: this.localOffset,
                     localRotation: this.localRotation,
                     coordinates: this.coordinates,
                     worldRotation: this.rotation,
@@ -50,7 +50,7 @@ export class Wall
                 _animation: this.animation.toJson(v3),
                 _scale: this.scale,
                 _noteJumpMovementSpeed: this.localNJS,
-                _noteJumpStartBeatOffset: this.localBeatOffset,
+                _noteJumpStartBeatOffset: this.localOffset,
                 _localRotation: this.localRotation,
                 _position: this.coordinates,
                 _rotation: this.rotation,
@@ -64,7 +64,7 @@ export class Wall
     }
 
     constructor(
-        fields: Partial<Fields<Wall>>,
+        fields: Omit<Partial<Fields<Wall>>, keyof ExcludeObjectFields>,
     ) {
         super(fields, wallAnimation())
         this.duration = fields.duration ?? 0

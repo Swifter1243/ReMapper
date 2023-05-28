@@ -30,7 +30,7 @@ function toNoteOrBomb(
             ? !obj.customData?.uninteractable
             : undefined,
             localNJS: obj.customData?.noteJumpMovementSpeed,
-            localBeatOffset: obj.customData?.noteJumpStartBeatOffset,
+            localOffset: obj.customData?.noteJumpStartBeatOffset,
 
             rotation: typeof obj.customData?.localRotation === 'number'
                 ? [0, obj.customData.localRotation, 0]
@@ -91,7 +91,7 @@ function toWall(
         interactable: !o.customData?.uninteractable,
 
         localNJS: o.customData?.noteJumpMovementSpeed,
-        localBeatOffset: o.customData
+        localOffset: o.customData
             ?.noteJumpStartBeatOffset,
         localRotation: o.customData?.localRotation,
         rotation: o.customData?.localRotation as

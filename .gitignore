@@ -4,6 +4,7 @@ deno_cache/
 
 # Madge
 madge/image.png
+madge/circular.png
 
 # Logs
 logs

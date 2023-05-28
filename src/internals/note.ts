@@ -4,7 +4,7 @@ import {AnchorMode, NoteCut, NoteType} from "../data/constants.ts";
 import {activeDiffGet} from "../data/beatmap_handler.ts";
 
 import {noteAnimation} from "../animation/animation.ts";
-import {BaseGameplayObject, BaseSliderObject} from "./object.ts";
+import {BaseGameplayObject, BaseSliderObject, ExcludeObjectFields} from "./object.ts";
 import {Fields} from "../types/util_types.ts";
 import {Vec2} from "../types/data_types.ts";
 import { copy } from "../utils/general.ts";
@@ -21,7 +21,7 @@ export abstract class BaseNote<
      * @param y The vertical row of the note.
      */
     constructor(
-        fields: Partial<Fields<BaseNote<TV3>>>,
+        fields: Omit<Partial<Fields<BaseNote<TV3>>>, keyof ExcludeObjectFields>,
     ) {
         super(fields, noteAnimation())
         this.flip = fields.flip
@@ -57,7 +57,7 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
      * @param y The vertical row of the note.
      */
     constructor(
-        fields: Partial<Fields<Note>>,
+        fields: Omit<Partial<Fields<Note>>, keyof ExcludeObjectFields>,
     ) {
         super(fields)
         this.type = fields.type ?? 0
@@ -103,7 +103,7 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
                     coordinates: this.coordinates,
                     localRotation: this.localRotation,
                     noteJumpMovementSpeed: this.localNJS,
-                    noteJumpStartBeatOffset: this.localBeatOffset,
+                    noteJumpStartBeatOffset: this.localOffset,
                     track: this.track.value,
                     uninteractable: this.interactable !== undefined ? !this.interactable : undefined,
                     worldRotation: this.rotation,
@@ -128,7 +128,7 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
                 _position: this.coordinates,
                 _localRotation: this.localRotation,
                 _noteJumpMovementSpeed: this.localNJS,
-                _noteJumpStartBeatOffset: this.localBeatOffset,
+                _noteJumpStartBeatOffset: this.localOffset,
                 _track: this.track.value,
                 _interactable: this.interactable,
                 _rotation: this.rotation,
@@ -148,7 +148,7 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
      * @param y The vertical row of the note.
      */
     // time = 0, x = 0, y = 0
-    constructor(fields: Partial<Fields<Bomb>>) {
+    constructor(fields: Omit<Partial<Fields<Bomb>>, keyof ExcludeObjectFields>) {
         super(fields)
     }
 
@@ -237,7 +237,7 @@ export class Chain extends BaseSliderObject<bsmap.v3.IBurstSlider> {
     //     this.tailY = tailY
     //     this.links = links
     // }
-    constructor(fields: Partial<Fields<Chain>>) {
+    constructor(fields: Omit<Partial<Fields<Chain>>, keyof ExcludeObjectFields>) {
         super(fields)
         this.links = fields.links ?? 4
         this.squish = fields.squish ?? 0
@@ -279,7 +279,7 @@ export class Chain extends BaseSliderObject<bsmap.v3.IBurstSlider> {
                 tailCoordinates: this.tailCoordinates,
                 flip: this.flip,
                 noteJumpMovementSpeed: this.localNJS,
-                noteJumpStartBeatOffset: this.localBeatOffset,
+                noteJumpStartBeatOffset: this.localOffset,
                 uninteractable: !this.interactable,
                 localRotation: this.localRotation,
                 disableNoteGravity: !this.noteGravity,
@@ -316,7 +316,7 @@ export class Arc extends BaseSliderObject<bsmap.v3.ISlider> {
      * @param tailX The lane of the arc's tail.
      * @param tailY The vertical row of the arc's tail.
      */
-    constructor(fields: Partial<Fields<Arc>>) {
+    constructor(fields: Omit<Partial<Fields<Arc>>, keyof ExcludeObjectFields>) {
         super(fields)
         this.tailDirection = fields.tailDirection ?? NoteCut.DOT
         this.headLength = fields.headLength ?? 0
@@ -376,7 +376,7 @@ export class Arc extends BaseSliderObject<bsmap.v3.ISlider> {
                 tailCoordinates: this.tailCoordinates,
                 flip: this.flip,
                 noteJumpMovementSpeed: this.localNJS,
-                noteJumpStartBeatOffset: this.localBeatOffset,
+                noteJumpStartBeatOffset: this.localOffset,
                 uninteractable: !this.interactable,
                 localRotation: this.localRotation,
                 disableNoteGravity: !this.noteGravity,

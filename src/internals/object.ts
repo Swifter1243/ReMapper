@@ -14,6 +14,11 @@ import {JsonWrapper} from "../types/beatmap_types.ts";
 import { copy } from '../utils/general.ts';
 import * as AnimationInternals from "./animation.ts";
 
+export type ExcludeObjectFields = { 
+    NJS: never,
+    offset: never
+}
+
 export abstract class BaseObject<
     TV2 extends bsmap.v2.IBaseObject,
     TV3 extends bsmap.v3.IBaseObject,
@@ -45,7 +50,7 @@ export abstract class BaseGameplayObject<
     TV3 extends bsmap.v3.IGridObject,
 > extends BaseObject<TV2, TV3> {
     constructor(
-        obj: Partial<Fields<BaseGameplayObject<TV2, TV3>>>,
+        obj: Omit<Partial<Fields<BaseGameplayObject<TV2, TV3>>>, keyof ExcludeObjectFields>,
         animation:
             | AnimationInternals.WallAnimation
             | AnimationInternals.NoteAnimation,
@@ -58,7 +63,7 @@ export abstract class BaseGameplayObject<
         this.rotation = obj.rotation
         this.localRotation = obj.localRotation
         this.localNJS = obj.localNJS
-        this.localBeatOffset = obj.localBeatOffset
+        this.localOffset = obj.localOffset
         this.interactable = obj.interactable
         this.animation = animation
         this.lineIndex = obj.lineIndex ?? 0
@@ -68,7 +73,7 @@ export abstract class BaseGameplayObject<
         this.rotation = obj.rotation
         this.localRotation = obj.localRotation
         this.localNJS = obj.localNJS
-        this.localBeatOffset = obj.localBeatOffset
+        this.localOffset = obj.localOffset
         this.interactable = obj.interactable
         this.track = obj.track ?? new Track()
         this.color = obj.color
@@ -91,8 +96,11 @@ export abstract class BaseGameplayObject<
     /** The rotation added to an object around it's anchor point. */
     localRotation?: Vec3
 
+    /** The note jump speed of the object. */
     localNJS?: number
-    localBeatOffset?: number
+
+    /** The spawn offset of the object. */
+    localOffset?: number
 
     /** Whether this object is interactable. */
     interactable?: boolean
@@ -110,13 +118,14 @@ export abstract class BaseGameplayObject<
         | AnimationInternals.NoteAnimation
         | AnimationInternals.WallAnimation
 
+    /** The note jump speed of the object. Refers to the difficulty if undefined. */
     get NJS() {
         return this.localNJS ?? activeDiffGet().NJS
     }
 
-    /** The note offset of an object. */
+    /** The spawn offset of the object. Refers to the difficulty if undefined. */
     get offset() {
-        return this.localBeatOffset ?? activeDiffGet().offset
+        return this.localOffset ?? activeDiffGet().offset
     }
 
     /**
@@ -153,7 +162,7 @@ export abstract class BaseGameplayObject<
             )
         }
         const defaultJumps = getJumps(this.NJS, 0, info._beatsPerMinute)
-        this.localBeatOffset = (value - 2 * defaultJumps.halfDur) / 2
+        this.localOffset = (value - 2 * defaultJumps.halfDur) / 2
     }
 
     set lifeStart(value: number) {
@@ -192,7 +201,7 @@ export abstract class BaseSliderObject<TV3 extends bsmap.v3.IBaseSlider>
     /** The position of the tail. */
     tailCoordinates?: Vec2
 
-    constructor(obj: Partial<Fields<BaseSliderObject<TV3>>>) {
+    constructor(obj: Omit<Partial<Fields<BaseSliderObject<TV3>>>, keyof ExcludeObjectFields>) {
         super(obj, noteAnimation())
         this.type = obj.type ?? NoteType.RED
         this.headDirection = obj.headDirection ?? 0
