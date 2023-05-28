@@ -1,16 +1,11 @@
-import { Cloneable } from '../mod.ts'
 import { TrackValue } from '../types/animation_types.ts'
 
-export class Track implements Cloneable<Track> {
+export class Track {
     /** The value of the track. */
     value?: TrackValue
 
     constructor(value?: TrackValue) {
         this.value = value
-    }
-    
-    clone(): Track {
-        return new Track(this.value)
     }
 
     private expandArray(array: TrackValue) {

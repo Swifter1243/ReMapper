@@ -9,43 +9,19 @@ import {
     EASE,
     RawKeyframesAny,
 } from '../types/animation_types.ts'
-import {
-    GeometryMaterial,
-    GeoType,
-    Lookup,
-} from '../types/environment_types.ts'
+import {GeometryMaterial, GeoType, Lookup} from '../types/environment_types.ts'
 import { activeDiffGet } from '../data/beatmap_handler.ts'
-import { combineAnimations } from '../animation/animation_utils.ts'
+import { combineAnimations } from "../animation/animation_utils.ts";
 import { copy } from '../utils/general.ts'
-import { Cloneable } from '../mod.ts'
 
 let envCount = 0
 
-export class Environment
-    extends EnvironmentInternals.BaseEnvironmentEnhancement<
-        bsmap.v2.IChromaEnvironmentID,
-        bsmap.v3.IChromaEnvironmentID
-    > {
-    clone(): Environment {
-        const n = new Environment(this.id, this.lookupMethod)
-        n.active = this.active
-        n.components = copy(this.components)
-        n.duplicate = this.duplicate
-        n.group = this.group
-        n.lightsID = this.lightsID
-        n.lightsType = this.lightsType
-
-        n.localPosition = this.localPosition && [...this.localPosition]
-        n.localRotation = this.localRotation && [...this.localRotation]
-        n.rotation = this.rotation && [...this.rotation]
-        n.position = this.position && [...this.position]
-        n.scale = this.scale && [...this.scale]
-
-        n.track = this.track.clone()
-        return n;
-    }
+export class Environment extends EnvironmentInternals.BaseEnvironmentEnhancement<
+    bsmap.v2.IChromaEnvironmentID,
+    bsmap.v3.IChromaEnvironmentID
+> {
     push(clone = true): void {
-        activeDiffGet().environment.push(clone ? this.clone() : this)
+        activeDiffGet().environment.push(clone ? copy(this) : this)
     }
 
     /**
@@ -114,29 +90,9 @@ export class Environment
 export class Geometry extends EnvironmentInternals.BaseEnvironmentEnhancement<
     bsmap.v2.IChromaEnvironmentGeometry,
     bsmap.v3.IChromaEnvironmentGeometry
-> implements Cloneable<Geometry> {
+> {
     push(clone = true): void {
-        activeDiffGet().geometry.push(clone ? this.clone() : this)
-    }
-
-        clone(): Geometry {
-        const n = new Geometry(this.type, copy(this.material))
-        n.active = this.active
-        n.components = copy(this.components)
-        n.duplicate = this.duplicate
-        n.group = this.group
-        n.lightsID = this.lightsID
-            n.lightsType = this.lightsType
-            n.collision = this.collision
-
-        n.localPosition = this.localPosition && [...this.localPosition]
-        n.localRotation = this.localRotation && [...this.localRotation]
-        n.rotation = this.rotation && [...this.rotation]
-        n.position = this.position && [...this.position]
-        n.scale = this.scale && [...this.scale]
-
-        n.track = this.track.clone()
-        return n;
+        activeDiffGet().geometry.push(clone ? copy(this) : this)
     }
 
     /**

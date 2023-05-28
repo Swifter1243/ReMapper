@@ -1,5 +1,9 @@
 import { bsmap } from '../deps.ts'
-import { EASE, KeyframesLinear, TrackValue } from '../types/animation_types.ts'
+import {
+    EASE,
+    KeyframesLinear,
+    TrackValue,
+} from '../types/animation_types.ts'
 import {
     BloomFogEnvironment,
     Components,
@@ -9,15 +13,14 @@ import {
 import { activeDiffGet } from '../data/beatmap_handler.ts'
 import { Track } from '../animation/track.ts'
 import { AbstractAnimation, BaseAnimation } from './animation.ts'
-import { Fields, TJson } from '../types/util_types.ts'
-import { JsonWrapper } from '../types/beatmap_types.ts'
+import {Fields, TJson} from "../types/util_types.ts";
+import {JsonWrapper} from "../types/beatmap_types.ts";
 import { copy } from '../utils/general.ts'
-import { Cloneable } from '../mod.ts'
 
 export abstract class BaseCustomEvent<
     TV2 extends bsmap.v2.ICustomEvent,
     TV3 extends bsmap.v3.ICustomEvent,
-> implements JsonWrapper<TV2, TV3>, Cloneable<BaseCustomEvent<TV2, TV3>> {
+> implements JsonWrapper<TV2, TV3> {
     time = 0
     type = ''
     data: TJson = {}
@@ -29,13 +32,12 @@ export abstract class BaseCustomEvent<
             this.time = time
         }
     }
-    abstract clone(): BaseCustomEvent<TV2, TV3>
 
     /** Push this event to the difficulty.
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        activeDiffGet().customEvents.push(clone ? this.clone() : this)
+        activeDiffGet().customEvents.push(clone ? copy(this) : this)
         return this
     }
 
@@ -47,17 +49,7 @@ export abstract class BaseCustomEvent<
 export class AnimateTrack extends BaseCustomEvent<
     bsmap.v2.ICustomEventAnimateTrack,
     bsmap.v3.ICustomEventAnimateTrack
-> implements Cloneable<AnimateTrack> {
-    clone(): AnimateTrack {
-        return new AnimateTrack({
-            time: this.time,
-            animation: this.animate.clone(),
-            duration: this.duration,
-            easing: this.ease,
-            track: this.track.value,
-        })
-    }
-
+> {
     toJson(v3: true): bsmap.v3.ICustomEventAnimateTrack
     toJson(v3: false): bsmap.v2.ICustomEventAnimateTrack
     toJson(
@@ -155,9 +147,9 @@ export class AnimateTrack extends BaseCustomEvent<
         if (params.track) this.track.value = params.track
         if (params.duration) this.duration = params.duration
         if (params.animation) {
-            this.animate.properties = {
-                ...params.animation.properties,
-            }
+            this.animate.properties = copy(
+                params.animation.properties,
+            )
         }
         if (params.easing) this.ease = params.easing
     }
@@ -175,17 +167,7 @@ export class AnimateTrack extends BaseCustomEvent<
 export class AssignPathAnimation extends BaseCustomEvent<
     bsmap.v2.ICustomEventAssignPathAnimation,
     bsmap.v3.ICustomEventAssignPathAnimation
-> implements Cloneable<AssignPathAnimation> {
-    clone(): AssignPathAnimation {
-        return new AssignPathAnimation({
-            time: this.time,
-            animation: this.animate.clone(),
-            duration: this.duration,
-            easing: this.ease,
-            track: this.track.value,
-        })
-    }
-
+> {
     toJson(v3: true): bsmap.v3.ICustomEventAssignPathAnimation
     toJson(v3: false): bsmap.v2.ICustomEventAssignPathAnimation
     toJson(
@@ -271,9 +253,9 @@ export class AssignPathAnimation extends BaseCustomEvent<
         if (params.track) this.track.value = params.track
         if (params.duration) this.duration = params.duration
         if (params.animation) {
-            this.animate.properties = {
-                ...params.animation.properties,
-            }
+            this.animate.properties = copy(
+                params.animation.properties,
+            )
         }
         if (params.easing) this.ease = params.easing
     }
@@ -291,16 +273,7 @@ export class AssignPathAnimation extends BaseCustomEvent<
 export class AssignTrackParent extends BaseCustomEvent<
     bsmap.v2.ICustomEventAssignTrackParent,
     bsmap.v3.ICustomEventAssignTrackParent
-> implements Cloneable<AssignTrackParent> {
-    clone(): AssignTrackParent {
-        return new AssignTrackParent({
-            time: this.time,
-            childrenTracks: [...this.childrenTracks],
-            parentTrack: this.parentTrack,
-            worldPositionStays: this.worldPositionStays,
-        })
-    }
-
+> {
     toJson(v3: true): bsmap.v3.ICustomEventAssignTrackParent
     toJson(v3: false): bsmap.v2.ICustomEventAssignTrackParent
     toJson(
@@ -361,11 +334,7 @@ export class AssignTrackParent extends BaseCustomEvent<
 export class AssignPlayerToTrack extends BaseCustomEvent<
     bsmap.v2.ICustomEventAssignPlayerToTrack,
     bsmap.v3.ICustomEventAssignPlayerToTrack
-> implements Cloneable<AssignPlayerToTrack> {
-    clone(): AssignPlayerToTrack {
-        return new AssignPlayerToTrack(this.time, this.track)
-    }
-
+> {
     /**
      * Assigns the player to a track.
      * @param json Json to import.
@@ -407,35 +376,7 @@ export class AssignPlayerToTrack extends BaseCustomEvent<
 }
 
 export class AnimateComponent
-    extends BaseCustomEvent<never, bsmap.v3.ICustomEventAnimateComponent>
-    implements Cloneable<AnimateComponent> {
-    clone(): AnimateComponent {
-        return new AnimateComponent({
-            components: {
-                BloomFogEnvironment: {
-                    attenuation: this.fog.attenuation,
-                    height: this.fog.height,
-                    offset: this.fog.offset,
-                    startY: this.fog.startY,
-                },
-                ILightWithId: {
-                    lightID: this.lightID.lightID,
-                    type: this.lightID.type,
-                },
-                TubeBloomPrePassLight: {
-                    bloomFogIntensityMultiplier:
-                        this.lightMultiplier.bloomFogIntensityMultiplier,
-                    colorAlphaMultiplier:
-                        this.lightMultiplier.colorAlphaMultiplier,
-                },
-            },
-            time: this.time,
-            duration: this.duration,
-            easing: this.easing,
-            track: this.track.value,
-        })
-    }
-
+    extends BaseCustomEvent<never, bsmap.v3.ICustomEventAnimateComponent> {
     /**
      * Animate components on a track.
      * @param json Json to import.

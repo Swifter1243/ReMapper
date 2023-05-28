@@ -1,18 +1,13 @@
-import { bsmap } from '../deps.ts'
+import {bsmap} from "../deps.ts";
 
-import { AnchorMode, NoteCut, NoteType } from '../data/constants.ts'
-import { activeDiffGet } from '../data/beatmap_handler.ts'
+import {AnchorMode, NoteCut, NoteType} from "../data/constants.ts";
+import {activeDiffGet} from "../data/beatmap_handler.ts";
 
-import { noteAnimation } from '../animation/animation.ts'
-import {
-    BaseGameplayObject,
-    BaseSliderObject,
-    ExcludeObjectFields,
-} from './object.ts'
-import { Fields } from '../types/util_types.ts'
-import { Vec2 } from '../types/data_types.ts'
-import { copy } from '../utils/general.ts'
-import { Cloneable } from '../types/beatmap_types.ts'
+import {noteAnimation} from "../animation/animation.ts";
+import {BaseGameplayObject, BaseSliderObject, ExcludeObjectFields} from "./object.ts";
+import {Fields} from "../types/util_types.ts";
+import {Vec2} from "../types/data_types.ts";
+import { copy } from "../utils/general.ts";
 
 export abstract class BaseNote<
     TV3 extends bsmap.v3.IColorNote | bsmap.v3.IBombNote,
@@ -52,33 +47,7 @@ export abstract class BaseNote<
     abstract push(clone: boolean): void
 }
 
-export class Note extends BaseNote<bsmap.v3.IColorNote>
-    implements Cloneable<Note> {
-    clone(): Note {
-        return new Note({
-            angleOffset: this.angleOffset,
-            animation: this.animation.clone(),
-            color: this.color && [...this.color],
-            coordinates: this.coordinates && [...this.coordinates],
-            customData: this.customData && copy(this.customData),
-            direction: this.direction,
-            fake: this.fake,
-            flip: this.flip,
-            interactable: this.interactable,
-            time: this.time,
-            noteGravity: this.noteGravity,
-            lineIndex: this.lineIndex,
-            lineLayer: this.lineLayer,
-            localNJS: this.localNJS,
-            localOffset: this.localOffset,
-            localRotation: this.localRotation && [...this.localRotation],
-            spawnEffect: this.spawnEffect,
-            noteLook: this.noteLook,
-            track: this.track.clone(),
-            type: this.type,
-            rotation: this.rotation && [...this.rotation],
-        })
-    }
+export class Note extends BaseNote<bsmap.v3.IColorNote> {
     /**
      * Note object for ease of creation.
      * @param time Time this note will be hit.
@@ -109,7 +78,7 @@ export class Note extends BaseNote<bsmap.v3.IColorNote>
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        activeDiffGet().notes.push(clone ? this.clone() : this)
+        activeDiffGet().notes.push(clone ? copy(this) : this)
         return this
     }
 
@@ -127,12 +96,8 @@ export class Note extends BaseNote<bsmap.v3.IColorNote>
                 customData: {
                     animation: this.animation.toJson(v3),
                     flip: this.flip,
-                    disableNoteGravity: this.noteGravity !== undefined
-                        ? !this.noteGravity
-                        : undefined,
-                    disableNoteLook: this.noteLook !== undefined
-                        ? !this.noteLook
-                        : undefined,
+                    disableNoteGravity: this.noteGravity !== undefined ? !this.noteGravity : undefined,
+                    disableNoteLook: this.noteLook !== undefined ? !this.noteLook : undefined,
                     spawnEffect: this.spawnEffect,
                     color: this.color,
                     coordinates: this.coordinates,
@@ -140,9 +105,7 @@ export class Note extends BaseNote<bsmap.v3.IColorNote>
                     noteJumpMovementSpeed: this.localNJS,
                     noteJumpStartBeatOffset: this.localOffset,
                     track: this.track.value,
-                    uninteractable: this.interactable !== undefined
-                        ? !this.interactable
-                        : undefined,
+                    uninteractable: this.interactable !== undefined ? !this.interactable : undefined,
                     worldRotation: this.rotation,
                     ...this.customData,
                 },
@@ -158,15 +121,9 @@ export class Note extends BaseNote<bsmap.v3.IColorNote>
             _customData: {
                 _animation: this.animation.toJson(v3),
                 _flip: this.flip,
-                _disableNoteGravity: this.noteGravity !== undefined
-                    ? !this.noteGravity
-                    : undefined,
-                _disableNoteLook: this.noteLook !== undefined
-                    ? !this.noteLook
-                    : undefined,
-                _disableSpawnEffect: this.spawnEffect !== undefined
-                    ? !this.spawnEffect
-                    : undefined,
+                _disableNoteGravity: this.noteGravity !== undefined ? !this.noteGravity : undefined,
+                _disableNoteLook: this.noteLook !== undefined ? !this.noteLook : undefined,
+                _disableSpawnEffect: this.spawnEffect !== undefined ? !this.spawnEffect : undefined,
                 _color: this.color,
                 _position: this.coordinates,
                 _localRotation: this.localRotation,
@@ -183,31 +140,7 @@ export class Note extends BaseNote<bsmap.v3.IColorNote>
     }
 }
 
-export class Bomb extends BaseNote<bsmap.v3.IBombNote>
-    implements Cloneable<Bomb> {
-    clone(): Bomb {
-        return new Bomb({
-            animation: this.animation.clone(),
-            color: this.color && [...this.color],
-            coordinates: this.coordinates && [...this.coordinates],
-            customData: this.customData && copy(this.customData),
-            fake: this.fake,
-            flip: this.flip,
-            interactable: this.interactable,
-            time: this.time,
-            noteGravity: this.noteGravity,
-            lineIndex: this.lineIndex,
-            lineLayer: this.lineLayer,
-            localNJS: this.localNJS,
-            localOffset: this.localOffset,
-            localRotation: this.localRotation && [...this.localRotation],
-            spawnEffect: this.spawnEffect,
-            noteLook: this.noteLook,
-            track: this.track.clone(),
-            rotation: this.rotation && [...this.rotation],
-        })
-    }
-
+export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
     /**
      * Bomb object for ease of creation.
      * @param time The time this bomb will reach the player.
@@ -215,9 +148,7 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote>
      * @param y The vertical row of the note.
      */
     // time = 0, x = 0, y = 0
-    constructor(
-        fields: Omit<Partial<Fields<Bomb>>, keyof ExcludeObjectFields>,
-    ) {
+    constructor(fields: Omit<Partial<Fields<Bomb>>, keyof ExcludeObjectFields>) {
         super(fields)
     }
 
@@ -227,7 +158,7 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote>
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        activeDiffGet().bombs.push(clone ? this.clone() : this)
+        activeDiffGet().bombs.push(clone ? copy(this) : this)
         return this
     }
 
@@ -271,36 +202,7 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote>
     }
 }
 
-export class Chain extends BaseSliderObject<bsmap.v3.IBurstSlider> implements Cloneable<Chain> {
-    clone(): Chain {
-        return new Chain({
-            animation: this.animation.clone(),
-            color: this.color && [...this.color],
-            coordinates: this.coordinates && [...this.coordinates],
-            customData: this.customData && copy(this.customData),
-            fake: this.fake,
-            flip: this.flip,
-            interactable: this.interactable,
-            time: this.time,
-            noteGravity: this.noteGravity,
-            lineIndex: this.lineIndex,
-            lineLayer: this.lineLayer,
-            localNJS: this.localNJS,
-            localOffset: this.localOffset,
-            localRotation: this.localRotation && [...this.localRotation],
-            noteLook: this.noteLook,
-            track: this.track.clone(),
-            type: this.type,
-            rotation: this.rotation && [...this.rotation],
-            links: this.links,
-            squish: this.squish,
-            tailTime: this.tailTime,
-            tailX: this.tailX,
-            tailY: this.tailY,
-            tailCoordinates: this.tailCoordinates && [...this.tailCoordinates],
-            headDirection: this.headDirection
-        })
-    }
+export class Chain extends BaseSliderObject<bsmap.v3.IBurstSlider> {
     /**
      * Chain object for ease of creation.
      * @param time The time this chain will be hit.
@@ -335,9 +237,7 @@ export class Chain extends BaseSliderObject<bsmap.v3.IBurstSlider> implements Cl
     //     this.tailY = tailY
     //     this.links = links
     // }
-    constructor(
-        fields: Omit<Partial<Fields<Chain>>, keyof ExcludeObjectFields>,
-    ) {
+    constructor(fields: Omit<Partial<Fields<Chain>>, keyof ExcludeObjectFields>) {
         super(fields)
         this.links = fields.links ?? 4
         this.squish = fields.squish ?? 0
@@ -352,7 +252,7 @@ export class Chain extends BaseSliderObject<bsmap.v3.IBurstSlider> implements Cl
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        activeDiffGet().chains.push(clone ? this.clone() : this)
+        activeDiffGet().chains.push(clone ? copy(this) : this)
         return this
     }
 
@@ -403,39 +303,7 @@ export class Chain extends BaseSliderObject<bsmap.v3.IBurstSlider> implements Cl
     noteLook?: boolean
 }
 
-export class Arc extends BaseSliderObject<bsmap.v3.ISlider> implements Cloneable<Arc> {
-
-    clone(): Arc {
-        return new Arc({
-            animation: this.animation.clone(),
-            color: this.color && [...this.color],
-            coordinates: this.coordinates && [...this.coordinates],
-            customData: this.customData && copy(this.customData),
-            fake: this.fake,
-            flip: this.flip,
-            interactable: this.interactable,
-            time: this.time,
-            noteGravity: this.noteGravity,
-            lineIndex: this.lineIndex,
-            lineLayer: this.lineLayer,
-            localNJS: this.localNJS,
-            localOffset: this.localOffset,
-            localRotation: this.localRotation && [...this.localRotation],
-            track: this.track.clone(),
-            type: this.type,
-            rotation: this.rotation && [...this.rotation],
-            tailTime: this.tailTime,
-            tailX: this.tailX,
-            tailY: this.tailY,
-            tailCoordinates: this.tailCoordinates && [...this.tailCoordinates],
-            headDirection: this.headDirection,
-            tailDirection: this.tailDirection,
-            tailLength: this.tailLength,
-            headLength: this.headLength,
-            anchorMode: this.anchorMode,
-        })
-    }
-
+export class Arc extends BaseSliderObject<bsmap.v3.ISlider> {
     /**
      * Arc object for ease of creation.
      * @param time The time this arc will be hit.
@@ -523,7 +391,7 @@ export class Arc extends BaseSliderObject<bsmap.v3.ISlider> implements Cloneable
      * Push this arc to the difficulty
      */
     push(clone = true) {
-        activeDiffGet().arcs.push(clone ? this.clone() : this)
+        activeDiffGet().arcs.push(clone ? copy(this) : this)
         return this
     }
 

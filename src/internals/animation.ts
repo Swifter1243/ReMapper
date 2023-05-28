@@ -1,5 +1,6 @@
 /** Contains subclasses for animation related classes. */
 
+
 import { bsmap } from '../deps.ts'
 
 import { Keyframe } from '../animation/keyframe.ts'
@@ -22,7 +23,7 @@ import {
     KeyframesVec4,
     KeyframeValues,
 } from '../types/animation_types.ts'
-import { JsonWrapper, Cloneable } from '../types/beatmap_types.ts'
+import {JsonWrapper} from "../types/beatmap_types.ts";
 
 type AnimateV2 = Required<bsmap.v2.IAnimation>['_animation']
 type AnimateV3 = Required<bsmap.v3.IAnimation>['animation']
@@ -31,8 +32,7 @@ type AnimationRecord = AnimateV3 & Record<string, KeyframesAny | undefined>
 type AnimationUnsafeProperties = keyof AnimateV3 | keyof AnimateV2
 
 /** Bare minimum animation class. */
-export abstract class BaseAnimation
-    implements JsonWrapper<AnimateV2, AnimateV3>, Cloneable<BaseAnimation> {
+export class BaseAnimation implements JsonWrapper<AnimateV2, AnimateV3> {
     properties: AnimationRecord = {}
 
     /**
@@ -41,12 +41,10 @@ export abstract class BaseAnimation
      */
     duration: number
 
-    constructor(duration?: number, properties?: BaseAnimation['properties']) {
+    constructor(duration?: number, data?: BaseAnimation['properties']) {
         this.duration = duration ?? 1
-        this.properties = properties ?? this.properties
+        this.properties = data ?? this.properties
     }
-
-    abstract clone(): BaseAnimation
 
     filteredCustomProperties(v3: boolean) {
         return Object.fromEntries(
@@ -133,11 +131,7 @@ export abstract class BaseAnimation
      * @param value The value of the property.
      * @param process Whether the value should be processed. E.g. sort by time.
      */
-    set<T extends string = AnimationUnsafeProperties>(
-        property: T,
-        value: KeyframesAny | undefined,
-        process = true,
-    ) {
+    set<T extends string = AnimationUnsafeProperties>(property: T, value: KeyframesAny | undefined, process = true) {
         if (typeof value === 'string' || !process) {
             this.properties[property] = value
             return
@@ -183,10 +177,7 @@ export abstract class BaseAnimation
      * @param property The property to add to.
      * @param value What keyframes to add.
      */
-    add<T extends string = AnimationUnsafeProperties>(
-        property: T,
-        value: KeyframesAny,
-    ) {
+    add<T extends string = AnimationUnsafeProperties>(property: T, value: KeyframesAny) {
         if (typeof value === 'string') {
             this.properties[property] = value
             return
@@ -281,12 +272,7 @@ interface ObjectAnimationData {
     color: KeyframesVec4 | undefined
 }
 
-class ObjectAnimation extends BaseAnimation
-    implements ObjectAnimationData, Cloneable<ObjectAnimation> {
-    clone(): ObjectAnimation {
-        return new ObjectAnimation(this.duration, this.properties)
-    }
-
+class ObjectAnimation extends BaseAnimation implements ObjectAnimationData {
     /** Adds to the position of the object. */
     get position() {
         return this.get('offsetPosition') as KeyframesVec3
@@ -367,7 +353,7 @@ interface NoteAnimationData extends ObjectAnimationData {
 
 /** Animation specifically for note objects. */
 export class NoteAnimation extends ObjectAnimation
-    implements NoteAnimationData, Cloneable<NoteAnimation> {
+    implements NoteAnimationData {
     /** Controls the dissolve shader on the object.
      * 0 means invisible, 1 means visible.
      * For note objects.
@@ -377,10 +363,6 @@ export class NoteAnimation extends ObjectAnimation
     }
     set dissolveArrow(value: KeyframesLinear | undefined) {
         this.set('dissolveArrow', value)
-    }
-
-    clone(): NoteAnimation {
-        return new NoteAnimation(this.duration, this.properties)
     }
 }
 
@@ -401,12 +383,7 @@ interface EnvironmentAnimationData {
 }
 
 /** Animation specifically for environment objects. */
-export class EnvironmentAnimation extends BaseAnimation
-    implements Cloneable<EnvironmentAnimation> {
-    clone(): EnvironmentAnimation {
-        return new EnvironmentAnimation(this.duration, this.properties)
-    }
-
+export class EnvironmentAnimation extends BaseAnimation {
     /** The position of the object in world space. */
     get position() {
         return this.get('position') as KeyframesVec3
@@ -449,12 +426,7 @@ export class AbstractAnimation extends BaseAnimation
     implements
         EnvironmentAnimationData,
         NoteAnimationData,
-        ObjectAnimationData,
-    Cloneable<AbstractAnimation> {
-    
-    clone(): AbstractAnimation {
-        return new AbstractAnimation(this.duration, this.properties)
-    }
+        ObjectAnimationData {
     /** The position of the object in world space. */
     get position() {
         return this.get('position') as KeyframesVec3

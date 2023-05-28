@@ -74,7 +74,3 @@ export interface JsonWrapper<TV2 extends object, TV3 extends object> {
 
     toJson(v3: boolean): TV2 | TV3
 }
-
-export interface Cloneable<T> {
-    clone(): T
-}
