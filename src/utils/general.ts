@@ -20,18 +20,18 @@ export function copyWith<T extends Record<string | number | symbol, never>>(
  * @param obj Object to copy
  * @returns The copy
  */
-export function copy<T>(obj: T) {
-    if (obj === null || typeof obj !== 'object') return obj
+export function copy<T>(obj: T): T {
+    if (obj === null || obj === undefined || typeof obj !== 'object') return obj
 
-    const newObj = Array.isArray(obj) ? [] : {}
-    const keys = Object.getOwnPropertyNames(obj)
+    Object.getPrototypeOf(obj)
+    const newObj = Object.create(obj)
 
-    keys.forEach((x) => {
-        const value = copy((obj as any)[x])
-        ;(newObj as any)[x] = value
+    const entries = Object.entries(obj) as [keyof T, any]
+    entries.forEach(([k, v]) => {
+        const newValue = copy(v);
+        (newObj as any)[k] = newValue
     })
 
-    Object.setPrototypeOf(newObj, obj as any)
     return newObj as T
 }
 
