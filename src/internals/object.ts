@@ -11,7 +11,7 @@ import {noteAnimation} from "../animation/animation.ts";
 import {Fields, ObjectFields} from "../types/util_types.ts";
 import {ColorVec, Vec2, Vec3} from "../types/data_types.ts";
 import {JsonWrapper} from "../types/beatmap_types.ts";
-import { copy } from '../utils/general.ts';
+import { copy, setIfDefined } from '../utils/general.ts';
 
 
 export abstract class BaseObject<
@@ -50,11 +50,20 @@ export abstract class BaseGameplayObject<
             | AnimationInternals.NoteAnimation,
     ) {
         super(obj)
+        this.lineIndex = obj.lineIndex ?? 0
+        this.lineLayer = obj.lineLayer ?? 0
+        this.fake = obj.fake
+        this.coordinates = obj.coordinates
+        this.rotation = obj.rotation
+        this.localRotation = obj.localRotation
+        this.localNJS = obj.localNJS
+        this.localBeatOffset = obj.localBeatOffset
+        this.interactable = obj.interactable
         this.animation = animation
     }
 
-    lineIndex = 0
-    lineLayer = 0
+    lineIndex: number
+    lineLayer: number
 
     fake?: boolean
 
@@ -153,20 +162,25 @@ export abstract class BaseGameplayObject<
 export abstract class BaseSliderObject<TV3 extends bsmap.v3.IBaseSlider>
     extends BaseGameplayObject<never, TV3> {
     /** The color of the object. */
-    type: NoteType = NoteType.RED
+    type: NoteType
     /** The cut direction of the head. */
-    headDirection = 0
+    headDirection: number
     /** The time the tail arrives at the player. */
-    tailTime = 0
+    tailTime: number
     /** The lane of the tail. */
-    tailX = 0
+    tailX: number
     /** The vertical row of the tail. */
-    tailY = 0
+    tailY: number
 
     /** The position of the tail. */
     tailCoordinates?: Vec2
 
     constructor(obj: Partial<Fields<BaseSliderObject<TV3>>>) {
         super(obj, noteAnimation())
+        this.type = obj.type ?? NoteType.RED
+        this.headDirection = obj.headDirection ?? 0
+        this.tailTime = obj.tailTime ?? 0
+        this.tailX = obj.tailX ?? 0
+        this.tailY = obj.tailY ?? 0
     }
 }

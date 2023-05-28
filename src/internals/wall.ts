@@ -67,6 +67,10 @@ export class Wall
         fields: Partial<Fields<Wall>>,
     ) {
         super(fields, wallAnimation())
+        this.duration = fields.duration ?? 0
+        this.height = fields.height ?? 1
+        this.width = fields.width ?? 1
+        this.scale = fields.scale
     }
 
     /**
@@ -80,11 +84,11 @@ export class Wall
     }
 
     /** The duration of the wall. */
-    duration = 0
+    duration: number
     /** The height of the wall. */
-    height = 1
+    height: number
     /** The width of the wall. */
-    width = 1
+    width: number
     /** The scale of the wall. */
     scale?: Vec3
 

@@ -12,6 +12,7 @@ import { jsonPrune } from '../mod.ts'
 
 function toNoteOrBomb(
     obj: bsmap.v3.IColorNote | bsmap.v3.IBombNote,
+    fake: boolean,
 ): Note | Bomb {
     const params:
         | Parameters<typeof note>
@@ -22,19 +23,25 @@ function toNoteOrBomb(
             customData: obj.customData,
 
             localRotation: obj.customData?.localRotation,
-            fake: obj.customData?.fake,
+            fake: fake,
             color: obj.customData?.color as ColorVec,
             flip: obj.customData?.flip,
-            interactable: obj.customData?.interactable,
+            interactable: obj.customData?.uninteractable !== undefined
+            ? !obj.customData?.uninteractable
+            : undefined,
             localNJS: obj.customData?.noteJumpMovementSpeed,
             localBeatOffset: obj.customData?.noteJumpStartBeatOffset,
 
             rotation: typeof obj.customData?.localRotation === 'number'
                 ? [0, obj.customData.localRotation, 0]
                 : obj.customData?.localRotation,
-            noteLook: !obj.customData?.disableNoteLook ?? false,
-            noteGravity: !obj.customData?.disableNoteGravity ?? false,
-            spawnEffect: obj.customData?.spawnEffect ?? false,
+            noteLook: obj.customData?.disableNoteLook !== undefined
+                ? !obj.customData?.disableNoteLook
+                : undefined,
+            noteGravity: obj.customData?.disableNoteGravity !== undefined
+            ? !obj.customData?.disableNoteGravity
+            : undefined,
+            spawnEffect: obj.customData?.spawnEffect,
             coordinates: obj.customData?.coordinates,
             track: new Track(obj.customData?.track),
             animation: noteAnimation(
@@ -57,6 +64,44 @@ function toNoteOrBomb(
 
     return n
 }
+
+function toWall(
+    o: bsmap.v3.IObstacle,
+    fake: boolean,
+) {
+    return wall({
+        time: o.b,
+        lineIndex: o.x,
+        lineLayer: o.y,
+        width: o.w,
+        height: o.h,
+        duration: o.d,
+        animation: wallAnimation(
+            undefined,
+            o.customData?.animation as Record<
+                string,
+                KeyframesAny
+            >,
+        ),
+        color: o.customData?._color,
+        coordinates: o.customData?._position,
+        customData: o.customData,
+
+        fake: fake,
+        interactable: !o.customData?.uninteractable,
+
+        localNJS: o.customData?.noteJumpMovementSpeed,
+        localBeatOffset: o.customData
+            ?.noteJumpStartBeatOffset,
+        localRotation: o.customData?.localRotation,
+        rotation: o.customData?.localRotation as
+            | Vec3
+            | undefined,
+        track: new Track(o.customData?.track),
+        // TODO: height
+    })
+}
+
 export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
     declare version: bsmap.v3.IDifficulty['version']
 
@@ -80,50 +125,44 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
 
         const notes: Note[] = runProcess(
             'colorNotes',
-            (notes) => notes.map(toNoteOrBomb) as Note[],
+            (notes) => notes.map((o) => toNoteOrBomb(o, false)) as Note[],
         ) ?? []
+
         const bombs: Bomb[] = runProcess(
             'bombNotes',
-            (notes) => notes.map(toNoteOrBomb) as Bomb[],
+            (notes) => notes.map((o) => toNoteOrBomb(o, false)) as Bomb[],
         ) ?? []
 
         const obstacles = runProcess(
             'obstacles',
-            (obstacles) =>
-                obstacles.map((o) =>
-                    wall({
-                        time: o.b,
-                        lineIndex: o.x,
-                        lineLayer: o.y,
-                        width: o.w,
-                        height: o.h,
-                        duration: o.d,
-                        animation: wallAnimation(
-                            undefined,
-                            o.customData?.animation as Record<
-                                string,
-                                KeyframesAny
-                            >,
-                        ),
-                        color: o.customData?._color,
-                        coordinates: o.customData?._position,
-                        customData: o.customData,
-
-                        fake: o.customData?.fake,
-                        interactable: !o.customData?.uninteractable,
-
-                        localNJS: o.customData?.noteJumpMovementSpeed,
-                        localBeatOffset: o.customData
-                            ?.noteJumpStartBeatOffset,
-                        localRotation: o.customData?.localRotation,
-                        rotation: o.customData?.localRotation as
-                            | Vec3
-                            | undefined,
-                        track: new Track(o.customData?.track),
-                        // TODO: height
-                    })
-                ),
+            (obstacles) => obstacles.map((o) => toWall(o, false)),
         ) ?? []
+
+        // Fake stuff
+        if (json.customData?.fakeColorNotes) {
+            notes.push(
+                ...json.customData.fakeColorNotes.map((o) =>
+                    toNoteOrBomb(o, true)
+                ) as Note[],
+            )
+            delete json.customData.fakeColorNotes
+        }
+
+        if (json.customData?.fakeBombNotes) {
+            bombs.push(
+                ...json.customData.fakeBombNotes.map((o) =>
+                    toNoteOrBomb(o, true)
+                ) as Bomb[],
+            )
+            delete json.customData.fakeBombNotes
+        }
+
+        if (json.customData?.fakeObstacles) {
+            obstacles.push(
+                ...json.customData.fakeObstacles.map((o) => toWall(o, true)),
+            )
+            delete json.customData.fakeObstacles
+        }
 
         super(
             json,
@@ -152,11 +191,13 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         const sortItems = (a: { b: number }, b: { b: number }) => a.b - b.b
 
         return {
-            colorNotes: this.notes.map((e) => jsonPrune(e.toJson(true)))
+            colorNotes: this.notes.filter((e) => !e.fake)
+                .map((e) => (e.toJson(true)))
                 .sort(
                     sortItems,
                 ),
-            bombNotes: this.bombs.map((e) => jsonPrune(e.toJson(true)))
+            bombNotes: this.bombs.filter((e) => !e.fake)
+                .map((e) => (e.toJson(true)))
                 .sort(
                     sortItems,
                 ),
@@ -168,11 +209,23 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
             lightRotationEventBoxGroups: [],
             lightTranslationEventBoxGroups: [],
             rotationEvents: [],
-            obstacles: this.walls.map((o) => jsonPrune(o.toJson(true))),
+            obstacles: this.walls.map((o) => (o.toJson(true))),
             sliders: [],
             version: '3.2.0',
             waypoints: [],
-            customData: this.customData,
+            customData: jsonPrune({
+                fakeColorNotes: this.notes.filter((e) => e.fake)
+                    .map((e) => e.toJson(true))
+                    .sort(
+                        sortItems,
+                    ),
+                fakeBombNotes: this.bombs.filter((e) => e.fake)
+                    .map((e) => e.toJson(true))
+                    .sort(
+                        sortItems,
+                    ),
+                ...this.customData,
+            }),
             useNormalEventsAsCompatibleEvents: true,
             basicEventTypesWithKeywords: {
                 d: [],

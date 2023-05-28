@@ -1,4 +1,4 @@
-// deno-lint-ignore-file adjacent-overload-signatures no-extra-semi
+// deno-lint-ignore-file
 import {Wall} from "../internals/wall.ts";
 
 /**
@@ -11,15 +11,6 @@ import {Wall} from "../internals/wall.ts";
  * @param width The width of the wall.
  */
 
-export function wall(
-    time?: number,
-    duration?: number,
-    x?: number,
-    y?: number,
-    height?: number,
-    width?: number,
-): Wall
-export function wall(...params: ConstructorParameters<typeof Wall>): Wall
 export function wall(
     ...params: ConstructorParameters<typeof Wall> | [
         time?: number,
@@ -46,4 +37,3 @@ export function wall(
         width: width,
     })
 }
-

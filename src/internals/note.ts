@@ -24,6 +24,10 @@ export abstract class BaseNote<
         fields: Partial<Fields<BaseNote<TV3>>>,
     ) {
         super(fields, noteAnimation())
+        this.flip = fields.flip
+        this.noteGravity = fields.noteGravity
+        this.noteLook = fields.noteLook
+        this.spawnEffect = fields.spawnEffect
     }
 
     /** Specifies an initial position the note will spawn at before going to it's unmodified position.  */
@@ -56,14 +60,17 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
         fields: Partial<Fields<Note>>,
     ) {
         super(fields)
+        this.type = fields.type ?? 0
+        this.direction = fields.direction ?? 0
+        this.angleOffset = fields.angleOffset ?? 0
     }
 
     /** The color of the note. */
-    type: NoteType = 0
+    type: NoteType
     /** The direction the note will be cut. */
-    direction: NoteCut = 0
+    direction: NoteCut
     /** The angle added to the note's rotation. */
-    angleOffset = 0
+    angleOffset: number
 
     /**
      * Push this note to the difficulty.
@@ -89,8 +96,8 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
                 customData: {
                     animation: this.animation.toJson(v3),
                     flip: this.flip,
-                    disableNoteGravity: !this.noteGravity,
-                    disableNoteLook: !this.noteLook,
+                    disableNoteGravity: this.noteGravity !== undefined ? !this.noteGravity : undefined,
+                    disableNoteLook: this.noteLook !== undefined ? !this.noteLook : undefined,
                     spawnEffect: this.spawnEffect,
                     color: this.color,
                     coordinates: this.coordinates,
@@ -98,7 +105,7 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
                     noteJumpMovementSpeed: this.localNJS,
                     noteJumpStartBeatOffset: this.localBeatOffset,
                     track: this.track.value,
-                    uninteractable: !this.interactable,
+                    uninteractable: this.interactable !== undefined ? !this.interactable : undefined,
                     worldRotation: this.rotation,
                     ...this.customData,
                 },
@@ -114,9 +121,9 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
             _customData: {
                 _animation: this.animation.toJson(v3),
                 _flip: this.flip,
-                _disableNoteGravity: !this.noteGravity,
-                _disableNoteLook: !this.noteLook,
-                _disableSpawnEffect: !this.spawnEffect,
+                _disableNoteGravity: this.noteGravity !== undefined ? !this.noteGravity : undefined,
+                _disableNoteLook: this.noteLook !== undefined ? !this.noteLook : undefined,
+                _disableSpawnEffect: this.spawnEffect !== undefined ? !this.spawnEffect : undefined,
                 _color: this.color,
                 _position: this.coordinates,
                 _localRotation: this.localRotation,
@@ -232,6 +239,11 @@ export class Chain extends BaseSliderObject<bsmap.v3.IBurstSlider> {
     // }
     constructor(fields: Partial<Fields<Chain>>) {
         super(fields)
+        this.links = fields.links ?? 4
+        this.squish = fields.squish ?? 0
+        this.flip = fields.flip
+        this.noteGravity = fields.noteGravity
+        this.noteLook = fields.noteLook
     }
 
     /**
@@ -280,9 +292,9 @@ export class Chain extends BaseSliderObject<bsmap.v3.IBurstSlider> {
     }
 
     /** The amount of links in the chain. */
-    links = 4
+    links: number
     /** An interpolation or extrapolation of the path between the head and tail. */
-    squish = 0
+    squish: number
     /** Specifies an initial position the chain will spawn at before going to it's unmodified position.  */
     flip?: Vec2
     /** Whether note gravity (the effect where notes move to their vertical row from the bottom row) is enabled. */
@@ -306,6 +318,12 @@ export class Arc extends BaseSliderObject<bsmap.v3.ISlider> {
      */
     constructor(fields: Partial<Fields<Arc>>) {
         super(fields)
+        this.tailDirection = fields.tailDirection ?? NoteCut.DOT
+        this.headLength = fields.headLength ?? 0
+        this.tailLength = fields.tailLength ?? 0
+        this.anchorMode = fields.anchorMode ?? AnchorMode.STRAIGHT
+        this.flip = fields.flip
+        this.noteGravity = fields.noteGravity
     }
 
     // constructor(
@@ -378,13 +396,13 @@ export class Arc extends BaseSliderObject<bsmap.v3.ISlider> {
     }
 
     /** The cut direction of the tail of the arc. */
-    tailDirection: NoteCut = NoteCut.DOT
+    tailDirection: NoteCut
     /** Multiplier for the distance the start of the arc shoots outward. */
-    headLength = 0
+    headLength: number
     /** Multiplier for the distance the end of the arc shoots outward. */
-    tailLength = 0
+    tailLength: number
     /** How the arc curves from the head to the midpoint. */
-    anchorMode: AnchorMode = AnchorMode.STRAIGHT
+    anchorMode: AnchorMode
     /** Specifies an initial position the arc will spawn at before going to it's unmodified position.  */
     flip?: Vec2
     /** Whether note gravity (the effect where notes move to their vertical row from the bottom row) is enabled. */

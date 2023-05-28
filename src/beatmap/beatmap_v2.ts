@@ -35,9 +35,15 @@ function toNoteOrBomb(b: bsmap.v2.INote): Note | Bomb {
             rotation: typeof b._customData?._rotation === 'number'
                 ? [0, b._customData._rotation, 0]
                 : b._customData?._rotation,
-            noteLook: !b._customData?._disableNoteLook ?? false,
-            noteGravity: !b._customData?._disableNoteGravity ?? false,
-            spawnEffect: !b._customData?._disableSpawnEffect ?? false,
+            noteLook: b._customData?._disableNoteLook !== undefined
+            ? b._customData?._disableNoteLook
+            : undefined,
+            noteGravity: b._customData?._disableNoteGravity !== undefined
+            ? b._customData?._disableNoteGravity
+            : undefined,
+            spawnEffect: b._customData?._disableSpawnEffect !== undefined
+            ? b._customData?._disableSpawnEffect
+            : undefined,
             coordinates: b._customData?._position,
             track: new Track(b._customData?._track),
             animation: noteAnimation(

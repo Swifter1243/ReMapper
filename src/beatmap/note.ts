@@ -2,14 +2,6 @@ import {NoteCut, NoteType} from '../data/constants.ts'
 import {Arc, Bomb, Chain, Note} from "../internals/note.ts";
 
 export function note(
-    time?: number,
-    type?: NoteType,
-    direction?: NoteCut,
-    x?: number,
-    y?: number,
-): Note
-export function note(...params: ConstructorParameters<typeof Note>): Note
-export function note(
     ...params: ConstructorParameters<typeof Note> | [
         time?: number,
         type?: NoteType,
@@ -35,12 +27,6 @@ export function note(
 }
 
 export function bomb(
-    time?: number,
-    x?: number,
-    y?: number,
-): Bomb
-export function bomb(...params: ConstructorParameters<typeof Bomb>): Bomb
-export function bomb(
     ...params: ConstructorParameters<typeof Bomb> | [
         time?: number,
         x?: number,
@@ -61,18 +47,6 @@ export function bomb(
     })
 }
 
-export function chain(
-    time?: number,
-    tailTime?: number,
-    type?: NoteType,
-    direction?: NoteCut,
-    x?: number,
-    y?: number,
-    tailX?: number,
-    tailY?: number,
-    links?: number,
-): Chain
-export function chain(...params: ConstructorParameters<typeof Chain>): Chain
 export function chain(
     ...params: ConstructorParameters<typeof Chain> | [
         time?: number,
@@ -106,18 +80,6 @@ export function chain(
     })
 }
 
-export function arc(
-    time?: number,
-    tailTime?: number,
-    type?: NoteType,
-    headDirection?: NoteCut,
-    tailDirection?: NoteCut,
-    x?: number,
-    y?: number,
-    tailX?: number,
-    tailY?: number,
-): Arc
-export function arc(...params: ConstructorParameters<typeof Arc>): Arc
 export function arc(
     ...params: ConstructorParameters<typeof Arc> | [
         time?: number,
