@@ -28,9 +28,12 @@ import {JsonWrapper} from "../types/beatmap_types.ts";
 type AnimateV2 = Required<bsmap.v2.IAnimation>['_animation']
 type AnimateV3 = Required<bsmap.v3.IAnimation>['animation']
 
+type AnimationRecord = AnimateV3 & Record<string, KeyframesAny | undefined>
+type AnimationUnsafeProperties = keyof AnimateV3 | keyof AnimateV2
+
 /** Bare minimum animation class. */
 export class BaseAnimation implements JsonWrapper<AnimateV2, AnimateV3> {
-    properties: Partial<Record<string, KeyframesAny>> = {}
+    properties: AnimationRecord = {}
 
     /**
      * The time in each keyframe is divided by the length.
@@ -113,7 +116,7 @@ export class BaseAnimation implements JsonWrapper<AnimateV2, AnimateV3> {
      * @param property The property to clear.
      * Leave undefined to clear everything in this animation.
      */
-    clear(property?: string) {
+    clear<T extends string = AnimationUnsafeProperties>(property?: T) {
         if (property !== undefined) delete this.properties[property]
         else {
             Object.keys(this.properties).forEach((x) => {
@@ -128,7 +131,7 @@ export class BaseAnimation implements JsonWrapper<AnimateV2, AnimateV3> {
      * @param value The value of the property.
      * @param process Whether the value should be processed. E.g. sort by time.
      */
-    set(property: string, value: KeyframesAny | undefined, process = true) {
+    set<T extends string = AnimationUnsafeProperties>(property: T, value: KeyframesAny | undefined, process = true) {
         if (typeof value === 'string' || !process) {
             this.properties[property] = value
             return
@@ -154,8 +157,8 @@ export class BaseAnimation implements JsonWrapper<AnimateV2, AnimateV3> {
      * Time can be in length of animation or between 0 and 1 if negative.
      * Can be left undefined.
      */
-    get(
-        property: string,
+    get<T extends string = AnimationUnsafeProperties>(
+        property: T,
         time?: number,
     ): KeyframesAny | undefined {
         const prop = this.properties[property]
@@ -174,7 +177,7 @@ export class BaseAnimation implements JsonWrapper<AnimateV2, AnimateV3> {
      * @param property The property to add to.
      * @param value What keyframes to add.
      */
-    add(property: string, value: KeyframesAny) {
+    add<T extends string = AnimationUnsafeProperties>(property: T, value: KeyframesAny) {
         if (typeof value === 'string') {
             this.properties[property] = value
             return
@@ -206,8 +209,8 @@ export class BaseAnimation implements JsonWrapper<AnimateV2, AnimateV3> {
      * @param property Optimize only a single property, or set to undefined to optimize all.
      * @param settings Options for the optimizer. Optional.
      */
-    optimize(
-        property?: string,
+    optimize<T extends string = AnimationUnsafeProperties>(
+        property?: T,
         settings: OptimizeSettings = new OptimizeSettings(),
     ) {
         if (property === undefined) {
