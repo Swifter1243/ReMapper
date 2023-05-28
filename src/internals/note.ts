@@ -24,6 +24,10 @@ export abstract class BaseNote<
         fields: Partial<Fields<BaseNote<TV3>>>,
     ) {
         super(fields, noteAnimation())
+        this.flip = fields.flip
+        this.noteGravity = fields.noteGravity
+        this.noteLook = fields.noteLook
+        this.spawnEffect = fields.spawnEffect
     }
 
     /** Specifies an initial position the note will spawn at before going to it's unmodified position.  */
@@ -56,14 +60,17 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
         fields: Partial<Fields<Note>>,
     ) {
         super(fields)
+        this.type = fields.type ?? 0
+        this.direction = fields.direction ?? 0
+        this.angleOffset = fields.angleOffset ?? 0
     }
 
     /** The color of the note. */
-    type: NoteType = 0
+    type: NoteType
     /** The direction the note will be cut. */
-    direction: NoteCut = 0
+    direction: NoteCut
     /** The angle added to the note's rotation. */
-    angleOffset = 0
+    angleOffset: number
 
     /**
      * Push this note to the difficulty.

@@ -12,6 +12,7 @@ import {Fields, ObjectFields} from "../types/util_types.ts";
 import {ColorVec, Vec2, Vec3} from "../types/data_types.ts";
 import {JsonWrapper} from "../types/beatmap_types.ts";
 import { copy } from '../utils/general.ts';
+import * as AnimationInternals from "./animation.ts";
 
 
 export abstract class BaseObject<
@@ -19,14 +20,15 @@ export abstract class BaseObject<
     TV3 extends bsmap.v3.IBaseObject,
 > implements JsonWrapper<TV2, TV3> {
     /** The time that this object is scheduled for. */
-    time = 0
+    time: number
     /** Any community made data on this object. */
-    customData: TV2['_customData'] | TV3['customData'] = {}
+    customData: TV2['_customData'] | TV3['customData']
 
     constructor(
         obj: ObjectFields<BaseObject<TV2, TV3>> | Record<string, unknown>,
     ) {
-        Object.assign(this, obj)
+        this.time = (obj.time as number | undefined) ?? 0
+        this.customData = obj.customData ?? {}
     }
 
     /** Checks if the object has modded properties. */
@@ -51,10 +53,26 @@ export abstract class BaseGameplayObject<
     ) {
         super(obj)
         this.animation = animation
+        this.lineIndex = obj.lineIndex ?? 0
+        this.lineLayer = obj.lineLayer ?? 0
+        this.fake = obj.fake
+        this.coordinates = obj.coordinates
+        this.rotation = obj.rotation
+        this.localRotation = obj.localRotation
+        this.localNJS = obj.localNJS
+        this.localBeatOffset = obj.localBeatOffset
+        this.interactable = obj.interactable
+        this.track = obj.track ?? new Track()
+        this.color = obj.color
+        if (obj.life)
+            this.life = obj.life
+        
+        if (obj.lifeStart)
+            this.lifeStart = obj.lifeStart
     }
 
-    lineIndex = 0
-    lineLayer = 0
+    lineIndex: number
+    lineLayer: number
 
     fake?: boolean
 
@@ -74,7 +92,7 @@ export abstract class BaseGameplayObject<
     /** The track class for this event.
      * @see Track
      */
-    track = new Track()
+    track: Track
 
     /** The chroma color of the object. */
     color?: ColorVec
