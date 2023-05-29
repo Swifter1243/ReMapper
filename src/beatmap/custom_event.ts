@@ -1,6 +1,10 @@
 import { bsmap } from '../deps.ts'
 import * as CustomEventInternals from '../internals/custom_event.ts'
-import { EASE, KeyframesLinear, TrackValue } from '../types/animation_types.ts'
+import {
+    EASE,
+    PointDefinitionLinear,
+    TrackValue,
+} from '../types/animation_types.ts'
 import { Components } from '../types/environment_types.ts'
 
 export type CustomEvent = CustomEventInternals.BaseCustomEvent<
@@ -179,7 +183,7 @@ export function animateComponent(
     track?: TrackValue,
     duration?: number,
     easing?: EASE,
-    components?: Components<KeyframesLinear>,
+    components?: Components<PointDefinitionLinear>,
 ): CustomEventInternals.AnimateComponent
 export function animateComponent(
     ...params: ConstructorParameters<
@@ -195,7 +199,7 @@ export function animateComponent(
             duration?: number,
             easing?: EASE,
 
-            components?: Components<KeyframesLinear>,
+            components?: Components<PointDefinitionLinear>,
         ]
 ) {
     const [first] = params

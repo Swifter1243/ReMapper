@@ -3,15 +3,13 @@ import {
     ComplexKeyframesAbstract,
     ComplexKeyframesAny,
     EASE,
-    KeyframesAbstract,
-    KeyframesAny,
-    KeyframesVec3,
-    KeyframeValues,
+    KeyframeValuesUnsafe,
+    PointDefinitionVec3,
     RawKeyframesAbstract,
     RawKeyframesAny,
     RawKeyframesVec3,
-
-
+    SimpleKeyframesAny,
+    SingleKeyframeAbstract,
 } from '../types/animation_types.ts'
 
 import {
@@ -35,9 +33,10 @@ import { Color, lerpColor } from '../data/color.ts'
 import { Keyframe } from './keyframe.ts'
 
 import * as AnimationInternals from '../internals/animation.ts'
-import {NumberTuple} from "../types/util_types.ts";
-import {TransformKeyframe, Vec3, Vec4} from "../types/data_types.ts";
+import { NumberTuple } from '../types/util_types.ts'
+import { TransformKeyframe, Vec3, Vec4 } from '../types/data_types.ts'
 import { copy } from '../utils/general.ts'
+import { ComplexKeyframeValuesUnsafe, RawKeyframesLinear } from '../mod.ts'
 
 /**
  * Ensures that this value is in the format of an array of keyframes.
@@ -45,8 +44,8 @@ import { copy } from '../utils/general.ts'
  * @param array The keyframe or array of keyframes.
  */
 export function complexifyArray<T extends NumberTuple>(
-    array: RawKeyframesAbstract<T> | RawKeyframesAny,
-) {
+    array: RawKeyframesAbstract<T>,
+): ComplexKeyframesAbstract<T> {
     if (!isSimple(array)) return array as ComplexKeyframesAbstract<T>
     return [[...array, 0]] as ComplexKeyframesAbstract<T>
 }
@@ -60,7 +59,7 @@ export function simplifyArray<T extends NumberTuple>(
     array: RawKeyframesAbstract<T>,
 ): RawKeyframesAbstract<T> {
     if (array.length <= 1 && !isSimple(array)) {
-        const keyframe = new Keyframe(array[0] as KeyframeValues)
+        const keyframe = new Keyframe(array[0] as KeyframeValuesUnsafe)
         if (keyframe.time === 0) {
             return keyframe.values as RawKeyframesAbstract<T>
         }
@@ -72,7 +71,8 @@ export function simplifyArray<T extends NumberTuple>(
  * Checks if value is an array of keyframes.
  * @param array The keyframe or array of keyframes.
  */
-export const isSimple = (array: RawKeyframesAny) => typeof array[0] !== 'object'
+export const isSimple = (array: KeyframeValuesUnsafe) =>
+    typeof array[0] !== 'object'
 
 /**
  * Get the value of keyframes at a given time.
@@ -82,15 +82,18 @@ export const isSimple = (array: RawKeyframesAny) => typeof array[0] !== 'object'
  */
 export function getValuesAtTime<K extends string = AnimationKeys>(
     property: K,
-    animation: KeyframesAny,
+    animation: RawKeyframesAny,
     time: number,
-) {
+): SimpleKeyframesAny {
     if (typeof animation === 'string') {
         throw 'Does not support point definitions!'
     }
 
-    animation = complexifyArray(animation)
-    const timeInfo = timeInKeyframes(time, animation)
+    if (isSimple(animation)) return animation as unknown as SimpleKeyframesAny
+
+    const complexAnimation = animation as ComplexKeyframesAny
+
+    const timeInfo = timeInKeyframes(time, complexAnimation)
     if (timeInfo.interpolate && timeInfo.r && timeInfo.l) {
         if (
             property === 'rotation' ||
@@ -116,16 +119,16 @@ export function getValuesAtTime<K extends string = AnimationKeys>(
             return lerp.export()
         }
         if (timeInfo.r.spline === 'splineCatmullRom') {
-            return splineCatmullRomLerp(timeInfo, animation)
+            return splineCatmullRomLerp(timeInfo, complexAnimation) as SimpleKeyframesAny
         }
 
         return arrLerp(
             timeInfo.l.values,
             timeInfo.r.values,
             timeInfo.normalTime,
-        )
+        ) as SimpleKeyframesAny
     }
-    return (timeInfo.l as Keyframe).values
+    return (timeInfo.l as Keyframe).values as SimpleKeyframesAny
 }
 
 export function splineCatmullRomLerp(
@@ -158,7 +161,7 @@ export function splineCatmullRomLerp(
     return arrMul(arrAdd(arrAdd(o0, o1), arrAdd(o2, o3)), 0.5)
 }
 
-function timeInKeyframes(time: number, animation: ComplexKeyframesAny) {
+function timeInKeyframes(time: number, animation: ComplexKeyframeValuesUnsafe) {
     let l: Keyframe
     let normalTime = 0
 
@@ -217,7 +220,7 @@ export function combineAnimations(
     property: AnimationKeys,
 ) {
     let simpleArr = copy(anim1)
-    let complexArr: ComplexKeyframesAny = []
+    let complexArr: ComplexKeyframeValuesUnsafe = []
 
     if (isSimple(anim1) && isSimple(anim2)) complexArr = complexifyArray(anim2)
     else if (!isSimple(anim1) && isSimple(anim2)) {
@@ -337,9 +340,9 @@ export function bakeAnimation(
         data.scale.push([...keyframe.scale, keyframe.time])
     }
 
-    dataAnim.position = data.pos as KeyframesVec3
-    dataAnim.rotation = data.rot as KeyframesVec3
-    dataAnim.scale = data.scale as KeyframesVec3
+    dataAnim.position = data.pos as PointDefinitionVec3
+    dataAnim.rotation = data.rot as PointDefinitionVec3
+    dataAnim.scale = data.scale as PointDefinitionVec3
 
     dataAnim.optimize(undefined, animOptimizer)
 
@@ -393,7 +396,7 @@ export function reverseAnimation<T extends NumberTuple>(
  */
 export function iterateKeyframes<T extends NumberTuple>(
     keyframes: RawKeyframesAbstract<T>,
-    fn: (values: KeyframesAbstract<T>, index: number) => void,
+    fn: (values: SingleKeyframeAbstract<T>, index: number) => void,
 ) {
     // TODO: Lookup point def
     if (typeof keyframes === 'string') return

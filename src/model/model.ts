@@ -1,7 +1,10 @@
 // deno-lint-ignore-file no-explicit-any no-extra-semi
-import {KeyframeValues, RawKeyframesVec3,  } from '../types/animation_types.ts'
-import {RawGeometryMaterial} from '../types/environment_types.ts'
-import {activeDiff, activeDiffGet} from '../data/beatmap_handler.ts'
+import {
+    KeyframeValuesUnsafe,
+    RawKeyframesVec3,
+} from '../types/animation_types.ts'
+import { RawGeometryMaterial } from '../types/environment_types.ts'
+import { activeDiff, activeDiffGet } from '../data/beatmap_handler.ts'
 import {
     AnimatedObjectInput,
     AnimatedOptions,
@@ -12,31 +15,36 @@ import {
     ModelGroup,
     ModelObject,
     ObjectInput,
-    StaticObjectInput
-} from "../types/model_types.ts";
+    StaticObjectInput,
+} from '../types/model_types.ts'
 
+import { arrAdd } from '../utils/array_utils.ts'
+import { combineTransforms, rotatePoint } from '../utils/math.ts'
+import { Regex } from '../utils/regex.ts'
 
-import {arrAdd} from '../utils/array_utils.ts'
-import {combineTransforms, rotatePoint} from '../utils/math.ts'
-import {Regex} from '../utils/regex.ts'
-
-import {cacheData, parseFilePath} from '../general.ts'
+import { cacheData, parseFilePath } from '../general.ts'
 
 import * as CustomEventInternals from '../internals/custom_event.ts'
 
+import { Environment, Geometry } from '../beatmap/environment.ts'
 
-import {Environment, Geometry} from '../beatmap/environment.ts'
+import { baseEnvironmentTrack } from '../beatmap/beatmap.ts'
+import { animateComponent, animateTrack } from '../beatmap/custom_event.ts'
+import { backLasers } from '../beatmap/basic_event.ts'
 
-import {baseEnvironmentTrack} from '../beatmap/beatmap.ts'
-import {animateComponent, animateTrack} from '../beatmap/custom_event.ts'
-import {backLasers} from '../beatmap/basic_event.ts'
-
-import {optimizeAnimation, OptimizeSettings} from "../animation/anim_optimizer.ts";
-import {bakeAnimation, complexifyArray, iterateKeyframes, mirrorAnimation} from "../animation/animation_utils.ts";
-import {FILEPATH} from "../types/beatmap_types.ts";
-import {Vec3, Vec4} from "../types/data_types.ts";
-import { copy } from '../utils/general.ts';
-
+import {
+    optimizeAnimation,
+    OptimizeSettings,
+} from '../animation/anim_optimizer.ts'
+import {
+    bakeAnimation,
+    complexifyArray,
+    iterateKeyframes,
+    mirrorAnimation,
+} from '../animation/animation_utils.ts'
+import { FILEPATH } from '../types/beatmap_types.ts'
+import { Vec3, Vec4 } from '../types/data_types.ts'
+import { copy } from '../utils/general.ts'
 
 let modelSceneCount = 0
 let noYeet = true
@@ -211,13 +219,13 @@ export class ModelScene {
                         for (let i = 0; i < x.pos.length; i++) {
                             let objPos = copy(
                                 x.pos[i],
-                            ) as KeyframeValues
+                            ) as KeyframeValuesUnsafe
                             let objRot = copy(
                                 x.rot[i],
-                            ) as KeyframeValues
+                            ) as KeyframeValuesUnsafe
                             let objScale = copy(
                                 x.scale[i],
-                            ) as KeyframeValues
+                            ) as KeyframeValuesUnsafe
                             objPos.pop()
                             objRot.pop()
                             objScale.pop()
@@ -904,4 +912,3 @@ export function debugObject(
     scene.addPrimaryGroups('debugCubeZ', new Geometry(undefined, 'debugCubeZ'))
     scene.static(modelData)
 }
-

@@ -1,7 +1,7 @@
 import { bsmap } from '../deps.ts'
 import {
     EASE,
-    KeyframesLinear,
+    PointDefinitionLinear,
     TrackValue,
 } from '../types/animation_types.ts'
 import {
@@ -13,8 +13,8 @@ import {
 import { activeDiffGet } from '../data/beatmap_handler.ts'
 import { Track } from '../animation/track.ts'
 import { AbstractAnimation, BaseAnimation } from './animation.ts'
-import {Fields, TJson} from "../types/util_types.ts";
-import {JsonWrapper} from "../types/beatmap_types.ts";
+import { Fields, TJson } from '../types/util_types.ts'
+import { JsonWrapper } from '../types/beatmap_types.ts'
 import { copy } from '../utils/general.ts'
 
 export abstract class BaseCustomEvent<
@@ -389,7 +389,7 @@ export class AnimateComponent
         track?: TrackValue
         duration?: number
         easing?: EASE
-        components: Components<KeyframesLinear>
+        components: Components<PointDefinitionLinear>
     }) {
         super(params.time)
         this.type = 'AnimateComponent'
@@ -411,11 +411,11 @@ export class AnimateComponent
     /** The easing on this event's animation. */
     easing?: EASE
     /** The "ILightWithId" component to animate. */
-    lightID: ILightWithId<KeyframesLinear> = {}
+    lightID: ILightWithId<PointDefinitionLinear> = {}
     /** The "BloomFogEnvironment" component to animate. */
-    fog: BloomFogEnvironment<KeyframesLinear> = {}
+    fog: BloomFogEnvironment<PointDefinitionLinear> = {}
     /** The "TubeBloomPrePassLight component to animate." */
-    lightMultiplier: TubeBloomPrePassLight<KeyframesLinear> = {}
+    lightMultiplier: TubeBloomPrePassLight<PointDefinitionLinear> = {}
 
     toJson(v3: true): bsmap.v3.ICustomEventAnimateComponent
     toJson(v3: false): never

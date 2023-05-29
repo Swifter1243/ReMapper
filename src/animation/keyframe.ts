@@ -1,10 +1,15 @@
 // deno-lint-ignore-file adjacent-overload-signatures
-import { EASE, KeyframeFlag, KeyframeValues, SPLINE } from '../types/animation_types.ts'
+import {
+    EASE,
+    KeyframeFlag,
+    KeyframeValuesUnsafe,
+    SPLINE,
+} from '../types/animation_types.ts'
 import { arrRemove } from '../utils/array_utils.ts'
 
 export class Keyframe {
     /** The data stored in this keyframe. */
-    data: KeyframeValues
+    data: KeyframeValuesUnsafe
 
     /**
      * Interface for keyframes in animations.
@@ -14,7 +19,7 @@ export class Keyframe {
      * A keyframe can have any amount of values.
      * @param data The data stored in this keyframe.
      */
-    constructor(data: KeyframeValues) {
+    constructor(data: KeyframeValuesUnsafe) {
         this.data = data
     }
 

@@ -2,7 +2,7 @@ import { bomb, note } from './note.ts'
 import { wall } from './wall.ts'
 import { bsmap } from '../deps.ts'
 import {
-    KeyframesAny,
+    
 
 } from '../types/animation_types.ts'
 import { AbstractDifficulty } from './abstract_beatmap.ts'
@@ -11,7 +11,7 @@ import { Track } from "../animation/track.ts";
 import { noteAnimation, wallAnimation } from "../animation/animation.ts";
 import {DIFFNAME, DIFFPATH} from "../types/beatmap_types.ts";
 import {ColorVec, Vec3} from "../types/data_types.ts";
-import { jsonPrune } from '../mod.ts'
+import { PointDefinitionAny, jsonPrune } from '../mod.ts'
 
 function toNoteOrBomb(b: bsmap.v2.INote): Note | Bomb {
     const params:
@@ -48,7 +48,7 @@ function toNoteOrBomb(b: bsmap.v2.INote): Note | Bomb {
             track: new Track(b._customData?._track),
             animation: noteAnimation(
                 undefined,
-                b._customData?._animation as Record<string, KeyframesAny>,
+                b._customData?._animation as Record<string, PointDefinitionAny>,
             ),
         }]
 
@@ -100,10 +100,10 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
                             undefined,
                             o._customData?._animation as Record<
                                 string,
-                                KeyframesAny
+                                PointDefinitionAny
                             >,
                         ),
-                        color: o._customData?._color,
+                        color: o._customData?._color as ColorVec,
                         coordinates: o._customData?._position,
                         customData: o._customData,
                         duration: o._duration,

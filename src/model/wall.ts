@@ -1,26 +1,33 @@
 import {
     ComplexKeyframesAny,
     ComplexKeyframesVec3,
-    KeyframesVec3,
+    PointDefinitionVec3,
     RawKeyframesAny,
-    RawKeyframesVec3
-} from "../types/animation_types.ts";
+    RawKeyframesVec3,
+} from '../types/animation_types.ts'
 
-import {arrAdd} from "../utils/array_utils.ts";
-import {rotatePoint} from "../utils/math.ts";
+import { arrAdd } from '../utils/array_utils.ts'
+import { rotatePoint } from '../utils/math.ts'
 
-import {optimizeAnimation, OptimizeSettings} from "../animation/anim_optimizer.ts";
+import {
+    optimizeAnimation,
+    OptimizeSettings,
+} from '../animation/anim_optimizer.ts'
 
-import {bakeAnimation, complexifyArray, isSimple} from "../animation/animation_utils.ts";
-import {Keyframe} from "../animation/keyframe.ts";
+import {
+    bakeAnimation,
+    complexifyArray,
+    isSimple,
+} from '../animation/animation_utils.ts'
+import { Keyframe } from '../animation/keyframe.ts'
 
-import {wall} from "../beatmap/wall.ts";
-import {Wall} from "../internals/wall.ts";
+import { wall } from '../beatmap/wall.ts'
+import { Wall } from '../internals/wall.ts'
 
-import {getModel} from "./model.ts";
-import {ModelObject} from "../types/model_types.ts";
-import {Vec3} from "../types/data_types.ts";
-import { copy } from "../utils/general.ts";
+import { getModel } from './model.ts'
+import { ModelObject } from '../types/model_types.ts'
+import { Vec3 } from '../types/data_types.ts'
+import { copy } from '../utils/general.ts'
 
 let modelToWallCount = 0
 
@@ -297,9 +304,9 @@ export function debugWall(
 
         w.scale = [1, 1, 1]
         w.animation.duration = w.life
-        w.animation.definitePosition = transform.pos as KeyframesVec3
-        w.animation.localRotation = transform.rot as KeyframesVec3
-        w.animation.scale = transform.scale as KeyframesVec3
+        w.animation.definitePosition = transform.pos as PointDefinitionVec3
+        w.animation.localRotation = transform.rot as PointDefinitionVec3
+        w.animation.scale = transform.scale as PointDefinitionVec3
     } else {
         const wtw = worldToWall(pos as Vec3, rot as Vec3, scale as Vec3)
         w.animation.definitePosition = wtw.pos

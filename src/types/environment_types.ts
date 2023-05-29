@@ -1,9 +1,9 @@
-import {KeyframesLinear} from './animation_types.ts'
-import {ColorVec} from "./data_types.ts";
+import { PointDefinitionLinear } from './animation_types.ts'
+import { ColorVec } from './data_types.ts'
 
 /** The "BloomFogEnvironment" environment component.
  * Allows both animated and non animated variants. */
-export type BloomFogEnvironment<T extends number | KeyframesLinear> = {
+export type BloomFogEnvironment<T extends number | PointDefinitionLinear> = {
     attenuation?: T
     offset?: T
     startY?: T
@@ -11,7 +11,7 @@ export type BloomFogEnvironment<T extends number | KeyframesLinear> = {
 }
 /** The "TubeBloomPrePassLight" environment component.
  * Allows both animated and non animated variants. */
-export type TubeBloomPrePassLight<T extends number | KeyframesLinear> = {
+export type TubeBloomPrePassLight<T extends number | PointDefinitionLinear> = {
     colorAlphaMultiplier?: T
     bloomFogIntensityMultiplier?: T
 }
@@ -55,14 +55,14 @@ export type RawGeometryMaterial = {
     shaderKeywords?: string[]
 }
 /** All components on environment objects. */
-export type Components<N extends number | KeyframesLinear = number> = {
+export type Components<N extends number | PointDefinitionLinear = number> = {
     ILightWithId?: ILightWithId<N>
     BloomFogEnvironment?: BloomFogEnvironment<N>
     TubeBloomPrePassLight?: TubeBloomPrePassLight<N>
 }
 /** The "ILightWithId" environment component.
  * Allows both animated and non animated variants. */
-export type ILightWithId<T extends number | KeyframesLinear> = {
+export type ILightWithId<T extends number | PointDefinitionLinear> = {
     lightID?: T
     type?: T
 }

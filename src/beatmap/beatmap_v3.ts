@@ -1,14 +1,13 @@
 import { bomb, note } from './note.ts'
 import { wall } from './wall.ts'
 import { bsmap } from '../deps.ts'
-import { KeyframesAny } from '../types/animation_types.ts'
 import { AbstractDifficulty } from './abstract_beatmap.ts'
 import { Bomb, Note } from '../internals/note.ts'
 import { noteAnimation, wallAnimation } from '../animation/animation.ts'
 import { Track } from '../animation/track.ts'
 import { DIFFNAME, DIFFPATH } from '../types/beatmap_types.ts'
 import { ColorVec, Vec3 } from '../types/data_types.ts'
-import { jsonPrune } from '../mod.ts'
+import { PointDefinitionAny, jsonPrune } from '../mod.ts'
 
 function toNoteOrBomb(
     obj: bsmap.v3.IColorNote | bsmap.v3.IBombNote,
@@ -46,7 +45,7 @@ function toNoteOrBomb(
             track: new Track(obj.customData?.track),
             animation: noteAnimation(
                 undefined,
-                obj.customData?.animation as Record<string, KeyframesAny>,
+                obj.customData?.animation as Record<string, PointDefinitionAny>,
             ),
         }]
 
@@ -80,7 +79,7 @@ function toWall(
             undefined,
             o.customData?.animation as Record<
                 string,
-                KeyframesAny
+                PointDefinitionAny
             >,
         ),
         color: o.customData?._color,

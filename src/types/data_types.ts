@@ -6,7 +6,6 @@ export type Vec3 = [x: number, y: number, z: number]
 export type Vec4 = [x: number, y: number, z: number, w: number]
 /** An array with [r,g,b] or [r,g,b,a]. */
 export type ColorVec =
-    | [number, number, number, number?]
     | [number, number, number, number]
     | [number, number, number]
 export type Transform = {

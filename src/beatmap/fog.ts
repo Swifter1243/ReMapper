@@ -3,7 +3,7 @@ import * as CustomEventInternals from '../internals/custom_event.ts'
 import { animateComponent } from './custom_event.ts'
 import {
     ComplexKeyframesLinear,
-    KeyframesLinear,
+    PointDefinitionLinear,
 } from '../types/animation_types.ts'
 
 import { baseEnvironmentTrack, getBaseEnvironment } from './beatmap.ts'
@@ -62,7 +62,7 @@ export function adjustFog(
             }
         })
 
-        fogEvent.fog = anyFog as BloomFogEnvironment<KeyframesLinear>
+        fogEvent.fog = anyFog as BloomFogEnvironment<PointDefinitionLinear>
         if (event) event(fogEvent)
         fogEvent.push()
     }

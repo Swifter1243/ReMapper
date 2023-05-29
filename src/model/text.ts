@@ -100,9 +100,9 @@ export class Text {
 
             letter.model.forEach((x) => {
                 const letterModel = {
-                    pos: copy(x.pos),
-                    rot: copy(x.rot),
-                    scale: copy(x.scale),
+                    pos: [...x.pos],
+                    rot: [...x.rot],
+                    scale: [...x.scale],
                 }
                 letterModel.pos[0] -= letter.bounds.lowBound[0]
                 letterModel.pos[2] -= letter.bounds.lowBound[2]

@@ -280,25 +280,26 @@ export function getTransformFromMatrix(matrix: three.Matrix4) {
  * @returns
  */
 export function combineTransforms(
-    target: Transform,
-    transform: Transform,
+    target: Readonly<Transform>,
+    transform: Readonly<Transform>,
     anchor: Vec3 = [0, 0, 0],
 ) {
-    target = copy(target)
-    transform = copy(transform)
+    
+    const newTarget = copy(target) as Transform
+    const newTransform = copy(transform) as Transform
 
-    target.pos ??= [0, 0, 0]
-    target.pos = arrSubtract(target.pos, anchor)
+    newTarget.pos ??= [0, 0, 0]
+    newTarget.pos = arrSubtract(newTarget.pos, anchor)
 
-    const targetM = getMatrixFromTransform(target)
-    const transformM = getMatrixFromTransform(transform)
+    const targetM = getMatrixFromTransform(newTarget)
+    const transformM = getMatrixFromTransform(newTransform)
     targetM.premultiply(transformM)
-    target = getTransformFromMatrix(targetM)
+    const finalTarget = getTransformFromMatrix(targetM)
 
     return {
-        pos: target.pos as Vec3,
-        rot: target.rot as Vec3,
-        scale: target.scale as Vec3,
+        pos: finalTarget.pos as Vec3,
+        rot: finalTarget.rot as Vec3,
+        scale: finalTarget.scale as Vec3,
     }
 }
 

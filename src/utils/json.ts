@@ -48,6 +48,98 @@ export function jsonPrune<T extends Record<string, any>>(obj: T) {
 }
 
 /**
+ * This should be faster than jsonPrune because it
+ * explicitly goes into the fields WE know that should be pruned
+ *
+ * @param obj
+ * @returns
+ */
+export function fastJsonPruneV3<
+    T extends {
+        customData?: Record<string, unknown> & {
+            animation?: bsmap.v3.IChromaAnimation | bsmap.v3.INEAnimation
+            track?: string
+        }
+    },
+>(obj: T): T {
+    if (!obj.customData) {
+        return obj
+    }
+
+    const animation = obj.customData.animation
+    const animationEntries = animation && Object.entries(animation) as [keyof typeof animation, string | unknown[]][]
+    if (animationEntries) {
+        let length = animationEntries.length
+        animationEntries.forEach(([k, v]) => {
+            if (v && v.length > 0) return
+
+            length--
+            delete animation[k]
+        })
+
+        if (length === 0) {
+            delete obj.customData['animation']
+        }
+    }
+
+    if (!obj.customData.track || obj.customData.track.length === 0) {
+        delete obj.customData['track']
+    }
+
+    if (Object.entries(obj.customData).length === 0) {
+        delete obj['customData']
+    }
+
+    return obj
+}
+
+/**
+ * This should be faster than jsonPrune because it
+ * explicitly goes into the fields WE know that should be pruned
+ *
+ * @param obj
+ * @returns
+ */
+export function fastJsonPruneV2<
+    T extends {
+        _customData?: Record<string, unknown> & {
+            _animation?: bsmap.v2.IChromaAnimation | bsmap.v2.INEAnimation
+            _track?: string | string[] | undefined
+        }
+    },
+>(obj: T): T {
+    if (!obj._customData) {
+        return obj
+    }
+
+    const animation = obj._customData._animation
+    const animationEntries = animation && Object.entries(animation) as [keyof typeof animation, string | unknown[]][]
+    if (animationEntries) {
+        let length = animationEntries.length
+        animationEntries.forEach(([k, v]) => {
+            if (v && v.length > 0) return
+
+            length--
+            delete animation[k]
+        })
+
+        if (length === 0) {
+            delete obj._customData['_animation']
+        }
+    }
+
+    if (!obj._customData._track || obj._customData._track.length === 0) {
+        delete obj._customData['_track']
+    }
+
+    if (Object.entries(obj._customData).length === 0) {
+        delete obj['_customData']
+    }
+
+    return obj
+}
+
+/**
  * Get a property of an object recursively.
  * @param obj Base object.
  * @param prop Property on this object to check. Can be multiple objects deep.
