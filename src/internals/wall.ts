@@ -66,7 +66,7 @@ export class Wall
     constructor(
         fields: Omit<Partial<Fields<Wall>>, keyof ExcludeObjectFields>,
     ) {
-        super(fields, wallAnimation())
+        super(fields, fields.animation ? fields.animation : wallAnimation())
         this.duration = fields.duration ?? 0
         this.height = fields.height ?? 1
         this.width = fields.width ?? 1

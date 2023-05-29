@@ -23,7 +23,7 @@ export abstract class BaseNote<
     constructor(
         fields: Omit<Partial<Fields<BaseNote<TV3>>>, keyof ExcludeObjectFields>,
     ) {
-        super(fields, noteAnimation())
+        super(fields, fields.animation ? fields.animation : noteAnimation())
         this.flip = fields.flip
         this.noteGravity = fields.noteGravity
         this.noteLook = fields.noteLook

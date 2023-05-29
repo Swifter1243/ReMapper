@@ -23,7 +23,7 @@ export function copyWith<T extends Record<string | number | symbol, never>>(
 export function copy<T>(obj: T): T {
     if (obj === null || obj === undefined || typeof obj !== 'object') return obj
 
-    const newObj = Object.create(obj)
+    const newObj = Array.isArray(obj) ? [] : Object.create(obj)
 
     const entries = Object.entries(obj) as [keyof T, any]
     entries.forEach(([k, v]) => {
@@ -34,6 +34,7 @@ export function copy<T>(obj: T): T {
             newObj[k] = v;
             return
         }
+        
         const newValue = copy(v);
         newObj[k] = newValue
     })
