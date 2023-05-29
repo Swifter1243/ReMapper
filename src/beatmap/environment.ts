@@ -188,7 +188,7 @@ export function animateEnvGroup(
     easing?: EASE,
 ) {
     const environmentCombined = activeDiffGet()
-        .environemntEnhancementsCombined()
+        .environmentEnhancementsCombined()
 
     for (const x of environmentCombined) {
         if (x.group === group) {
@@ -238,7 +238,7 @@ export function animateEnvTrack(
     easing?: EASE,
 ) {
     const environmentCombined = activeDiffGet()
-        .environemntEnhancementsCombined()
+        .environmentEnhancementsCombined()
 
     for (const x of environmentCombined) {
         if (x.track.value === track) {

@@ -256,7 +256,7 @@ export abstract class AbstractDifficulty<
         this.suggestions = suggestionsArr
     }
 
-    *environemntEnhancementsCombined(): IterableIterator<
+    *environmentEnhancementsCombined(): IterableIterator<
         EnvironmentInternals.AbstractEnvironment
     > {
         yield* this.geometry
