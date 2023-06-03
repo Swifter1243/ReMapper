@@ -1,5 +1,6 @@
 import {
     AnimationKeys,
+    ComplexKeyframeValuesUnsafe,
     ComplexKeyframesAbstract,
     ComplexKeyframesAny,
     EASE,
@@ -30,13 +31,11 @@ import {
 import type { OptimizeSettings } from './anim_optimizer.ts'
 import { Color, lerpColor } from '../data/color.ts'
 
-import { Keyframe } from './keyframe.ts'
-
 import * as AnimationInternals from '../internals/animation.ts'
 import { NumberTuple } from '../types/util_types.ts'
 import { TransformKeyframe, Vec3, Vec4 } from '../types/data_types.ts'
 import { copy } from '../utils/general.ts'
-import { ComplexKeyframeValuesUnsafe, RawKeyframesLinear } from '../mod.ts'
+import { getKeyframeTime, getKeyframeValues } from './keyframe.ts'
 
 /**
  * Ensures that this value is in the format of an array of keyframes.
@@ -59,9 +58,10 @@ export function simplifyArray<T extends NumberTuple>(
     array: RawKeyframesAbstract<T>,
 ): RawKeyframesAbstract<T> {
     if (array.length <= 1 && !isSimple(array)) {
-        const keyframe = new Keyframe(array[0] as KeyframeValuesUnsafe)
-        if (keyframe.time === 0) {
-            return keyframe.values as RawKeyframesAbstract<T>
+        const keyframe = array[0] as KeyframeValuesUnsafe
+        const keyframeTime = getKeyframeTime(keyframe)
+        if (keyframeTime === 0) {
+            return getKeyframeValues(keyframe) as RawKeyframesAbstract<T>
         }
     }
     return array

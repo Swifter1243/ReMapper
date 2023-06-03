@@ -1,8 +1,15 @@
-import { RawKeyframesAbstract } from '../types/animation_types.ts'
+import {
+    KeyframeValuesUnsafe,
+    RawKeyframesAbstract,
+} from '../types/animation_types.ts'
 import { complexifyArray, simplifyArray } from './animation_utils.ts'
-import { Keyframe } from './keyframe.ts'
-import {NumberTuple} from "../types/util_types.ts";
-import { copy } from '../utils/general.ts';
+import { NumberTuple } from '../types/util_types.ts'
+import {
+    getKeyframeEasing,
+    getKeyframeSpline,
+    getKeyframeTime,
+    getKeyframeValues,
+} from './keyframe.ts'
 
 function areArrayElementsIdentical<T>(
     enumerable1: T[],
@@ -52,16 +59,21 @@ function areFloatsSimilar(
 }
 
 function arePointSimilar(
-    a: Keyframe,
-    b: Keyframe,
+    a: KeyframeValuesUnsafe,
+    b: KeyframeValuesUnsafe,
     differenceThreshold: number,
     timeDifferenceThreshold: number,
 ) {
+    const aValues = getKeyframeValues(a)
+    const bValues = getKeyframeValues(b)
+    const aTime = getKeyframeTime(a)
+    const bTime = getKeyframeTime(b)
+
     // Both points are identical
-    return areFloatsSimilar(a.values, b.values, differenceThreshold) &&
+    return areFloatsSimilar(aValues, bValues, differenceThreshold) &&
         // time difference is small
         // points are not similar if the delta of a.time and b.time are GREATER than timeDifferenceThreshold
-        Math.abs(a.time - b.time) <= timeDifferenceThreshold
+        Math.abs(aTime - bTime) <= timeDifferenceThreshold
 }
 
 /// <summary>
@@ -77,9 +89,9 @@ function arePointSimilar(
 /// <param name="skip"></param>
 /// <returns>true if similar</returns>
 function ComparePointsSlope(
-    startPoint: Keyframe,
-    middlePoint: Keyframe,
-    endPoint: Keyframe,
+    startPoint: KeyframeValuesUnsafe,
+    middlePoint: KeyframeValuesUnsafe,
+    endPoint: KeyframeValuesUnsafe,
     // pass in array to reuse and avoid allocations
     middleSlope: number[],
     endSlope: number[],
@@ -89,12 +101,16 @@ function ComparePointsSlope(
     differenceThreshold: number,
     yInterceptDifferenceThreshold: number,
 ): { similar: boolean; skip: boolean } {
+    const startPointTime = getKeyframeTime(startPoint)
+    const middlePointTime = getKeyframeTime(startPoint)
+    const endPointTime = getKeyframeTime(startPoint)
+
     // skip these points because time difference is too small
     if (
-        Math.abs(startPoint.time - endPoint.time) <= timeDifferenceThreshold ||
-        Math.abs(startPoint.time - middlePoint.time) <=
+        Math.abs(startPointTime - endPointTime) <= timeDifferenceThreshold ||
+        Math.abs(startPointTime - middlePointTime) <=
             timeDifferenceThreshold ||
-        Math.abs(middlePoint.time - endPoint.time) <= timeDifferenceThreshold
+        Math.abs(middlePointTime - endPointTime) <= timeDifferenceThreshold
     ) {
         return { skip: true, similar: false }
     }
@@ -112,8 +128,8 @@ function ComparePointsSlope(
     // Skip points where their easing or smoothness is different,
     // which would allow for middlePoint to cause a non-negligible difference
     if (
-        endPoint.easing != middlePoint.easing ||
-        endPoint.spline != middlePoint.spline
+        getKeyframeEasing(endPoint) != getKeyframeEasing(middlePoint) ||
+        getKeyframeSpline(endPoint) != getKeyframeSpline(middlePoint)
     ) {
         return { skip: true, similar: false }
     }
@@ -121,10 +137,10 @@ function ComparePointsSlope(
     // Skip points that are identical with large time differences
     // used for keyframe pause
     if (
-        Math.abs(endPoint.time - middlePoint.time) > differenceThreshold &&
+        Math.abs(endPointTime - middlePointTime) > differenceThreshold &&
         areFloatsSimilar(
-            endPoint.values,
-            middlePoint.values,
+            getKeyframeValues(endPoint),
+            getKeyframeValues(middlePoint),
             differenceThreshold,
         )
     ) {
@@ -167,14 +183,17 @@ function ComparePointsSlope(
 }
 
 function GetYIntercept(
-    pointData: Keyframe,
+    pointData: KeyframeValuesUnsafe,
     slopeArray: number[],
     yIntercepts: number[],
 ) {
+    const pointValues = getKeyframeValues(pointData)
+    const pointTime = getKeyframeTime(pointData)
+
     for (let i = 0; i < slopeArray.length; i++) {
         const slope = slopeArray[i]
-        const x = pointData.values[i]
-        const y = pointData.time
+        const x = pointValues[i]
+        const y = pointTime
 
         //y = mx + b
         // solve for y
@@ -184,11 +203,20 @@ function GetYIntercept(
     }
 }
 
-function SlopeOfPoint(a: Keyframe, b: Keyframe, slopes: number[]) {
-    const yDiff = b.time - a.time
+function SlopeOfPoint(
+    a: KeyframeValuesUnsafe,
+    b: KeyframeValuesUnsafe,
+    slopes: number[],
+) {
+    const aValues = getKeyframeValues(a)
+    const bValues = getKeyframeValues(b)
+    const aTime = getKeyframeTime(a)
+    const bTime = getKeyframeTime(b)
+
+    const yDiff = bTime - aTime
 
     for (let i = 0; i < b.values.length; i++) {
-        const xDiff = b.values[i] - a.values[i]
+        const xDiff = bValues[i] - aValues[i]
         if (xDiff === 0 || yDiff === 0) {
             slopes[i] = 0
         } else {
@@ -203,30 +231,33 @@ function SlopeOfPoint(a: Keyframe, b: Keyframe, slopes: number[]) {
  * Function for an Optimizer.
  */
 export type OptimizeFunction = (
-    pointA: Keyframe,
-    pointB: Keyframe,
-    pointC: Keyframe | undefined,
-) => Keyframe | undefined
+    pointA: KeyframeValuesUnsafe,
+    pointB: KeyframeValuesUnsafe,
+    pointC: KeyframeValuesUnsafe | undefined,
+) => KeyframeValuesUnsafe | undefined
 
 // https://github.com/ErisApps/OhHeck/blob/ae8d02bf6bf2ec8545c2a07546c6844185b97f1c/OhHeck.Core/Analyzer/Lints/Animation/DuplicatePointData.cs
 function optimizeDuplicates(
-    pointA: Keyframe,
-    pointB: Keyframe,
-    pointC: Keyframe | undefined,
-): Keyframe | undefined {
+    pointA: KeyframeValuesUnsafe,
+    pointB: KeyframeValuesUnsafe,
+    pointC: KeyframeValuesUnsafe | undefined,
+): KeyframeValuesUnsafe | undefined {
+    const aValues = getKeyframeValues(pointA)
+    const bValues = getKeyframeValues(pointB)
+
     if (pointC === undefined) {
         // array is size 2
-        return areArrayElementsIdentical(pointA.values, pointB.values)
-            ? pointA
-            : undefined
+        return areArrayElementsIdentical(aValues, bValues) ? pointA : undefined
     }
+
+    const cValues = getKeyframeValues(pointC)
 
     // [[0,2, 0.2], [0, 2, 0.5], [0, 2, 1]]
     // removes the middle point
     // ignores time
     const middlePointUnnecessary =
-        areArrayElementsIdentical(pointA.values, pointB.values) &&
-        areArrayElementsIdentical(pointB.values, pointC.values)
+        areArrayElementsIdentical(aValues, bValues) &&
+        areArrayElementsIdentical(bValues, cValues)
 
     return middlePointUnnecessary ? pointB : undefined
 }
@@ -234,22 +265,29 @@ function optimizeDuplicates(
 // TODO: Configure threshold
 // https://github.com/ErisApps/OhHeck/blob/ae8d02bf6bf2ec8545c2a07546c6844185b97f1c/OhHeck.Core/Analyzer/Lints/Animation/SimilarPointData.cs
 function optimizeSimilarPoints(
-    pointA: Keyframe,
-    pointB: Keyframe,
-    pointC: Keyframe | undefined,
+    pointA: KeyframeValuesUnsafe,
+    pointB: KeyframeValuesUnsafe,
+    pointC: KeyframeValuesUnsafe | undefined,
     settings: OptimizeSimilarPointsSettings,
-): Keyframe | undefined {
+): KeyframeValuesUnsafe | undefined {
     // The minimum difference for considering not similar
     const differenceThreshold = settings.differenceThreshold
     const timeDifferenceThreshold = settings.timeDifferenceThreshold
 
+    const aEasing = getKeyframeEasing(pointA)
+    const aSpline = getKeyframeSpline(pointA)
+    const bEasing = getKeyframeEasing(pointB)
+    const bSpline = getKeyframeSpline(pointB)
+    const cEasing = getKeyframeEasing(pointC as KeyframeValuesUnsafe)
+    const cSpline = getKeyframeSpline(pointC as KeyframeValuesUnsafe)
+
     // ignore points who have different easing or smoothness since those can
     // be considered not similar even with small time differences
     if (
-        pointA.easing !== pointB.easing || pointA.spline !== pointB.spline ||
+        aEasing !== bEasing || aSpline !== bSpline ||
         (pointC !== undefined &&
-            (pointB.spline !== pointC.spline ||
-                pointB.easing !== pointC.easing))
+            (bSpline !== cSpline ||
+                bEasing !== cEasing))
     ) {
         return undefined
     }
@@ -290,21 +328,28 @@ function optimizeSimilarPoints(
 // TODO: Configure threshold
 // https://github.com/ErisApps/OhHeck/blob/ae8d02bf6bf2ec8545c2a07546c6844185b97f1c/OhHeck.Core/Analyzer/Lints/Animation/SimilarPointDataSlope.cs
 function optimizeSimilarPointsSlope(
-    pointA: Keyframe,
-    pointB: Keyframe,
-    pointC: Keyframe | undefined,
+    pointA: KeyframeValuesUnsafe,
+    pointB: KeyframeValuesUnsafe,
+    pointC: KeyframeValuesUnsafe | undefined,
     settings: OptimizeSimilarPointsSlopeSettings,
-): Keyframe | undefined {
+): KeyframeValuesUnsafe | undefined {
     if (pointC === undefined) {
         // array is size 2
         return undefined
     }
 
+    const aEasing = getKeyframeEasing(pointA)
+    const aSpline = getKeyframeSpline(pointA)
+    const bEasing = getKeyframeEasing(pointB)
+    const bSpline = getKeyframeSpline(pointB)
+    const cEasing = getKeyframeEasing(pointC)
+    const cSpline = getKeyframeSpline(pointC)
+
     // ignore points who have different easing or smoothness since those can
     // be considered not similar even with small time differences
     if (
-        pointA.easing !== pointB.easing || pointA.spline !== pointB.spline ||
-        pointB.spline !== pointC.spline || pointB.easing !== pointC.easing
+        aEasing !== bEasing || aSpline !== bSpline ||
+        bSpline !== cSpline || bEasing !== cEasing
     ) {
         return undefined
     }
@@ -384,11 +429,14 @@ export class OptimizeSettings {
 }
 
 function optimizeKeyframes(
-    keyframes: Keyframe[],
+    keyframes: KeyframeValuesUnsafe[],
     optimizeSettings: OptimizeSettings,
-): Keyframe[] {
+): KeyframeValuesUnsafe[] {
     if (!optimizeSettings.active) return keyframes
-    const sortedKeyframes = keyframes.sort((a, b) => a.time - b.time)
+    
+    const sortedKeyframes = keyframes.sort((a, b) =>
+        getKeyframeTime(a) - getKeyframeTime(b)
+    )
 
     const optimizers: OptimizeFunction[] = [
         ...optimizeSettings.additionalOptimizers ?? [],
@@ -425,7 +473,7 @@ function optimizeKeyframes(
     let optimizedKeyframes = [...sortedKeyframes]
 
     for (let pass = 0; pass < optimizeSettings.passes; pass++) {
-        const toRemove: (Keyframe | undefined)[] = []
+        const toRemove: (KeyframeValuesUnsafe | undefined)[] = []
 
         if (optimizedKeyframes.length === 2) {
             toRemove.push(
@@ -452,7 +500,7 @@ function optimizeKeyframes(
         }
 
         // get unique redundant points and none undefined
-        const toRemoveUnique: Keyframe[] = []
+        const toRemoveUnique: KeyframeValuesUnsafe[] = []
         toRemove.forEach((e) => {
             // only add items that are not undefined and not in the array already
             if (
@@ -490,19 +538,14 @@ export function optimizeAnimation<T extends NumberTuple>(
     animation: RawKeyframesAbstract<T>,
     settings: OptimizeSettings,
 ) {
-    const keyframes: Keyframe[] = copy(complexifyArray(animation))
-        .map((x) => new Keyframe(x))
+    const keyframes = complexifyArray(animation)
 
     // not enough points to optimize
     if (keyframes.length <= 2) {
-        return simplifyArray(
-            keyframes.map((x) => x.data) as RawKeyframesAbstract<T>,
-        )
+        return simplifyArray(keyframes)
     }
 
     return simplifyArray(
-        optimizeKeyframes(keyframes, settings).map((x) =>
-            x.data
-        ) as RawKeyframesAbstract<T>,
+        optimizeKeyframes(keyframes, settings) as RawKeyframesAbstract<T>,
     )
 }
