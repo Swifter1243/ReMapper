@@ -215,7 +215,7 @@ function SlopeOfPoint(
 
     const yDiff = bTime - aTime
 
-    for (let i = 0; i < b.values.length; i++) {
+    for (let i = 0; i < bValues.length; i++) {
         const xDiff = bValues[i] - aValues[i]
         if (xDiff === 0 || yDiff === 0) {
             slopes[i] = 0
@@ -433,7 +433,7 @@ function optimizeKeyframes(
     optimizeSettings: OptimizeSettings,
 ): KeyframeValuesUnsafe[] {
     if (!optimizeSettings.active) return keyframes
-    
+
     const sortedKeyframes = keyframes.sort((a, b) =>
         getKeyframeTime(a) - getKeyframeTime(b)
     )

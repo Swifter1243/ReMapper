@@ -6,7 +6,6 @@ import {Wall} from "../internals/wall.ts";
 import {modelToWall} from "./wall.ts";
 import {getModel} from "./model.ts";
 import {Bounds, ColorVec, Transform, Vec3} from "../types/data_types.ts";
-import { copy } from "../utils/general.ts";
 
 type TextObject = {
     pos: Vec3
@@ -100,9 +99,9 @@ export class Text {
 
             letter.model.forEach((x) => {
                 const letterModel = {
-                    pos: [...x.pos],
-                    rot: [...x.rot],
-                    scale: [...x.scale],
+                    pos: x.pos,
+                    rot: x.rot,
+                    scale: x.scale,
                 }
                 letterModel.pos[0] -= letter.bounds.lowBound[0]
                 letterModel.pos[2] -= letter.bounds.lowBound[2]

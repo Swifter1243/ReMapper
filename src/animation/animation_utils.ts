@@ -1,16 +1,17 @@
 import {
     AnimationKeys,
-    ComplexKeyframeValuesUnsafe,
     ComplexKeyframesAbstract,
     ComplexKeyframesAny,
+    ComplexKeyframesVec3,
+    ComplexKeyframeValuesUnsafe,
     EASE,
     KeyframeValuesUnsafe,
-    PointDefinitionVec3,
     RawKeyframesAbstract,
     RawKeyframesAny,
     RawKeyframesVec3,
     SimpleKeyframesAny,
     SingleKeyframeAbstract,
+    SingleKeyframeValuesUnsafe,
 } from '../types/animation_types.ts'
 
 import {
@@ -35,7 +36,16 @@ import * as AnimationInternals from '../internals/animation.ts'
 import { NumberTuple } from '../types/util_types.ts'
 import { TransformKeyframe, Vec3, Vec4 } from '../types/data_types.ts'
 import { copy } from '../utils/general.ts'
-import { getKeyframeTime, getKeyframeValues } from './keyframe.ts'
+import {
+    getKeyframeEasing,
+    getKeyframeFlagIndex,
+    getKeyframeHSVLerp,
+    getKeyframeSpline,
+    getKeyframeTime,
+    getKeyframeTimeIndex,
+    getKeyframeValues,
+setKeyframeEasing,
+} from './keyframe.ts'
 
 /**
  * Ensures that this value is in the format of an array of keyframes.
@@ -95,20 +105,25 @@ export function getValuesAtTime<K extends string = AnimationKeys>(
 
     const timeInfo = timeInKeyframes(time, complexAnimation)
     if (timeInfo.interpolate && timeInfo.r && timeInfo.l) {
+        const lValues = getKeyframeValues(timeInfo.l)
+        const rValues = getKeyframeValues(timeInfo.r)
+        const rHSVLerp = getKeyframeHSVLerp(timeInfo.r)
+        const rSpline = getKeyframeSpline(timeInfo.r)
+
         if (
             property === 'rotation' ||
             property === 'localRotation' ||
             property === 'offsetWorldRotation'
         ) {
             return lerpRotation(
-                timeInfo.l.values as Vec3,
-                timeInfo.r.values as Vec3,
+                lValues as Vec3,
+                rValues as Vec3,
                 timeInfo.normalTime,
             )
         }
-        if (property === 'color' && timeInfo.r.hsvLerp) {
-            const color1 = new Color(timeInfo.l.values as Vec4, 'RGB')
-            const color2 = new Color(timeInfo.r.values as Vec4, 'RGB')
+        if (property === 'color' && rHSVLerp) {
+            const color1 = new Color(lValues as Vec4, 'RGB')
+            const color2 = new Color(rValues as Vec4, 'RGB')
             const lerp = lerpColor(
                 color1,
                 color2,
@@ -118,31 +133,37 @@ export function getValuesAtTime<K extends string = AnimationKeys>(
             )
             return lerp.export()
         }
-        if (timeInfo.r.spline === 'splineCatmullRom') {
-            return splineCatmullRomLerp(timeInfo, complexAnimation) as SimpleKeyframesAny
+        if (rSpline === 'splineCatmullRom') {
+            return splineCatmullRomLerp(
+                timeInfo,
+                complexAnimation,
+            ) as SimpleKeyframesAny
         }
 
         return arrLerp(
-            timeInfo.l.values,
-            timeInfo.r.values,
+            lValues,
+            rValues,
             timeInfo.normalTime,
         ) as SimpleKeyframesAny
     }
-    return (timeInfo.l as Keyframe).values as SimpleKeyframesAny
+    return getKeyframeValues(
+        timeInfo.l as KeyframeValuesUnsafe,
+    ) as SimpleKeyframesAny
 }
 
 export function splineCatmullRomLerp(
     timeInfo: Required<ReturnType<typeof timeInKeyframes>>,
     animation: ComplexKeyframesAny,
 ) {
+    const p1 = getKeyframeValues(timeInfo.l)
+    const p2 = getKeyframeValues(timeInfo.r)
+
     const p0 = timeInfo.leftIndex - 1 < 0
-        ? timeInfo.l.values
-        : new Keyframe(animation[timeInfo.leftIndex - 1]).values
-    const p1 = timeInfo.l.values
-    const p2 = timeInfo.r.values
+        ? p1
+        : getKeyframeValues(animation[timeInfo.leftIndex - 1])
     const p3 = timeInfo.rightIndex + 1 > animation.length - 1
-        ? timeInfo.r.values
-        : new Keyframe(animation[timeInfo.rightIndex + 1]).values
+        ? p2
+        : getKeyframeValues(animation[timeInfo.rightIndex + 1])
 
     const t = timeInfo.normalTime
     const tt = t * t
@@ -162,19 +183,23 @@ export function splineCatmullRomLerp(
 }
 
 function timeInKeyframes(time: number, animation: ComplexKeyframeValuesUnsafe) {
-    let l: Keyframe
+    let l: SingleKeyframeValuesUnsafe
     let normalTime = 0
 
     if (animation.length === 0) return { interpolate: false }
 
-    const first = new Keyframe(animation[0])
-    if (first.time >= time) {
+    const first = animation[0]
+    const firstTime = getKeyframeTime(first)
+
+    if (firstTime >= time) {
         l = first
         return { interpolate: false, l: l }
     }
 
-    const last = new Keyframe(arrLast(animation))
-    if (last.time <= time) {
+    const last = arrLast(animation)
+    const lastTime = getKeyframeTime(last)
+
+    if (lastTime <= time) {
         l = last
         return { interpolate: false, l: l }
     }
@@ -184,18 +209,20 @@ function timeInKeyframes(time: number, animation: ComplexKeyframeValuesUnsafe) {
 
     while (leftIndex < rightIndex - 1) {
         const m = Math.floor((leftIndex + rightIndex) / 2)
-        const pointTime = new Keyframe(animation[m]).time
+        const pointTime = getKeyframeTime(animation[m])
 
         if (pointTime < time) leftIndex = m
         else rightIndex = m
     }
 
-    l = new Keyframe(animation[leftIndex])
-    // eslint-disable-next-line prefer-const
-    const r = new Keyframe(animation[rightIndex])
+    l = animation[leftIndex]
+    const lTime = getKeyframeTime(l)
+    const r = animation[rightIndex]
+    const rTime = getKeyframeTime(r)
+    const rEasing = getKeyframeEasing(r)
 
-    normalTime = findFraction(l.time, r.time - l.time, time)
-    if (r.easing) normalTime = lerpEasing(r.easing, normalTime)
+    normalTime = findFraction(lTime, rTime - lTime, time)
+    if (rEasing) normalTime = lerpEasing(rEasing, normalTime)
 
     return {
         interpolate: true,
@@ -292,23 +319,23 @@ export function bakeAnimation(
     dataAnim.scale = copy(animation.scale)
 
     const data = {
-        pos: <number[][]> [],
-        rot: <number[][]> [],
-        scale: <number[][]> [],
+        pos: <ComplexKeyframesVec3> [],
+        rot: <ComplexKeyframesVec3> [],
+        scale: <ComplexKeyframesVec3> [],
     }
 
     function getDomain(arr: RawKeyframesAny) {
-        let newArr = complexifyArray(arr)
-        newArr = newArr.sort((a, b) =>
-            new Keyframe(a).time - new Keyframe(b).time
-        )
+        const newArr = complexifyArray(arr)
+
         let min = 1
         let max = 0
+
         newArr.forEach((x) => {
-            const time = new Keyframe(x).time
+            const time = getKeyframeTime(x)
             if (time < min) min = time
             if (time > max) max = time
         })
+
         return { min: min, max: max }
     }
 
@@ -317,11 +344,17 @@ export function bakeAnimation(
     const scaleDomain = getDomain(animation.scale)
 
     const totalMin = floorTo(
-        getDomain([[posDomain.min], [rotDomain.min], [scaleDomain.min]]).min,
+        getDomain([[0, posDomain.min], [0, rotDomain.min], [
+            0,
+            scaleDomain.min,
+        ]]).min,
         animFreq,
     )
     const totalMax = ceilTo(
-        getDomain([[posDomain.max], [rotDomain.max], [scaleDomain.max]]).max,
+        getDomain([[0, posDomain.max], [0, rotDomain.max], [
+            0,
+            scaleDomain.max,
+        ]]).max,
         animFreq,
     )
 
@@ -340,9 +373,9 @@ export function bakeAnimation(
         data.scale.push([...keyframe.scale, keyframe.time])
     }
 
-    dataAnim.position = data.pos as PointDefinitionVec3
-    dataAnim.rotation = data.rot as PointDefinitionVec3
-    dataAnim.scale = data.scale as PointDefinitionVec3
+    dataAnim.position = data.pos
+    dataAnim.rotation = data.rot
+    dataAnim.scale = data.scale
 
     dataAnim.optimize(undefined, animOptimizer)
 
@@ -361,32 +394,34 @@ export function reverseAnimation<T extends NumberTuple>(
     animation: RawKeyframesAbstract<T>,
 ) {
     if (isSimple(animation)) return animation
-    const keyframes: Keyframe[] = []
+    const keyframes: ComplexKeyframesAbstract<T> = []
     ;(animation as ComplexKeyframesAbstract<T>).forEach((x, i) => {
-        const k = new Keyframe(copy(x))
-        k.time = 1 - k.time
+        const k = copy(x)
+        const timeIndex = getKeyframeTimeIndex(k)
+        k[timeIndex] = 1 - (k as number[])[timeIndex]
         keyframes[animation.length - 1 - i] = k
     })
 
     for (let i = keyframes.length - 1; i >= 0; i--) {
         const current = keyframes[i]
+        const currentEasing = getKeyframeEasing(current)
 
-        if (current.easing) {
-            if (current.easing && !current.easing.includes('InOut')) {
-                if (current.easing.includes('In')) {
-                    current.easing = current.easing.replace('In', 'Out') as EASE
-                } else if (current.easing.includes('Out')) {
-                    current.easing = current.easing.replace('Out', 'In') as EASE
+        if (currentEasing) {
+            if (currentEasing && !currentEasing.includes('InOut')) {
+                if (currentEasing.includes('In')) {
+                    setKeyframeEasing(current, currentEasing.replace('In', 'Out') as EASE)
+                } else if (currentEasing.includes('Out')) {
+                    setKeyframeEasing(current, currentEasing.replace('Out', 'In') as EASE)
                 }
             }
 
             const last = keyframes[i + 1]
-            last.easing = current.easing
-            arrRemove(current.data, current.getFlagIndex('ease', false))
+            setKeyframeEasing(last, getKeyframeEasing(current))
+            arrRemove(current, getKeyframeFlagIndex(current, "ease", false))
         }
     }
 
-    return keyframes.map((x) => x.data) as RawKeyframesAbstract<T>
+    return keyframes
 }
 
 /**
@@ -416,19 +451,21 @@ export function mirrorAnimation<T extends NumberTuple>(
     animation: RawKeyframesAbstract<T>,
 ) {
     const reversedAnim = reverseAnimation(animation)
-    const output: Keyframe[] = []
+    const output: ComplexKeyframesAbstract<T> = []
 
     iterateKeyframes(animation, (x) => {
-        const k = new Keyframe(copy(x))
-        k.time = k.time / 2
+        const k = copy(x)
+        const timeIndex = getKeyframeTimeIndex(k)
+        k[timeIndex] = (k as number[])[timeIndex] / 2
         output.push(k)
     })
 
     iterateKeyframes(reversedAnim, (x) => {
-        const k = new Keyframe(x)
-        k.time = k.time / 2 + 0.5
+        const k = copy(x)
+        const timeIndex = getKeyframeTimeIndex(k)
+        k[timeIndex] = (k as number[])[timeIndex] / 2 + 0.5
         output.push(k)
     })
 
-    return output.map((x) => x.data) as ComplexKeyframesAbstract<T>
+    return output
 }

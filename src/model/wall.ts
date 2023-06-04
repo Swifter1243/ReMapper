@@ -1,3 +1,4 @@
+// deno-lint-ignore-file no-extra-semi
 import {
     ComplexKeyframesAny,
     ComplexKeyframesVec3,
@@ -19,7 +20,6 @@ import {
     complexifyArray,
     isSimple,
 } from '../animation/animation_utils.ts'
-import { Keyframe } from '../animation/keyframe.ts'
 
 import { wall } from '../beatmap/wall.ts'
 import { Wall } from '../internals/wall.ts'
@@ -28,6 +28,7 @@ import { getModel } from './model.ts'
 import { ModelObject } from '../types/model_types.ts'
 import { Vec3 } from '../types/data_types.ts'
 import { copy } from '../utils/general.ts'
+import { getKeyframeTime } from '../animation/keyframe.ts'
 
 let modelToWallCount = 0
 
@@ -134,9 +135,8 @@ export async function modelToWall(
         }
 
         ;(anim as ComplexKeyframesAny).forEach((k) => {
-            const keyframe = new Keyframe(k)
-            const newTime = (keyframe.time * nums.animMul) + nums.animAdd
-            k[keyframe.timeIndex] = newTime
+            const time = getKeyframeTime(k)
+            k[time] = ((k as number[])[time] * nums.animMul) + nums.animAdd
         })
     }
 

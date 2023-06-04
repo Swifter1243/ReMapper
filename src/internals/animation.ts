@@ -2,8 +2,6 @@
 
 import { bsmap } from '../deps.ts'
 
-import { Keyframe } from '../animation/keyframe.ts'
-
 import {
     complexifyArray,
     getValuesAtTime,
@@ -24,6 +22,7 @@ RawKeyframesAny,
 } from '../types/animation_types.ts'
 import { JsonWrapper } from '../types/beatmap_types.ts'
 import { RMLog } from '../general.ts'
+import { getKeyframeTime, getKeyframeTimeIndex } from "../animation/keyframe.ts";
 
 type AnimateV2 = Required<bsmap.v2.IAnimation>['_animation']
 type AnimateV3 = Required<bsmap.v3.IAnimation>['animation']
@@ -208,7 +207,7 @@ export class BaseAnimation implements JsonWrapper<AnimateV2, AnimateV3> {
         const concatArray: ComplexKeyframesAny = [...convertedValue, ...complexifyArray(prop)] //convertedValue.concat(complexifyArray(prop))
         const newValue = 
             concatArray.sort((a, b) =>
-                new Keyframe(a).time - new Keyframe(b).time
+                getKeyframeTime(a) - getKeyframeTime(b)
             )
         
         this.properties[property] = newValue
@@ -258,7 +257,7 @@ export class BaseAnimation implements JsonWrapper<AnimateV2, AnimateV3> {
 
     private convert(value: ComplexKeyframesAny) {
         return value.map((x) => {
-            const time = new Keyframe(x).timeIndex
+            const time = getKeyframeTimeIndex(x)
             x[time] = this.convertTime(x[time] as number)
             return x
         }) as ComplexKeyframesAny
