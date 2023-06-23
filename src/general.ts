@@ -168,7 +168,7 @@ export function eventsBetween(
     min: number,
     max: number,
 ) {
-    return filterObjects(activeDiffGet().events, min, max, 'time')
+    return filterObjects(activeDiffGet().basicEvents, min, max, 'time')
 }
 
 /**
