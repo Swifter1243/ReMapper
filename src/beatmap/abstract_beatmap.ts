@@ -1,34 +1,34 @@
-import {bsmap} from '../deps.ts'
+import { bsmap } from '../deps.ts'
 
-import { DIFFNAME, DIFFPATH, REQUIRE_MODS, SUGGEST_MODS } from "../types/beatmap_types.ts";
+import {
+    DIFFNAME,
+    DIFFPATH,
+    REQUIRE_MODS,
+    SUGGEST_MODS,
+} from '../types/beatmap_types.ts'
 import { GeometryMaterial } from '../types/environment_types.ts'
 
-import {TJson} from "../types/util_types.ts";
+import { TJson } from '../types/util_types.ts'
 
-import {jsonPrune} from '../utils/json.ts'
-import {setDecimals} from '../utils/math.ts'
+import { jsonPrune } from '../utils/json.ts'
+import { setDecimals } from '../utils/math.ts'
 
-
-import { OptimizeSettings } from "../animation/anim_optimizer.ts";
+import { OptimizeSettings } from '../animation/anim_optimizer.ts'
 import { parseFilePath, RMLog } from '../general.ts'
 
-import {RMJson} from '../rm_json.ts'
-import {settings} from '../data/beatmap_handler.ts' // TODO: Cyclic, fix
+import { RMJson } from '../rm_json.ts'
+import { settings } from '../data/beatmap_handler.ts' // TODO: Cyclic, fix
 
 import * as AnimationInternals from '../internals/animation.ts'
 import * as CustomEventInternals from '../internals/custom_event.ts'
 import * as EnvironmentInternals from '../internals/environment.ts'
-import * as NoteInternals from "../internals/note.ts";
-import * as WallInternals from "../internals/wall.ts";
-
+import * as NoteInternals from '../internals/note.ts'
+import * as WallInternals from '../internals/wall.ts'
 
 import { CustomEvent } from './custom_event.ts'
-import {Environment, Geometry} from './environment.ts'
-import {AbstractEvent} from "./basic_event.ts";
-import {saveInfoDat} from "../data/info_file.ts";
-
-
-
+import { Environment, Geometry } from './environment.ts'
+import { AbstractEvent } from './basic_event.ts'
+import { saveInfoDat } from '../data/info_file.ts'
 
 export interface RMDifficulty {
     version: bsmap.v2.IDifficulty['_version'] | bsmap.v3.IDifficulty['version']
@@ -45,11 +45,11 @@ export interface RMDifficulty {
     geometry: Geometry[]
 }
 
-export type PostProcessFn<T> = (
-    object: T,
-    diff: AbstractDifficulty,
-    json: ReturnType<AbstractDifficulty['toJSON']>,
-) => void
+export type PostProcessFn = (
+    this: unknown,
+    key: string,
+    value: unknown,
+) => unknown
 
 export abstract class AbstractDifficulty<
     TD extends bsmap.v2.IDifficulty | bsmap.v3.IDifficulty =
@@ -70,10 +70,7 @@ export abstract class AbstractDifficulty<
     mapFile: DIFFPATH
     /** The filename of the output file of this difficulty. */
     relativeMapFile: DIFFNAME
-    private postProcesses = new Map<
-        unknown[] | undefined,
-        PostProcessFn<unknown>[]
-    >()
+    private postProcesses = new Map<number, PostProcessFn[]>()
 
     // Initialized by constructor using Object.assign
     version!: bsmap.v2.IDifficulty['_version'] | bsmap.v3.IDifficulty['version']
@@ -115,8 +112,10 @@ export abstract class AbstractDifficulty<
     }
 
     private registerProcessors() {
-        this.addPostProcess(undefined, reduceDecimalsPostProcess)
-        this.addPostProcess(undefined, pruneCustomData)
+        // low priority
+        // we want this to be last
+        this.addPostProcess(reduceDecimalsPostProcess, -1)
+        this.addPostProcess(pruneCustomData, -1)
     }
 
     /**
@@ -144,45 +143,19 @@ export abstract class AbstractDifficulty<
 
     /**
      * Allows you to add a function to be run on save of this difficulty.
-     * @param object The object to process. If undefined, the difficulty will be processed.
-     * @param fn The function to be added.
+     * @param process The function to be added.
+     * @param priority The priority, or default 0. Higher priority means first
      */
-    addPostProcess<T>(object: T[] | undefined, fn: PostProcessFn<T>) {
-        let list = this.postProcesses.get(object)
+    addPostProcess(process: PostProcessFn, priority?: number) {
+        priority ??= 0
 
-        if (!list) {
-            list = []
-            this.postProcesses.set(object, list)
+        let arr = this.postProcesses.get(priority)
+        if (!arr) {
+            arr = []
+            this.postProcesses.set(priority, arr)
         }
 
-        // idc am lazy
-        list.push(fn as any)
-    }
-
-    /**
-     * Runs the post process functions in this difficulty.
-     * @param object The object to process. If undefined, the difficulty will be processed.
-     */
-    doPostProcess<T = unknown>(
-        object: T[] | undefined = undefined,
-        json: ReturnType<AbstractDifficulty['toJSON']>,
-    ) {
-        type Tuple = [unknown[] | undefined, PostProcessFn<unknown>[]]
-
-        const functionsMap: Tuple[] = object === undefined
-            ? Array.from(this.postProcesses.entries())
-            : [[object, this.postProcesses.get(object)!]]
-
-        functionsMap.forEach((tuple) => {
-            const arr = tuple[0]
-            const functions = tuple[1]
-
-            if (arr === undefined) {
-                functions.forEach((fn) => fn(undefined, this, json))
-            } else {
-                arr.forEach((i) => functions.forEach((fn) => fn(i, this, json)))
-            }
-        })
+        arr.push(process)
     }
 
     abstract toJSON(): TD
@@ -202,11 +175,28 @@ export abstract class AbstractDifficulty<
         // this.doPostProcess(undefined, outputJSON)
 
         const promise3 = saveInfoDat()
-
         const promise1 = RMJson.then((rm) => rm.save())
+
+        const sortedProcess = [...this.postProcesses.entries()]
+            .sort(([a], [b]) => a - b)
+            .reverse()
+            .flatMap(([, arr]) => arr)
+
+        const transformer = (k: string, v: unknown) => {
+            let newValue = v
+
+            sortedProcess.forEach((process) => newValue = process(k, newValue))
+
+            return newValue
+        }
+
         const promise2 = Deno.writeTextFile(
             diffName,
-            JSON.stringify(outputJSON, null, 0),
+            JSON.stringify(
+                outputJSON,
+                sortedProcess.length > 0 ? transformer : undefined,
+                0,
+            ),
         )
         await Promise.all([promise1, promise2, promise3])
         RMLog(`${diffName} successfully saved!`)
@@ -383,67 +373,49 @@ export abstract class AbstractDifficulty<
 }
 
 function reduceDecimalsPostProcess(
-    _: never,
-    _diff: AbstractDifficulty,
-    mapJson: AbstractDifficulty['json'],
-) {
+    _k: string,
+    v: unknown,
+): unknown {
     if (!settings.decimals) return
-    reduceDecimalsInObject(mapJson)
+    if (!v) return
 
-    function reduceDecimalsInObject(json: TJson) {
-        Object.keys(json).forEach((key) => {
-            // deno-lint-ignore no-prototype-builtins
-            if (!json.hasOwnProperty(key)) return
-            const element = json[key]
+    if (typeof v !== 'number') return
 
-            if (typeof element === 'number') {
-                json[key] = setDecimals(element, settings.decimals as number)
-            } else if (typeof element === 'object') {
-                reduceDecimalsInObject(element as TJson)
-            }
-        })
-    }
+    return setDecimals(v, settings.decimals)
+
+    // TODO: Remove
+    // if (typeof v !== "object") return
+    // reduceDecimalsInObject(v as Record<string, unknown>)
+
+    // function reduceDecimalsInObject(json: TJson) {
+    //     Object.keys(json).forEach((key) => {
+    //         // deno-lint-ignore no-prototype-builtins
+    //         if (!json.hasOwnProperty(key)) return
+    //         const element = json[key]
+
+    //         if (typeof element === 'number') {
+    //             json[key] = setDecimals(element, settings.decimals as number)
+    //         } else if (typeof element === 'object') {
+    //             reduceDecimalsInObject(element as TJson)
+    //         }
+    //     })
+    // }
 }
 
 function pruneCustomData(
-    _: never,
-    _diff: AbstractDifficulty,
-    mapJson: AbstractDifficulty['json'],
-): void {
+    k: string,
+    v: unknown,
+): unknown {
+    if (!v) return
+
+    if (k !== 'customData') return
+    if (typeof v !== 'object') return {}
+
     // only prune the values of the map
     // so empty arrays don't get yeeted
-    Object.values(mapJson).forEach((x) => {
+
+    Object.values(v).forEach((x) => {
         jsonPrune(x)
     })
-
-    //   const promises: Promise<void>[] = []
-    //   function traverseTree<T = unknown>(obj: Record<string, unknown>, key: string, callback: (x: T) => Promise<void> | void) {
-    //     Object.entries(obj).forEach(([k, v]) => {
-    //       if (k === key) {
-    //         const val = callback(v as T)
-    //         if (val instanceof Promise<void>) {
-    //           promises.push(val)
-    //         }
-    //         return
-    //       }
-
-    //       if (Array.isArray(v)) {
-    //         v.forEach(e => {
-    //           if (typeof e !== "object") return
-
-    //           traverseTree(e, key, callback)
-    //         })
-    //         return
-    //       }
-
-    //       if (!v || typeof v !== "object") return
-
-    //       Object.values(v).forEach(vv => traverseTree(vv, key, callback))
-    //     })
-    //   }
-
-    // traverseTree(mapJson, "customData", x => {
-    //   if (!x || typeof x !== "object") return
-    //   jsonPrune(x as Record<string, unknown>)
-    // })
+    return v
 }
