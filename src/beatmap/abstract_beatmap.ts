@@ -24,17 +24,11 @@ import * as CustomEventInternals from '../internals/custom_event.ts'
 import * as EnvironmentInternals from '../internals/environment.ts'
 import * as NoteInternals from '../internals/note.ts'
 import * as WallInternals from '../internals/wall.ts'
+import * as BasicEventInternals from '../internals/basic_event.ts'
 
 import { CustomEvent } from './custom_event.ts'
 import { Environment, Geometry } from './environment.ts'
 import { saveInfoDat } from '../data/info_file.ts'
-import {
-    LaserSpeedEvent,
-    LightEvent,
-    RingSpinEvent,
-    RingZoomEvent,
-    RotationEvent,
-} from '../internals/basic_event.ts'
 
 export interface RMDifficulty {
     version: bsmap.v2.IDifficulty['_version'] | bsmap.v3.IDifficulty['version']
@@ -44,11 +38,11 @@ export interface RMDifficulty {
     chains: NoteInternals.Chain[]
     walls: WallInternals.Wall[]
 
-    basicEvents: LightEvent[]
-    laserSpeedEvents: LaserSpeedEvent[]
-    ringZoomEvents: RingZoomEvent[]
-    ringSpinEvents: RingSpinEvent[]
-    rotationEvent: RotationEvent[]
+    basicEvents: BasicEventInternals.LightEvent[]
+    laserSpeedEvents: BasicEventInternals.LaserSpeedEvent[]
+    ringZoomEvents: BasicEventInternals.RingZoomEvent[]
+    ringSpinEvents: BasicEventInternals.RingSpinEvent[]
+    rotationEvent: BasicEventInternals.RotationEvent[]
 
     customEvents: CustomEvent[]
     pointDefinitions: Record<string, unknown>
@@ -93,11 +87,11 @@ export abstract class AbstractDifficulty<
     arcs: NoteInternals.Arc[]
     chains: NoteInternals.Chain[]
     walls: WallInternals.Wall[]
-    basicEvents: LightEvent[]
-    laserSpeedEvents: LaserSpeedEvent[]
-    ringZoomEvents: RingZoomEvent[]
-    ringSpinEvents: RingSpinEvent[]
-    rotationEvent: RotationEvent[]
+    basicEvents: BasicEventInternals.LightEvent[]
+    laserSpeedEvents: BasicEventInternals.LaserSpeedEvent[]
+    ringZoomEvents: BasicEventInternals.RingZoomEvent[]
+    ringSpinEvents: BasicEventInternals.RingSpinEvent[]
+    rotationEvent: BasicEventInternals.RotationEvent[]
     customEvents: CustomEvent[]
     pointDefinitions: Record<string, unknown>
     customData: Record<string, unknown>
