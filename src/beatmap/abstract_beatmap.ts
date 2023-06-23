@@ -1,3 +1,4 @@
+// deno-lint-ignore-file adjacent-overload-signatures
 import { bsmap } from '../deps.ts'
 
 import {

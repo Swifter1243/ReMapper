@@ -8,6 +8,7 @@ madge('src/mod.ts', {
             skipTypeImports: true,
         },
     },
+// deno-lint-ignore no-explicit-any
 }).then((res: any) => {
     res.image('madge/image.png')
     res.image('madge/circular.png', true)

@@ -67,6 +67,8 @@ export type DIFFPATH = FILEPATH<DIFFS>
 /** Filename for a difficulty. Extension is optional. */
 export type DIFFNAME = FILENAME<DIFFS>
 
+// I literally don't know how to do this with Records
+// deno-lint-ignore ban-types
 export interface JsonWrapper<TV2 extends object, TV3 extends object> {
     toJson(v3: true): TV3
 

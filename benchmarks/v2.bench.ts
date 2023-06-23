@@ -17,7 +17,7 @@ const notes: bsmap.v2.INote[] = [...Array(1000).keys()].map(() => ({
     _cutDirection: rand(0, 8),
     _lineIndex: rand(0, 3),
     _lineLayer: rand(0, 3),
-    _type: rand(0, 1) as any,
+    _type: rand(0, 1) as 0 | 1,
     _customData: {},
 } satisfies bsmap.v2.INote))
 

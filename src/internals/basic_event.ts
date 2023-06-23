@@ -34,6 +34,8 @@ export abstract class BaseEvent<
     type:
         | TV2['_type']
         | TV3['et']
+        | EventGroup.LOWER_HYDRAULICS
+        | EventGroup.RAISE_HYDRAULICS
         | EventGroup.GAGA_LEFT
         | EventGroup.GAGA_RIGHT = 0!
     /** The value of the event. */
@@ -133,7 +135,7 @@ export class LightEvent
         if (v3) {
             return {
                 b: this.time,
-                et: this.type as any,
+                et: this.type as bsmap.v3.IBasicEventLight["et"],
                 f: this.floatValue,
                 i: this.value,
                 customData: {
@@ -148,7 +150,7 @@ export class LightEvent
             return {
                 _floatValue: this.floatValue,
                 _time: this.time,
-                _type: this.type as any,
+                _type: this.type as bsmap.v2.IEventLight["_type"],
                 _value: this.value,
                 _customData: {
                     _color: this.color,
@@ -208,7 +210,7 @@ export class LaserSpeedEvent
         if (v3) {
             return {
                 b: this.time,
-                et: this.type as any,
+                et: this.type as bsmap.v3.IBasicEventLaserRotation["et"],
                 f: this.floatValue,
                 i: this.value,
                 customData: {
@@ -222,7 +224,7 @@ export class LaserSpeedEvent
             return {
                 _floatValue: this.floatValue,
                 _time: this.time,
-                _type: this.type as any,
+                _type: this.type as bsmap.v2.IEventLaser["_type"],
                 _value: this.value,
                 _customData: {
                     _direction: this.direction,
@@ -267,7 +269,7 @@ export class RingZoomEvent
         if (v3) {
             return {
                 b: this.time,
-                et: this.type as any,
+                et: this.type as bsmap.v3.IBasicEventRing["et"],
                 f: this.floatValue,
                 i: this.value,
                 customData: {
@@ -407,14 +409,14 @@ export class RotationEvent extends BaseEvent<
                 b: this.time,
                 f: this.floatValue,
                 i: this.value,
-                et: this.type as any,
+                et: this.type as bsmap.v3.IBasicEventLaneRotation["et"],
                 customData: this.customData,
             } satisfies bsmap.v3.IBasicEventLaneRotation
         }
         return {
             _time: this.time,
             _floatValue: this.floatValue,
-            _type: this.type as any,
+            _type: this.type as bsmap.v2.IEventLaneRotation["_type"],
             _value: this.value,
             _customData: {
                 _rotation: this.value,

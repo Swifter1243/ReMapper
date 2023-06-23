@@ -8,6 +8,7 @@ export type MapRecursiveTypes<T, U, V> =
     & ExcludeTypes<T, U>
     & {
         [K in keyof T]: T[K] extends U ? V
+            // deno-lint-ignore ban-types
             : (T[K] extends object ? MapRecursiveTypes<T[K], U, V> : never)
     }[keyof T]
 
