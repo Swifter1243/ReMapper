@@ -27,8 +27,14 @@ import * as WallInternals from '../internals/wall.ts'
 
 import { CustomEvent } from './custom_event.ts'
 import { Environment, Geometry } from './environment.ts'
-import { AbstractEvent } from './basic_event.ts'
 import { saveInfoDat } from '../data/info_file.ts'
+import {
+    LaserSpeedEvent,
+    LightEvent,
+    RingSpinEvent,
+    RingZoomEvent,
+    RotationEvent,
+} from '../internals/basic_event.ts'
 
 export interface RMDifficulty {
     version: bsmap.v2.IDifficulty['_version'] | bsmap.v3.IDifficulty['version']
@@ -37,12 +43,20 @@ export interface RMDifficulty {
     arcs: NoteInternals.Arc[]
     chains: NoteInternals.Chain[]
     walls: WallInternals.Wall[]
-    events: AbstractEvent[]
+
+    basicEvents: LightEvent[]
+    laserSpeedEvents: LaserSpeedEvent[]
+    ringZoomEvents: RingZoomEvent[]
+    ringSpinEvents: RingSpinEvent[]
+    rotationEvent: RotationEvent[]
+
     customEvents: CustomEvent[]
     pointDefinitions: Record<string, unknown>
     customData: Record<string, unknown>
     environment: Environment[]
     geometry: Geometry[]
+
+    geoMaterials: Record<string, GeometryMaterial>
 }
 
 export type PostProcessFn = (
@@ -73,19 +87,23 @@ export abstract class AbstractDifficulty<
     private postProcesses = new Map<number, PostProcessFn[]>()
 
     // Initialized by constructor using Object.assign
-    version!: bsmap.v2.IDifficulty['_version'] | bsmap.v3.IDifficulty['version']
-    notes!: NoteInternals.Note[]
-    bombs!: NoteInternals.Bomb[]
-    arcs!: NoteInternals.Arc[]
-    chains!: NoteInternals.Chain[]
-    walls!: WallInternals.Wall[]
-    events!: AbstractEvent[] // TODO: Rework this
-    customEvents!: CustomEvent[]
-    pointDefinitions!: Record<string, unknown>
-    customData!: Record<string, unknown>
-    environment!: Environment[]
-    geometry!: Geometry[]
-    geoMaterials!: Record<string, GeometryMaterial>
+    version: bsmap.v2.IDifficulty['_version'] | bsmap.v3.IDifficulty['version']
+    notes: NoteInternals.Note[]
+    bombs: NoteInternals.Bomb[]
+    arcs: NoteInternals.Arc[]
+    chains: NoteInternals.Chain[]
+    walls: WallInternals.Wall[]
+    basicEvents: LightEvent[]
+    laserSpeedEvents: LaserSpeedEvent[]
+    ringZoomEvents: RingZoomEvent[]
+    ringSpinEvents: RingSpinEvent[]
+    rotationEvent: RotationEvent[]
+    customEvents: CustomEvent[]
+    pointDefinitions: Record<string, unknown>
+    customData: Record<string, unknown>
+    environment: Environment[]
+    geometry: Geometry[]
+    geoMaterials: Record<string, GeometryMaterial>
 
     /**
      * Creates a difficulty. Can be used to access various information and the map data.
@@ -101,12 +119,34 @@ export abstract class AbstractDifficulty<
         relativeMapFile: DIFFNAME,
         inner: RMDifficulty,
     ) {
-        Object.assign(this, inner)
         this.json = json
         this.diffSet = diffSet
         this.diffSetMap = diffSetMap
         this.mapFile = mapFile
         this.relativeMapFile = relativeMapFile
+
+        this.arcs = inner.arcs
+        this.basicEvents = inner.basicEvents
+        this.bombs = inner.bombs
+        this.chains = inner.chains
+        this.customData = inner.customData
+        this.customEvents = inner.customEvents
+        this.geometry = inner.geometry
+        this.environment = inner.environment
+
+        this.geoMaterials = inner.geoMaterials
+
+        this.laserSpeedEvents = inner.laserSpeedEvents
+        this.rotationEvent = inner.rotationEvent
+        this.ringZoomEvents = inner.ringZoomEvents
+        this.ringSpinEvents = inner.ringSpinEvents
+
+        this.pointDefinitions = inner.pointDefinitions
+
+        this.walls = inner.walls
+        this.notes = inner.notes
+
+        this.version = inner.version
 
         this.registerProcessors()
     }
