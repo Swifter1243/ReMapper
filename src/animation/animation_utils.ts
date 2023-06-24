@@ -44,7 +44,8 @@ import {
     getKeyframeTime,
     getKeyframeTimeIndex,
     getKeyframeValues,
-setKeyframeEasing,
+    isSimple,
+    setKeyframeEasing,
 } from './keyframe.ts'
 
 /**
@@ -77,12 +78,7 @@ export function simplifyArray<T extends NumberTuple>(
     return array
 }
 
-/**
- * Checks if value is an array of keyframes.
- * @param array The keyframe or array of keyframes.
- */
-export const isSimple = (array: KeyframeValuesUnsafe) =>
-    typeof array[0] !== 'object'
+
 
 /**
  * Get the value of keyframes at a given time.
@@ -409,15 +405,21 @@ export function reverseAnimation<T extends NumberTuple>(
         if (currentEasing) {
             if (currentEasing && !currentEasing.includes('InOut')) {
                 if (currentEasing.includes('In')) {
-                    setKeyframeEasing(current, currentEasing.replace('In', 'Out') as EASE)
+                    setKeyframeEasing(
+                        current,
+                        currentEasing.replace('In', 'Out') as EASE,
+                    )
                 } else if (currentEasing.includes('Out')) {
-                    setKeyframeEasing(current, currentEasing.replace('Out', 'In') as EASE)
+                    setKeyframeEasing(
+                        current,
+                        currentEasing.replace('Out', 'In') as EASE,
+                    )
                 }
             }
 
             const last = keyframes[i + 1]
             setKeyframeEasing(last, getKeyframeEasing(current))
-            arrRemove(current, getKeyframeFlagIndex(current, "ease", false))
+            arrRemove(current, getKeyframeFlagIndex(current, 'ease', false))
         }
     }
 
