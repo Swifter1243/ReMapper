@@ -255,7 +255,8 @@ export function lerpRotation(start: Vec3, end: Vec3, fraction: number, easing?: 
  * @param q Input quaternion.
  */
 export function rotFromQuaternion(q: three.Quaternion) {
-    let euler = new three.Euler(0, 0, 0, "YXZ").setFromQuaternion(q).toArray();
+    // wtf why doesn't it always return number[]
+    let euler = new three.Euler(0, 0, 0, "YXZ").setFromQuaternion(q).toArray() as number[];
     euler.pop();
     euler = toDegrees(euler);
     return euler as Vec3;
