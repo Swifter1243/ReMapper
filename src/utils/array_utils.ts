@@ -106,7 +106,7 @@ export function arrEqual<T extends readonly [] | readonly number[]>(
  * @param arr Array to mutate.
  * @param index Element to remove. Can be -1 to remove last element.
  */
-export function arrRemove(arr: any[], index: number) {
+export function arrRemove<T>(arr: T[], index: number) {
     if (index === -1) index = arr.length - 1
     if (index > arr.length - 1 || index < 0) return
 
@@ -122,14 +122,14 @@ export function arrRemove(arr: any[], index: number) {
  * @param arr Input array.
  * @param value Value to check for.
  */
-export const arrHas = (arr: any[], value: any) => arr.some((x) => x === value)
+export const arrHas = <T>(arr: T[], value: T) => arr.some((x) => x === value)
 
 /**
  * Add values of one array to another.
  * @param arr Array to add values to.
  * @param arr2 Values to add.
  */
-export const arrAppend = (arr: any[], arr2: any[]) => arr.push.apply(arr, arr2)
+export const arrAppend = <T>(arr: T[], arr2: T[]) => arr.push(...arr2)
 
 /**
  * Generate an array from a range of numbers.
