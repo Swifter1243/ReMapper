@@ -33,6 +33,8 @@ export async function readDifficulty(
         | bsmap.v3.IDifficulty
 
     const v3 = Object.hasOwn(json, 'version') &&
+    // lazy
+    // deno-lint-ignore no-explicit-any
         semver.satisfies((json as any)['version'], '>=3.0.0')
 
     let diff: AbstractDifficulty

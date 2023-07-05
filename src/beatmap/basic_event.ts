@@ -139,7 +139,7 @@ export function moveCars(
 export function lowerHydraulics(time: number) {
     return new EventInternals.LightEvent({
         time: time,
-        type: EventGroup.LOWER_HYDRAULICS as any,
+        type: EventGroup.LOWER_HYDRAULICS,
         value: 0,
     })
 }
@@ -148,7 +148,7 @@ export function lowerHydraulics(time: number) {
 export function raiseHydraulics(time: number) {
     return new EventInternals.LightEvent({
         time: time,
-        type: EventGroup.RAISE_HYDRAULICS as any,
+        type: EventGroup.RAISE_HYDRAULICS,
         value: 0,
     })
 }

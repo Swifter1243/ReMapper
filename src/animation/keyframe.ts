@@ -1,11 +1,22 @@
 // deno-lint-ignore-file
 import {
+ComplexKeyframesAbstract,
     EASE,
     KeyframeFlag,
     KeyframeValuesUnsafe,
+    RawKeyframesAbstract,
     SPLINE,
+SingleKeyframeAbstract,
 } from '../types/animation_types.ts'
+import type { NumberTuple } from "../types/mod.ts";
 import { arrRemove } from '../utils/array_utils.ts'
+
+/**
+ * Checks if value is an array of keyframes.
+ * @param array The keyframe or array of keyframes.
+ */
+export const isSimple = (array: KeyframeValuesUnsafe) =>
+    typeof array[0] !== 'object'
 
 /** Get the index of the time value of a keyframe. */
 export function getKeyframeTimeIndex(data: KeyframeValuesUnsafe) {
@@ -103,4 +114,71 @@ export function getKeyframeFlagIndex(
     return data.findIndex(
         (x) => typeof x === 'string' && x.includes(flag),
     )
+}
+
+export function keyframesMap<
+    T extends NumberTuple,
+    K extends RawKeyframesAbstract<T>,
+>(
+    keyframe: K,
+    fn: (
+        keyframe: Readonly<SingleKeyframeAbstract<T>> | undefined,
+    ) => SingleKeyframeAbstract<T>,
+    options: {
+        filter?: false // if true, will remove al
+    },
+): K
+export function keyframesMap<
+    T extends NumberTuple,
+    K extends RawKeyframesAbstract<T>,
+>(
+    keyframe: K,
+    fn: (
+        keyframe: Readonly<SingleKeyframeAbstract<T>>,
+    ) => SingleKeyframeAbstract<T>,
+    options: {
+        filter: true // if true, will remove al
+    },
+): K
+
+/**
+ * @param keyframe keyframe to transform
+ * @param fn
+ * @param options if filter is true, will only retain keyframes that evaluate to truthy. Will not apply to simple keyframes
+ */
+export function keyframesMap<
+    T extends NumberTuple,
+    K extends RawKeyframesAbstract<T>,
+>(
+    keyframe: K,
+    fn: (
+        keyframe: Readonly<SingleKeyframeAbstract<T>>,
+        timeIndex: number,
+        keyframeIndex: number,
+    ) => SingleKeyframeAbstract<T>,
+    options: {
+        filter?: boolean // if true, will remove al
+    },
+): K {
+    if (isSimple(keyframe)) {
+        const simpleKeyframe = keyframe as SingleKeyframeAbstract<T>
+
+        return fn(simpleKeyframe, findTimeIndex(simpleKeyframe), 0) as K
+    }
+
+    const complexKeyframe = keyframe as ComplexKeyframesAbstract<T>
+
+    const ret = complexKeyframe.map((x, kIdx) => fn(x, findTimeIndex(x), kIdx))
+
+    if (!options.filter) return ret as K
+
+    // if evaluate to truthy
+    return ret.filter((x) => x) as K
+}
+
+export function findTimeIndex<
+    T extends NumberTuple,
+    K extends SingleKeyframeAbstract<T>,
+>(keyframe: K): number {
+    return keyframe.findLastIndex((x) => typeof x === 'number')
 }

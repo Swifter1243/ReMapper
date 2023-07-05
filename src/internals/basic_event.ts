@@ -1,11 +1,11 @@
-import {EventAction, EventGroup} from '../data/constants.ts'
-import {bsmap} from '../deps.ts'
-import {EASE} from '../types/animation_types.ts'
-import {BaseObject} from './object.ts'
-import {activeDiffGet} from '../data/beatmap_handler.ts'
-import {ObjectFields} from "../types/util_types.ts";
-import {LightID} from "../types/environment_types.ts";
-import {ColorVec} from "../types/data_types.ts";
+import { EventAction, EventGroup } from '../data/constants.ts'
+import { bsmap } from '../deps.ts'
+import { EASE } from '../types/animation_types.ts'
+import { BaseObject } from './object.ts'
+import { activeDiffGet } from '../data/beatmap_handler.ts'
+import { ObjectFields } from '../types/util_types.ts'
+import { LightID } from '../types/environment_types.ts'
+import { ColorVec } from '../types/data_types.ts'
 import { copy } from '../utils/general.ts'
 
 type LightFields<T extends { customData: T['customData'] }> =
@@ -28,15 +28,14 @@ export abstract class BaseEvent<
     /** Push this event to the difficulty
      * @param clone Whether this object will be copied before being pushed.
      */
-    push(clone = true) {
-        activeDiffGet().events.push(clone ? copy(this) : this)
-        return this
-    }
+    abstract push(clone: boolean): BaseEvent<TV2, TV3>
 
     /** The type of the event. */
     type:
         | TV2['_type']
         | TV3['et']
+        | EventGroup.LOWER_HYDRAULICS
+        | EventGroup.RAISE_HYDRAULICS
         | EventGroup.GAGA_LEFT
         | EventGroup.GAGA_RIGHT = 0!
     /** The value of the event. */
@@ -122,6 +121,13 @@ export class LightEvent
     /** The color interpolation for transition events. Goes on start event. */
     lerpType?: 'RGB' | 'HSV'
 
+    push(
+        clone: boolean,
+    ): LightEvent {
+        activeDiffGet().basicEvents.push(clone ? copy(this) : this)
+        return this
+    }
+
     toJson(v3: true): bsmap.v3.IBasicEventLight
     toJson(v3: false): bsmap.v2.IEventLight
     toJson(v3: boolean): bsmap.v3.IBasicEventLight | bsmap.v2.IEventLight {
@@ -129,7 +135,7 @@ export class LightEvent
         if (v3) {
             return {
                 b: this.time,
-                et: this.type as any,
+                et: this.type as bsmap.v3.IBasicEventLight["et"],
                 f: this.floatValue,
                 i: this.value,
                 customData: {
@@ -144,7 +150,7 @@ export class LightEvent
             return {
                 _floatValue: this.floatValue,
                 _time: this.time,
-                _type: this.type as any,
+                _type: this.type as bsmap.v2.IEventLight["_type"],
                 _value: this.value,
                 _customData: {
                     _color: this.color,
@@ -189,6 +195,13 @@ export class LaserSpeedEvent
     /** Direction of the rotating lasers. */
     direction?: number
 
+    push(
+        clone: boolean,
+    ): LaserSpeedEvent {
+        activeDiffGet().laserSpeedEvents.push(clone ? copy(this) : this)
+        return this
+    }
+
     toJson(v3: true): bsmap.v3.IBasicEventLaserRotation
     toJson(v3: false): bsmap.v2.IEventLaser
     toJson(
@@ -197,7 +210,7 @@ export class LaserSpeedEvent
         if (v3) {
             return {
                 b: this.time,
-                et: this.type as any,
+                et: this.type as bsmap.v3.IBasicEventLaserRotation["et"],
                 f: this.floatValue,
                 i: this.value,
                 customData: {
@@ -211,7 +224,7 @@ export class LaserSpeedEvent
             return {
                 _floatValue: this.floatValue,
                 _time: this.time,
-                _type: this.type as any,
+                _type: this.type as bsmap.v2.IEventLaser["_type"],
                 _value: this.value,
                 _customData: {
                     _direction: this.direction,
@@ -243,13 +256,20 @@ export class RingZoomEvent
     step?: number
     speed?: number
 
+    push(
+        clone: boolean,
+    ): RingZoomEvent {
+        activeDiffGet().ringZoomEvents.push(clone ? copy(this) : this)
+        return this
+    }
+
     toJson(v3: true): bsmap.v3.IBasicEventRing
     toJson(v3: false): bsmap.v2.IEventZoom
     toJson(v3: boolean): bsmap.v2.IEventZoom | bsmap.v3.IBasicEventRing {
         if (v3) {
             return {
                 b: this.time,
-                et: this.type as any,
+                et: this.type as bsmap.v3.IBasicEventRing["et"],
                 f: this.floatValue,
                 i: this.value,
                 customData: {
@@ -312,6 +332,13 @@ export class RingSpinEvent
      */
     prop?: number
 
+    push(
+        clone: boolean,
+    ): RingSpinEvent {
+        activeDiffGet().ringSpinEvents.push(clone ? copy(this) : this)
+        return this
+    }
+
     toJson(v3: true): bsmap.v3.IBasicEventRing
     toJson(v3: false): bsmap.v2.IEventRing
     toJson(v3: boolean): bsmap.v2.IEventRing | bsmap.v3.IBasicEventRing {
@@ -365,6 +392,13 @@ export class RotationEvent extends BaseEvent<
         super(obj)
     }
 
+    push(
+        clone: boolean,
+    ): RotationEvent {
+        activeDiffGet().rotationEvent.push(clone ? copy(this) : this)
+        return this
+    }
+
     toJson(v3: true): bsmap.v3.IBasicEventLaneRotation
     toJson(v3: false): bsmap.v2.IEventLaneRotation
     toJson(
@@ -375,14 +409,14 @@ export class RotationEvent extends BaseEvent<
                 b: this.time,
                 f: this.floatValue,
                 i: this.value,
-                et: this.type as any,
+                et: this.type as bsmap.v3.IBasicEventLaneRotation["et"],
                 customData: this.customData,
             } satisfies bsmap.v3.IBasicEventLaneRotation
         }
         return {
             _time: this.time,
             _floatValue: this.floatValue,
-            _type: this.type as any,
+            _type: this.type as bsmap.v2.IEventLaneRotation["_type"],
             _value: this.value,
             _customData: {
                 _rotation: this.value,

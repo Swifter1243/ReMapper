@@ -52,7 +52,7 @@ export type ComplexKeyframesAbstract<T extends number[]> =
 /** Helper type for raw keyframes. [...] | [[...], [...], [...]] */
 export type RawKeyframesAbstract<T extends number[]> =
     | ComplexKeyframesAbstract<T>
-    | T
+    | SingleKeyframeAbstract<T>
 
 /** Helper type for keyframe arrays. */
 export type PointDefinitionAbstract<T extends number[]> =
@@ -106,9 +106,9 @@ export type RawKeyframesVec4 = RawKeyframesAbstract<Vec4>
 //#region Any
 
 export type SimpleKeyframesAny =
-    | [number]
-    | Vec3
-    | Vec4
+    | SingleKeyframeAbstract<[number]>
+    | SingleKeyframeAbstract<Vec3>
+    | SingleKeyframeAbstract<Vec4>
 
 /** Array of keyframes which have any amount of values. */
 export type ComplexKeyframesAny =
