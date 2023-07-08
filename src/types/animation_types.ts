@@ -40,19 +40,19 @@ export type TimeValue = number
 
 /** Helper type for single keyframes. [...] */
 export type SingleKeyframeAbstract<T extends number[]> =
-    | [...T, TimeValue]
-    | [...T, TimeValue, KeyframeFlag]
-    | [...T, TimeValue, KeyframeFlag, KeyframeFlag]
-    | [...T, TimeValue, KeyframeFlag, KeyframeFlag, KeyframeFlag]
+    | [...T]
+    | [...T, KeyframeFlag]
+    | [...T, KeyframeFlag, KeyframeFlag]
+    | [...T, KeyframeFlag, KeyframeFlag, KeyframeFlag]
 
 /** Helper type for complex keyframes. [[...], [...], [...]] */
 export type ComplexKeyframesAbstract<T extends number[]> =
-    SingleKeyframeAbstract<T>[]
+    SingleKeyframeAbstract<[...T, TimeValue]>[]
 
 /** Helper type for raw keyframes. [...] | [[...], [...], [...]] */
 export type RawKeyframesAbstract<T extends number[]> =
     | ComplexKeyframesAbstract<T>
-    | T
+    | SingleKeyframeAbstract<T>
 
 /** Helper type for keyframe arrays. */
 export type PointDefinitionAbstract<T extends number[]> =
