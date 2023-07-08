@@ -61,15 +61,15 @@ export class BaseAnimation implements JsonWrapper<AnimateV2, AnimateV3> {
     toJson(v3: true): AnimateV3
     toJson(v3: false): AnimateV2
     toJson(v3: boolean): AnimateV2 | AnimateV3 {
-        const color = this.properties['color']! as bsmap.ColorPointDefinition[]
+        const color = this.properties['color']! as bsmap.Vector4PointDefinition[]
         const definitePosition = this
             .properties['definitePosition'] as bsmap.Vector3PointDefinition[]
         const dissolve = this
-            .properties['dissolve'] as bsmap.PercentPointDefinition[]
+            .properties['dissolve'] as bsmap.FloatPointDefinition[]
         const dissolveArrow = this
-            .properties['dissolveArrow'] as bsmap.PercentPointDefinition[]
+            .properties['dissolveArrow'] as bsmap.FloatPointDefinition[]
         const interactable = this
-            .properties['interactable'] as bsmap.PercentPointDefinition[]
+            .properties['interactable'] as bsmap.FloatPointDefinition[]
         const localRotation = this
             .properties['localRotation'] as bsmap.Vector3PointDefinition[]
         const offsetPosition = this
@@ -77,7 +77,7 @@ export class BaseAnimation implements JsonWrapper<AnimateV2, AnimateV3> {
         const offsetRotation = this
             .properties['offsetRotation'] as bsmap.Vector3PointDefinition[]
         const scale = this.properties['scale'] as bsmap.Vector3PointDefinition[]
-        const time = this.properties['time'] as bsmap.PercentPointDefinition[]
+        const time = this.properties['time'] as bsmap.FloatPointDefinition[]
 
         const filteredProperties = this.filteredCustomProperties(v3)
 

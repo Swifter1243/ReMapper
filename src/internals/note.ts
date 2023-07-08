@@ -202,7 +202,7 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
     }
 }
 
-export class Chain extends BaseSliderObject<bsmap.v3.IBurstSlider> {
+export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
     /**
      * Chain object for ease of creation.
      * @param time The time this chain will be hit.
@@ -256,9 +256,9 @@ export class Chain extends BaseSliderObject<bsmap.v3.IBurstSlider> {
         return this
     }
 
-    toJson(v3: true): bsmap.v3.IBurstSlider
+    toJson(v3: true): bsmap.v3.IChain
     toJson(v3: false): never
-    toJson(v3: boolean): bsmap.v3.IBurstSlider {
+    toJson(v3: boolean): bsmap.v3.IChain {
         if (!v3) throw 'V2 is not supported for chains'
 
         return {
@@ -288,7 +288,7 @@ export class Chain extends BaseSliderObject<bsmap.v3.IBurstSlider> {
                 worldRotation: this.rotation,
                 ...this.customData,
             },
-        } satisfies bsmap.v3.IBurstSlider
+        } satisfies bsmap.v3.IChain
     }
 
     /** The amount of links in the chain. */
@@ -303,7 +303,7 @@ export class Chain extends BaseSliderObject<bsmap.v3.IBurstSlider> {
     noteLook?: boolean
 }
 
-export class Arc extends BaseSliderObject<bsmap.v3.ISlider> {
+export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
     /**
      * Arc object for ease of creation.
      * @param time The time this arc will be hit.
@@ -349,9 +349,9 @@ export class Arc extends BaseSliderObject<bsmap.v3.ISlider> {
     //     this.tailY = tailY
     // }
 
-    toJson(v3: true): bsmap.v3.ISlider
+    toJson(v3: true): bsmap.v3.IArc
     toJson(v3: false): never
-    toJson(v3: boolean): bsmap.v3.ISlider {
+    toJson(v3: boolean): bsmap.v3.IArc {
         if (!v3) throw 'V2 is not supported for chains'
 
         return {
@@ -384,7 +384,7 @@ export class Arc extends BaseSliderObject<bsmap.v3.ISlider> {
                 worldRotation: this.rotation,
                 ...this.customData,
             },
-        } satisfies bsmap.v3.ISlider
+        } satisfies bsmap.v3.IArc
     }
 
     /**
