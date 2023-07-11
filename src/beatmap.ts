@@ -324,6 +324,12 @@ export class Difficulty {
             outputJSON.lightRotationEventBoxGroups.push(json);
         })
 
+        // Just transfer it, we're not going to make a class for this
+        if (this.json.lightTranslationEventBoxGroups) {
+            outputJSON.lightTranslationEventBoxGroups =
+              this.json.lightTranslationEventBoxGroups;
+        }
+
         info.save();
         RMJson.save();
         Deno.writeTextFileSync(diffName, JSON.stringify(outputJSON, null, 0));
