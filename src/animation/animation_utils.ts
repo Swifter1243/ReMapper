@@ -30,7 +30,6 @@ import {
     lerpRotation,
 } from '../utils/math.ts'
 import type { OptimizeSettings } from './anim_optimizer.ts'
-import { Color, lerpColor } from '../data/color.ts'
 
 import * as AnimationInternals from '../internals/animation.ts'
 import { NumberTuple } from '../types/util_types.ts'
@@ -47,6 +46,7 @@ import {
     isSimple,
     setKeyframeEasing,
 } from './keyframe.ts'
+import { lerpHSV } from '../data/color.ts'
 
 /**
  * Ensures that this value is in the format of an array of keyframes.
@@ -118,16 +118,7 @@ export function getValuesAtTime<K extends string = AnimationKeys>(
             )
         }
         if (property === 'color' && rHSVLerp) {
-            const color1 = new Color(lValues as Vec4, 'RGB')
-            const color2 = new Color(rValues as Vec4, 'RGB')
-            const lerp = lerpColor(
-                color1,
-                color2,
-                timeInfo.normalTime,
-                undefined,
-                'HSV',
-            )
-            return lerp.export()
+            return lerpHSV(lValues as Vec4, rValues as Vec4, timeInfo.normalTime);
         }
         if (rSpline === 'splineCatmullRom') {
             return splineCatmullRomLerp(

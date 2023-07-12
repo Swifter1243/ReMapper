@@ -138,11 +138,6 @@ export type SingleKeyframeValuesUnsafe = number[] | (number | KeyframeFlag)[]
 /** A track or multiple tracks. */
 export type TrackValue = string | string[]
 
-/** Color formats. */
-export type ColorFormat =
-    | 'RGB'
-    | 'HSV'
-
 /** Animation properties. */
 export type AnimationKeys =
     | 'position'

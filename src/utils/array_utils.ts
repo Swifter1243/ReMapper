@@ -1,6 +1,7 @@
 import { three } from '../deps.ts'
 import { lerp } from './math.ts'
 import {Vec3} from "../types/data_types.ts";
+import { EASE } from '../types/animation_types.ts';
 
 /**
  * Get the last element in an array.
@@ -41,12 +42,14 @@ export function arrSubtract<T extends readonly [] | readonly number[]>(
  * @param start Start array.
  * @param end End array.
  * @param fraction Value to find in between start and end.
+ * @param easing Optional easing.
  */
 export const arrLerp = <T extends readonly [] | readonly number[]>(
     start: T,
     end: { [K in keyof T]: number },
     fraction: number,
-) => start.map((x, i) => lerp(x, end[i], fraction))
+    easing?: EASE
+) => start.map((x, i) => lerp(x, end[i], fraction, easing))
 
 /**
  * Multiply an array either by a number or another array.
