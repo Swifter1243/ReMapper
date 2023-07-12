@@ -3,7 +3,7 @@ import { ColorVec, Vec3 } from '../types/data_types.ts'
 import { EASE } from '../types/animation_types.ts'
 import { arrLerp } from '../utils/array_utils.ts'
 
-/** Converts color from gamma space (0-255) to linear space (0-1) */
+/** Converts color from integer space (0-255 with whole numbers) to linear space (0-1 with decimals) */
 export function toLinearColor<T extends ColorVec>(color: T, hsv = false) {
     if (hsv) {
         return color.map((x, i) => !i ? x * 360 : x * 100) as T
@@ -12,8 +12,8 @@ export function toLinearColor<T extends ColorVec>(color: T, hsv = false) {
     return color.map((x) => x / 255) as T
 }
 
-/** Converts color from linear space (0-1) to gamma space (0-255) */
-export function toGammaColor<T extends ColorVec>(color: T, hsv = false) {
+/** Converts color from linear space (0-1 with decimals) to integer space (0-255 with whole numbers) */
+export function toIntegerColor<T extends ColorVec>(color: T, hsv = false) {
     if (hsv) {
         return color.map((x, i) => Math.round(!i ? x * 360 : x * 100)) as T
     }
