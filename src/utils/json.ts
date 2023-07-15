@@ -7,12 +7,19 @@ import { TJson } from '../types/util_types.ts'
  * @param o Object to check.
  */
 export function isEmptyObject(o: unknown): boolean {
+    // If undefined, it is empty
+    if (o === undefined) return true
+
+    // If not an object, it's not empty
     if (typeof o !== 'object') return false
+
+    // If object has nothing inside, it's empty
     if (Object.keys(o as TJson).length === 0) {
         return true
     }
 
-    return !Object.values(o as TJson).some((v) => isEmptyObject(v))
+    // Check for non empty objects inside
+    return !Object.values(o as TJson).some((x) => !isEmptyObject(x))
 }
 
 /**
@@ -21,7 +28,7 @@ export function isEmptyObject(o: unknown): boolean {
  */
 export function jsonPrune<T extends Record<string, any>>(obj: T) {
     Object.entries(obj).forEach(([prop, v]) => {
-        if (v === null || v === undefined) {
+        if (v === undefined) {
             delete obj[prop]
             return
         }

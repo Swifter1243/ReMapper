@@ -1,21 +1,22 @@
-import {bsmap} from '../deps.ts'
+import { bsmap } from '../deps.ts'
 
-import {NoteType} from "../data/constants.ts";
-import {activeDiffGet, info} from "../data/beatmap_handler.ts";
+import { NoteType } from '../data/constants.ts'
+import { activeDiffGet, info } from '../data/beatmap_handler.ts'
 
-import {getJumps} from "../utils/math.ts";
-import {isEmptyObject, jsonPrune, jsonRemove} from '../utils/json.ts'
+import { getJumps } from '../utils/math.ts'
+import { isEmptyObject, jsonPrune, jsonRemove } from '../utils/json.ts'
 
-import {Track} from "../animation/track.ts";
-import {noteAnimation} from "../animation/animation.ts";
-import {Fields, ObjectFields} from "../types/util_types.ts";
-import {ColorVec, Vec2, Vec3} from "../types/data_types.ts";
-import {JsonWrapper} from "../types/beatmap_types.ts";
-import { copy } from '../utils/general.ts';
-import * as AnimationInternals from "./animation.ts";
+import { Track } from '../animation/track.ts'
+import { noteAnimation } from '../animation/animation.ts'
+import { Fields, ObjectFields } from '../types/util_types.ts'
+import { ColorVec, Vec2, Vec3 } from '../types/data_types.ts'
+import { JsonWrapper } from '../types/beatmap_types.ts'
+import { copy } from '../utils/general.ts'
+import * as AnimationInternals from './animation.ts'
+import { TJson } from '../mod.ts'
 
-export type ExcludeObjectFields = { 
-    NJS: never,
+export type ExcludeObjectFields = {
+    NJS: never
     offset: never
 }
 
@@ -36,13 +37,13 @@ export abstract class BaseObject<
     }
 
     /** Checks if the object has modded properties. */
-    isModded() {
-        return this.customData && !isEmptyObject(this.customData)
+    get isModded() {
+        return !isEmptyObject(this.toJson(true).customData)
     }
 
     abstract toJson(v3: true): TV3
     abstract toJson(v3: false): TV2
-    abstract toJson(v3 = true): TV2 | TV3
+    abstract toJson(v3: true): TV2 | TV3
 }
 
 export abstract class BaseGameplayObject<
@@ -50,7 +51,10 @@ export abstract class BaseGameplayObject<
     TV3 extends bsmap.v3.IGridObject,
 > extends BaseObject<TV2, TV3> {
     constructor(
-        obj: Omit<Partial<Fields<BaseGameplayObject<TV2, TV3>>>, keyof ExcludeObjectFields>,
+        obj: Omit<
+            Partial<Fields<BaseGameplayObject<TV2, TV3>>>,
+            keyof ExcludeObjectFields
+        >,
         animation:
             | AnimationInternals.WallAnimation
             | AnimationInternals.NoteAnimation,
@@ -77,11 +81,13 @@ export abstract class BaseGameplayObject<
         this.interactable = obj.interactable
         this.track = obj.track ?? new Track()
         this.color = obj.color
-        if (obj.life)
+        if (obj.life) {
             this.life = obj.life
-        
-        if (obj.lifeStart)
+        }
+
+        if (obj.lifeStart) {
             this.lifeStart = obj.lifeStart
+        }
     }
 
     lineIndex: number
@@ -149,12 +155,6 @@ export abstract class BaseGameplayObject<
     get life() {
         return this.halfJumpDur * 2
     }
-
-    /** The time of the start of the object's lifespan. */
-    get lifeStart() {
-        return this.time - this.life / 2
-    }
-
     set life(value: number) {
         if (value < 0.25) {
             console.log(
@@ -165,22 +165,20 @@ export abstract class BaseGameplayObject<
         this.localOffset = (value - 2 * defaultJumps.halfDur) / 2
     }
 
+    /** The time of the start of the object's lifespan. */
+    get lifeStart() {
+        return this.time - this.life / 2
+    }
     set lifeStart(value: number) {
         this.time = value + this.life / 2
     }
 
-    isModded() {
-        if (this.customData === undefined) return false
-        return !isEmptyObject(this.customData)
-    }
-
-    isGameplayModded() {
-        if (this.customData === undefined) return false
-        const customData = copy(this.customData)
+    get isGameplayModded() {
+        if (!this.isModded) return false
+        const customData = copy(this.toJson(true).customData) as TJson
         jsonRemove(customData, 'color')
         jsonRemove(customData, 'spawnEffect')
         jsonRemove(customData, 'animation.color')
-        jsonPrune(customData)
         return !isEmptyObject(customData)
     }
 }
@@ -201,7 +199,12 @@ export abstract class BaseSliderObject<TV3 extends bsmap.v3.IBaseSlider>
     /** The position of the tail. */
     tailCoordinates?: Vec2
 
-    constructor(obj: Omit<Partial<Fields<BaseSliderObject<TV3>>>, keyof ExcludeObjectFields>) {
+    constructor(
+        obj: Omit<
+            Partial<Fields<BaseSliderObject<TV3>>>,
+            keyof ExcludeObjectFields
+        >,
+    ) {
         super(obj, noteAnimation())
         this.type = obj.type ?? NoteType.RED
         this.headDirection = obj.headDirection ?? 0
