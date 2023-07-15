@@ -3,7 +3,7 @@ import {
     bsmap,
     copy,
     note,
-    notesBetween,
+    colorNotesBetween,
     NoteType,
     rand,
     V3Difficulty,
@@ -116,7 +116,7 @@ Deno.bench('rm3.copy', { group: 'copy' }, () => {
 })
 
 Deno.bench('rm4.notesBetween', { group: 'notesBetween' }, () => {
-    notesBetween(0, 10000)
+    colorNotesBetween(0, 10000)
 })
 Deno.bench('rm3.notesBetween', { group: 'notesBetween' }, () => {
     remapperv3.notesBetween(0, 10000, (n) => n)

@@ -15,7 +15,7 @@ export class Wall
     extends BaseGameplayObject<bsmap.v2.IObstacle, bsmap.v3.IObstacle> {
     toJson(v3: true): bsmap.v3.IObstacle
     toJson(v3: false): bsmap.v2.IObstacle
-    toJson(v3: boolean): bsmap.v2.IObstacle | bsmap.v3.IObstacle {
+    toJson(v3 = true): bsmap.v2.IObstacle | bsmap.v3.IObstacle {
         if (v3) {
             return {
                 b: this.time,

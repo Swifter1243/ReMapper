@@ -1,4 +1,4 @@
-import { notesBetween } from '../src/general.ts'
+import { colorNotesBetween } from '../src/general.ts'
 import {
     activeDiffSet,
     bsmap,
@@ -108,7 +108,7 @@ Deno.bench('rm2.copy', { group: 'copy' }, () => {
 })
 
 Deno.bench('rm4.notesBetween', { group: 'notesBetween' }, () => {
-    notesBetween(0, 10000)
+    colorNotesBetween(0, 10000)
 })
 Deno.bench('rm2.notesBetween', { group: 'notesBetween' }, () => {
     remapperv2.notesBetween(0, 10000, (n) => n)

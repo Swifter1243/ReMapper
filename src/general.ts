@@ -1,9 +1,12 @@
-import {EPSILON, getSeconds} from './utils/math.ts'
-import {fs, path} from './deps.ts'
-import {RMJson} from './rm_json.ts'
-import {activeDiffGet} from './data/beatmap_handler.ts'
-import {OnlyNumbersOptional} from "./types/util_types.ts";
-import {FILENAME, FILEPATH} from "./types/beatmap_types.ts";
+import { EPSILON, getSeconds } from './utils/math.ts'
+import { fs, path } from './deps.ts'
+import { RMJson } from './rm_json.ts'
+import { activeDiffGet } from './data/beatmap_handler.ts'
+import { OnlyNumbersOptional } from './types/util_types.ts'
+import { FILENAME, FILEPATH } from './types/beatmap_types.ts'
+import { Note, Bomb, Arc, Chain } from "./internals/note.ts"
+import { Wall } from './internals/wall.ts'
+import { LightEvent } from './internals/basic_event.ts'
 
 /**
  * Store data in the ReMapper cache.
@@ -93,8 +96,22 @@ export function sortObjects<T extends Record<string, number>>(
     )
 }
 
+export type AnyNote = Note | Bomb | Arc | Chain
+type BeatmapObject = AnyNote | Wall | LightEvent
+
+function objBetween<T extends BeatmapObject>(
+    array: T[],
+    min: number,
+    max: number,
+    forEach?: (obj: T) => void
+) {
+    const filtered = filterObjects(array, min, max, 'time')
+    if (forEach) filtered.forEach(forEach)
+    return filtered
+}
+
 /**
- * Gets notes between a min and max time.
+ * Gets all note types (note, bomb, arc, chain) between a min and max time.
  * @param min Minimum time of the notes.
  * @param max Maximum time of the notes.
  * @param forEach Function for each note.
@@ -102,8 +119,23 @@ export function sortObjects<T extends Record<string, number>>(
 export function notesBetween(
     min: number,
     max: number,
+    forEach?: (obj: AnyNote) => void
 ) {
-    return filterObjects(activeDiffGet().notes, min, max, 'time')
+    return objBetween(activeDiffGet().allNotes as AnyNote[], min, max, forEach)
+}
+
+/**
+ * Gets notes between a min and max time.
+ * @param min Minimum time of the notes.
+ * @param max Maximum time of the notes.
+ * @param forEach Function for each note.
+ */
+export function colorNotesBetween(
+    min: number,
+    max: number,
+    forEach?: (obj: Note) => void
+) {
+    return objBetween(activeDiffGet().notes, min, max, forEach)
 }
 
 /**
@@ -115,8 +147,9 @@ export function notesBetween(
 export function bombsBetween(
     min: number,
     max: number,
+    forEach?: (obj: Bomb) => void
 ) {
-    return filterObjects(activeDiffGet().bombs, min, max, 'time')
+    return objBetween(activeDiffGet().bombs, min, max, forEach)
 }
 
 /**
@@ -128,8 +161,9 @@ export function bombsBetween(
 export function arcsBetween(
     min: number,
     max: number,
+    forEach?: (obj: Arc) => void
 ) {
-    return filterObjects(activeDiffGet().arcs, min, max, 'time')
+    return objBetween(activeDiffGet().arcs, min, max, forEach)
 }
 
 /**
@@ -141,8 +175,9 @@ export function arcsBetween(
 export function chainsBetween(
     min: number,
     max: number,
+    forEach?: (obj: Chain) => void
 ) {
-    return filterObjects(activeDiffGet().chains, min, max, 'time')
+    return objBetween(activeDiffGet().chains, min, max, forEach)
 }
 
 /**
@@ -154,8 +189,9 @@ export function chainsBetween(
 export function wallsBetween(
     min: number,
     max: number,
+    forEach?: (obj: Wall) => void
 ) {
-    return filterObjects(activeDiffGet().walls, min, max, 'time')
+    return objBetween(activeDiffGet().walls, min, max, forEach)
 }
 
 /**
@@ -167,8 +203,9 @@ export function wallsBetween(
 export function eventsBetween(
     min: number,
     max: number,
+    forEach?: (obj: LightEvent) => void
 ) {
-    return filterObjects(activeDiffGet().basicEvents, min, max, 'time')
+    return objBetween(activeDiffGet().basicEvents, min, max, forEach)
 }
 
 /**

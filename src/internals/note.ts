@@ -84,7 +84,7 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
 
     toJson(v3: true): bsmap.v3.IColorNote
     toJson(v3: false): bsmap.v2.INote
-    toJson(v3: boolean): bsmap.v2.INote | bsmap.v3.IColorNote {
+    toJson(v3 = true): bsmap.v2.INote | bsmap.v3.IColorNote {
         if (v3) {
             return {
                 a: this.angleOffset,
@@ -165,7 +165,7 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
     // TODO: Move to base note class
     toJson(v3: true): bsmap.v3.IBombNote
     toJson(v3: false): bsmap.v2.INote
-    toJson(v3: boolean): bsmap.v2.INote | bsmap.v3.IBombNote {
+    toJson(v3 = true): bsmap.v2.INote | bsmap.v3.IBombNote {
         if (v3) {
             return {
                 b: this.time,
@@ -258,7 +258,7 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
 
     toJson(v3: true): bsmap.v3.IChain
     toJson(v3: false): never
-    toJson(v3: boolean): bsmap.v3.IChain {
+    toJson(v3 = true): bsmap.v3.IChain {
         if (!v3) throw 'V2 is not supported for chains'
 
         return {
@@ -351,7 +351,7 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
 
     toJson(v3: true): bsmap.v3.IArc
     toJson(v3: false): never
-    toJson(v3: boolean): bsmap.v3.IArc {
+    toJson(v3 = true): bsmap.v3.IArc {
         if (!v3) throw 'V2 is not supported for chains'
 
         return {

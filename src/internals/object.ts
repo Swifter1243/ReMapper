@@ -42,7 +42,7 @@ export abstract class BaseObject<
 
     abstract toJson(v3: true): TV3
     abstract toJson(v3: false): TV2
-    abstract toJson(v3: boolean): TV2 | TV3
+    abstract toJson(v3 = true): TV2 | TV3
 }
 
 export abstract class BaseGameplayObject<

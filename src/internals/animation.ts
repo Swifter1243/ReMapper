@@ -60,7 +60,7 @@ export class BaseAnimation implements JsonWrapper<AnimateV2, AnimateV3> {
 
     toJson(v3: true): AnimateV3
     toJson(v3: false): AnimateV2
-    toJson(v3: boolean): AnimateV2 | AnimateV3 {
+    toJson(v3 = true): AnimateV2 | AnimateV3 {
         const color = this.properties['color']! as bsmap.Vector4PointDefinition[]
         const definitePosition = this
             .properties['definitePosition'] as bsmap.Vector3PointDefinition[]

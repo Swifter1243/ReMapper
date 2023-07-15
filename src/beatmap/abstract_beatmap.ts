@@ -1,4 +1,3 @@
-// deno-lint-ignore-file adjacent-overload-signatures
 import { bsmap } from '../deps.ts'
 
 import {
@@ -15,7 +14,7 @@ import { jsonPrune } from '../utils/json.ts'
 import { setDecimals } from '../utils/math.ts'
 
 import { OptimizeSettings } from '../animation/anim_optimizer.ts'
-import { parseFilePath, RMLog } from '../general.ts'
+import { AnyNote, parseFilePath, RMLog } from '../general.ts'
 
 import { RMJson } from '../rm_json.ts'
 import { settings } from '../data/beatmap_handler.ts' // TODO: Cyclic, fix
@@ -288,123 +287,117 @@ export abstract class AbstractDifficulty<
         yield* this.environment
     }
 
+    get allNotes() {
+        return [
+            ...this.notes,
+            ...this.bombs,
+            ...this.arcs,
+            ...this.chains
+        ] as readonly AnyNote[]
+    }
+
     // Info.dat
     /** The note jump speed for this difficulty. */
     get NJS() {
         return this.diffSet._noteJumpMovementSpeed
+    }
+    set NJS(value: number) {
+        this.diffSet._noteJumpMovementSpeed = value
     }
 
     /** The note offset for this difficulty. */
     get offset() {
         return this.diffSet._noteJumpStartBeatOffset
     }
+    set offset(value: number) {
+        this.diffSet._noteJumpStartBeatOffset = value
+    }
 
     /** The filename for this difficulty. */
     get fileName() {
         return this.diffSet._beatmapFilename
+    }
+    set fileName(value: string) {
+        this.diffSet._beatmapFilename = value
     }
 
     /** The name of the difficulty set. E.g. Standard */
     get diffSetName() {
         return this.diffSetMap._beatmapCharacteristicName
     }
+    set diffSetName(value: bsmap.CharacteristicName) {
+        this.diffSetMap._beatmapCharacteristicName = value
+    }
 
     /** The name of the difficulty. E.g. Hard */
     get name() {
         return this.diffSet._difficulty
+    }
+    set name(value: bsmap.DifficultyName) {
+        this.diffSet._difficulty = value
     }
 
     /** The difficulty rank. */
     get diffRank() {
         return this.diffSet._difficultyRank
     }
+    set diffRank(value: bsmap.DifficultyRank) {
+        this.diffSet._difficultyRank = value
+    }
 
     /** The mod requirements for this difficulty. */
     get requirements() {
         return this.diffSet._customData?._requirements
+    }
+    set requirements(value: string[] | undefined) {
+        this.diffSet._customData ??= {}
+        this.diffSet._customData._requirements = value
     }
 
     /** The mod suggestions for this difficulty. */
     get suggestions() {
         return this.diffSet._customData?._suggestions
     }
+    set suggestions(value: string[] | undefined) {
+        this.diffSet._customData ??= {}
+        this.diffSet._customData._suggestions = value
+    }
 
     /** The unaliased settings object. */
     get rawSettings() {
         return this.diffSet._customData?._settings
+    }
+    set rawSettings(value: bsmap.IChromaInfoCustomData['_settings']) {
+        this.diffSet._customData ??= {}
+        this.diffSet._customData._settings = value
     }
 
     /** Warnings to display in the info button. */
     get warnings() {
         return this.diffSet._customData?._warnings
     }
+    set warnings(value: string[] | undefined) {
+        this.diffSet._customData ??= {}
+        this.diffSet._customData._warnings = value
+    }
 
     /** Information to display in the info button. */
     get information() {
         return this.diffSet._customData?._information
+    }
+    set information(value: string[] | undefined) {
+        this.diffSet._customData ??= {}
+        this.diffSet._customData._information = value
     }
 
     /** The custom difficulty name. */
     get label() {
         return this.diffSet._customData?._difficultyLabel
     }
-
-    set NJS(value: number) {
-        this.diffSet._noteJumpMovementSpeed = value
-    }
-
-    set offset(value: number) {
-        this.diffSet._noteJumpStartBeatOffset = value
-    }
-
-    set fileName(value: string) {
-        this.diffSet._beatmapFilename = value
-    }
-
-    set diffSetName(value: bsmap.CharacteristicName) {
-        this.diffSetMap._beatmapCharacteristicName = value
-    }
-
-    set name(value: bsmap.DifficultyName) {
-        this.diffSet._difficulty = value
-    }
-
-    set diffRank(value: bsmap.DifficultyRank) {
-        this.diffSet._difficultyRank = value
-    }
-
-    set requirements(value: string[] | undefined) {
-        this.diffSet._customData ??= {}
-        this.diffSet._customData._requirements = value
-    }
-
-    set suggestions(value: string[] | undefined) {
-        this.diffSet._customData ??= {}
-        this.diffSet._customData._suggestions = value
-    }
-
-    set rawSettings(value: bsmap.IChromaInfoCustomData['_settings']) {
-        this.diffSet._customData ??= {}
-        this.diffSet._customData._settings = value
-    }
-
-    set warnings(value: string[] | undefined) {
-        this.diffSet._customData ??= {}
-        this.diffSet._customData._warnings = value
-    }
-
-    set information(value: string[] | undefined) {
-        this.diffSet._customData ??= {}
-        this.diffSet._customData._information = value
-    }
-
     set label(value: string | undefined) {
         this.diffSet._customData ??= {}
         this.diffSet._customData._difficultyLabel = value
     }
-
-    // Map
-    /** The beatmap version. */
 }
 
 function reduceDecimalsPostProcess(

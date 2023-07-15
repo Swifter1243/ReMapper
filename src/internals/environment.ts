@@ -46,5 +46,5 @@ export abstract class BaseEnvironmentEnhancement<
 
     abstract toJson(v3: true): TV3
     abstract toJson(v3: false): TV2
-    abstract toJson(v3: boolean): TV3 | TV2
+    abstract toJson(v3 = true): TV3 | TV2
 }

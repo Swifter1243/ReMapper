@@ -43,7 +43,7 @@ export abstract class BaseCustomEvent<
 
     abstract toJson(v3: true): TV3
     abstract toJson(v3: false): TV2
-    abstract toJson(v3: boolean): TV2 | TV3
+    abstract toJson(v3 = true): TV2 | TV3
 }
 
 export class AnimateTrack extends BaseCustomEvent<
@@ -419,7 +419,7 @@ export class AnimateComponent
 
     toJson(v3: true): bsmap.v3.ICustomEventAnimateComponent
     toJson(v3: false): never
-    toJson(v3: boolean): bsmap.v3.ICustomEventAnimateComponent {
+    toJson(v3 = true): bsmap.v3.ICustomEventAnimateComponent {
         if (!v3) {
             throw 'V2 not supported for animating components'
         }

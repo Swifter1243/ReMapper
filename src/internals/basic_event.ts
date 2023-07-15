@@ -130,7 +130,7 @@ export class LightEvent
 
     toJson(v3: true): bsmap.v3.IBasicEventLight
     toJson(v3: false): bsmap.v2.IEventLight
-    toJson(v3: boolean): bsmap.v3.IBasicEventLight | bsmap.v2.IEventLight {
+    toJson(v3 = true): bsmap.v3.IBasicEventLight | bsmap.v2.IEventLight {
         // TODO: Fix any
         if (v3) {
             return {
@@ -265,7 +265,7 @@ export class RingZoomEvent
 
     toJson(v3: true): bsmap.v3.IBasicEventRing
     toJson(v3: false): bsmap.v2.IEventZoom
-    toJson(v3: boolean): bsmap.v2.IEventZoom | bsmap.v3.IBasicEventRing {
+    toJson(v3 = true): bsmap.v2.IEventZoom | bsmap.v3.IBasicEventRing {
         if (v3) {
             return {
                 b: this.time,
@@ -341,7 +341,7 @@ export class RingSpinEvent
 
     toJson(v3: true): bsmap.v3.IBasicEventRing
     toJson(v3: false): bsmap.v2.IEventRing
-    toJson(v3: boolean): bsmap.v2.IEventRing | bsmap.v3.IBasicEventRing {
+    toJson(v3 = true): bsmap.v2.IEventRing | bsmap.v3.IBasicEventRing {
         if (v3) {
             return {
                 b: this.time,

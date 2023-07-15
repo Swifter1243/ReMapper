@@ -2,11 +2,12 @@
 export type SUGGEST_MODS =
     | 'Chroma'
     | 'Cinema'
-/** All mods to require. */
 
+/** All mods to require. */
 export type REQUIRE_MODS =
     | 'Chroma'
     | 'Noodle Extensions'
+
 /** All environment names. */
 export type ENV_NAMES =
     | 'BTSEnvironment'
@@ -36,12 +37,14 @@ export type ENV_NAMES =
     | 'PyroEnvironment'
     | 'TheSecondEnvironment'
     | 'EDMEnvironment'
+
 /** Cached data saved in the ReMapper cache. */
 export type CachedData = {
     processing: string
     data: unknown
     accessed?: boolean
 }
+
 // TODO: If possible, try to figure out a way to default to a string with no extension or path
 export type FILENAME<T extends string = string> = T | `${T}.${string}`
 export type FILEPATH<T extends string = string> =
@@ -53,6 +56,7 @@ type DiffNameBase<T extends string> =
     | `Hard${T}`
     | `Expert${T}`
     | `ExpertPlus${T}`
+
 /** All difficulty names. */
 export type DIFFS =
     | DiffNameBase<'Standard'>
@@ -62,8 +66,10 @@ export type DIFFS =
     | DiffNameBase<'90Degree'>
     | DiffNameBase<'Lightshow'>
     | DiffNameBase<'Lawless'>
+
 /** Absolute or relative path to a difficulty. Extension is optional. */
 export type DIFFPATH = FILEPATH<DIFFS>
+
 /** Filename for a difficulty. Extension is optional. */
 export type DIFFNAME = FILENAME<DIFFS>
 
