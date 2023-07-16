@@ -10,7 +10,6 @@ export type MapRecursiveTypes<T, U, V> =
     & ExcludeTypes<T, U>
     & {
         [K in keyof T]: T[K] extends U ? V
-            // deno-lint-ignore ban-types
             : (T[K] extends object ? MapRecursiveTypes<T[K], U, V> : never)
     }[keyof T]
 
@@ -53,3 +52,6 @@ export type TJson = Record<string, unknown>
 export type AnimationInput<T extends BaseAnimation> = {
     animation?: T | T["properties"]
 }
+
+/** Replace the keys of one type with another */
+export type Replace<T, N> = Omit<T, keyof N> & N

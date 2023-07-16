@@ -4,16 +4,25 @@ import { NoteType } from '../data/constants.ts'
 import { activeDiffGet, info } from '../data/beatmap_handler.ts'
 
 import { getJumps } from '../utils/math.ts'
-import { isEmptyObject, jsonPrune, jsonRemove } from '../utils/json.ts'
+import { isEmptyObject, jsonRemove } from '../utils/json.ts'
 
 import { Track } from '../animation/track.ts'
 import { noteAnimation } from '../animation/animation.ts'
-import { Fields, ObjectFields } from '../types/util_types.ts'
+import { Fields, ObjectFields, Replace, TJson } from '../types/util_types.ts'
 import { ColorVec, Vec2, Vec3 } from '../types/data_types.ts'
 import { JsonWrapper } from '../types/beatmap_types.ts'
 import { copy } from '../utils/general.ts'
 import * as AnimationInternals from './animation.ts'
-import { TJson } from '../mod.ts'
+import { TrackValue } from '../types/animation_types.ts'
+
+export type ObjectReplacements = {
+    track?: TrackValue | Track
+}
+
+export type ExcludedFields<Class, Replacement = ObjectReplacements> = Omit<
+    Replace<Partial<Fields<Class>>, Replacement>,
+    keyof ExcludeObjectFields
+>
 
 export type ExcludeObjectFields = {
     NJS: never
@@ -55,10 +64,7 @@ export abstract class BaseGameplayObject<
     TV3 extends bsmap.v3.IGridObject,
 > extends BaseObject<TV2, TV3> {
     constructor(
-        obj: Omit<
-            Partial<Fields<BaseGameplayObject<TV2, TV3>>>,
-            keyof ExcludeObjectFields
-        >,
+        obj: ExcludedFields<BaseGameplayObject<TV2, TV3>>,
         animation:
             | AnimationInternals.WallAnimation
             | AnimationInternals.NoteAnimation,
@@ -83,7 +89,7 @@ export abstract class BaseGameplayObject<
         this.localNJS = obj.localNJS
         this.localOffset = obj.localOffset
         this.interactable = obj.interactable
-        this.track = obj.track ?? new Track()
+        this.track = obj.track instanceof Track ? obj.track : new Track(obj.track)
         this.color = obj.color
         if (obj.life) {
             this.life = obj.life
@@ -204,10 +210,7 @@ export abstract class BaseSliderObject<TV3 extends bsmap.v3.IBaseSlider>
     tailCoordinates?: Vec2
 
     constructor(
-        obj: Omit<
-            Partial<Fields<BaseSliderObject<TV3>>>,
-            keyof ExcludeObjectFields
-        >,
+        obj: ExcludedFields<BaseSliderObject<TV3>>,
     ) {
         super(obj, noteAnimation())
         this.type = obj.type ?? NoteType.RED

@@ -7,14 +7,16 @@ import { noteAnimation } from '../animation/animation.ts'
 import {
     BaseGameplayObject,
     BaseSliderObject,
+    ExcludedFields,
     ExcludeObjectFields,
+    ObjectReplacements,
 } from './object.ts'
 import { AnimationInput, Fields } from '../types/util_types.ts'
 import { Vec2 } from '../types/data_types.ts'
 import { copy } from '../utils/general.ts'
 import { NoteAnimation } from './animation.ts'
 
-type AnimationProp = AnimationInput<NoteAnimation>
+type Replacements = AnimationInput<NoteAnimation> & ObjectReplacements
 
 export abstract class BaseNote<
     TV3 extends bsmap.v3.IColorNote | bsmap.v3.IBombNote,
@@ -28,10 +30,7 @@ export abstract class BaseNote<
      * @param y The vertical row of the note.
      */
     constructor(
-        fields: Omit<
-            Omit<Partial<Fields<BaseNote<TV3>>>, 'animation'> & AnimationProp,
-            keyof ExcludeObjectFields
-        >,
+        fields: ExcludedFields<BaseNote<TV3>, Replacements>,
     ) {
         function initAnimation() {
             if (fields.animation instanceof NoteAnimation) {
@@ -40,7 +39,7 @@ export abstract class BaseNote<
             return noteAnimation(1, fields.animation)
         }
 
-        super(fields as Partial<Fields<BaseNote<TV3>>>, initAnimation())
+        super(fields as ExcludedFields<BaseNote<TV3>>, initAnimation())
 
         this.flip = fields.flip
         this.noteGravity = fields.noteGravity
@@ -77,10 +76,7 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
      * @param y The vertical row of the note.
      */
     constructor(
-        fields: Omit<
-            Omit<Partial<Fields<Note>>, 'animation'> & AnimationProp,
-            keyof ExcludeObjectFields
-        >,
+        fields: ExcludedFields<Note, Replacements>,
     ) {
         super(fields)
         this.type = fields.type ?? 0
@@ -185,7 +181,7 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
     // time = 0, x = 0, y = 0
     constructor(
         fields: Omit<
-            Omit<Partial<Fields<Bomb>>, 'animation'> & AnimationProp,
+            Omit<Partial<Fields<Bomb>>, 'animation'> & Replacements,
             keyof ExcludeObjectFields
         >,
     ) {
@@ -278,12 +274,9 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
     //     this.links = links
     // }
     constructor(
-        fields: Omit<
-            Omit<Partial<Fields<Chain>>, 'animation'> & AnimationProp,
-            keyof ExcludeObjectFields
-        >,
+        fields: ExcludedFields<Chain, Replacements>,
     ) {
-        super(fields as Partial<Fields<Chain>>)
+        super(fields as ExcludedFields<Chain>)
         this.links = fields.links ?? 4
         this.squish = fields.squish ?? 0
         this.flip = fields.flip
@@ -362,12 +355,9 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
      * @param tailY The vertical row of the arc's tail.
      */
     constructor(
-        fields: Omit<
-            Omit<Partial<Fields<Arc>>, 'animation'> & AnimationProp,
-            keyof ExcludeObjectFields
-        >,
+        fields: ExcludedFields<Arc, Replacements>,
     ) {
-        super(fields as Partial<Fields<Arc>>)
+        super(fields as ExcludedFields<Arc>)
         this.tailDirection = fields.tailDirection ?? NoteCut.DOT
         this.headLength = fields.headLength ?? 0
         this.tailLength = fields.tailLength ?? 0

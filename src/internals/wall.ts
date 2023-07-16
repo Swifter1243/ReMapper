@@ -5,13 +5,13 @@ import { activeDiffGet } from '../data/beatmap_handler.ts'
 
 import { wallAnimation } from '../animation/animation.ts'
 
-import { BaseGameplayObject, ExcludeObjectFields } from './object.ts'
-import { AnimationInput, Fields } from '../types/util_types.ts'
+import { BaseGameplayObject, ExcludedFields, ObjectReplacements } from './object.ts'
+import { AnimationInput } from '../types/util_types.ts'
 import { Vec3 } from '../types/data_types.ts'
 import { copy } from '../utils/general.ts'
 import { WallAnimation } from './animation.ts'
 
-type AnimationProp = AnimationInput<WallAnimation>
+type Replacements = AnimationInput<WallAnimation> & ObjectReplacements
 
 export class Wall
     extends BaseGameplayObject<bsmap.v2.IObstacle, bsmap.v3.IObstacle> {
@@ -67,10 +67,7 @@ export class Wall
     }
 
     constructor(
-        fields: Omit<
-            Omit<Partial<Fields<Wall>>, 'animation'> & AnimationProp,
-            keyof ExcludeObjectFields
-        >,
+        fields: ExcludedFields<Wall, Replacements>,
     ) {
         function initAnimation() {
             if (fields.animation instanceof WallAnimation) {
@@ -79,7 +76,7 @@ export class Wall
             return wallAnimation(1, fields.animation)
         }
 
-        super(fields as Partial<Fields<Wall>>, initAnimation())
+        super(fields as ExcludedFields<Wall>, initAnimation())
         this.duration = fields.duration ?? 0
         this.height = fields.height ?? 1
         this.width = fields.width ?? 1
