@@ -8,10 +8,9 @@ import {
     BaseGameplayObject,
     BaseSliderObject,
     ExcludedFields,
-    ExcludeObjectFields,
     ObjectReplacements,
 } from './object.ts'
-import { AnimationInput, Fields } from '../types/util_types.ts'
+import { AnimationInput } from '../types/util_types.ts'
 import { Vec2 } from '../types/data_types.ts'
 import { copy } from '../utils/general.ts'
 import { NoteAnimation } from './animation.ts'
@@ -180,10 +179,7 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
      */
     // time = 0, x = 0, y = 0
     constructor(
-        fields: Omit<
-            Omit<Partial<Fields<Bomb>>, 'animation'> & Replacements,
-            keyof ExcludeObjectFields
-        >,
+        fields: ExcludedFields<Bomb, Replacements>
     ) {
         super(fields)
     }
