@@ -487,7 +487,7 @@ export class AbstractAnimation extends BaseAnimation
     get offsetPosition() {
         return this.get('offsetPosition') as PointDefinitionVec3
     }
-    set offsetPposition(value: PointDefinitionVec3) {
+    set offsetPosition(value: PointDefinitionVec3) {
         this.set('offsetPosition', value)
     }
 
