@@ -1,13 +1,20 @@
-import {bsmap} from "../deps.ts";
+import { bsmap } from '../deps.ts'
 
-import {AnchorMode, NoteCut, NoteType} from "../data/constants.ts";
-import {activeDiffGet} from "../data/beatmap_handler.ts";
+import { AnchorMode, NoteCut, NoteType } from '../data/constants.ts'
+import { activeDiffGet } from '../data/beatmap_handler.ts'
 
-import {noteAnimation} from "../animation/animation.ts";
-import {BaseGameplayObject, BaseSliderObject, ExcludeObjectFields} from "./object.ts";
-import {Fields} from "../types/util_types.ts";
-import {Vec2} from "../types/data_types.ts";
-import { copy } from "../utils/general.ts";
+import { noteAnimation } from '../animation/animation.ts'
+import {
+    BaseGameplayObject,
+    BaseSliderObject,
+    ExcludeObjectFields,
+} from './object.ts'
+import { AnimationInput, Fields } from '../types/util_types.ts'
+import { Vec2 } from '../types/data_types.ts'
+import { copy } from '../utils/general.ts'
+import { NoteAnimation } from './animation.ts'
+
+type AnimationProp = AnimationInput<NoteAnimation>
 
 export abstract class BaseNote<
     TV3 extends bsmap.v3.IColorNote | bsmap.v3.IBombNote,
@@ -21,14 +28,27 @@ export abstract class BaseNote<
      * @param y The vertical row of the note.
      */
     constructor(
-        fields: Omit<Partial<Fields<BaseNote<TV3>>>, keyof ExcludeObjectFields>,
+        fields: Omit<
+            Omit<Partial<Fields<BaseNote<TV3>>>, 'animation'> & AnimationProp,
+            keyof ExcludeObjectFields
+        >,
     ) {
-        super(fields, fields.animation ? fields.animation : noteAnimation())
+        function initAnimation() {
+            if (fields.animation instanceof NoteAnimation) {
+                return fields.animation
+            }
+            return noteAnimation(1, fields.animation)
+        }
+
+        super(fields as Partial<Fields<BaseNote<TV3>>>, initAnimation())
+
         this.flip = fields.flip
         this.noteGravity = fields.noteGravity
         this.noteLook = fields.noteLook
         this.spawnEffect = fields.spawnEffect
     }
+
+    declare animation: NoteAnimation
 
     /** Specifies an initial position the note will spawn at before going to it's unmodified position.  */
     flip?: Vec2
@@ -57,7 +77,10 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
      * @param y The vertical row of the note.
      */
     constructor(
-        fields: Omit<Partial<Fields<Note>>, keyof ExcludeObjectFields>,
+        fields: Omit<
+            Omit<Partial<Fields<Note>>, 'animation'> & AnimationProp,
+            keyof ExcludeObjectFields
+        >,
     ) {
         super(fields)
         this.type = fields.type ?? 0
@@ -96,8 +119,12 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
                 customData: {
                     animation: this.animation.toJson(v3),
                     flip: this.flip,
-                    disableNoteGravity: this.noteGravity !== undefined ? !this.noteGravity : undefined,
-                    disableNoteLook: this.noteLook !== undefined ? !this.noteLook : undefined,
+                    disableNoteGravity: this.noteGravity !== undefined
+                        ? !this.noteGravity
+                        : undefined,
+                    disableNoteLook: this.noteLook !== undefined
+                        ? !this.noteLook
+                        : undefined,
                     spawnEffect: this.spawnEffect,
                     color: this.color,
                     coordinates: this.coordinates,
@@ -105,7 +132,9 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
                     noteJumpMovementSpeed: this.localNJS,
                     noteJumpStartBeatOffset: this.localOffset,
                     track: this.track.value,
-                    uninteractable: this.interactable !== undefined ? !this.interactable : undefined,
+                    uninteractable: this.interactable !== undefined
+                        ? !this.interactable
+                        : undefined,
                     worldRotation: this.rotation,
                     ...this.customData,
                 },
@@ -121,9 +150,15 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
             _customData: {
                 _animation: this.animation.toJson(v3),
                 _flip: this.flip,
-                _disableNoteGravity: this.noteGravity !== undefined ? !this.noteGravity : undefined,
-                _disableNoteLook: this.noteLook !== undefined ? !this.noteLook : undefined,
-                _disableSpawnEffect: this.spawnEffect !== undefined ? !this.spawnEffect : undefined,
+                _disableNoteGravity: this.noteGravity !== undefined
+                    ? !this.noteGravity
+                    : undefined,
+                _disableNoteLook: this.noteLook !== undefined
+                    ? !this.noteLook
+                    : undefined,
+                _disableSpawnEffect: this.spawnEffect !== undefined
+                    ? !this.spawnEffect
+                    : undefined,
                 _color: this.color,
                 _position: this.coordinates,
                 _localRotation: this.localRotation,
@@ -148,7 +183,12 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
      * @param y The vertical row of the note.
      */
     // time = 0, x = 0, y = 0
-    constructor(fields: Omit<Partial<Fields<Bomb>>, keyof ExcludeObjectFields>) {
+    constructor(
+        fields: Omit<
+            Omit<Partial<Fields<Bomb>>, 'animation'> & AnimationProp,
+            keyof ExcludeObjectFields
+        >,
+    ) {
         super(fields)
     }
 
@@ -237,8 +277,13 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
     //     this.tailY = tailY
     //     this.links = links
     // }
-    constructor(fields: Omit<Partial<Fields<Chain>>, keyof ExcludeObjectFields>) {
-        super(fields)
+    constructor(
+        fields: Omit<
+            Omit<Partial<Fields<Chain>>, 'animation'> & AnimationProp,
+            keyof ExcludeObjectFields
+        >,
+    ) {
+        super(fields as Partial<Fields<Chain>>)
         this.links = fields.links ?? 4
         this.squish = fields.squish ?? 0
         this.flip = fields.flip
@@ -316,8 +361,13 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
      * @param tailX The lane of the arc's tail.
      * @param tailY The vertical row of the arc's tail.
      */
-    constructor(fields: Omit<Partial<Fields<Arc>>, keyof ExcludeObjectFields>) {
-        super(fields)
+    constructor(
+        fields: Omit<
+            Omit<Partial<Fields<Arc>>, 'animation'> & AnimationProp,
+            keyof ExcludeObjectFields
+        >,
+    ) {
+        super(fields as Partial<Fields<Arc>>)
         this.tailDirection = fields.tailDirection ?? NoteCut.DOT
         this.headLength = fields.headLength ?? 0
         this.tailLength = fields.tailLength ?? 0

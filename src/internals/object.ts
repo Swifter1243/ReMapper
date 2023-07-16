@@ -18,6 +18,10 @@ import { TJson } from '../mod.ts'
 export type ExcludeObjectFields = {
     NJS: never
     offset: never
+    isModded: never
+    isGameplayModded: never
+    halfJumpDur: never
+    jumpDist: never
 }
 
 export abstract class BaseObject<

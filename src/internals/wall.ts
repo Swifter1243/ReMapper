@@ -1,15 +1,17 @@
 // deno-lint-ignore-file adjacent-overload-signatures
-import {bsmap} from "../deps.ts";
+import { bsmap } from '../deps.ts'
 
-import {activeDiffGet} from "../data/beatmap_handler.ts";
+import { activeDiffGet } from '../data/beatmap_handler.ts'
 
-import {wallAnimation} from "../animation/animation.ts";
+import { wallAnimation } from '../animation/animation.ts'
 
+import { BaseGameplayObject, ExcludeObjectFields } from './object.ts'
+import { AnimationInput, Fields } from '../types/util_types.ts'
+import { Vec3 } from '../types/data_types.ts'
+import { copy } from '../utils/general.ts'
+import { WallAnimation } from './animation.ts'
 
-import {BaseGameplayObject, ExcludeObjectFields} from "./object.ts";
-import {Fields} from "../types/util_types.ts";
-import {Vec3} from "../types/data_types.ts";
-import { copy } from "../utils/general.ts";
+type AnimationProp = AnimationInput<WallAnimation>
 
 export class Wall
     extends BaseGameplayObject<bsmap.v2.IObstacle, bsmap.v3.IObstacle> {
@@ -65,9 +67,19 @@ export class Wall
     }
 
     constructor(
-        fields: Omit<Partial<Fields<Wall>>, keyof ExcludeObjectFields>,
+        fields: Omit<
+            Omit<Partial<Fields<Wall>>, 'animation'> & AnimationProp,
+            keyof ExcludeObjectFields
+        >,
     ) {
-        super(fields, fields.animation ? fields.animation : wallAnimation())
+        function initAnimation() {
+            if (fields.animation instanceof WallAnimation) {
+                return fields.animation
+            }
+            return wallAnimation(1, fields.animation)
+        }
+
+        super(fields as Partial<Fields<Wall>>, initAnimation())
         this.duration = fields.duration ?? 0
         this.height = fields.height ?? 1
         this.width = fields.width ?? 1
