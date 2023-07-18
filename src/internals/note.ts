@@ -3,19 +3,14 @@ import { bsmap } from '../deps.ts'
 import { AnchorMode, NoteCut, NoteType } from '../data/constants.ts'
 import { activeDiffGet } from '../data/beatmap_handler.ts'
 
-import { noteAnimation } from '../animation/animation.ts'
 import {
     BaseGameplayObject,
     BaseSliderObject,
     ExcludedFields,
-    ObjectReplacements,
 } from './object.ts'
-import { AnimationInput } from '../types/util_types.ts'
 import { Vec2 } from '../types/data_types.ts'
 import { copy } from '../utils/general.ts'
-import { NoteAnimation } from './animation.ts'
-
-type Replacements = AnimationInput<NoteAnimation> & ObjectReplacements
+import { animationToJson, NoteAnimationData } from './animation.ts'
 
 export abstract class BaseNote<
     TV3 extends bsmap.v3.IColorNote | bsmap.v3.IBombNote,
@@ -29,24 +24,16 @@ export abstract class BaseNote<
      * @param y The vertical row of the note.
      */
     constructor(
-        fields: ExcludedFields<BaseNote<TV3>, Replacements>,
+        fields: ExcludedFields<BaseNote<TV3>>,
     ) {
-        function initAnimation() {
-            if (fields.animation instanceof NoteAnimation) {
-                return fields.animation
-            }
-            return noteAnimation(1, fields.animation)
-        }
-
-        super(fields as ExcludedFields<BaseNote<TV3>>, initAnimation())
-
+        super(fields as ExcludedFields<BaseNote<TV3>>)
         this.flip = fields.flip
         this.noteGravity = fields.noteGravity
         this.noteLook = fields.noteLook
         this.spawnEffect = fields.spawnEffect
     }
 
-    declare animation: NoteAnimation
+    declare animation: NoteAnimationData
 
     /** Specifies an initial position the note will spawn at before going to it's unmodified position.  */
     flip?: Vec2
@@ -75,7 +62,7 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
      * @param y The vertical row of the note.
      */
     constructor(
-        fields: ExcludedFields<Note, Replacements>,
+        fields: ExcludedFields<Note>,
     ) {
         super(fields)
         this.type = fields.type ?? 0
@@ -105,14 +92,14 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
     toJson(v3 = true): bsmap.v2.INote | bsmap.v3.IColorNote {
         if (v3) {
             return {
-                a: this.angleOffset,
+                a: Math.round(this.angleOffset),
                 b: this.time,
                 c: this.type,
                 d: this.direction,
                 x: this.lineIndex,
                 y: this.lineLayer,
                 customData: {
-                    animation: this.animation.toJson(v3),
+                    animation: animationToJson(this.animation, v3),
                     flip: this.flip,
                     disableNoteGravity: this.noteGravity !== undefined
                         ? !this.noteGravity
@@ -143,7 +130,7 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
             _time: this.time,
             _type: this.type,
             _customData: {
-                _animation: this.animation.toJson(v3),
+                _animation: animationToJson(this.animation, v3),
                 _flip: this.flip,
                 _disableNoteGravity: this.noteGravity !== undefined
                     ? !this.noteGravity
@@ -179,7 +166,7 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
      */
     // time = 0, x = 0, y = 0
     constructor(
-        fields: ExcludedFields<Bomb, Replacements>
+        fields: ExcludedFields<Bomb>,
     ) {
         super(fields)
     }
@@ -204,7 +191,7 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
                 x: this.lineIndex,
                 y: this.lineLayer,
                 customData: {
-                    animation: this.animation.toJson(v3),
+                    animation: animationToJson(this.animation, v3),
                     flip: this.flip,
                     disableNoteLook: !this.noteLook,
                     disableNoteGravity: !this.noteGravity,
@@ -223,7 +210,7 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
             _time: this.time,
             _type: 3,
             _customData: {
-                _animation: this.animation.toJson(v3),
+                _animation: animationToJson(this.animation, v3),
                 _flip: this.flip,
                 _disableNoteGravity: !this.noteGravity,
                 _disableNoteLook: !this.noteLook,
@@ -247,30 +234,8 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
      * @param tailY The vertical row of the chain's tail.
      * @param links The amount of links in the chain.
      */
-    // constructor(
-    //     time = 0,
-    //     tailTime = 0,
-    //     type = NoteType.BLUE,
-    //     direction = NoteCut.DOWN,
-    //     x = 0,
-    //     y = 0,
-    //     tailX = 0,
-    //     tailY = 0,
-    //     links = 4,
-    // ) {
-    //     super()
-    //     this.time = time
-    //     this.tailTime = tailTime
-    //     this.type = type
-    //     this.headDirection = direction
-    //     this.lineIndex = x
-    //     this.lineLayer = y
-    //     this.tailX = tailX
-    //     this.tailY = tailY
-    //     this.links = links
-    // }
     constructor(
-        fields: ExcludedFields<Chain, Replacements>,
+        fields: ExcludedFields<Chain>,
     ) {
         super(fields as ExcludedFields<Chain>)
         this.links = fields.links ?? 4
@@ -307,7 +272,7 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
             x: this.lineIndex,
             y: this.lineLayer,
             customData: {
-                animation: this.animation.toJson(true),
+                animation: animationToJson(this.animation, v3),
                 color: this.color,
                 coordinates: this.coordinates,
                 tailCoordinates: this.tailCoordinates,
@@ -351,7 +316,7 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
      * @param tailY The vertical row of the arc's tail.
      */
     constructor(
-        fields: ExcludedFields<Arc, Replacements>,
+        fields: ExcludedFields<Arc>,
     ) {
         super(fields as ExcludedFields<Arc>)
         this.tailDirection = fields.tailDirection ?? NoteCut.DOT
@@ -361,29 +326,6 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
         this.flip = fields.flip
         this.noteGravity = fields.noteGravity
     }
-
-    // constructor(
-    //     time = 0,
-    //     tailTime = 0,
-    //     type = NoteType.BLUE,
-    //     headDirection = NoteCut.DOWN,
-    //     tailDirection = NoteCut.DOWN,
-    //     x = 0,
-    //     y = 0,
-    //     tailX = 0,
-    //     tailY = 0,
-    // ) {
-    //     super()
-    //     this.time = time
-    //     this.tailTime = tailTime
-    //     this.type = type
-    //     this.headDirection = headDirection
-    //     this.tailDirection = tailDirection
-    //     this.lineIndex = x
-    //     this.lineLayer = y
-    //     this.tailX = tailX
-    //     this.tailY = tailY
-    // }
 
     toJson(v3: true): bsmap.v3.IArc
     toJson(v3: false): never
@@ -406,7 +348,7 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
             x: this.lineIndex,
             y: this.lineLayer,
             customData: {
-                animation: this.animation.toJson(true),
+                animation: animationToJson(this.animation, v3),
                 color: this.color,
                 coordinates: this.coordinates,
                 tailCoordinates: this.tailCoordinates,

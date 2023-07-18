@@ -205,12 +205,12 @@ export function animateEnvGroup(
             if (easing) event.ease = easing
 
             Object.keys(newAnimation.properties).forEach((key) => {
-                event.animate.properties[key] = newAnimation.properties[key]
+                event.animation.properties[key] = newAnimation.properties[key]
                 // TODO: Rework
                 const prop = (x as any)[key]
                 if (prop) {
-                    event.animate.properties[key] = combineAnimations(
-                        event.animate.properties[key]! as RawKeyframesAny,
+                    event.animation.properties[key] = combineAnimations(
+                        event.animation.properties[key]! as RawKeyframesAny,
                         prop,
                         key as AnimationKeys,
                     )
@@ -250,11 +250,11 @@ export function animateEnvTrack(
             if (easing) event.ease = easing
 
             Object.keys(newAnimation.properties).forEach((key) => {
-                event.animate.properties[key] = newAnimation.properties[key]
+                event.animation.properties[key] = newAnimation.properties[key]
                 const prop = (x as any)[key]
                 if (prop) {
-                    event.animate.properties[key] = combineAnimations(
-                        event.animate.properties[key] as RawKeyframesAny,
+                    event.animation.properties[key] = combineAnimations(
+                        event.animation.properties[key] as RawKeyframesAny,
                         prop,
                         key as AnimationKeys,
                     )

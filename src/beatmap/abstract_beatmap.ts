@@ -169,7 +169,7 @@ export abstract class AbstractDifficulty<
         this.customEvents.filter((e) =>
             e instanceof CustomEventInternals.AnimateTrack
         ).forEach((e) =>
-            optimizeAnimation((e as CustomEventInternals.AnimateTrack).animate)
+            optimizeAnimation((e as CustomEventInternals.AnimateTrack).animation)
         )
 
         // TODO: Optimize point definitions

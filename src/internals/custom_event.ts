@@ -12,10 +12,10 @@ import {
 } from '../types/environment_types.ts'
 import { activeDiffGet } from '../data/beatmap_handler.ts'
 import { Track } from '../animation/track.ts'
-import { AbstractAnimation, BaseAnimation } from './animation.ts'
 import { Fields, TJson } from '../types/util_types.ts'
 import { JsonWrapper } from '../types/beatmap_types.ts'
 import { copy } from '../utils/general.ts'
+import { AnimationPropertiesV3, animationToJson } from './animation.ts'
 
 export abstract class BaseCustomEvent<
     TV2 extends bsmap.v2.ICustomEvent,
@@ -25,7 +25,7 @@ export abstract class BaseCustomEvent<
     type = ''
     data: TJson = {}
 
-    constructor(time: number | Fields<BaseCustomEvent<TV2, TV3>>) {
+    constructor(time: number | Fields<BaseCustomEvent<TV2, TV3>> = 0) {
         if (typeof time === 'object') {
             Object.assign(this, time)
         } else {
@@ -43,7 +43,7 @@ export abstract class BaseCustomEvent<
 
     abstract toJson(v3: true): TV3
     abstract toJson(v3: false): TV2
-    abstract toJson(v3 = true): TV2 | TV3
+    abstract toJson(v3: boolean): TV2 | TV3
 }
 
 export class AnimateTrack extends BaseCustomEvent<
@@ -79,7 +79,7 @@ export class AnimateTrack extends BaseCustomEvent<
                     track: this.track.value,
                     duration: this.duration,
                     ...this.data,
-                    ...this.animate.toJson(v3),
+                    ...animationToJson(this.animation, v3),
                 },
                 t: 'AnimateTrack',
             } satisfies bsmap.v3.ICustomEventAnimateTrack
@@ -111,13 +111,15 @@ export class AnimateTrack extends BaseCustomEvent<
                 _track: this.track.value,
                 _duration: this.duration,
                 ...this.data,
-                ...this.animate.toJson(v3),
+                ...animationToJson(this.animation, v3),
             },
             _type: 'AnimateTrack',
         } satisfies bsmap.v2.ICustomEventAnimateTrack
     }
     /** The animation of this event. */
-    animate: AbstractAnimation
+    animation: AnimationPropertiesV3
+
+    duration: number
 
     track: Track = new Track()
 
@@ -135,32 +137,19 @@ export class AnimateTrack extends BaseCustomEvent<
      * @param easing The easing on this event's animation.
      */
     constructor(params: {
-        time: number
-        track?: TrackValue
+        time?: number
+        track: TrackValue
         duration?: number
-        animation?: BaseAnimation
+        animation?: AnimationPropertiesV3
         easing?: EASE
     }) {
         super(params.time)
         this.type = 'AnimateTrack'
-        this.animate = new AbstractAnimation(this.duration)
+        this.animation = params.animation ?? {}
+        this.duration = params.duration ?? 0
         if (params.track) this.track.value = params.track
         if (params.duration) this.duration = params.duration
-        if (params.animation) {
-            this.animate.properties = copy(
-                params.animation.properties,
-            )
-        }
         if (params.easing) this.ease = params.easing
-    }
-
-    /** The duration of the animation. */
-    get duration() {
-        return this.animate.duration
-    }
-
-    set duration(value: number) {
-        this.data.duration = value
     }
 }
 
@@ -196,7 +185,7 @@ export class AssignPathAnimation extends BaseCustomEvent<
                     easing: this.ease,
                     track: this.track.value,
                     ...this.data,
-                    ...this.animate.toJson(v3),
+                    ...animationToJson(this.animation, v3),
                 },
                 t: 'AssignPathAnimation',
             } satisfies bsmap.v3.ICustomEventAssignPathAnimation
@@ -220,13 +209,15 @@ export class AssignPathAnimation extends BaseCustomEvent<
                 _easing: this.ease,
                 _track: this.track.value,
                 ...this.data,
-                ...this.animate.toJson(v3),
+                ...animationToJson(this.animation, v3),
             },
             _type: 'AssignPathAnimation',
         } satisfies bsmap.v2.ICustomEventAssignPathAnimation
     }
     /** The animation of this event. */
-    animate: AbstractAnimation
+    animation: AnimationPropertiesV3
+
+    duration: number
 
     track: Track = new Track()
 
@@ -241,32 +232,19 @@ export class AssignPathAnimation extends BaseCustomEvent<
      * @param easing The easing on this event's animation.
      */
     constructor(params: {
-        time: number
-        track?: TrackValue
+        time?: number
+        track: TrackValue
         duration?: number
-        animation?: BaseAnimation
+        animation?: AnimationPropertiesV3
         easing?: EASE
     }) {
         super(params.time)
         this.type = 'AnimateTrack'
-        this.animate = new AbstractAnimation(this.duration)
+        this.animation = params.animation ?? {}
+        this.duration = params.duration ?? 0
         if (params.track) this.track.value = params.track
         if (params.duration) this.duration = params.duration
-        if (params.animation) {
-            this.animate.properties = copy(
-                params.animation.properties,
-            )
-        }
         if (params.easing) this.ease = params.easing
-    }
-
-    /** The time to transition from a previous path to this one. */
-    get duration() {
-        return this.animate.duration
-    }
-
-    set duration(value: number) {
-        this.animate.duration = value
     }
 }
 
@@ -311,7 +289,7 @@ export class AssignTrackParent extends BaseCustomEvent<
      * @param worldPositionStays Modifies the transform of children objects to remain in the same place relative to world space.
      */
     constructor(params: {
-        time: number
+        time?: number
         childrenTracks: string[]
         parentTrack: string
         worldPositionStays?: boolean
@@ -385,7 +363,7 @@ export class AnimateComponent
      * @param easing The easing on the animation.
      */
     constructor(params: {
-        time: number
+        time?: number
         track?: TrackValue
         duration?: number
         easing?: EASE
@@ -433,15 +411,15 @@ export class AnimateComponent
                 easing: this.easing,
                 TubeBloomPrePassLight: {
                     colorAlphaMultiplier: this
-                        .lightMultiplier as bsmap.PercentPointDefinition[],
+                        .lightMultiplier as bsmap.FloatPointDefinition[],
                     bloomFogIntensityMultiplier: undefined!,
                 },
                 BloomFogEnvironment: {
                     attenuation: this.fog
-                        ?.attenuation as bsmap.PercentPointDefinition[],
-                    height: this.fog?.height as bsmap.PercentPointDefinition[],
-                    offset: this.fog?.offset as bsmap.PercentPointDefinition[],
-                    startY: this.fog?.startY as bsmap.PercentPointDefinition[],
+                        ?.attenuation as bsmap.FloatPointDefinition[],
+                    height: this.fog?.height as bsmap.FloatPointDefinition[],
+                    offset: this.fog?.offset as bsmap.FloatPointDefinition[],
+                    startY: this.fog?.startY as bsmap.FloatPointDefinition[],
                 },
                 // @ts-ignore 2322
                 ILightWithId: {

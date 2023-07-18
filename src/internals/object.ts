@@ -7,12 +7,11 @@ import { getJumps } from '../utils/math.ts'
 import { isEmptyObject, jsonRemove } from '../utils/json.ts'
 
 import { Track } from '../animation/track.ts'
-import { noteAnimation } from '../animation/animation.ts'
 import { Fields, ObjectFields, Replace, TJson } from '../types/util_types.ts'
 import { ColorVec, Vec2, Vec3 } from '../types/data_types.ts'
 import { JsonWrapper } from '../types/beatmap_types.ts'
 import { copy } from '../utils/general.ts'
-import * as AnimationInternals from './animation.ts'
+import { GameplayObjectAnimationData } from './animation.ts'
 import { TrackValue } from '../types/animation_types.ts'
 
 export type ObjectReplacements = {
@@ -64,31 +63,19 @@ export abstract class BaseGameplayObject<
     TV3 extends bsmap.v3.IGridObject,
 > extends BaseObject<TV2, TV3> {
     constructor(
-        obj: ExcludedFields<BaseGameplayObject<TV2, TV3>>,
-        animation:
-            | AnimationInternals.WallAnimation
-            | AnimationInternals.NoteAnimation,
+        obj: ExcludedFields<BaseGameplayObject<TV2, TV3>>
     ) {
         super(obj)
+        this.animation = obj.animation ?? {}
         this.lineIndex = obj.lineIndex ?? 0
         this.lineLayer = obj.lineLayer ?? 0
-        this.fake = obj.fake
+        this.fake = obj.fake ?? false
         this.coordinates = obj.coordinates
         this.rotation = obj.rotation
         this.localRotation = obj.localRotation
         this.localNJS = obj.localNJS
         this.localOffset = obj.localOffset
-        this.interactable = obj.interactable
-        this.animation = animation
-        this.lineIndex = obj.lineIndex ?? 0
-        this.lineLayer = obj.lineLayer ?? 0
-        this.fake = obj.fake
-        this.coordinates = obj.coordinates
-        this.rotation = obj.rotation
-        this.localRotation = obj.localRotation
-        this.localNJS = obj.localNJS
-        this.localOffset = obj.localOffset
-        this.interactable = obj.interactable
+        this.interactable = obj.interactable ?? true
         this.track = obj.track instanceof Track ? obj.track : new Track(obj.track)
         this.color = obj.color
         if (obj.life) {
@@ -130,9 +117,7 @@ export abstract class BaseGameplayObject<
     color?: ColorVec
 
     /** The animation json on the object. */
-    animation:
-        | AnimationInternals.NoteAnimation
-        | AnimationInternals.WallAnimation
+    animation: GameplayObjectAnimationData
 
     /** The note jump speed of the object. Refers to the difficulty if undefined. */
     get NJS() {
@@ -212,7 +197,7 @@ export abstract class BaseSliderObject<TV3 extends bsmap.v3.IBaseSlider>
     constructor(
         obj: ExcludedFields<BaseSliderObject<TV3>>,
     ) {
-        super(obj, noteAnimation())
+        super(obj)
         this.type = obj.type ?? NoteType.RED
         this.headDirection = obj.headDirection ?? 0
         this.tailTime = obj.tailTime ?? 0

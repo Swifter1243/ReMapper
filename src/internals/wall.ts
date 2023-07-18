@@ -3,15 +3,10 @@ import { bsmap } from '../deps.ts'
 
 import { activeDiffGet } from '../data/beatmap_handler.ts'
 
-import { wallAnimation } from '../animation/animation.ts'
-
-import { BaseGameplayObject, ExcludedFields, ObjectReplacements } from './object.ts'
-import { AnimationInput } from '../types/util_types.ts'
+import { BaseGameplayObject, ExcludedFields } from './object.ts'
 import { Vec3 } from '../types/data_types.ts'
 import { copy } from '../utils/general.ts'
-import { WallAnimation } from './animation.ts'
-
-type Replacements = AnimationInput<WallAnimation> & ObjectReplacements
+import { animationToJson } from './animation.ts'
 
 export class Wall
     extends BaseGameplayObject<bsmap.v2.IObstacle, bsmap.v3.IObstacle> {
@@ -27,7 +22,7 @@ export class Wall
                 x: this.lineIndex,
                 y: this.lineLayer,
                 customData: {
-                    animation: this.animation.toJson(v3),
+                    animation: animationToJson(this.animation, v3),
                     size: this.scale,
                     noteJumpMovementSpeed: this.localNJS,
                     noteJumpStartBeatOffset: this.localOffset,
@@ -50,7 +45,7 @@ export class Wall
             _type: 0,
             _width: this.width,
             _customData: {
-                _animation: this.animation.toJson(v3),
+                _animation: animationToJson(this.animation, v3),
                 _scale: this.scale,
                 _noteJumpMovementSpeed: this.localNJS,
                 _noteJumpStartBeatOffset: this.localOffset,
@@ -67,16 +62,9 @@ export class Wall
     }
 
     constructor(
-        fields: ExcludedFields<Wall, Replacements>,
+        fields: ExcludedFields<Wall>,
     ) {
-        function initAnimation() {
-            if (fields.animation instanceof WallAnimation) {
-                return fields.animation
-            }
-            return wallAnimation(1, fields.animation)
-        }
-
-        super(fields as ExcludedFields<Wall>, initAnimation())
+        super(fields)
         this.duration = fields.duration ?? 0
         this.height = fields.height ?? 1
         this.width = fields.width ?? 1

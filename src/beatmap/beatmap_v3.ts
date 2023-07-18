@@ -3,11 +3,11 @@ import { wall } from './wall.ts'
 import { bsmap } from '../deps.ts'
 import { AbstractDifficulty } from './abstract_beatmap.ts'
 import { Bomb, Note } from '../internals/note.ts'
-import { noteAnimation, wallAnimation } from '../animation/animation.ts'
 import { Track } from '../animation/track.ts'
 import { DIFFNAME, DIFFPATH } from '../types/beatmap_types.ts'
 import { ColorVec, Vec3 } from '../types/data_types.ts'
-import { PointDefinitionAny, jsonPrune } from '../mod.ts'
+import { jsonPrune } from '../mod.ts'
+import { AnimationPropertiesV3 } from '../internals/animation.ts'
 
 function toNoteOrBomb(
     obj: bsmap.v3.IColorNote | bsmap.v3.IBombNote,
@@ -43,10 +43,7 @@ function toNoteOrBomb(
             spawnEffect: obj.customData?.spawnEffect,
             coordinates: obj.customData?.coordinates,
             track: new Track(obj.customData?.track),
-            animation: noteAnimation(
-                undefined,
-                obj.customData?.animation as Record<string, PointDefinitionAny>,
-            ),
+            animation: obj.customData?.animation as AnimationPropertiesV3
         }]
 
     if (!Object.hasOwn(obj, 'c')) {
@@ -75,13 +72,7 @@ function toWall(
         width: o.w,
         height: o.h,
         duration: o.d,
-        animation: wallAnimation(
-            undefined,
-            o.customData?.animation as Record<
-                string,
-                PointDefinitionAny
-            >,
-        ),
+        animation: o.customData?.animation as AnimationPropertiesV3,
         color: o.customData?._color,
         coordinates: o.customData?._position,
         customData: o.customData,

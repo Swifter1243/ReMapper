@@ -1,17 +1,18 @@
 import { bomb, note } from './note.ts'
 import { wall } from './wall.ts'
 import { bsmap } from '../deps.ts'
-import {
-    
-
-} from '../types/animation_types.ts'
+import {} from '../types/animation_types.ts'
 import { AbstractDifficulty } from './abstract_beatmap.ts'
-import {Bomb, Note} from "../internals/note.ts";
-import { Track } from "../animation/track.ts";
-import { noteAnimation, wallAnimation } from "../animation/animation.ts";
-import {DIFFNAME, DIFFPATH} from "../types/beatmap_types.ts";
-import {ColorVec, Vec3} from "../types/data_types.ts";
-import { PointDefinitionAny, jsonPrune } from '../mod.ts'
+import { Bomb, Note } from '../internals/note.ts'
+import { Track } from '../animation/track.ts'
+import { DIFFNAME, DIFFPATH } from '../types/beatmap_types.ts'
+import { ColorVec, Vec3 } from '../types/data_types.ts'
+import { jsonPrune, PointDefinitionAny } from '../mod.ts'
+import {
+    AnimationPropertiesV2,
+    animationToJson,
+    jsonToAnimation,
+} from '../internals/animation.ts'
 
 function toNoteOrBomb(b: bsmap.v2.INote): Note | Bomb {
     const params:
@@ -36,19 +37,18 @@ function toNoteOrBomb(b: bsmap.v2.INote): Note | Bomb {
                 ? [0, b._customData._rotation, 0]
                 : b._customData?._rotation,
             noteLook: b._customData?._disableNoteLook !== undefined
-            ? b._customData?._disableNoteLook
-            : undefined,
+                ? b._customData?._disableNoteLook
+                : undefined,
             noteGravity: b._customData?._disableNoteGravity !== undefined
-            ? b._customData?._disableNoteGravity
-            : undefined,
+                ? b._customData?._disableNoteGravity
+                : undefined,
             spawnEffect: b._customData?._disableSpawnEffect !== undefined
-            ? b._customData?._disableSpawnEffect
-            : undefined,
+                ? b._customData?._disableSpawnEffect
+                : undefined,
             coordinates: b._customData?._position,
             track: new Track(b._customData?._track),
-            animation: noteAnimation(
-                undefined,
-                b._customData?._animation as Record<string, PointDefinitionAny>,
+            animation: jsonToAnimation(
+                b._customData?._animation as AnimationPropertiesV2 ?? {},
             ),
         }]
 
@@ -152,7 +152,9 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
             a._time - b._time
 
         return {
-            _notes: [...this.notes, ...this.bombs].map((e) => jsonPrune(e.toJson(false)))
+            _notes: [...this.notes, ...this.bombs].map((e) =>
+                jsonPrune(e.toJson(false))
+            )
                 .sort(
                     sortItems,
                 ),

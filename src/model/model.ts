@@ -484,9 +484,9 @@ export class ModelScene {
                 } // Creating event for assigned
                 else {
                     const event = animateTrack(0, track)
-                    event.animate.set('position', x.pos, false)
-                    event.animate.set('rotation', x.rot, false)
-                    event.animate.set('scale', x.scale, false)
+                    event.animation.set('position', x.pos, false)
+                    event.animation.set('rotation', x.rot, false)
+                    event.animation.set('scale', x.scale, false)
                     if (forAssigned) forAssigned(event)
                     activeDiff.customEvents.push(event)
                 }
@@ -503,7 +503,7 @@ export class ModelScene {
             ) {
                 createYeetDef()
                 const event = animateTrack(0, x)
-                event.animate.position = 'yeet'
+                event.animation.position = 'yeet'
                 event.push(false)
             }
         })
@@ -588,9 +588,9 @@ export class ModelScene {
                     if (!group.object && firstInitializing) {
                         const event = animateTrack(0, track)
                         const initalizePos = objectInfo.initialPos![i]
-                        event.animate.position = initalizePos.pos as Vec3
-                        event.animate.rotation = initalizePos.rot as Vec3
-                        event.animate.scale = initalizePos.scale as Vec3
+                        event.animation.position = initalizePos.pos as Vec3
+                        event.animation.rotation = initalizePos.rot as Vec3
+                        event.animation.scale = initalizePos.scale as Vec3
                         if (forEvent) {
                             forEvent(event, objectInfo.perSwitch[time])
                         }
@@ -616,7 +616,7 @@ export class ModelScene {
                                 time,
                                 track + '_material',
                             )
-                            event.animate.color = x.color as Vec4
+                            event.animation.color = x.color as Vec4
                             event.push(false)
                         }
                     }
@@ -624,17 +624,17 @@ export class ModelScene {
                     const event = animateTrack(time, track, duration)
 
                     if (delaying) {
-                        event.animate.set(
+                        event.animation.set(
                             'position',
                             this.getFirstValues(x.pos),
                             false,
                         )
-                        event.animate.set(
+                        event.animation.set(
                             'rotation',
                             this.getFirstValues(x.rot),
                             false,
                         )
-                        event.animate.set(
+                        event.animation.set(
                             'scale',
                             this.getFirstValues(x.scale),
                             false,
@@ -646,9 +646,9 @@ export class ModelScene {
                     }
 
                     event.time = time + start
-                    event.animate.set('position', x.pos, false)
-                    event.animate.set('rotation', x.rot, false)
-                    event.animate.set('scale', x.scale, false)
+                    event.animation.set('position', x.pos, false)
+                    event.animation.set('rotation', x.rot, false)
+                    event.animation.set('scale', x.scale, false)
 
                     if (
                         typeof input === 'object' &&
@@ -688,7 +688,7 @@ export class ModelScene {
                         for (let i = amount; i < objectInfo.max; i++) {
                             if (!yeetEvents[numSwitchTime]) {
                                 const event = animateTrack(eventTime)
-                                event.animate.position = 'yeet'
+                                event.animation.position = 'yeet'
                                 yeetEvents[numSwitchTime] = event
                             }
                             yeetEvents[numSwitchTime].track.add(

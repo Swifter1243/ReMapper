@@ -21,9 +21,9 @@ export type CustomEvent = CustomEventInternals.BaseCustomEvent<
  */
 export function animateTrack(
     time: number,
-    track?: TrackValue,
+    track: TrackValue,
     duration?: number,
-    animation?: CustomEventInternals.AnimateTrack['animate'],
+    animation?: CustomEventInternals.AnimateTrack['animation'],
     easing?: EASE,
 ): CustomEventInternals.AnimateTrack
 export function animateTrack(
@@ -34,9 +34,9 @@ export function animateTrack(
         | ConstructorParameters<typeof CustomEventInternals.AnimateTrack>
         | [
             time: number,
-            track?: TrackValue,
+            track: TrackValue,
             duration?: number,
-            animation?: CustomEventInternals.AnimateTrack['animate'],
+            animation?: CustomEventInternals.AnimateTrack['animation'],
             easing?: EASE,
         ]
 ) {
@@ -55,7 +55,7 @@ export function animateTrack(
     return new CustomEventInternals.AnimateTrack(
         {
             time: time as number,
-            track,
+            track: track as TrackValue,
             duration,
             animation,
             easing,
@@ -72,9 +72,9 @@ export function animateTrack(
  */
 export function assignPathAnimation(
     time: number,
-    track?: TrackValue,
+    track: TrackValue,
     duration?: number,
-    animation?: CustomEventInternals.AnimateTrack['animate'],
+    animation?: CustomEventInternals.AnimateTrack['animation'],
     easing?: EASE,
 ): CustomEventInternals.AssignPathAnimation
 export function assignPathAnimation(
@@ -87,9 +87,9 @@ export function assignPathAnimation(
         | ConstructorParameters<typeof CustomEventInternals.AssignPathAnimation>
         | [
             time: number,
-            track?: TrackValue,
+            track: TrackValue,
             duration?: number,
-            animation?: CustomEventInternals.AssignPathAnimation['animate'],
+            animation?: CustomEventInternals.AssignPathAnimation['animation'],
             easing?: EASE,
         ]
 ) {
@@ -108,7 +108,7 @@ export function assignPathAnimation(
     return new CustomEventInternals.AssignPathAnimation(
         {
             time: time as number,
-            track,
+            track: track as TrackValue,
             duration,
             animation,
             easing,
@@ -180,7 +180,7 @@ export const assignPlayerToTrack = (time: number, track?: string) =>
  */
 export function animateComponent(
     time: number,
-    track?: TrackValue,
+    track: TrackValue,
     duration?: number,
     easing?: EASE,
     components?: Components<PointDefinitionLinear>,
@@ -195,7 +195,7 @@ export function animateComponent(
         | ConstructorParameters<typeof CustomEventInternals.AnimateComponent>
         | [
             time: number,
-            track?: TrackValue,
+            track: TrackValue,
             duration?: number,
             easing?: EASE,
 

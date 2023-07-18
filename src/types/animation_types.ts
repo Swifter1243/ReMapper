@@ -4,9 +4,6 @@ import { Vec3, Vec4 } from './data_types.ts'
 //     [P in K]: T[P] extends Function ? never : T[P]
 // }
 
-/** Any flag that could be in a keyframe. E.g. easings, splines */
-export type KeyframeFlag = Interpolation | 'hsvLerp'
-
 type EaseBase<T extends string> =
     | `easeIn${T}`
     | `easeOut${T}`
@@ -32,6 +29,12 @@ export type SPLINE = 'splineCatmullRom'
 
 /** Easings and splines. */
 export type Interpolation = EASE | SPLINE
+
+/** Modifiers */
+export type PointModifier = `op${'None' | 'Add' | 'Sub' | 'Mul' | 'Div'}`
+
+/** Any flag that could be in a keyframe. E.g. easings, splines */
+export type KeyframeFlag = PointModifier | Interpolation | 'lerpHSV'
 
 /** Time value in a keyframe. */
 export type TimeValue = number
