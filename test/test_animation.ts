@@ -1,8 +1,8 @@
 import * as rm from '../src/mod.ts'
 
-const linearComplexKeyfame: rm.ComplexKeyframesLinear = [[0, 0], [1, 1, "hsvLerp"]]
+const linearComplexKeyfame: rm.ComplexKeyframesLinear = [[0, 0], [1, 1, "lerpHSV"]]
 const vec3ComplexKeyfame: rm.ComplexKeyframesVec3 = [[0, 0, 0, 0], [1, 1, 1, 1, "splineCatmullRom"]]
-const vec4ComplexKeyfame: rm.ComplexKeyframesVec4 = [[0, 0, 0, 0, 0], [1, 1, 1, 1, 1, "easeInBack", "hsvLerp", "splineCatmullRom"]]
+const vec4ComplexKeyfame: rm.ComplexKeyframesVec4 = [[0, 0, 0, 0, 0], [1, 1, 1, 1, 1, "easeInBack", "lerpHSV", "splineCatmullRom"]]
 
 
 const linearKeyframe: rm.RawKeyframesLinear = [0]

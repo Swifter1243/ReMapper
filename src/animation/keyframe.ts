@@ -65,18 +65,18 @@ export const getKeyframeSpline = (data: KeyframeValuesUnsafe) =>
 export const setKeyframeSpline = (data: KeyframeValuesUnsafe, value: SPLINE) =>
     setKeyframeFlag(data, value, 'spline')
 
-/** Whether this keyframe has the "hsvLerp" flag. */
+/** Whether this keyframe has the "lerpHSV" flag. */
 export const getKeyframeHSVLerp = (data: KeyframeValuesUnsafe) =>
-    getKeyframeFlagIndex(data, 'hsvLerp') !== -1
+    getKeyframeFlagIndex(data, 'lerpHSV') !== -1
 
-/** Set whether this keyframe has the "hsvLerp" flag. */
+/** Set whether this keyframe has the "lerpHSV" flag. */
 export function setKeyframeHSVLerp(
     data: KeyframeValuesUnsafe,
     hasHSVLerp: boolean,
 ) {
-    if (hasHSVLerp) setKeyframeFlag(data, 'hsvLerp')
+    if (hasHSVLerp) setKeyframeFlag(data, 'lerpHSV')
     else {
-        const flagIndex = getKeyframeFlagIndex(data, 'hsvLerp')
+        const flagIndex = getKeyframeFlagIndex(data, 'lerpHSV')
         if (flagIndex !== -1) arrRemove(data, flagIndex)
     }
 }
