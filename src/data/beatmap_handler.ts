@@ -2,7 +2,7 @@ import {bsmap} from '../deps.ts'
 
 import type {AbstractDifficulty} from '../beatmap/abstract_beatmap.ts'
 
-export let info: bsmap.IInfo
+export let info: bsmap.v2.IInfo
 export let infoPath: string
 export let activeDiff: AbstractDifficulty
 export const settings = {
@@ -45,7 +45,7 @@ export function infoPathGet() {
  * Set the difficulty that objects are being created for.
  * @param info The difficulty to set to.
  */
-export function infoSet(i: bsmap.IInfo) {
+export function infoSet(i: bsmap.v2.IInfo) {
     info = i
 }
 
