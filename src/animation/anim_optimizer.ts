@@ -534,22 +534,6 @@ function optimizeKeyframes(
  * @param settings settings for the optimizer.
  * @returns
  */
-// export function optimizeAnimation(
-//     animation: RawKeyframesAny,
-//     settings: OptimizeSettings,
-// ): RawKeyframesAny
-// export function optimizeAnimation(
-//     animation: RawKeyframesLinear,
-//     settings: OptimizeSettings,
-// ): RawKeyframesLinear
-// export function optimizeAnimation(
-//     animation: RawKeyframesVec3,
-//     settings: OptimizeSettings,
-// ): RawKeyframesVec3
-// export function optimizeAnimation(
-//     animation: RawKeyframesVec4,
-//     settings: OptimizeSettings,
-// ): RawKeyframesVec4
 export function optimizeAnimation<T extends NumberTuple>(
     animation: RawKeyframesAbstract<T>,
     settings: OptimizeSettings,

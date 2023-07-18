@@ -56,18 +56,6 @@ import { ComplexKeyframesLinear, RawKeyframesLinear } from '../mod.ts'
  * For example if you input [x,y,z], it would be converted to [[x,y,z,0]].
  * @param array The keyframe or array of keyframes.
  */
-// export function complexifyArray<T extends NumberTuple>(
-//     array: RawKeyframesAny,
-// ): ComplexKeyframesAny
-// export function complexifyArray<T extends NumberTuple>(
-//     array: RawKeyframesVec3,
-// ): ComplexKeyframesVec3
-// export function complexifyArray<T extends NumberTuple>(
-//     array: RawKeyframesVec4,
-// ): ComplexKeyframesVec4
-// export function complexifyArray<T extends NumberTuple>(
-//     array: RawKeyframesLinear,
-// ): ComplexKeyframesLinear
 export function complexifyArray<T extends NumberTuple>(
     array: RawKeyframesAbstract<T>,
 ): ComplexKeyframesAbstract<T> {
@@ -80,18 +68,6 @@ export function complexifyArray<T extends NumberTuple>(
  * For example if you input [[x,y,z,0]], it would be converted to [x,y,z].
  * @param array The array of keyframes.
  */
-// export function simplifyArray<T extends NumberTuple>(
-//     array: RawKeyframesAny,
-// ): RawKeyframesAny
-// export function simplifyArray<T extends NumberTuple>(
-//     array: RawKeyframesLinear,
-// ): RawKeyframesLinear
-// export function simplifyArray<T extends NumberTuple>(
-//     array: RawKeyframesVec3,
-// ): RawKeyframesVec3
-// export function simplifyArray<T extends NumberTuple>(
-//     array: RawKeyframesVec4,
-// ): RawKeyframesVec4
 export function simplifyArray<T extends NumberTuple>(
     array: RawKeyframesAbstract<T>,
 ): RawKeyframesAbstract<T> {
