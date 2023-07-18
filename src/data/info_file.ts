@@ -18,7 +18,7 @@ export async function readInfoDat(
 
     infoSet(JSON.parse(json))
 
-    let diffSet: bsmap.IInfoSetDifficulty | undefined
+    let diffSet: bsmap.v2.IInfoSetDifficulty | undefined
 
     const diffSetMap = info._difficultyBeatmapSets.find((e) => {
         diffSet = e._difficultyBeatmaps.find((s) =>

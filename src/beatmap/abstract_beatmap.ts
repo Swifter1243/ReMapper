@@ -69,11 +69,11 @@ export abstract class AbstractDifficulty<
     /** The Json of the difficulty set
      * (e.g. Standard) that this difficulty is contained in inside of the Info.dat.
      */
-    diffSet: bsmap.IInfoSetDifficulty
+    diffSet: bsmap.v2.IInfoSetDifficulty
     /** The Json of the difficulty set map
      * (e.g. Hard) that this difficulty is contained in inside of the Info.dat.
      */
-    diffSetMap: bsmap.IInfoSet
+    diffSetMap: bsmap.v2.IInfoSet
     /** The path to the output file of this difficulty. */
     mapFile: DIFFPATH
     /** The filename of the output file of this difficulty. */
@@ -107,8 +107,8 @@ export abstract class AbstractDifficulty<
      */
     constructor(
         json: TD,
-        diffSet: bsmap.IInfoSetDifficulty,
-        diffSetMap: bsmap.IInfoSet,
+        diffSet: bsmap.v2.IInfoSetDifficulty,
+        diffSetMap: bsmap.v2.IInfoSet,
         mapFile: DIFFPATH,
         relativeMapFile: DIFFNAME,
         inner: RMDifficulty,
@@ -159,7 +159,7 @@ export abstract class AbstractDifficulty<
      */
     optimize(optimize: OptimizeSettings = new OptimizeSettings()) {
         const optimizeAnimation = (
-            animation: AnimationInternals.BaseAnimation,
+            animation: AnimationInternals.AnimationPropertiesV3,
         ) => {
             animation.optimize(undefined, optimize)
         }

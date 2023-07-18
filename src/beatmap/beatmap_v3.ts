@@ -26,8 +26,8 @@ function toNoteOrBomb(
             color: obj.customData?.color as ColorVec,
             flip: obj.customData?.flip,
             interactable: obj.customData?.uninteractable !== undefined
-            ? !obj.customData?.uninteractable
-            : undefined,
+                ? !obj.customData?.uninteractable
+                : undefined,
             localNJS: obj.customData?.noteJumpMovementSpeed,
             localOffset: obj.customData?.noteJumpStartBeatOffset,
 
@@ -38,12 +38,12 @@ function toNoteOrBomb(
                 ? !obj.customData?.disableNoteLook
                 : undefined,
             noteGravity: obj.customData?.disableNoteGravity !== undefined
-            ? !obj.customData?.disableNoteGravity
-            : undefined,
+                ? !obj.customData?.disableNoteGravity
+                : undefined,
             spawnEffect: obj.customData?.spawnEffect,
             coordinates: obj.customData?.coordinates,
             track: new Track(obj.customData?.track),
-            animation: obj.customData?.animation as AnimationPropertiesV3
+            animation: obj.customData?.animation as AnimationPropertiesV3,
         }]
 
     if (!Object.hasOwn(obj, 'c')) {
@@ -96,8 +96,8 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
     declare version: bsmap.v3.IDifficulty['version']
 
     constructor(
-        diffSet: bsmap.IInfoSetDifficulty,
-        diffSetMap: bsmap.IInfoSet,
+        diffSet: bsmap.v2.IInfoSetDifficulty,
+        diffSetMap: bsmap.v2.IInfoSet,
         mapFile: DIFFPATH,
         relativeMapFile: DIFFNAME,
         json: bsmap.v3.IDifficulty,
@@ -167,7 +167,12 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
                 arcs: [],
                 chains: [],
                 walls: obstacles,
-                events: [],
+                basicEvents: [],
+                laserSpeedEvents: [],
+                ringSpinEvents: [],
+                ringZoomEvents: [],
+                rotationEvent: [],
+                geoMaterials: {},
                 customEvents: [],
                 pointDefinitions: {},
                 customData: json.customData ?? {},
@@ -181,10 +186,10 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         const sortItems = (a: { b: number }, b: { b: number }) => a.b - b.b
 
         const colorNotes = this.notes.filter((e) => !e.fake)
-        .map((e) => (e.toJson(true)))
-        .sort(
-            sortItems,
-        )
+            .map((e) => (e.toJson(true)))
+            .sort(
+                sortItems,
+            )
 
         // console.log(this.notes[0].toJson(true))
 
