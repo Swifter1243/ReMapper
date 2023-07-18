@@ -534,18 +534,35 @@ function optimizeKeyframes(
  * @param settings settings for the optimizer.
  * @returns
  */
+// export function optimizeAnimation(
+//     animation: RawKeyframesAny,
+//     settings: OptimizeSettings,
+// ): RawKeyframesAny
+// export function optimizeAnimation(
+//     animation: RawKeyframesLinear,
+//     settings: OptimizeSettings,
+// ): RawKeyframesLinear
+// export function optimizeAnimation(
+//     animation: RawKeyframesVec3,
+//     settings: OptimizeSettings,
+// ): RawKeyframesVec3
+// export function optimizeAnimation(
+//     animation: RawKeyframesVec4,
+//     settings: OptimizeSettings,
+// ): RawKeyframesVec4
 export function optimizeAnimation<T extends NumberTuple>(
     animation: RawKeyframesAbstract<T>,
     settings: OptimizeSettings,
-) {
-    const keyframes = complexifyArray(animation)
+): RawKeyframesAbstract<T> {
+    
+    const keyframes = complexifyArray<T>(animation)
 
     // not enough points to optimize
     if (keyframes.length <= 2) {
         return simplifyArray(keyframes)
     }
 
-    return simplifyArray(
-        optimizeKeyframes(keyframes, settings) as RawKeyframesAbstract<T>,
+    return simplifyArray<T>(
+        optimizeKeyframes(keyframes, settings) as RawKeyframesAbstract<T>
     )
 }

@@ -1,4 +1,4 @@
-import { BaseAnimation } from "../internals/animation.ts"
+
 
 export type MapTypes<T, U, V> =
     & ExcludeTypes<T, U>
@@ -49,9 +49,9 @@ export type ObjectFields<T extends { customData: V }, V = T['customData']> =
 /** Type for Json data. */
 export type TJson = Record<string, unknown>
 
-export type AnimationInput<T extends BaseAnimation> = {
-    animation?: T | T["properties"]
-}
+// export type AnimationInput<T extends BaseAnimation> = {
+//     animation?: T | T["properties"]
+// }
 
 /** Replace the keys of one type with another */
 export type Replace<T, N> = Omit<T, keyof N> & N

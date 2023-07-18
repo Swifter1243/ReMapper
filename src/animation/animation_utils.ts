@@ -3,12 +3,14 @@ import {
     ComplexKeyframesAbstract,
     ComplexKeyframesAny,
     ComplexKeyframesVec3,
+    ComplexKeyframesVec4,
     ComplexKeyframeValuesUnsafe,
     EASE,
     KeyframeValuesUnsafe,
     RawKeyframesAbstract,
     RawKeyframesAny,
     RawKeyframesVec3,
+    RawKeyframesVec4,
     SimpleKeyframesAny,
     SingleKeyframeAbstract,
     SingleKeyframeValuesUnsafe,
@@ -29,7 +31,7 @@ import {
     lerpEasing,
     lerpRotation,
 } from '../utils/math.ts'
-import type { OptimizeSettings } from './anim_optimizer.ts'
+import { optimizeAnimation, OptimizeSettings } from './anim_optimizer.ts'
 
 import * as AnimationInternals from '../internals/animation.ts'
 import { NumberTuple } from '../types/util_types.ts'
@@ -47,12 +49,25 @@ import {
     setKeyframeEasing,
 } from './keyframe.ts'
 import { lerpHSV } from '../data/color.ts'
+import { ComplexKeyframesLinear, RawKeyframesLinear } from '../mod.ts'
 
 /**
  * Ensures that this value is in the format of an array of keyframes.
  * For example if you input [x,y,z], it would be converted to [[x,y,z,0]].
  * @param array The keyframe or array of keyframes.
  */
+// export function complexifyArray<T extends NumberTuple>(
+//     array: RawKeyframesAny,
+// ): ComplexKeyframesAny
+// export function complexifyArray<T extends NumberTuple>(
+//     array: RawKeyframesVec3,
+// ): ComplexKeyframesVec3
+// export function complexifyArray<T extends NumberTuple>(
+//     array: RawKeyframesVec4,
+// ): ComplexKeyframesVec4
+// export function complexifyArray<T extends NumberTuple>(
+//     array: RawKeyframesLinear,
+// ): ComplexKeyframesLinear
 export function complexifyArray<T extends NumberTuple>(
     array: RawKeyframesAbstract<T>,
 ): ComplexKeyframesAbstract<T> {
@@ -65,6 +80,18 @@ export function complexifyArray<T extends NumberTuple>(
  * For example if you input [[x,y,z,0]], it would be converted to [x,y,z].
  * @param array The array of keyframes.
  */
+// export function simplifyArray<T extends NumberTuple>(
+//     array: RawKeyframesAny,
+// ): RawKeyframesAny
+// export function simplifyArray<T extends NumberTuple>(
+//     array: RawKeyframesLinear,
+// ): RawKeyframesLinear
+// export function simplifyArray<T extends NumberTuple>(
+//     array: RawKeyframesVec3,
+// ): RawKeyframesVec3
+// export function simplifyArray<T extends NumberTuple>(
+//     array: RawKeyframesVec4,
+// ): RawKeyframesVec4
 export function simplifyArray<T extends NumberTuple>(
     array: RawKeyframesAbstract<T>,
 ): RawKeyframesAbstract<T> {
@@ -77,8 +104,6 @@ export function simplifyArray<T extends NumberTuple>(
     }
     return array
 }
-
-
 
 /**
  * Get the value of keyframes at a given time.
@@ -118,7 +143,11 @@ export function getValuesAtTime<K extends string = AnimationKeys>(
             )
         }
         if (property === 'color' && rHSVLerp) {
-            return lerpHSV(lValues as Vec4, rValues as Vec4, timeInfo.normalTime);
+            return lerpHSV(
+                lValues as Vec4,
+                rValues as Vec4,
+                timeInfo.normalTime,
+            )
         }
         if (rSpline === 'splineCatmullRom') {
             return splineCatmullRomLerp(
@@ -236,7 +265,7 @@ export function combineAnimations(
     let simpleArr = copy(anim1)
     let complexArr: ComplexKeyframeValuesUnsafe = []
 
-    if (isSimple(anim1) && isSimple(anim2)) complexArr = complexifyArray(anim2)
+    if (isSimple(anim1) && isSimple(anim2)) complexArr = complexifyArray<[number] | Vec3 | Vec4>(anim2)
     else if (!isSimple(anim1) && isSimple(anim2)) {
         simpleArr = copy(anim2)
         complexArr = copy(anim1) as ComplexKeyframesAny
@@ -295,16 +324,13 @@ export function bakeAnimation(
     animFreq?: number,
     animOptimizer?: OptimizeSettings,
 ) {
+    animOptimizer ??= new OptimizeSettings()
     animFreq ??= 1 / 32
     animation.pos ??= [0, 0, 0]
     animation.rot ??= [0, 0, 0]
     animation.scale ??= [1, 1, 1]
 
-    const dataAnim = new AnimationInternals.AbstractAnimation()
-    dataAnim.position = copy(animation.pos)
-    dataAnim.rotation = copy(animation.rot)
-    dataAnim.scale = copy(animation.scale)
-
+    const dataAnim = copy(animation)
     const data = {
         pos: <ComplexKeyframesVec3> [],
         rot: <ComplexKeyframesVec3> [],
@@ -312,7 +338,7 @@ export function bakeAnimation(
     }
 
     function getDomain(arr: RawKeyframesAny) {
-        const newArr = complexifyArray(arr)
+        const newArr = complexifyArray<[number] | Vec3 | Vec4>(arr)
 
         let min = 1
         let max = 0
@@ -347,9 +373,9 @@ export function bakeAnimation(
 
     for (let i = totalMin; i <= totalMax; i += animFreq) {
         const keyframe = {
-            pos: dataAnim.get('position', i)! as Vec3,
-            rot: dataAnim.get('rotation', i)! as Vec3,
-            scale: dataAnim.get('scale', i)! as Vec3,
+            pos: dataAnim.pos as Vec3,
+            rot: dataAnim.rot as Vec3,
+            scale: dataAnim.scale as Vec3,
             time: i,
         } satisfies TransformKeyframe
 
@@ -360,15 +386,13 @@ export function bakeAnimation(
         data.scale.push([...keyframe.scale, keyframe.time])
     }
 
-    dataAnim.position = data.pos
-    dataAnim.rotation = data.rot
-    dataAnim.scale = data.scale
-
-    dataAnim.optimize(undefined, animOptimizer)
+    dataAnim.pos = optimizeAnimation(data.pos, animOptimizer)
+    dataAnim.rot = optimizeAnimation(data.rot, animOptimizer)
+    dataAnim.scale = optimizeAnimation(data.scale, animOptimizer)
 
     return {
-        pos: dataAnim.position as RawKeyframesVec3,
-        rot: dataAnim.rotation as RawKeyframesVec3,
+        pos: dataAnim.pos as RawKeyframesVec3,
+        rot: dataAnim.rot as RawKeyframesVec3,
         scale: dataAnim.scale as RawKeyframesVec3,
     }
 }
@@ -424,12 +448,12 @@ export function reverseAnimation<T extends NumberTuple>(
  */
 export function iterateKeyframes<T extends NumberTuple>(
     keyframes: RawKeyframesAbstract<T>,
-    fn: (values: SingleKeyframeAbstract<T>, index: number) => void,
+    fn: (values: ComplexKeyframesAbstract<T>[0], index: number) => void,
 ) {
     // TODO: Lookup point def
     if (typeof keyframes === 'string') return
 
-    const newKeyframes = complexifyArray(keyframes)
+    const newKeyframes = complexifyArray<T>(keyframes)
     newKeyframes.forEach((x, i) => fn(x, i))
     const newSimpleKeyframes = simplifyArray(newKeyframes)
     newSimpleKeyframes.forEach((x, i) => (keyframes[i] = x))

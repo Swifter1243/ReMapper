@@ -96,7 +96,10 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
                 obstacles.map((o) =>
                     wall({
                         time: o._time,
-                        animation: jsonToAnimation(o._customData?._animation as AnimationPropertiesV2 ?? {}),
+                        animation: jsonToAnimation(
+                            o._customData
+                                ?._animation as AnimationPropertiesV2 ?? {},
+                        ),
                         color: o._customData?._color as ColorVec,
                         coordinates: o._customData?._position,
                         customData: o._customData,
