@@ -126,6 +126,6 @@ export function jsonToAnimation(obj: AnimationPropertiesV2): AnimationProperties
         position: obj._position,
         rotation: obj._rotation,
         scale: obj._scale,
-        time: obj._time
+        time: obj._time,
     } as AnimationPropertiesV3
 }

@@ -62,8 +62,8 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
     declare version: bsmap.v2.IDifficulty['_version']
 
     constructor(
-        diffSet: bsmap.IInfoSetDifficulty,
-        diffSetMap: bsmap.IInfoSet,
+        diffSet: bsmap.v2.IInfoSetDifficulty,
+        diffSetMap: bsmap.v2.IInfoSet,
         mapFile: DIFFPATH,
         relativeMapFile: DIFFNAME,
         json: bsmap.v2.IDifficulty,
@@ -96,13 +96,7 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
                 obstacles.map((o) =>
                     wall({
                         time: o._time,
-                        animation: wallAnimation(
-                            undefined,
-                            o._customData?._animation as Record<
-                                string,
-                                PointDefinitionAny
-                            >,
-                        ),
+                        animation: jsonToAnimation(o._customData?._animation as AnimationPropertiesV2 ?? {}),
                         color: o._customData?._color as ColorVec,
                         coordinates: o._customData?._position,
                         customData: o._customData,
@@ -137,8 +131,13 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
                 arcs: [],
                 chains: [],
                 walls: obstacles,
-                events: [],
+                basicEvents: [],
+                laserSpeedEvents: [],
+                ringSpinEvents: [],
+                ringZoomEvents: [],
+                rotationEvent: [],
                 customEvents: [],
+                geoMaterials: {},
                 pointDefinitions: {},
                 customData: json._customData ?? {},
                 environment: [],
