@@ -122,8 +122,8 @@ export function keyframesMap<
 >(
     keyframe: K,
     fn: (
-        keyframe: Readonly<SingleKeyframeAbstract<T>> | undefined,
-    ) => SingleKeyframeAbstract<T>,
+        keyframe: Readonly<ComplexKeyframesAbstract<T>[0]> | undefined,
+    ) => ComplexKeyframesAbstract<T>[0],
     options: {
         filter?: false // if true, will remove al
     },
@@ -134,8 +134,8 @@ export function keyframesMap<
 >(
     keyframe: K,
     fn: (
-        keyframe: Readonly<SingleKeyframeAbstract<T>>,
-    ) => SingleKeyframeAbstract<T>,
+        keyframe: Readonly<ComplexKeyframesAbstract<T>[0]>,
+    ) => ComplexKeyframesAbstract<T>[0],
     options: {
         filter: true // if true, will remove al
     },
@@ -152,18 +152,19 @@ export function keyframesMap<
 >(
     keyframe: K,
     fn: (
-        keyframe: Readonly<SingleKeyframeAbstract<T>>,
+        keyframe: Readonly<ComplexKeyframesAbstract<T>[0]>,
         timeIndex: number,
         keyframeIndex: number,
-    ) => SingleKeyframeAbstract<T>,
+    ) => ComplexKeyframesAbstract<T>[0],
     options: {
         filter?: boolean // if true, will remove al
     },
 ): K {
     if (isSimple(keyframe)) {
-        const simpleKeyframe = keyframe as SingleKeyframeAbstract<T>
+        const simpleKeyframe = [...keyframe,0] as unknown as ComplexKeyframesAbstract<T>[0]
 
-        return fn(simpleKeyframe, findTimeIndex(simpleKeyframe), 0) as K
+        // TODO: Redo
+        return fn(simpleKeyframe, findTimeIndex(simpleKeyframe), 0) as unknown as K
     }
 
     const complexKeyframe = keyframe as ComplexKeyframesAbstract<T>
