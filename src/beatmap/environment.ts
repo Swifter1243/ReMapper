@@ -9,17 +9,22 @@ import {
     EASE,
     RawKeyframesAny,
 } from '../types/animation_types.ts'
-import {GeometryMaterial, GeoType, Lookup} from '../types/environment_types.ts'
+import {
+    GeometryMaterial,
+    GeoType,
+    Lookup,
+} from '../types/environment_types.ts'
 import { activeDiffGet } from '../data/beatmap_handler.ts'
-import { combineAnimations } from "../animation/animation_utils.ts";
+import { combineAnimations } from '../animation/animation_utils.ts'
 import { copy } from '../utils/general.ts'
 
 let envCount = 0
 
-export class Environment extends EnvironmentInternals.BaseEnvironmentEnhancement<
-    bsmap.v2.IChromaEnvironmentID,
-    bsmap.v3.IChromaEnvironmentID
-> {
+export class Environment
+    extends EnvironmentInternals.BaseEnvironmentEnhancement<
+        bsmap.v2.IChromaEnvironmentID,
+        bsmap.v3.IChromaEnvironmentID
+    > {
     push(clone = true): void {
         activeDiffGet().environment.push(clone ? copy(this) : this)
     }
@@ -183,7 +188,7 @@ export class Geometry extends EnvironmentInternals.BaseEnvironmentEnhancement<
 export function animateEnvGroup(
     group: string,
     time: number,
-    animation: (animation: AnimationInternals.EnvironmentAnimation) => void,
+    animation: (animation: AnimationInternals.EnvironmentAnimationData) => void,
     duration?: number,
     easing?: EASE,
 ) {
@@ -192,7 +197,7 @@ export function animateEnvGroup(
 
     for (const x of environmentCombined) {
         if (x.group === group) {
-            const newAnimation = new AnimationInternals.AbstractAnimation()
+            const newAnimation: AnimationInternals.AnimationPropertiesV3 = {}
             animation(newAnimation)
 
             if (!x.track.value) {
@@ -204,16 +209,19 @@ export function animateEnvGroup(
             if (duration) event.duration = duration
             if (easing) event.ease = easing
 
-            Object.keys(newAnimation.properties).forEach((key) => {
-                event.animation.properties[key] = newAnimation.properties[key]
+            const keys = Object.keys(
+                newAnimation,
+            ) as (keyof AnimationInternals.AnimationPropertiesV3)[]
+            keys.forEach((key) => {
+                event.animation[key] = newAnimation[key] as any
                 // TODO: Rework
                 const prop = (x as any)[key]
                 if (prop) {
-                    event.animation.properties[key] = combineAnimations(
-                        event.animation.properties[key]! as RawKeyframesAny,
+                    event.animation[key] = combineAnimations(
+                        event.animation[key]! as RawKeyframesAny,
                         prop,
                         key as AnimationKeys,
-                    )
+                    ) as any
                 }
             })
 
@@ -233,7 +241,7 @@ export function animateEnvGroup(
 export function animateEnvTrack(
     track: string,
     time: number,
-    animation: (animation: AnimationInternals.EnvironmentAnimation) => void,
+    animation: (animation: AnimationInternals.EnvironmentAnimationData) => void,
     duration?: number,
     easing?: EASE,
 ) {
@@ -242,22 +250,26 @@ export function animateEnvTrack(
 
     for (const x of environmentCombined) {
         if (x.track.value === track) {
-            const newAnimation = new AnimationInternals.AbstractAnimation()
+            const newAnimation: AnimationInternals.AnimationPropertiesV3 = {}
             animation(newAnimation)
 
             const event = animateTrack(time, x.track.value)
             if (duration) event.duration = duration
             if (easing) event.ease = easing
 
-            Object.keys(newAnimation.properties).forEach((key) => {
-                event.animation.properties[key] = newAnimation.properties[key]
+            const keys = Object.keys(
+                newAnimation,
+            ) as unknown as (keyof AnimationInternals.AnimationPropertiesV3)[]
+
+            keys.forEach((key) => {
+                event.animation[key] = newAnimation[key] as any
                 const prop = (x as any)[key]
                 if (prop) {
-                    event.animation.properties[key] = combineAnimations(
-                        event.animation.properties[key] as RawKeyframesAny,
+                    event.animation[key] = combineAnimations(
+                        event.animation[key] as RawKeyframesAny,
                         prop,
                         key as AnimationKeys,
-                    )
+                    ) as any
                 }
             })
 
