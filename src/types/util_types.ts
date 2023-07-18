@@ -1,5 +1,3 @@
-
-
 export type MapTypes<T, U, V> =
     & ExcludeTypes<T, U>
     & {
@@ -41,7 +39,7 @@ export type OnlyNumbersOptional<T> = FilterTypes<T, number | undefined>
 export type NumberTuple = number[] | []
 
 export type ObjectFields<T extends { customData: V }, V = T['customData']> =
-    & Omit<Fields<T>, 'customData'>
+    & Omit<Omit<Fields<T>, 'isModded'>, 'customData'>
     & {
         customData?: T['customData']
     }
