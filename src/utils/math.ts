@@ -96,7 +96,7 @@ export function rotFromQuaternion(q: three.Quaternion) {
 export function lerpEasing(easing: EASE, value: number) {
     if (easing === 'easeLinear' || easing === undefined) return value
     if (easing === 'easeStep') return value === 1 ? 1 : 0
-    return easings[easing](value, 0, 1, 1)
+    return easings[easing](value)
 }
 
 /**
@@ -284,7 +284,6 @@ export function combineTransforms(
     transform: Readonly<Transform>,
     anchor: Vec3 = [0, 0, 0],
 ) {
-    
     const newTarget = copy(target) as Transform
     const newTransform = copy(transform) as Transform
 

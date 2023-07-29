@@ -228,8 +228,8 @@ export abstract class AbstractDifficulty<
             diffName,
             JSON.stringify(
                 outputJSON,
-                sortedProcess.length > 0 ? transformer : undefined,
-                0,
+                // sortedProcess.length > 0 ? transformer : undefined,
+                // 0,
             ),
         )
         await Promise.all([promise1, promise2, promise3])
