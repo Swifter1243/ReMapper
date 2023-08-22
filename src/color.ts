@@ -46,7 +46,7 @@ export class Color {
   }
 
   private HSVtoRGB() {
-    const h = this.internalValue[0] % 1;
+    const h = clamp(this.internalValue[0], 0, 1);
     const s = this.internalValue[1];
     const v = this.internalValue[2];
 
