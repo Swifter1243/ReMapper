@@ -1,226 +1,147 @@
-// Ported from https://github.com/bameyrick/js-easing-functions
+// Ported from https://easings.net/
 
-export function easeInQuad(elapsed: number, initialValue: number, amountOfChange: number, duration: number): number {
-	return amountOfChange * (elapsed / duration) * elapsed + initialValue;
+export function easeInQuad(x: number): number {
+	return Math.pow(x, 2);
 }
 
-export function easeOutQuad(elapsed: number, initialValue: number, amountOfChange: number, duration: number): number {
-	return -amountOfChange * (elapsed / duration) * (elapsed - 2) + initialValue;
+export function easeOutQuad(x: number): number {
+	return 1 - (1 - x) * (1 - x);
 }
 
-export function easeInOutQuad(elapsed: number, initialValue: number, amountOfChange: number, duration: number): number {
-	if ((elapsed /= duration / 2) < 1) {
-		return amountOfChange / 2 * elapsed * elapsed + initialValue;
-	}
-	return -amountOfChange / 2 * (--elapsed * (elapsed - 2) - 1) + initialValue;
+export function easeInOutQuad(x: number): number {
+	return x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
 }
 
-export function easeInCubic(elapsed: number, initialValue: number, amountOfChange: number, duration: number): number {
-	return amountOfChange * (elapsed / duration) * elapsed * elapsed + initialValue;
+export function easeInCubic(x: number): number {
+	return x * x * x;
 }
 
-export function easeOutCubic(elapsed: number, initialValue: number, amountOfChange: number, duration: number): number {
-	return amountOfChange * ((elapsed / duration - 1) * elapsed * elapsed + 1) + initialValue;
+export function easeOutCubic(x: number): number {
+	return 1 - Math.pow(1 - x, 3);
 }
 
-export function easeInOutCubic(elapsed: number, initialValue: number, amountOfChange: number, duration: number): number {
-	if ((elapsed /= duration / 2) < 1) {
-		return amountOfChange / 2 * elapsed * elapsed * elapsed + initialValue;
-	}
-	return amountOfChange / 2 * ((elapsed - 2) * elapsed * elapsed + 2) + initialValue;
+export function easeInOutCubic(x: number): number {
+	return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
 }
 
-export function easeInQuart(elapsed: number, initialValue: number, amountOfChange: number, duration: number): number {
-	return amountOfChange * (elapsed / duration) * elapsed * elapsed * elapsed + initialValue;
+export function easeInQuart(x: number): number {
+	return x * x * x * x;
 }
 
-export function easeOutQuart(elapsed: number, initialValue: number, amountOfChange: number, duration: number): number {
-	return -amountOfChange * ((elapsed / duration - 1) * elapsed * elapsed * elapsed - 1) + initialValue;
+export function easeOutQuart(x: number): number {
+	return 1 - Math.pow(1 - x, 4);
 }
 
-export function easeInOutQuart(elapsed: number, initialValue: number, amountOfChange: number, duration: number): number {
-	if ((elapsed /= duration / 2) < 1) {
-		return amountOfChange / 2 * elapsed * elapsed * elapsed * elapsed + initialValue;
-	}
-	return -amountOfChange / 2 * ((elapsed - 2) * elapsed * elapsed * elapsed - 2) + initialValue;
+export function easeInOutQuart(x: number): number {
+	return x < 0.5 ? 8 * x * x * x * x : 1 - Math.pow(-2 * x + 2, 4) / 2;
 }
 
-export function easeInQuint(elapsed: number, initialValue: number, amountOfChange: number, duration: number): number {
-	return amountOfChange * (elapsed / duration) * elapsed * elapsed * elapsed * elapsed + initialValue;
+export function easeInQuint(x: number): number {
+	return x * x * x * x * x;
 }
 
-export function easeOutQuint(elapsed: number, initialValue: number, amountOfChange: number, duration: number): number {
-	return amountOfChange * ((elapsed / duration - 1) * elapsed * elapsed * elapsed * elapsed + 1) + initialValue;
+export function easeOutQuint(x: number): number {
+	return 1 - Math.pow(1 - x, 5);
 }
 
-export function easeInOutQuint(elapsed: number, initialValue: number, amountOfChange: number, duration: number): number {
-	if ((elapsed /= duration / 2) < 1) {
-		return amountOfChange / 2 * elapsed * elapsed * elapsed * elapsed * elapsed + initialValue;
-	}
-	return amountOfChange / 2 * ((elapsed - 2) * elapsed * elapsed * elapsed * elapsed + 2) + initialValue;
+export function easeInOutQuint(x: number): number {
+	return x < 0.5 ? 16 * x * x * x * x * x : 1 - Math.pow(-2 * x + 2, 5) / 2;
 }
 
-export function easeInSine(elapsed: number, initialValue: number, amountOfChange: number, duration: number): number {
-	return -amountOfChange * Math.cos(elapsed / duration * (Math.PI / 2)) + amountOfChange + initialValue;
+export function easeInSine(x: number): number {
+	return 1 - Math.cos((x * Math.PI) / 2);
 }
 
-export function easeOutSine(elapsed: number, initialValue: number, amountOfChange: number, duration: number): number {
-	return amountOfChange * Math.sin(elapsed / duration * (Math.PI / 2)) + initialValue;
+export function easeOutSine(x: number): number {
+	return Math.sin((x * Math.PI) / 2);
 }
 
-export function easeInOutSine(elapsed: number, initialValue: number, amountOfChange: number, duration: number): number {
-	return -amountOfChange / 2 * (Math.cos(Math.PI * elapsed / duration) - 1) + initialValue;
+export function easeInOutSine(x: number): number {
+	return -(Math.cos(Math.PI * x) - 1) / 2;
 }
 
-export function easeInExpo(elapsed: number, initialValue: number, amountOfChange: number, duration: number): number {
-	return elapsed === 0 ? initialValue : amountOfChange * Math.pow(2, 10 * (elapsed / duration - 1)) + initialValue;
+export function easeInExpo(x: number): number {
+	return x === 0 ? 0 : Math.pow(2, 10 * x - 10);
 }
 
-export function easeOutExpo(elapsed: number, initialValue: number, amountOfChange: number, duration: number): number {
-	return elapsed === duration
-		? initialValue + amountOfChange
-		: amountOfChange * (-Math.pow(2, -10 * elapsed / duration) + 1) + initialValue;
+export function easeOutExpo(x: number): number {
+	return x === 1 ? 1 : 1 - Math.pow(2, -10 * x);
 }
 
-export function easeInOutExpo(elapsed: number, initialValue: number, amountOfChange: number, duration: number): number {
-	if (elapsed === 0) {
-		return initialValue;
-	}
-	if (elapsed === duration) {
-		return initialValue + amountOfChange;
-	}
-	if ((elapsed /= duration / 2) < 1) {
-		return amountOfChange / 2 * Math.pow(2, 10 * (elapsed - 1)) + initialValue;
-	}
-	return amountOfChange / 2 * (-Math.pow(2, -10 * --elapsed) + 2) + initialValue;
+export function easeInOutExpo(x: number): number {
+	return x === 0 ? 0 : x === 1 ? 1 : x < 0.5 ? Math.pow(2, 20 * x - 10) / 2 : (2 - Math.pow(2, -20 * x + 10)) / 2;
 }
 
-export function easeInCirc(elapsed: number, initialValue: number, amountOfChange: number, duration: number): number {
-	return -amountOfChange * (Math.sqrt(1 - (elapsed / duration) * elapsed) - 1) + initialValue;
+export function easeInCirc(x: number): number {
+	return 1 - Math.sqrt(1 - Math.pow(x, 2));
 }
 
-export function easeOutCirc(elapsed: number, initialValue: number, amountOfChange: number, duration: number): number {
-	return amountOfChange * Math.sqrt(1 - (elapsed / duration - 1) * elapsed) + initialValue;
+export function easeOutCirc(x: number): number {
+	return Math.sqrt(1 - Math.pow(x - 1, 2));
 }
 
-export function easeInOutCirc(elapsed: number, initialValue: number, amountOfChange: number, duration: number): number {
-	if ((elapsed /= duration / 2) < 1) {
-		return -amountOfChange / 2 * (Math.sqrt(1 - elapsed * elapsed) - 1) + initialValue;
-	}
-	return amountOfChange / 2 * (Math.sqrt(1 - (elapsed - 2) * elapsed) + 1) + initialValue;
+export function easeInOutCirc(x: number): number {
+	return x < 0.5 ? (1 - Math.sqrt(1 - Math.pow(2 * x, 2))) / 2 : (Math.sqrt(1 - Math.pow(-2 * x + 2, 2)) + 1) / 2;
 }
 
-export function easeInElastic(elapsed: number, initialValue: number, amountOfChange: number, duration: number): number {
-	let s = 1.70158;
-	let p = 0;
-	let a = amountOfChange;
-	if (elapsed === 0) {
-		return initialValue;
-	}
-	if ((elapsed /= duration) === 1) {
-		return initialValue + amountOfChange;
-	}
-	if (!p) {
-		p = duration * 0.3;
-	}
-	if (a < Math.abs(amountOfChange)) {
-		a = amountOfChange;
-		s = p / 4;
+export function easeInElastic(x: number): number {
+	const c4 = (2 * Math.PI) / 3;
+
+	return x === 0 ? 0 : x === 1 ? 1 : -Math.pow(2, 10 * x - 10) * Math.sin((x * 10 - 10.75) * c4);
+}
+
+export function easeOutElastic(x: number): number {
+	const c4 = (2 * Math.PI) / 3;
+
+	return x === 0 ? 0 : x === 1 ? 1 : Math.pow(2, -10 * x) * Math.sin((x * 10 - 0.75) * c4) + 1;
+}
+
+export function easeInOutElastic(x: number): number {
+	const c5 = (2 * Math.PI) / 4.5;
+
+	return x === 0 ? 0 : x === 1 ? 1 : x < 0.5 ? -(Math.pow(2, 20 * x - 10) * Math.sin((20 * x - 11.125) * c5)) / 2 : (Math.pow(2, -20 * x + 10) * Math.sin((20 * x - 11.125) * c5)) / 2 + 1;
+}
+
+export function easeInBack(x: number): number {
+	const c1 = 1.70158;
+	const c3 = c1 + 1;
+
+	return c3 * x * x * x - c1 * x * x;
+}
+
+export function easeOutBack(x: number): number {
+	const c1 = 1.70158;
+	const c3 = c1 + 1;
+
+	return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2);
+}
+
+export function easeInOutBack(x: number): number {
+	const c1 = 1.70158;
+	const c2 = c1 * 1.525;
+
+	return x < 0.5 ? (Math.pow(2 * x, 2) * ((c2 + 1) * 2 * x - c2)) / 2 : (Math.pow(2 * x - 2, 2) * ((c2 + 1) * (x * 2 - 2) + c2) + 2) / 2;
+}
+
+export function easeInBounce(x: number): number {
+	return 1 - easeOutBounce(1 - x);
+}
+
+export function easeOutBounce(x: number): number {
+	const n1 = 7.5625;
+	const d1 = 2.75;
+
+	if (x < 1 / d1) {
+		return n1 * x * x;
+	} else if (x < 2 / d1) {
+		return n1 * (x -= 1.5 / d1) * x + 0.75;
+	} else if (x < 2.5 / d1) {
+		return n1 * (x -= 2.25 / d1) * x + 0.9375;
 	} else {
-		s = p / (2 * Math.PI) * Math.asin(amountOfChange / a);
-	}
-	return -(a * Math.pow(2, 10 * (elapsed - 1)) * Math.sin((elapsed * duration - s) * (2 * Math.PI) / p)) + initialValue;
-}
-
-export function easeOutElastic(elapsed: number, initialValue: number, amountOfChange: number, duration: number): number {
-	let s = 1.70158;
-	let p = 0;
-	let a = amountOfChange;
-	if (elapsed === 0) {
-		return initialValue;
-	}
-	if ((elapsed /= duration) === 1) {
-		return initialValue + amountOfChange;
-	}
-	if (!p) {
-		p = duration * 0.3;
-	}
-	if (a < Math.abs(amountOfChange)) {
-		a = amountOfChange;
-		s = p / 4;
-	} else {
-		s = p / (2 * Math.PI) * Math.asin(amountOfChange / a);
-	}
-	return a * Math.pow(2, -10 * elapsed) * Math.sin((elapsed * duration - s) * (2 * Math.PI) / p) + amountOfChange + initialValue;
-}
-
-export function easeInOutElastic(elapsed: number, initialValue: number, amountOfChange: number, duration: number): number {
-	let s = 1.70158;
-	let p = 0;
-	let a = amountOfChange;
-	if (elapsed === 0) {
-		return initialValue;
-	}
-	if ((elapsed /= duration / 2) === 2) {
-		return initialValue + amountOfChange;
-	}
-	if (!p) {
-		p = duration * (0.3 * 1.5);
-	}
-	if (a < Math.abs(amountOfChange)) {
-		a = amountOfChange;
-		s = p / 4;
-	} else {
-		s = p / (2 * Math.PI) * Math.asin(amountOfChange / a);
-	}
-	if (elapsed < 1) {
-		return -0.5 * (a * Math.pow(2, 10 * (elapsed - 1)) * Math.sin((elapsed * duration - s) * (2 * Math.PI) / p)) + initialValue;
-	}
-	return (
-		a * Math.pow(2, -10 * (elapsed - 1)) * Math.sin((elapsed * duration - s) * (2 * Math.PI) / p) * 0.5 + amountOfChange + initialValue
-	);
-}
-
-export function easeInBack(elapsed: number, initialValue: number, amountOfChange: number, duration: number, s = 1.70158): number {
-	return amountOfChange * (elapsed / duration) * elapsed * ((s + 1) * elapsed - s) + initialValue;
-}
-
-export function easeOutBack(elapsed: number, initialValue: number, amountOfChange: number, duration: number, s = 1.70158): number {
-	return amountOfChange * ((elapsed / duration - 1) * elapsed * ((s + 1) * elapsed + s) + 1) + initialValue;
-}
-
-export function easeInOutBack(
-	elapsed: number,
-	initialValue: number,
-	amountOfChange: number,
-	duration: number,
-	s = 1.70158
-): number {
-	if ((elapsed /= duration / 2) < 1) {
-		return amountOfChange / 2 * (elapsed * elapsed * (((s * 1.525) + 1) * elapsed - s)) + initialValue;
-	}
-	return amountOfChange / 2 * ((elapsed - 2) * elapsed * (((s * 1.525) + 1) * elapsed + s) + 2) + initialValue;
-}
-
-export function easeInBounce(elapsed: number, initialValue: number, amountOfChange: number, duration: number): number {
-	return amountOfChange - easeOutBounce(duration - elapsed, 0, amountOfChange, duration) + initialValue;
-}
-
-export function easeOutBounce(elapsed: number, initialValue: number, amountOfChange: number, duration: number): number {
-	if ((elapsed /= duration) < 1 / 2.75) {
-		return amountOfChange * (7.5625 * elapsed * elapsed) + initialValue;
-	} else if (elapsed < 2 / 2.75) {
-		return amountOfChange * (7.5625 * (elapsed - 1.5 / 2.75) * elapsed + 0.75) + initialValue;
-	} else if (elapsed < 2.5 / 2.75) {
-		return amountOfChange * (7.5625 * (elapsed - 2.25 / 2.75) * elapsed + 0.9375) + initialValue;
-	} else {
-		return amountOfChange * (7.5625 * (elapsed - 2.625 / 2.75) * elapsed + 0.984375) + initialValue;
+		return n1 * (x -= 2.625 / d1) * x + 0.984375;
 	}
 }
 
-export function easeInOutBounce(elapsed: number, initialValue: number, amountOfChange: number, duration: number): number {
-	if (elapsed < duration / 2) {
-		return easeInBounce(elapsed * 2, 0, amountOfChange, duration) * 0.5 + initialValue;
-	}
-	return easeOutBounce(elapsed * 2 - duration, 0, amountOfChange, duration) * 0.5 + amountOfChange * 0.5 + initialValue;
+export function easeInOutBounce(x: number): number {
+	return x < 0.5 ? (1 - easeOutBounce(1 - 2 * x)) / 2 : (1 + easeOutBounce(2 * x - 1)) / 2;
 }
