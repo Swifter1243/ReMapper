@@ -85,7 +85,7 @@ export class BaseLightRemapper {
      * Run the algorithm.
      * @param log Log the output JSON of each event.
      */
-    run = (log = false) => this.processEvents(activeDiffGet().events, log)
+    run = (log = false) => this.processEvents(activeDiffGet().basicEvents, log)
 
     /**
      * Process events through the algorithm.
