@@ -15,8 +15,8 @@ type LightFields<T extends { customData: T['customData'] }> =
     }
 
 export abstract class BaseEvent<
-    TV2 extends bsmap.v2.IEvent,
-    TV3 extends bsmap.v3.IBasicEvent,
+    TV2 extends bsmap.v2.IEvent = bsmap.v2.IEvent,
+    TV3 extends bsmap.v3.IBasicEvent = bsmap.v3.IBasicEvent,
 > extends BaseObject<TV2, TV3> {
     /** The bare minimum event. */
 

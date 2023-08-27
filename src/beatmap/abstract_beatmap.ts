@@ -169,7 +169,9 @@ export abstract class AbstractDifficulty<
         this.customEvents.filter((e) =>
             e instanceof CustomEventInternals.AnimateTrack
         ).forEach((e) =>
-            optimizeAnimation((e as CustomEventInternals.AnimateTrack).animation)
+            optimizeAnimation(
+                (e as CustomEventInternals.AnimateTrack).animation,
+            )
         )
 
         // TODO: Optimize point definitions
@@ -287,12 +289,33 @@ export abstract class AbstractDifficulty<
         yield* this.environment
     }
 
+    /**
+     * @brief Not sorted
+     */
+    *allEvents(sorted = false): IterableIterator<
+        BasicEventInternals.BaseEvent
+    > {
+        if (sorted) {
+            return [
+                ...this.basicEvents,
+                ...this.ringSpinEvents,
+                ...this.ringZoomEvents,
+                ...this.laserSpeedEvents,
+            ].sort((a, b) => a.time - b.time)
+        }
+
+        yield* this.basicEvents
+        yield* this.ringSpinEvents
+        yield* this.ringZoomEvents
+        yield* this.laserSpeedEvents
+    }
+
     get allNotes() {
         return [
             ...this.notes,
             ...this.bombs,
             ...this.arcs,
-            ...this.chains
+            ...this.chains,
         ] as readonly AnyNote[]
     }
 
