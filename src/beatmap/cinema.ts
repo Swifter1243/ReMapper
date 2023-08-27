@@ -2,10 +2,10 @@
 
 import { jsonGet } from '../utils/json.ts'
 
-import {TJson} from "../types/util_types.ts";
+import { TJson } from '../types/util_types.ts'
 
 export class CinemaScreen {
-    json: TJson = {
+    json: Record<string, any> = {
         'videoID': undefined,
         'screenPosition': {
             'x': 0.0,
@@ -214,11 +214,22 @@ This setting prevents the user from overriding the environment. */
 
     /** If you want to make slight modifications to how the video looks, you can use these color correction options which get applied at runtime. This should be easier to use than having to make the edits in the video file itself and then re-uploading the edited version to YouTube. These settings are categorized under a top-level property named colorCorrection. See the example below. When adjusting these values, you can make use of the hot reloading capability of Cinema. Simply start the map, pause the game at a frame of the video you want to look differently, and start editing the config to see the results immediately. */
     get colorCorrection() {
-        return jsonGet(this.json, 'colorCorrection', {})
+        return jsonGet<ColorCorrection>(this.json, 'colorCorrection', {
+            brightness: 0,
+            contrast: 0,
+            exposure: 0,
+            gamma: 0,
+            hue: 0,
+            saturation: 0,
+        })!
     }
     /** Using the vignette effect you can change the shape of the video player or soften its edges. */
     get vignette() {
-        return jsonGet(this.json, 'vignette', {})
+        return jsonGet<Vignette>(this.json, 'vignette', {
+            radius: 0,
+            softness: 0,
+            type: 'elliptical',
+        })!
     }
 
     set videoID(value: string) {
