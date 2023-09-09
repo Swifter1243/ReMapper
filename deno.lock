@@ -681,6 +681,7 @@
   },
   "npm": {
     "specifiers": {
+      "@types/three": "@types/three@0.152.1",
       "@types/three@*": "@types/three@0.152.1",
       "madge@^6.0.0": "madge@6.0.0",
       "three@^0.154": "three@0.154.0"
