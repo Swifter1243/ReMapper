@@ -134,12 +134,19 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
                 arcs: [],
                 chains: [],
                 walls: obstacles,
+                
                 basicEvents: [],
                 laserSpeedEvents: [],
                 ringSpinEvents: [],
                 ringZoomEvents: [],
                 rotationEvent: [],
-                customEvents: [],
+                
+                animateComponents: [],
+                animateTracks: [],
+                assignPathAnimations: [],
+                assignPlayerTracks: [],
+                assignTrackParents: [],
+
                 geoMaterials: {},
                 pointDefinitions: {},
                 customData: json._customData ?? {},

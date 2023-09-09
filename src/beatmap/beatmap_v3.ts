@@ -173,7 +173,13 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
                 ringZoomEvents: [],
                 rotationEvent: [],
                 geoMaterials: {},
-                customEvents: [],
+                
+                animateComponents: [],
+                animateTracks: [],
+                assignPathAnimations: [],
+                assignPlayerTracks: [],
+                assignTrackParents: [],
+
                 pointDefinitions: {},
                 customData: json.customData ?? {},
                 environment: [],

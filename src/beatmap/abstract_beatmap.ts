@@ -30,7 +30,6 @@ import * as NoteInternals from '../internals/note.ts'
 import * as WallInternals from '../internals/wall.ts'
 import * as BasicEventInternals from '../internals/basic_event.ts'
 
-import { CustomEvent } from './custom_event.ts'
 import { Environment, Geometry } from './environment.ts'
 import { saveInfoDat } from '../data/info_file.ts'
 
@@ -48,7 +47,12 @@ export interface RMDifficulty {
     ringSpinEvents: BasicEventInternals.RingSpinEvent[]
     rotationEvent: BasicEventInternals.RotationEvent[]
 
-    customEvents: CustomEvent[]
+    animateComponents: CustomEventInternals.AnimateComponent[]
+    animateTracks: CustomEventInternals.AnimateTrack[]
+    assignPathAnimations: CustomEventInternals.AssignPathAnimation[]
+    assignPlayerTracks: CustomEventInternals.AssignPlayerToTrack[]
+    assignTrackParents: CustomEventInternals.AssignTrackParent[]
+
     pointDefinitions: Record<string, unknown>
     customData: Record<string, unknown>
     environment: Environment[]
@@ -96,7 +100,13 @@ export abstract class AbstractDifficulty<
     ringZoomEvents: BasicEventInternals.RingZoomEvent[]
     ringSpinEvents: BasicEventInternals.RingSpinEvent[]
     rotationEvent: BasicEventInternals.RotationEvent[]
-    customEvents: CustomEvent[]
+
+    animateComponents: CustomEventInternals.AnimateComponent[]
+    animateTracks: CustomEventInternals.AnimateTrack[]
+    assignPathAnimations: CustomEventInternals.AssignPathAnimation[]
+    assignPlayerTracks: CustomEventInternals.AssignPlayerToTrack[]
+    assignTrackParents: CustomEventInternals.AssignTrackParent[]
+
     pointDefinitions: Record<string, unknown>
     customData: Record<string, unknown>
     environment: Environment[]
@@ -128,7 +138,13 @@ export abstract class AbstractDifficulty<
         this.bombs = inner.bombs
         this.chains = inner.chains
         this.customData = inner.customData
-        this.customEvents = inner.customEvents
+        
+        this.animateTracks = inner.animateTracks
+        this.animateComponents = inner.animateComponents
+        this.assignPathAnimations = inner.assignPathAnimations
+        this.assignPlayerTracks = inner.assignPlayerTracks
+        this.assignTrackParents = inner.assignTrackParents
+
         this.geometry = inner.geometry
         this.environment = inner.environment
 
@@ -177,9 +193,7 @@ export abstract class AbstractDifficulty<
 
         this.notes.forEach((e) => optimizeAnimation(e.animation))
         this.walls.forEach((e) => optimizeAnimation(e.animation))
-        this.customEvents.filter((e) =>
-            e instanceof CustomEventInternals.AnimateTrack
-        ).forEach((e) =>
+        this.animateTracks.forEach((e) =>
             optimizeAnimation(
                 (e as CustomEventInternals.AnimateTrack).animation,
             )

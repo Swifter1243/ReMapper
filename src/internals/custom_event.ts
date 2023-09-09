@@ -36,10 +36,7 @@ export abstract class BaseCustomEvent<
     /** Push this event to the difficulty.
      * @param clone Whether this object will be copied before being pushed.
      */
-    push(clone = true) {
-        activeDiffGet().customEvents.push(clone ? copy(this) : this)
-        return this
-    }
+    abstract push(clone: boolean): BaseCustomEvent<TV2, TV3>;
 
     abstract toJson(v3: true): TV3
     abstract toJson(v3: false): TV2
@@ -151,6 +148,15 @@ export class AnimateTrack extends BaseCustomEvent<
         if (params.duration) this.duration = params.duration
         if (params.easing) this.ease = params.easing
     }
+
+    
+    /** Push this event to the difficulty.
+     * @param clone Whether this object will be copied before being pushed.
+     */
+    push(clone = true) {
+        activeDiffGet().animateTracks.push(clone ? copy(this) : this)
+        return this
+    }
 }
 
 export class AssignPathAnimation extends BaseCustomEvent<
@@ -246,6 +252,14 @@ export class AssignPathAnimation extends BaseCustomEvent<
         if (params.duration) this.duration = params.duration
         if (params.easing) this.ease = params.easing
     }
+
+        /** Push this event to the difficulty.
+     * @param clone Whether this object will be copied before being pushed.
+     */
+    push(clone = true) {
+        activeDiffGet().assignPathAnimations.push(clone ? copy(this) : this)
+        return this
+    }
 }
 
 export class AssignTrackParent extends BaseCustomEvent<
@@ -300,6 +314,14 @@ export class AssignTrackParent extends BaseCustomEvent<
         this.worldPositionStays = params.worldPositionStays
     }
 
+        /** Push this event to the difficulty.
+     * @param clone Whether this object will be copied before being pushed.
+     */
+    push(clone = true) {
+        activeDiffGet().assignTrackParents.push(clone ? copy(this) : this)
+        return this
+    }
+
     /** Children tracks to assign. */
     childrenTracks: string[]
     /** Name of the parent track. */
@@ -350,6 +372,14 @@ export class AssignPlayerToTrack extends BaseCustomEvent<
             _time: this.time,
             _type: 'AssignPlayerToTrack',
         } satisfies bsmap.v2.ICustomEventAssignPlayerToTrack
+    }
+
+        /** Push this event to the difficulty.
+     * @param clone Whether this object will be copied before being pushed.
+     */
+    push(clone = true) {
+        activeDiffGet().assignPlayerTracks.push(clone ? copy(this) : this)
+        return this
     }
 }
 
@@ -428,5 +458,13 @@ export class AnimateComponent
                 },
             },
         } satisfies bsmap.v3.ICustomEventAnimateComponent
+    }
+
+        /** Push this event to the difficulty.
+     * @param clone Whether this object will be copied before being pushed.
+     */
+    push(clone = true) {
+        activeDiffGet().animateComponents.push(clone ? copy(this) : this)
+        return this
     }
 }
