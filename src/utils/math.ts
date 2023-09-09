@@ -211,16 +211,28 @@ export function rotateVector(rotation: Vec3, length: number) {
  * Convert an array of numbers from degrees to radians.
  * @param values Input array of numbers.
  */
-export function toRadians<T extends number[] | []>(values: T) {
-    return values.map((x) => x * (Math.PI / 180)) as T
+export function toRadians<T extends number[] | [] | number>(values: T) {
+    const toRadNum = (x: number) => x * (Math.PI / 180)
+
+    if (typeof values === 'number') {
+        return toRadNum(values)
+    }
+
+    return values.map(toRadNum) as T
 }
 
 /**
  * Convert an array of numbers from radians to degrees.
  * @param values Input array of numbers.
  */
-export function toDegrees<T extends number[] | []>(values: T) {
-    return values.map((x) => x * (180 / Math.PI)) as T
+export function toDegrees<T extends number[] | [] | number>(values: T) {
+    const toDegreesNum = (x: number) => x * (180 / Math.PI)
+
+    if (typeof values === 'number') {
+        return toDegreesNum(values)
+    }
+
+    return values.map(toDegreesNum) as T
 }
 
 /**
