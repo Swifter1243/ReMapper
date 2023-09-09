@@ -59,11 +59,14 @@ export interface RMDifficulty {
     geoMaterials: Record<string, GeometryMaterial>
 }
 
+/**
+ * @returns null if remove value
+ */
 export type PostProcessFn = (
     this: unknown,
     key: string,
     value: unknown,
-) => unknown
+) => unknown | null
 
 export abstract class AbstractDifficulty<
     TD extends bsmap.v2.IDifficulty | bsmap.v3.IDifficulty =
@@ -224,7 +227,7 @@ export abstract class AbstractDifficulty<
      * @param diffName Filename for the save.
      * If left blank, the beatmap file name will be used for the save.
      */
-    async save(diffName?: DIFFPATH) {
+    async save(diffName?: DIFFPATH, pretty = false) {
         if (diffName) {
             diffName = (await parseFilePath(diffName, '.dat')).path as DIFFPATH
         } else diffName = this.mapFile
@@ -244,7 +247,15 @@ export abstract class AbstractDifficulty<
         const transformer = (k: string, v: unknown) => {
             let newValue = v
 
-            sortedProcess.forEach((process) => newValue = process(k, newValue))
+            sortedProcess.forEach((process) => {
+                const oldValue = newValue
+                newValue = process(k, newValue)
+
+                /// if undefined, use previous value
+                if (newValue === undefined) {
+                    newValue = oldValue
+                }
+            })
 
             return newValue
         }
@@ -253,8 +264,8 @@ export abstract class AbstractDifficulty<
             diffName,
             JSON.stringify(
                 outputJSON,
-                // sortedProcess.length > 0 ? transformer : undefined,
-                // 0,
+                sortedProcess.length > 0 ? transformer : undefined,
+                pretty ? 2 : 0,
             ),
         )
         await Promise.all([promise1, promise2, promise3])
@@ -480,10 +491,13 @@ function pruneCustomData(
     k: string,
     v: unknown,
 ): unknown {
-    if (!v) return
-
     if (k !== 'customData') return
+
+    /// if customData is not an object
     if (typeof v !== 'object') return {}
+
+    /// if no value
+    if (!v) return null
 
     // only prune the values of the map
     // so empty arrays don't get yeeted
