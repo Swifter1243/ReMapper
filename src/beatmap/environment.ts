@@ -1,182 +1,59 @@
-import { bsmap } from '../deps.ts'
+import {
+    AnimationKeys,
+    EASE,
+    GeometryMaterial,
+    GeoType,
+    Lookup,
+    RawKeyframesAny,
+} from '../types/mod.ts'
 
 import * as AnimationInternals from '../internals/animation.ts'
 import * as EnvironmentInternals from '../internals/environment.ts'
 
-import { animateTrack } from './custom_event.ts'
-import {
-    AnimationKeys,
-    EASE,
-    RawKeyframesAny,
-} from '../types/animation_types.ts'
-import {
-    GeometryMaterial,
-    GeoType,
-    Lookup,
-} from '../types/environment_types.ts'
 import { activeDiffGet } from '../data/beatmap_handler.ts'
 import { combineAnimations } from '../animation/animation_utils.ts'
-import { copy } from '../utils/general.ts'
 
+import { animateTrack } from './custom_event.ts'
 let envCount = 0
 
-export class Environment
-    extends EnvironmentInternals.BaseEnvironmentEnhancement<
-        bsmap.v2.IChromaEnvironmentID,
-        bsmap.v3.IChromaEnvironmentID
-    > {
-    push(clone = true): void {
-        activeDiffGet().environment.push(clone ? copy(this) : this)
+export function environment(
+    ...params:
+        | ConstructorParameters<typeof EnvironmentInternals.Environment>
+        | [
+            id?: string,
+            lookupMethod?: Lookup,
+        ]
+): EnvironmentInternals.Environment {
+    const [first] = params
+    if (typeof first === 'object') {
+        return new EnvironmentInternals.Environment(first)
     }
 
-    /**
-     * Environment object for ease of creation and additional tools.
-     * @param id The object name to look up in the environment.
-     * @param lookupMethod The method of looking up the object name in the environment.
-     */
-    constructor(id?: string, lookupMethod: Lookup | undefined = undefined) {
-        super()
-        id ??= ''
-        lookupMethod ??= 'Contains'
-        this.id = id
-        this.lookupMethod = lookupMethod
-    }
+    const [id, lookupMethod] = params
 
-    /** The object name to look up in the environment. */
-    id: string
-    /** The method of looking up the object name in the environment. */
-    lookupMethod: Lookup
-
-    toJson(v3: true): bsmap.v3.IChromaEnvironmentID
-    toJson(v3: false): bsmap.v2.IChromaEnvironmentID
-    toJson(
-        v3: boolean,
-    ): bsmap.v2.IChromaEnvironmentID | bsmap.v3.IChromaEnvironmentID {
-        if (v3) {
-            return {
-                id: this.id,
-                lookupMethod: this.lookupMethod,
-                active: this.active,
-                components: {
-                    ILightWithId: {
-                        lightID: this.lightsID,
-                        type: this.lightsType,
-                    },
-                    ...this.components,
-                },
-                duplicate: this.duplicate,
-                localPosition: this.localPosition,
-                localRotation: this.localRotation,
-                position: this.position,
-                rotation: this.rotation,
-                scale: this.scale,
-                track: this.track?.value as string,
-            } satisfies bsmap.v3.IChromaEnvironmentID
-        }
-
-        if (this.components) throw 'Components are not supported in v2'
-
-        return {
-            _id: this.id,
-            _lookupMethod: this.lookupMethod,
-            _active: this.active,
-            _duplicate: this.duplicate,
-            _lightID: this.lightsID,
-            _localPosition: this.localPosition,
-            _localRotation: this.localRotation,
-            _position: this.position,
-            _rotation: this.rotation,
-            _scale: this.scale,
-            _track: this.track?.value as string,
-        } satisfies bsmap.v2.IChromaEnvironmentID
-    }
+    return new EnvironmentInternals.Environment({
+        id: id as string,
+        lookupMethod: lookupMethod,
+    })
 }
-
-export class Geometry extends EnvironmentInternals.BaseEnvironmentEnhancement<
-    bsmap.v2.IChromaEnvironmentGeometry,
-    bsmap.v3.IChromaEnvironmentGeometry
-> {
-    push(clone = true): void {
-        activeDiffGet().geometry.push(clone ? copy(this) : this)
+export function geometry(
+    ...params: ConstructorParameters<typeof EnvironmentInternals.Geometry> | [
+        type?: GeoType,
+        material?: GeometryMaterial | string,
+    ]
+): EnvironmentInternals.Geometry {
+    const [first] = params
+    if (typeof first === 'object') {
+        return new EnvironmentInternals.Geometry(first)
     }
 
-    /**
-     * Geometry object for ease of creation and additional tools.
-     * @param type The geometry shape type.
-     * @param material The material on this geometry object.
-     */
-    constructor(type?: GeoType, material?: GeometryMaterial | string) {
-        super()
-        type ??= 'Cube'
-        material ??= {
-            shader: 'Standard',
-        }
-        this.type = type
-        this.material = material
-    }
+    const [type, material] = params
 
-    /** The geometry shape type. */
-    type: GeoType
-    /** The material on this geometry object. */
-    material: GeometryMaterial | string
-    /** Whether this geometry object has collision. */
-    collision?: boolean
-
-    toJson(v3: true): bsmap.v3.IChromaEnvironmentGeometry
-    toJson(v3: false): bsmap.v2.IChromaEnvironmentGeometry
-    toJson(
-        v3: boolean,
-    ):
-        | bsmap.v2.IChromaEnvironmentGeometry
-        | bsmap.v3.IChromaEnvironmentGeometry {
-        if (v3) {
-            return {
-                geometry: {
-                    material: this.material,
-                    type: this.type,
-                    collision: this.collision,
-                },
-                active: this.active,
-                components: {
-                    ILightWithId: {
-                        lightID: this.lightsID,
-                        type: this.lightsType,
-                    },
-                    ...this.components,
-                },
-                duplicate: this.duplicate,
-                localPosition: this.localPosition,
-                localRotation: this.localRotation,
-                position: this.position,
-                rotation: this.rotation,
-                scale: this.scale,
-                track: this.track?.value as string,
-            } satisfies bsmap.v3.IChromaEnvironmentGeometry
-        }
-
-        return {
-            _geometry: {
-                _material: typeof this.material === 'string' ? this.material : {
-                    _shader: this.material?.shader,
-                    _color: this.material?.color,
-                    _shaderKeywords: this.material?.shaderKeywords,
-                },
-                _type: this.type,
-                _collision: this.collision,
-            },
-            _active: this.active,
-            _duplicate: this.duplicate,
-            _lightID: this.lightsID,
-            _localPosition: this.localPosition,
-            _localRotation: this.localRotation,
-            _position: this.position,
-            _rotation: this.rotation,
-            _scale: this.scale,
-            _track: this.track?.value as string,
-        } satisfies bsmap.v2.IChromaEnvironmentGeometry
-    }
+    return new EnvironmentInternals.Geometry({
+        type: type,
+        material: material,
+    })
 }
-
 /**
  * Targets any environment objects in a group and animates them based on their original transforms.
  * @param group The group to target.

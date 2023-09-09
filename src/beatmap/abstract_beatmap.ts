@@ -29,8 +29,6 @@ import * as EnvironmentInternals from '../internals/environment.ts'
 import * as NoteInternals from '../internals/note.ts'
 import * as WallInternals from '../internals/wall.ts'
 import * as BasicEventInternals from '../internals/basic_event.ts'
-
-import { Environment, Geometry } from './environment.ts'
 import { saveInfoDat } from '../data/info_file.ts'
 
 export interface RMDifficulty {
@@ -55,8 +53,8 @@ export interface RMDifficulty {
 
     pointDefinitions: Record<string, unknown>
     customData: Record<string, unknown>
-    environment: Environment[]
-    geometry: Geometry[]
+    environment: EnvironmentInternals.Environment[]
+    geometry: EnvironmentInternals.Geometry[]
 
     geoMaterials: Record<string, GeometryMaterial>
 }
@@ -109,8 +107,8 @@ export abstract class AbstractDifficulty<
 
     pointDefinitions: Record<string, unknown>
     customData: Record<string, unknown>
-    environment: Environment[]
-    geometry: Geometry[]
+    environment: EnvironmentInternals.Environment[]
+    geometry: EnvironmentInternals.Geometry[]
     geoMaterials: Record<string, GeometryMaterial>
 
     /**
@@ -138,7 +136,7 @@ export abstract class AbstractDifficulty<
         this.bombs = inner.bombs
         this.chains = inner.chains
         this.customData = inner.customData
-        
+
         this.animateTracks = inner.animateTracks
         this.animateComponents = inner.animateComponents
         this.assignPathAnimations = inner.assignPathAnimations

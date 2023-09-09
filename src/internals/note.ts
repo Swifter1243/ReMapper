@@ -6,7 +6,7 @@ import { activeDiffGet } from '../data/beatmap_handler.ts'
 import {
     BaseGameplayObject,
     BaseSliderObject,
-    ExcludedFields,
+    ExcludedObjectFields,
 } from './object.ts'
 import { Vec2 } from '../types/data_types.ts'
 import { copy } from '../utils/general.ts'
@@ -24,9 +24,9 @@ export abstract class BaseNote<
      * @param y The vertical row of the note.
      */
     constructor(
-        fields: ExcludedFields<BaseNote<TV3>>,
+        fields: ExcludedObjectFields<BaseNote<TV3>>,
     ) {
-        super(fields as ExcludedFields<BaseNote<TV3>>)
+        super(fields as ExcludedObjectFields<BaseNote<TV3>>)
         this.flip = fields.flip
         this.noteGravity = fields.noteGravity
         this.noteLook = fields.noteLook
@@ -62,7 +62,7 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
      * @param y The vertical row of the note.
      */
     constructor(
-        fields: ExcludedFields<Note>,
+        fields: ExcludedObjectFields<Note>,
     ) {
         super(fields)
         this.type = fields.type ?? 0
@@ -166,7 +166,7 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
      */
     // time = 0, x = 0, y = 0
     constructor(
-        fields: ExcludedFields<Bomb>,
+        fields: ExcludedObjectFields<Bomb>,
     ) {
         super(fields)
     }
@@ -235,9 +235,9 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
      * @param links The amount of links in the chain.
      */
     constructor(
-        fields: ExcludedFields<Chain>,
+        fields: ExcludedObjectFields<Chain>,
     ) {
-        super(fields as ExcludedFields<Chain>)
+        super(fields as ExcludedObjectFields<Chain>)
         this.links = fields.links ?? 4
         this.squish = fields.squish ?? 0
         this.flip = fields.flip
@@ -316,9 +316,9 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
      * @param tailY The vertical row of the arc's tail.
      */
     constructor(
-        fields: ExcludedFields<Arc>,
+        fields: ExcludedObjectFields<Arc>,
     ) {
-        super(fields as ExcludedFields<Arc>)
+        super(fields as ExcludedObjectFields<Arc>)
         this.tailDirection = fields.tailDirection ?? NoteCut.DOT
         this.headLength = fields.headLength ?? 0
         this.tailLength = fields.tailLength ?? 0

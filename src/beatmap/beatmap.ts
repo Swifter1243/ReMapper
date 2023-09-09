@@ -8,10 +8,10 @@ import { arrRemove } from '../utils/array_utils.ts'
 
 import { parseFilePath, RMLog } from '../general.ts'
 
-import { Environment } from './environment.ts'
 import type { RMDifficulty } from './abstract_beatmap.ts'
 import {DIFFPATH, DIFFS, FILENAME} from "../types/beatmap_types.ts";
 import { copy } from '../utils/general.ts'
+import { environment } from './environment.ts'
 
 /**
  * Converts an array of Json objects to a class counterpart.
@@ -216,7 +216,7 @@ export function transferVisuals(
 
 /** Get the base "Environment" object. */
 export const getBaseEnvironment = () =>
-    new Environment('[0]Environment', 'EndsWith')
+    environment('[0]Environment', 'EndsWith')
 
 /**
  * Assign a track to the base "Environment" object.

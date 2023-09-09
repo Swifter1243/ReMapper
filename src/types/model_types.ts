@@ -1,17 +1,17 @@
-import {RawKeyframesVec3} from "./animation_types.ts";
-import {RawGeometryMaterial} from "./environment_types.ts";
+import { RawKeyframesVec3 } from './animation_types.ts'
+import { RawGeometryMaterial } from './environment_types.ts'
 
 // TODO: Stink
-import type * as CustomEventInternals from "../internals/custom_event.ts";
+import type * as CustomEventInternals from '../internals/custom_event.ts'
+import type * as EnvironmentInternals from '../internals/environment.ts'
 
-import type {Environment, Geometry} from "../beatmap/environment.ts";
-
-import {FILEPATH} from "./beatmap_types.ts";
-import {ColorVec, Transform, Vec3} from "./data_types.ts";
-
+import { FILEPATH } from './beatmap_types.ts'
+import { ColorVec, Transform, Vec3 } from './data_types.ts'
 
 /** Objects that are allowed to be spawned with a ModelScene. */
-export type GroupObjectTypes = Environment | Geometry
+export type GroupObjectTypes =
+    | EnvironmentInternals.Environment
+    | EnvironmentInternals.Geometry
 /** Allowed options for providing data to a ModelScene. */
 export type ObjectInput = FILEPATH | ModelObject[]
 /** Input options for the "static" method in a ModelScene. */

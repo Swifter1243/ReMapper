@@ -3,7 +3,7 @@ import { bsmap } from '../deps.ts'
 
 import { activeDiffGet } from '../data/beatmap_handler.ts'
 
-import { BaseGameplayObject, ExcludedFields } from './object.ts'
+import { BaseGameplayObject, ExcludedObjectFields } from './object.ts'
 import { Vec3 } from '../types/data_types.ts'
 import { copy } from '../utils/general.ts'
 import { animationToJson } from './animation.ts'
@@ -62,7 +62,7 @@ export class Wall
     }
 
     constructor(
-        fields: ExcludedFields<Wall>,
+        fields: ExcludedObjectFields<Wall>,
     ) {
         super(fields)
         this.duration = fields.duration ?? 0

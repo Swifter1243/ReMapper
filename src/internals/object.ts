@@ -18,10 +18,11 @@ export type ObjectReplacements = {
     track?: TrackValue | Track
 }
 
-export type ExcludedFields<Class, Replacement = ObjectReplacements> = Omit<
-    Replace<Partial<Fields<Class>>, Replacement>,
-    keyof ExcludeObjectFields
->
+export type ExcludedObjectFields<Class, Replacement = ObjectReplacements> =
+    Omit<
+        Replace<Partial<Fields<Class>>, Replacement>,
+        keyof ExcludeObjectFields
+    >
 
 export type ExcludeObjectFields = {
     NJS: never
@@ -63,7 +64,7 @@ export abstract class BaseGameplayObject<
     TV3 extends bsmap.v3.IGridObject,
 > extends BaseObject<TV2, TV3> {
     constructor(
-        obj: ExcludedFields<BaseGameplayObject<TV2, TV3>>
+        obj: ExcludedObjectFields<BaseGameplayObject<TV2, TV3>>,
     ) {
         super(obj)
         this.animation = obj.animation ?? {}
@@ -76,7 +77,9 @@ export abstract class BaseGameplayObject<
         this.localNJS = obj.localNJS
         this.localOffset = obj.localOffset
         this.interactable = obj.interactable ?? true
-        this.track = obj.track instanceof Track ? obj.track : new Track(obj.track)
+        this.track = obj.track instanceof Track
+            ? obj.track
+            : new Track(obj.track)
         this.color = obj.color
         if (obj.life) {
             this.life = obj.life
@@ -195,7 +198,7 @@ export abstract class BaseSliderObject<TV3 extends bsmap.v3.IBaseSlider>
     tailCoordinates?: Vec2
 
     constructor(
-        obj: ExcludedFields<BaseSliderObject<TV3>>,
+        obj: ExcludedObjectFields<BaseSliderObject<TV3>>,
     ) {
         super(obj)
         this.type = obj.type ?? NoteType.RED
