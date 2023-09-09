@@ -6,8 +6,9 @@ import { Bomb, Note } from '../internals/note.ts'
 import { Track } from '../animation/track.ts'
 import { DIFFNAME, DIFFPATH } from '../types/beatmap_types.ts'
 import { ColorVec, Vec3 } from '../types/data_types.ts'
-import { jsonPrune } from '../mod.ts'
 import { AnimationPropertiesV3 } from '../internals/animation.ts'
+import { EventGroup } from '../data/constants.ts'
+import { jsonPrune } from "../utils/json.ts"
 
 function toNoteOrBomb(
     obj: bsmap.v3.IColorNote | bsmap.v3.IBombNote,
@@ -154,6 +155,62 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
             delete json.customData.fakeObstacles
         }
 
+        // 0-3 laser
+        const lasersEvents = json.basicBeatmapEvents.filter((x) =>
+            (x.et >= 0 && x.et <= 3) ||
+            (x.et === EventGroup.LEFT_EXTRA ||
+                x.et === EventGroup.RIGHT_EXTRA)
+        )
+
+        const boostEvents = json.basicBeatmapEvents.filter((x) => x.et === 5)
+
+        // 4 to 7 are lights
+        const lightEvents = json.basicBeatmapEvents.filter((x) =>
+            x.et >= 4 && x.et <= 7 && x.et !== 5
+        )
+        const zoomEvents = json.basicBeatmapEvents.filter((x) =>
+            x.et === EventGroup.RING_ZOOM
+        )
+        const ringRotateEvents = json.basicBeatmapEvents.filter((x) =>
+            x.et === EventGroup.RING_SPIN
+        )
+        // 90/360 maps
+        const laneEvents = json.basicBeatmapEvents.filter((x) =>
+            x.et === 13 || x.et === 14
+        )
+        // idk
+        const utilityEvents = json.basicBeatmapEvents.filter((x) =>
+            x.et >= 16 && x.et <= 19
+        )
+        // bts?
+        const specialEvents = json.basicBeatmapEvents.filter((x) =>
+            x.et >= 40 && x.et <= 43
+        )
+
+        const bpmRotationEvents = json.basicBeatmapEvents.filter((x) =>
+            x.et === 100
+        )
+
+        /// custom events
+
+        const customEvents = json?.customData?.customEvents
+        const animateTracks = customEvents?.filter((x) =>
+            x.t === 'AnimateTrack'
+        )
+        const assignPathTracks = customEvents?.filter((x) =>
+            x.t === 'AssignPathAnimation'
+        )
+        const assignParent = customEvents?.filter((x) =>
+            x.t === 'AssignTrackParent'
+        )
+        const assignPlayer = customEvents?.filter((x) =>
+            x.t === 'AssignPlayerToTrack'
+        )
+        const animateComponents = customEvents?.filter((x) =>
+            x.t === 'AnimateComponent'
+        )
+        // TODO: Deserialize
+
         super(
             json,
             diffSet,
@@ -173,7 +230,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
                 ringZoomEvents: [],
                 rotationEvent: [],
                 geoMaterials: {},
-                
+
                 animateComponents: [],
                 animateTracks: [],
                 assignPathAnimations: [],

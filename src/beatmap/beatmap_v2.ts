@@ -7,12 +7,13 @@ import { Bomb, Note } from '../internals/note.ts'
 import { Track } from '../animation/track.ts'
 import { DIFFNAME, DIFFPATH } from '../types/beatmap_types.ts'
 import { ColorVec, Vec3 } from '../types/data_types.ts'
-import { jsonPrune, PointDefinitionAny } from '../mod.ts'
 import {
     AnimationPropertiesV2,
     animationToJson,
     jsonToAnimation,
 } from '../internals/animation.ts'
+import { EventGroup } from '../data/constants.ts'
+import { jsonPrune } from '../utils/json.ts'
 
 function toNoteOrBomb(b: bsmap.v2.INote): Note | Bomb {
     const params:
@@ -121,6 +122,64 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
                 ),
         ) ?? []
 
+        // 0-3 laser
+        const lasersEvents = json._events.filter((x) =>
+            (x._type >= 0 && x._type <= 3) ||
+            (x._type === EventGroup.LEFT_EXTRA ||
+                x._type === EventGroup.RIGHT_EXTRA)
+        )
+        const lasersRotateEvents = json._events.filter((x) =>
+            x._type === EventGroup.LEFT_ROTATING ||
+            x._type === EventGroup.RIGHT_ROTATING
+        )
+
+        // 4 to 7 are lights
+        const lightEvents = json._events.filter((x) =>
+            x._type >= 4 && x._type <= 7 && x._type !== 5
+        )
+        const boostEvents = json._events.filter((x) =>
+            x._type ===5
+        )
+        const zoomEvents = json._events.filter((x) =>
+            x._type === EventGroup.RING_ZOOM
+        )
+        const ringRotateEvents = json._events.filter((x) =>
+            x._type === EventGroup.RING_SPIN
+        )
+        // 90/360 maps
+        const laneEvents = json._events.filter((x) =>
+            x._type === 13 || x._type === 14
+        )
+        // idk
+        const utilityEvents = json._events.filter((x) =>
+            x._type >= 16 && x._type <= 19
+        )
+        // bts?
+        const specialEvents = json._events.filter((x) =>
+            x._type >= 40 && x._type <= 43
+        )
+
+        const bpmRotationEvents = json._events.filter((x) => x._type === 100)
+
+        /// custom events
+        const customEvents = json?._customData?._customEvents
+        const animateTracks = customEvents?.filter((x) =>
+            x._type === 'AnimateTrack'
+        )
+        const assignPathTracks = customEvents?.filter((x) =>
+            x._type === 'AssignPathAnimation'
+        )
+        const assignParent = customEvents?.filter((x) =>
+            x._type === 'AssignTrackParent'
+        )
+        const assignPlayer = customEvents?.filter((x) =>
+            x._type === 'AssignPlayerToTrack'
+        )
+        const assignFog = customEvents?.filter((x) =>
+            x._type === 'AssignFogTrack'
+        )
+        // TODO: Deserialize
+
         super(
             json,
             diffSet,
@@ -134,13 +193,13 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
                 arcs: [],
                 chains: [],
                 walls: obstacles,
-                
+
                 basicEvents: [],
                 laserSpeedEvents: [],
                 ringSpinEvents: [],
                 ringZoomEvents: [],
                 rotationEvent: [],
-                
+
                 animateComponents: [],
                 animateTracks: [],
                 assignPathAnimations: [],
