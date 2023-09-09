@@ -11,7 +11,7 @@ import { arrAdd } from '../utils/array_utils.ts'
 import { rotatePoint } from '../utils/math.ts'
 
 import {
-    optimizeAnimation,
+    optimizeKeyframes,
     OptimizeSettings,
 } from '../animation/anim_optimizer.ts'
 
@@ -181,9 +181,9 @@ export async function modelToWall(
                         scale[i] = [...wtw.scale, scale[i][3]]
                     }
 
-                    x.pos = optimizeAnimation(pos, animOptimizer)
-                    x.rot = optimizeAnimation(rot, animOptimizer)
-                    x.scale = optimizeAnimation(scale, animOptimizer)
+                    x.pos = optimizeKeyframes(pos, animOptimizer)
+                    x.rot = optimizeKeyframes(rot, animOptimizer)
+                    x.scale = optimizeKeyframes(scale, animOptimizer)
 
                     distributeAnim(x.pos, i, o.length)
                     distributeAnim(x.rot, i, o.length)

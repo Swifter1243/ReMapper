@@ -3,17 +3,21 @@ import { bsmap } from '../deps.ts'
 import {
     DIFFNAME,
     DIFFPATH,
+    GeometryMaterial,
+    PointDefinitionAny,
+    RawKeyframesAbstract,
     REQUIRE_MODS,
     SUGGEST_MODS,
-} from '../types/beatmap_types.ts'
-import { GeometryMaterial } from '../types/environment_types.ts'
-
-import { TJson } from '../types/util_types.ts'
+    TJson,
+} from '../types/mod.ts'
 
 import { jsonPrune } from '../utils/json.ts'
 import { setDecimals } from '../utils/math.ts'
 
-import { OptimizeSettings } from '../animation/anim_optimizer.ts'
+import {
+    optimizeKeyframes,
+    OptimizeSettings,
+} from '../animation/anim_optimizer.ts'
 import { AnyNote, parseFilePath, RMLog } from '../general.ts'
 
 import { RMJson } from '../rm_json.ts'
@@ -161,7 +165,14 @@ export abstract class AbstractDifficulty<
         const optimizeAnimation = (
             animation: AnimationInternals.AnimationPropertiesV3,
         ) => {
-            animation.optimize(undefined, optimize)
+            Object.entries(animation).forEach(([key, keyframes]) => {
+                if (typeof keyframes === 'string') return
+
+                animation[key] = optimizeKeyframes(
+                    keyframes as RawKeyframesAbstract<number[]>,
+                    optimize,
+                ) as PointDefinitionAny
+            })
         }
 
         this.notes.forEach((e) => optimizeAnimation(e.animation))

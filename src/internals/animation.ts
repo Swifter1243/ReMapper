@@ -2,6 +2,7 @@
 
 import { bsmap } from '../deps.ts'
 import {
+    PointDefinitionAny,
     PointDefinitionLinear,
     PointDefinitionVec3,
     PointDefinitionVec4,
@@ -19,6 +20,7 @@ export type AnimationPropertiesV2 = {
     _definitePosition?: PointDefinitionVec3
     _time?: PointDefinitionLinear
     _localPosition?: PointDefinitionVec3
+    [key: string]: PointDefinitionAny | undefined
 }
 
 export type AnimationPropertiesV3 = {
@@ -35,6 +37,7 @@ export type AnimationPropertiesV3 = {
     position?: PointDefinitionVec3
     rotation?: PointDefinitionVec3
     localPosition?: PointDefinitionVec3
+    [key: string]: PointDefinitionAny | undefined
 }
 
 type AnimateV2Scuffed =
@@ -57,6 +60,7 @@ export interface ObjectAnimationData {
     uninteractable?: PointDefinitionLinear
     time?: PointDefinitionLinear
     color?: PointDefinitionVec4
+    [key: string]: PointDefinitionAny | undefined
 }
 
 export interface NoteAnimationData extends ObjectAnimationData {
@@ -112,7 +116,9 @@ export function animationToJson(
     } as AnimateV2Scuffed
 }
 
-export function jsonToAnimation(obj: AnimationPropertiesV2): AnimationPropertiesV3 {
+export function jsonToAnimation(
+    obj: AnimationPropertiesV2,
+): AnimationPropertiesV3 {
     return {
         color: obj._color,
         definitePosition: obj._definitePosition,

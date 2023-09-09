@@ -31,7 +31,7 @@ import {
     lerpEasing,
     lerpRotation,
 } from '../utils/math.ts'
-import { optimizeAnimation, OptimizeSettings } from './anim_optimizer.ts'
+import { optimizeKeyframes, OptimizeSettings } from './anim_optimizer.ts'
 
 import * as AnimationInternals from '../internals/animation.ts'
 import { NumberTuple } from '../types/util_types.ts'
@@ -241,8 +241,9 @@ export function combineAnimations(
     let simpleArr = copy(anim1)
     let complexArr: ComplexKeyframeValuesUnsafe = []
 
-    if (isSimple(anim1) && isSimple(anim2)) complexArr = complexifyArray<[number] | Vec3 | Vec4>(anim2)
-    else if (!isSimple(anim1) && isSimple(anim2)) {
+    if (isSimple(anim1) && isSimple(anim2)) {
+        complexArr = complexifyArray<[number] | Vec3 | Vec4>(anim2)
+    } else if (!isSimple(anim1) && isSimple(anim2)) {
         simpleArr = copy(anim2)
         complexArr = copy(anim1) as ComplexKeyframesAny
     } else if (!isSimple(anim1) && !isSimple(anim2)) {
@@ -362,9 +363,9 @@ export function bakeAnimation(
         data.scale.push([...keyframe.scale, keyframe.time])
     }
 
-    dataAnim.pos = optimizeAnimation(data.pos, animOptimizer)
-    dataAnim.rot = optimizeAnimation(data.rot, animOptimizer)
-    dataAnim.scale = optimizeAnimation(data.scale, animOptimizer)
+    dataAnim.pos = optimizeKeyframes(data.pos, animOptimizer)
+    dataAnim.rot = optimizeKeyframes(data.rot, animOptimizer)
+    dataAnim.scale = optimizeKeyframes(data.scale, animOptimizer)
 
     return {
         pos: dataAnim.pos as RawKeyframesVec3,

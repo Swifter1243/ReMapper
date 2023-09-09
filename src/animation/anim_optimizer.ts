@@ -428,7 +428,7 @@ export class OptimizeSettings {
     additionalOptimizers: OptimizeFunction[] | undefined = undefined
 }
 
-function optimizeKeyframes(
+function optimizeKeyframesInternal(
     keyframes: KeyframeValuesUnsafe[],
     optimizeSettings: OptimizeSettings,
 ): KeyframeValuesUnsafe[] {
@@ -534,11 +534,10 @@ function optimizeKeyframes(
  * @param settings settings for the optimizer.
  * @returns
  */
-export function optimizeAnimation<T extends NumberTuple>(
+export function optimizeKeyframes<T extends NumberTuple>(
     animation: RawKeyframesAbstract<T>,
     settings: OptimizeSettings,
 ): RawKeyframesAbstract<T> {
-    
     const keyframes = complexifyArray<T>(animation)
 
     // not enough points to optimize
@@ -547,6 +546,8 @@ export function optimizeAnimation<T extends NumberTuple>(
     }
 
     return simplifyArray<T>(
-        optimizeKeyframes(keyframes, settings) as RawKeyframesAbstract<T>
+        optimizeKeyframesInternal(keyframes, settings) as RawKeyframesAbstract<
+            T
+        >,
     )
 }

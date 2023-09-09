@@ -33,7 +33,7 @@ import { animateComponent, animateTrack } from '../beatmap/custom_event.ts'
 import { backLasers } from '../beatmap/basic_event.ts'
 
 import {
-    optimizeAnimation,
+    optimizeKeyframes,
     OptimizeSettings,
 } from '../animation/anim_optimizer.ts'
 import {
@@ -273,9 +273,9 @@ export class ModelScene {
                         }
 
                         // Optimizing object
-                        x.pos = optimizeAnimation(x.pos, this.optimizer)
-                        x.rot = optimizeAnimation(x.rot, this.optimizer)
-                        x.scale = optimizeAnimation(x.scale, this.optimizer)
+                        x.pos = optimizeKeyframes(x.pos, this.optimizer)
+                        x.rot = optimizeKeyframes(x.rot, this.optimizer)
+                        x.scale = optimizeKeyframes(x.scale, this.optimizer)
 
                         // Loop animation
                         if (options.mirror) {
