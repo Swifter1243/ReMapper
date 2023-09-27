@@ -1,5 +1,5 @@
 import { Difficulty } from "./beatmap.ts"
-import { Vec3 } from "./general.ts"
+import { ColorType, Vec3 } from "./general.ts"
 import { Regex } from "./regex.ts"
 
 // TODO: If possible, try to figure out a way to default to a string with no extension or path
@@ -447,12 +447,16 @@ export type CUSTOM_EVENT_TYPE =
     "AnimateComponent" |
     "SetMaterialProperty" |
     "SetGlobalProperty" |
-    "ApplyPostProcessing" |
-    "DeclareCullingMask" |
+    "Blit" |
+    "DeclareCullingTexture" |
     "DeclareRenderTexture" |
+    "DestroyTexture" |
     "InstantiatePrefab" |
     "DestroyPrefab" |
-    "SetAnimatorProperty"
+    "SetAnimatorProperty" |
+    "SetCameraProperty" |
+    "AssignTrackPrefab" |
+    "SetRenderSetting"
 
 /** Color formats. */
 export type COLOR =
@@ -538,3 +542,42 @@ export type TEX_FILTER =
     "Point" |
     "Bilinear" |
     "Trilinear"
+
+export enum AMBIENT_MODE {
+    Skybox = 0,
+    Trilight = 1,
+    Flat = 3,
+    Custom = 4
+}
+
+export enum DEFAULT_REFLECTION_MODE {
+    Skybox,
+    Custom
+}
+
+export enum FOG_MODE {
+    Linear = 1,
+    Exponential,
+    ExponentialSquared
+}
+
+export type RENDER_SETTING = {
+    "ambientEquatorColor": ColorType,
+    "ambientGroundColor": ColorType,
+    "ambientIntensity": number,
+    "ambientLight": ColorType,
+    "ambientMode": AMBIENT_MODE,
+    "ambientSkyColor": ColorType,
+    "defaultReflectionMode": DEFAULT_REFLECTION_MODE,
+    "flareFadeSpeed": number,
+    "flareStrength": number,
+    "fog": boolean,
+    "fogColor": ColorType,
+    "fogDensity": number,
+    "fogEndDistance": number,
+    "fogMode": FOG_MODE,
+    "haloStrength": number,
+    "reflectionBounces": number,
+    "reflectionIntensity": number,
+    "subtractiveShadowColor": ColorType
+}

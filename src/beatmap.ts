@@ -579,12 +579,12 @@ export class Difficulty {
     this.returnCustomEvent(fn, CustomEventInternals.SetGlobalProperty as any);
     
     /** Returns a callback function providing an array of all ApplyPostProcessing events. */
-    applyPostProcessings = (fn: (arr: CustomEventInternals.ApplyPostProcessing[]) => void) =>
-    this.returnCustomEvent(fn, CustomEventInternals.ApplyPostProcessing as any);
+    applyPostProcessings = (fn: (arr: CustomEventInternals.Blit[]) => void) =>
+    this.returnCustomEvent(fn, CustomEventInternals.Blit as any);
     
     /** Returns a callback function providing an array of all DeclareCullingMask events. */
-    declareCullingMasks = (fn: (arr: CustomEventInternals.DeclareCullingMask[]) => void) =>
-    this.returnCustomEvent(fn, CustomEventInternals.DeclareCullingMask as any);
+    declareCullingMasks = (fn: (arr: CustomEventInternals.DeclareCullingTexture[]) => void) =>
+    this.returnCustomEvent(fn, CustomEventInternals.DeclareCullingTexture as any);
     
     /** Returns a callback function providing an array of all DeclareRenderTexture events. */
     declareRenderTextures = (fn: (arr: CustomEventInternals.DeclareRenderTexture[]) => void) =>

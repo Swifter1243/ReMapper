@@ -3,7 +3,7 @@
 import { copy, jsonGet, jsonSet, Vec3 } from './general.ts';
 import { activeDiffGet, Json } from './beatmap.ts';
 import { AnimationInternals, Animation, TrackValue, Track, KeyframesLinear, KeyframesColor } from './animation.ts';
-import { ANIMATOR_PROP_TYPE, CUSTOM_EVENT_TYPE, EASE, FILEPATH, MATERIAL_PROP_TYPE, RENDER_TEX, TEX_FILTER } from './constants.ts';
+import { ANIMATOR_PROP_TYPE, CUSTOM_EVENT_TYPE, EASE, FILEPATH, MATERIAL_PROP_TYPE, RENDER_TEX, TEX_FILTER, RENDER_SETTING } from './constants.ts';
 import { BloomFogEnvironment, ILightWithId, TubeBloomPrePassLight } from './environment.ts';
 
 export type Property<T, V> = {
@@ -64,8 +64,8 @@ export namespace CustomEventInternals {
                 "AnimateComponent": CustomEventInternals.AnimateComponent,
                 "SetMaterialProperty": CustomEventInternals.SetMaterialProperty,
                 "SetGlobalProperty": CustomEventInternals.SetGlobalProperty,
-                "ApplyPostProcessing": CustomEventInternals.ApplyPostProcessing,
-                "DeclareCullingMask": CustomEventInternals.DeclareCullingMask,
+                "ApplyPostProcessing": CustomEventInternals.Blit,
+                "DeclareCullingMask": CustomEventInternals.DeclareCullingTexture,
                 "DeclareRenderTexture": CustomEventInternals.DeclareRenderTexture,
                 "InstantiatePrefab": CustomEventInternals.InstantiatePrefab,
                 "DestroyPrefab": CustomEventInternals.DestroyPrefab,
@@ -371,7 +371,7 @@ export namespace CustomEventInternals {
         set properties(value: MaterialProperty[]) { this.data.properties = value }
     }
 
-    export class ApplyPostProcessing extends BaseEvent {
+    export class Blit extends BaseEvent {
         /**
          * Assigns a material to the camera and allows you to call a SetMaterialProperty from within.
          * @param json Json to import.
@@ -382,7 +382,7 @@ export namespace CustomEventInternals {
          */
         constructor(json: Json, asset: string, duration?: number, properties?: MaterialProperty[], easing?: EASE) {
             super(json);
-            this.type = "ApplyPostProcessing";
+            this.type = "Blit";
             this.asset = asset;
             if (duration) this.duration = duration;
             if (properties) this.properties = properties;
@@ -426,25 +426,25 @@ export namespace CustomEventInternals {
         set source(value: string) { this.data.source = value }
     }
 
-    export class DeclareCullingMask extends BaseEvent {
+    export class DeclareCullingTexture extends BaseEvent {
         /**
          * Declares a culling mask where selected tracks are culled.
          * Vivify will automatically create a texture for you to sample from your shader
          * @param json Json to import.
-         * @param name Name of the culling mask, this is what you must name your sampler in your shader.
+         * @param id Name of the culling mask, this is what you must name your sampler in your shader.
          * @param track The track(s) to target for culling.
          * @param whitelist Culls everything but the selected tracks.
          */
-        constructor(json: Json, name: string, track: TrackValue, whitelist?: boolean) {
+        constructor(json: Json, id: string, track: TrackValue, whitelist?: boolean) {
             super(json);
-            this.type = "DeclareCullingMask";
-            this.name = name;
+            this.type = "DeclareCullingTexture";
+            this.id = id;
             this.track.value = track;
             if (whitelist) this.whitelist = whitelist;
         }
 
         /** Name of the culling mask, this is what you must name your sampler in your shader. */
-        get name() { return this.data.name }
+        get id() { return this.data.id }
         /** The track class for this event.
         * Please read the properties of this class to see how it works.
         */
@@ -454,7 +454,7 @@ export namespace CustomEventInternals {
         /** Write depth texture to "(name)_Depth". Default is false. */
         get depthTexture() { return this.data.depthTexture }
 
-        set name(value: string) { this.data.name = value }
+        set id(value: string) { this.data.id = value }
         set whitelist(value: boolean) { this.data.whitelist = value }
         set depthTexture(value: boolean) { this.data.depthTexture = value }
     }
@@ -465,20 +465,20 @@ export namespace CustomEventInternals {
          * They are set as a global variable and can be accessed by declaring a sampler named what you put in "name".
          * Depth texture can be obtained by adding the suffix "_Depth" to your sampler.
          * @param json Json to import.
-         * @param name Name of the depth texture.
+         * @param id Name of the depth texture.
          * @param width Exact width for the texture.
          * @param height Exact height for the texture.
          */
-        constructor(json: Json, name: string, width: number, height: number) {
+        constructor(json: Json, id: string, width: number, height: number) {
             super(json);
             this.type = "DeclareRenderTexture";
-            this.name = name;
+            this.id = id;
             this.width = width;
             this.height = height;
         }
 
         /** Name of the depth texture. */
-        get name() { return this.data.name }
+        get id() { return this.data.id }
         /** Number to divide screen width by. */
         get xRatio() { return this.data.xRatio }
         /** Number to divide screen height by. */
@@ -492,13 +492,28 @@ export namespace CustomEventInternals {
         /** Filter mode for the texture. */
         get filterMode() { return this.data.filterMode }
 
-        set name(value: string) { this.data.name = value }
+        set id(value: string) { this.data.id = value }
         set xRatio(value: number) { this.data.xRatio = value }
         set yRatio(value: number) { this.data.yRatio = value }
         set width(value: number) { this.data.width = value }
         set height(value: number) { this.data.height = value }
         set colorFormat(value: RENDER_TEX) { this.data.colorFormat = value }
         set filterMode(value: TEX_FILTER) { this.data.filterMode = value }
+    }
+
+    export class DestroyTexture extends BaseEvent {
+        /**
+         * 
+         */
+        constructor(json: Json, id: string | string[]) {
+            super(json);
+            this.type = "DestroyTexture";
+            this.id = id;
+        }
+
+        get id() { return this.data.id }
+
+        set id(value: string | string[]) { this.data.id = value }
     }
 
     export class InstantiatePrefab extends BaseEvent {
@@ -551,7 +566,7 @@ export namespace CustomEventInternals {
          * @param json Json to import.
          * @param id Id of the prefab to destroy.
          */
-        constructor(json: Json, id: string) {
+        constructor(json: Json, id: string | string[]) {
             super(json);
             this.type = "DestroyPrefab";
             this.id = id;
@@ -560,7 +575,7 @@ export namespace CustomEventInternals {
         /** Id of the prefab to destroy. */
         get id() { return this.data.id }
 
-        set id(value: string) { this.data.id = value }
+        set id(value: string | string[]) { this.data.id = value }
     }
 
     export class SetAnimatorProperty extends BaseEvent {
@@ -594,6 +609,61 @@ export namespace CustomEventInternals {
         set duration(value: number) { this.data.duration = value }
         set easing(value: EASE) { this.data.easing = value }
         set properties(value: AnimatorProperty[]) { this.data.properties = value }
+    }
+
+    export class SetCameraProperty extends BaseEvent {
+        /**
+         * 
+         */
+        constructor(json: Json, depthTextureMode: string[]) {
+            super(json);
+            this.type = "SetCameraProperty";
+            this.depthTextureMode = depthTextureMode;
+        }
+
+        get depthTextureMode() { return this.data.depthTextureMode }
+
+        set depthTextureMode(value: string[]) { this.data.depthTextureMode = value }
+    }
+
+    export class AssignTrackPrefab extends BaseEvent {
+        /**
+         * 
+         */
+        constructor(json: Json, track: string, note: string) {
+            super(json);
+            this.type = "AssignTrackPrefab";
+            this.track = track;
+            this.note = note;
+        }
+
+        get track() { return this.data.track }
+        get note() { return this.data.note }
+
+        set track(value: string) { this.data.track = value }
+        set note(value: string) { this.data.note = value }
+    }
+
+    export class SetRenderSetting extends BaseEvent {
+        /**
+         * 
+         */
+        constructor(json: Json) {
+            super(json);
+            this.type = "SetRenderSetting";
+        }
+
+        setValue<T extends keyof RENDER_SETTING>(key: T, value: RENDER_SETTING[T]) {
+            this.data[key] = value;
+        }
+
+        /** The duration of the animation. */
+        get duration() { return this.data.duration }
+        /** An easing for the animation to follow. */
+        get easing() { return this.data.easing }
+
+        set duration(value: number) { this.data.duration = value }
+        set easing(value: EASE) { this.data.easing = value }
     }
 }
 
@@ -675,30 +745,33 @@ export class CustomEvent extends CustomEventInternals.BaseEvent {
      * @param properties Properties to set.
      * @param easing An easing for the animation to follow.
      */
-    applyPostProcessing = (asset: string, duration?: number, properties?: MaterialProperty[], easing?: EASE) =>
-        new CustomEventInternals.ApplyPostProcessing(this.json, asset, duration, properties, easing);
+    blit = (asset: string, duration?: number, properties?: MaterialProperty[], easing?: EASE) =>
+        new CustomEventInternals.Blit(this.json, asset, duration, properties, easing);
 
     /**
      * Declares a culling mask where selected tracks are culled.
      * Vivify will automatically create a texture for you to sample from your shader
      * @param json Json to import.
-     * @param name Name of the culling mask, this is what you must name your sampler in your shader.
+     * @param id Name of the culling mask, this is what you must name your sampler in your shader.
      * @param track The track(s) to target for culling.
      * @param whitelist Culls everything but the selected tracks.
      */
-    declareCullingMask = (name: string, track: TrackValue, whitelist?: boolean) =>
-        new CustomEventInternals.DeclareCullingMask(this.json, name, track, whitelist);
+    declareCullingTexture = (id: string, track: TrackValue, whitelist?: boolean) =>
+        new CustomEventInternals.DeclareCullingTexture(this.json, id, track, whitelist);
 
     /**
      * Declare a RenderTexture to be used anywhere.
      * They are set as a global variable and can be accessed by declaring a sampler named what you put in "name".
      * Depth texture can be obtained by adding the suffix "_Depth" to your sampler.
-     * @param name Name of the depth texture.
+     * @param id Name of the depth texture.
      * @param width Exact width for the texture.
      * @param height Exact height for the texture.
      */
-    declareRenderTexture = (name: string, width: number, height: number) =>
-        new CustomEventInternals.DeclareRenderTexture(this.json, name, width, height);
+    declareRenderTexture = (id: string, width: number, height: number) =>
+        new CustomEventInternals.DeclareRenderTexture(this.json, id, width, height);
+
+    destroyTexture = (id: string | string[]) =>
+        new CustomEventInternals.DestroyTexture(this.json, id)
 
     /**
      * Instantiate a chosen prefab into the scene.
@@ -713,7 +786,7 @@ export class CustomEvent extends CustomEventInternals.BaseEvent {
      * Will destroy a prefab in the scene.
      * @param id Id of the prefab to destroy.
      */
-    destroyPrefab = (id: string) =>
+    destroyPrefab = (id: string | string[]) =>
         new CustomEventInternals.DestroyPrefab(this.json, id);
 
     /**
@@ -725,4 +798,13 @@ export class CustomEvent extends CustomEventInternals.BaseEvent {
      */
     setAnimatorProperty = (id: string, properties: AnimatorProperty[], duration?: number, easing?: EASE) =>
         new CustomEventInternals.SetAnimatorProperty(this.json, id, properties, duration, easing);
+
+    setCameraProperty = (depthTextureMode: string[]) =>
+        new CustomEventInternals.SetCameraProperty(this.json, depthTextureMode);
+
+    assignTrackPrefab = (track: string, note: string) =>
+        new CustomEventInternals.AssignTrackPrefab(this.json, track, note)
+
+    setRenderSetting = () =>
+        new CustomEventInternals.SetRenderSetting(this.json)
 }
