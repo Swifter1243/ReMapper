@@ -8,7 +8,7 @@ import { BloomFogEnvironment, ILightWithId, TubeBloomPrePassLight } from './envi
 
 export type Property<T, V> = {
     /** Name of the property. */
-    name: string,
+    id: string,
     /** Type of the property. */
     type: T,
     /** Value to set the property to. */
