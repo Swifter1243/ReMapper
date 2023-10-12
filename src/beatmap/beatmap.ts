@@ -2,16 +2,17 @@
 import { adbDeno, compress, fs, path } from '../deps.ts'
 
 import { QUEST_WIP_PATH } from '../data/constants.ts'
-import { info } from '../data/beatmap_handler.ts'
+import { activeDiffGet, info } from '../data/beatmap_handler.ts'
 
 import { arrRemove } from '../utils/array_utils.ts'
 
 import { parseFilePath, RMLog } from '../general.ts'
 
 import type { RMDifficulty } from './abstract_beatmap.ts'
-import {DIFFPATH, DIFFS, FILENAME} from "../types/beatmap_types.ts";
+import { DIFFPATH, DIFFS, FILENAME } from '../types/beatmap_types.ts'
 import { copy } from '../utils/general.ts'
 import { environment } from './environment.ts'
+import { Environment } from '../internals/environment.ts'
 
 /**
  * Converts an array of Json objects to a class counterpart.
@@ -215,15 +216,26 @@ export function transferVisuals(
 }
 
 /** Get the base "Environment" object. */
-export const getBaseEnvironment = () =>
-    environment('[0]Environment', 'EndsWith')
+export function getBaseEnvironment(callback: (env: Environment) => void) {
+    const search = activeDiffGet().environment.filter((x) =>
+        x.id === '[0]Environment' && x.lookupMethod === 'EndsWith'
+    )
+
+    if (search.length > 0) {
+        callback(search[0])
+    } else {
+        const env = environment('[0]Environment', 'EndsWith')
+        env.push(false)
+        callback(env)
+    }
+}
 
 /**
  * Assign a track to the base "Environment" object.
  * @param track Track to assign the object to.
  */
-export function baseEnvironmentTrack(track: string) {
-    const env = getBaseEnvironment()
-    env.track.value = track
-    env.push()
+export function setBaseEnvironmentTrack(track: string) {
+    getBaseEnvironment((env) => {
+        env.track.value = track
+    })
 }

@@ -6,9 +6,10 @@ import {
     PointDefinitionLinear,
 } from '../types/animation_types.ts'
 
-import { baseEnvironmentTrack, getBaseEnvironment } from './beatmap.ts'
+import { getBaseEnvironment, setBaseEnvironmentTrack } from './beatmap.ts'
 import { BloomFogEnvironment } from '../types/environment_types.ts'
 
+// TODO: Maybe make this a difficulty based thing?
 let fogInitialized = false
 type AnyFog = BloomFogEnvironment<number | ComplexKeyframesLinear>
 
@@ -21,48 +22,43 @@ type AnyFog = BloomFogEnvironment<number | ComplexKeyframesLinear>
  * @param event The animation event.
  */
 export function adjustFog(
-    fog: (bfe: AnyFog) => void,
+    fog: AnyFog,
     time?: number,
     duration?: number,
     event?: (event: CustomEventInternals.AnimateComponent) => void,
 ) {
-    let isStatic = true
-
-    if (
-        time !== undefined || duration !== undefined || event ||
+    let isStatic = !(
+        time !== undefined ||
+        duration !== undefined ||
+        event ||
         fogInitialized
-    ) {
-        isStatic = false
-    }
+    )
 
-    const anyFog: AnyFog = {}
-    fog(anyFog)
-
-    Object.entries(anyFog).forEach((x) => {
+    Object.entries(fog).forEach((x) => {
         if (typeof x[1] !== 'number') isStatic = false
     })
 
     if (isStatic) {
-        const env = getBaseEnvironment()
-        env.components ??= {}
-        env.components.BloomFogEnvironment = anyFog as BloomFogEnvironment<
-            number
-        >
-        env.push()
+        getBaseEnvironment((env) => {
+            env.components ??= {}
+            env.components.BloomFogEnvironment = fog as BloomFogEnvironment<
+                number
+            >
+        })
         fogInitialized = true
     } else {
-        baseEnvironmentTrack('fog')
+        setBaseEnvironmentTrack('fog')
 
         const fogEvent = animateComponent(time ?? 0, 'fog', duration)
 
-        Object.entries(anyFog).forEach((x) => {
+        Object.entries(fog).forEach((x) => {
             // TODO: what?
             if (typeof x[1] === 'number') {
-                ;(anyFog as any)[x[0]] = [x[1]]
+                ;(fog as any)[x[0]] = [x[1]]
             }
         })
 
-        fogEvent.fog = anyFog as BloomFogEnvironment<PointDefinitionLinear>
+        fogEvent.fog = fog as BloomFogEnvironment<PointDefinitionLinear>
         if (event) event(fogEvent)
         fogEvent.push()
     }

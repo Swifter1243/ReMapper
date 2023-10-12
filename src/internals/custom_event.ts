@@ -405,6 +405,7 @@ export class AnimateComponent
         this.duration = params.duration
         this.easing = params.easing
 
+        params.components ??= {}
         this.fog = params.components.BloomFogEnvironment ?? {}
         this.lightID = params.components.ILightWithId ?? {}
         this.lightMultiplier = params.components.TubeBloomPrePassLight ?? {}

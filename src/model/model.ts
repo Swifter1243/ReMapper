@@ -28,7 +28,7 @@ import * as CustomEventInternals from '../internals/custom_event.ts'
 
 import { Environment, Geometry } from '../beatmap/environment.ts'
 
-import { baseEnvironmentTrack } from '../beatmap/beatmap.ts'
+import { setBaseEnvironmentTrack } from '../beatmap/beatmap.ts'
 import { animateComponent, animateTrack } from '../beatmap/custom_event.ts'
 import { backLasers } from '../beatmap/basic_event.ts'
 
@@ -836,7 +836,7 @@ export function debugObject(
 
     backLasers().on([3, 3, 3, 1]).push(false)
 
-    baseEnvironmentTrack('fog')
+    setBaseEnvironmentTrack('fog')
     const fogEvent = animateComponent(0, 'fog')
     fogEvent.fog.attenuation = [0.000001]
     fogEvent.fog.startY = [-69420]
