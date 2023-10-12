@@ -192,7 +192,7 @@ export function rotatePoint(
     anchor: Vec3 = [0, 0, 0],
 ) {
     const mathRot = toRadians(rotation)
-    const vector = toVec3(arrAdd(point, arrMul(anchor, -1))).applyEuler(
+    const vector = toThreeVec3(arrAdd(point, arrMul(anchor, -1))).applyEuler(
         new three.Euler(...mathRot, 'YXZ'),
     )
     return arrAdd(toArr(vector), anchor) as Vec3
@@ -243,20 +243,20 @@ export function toDegrees<T extends number[] | [] | number>(values: T) {
  * Converts a three number array to three Vector3.
  * @param v Array to convert.
  */
-export const toVec3 = (v: Vec3) => new three.Vector3(...v)
+export const toThreeVec3 = (v: Vec3) => new three.Vector3(...v)
 
 /**
  * Converts a three number array to three Euler.
  * @param v Array to convert.
  */
-export const toEuler = (v: Vec3) => new three.Euler(...toRadians(v), 'YXZ')
+export const toThreeEuler = (v: Vec3) => new three.Euler(...toRadians(v), 'YXZ')
 
 /**
  * Converts a three number array to three Quaternion.
  * @param v Array to convert.
  */
-export const toQuaternion = (v: Vec3) =>
-    new three.Quaternion().setFromEuler(toEuler(v))
+export const toThreeQuaternion = (v: Vec3) =>
+    new three.Quaternion().setFromEuler(toThreeEuler(v))
 
 /**
  * Takes a transformation and converts it to matrix.
@@ -267,7 +267,7 @@ export function getMatrixFromTransform(transform: Transform) {
     const pos = transform.pos ?? [0, 0, 0]
     const rot = transform.rot ?? [0, 0, 0]
     const scale = transform.scale ?? [1, 1, 1]
-    m.compose(toVec3(pos), toQuaternion(rot), toVec3(scale))
+    m.compose(toThreeVec3(pos), toThreeQuaternion(rot), toThreeVec3(scale))
     return m
 }
 
