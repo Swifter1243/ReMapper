@@ -172,11 +172,19 @@ export function setDecimals(input: number, decimals: number) {
  * @param A First point.
  * @param B Second point.
  */
-export function getDist(A: Vec3, B: Vec3) {
-    const deltaX = B[0] - A[0]
-    const deltaY = B[1] - A[1]
-    const deltaZ = B[2] - A[2]
-    const sum = deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ
+export function getDistance<T extends [] | number[]>(
+    A: T,
+    B: { [K in keyof T]: number },
+) {
+    return magnitude(arrSubtract(A, B))
+}
+
+/**
+ * Gets the magnitude/length of a vector.
+ */
+export function magnitude(vector: number[]) {
+    let sum = 0
+    vector.forEach(x => sum += x * x)
     return Math.sqrt(sum)
 }
 

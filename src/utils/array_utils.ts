@@ -1,7 +1,7 @@
 import { three } from '../deps.ts'
 import { lerp } from './math.ts'
-import {Vec3} from "../types/data_types.ts";
-import { EASE } from '../types/animation_types.ts';
+import { Vec3 } from '../types/data_types.ts'
+import { EASE } from '../types/animation_types.ts'
 
 /**
  * Get the last element in an array.
@@ -14,7 +14,7 @@ export const arrLast = <T>(arr: T[]) => arr[arr.length - 1]
  * @param arr Input array.
  * @param value Can be a number or an array.
  */
-export function arrAdd<T extends readonly [] | readonly number[]>(
+export function arrAdd<T extends [] | number[]>(
     arr: T,
     value: { [K in keyof T]: number } | number,
 ) {
@@ -28,7 +28,7 @@ export function arrAdd<T extends readonly [] | readonly number[]>(
  * @param arr Input array.
  * @param value Can be a number or an array.
  */
-export function arrSubtract<T extends readonly [] | readonly number[]>(
+export function arrSubtract<T extends [] | number[]>(
     arr: T,
     value: { [K in keyof T]: number } | number,
 ) {
@@ -44,11 +44,11 @@ export function arrSubtract<T extends readonly [] | readonly number[]>(
  * @param fraction Value to find in between start and end.
  * @param easing Optional easing.
  */
-export const arrLerp = <T extends readonly [] | readonly number[]>(
+export const arrLerp = <T extends [] | number[]>(
     start: T,
     end: { [K in keyof T]: number },
     fraction: number,
-    easing?: EASE
+    easing?: EASE,
 ) => start.map((x, i) => lerp(x, end[i], fraction, easing))
 
 /**
@@ -56,7 +56,7 @@ export const arrLerp = <T extends readonly [] | readonly number[]>(
  * @param arr Input array.
  * @param value Can be a number or an array.
  */
-export function arrMul<T extends readonly [] | readonly number[]>(
+export function arrMul<T extends [] | number[]>(
     arr: T,
     value: { [K in keyof T]: number } | number,
 ) {
@@ -70,7 +70,7 @@ export function arrMul<T extends readonly [] | readonly number[]>(
  * @param arr Input array.
  * @param value Can be a number or an array.
  */
-export function arrDiv<T extends readonly [] | readonly number[]>(
+export function arrDiv<T extends [] | number[]>(
     arr: T,
     value: { [K in keyof T]: number } | number,
 ) {
@@ -85,7 +85,7 @@ export function arrDiv<T extends readonly [] | readonly number[]>(
  * @param arr2 Second array.
  * @param lenience The maximum difference 2 numbers in an array can have before they're considered not equal.
  */
-export function arrEqual<T extends readonly [] | readonly number[]>(
+export function arrEqual<T extends [] | number[]>(
     arr1: T,
     arr2: { [K in keyof T]: number },
     lenience = 0,
