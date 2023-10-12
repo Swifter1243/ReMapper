@@ -7,7 +7,7 @@ import { AbstractDifficulty } from '../beatmap/abstract_beatmap.ts'
 import { V3Difficulty } from '../beatmap/beatmap_v3.ts'
 import { V2Difficulty } from '../beatmap/beatmap_v2.ts'
 import { readInfoDat } from './info_file.ts'
-import { activeDiffSet } from './beatmap_handler.ts'
+import { setActiveDiff } from './beatmap_handler.ts'
 
 export async function readDifficulty(
     input: DIFFPATH,
@@ -58,7 +58,7 @@ export async function readDifficulty(
         )
     }
 
-    activeDiffSet(diff)
+    setActiveDiff(diff)
 
     return diff
 }

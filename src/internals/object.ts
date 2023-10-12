@@ -1,7 +1,7 @@
 import { bsmap } from '../deps.ts'
 
 import { NoteType } from '../data/constants.ts'
-import { activeDiffGet, info } from '../data/beatmap_handler.ts'
+import { getActiveDiff, info } from '../data/beatmap_handler.ts'
 
 import { getJumps } from '../utils/math.ts'
 import { isEmptyObject, jsonRemove } from '../utils/json.ts'
@@ -124,12 +124,12 @@ export abstract class BaseGameplayObject<
 
     /** The note jump speed of the object. Refers to the difficulty if undefined. */
     get NJS() {
-        return this.localNJS ?? activeDiffGet().NJS
+        return this.localNJS ?? getActiveDiff().NJS
     }
 
     /** The spawn offset of the object. Refers to the difficulty if undefined. */
     get offset() {
-        return this.localOffset ?? activeDiffGet().offset
+        return this.localOffset ?? getActiveDiff().offset
     }
 
     /**

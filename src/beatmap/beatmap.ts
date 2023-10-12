@@ -2,7 +2,7 @@
 import { adbDeno, compress, fs, path } from '../deps.ts'
 
 import { QUEST_WIP_PATH } from '../data/constants.ts'
-import { activeDiffGet, info } from '../data/beatmap_handler.ts'
+import { getActiveDiff, info } from '../data/beatmap_handler.ts'
 
 import { arrRemove } from '../utils/array_utils.ts'
 
@@ -217,7 +217,7 @@ export function transferVisuals(
 
 /** Get the base "Environment" object. */
 export function getBaseEnvironment(callback: (env: Environment) => void) {
-    const search = activeDiffGet().environment.filter((x) =>
+    const search = getActiveDiff().environment.filter((x) =>
         x.id === '[0]Environment' && x.lookupMethod === 'EndsWith'
     )
 

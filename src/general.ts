@@ -1,7 +1,7 @@
 import { EPSILON, getSeconds } from './utils/math.ts'
 import { fs, path } from './deps.ts'
 import { RMJson } from './rm_json.ts'
-import { activeDiffGet } from './data/beatmap_handler.ts'
+import { getActiveDiff } from './data/beatmap_handler.ts'
 import { OnlyNumbersOptional } from './types/util_types.ts'
 import { FILENAME, FILEPATH } from './types/beatmap_types.ts'
 import { Note, Bomb, Arc, Chain } from "./internals/note.ts"
@@ -121,7 +121,7 @@ export function notesBetween(
     max: number,
     forEach?: (obj: AnyNote) => void
 ) {
-    return objBetween(activeDiffGet().allNotes as AnyNote[], min, max, forEach)
+    return objBetween(getActiveDiff().allNotes as AnyNote[], min, max, forEach)
 }
 
 /**
@@ -135,7 +135,7 @@ export function colorNotesBetween(
     max: number,
     forEach?: (obj: Note) => void
 ) {
-    return objBetween(activeDiffGet().notes, min, max, forEach)
+    return objBetween(getActiveDiff().notes, min, max, forEach)
 }
 
 /**
@@ -149,7 +149,7 @@ export function bombsBetween(
     max: number,
     forEach?: (obj: Bomb) => void
 ) {
-    return objBetween(activeDiffGet().bombs, min, max, forEach)
+    return objBetween(getActiveDiff().bombs, min, max, forEach)
 }
 
 /**
@@ -163,7 +163,7 @@ export function arcsBetween(
     max: number,
     forEach?: (obj: Arc) => void
 ) {
-    return objBetween(activeDiffGet().arcs, min, max, forEach)
+    return objBetween(getActiveDiff().arcs, min, max, forEach)
 }
 
 /**
@@ -177,7 +177,7 @@ export function chainsBetween(
     max: number,
     forEach?: (obj: Chain) => void
 ) {
-    return objBetween(activeDiffGet().chains, min, max, forEach)
+    return objBetween(getActiveDiff().chains, min, max, forEach)
 }
 
 /**
@@ -191,7 +191,7 @@ export function wallsBetween(
     max: number,
     forEach?: (obj: Wall) => void
 ) {
-    return objBetween(activeDiffGet().walls, min, max, forEach)
+    return objBetween(getActiveDiff().walls, min, max, forEach)
 }
 
 /**
@@ -205,7 +205,7 @@ export function eventsBetween(
     max: number,
     forEach?: (obj: LightEvent) => void
 ) {
-    return objBetween(activeDiffGet().basicEvents, min, max, forEach)
+    return objBetween(getActiveDiff().basicEvents, min, max, forEach)
 }
 
 /**

@@ -12,7 +12,7 @@ import {
 
 import { Track } from '../animation/track.ts'
 
-import { activeDiffGet } from '../data/beatmap_handler.ts'
+import { getActiveDiff } from '../data/beatmap_handler.ts'
 import { copy } from '../utils/general.ts'
 
 export type AbstractEnvironment = BaseEnvironmentEnhancement<
@@ -106,7 +106,7 @@ export class Environment extends BaseEnvironmentEnhancement<
     bsmap.v3.IChromaEnvironmentID
 > {
     push(clone = true): void {
-        activeDiffGet().environment.push(clone ? copy(this) : this)
+        getActiveDiff().environment.push(clone ? copy(this) : this)
     }
 
     /**
@@ -177,7 +177,7 @@ export class Geometry extends BaseEnvironmentEnhancement<
     bsmap.v3.IChromaEnvironmentGeometry
 > {
     push(clone = true): void {
-        activeDiffGet().geometry.push(clone ? copy(this) : this)
+        getActiveDiff().geometry.push(clone ? copy(this) : this)
     }
 
     /**

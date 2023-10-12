@@ -3,7 +3,7 @@ import {bsmap} from '../deps.ts'
 import type {AbstractDifficulty} from '../beatmap/abstract_beatmap.ts'
 
 export let info: bsmap.v2.IInfo
-export let infoPath: string
+export let workingDirectory: string
 export let activeDiff: AbstractDifficulty
 export const settings = {
     forceJumpsForNoodle: true,
@@ -14,43 +14,36 @@ export const settings = {
  * Set the difficulty that objects are being created for.
  * @param diff The difficulty to set to.
  */
-export function activeDiffSet(diff: AbstractDifficulty) {
+export function setActiveDiff(diff: AbstractDifficulty) {
     activeDiff = diff
 }
 
 /** Get the active difficulty, ensuring that it is indeed active. */
-export function activeDiffGet() {
+export function getActiveDiff() {
     if (activeDiff) return activeDiff
 
     throw new Error('There is currently no loaded difficulty.')
 }
 
 
-/**
- * Set the difficulty that objects are being created for.
- * @param info The difficulty to set to.
- */
-export function infoPathSet(info: string) {
-    infoPath = info
+export function setWorkingDirectory(info: string) {
+    workingDirectory = info
 }
 
-/** Get the active difficulty, ensuring that it is indeed active. */
-export function infoPathGet() {
-    if (infoPath) return infoPath
+
+export function getWorkingDirectory() {
+    if (workingDirectory) return workingDirectory
 
     throw new Error('There is currently no loaded info.dat.')
 }
 
-/**
- * Set the difficulty that objects are being created for.
- * @param info The difficulty to set to.
- */
-export function infoSet(i: bsmap.v2.IInfo) {
+
+export function setInfo(i: bsmap.v2.IInfo) {
     info = i
 }
 
-/** Get the active difficulty, ensuring that it is indeed active. */
-export function infoGet() {
+
+export function getInfo() {
     if (info) return info
 
     throw new Error('There is currently no loaded info.dat.')

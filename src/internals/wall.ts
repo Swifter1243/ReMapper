@@ -1,7 +1,7 @@
 // deno-lint-ignore-file adjacent-overload-signatures
 import { bsmap } from '../deps.ts'
 
-import { activeDiffGet } from '../data/beatmap_handler.ts'
+import { getActiveDiff } from '../data/beatmap_handler.ts'
 
 import { BaseGameplayObject, ExcludedObjectFields } from './object.ts'
 import { Vec3 } from '../types/data_types.ts'
@@ -77,7 +77,7 @@ export class Wall
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        activeDiffGet().walls.push(clone ? copy(this) : this)
+        getActiveDiff().walls.push(clone ? copy(this) : this)
         return this
     }
 

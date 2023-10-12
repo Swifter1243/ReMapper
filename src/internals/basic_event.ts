@@ -2,7 +2,7 @@ import { EventAction, EventGroup } from '../data/constants.ts'
 import { bsmap } from '../deps.ts'
 import { EASE } from '../types/animation_types.ts'
 import { BaseObject } from './object.ts'
-import { activeDiffGet } from '../data/beatmap_handler.ts'
+import { getActiveDiff } from '../data/beatmap_handler.ts'
 import { ObjectFields } from '../types/util_types.ts'
 import { LightID } from '../types/environment_types.ts'
 import { ColorVec } from '../types/data_types.ts'
@@ -124,7 +124,7 @@ export class LightEvent
     push(
         clone: boolean,
     ): LightEvent {
-        activeDiffGet().basicEvents.push(clone ? copy(this) : this)
+        getActiveDiff().basicEvents.push(clone ? copy(this) : this)
         return this
     }
 
@@ -198,7 +198,7 @@ export class LaserSpeedEvent
     push(
         clone: boolean,
     ): LaserSpeedEvent {
-        activeDiffGet().laserSpeedEvents.push(clone ? copy(this) : this)
+        getActiveDiff().laserSpeedEvents.push(clone ? copy(this) : this)
         return this
     }
 
@@ -259,7 +259,7 @@ export class RingZoomEvent
     push(
         clone: boolean,
     ): RingZoomEvent {
-        activeDiffGet().ringZoomEvents.push(clone ? copy(this) : this)
+        getActiveDiff().ringZoomEvents.push(clone ? copy(this) : this)
         return this
     }
 
@@ -335,7 +335,7 @@ export class RingSpinEvent
     push(
         clone: boolean,
     ): RingSpinEvent {
-        activeDiffGet().ringSpinEvents.push(clone ? copy(this) : this)
+        getActiveDiff().ringSpinEvents.push(clone ? copy(this) : this)
         return this
     }
 
@@ -395,7 +395,7 @@ export class RotationEvent extends BaseEvent<
     push(
         clone: boolean,
     ): RotationEvent {
-        activeDiffGet().rotationEvent.push(clone ? copy(this) : this)
+        getActiveDiff().rotationEvent.push(clone ? copy(this) : this)
         return this
     }
 

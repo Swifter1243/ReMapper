@@ -10,7 +10,7 @@ import {
     ILightWithId,
     TubeBloomPrePassLight,
 } from '../types/environment_types.ts'
-import { activeDiffGet } from '../data/beatmap_handler.ts'
+import { getActiveDiff } from '../data/beatmap_handler.ts'
 import { Track } from '../animation/track.ts'
 import { Fields, TJson } from '../types/util_types.ts'
 import { JsonWrapper } from '../types/beatmap_types.ts'
@@ -154,7 +154,7 @@ export class AnimateTrack extends BaseCustomEvent<
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        activeDiffGet().animateTracks.push(clone ? copy(this) : this)
+        getActiveDiff().animateTracks.push(clone ? copy(this) : this)
         return this
     }
 }
@@ -257,7 +257,7 @@ export class AssignPathAnimation extends BaseCustomEvent<
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        activeDiffGet().assignPathAnimations.push(clone ? copy(this) : this)
+        getActiveDiff().assignPathAnimations.push(clone ? copy(this) : this)
         return this
     }
 }
@@ -318,7 +318,7 @@ export class AssignTrackParent extends BaseCustomEvent<
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        activeDiffGet().assignTrackParents.push(clone ? copy(this) : this)
+        getActiveDiff().assignTrackParents.push(clone ? copy(this) : this)
         return this
     }
 
@@ -378,7 +378,7 @@ export class AssignPlayerToTrack extends BaseCustomEvent<
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        activeDiffGet().assignPlayerTracks.push(clone ? copy(this) : this)
+        getActiveDiff().assignPlayerTracks.push(clone ? copy(this) : this)
         return this
     }
 }
@@ -465,7 +465,7 @@ export class AnimateComponent
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        activeDiffGet().animateComponents.push(clone ? copy(this) : this)
+        getActiveDiff().animateComponents.push(clone ? copy(this) : this)
         return this
     }
 }

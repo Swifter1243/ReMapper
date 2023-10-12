@@ -1,6 +1,6 @@
 import { colorNotesBetween } from '../src/general.ts'
 import {
-    activeDiffSet,
+    setActiveDiff,
     bsmap,
     copy,
     note,
@@ -167,7 +167,7 @@ function rm2ParseJson() {
 }
 
 function resetToEmptyDiff() {
-    activeDiffSet(copy(diff))
+    setActiveDiff(copy(diff))
     remapperv2.activeDiffSet(remapperv2.copy(v2OldDiff))
 }
 

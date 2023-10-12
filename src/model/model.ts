@@ -4,7 +4,7 @@ import {
     RawKeyframesVec3,
 } from '../types/animation_types.ts'
 import { RawGeometryMaterial } from '../types/environment_types.ts'
-import { activeDiff, activeDiffGet } from '../data/beatmap_handler.ts'
+import { activeDiff, getActiveDiff } from '../data/beatmap_handler.ts'
 import {
     AnimatedObjectInput,
     AnimatedOptions,
@@ -776,7 +776,7 @@ export function applyAnchor(
 function createYeetDef() {
     if (noYeet === true) {
         noYeet = false
-        activeDiffGet().pointDefinitions.yeet = [0, -69420, 0]
+        getActiveDiff().pointDefinitions.yeet = [0, -69420, 0]
     }
 }
 

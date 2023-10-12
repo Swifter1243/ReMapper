@@ -1,5 +1,5 @@
 import {
-    activeDiffSet,
+    setActiveDiff,
     bsmap,
     copy,
     note,
@@ -246,7 +246,7 @@ function rm3ParseJson() {
 }
 
 function resetToEmptyDiff() {
-    activeDiffSet(copy(diff))
+    setActiveDiff(copy(diff))
     remapperv3.activeDiffSet(remapperv3.copy(v3OldDiff))
 }
 

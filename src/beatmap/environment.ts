@@ -10,7 +10,7 @@ import {
 import * as AnimationInternals from '../internals/animation.ts'
 import * as EnvironmentInternals from '../internals/environment.ts'
 
-import { activeDiffGet } from '../data/beatmap_handler.ts'
+import { getActiveDiff } from '../data/beatmap_handler.ts'
 import { combineAnimations } from '../animation/animation_utils.ts'
 
 import { animateTrack } from './custom_event.ts'
@@ -69,7 +69,7 @@ export function animateEnvGroup(
     duration?: number,
     easing?: EASE,
 ) {
-    const environmentCombined = activeDiffGet()
+    const environmentCombined = getActiveDiff()
         .environmentEnhancementsCombined()
 
     for (const x of environmentCombined) {
@@ -122,7 +122,7 @@ export function animateEnvTrack(
     duration?: number,
     easing?: EASE,
 ) {
-    const environmentCombined = activeDiffGet()
+    const environmentCombined = getActiveDiff()
         .environmentEnhancementsCombined()
 
     for (const x of environmentCombined) {

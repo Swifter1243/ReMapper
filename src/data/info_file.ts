@@ -1,22 +1,22 @@
 import {bsmap, path} from "../deps.ts"
 
-import {info, infoPath, infoPathSet, infoSet} from "./beatmap_handler.ts";
+import {info, workingDirectory, setWorkingDirectory, setInfo} from "./beatmap_handler.ts";
 import {parseFilePath} from "../general.ts";
 
 export async function saveInfoDat() {
-    await Deno.writeTextFile(infoPath, JSON.stringify(info))
+    await Deno.writeTextFile(workingDirectory, JSON.stringify(info))
 }
 
 export async function readInfoDat(
     parsedOutput: Awaited<ReturnType<typeof parseFilePath>>,
     relativeMapFile: string,
 ) {
-    infoPathSet(path.join(parsedOutput.dir ?? Deno.cwd(), 'Info.dat'))
+    setWorkingDirectory(path.join(parsedOutput.dir ?? Deno.cwd(), 'Info.dat'))
     const json = await Deno.readTextFile(
-        infoPath,
+        workingDirectory,
     )
 
-    infoSet(JSON.parse(json))
+    setInfo(JSON.parse(json))
 
     let diffSet: bsmap.v2.IInfoSetDifficulty | undefined
 

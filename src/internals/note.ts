@@ -1,7 +1,7 @@
 import { bsmap } from '../deps.ts'
 
 import { AnchorMode, NoteCut, NoteType } from '../data/constants.ts'
-import { activeDiffGet } from '../data/beatmap_handler.ts'
+import { getActiveDiff } from '../data/beatmap_handler.ts'
 
 import {
     BaseGameplayObject,
@@ -83,7 +83,7 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        activeDiffGet().notes.push(clone ? copy(this) : this)
+        getActiveDiff().notes.push(clone ? copy(this) : this)
         return this
     }
 
@@ -177,7 +177,7 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        activeDiffGet().bombs.push(clone ? copy(this) : this)
+        getActiveDiff().bombs.push(clone ? copy(this) : this)
         return this
     }
 
@@ -251,7 +251,7 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        activeDiffGet().chains.push(clone ? copy(this) : this)
+        getActiveDiff().chains.push(clone ? copy(this) : this)
         return this
     }
 
@@ -369,7 +369,7 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
      * Push this arc to the difficulty
      */
     push(clone = true) {
-        activeDiffGet().arcs.push(clone ? copy(this) : this)
+        getActiveDiff().arcs.push(clone ? copy(this) : this)
         return this
     }
 
