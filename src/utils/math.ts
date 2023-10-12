@@ -211,13 +211,11 @@ export function rotateVector(rotation: Vec3, length: number) {
  * Convert an array of numbers from degrees to radians.
  * @param values Input array of numbers.
  */
-export function toRadians<T extends number[] | []>(values: T): T;
-export function toRadians<T extends number>(values: T): T;
-export function toRadians<T extends number[] | [] | number>(values: T) {
+export function toRadians<T extends number | number[]>(values: T) {
     const toRadNum = (x: number) => x * (Math.PI / 180)
 
     if (typeof values === 'number') {
-        return toRadNum(values)
+        return toRadNum(values) as T
     }
 
     return values.map(toRadNum) as T
@@ -227,13 +225,11 @@ export function toRadians<T extends number[] | [] | number>(values: T) {
  * Convert an array of numbers from radians to degrees.
  * @param values Input array of numbers.
  */
-export function toDegrees<T extends number[] | []>(values: T): T;
-export function toDegrees<T extends number>(values: T): T;
-export function toDegrees<T extends number[] | [] | number>(values: T) {
+export function toDegrees<T extends number | number[]>(values: T) {
     const toDegreesNum = (x: number) => x * (180 / Math.PI)
 
     if (typeof values === 'number') {
-        return toDegreesNum(values)
+        return toDegreesNum(values) as T
     }
 
     return values.map(toDegreesNum) as T
