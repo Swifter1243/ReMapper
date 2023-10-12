@@ -1,8 +1,8 @@
 import * as LightRemapperInternals from '../internals/light_remapper.ts'
 import { arrHas } from '../utils/array_utils.ts'
 
-import {LightID} from "../types/environment_types.ts";
-import { copy } from '../utils/general.ts';
+import { LightID } from '../types/environment_types.ts'
+import { copy } from '../utils/general.ts'
 
 export class LightRemapper extends LightRemapperInternals.BaseLightRemapper {
     private complexifyLightIDs(
@@ -22,20 +22,19 @@ export class LightRemapper extends LightRemapperInternals.BaseLightRemapper {
 
     /**
      * Checks if any lightIDs on this event are in this range.
-     * @param range Min and max, or use one number to be both.
      */
-    range = (range: number | [number, number]) =>
+    hasIDsInRange(min: number, max: number) {
         this.addCondition((x) => {
-            if (typeof range === 'number') range = [range, range]
-            return isInID(x.lightID, range[0], range[1])
+            return isInID(x.lightID, min, max)
         })
+    }
 
     /**
      * Events will pass if they have lightIDs, or contain one of the lightIDs you specify.
      * @param lightIDs Input lightID(s).
      */
-    IDs = (lightIDs?: LightID) =>
-        this.addCondition((x) => {
+    hasIDs(lightIDs?: LightID) {
+        return this.addCondition((x) => {
             if (x.lightID) {
                 if (lightIDs) {
                     const arrIDs = typeof lightIDs === 'object'
@@ -51,6 +50,7 @@ export class LightRemapper extends LightRemapperInternals.BaseLightRemapper {
             }
             return false
         })
+    }
 
     /**
      * Sets the lightID of the event.
@@ -92,7 +92,7 @@ export class LightRemapper extends LightRemapperInternals.BaseLightRemapper {
      * @param lightID Initializing lightID(s).
      * @param spread If true, use lightID field as min and max to fill lightIDs in between.
      */
-    initIDs = (lightID: LightID, spread = false) =>
+    initalizeIDs = (lightID: LightID, spread = false) =>
         this.addProcess((x) => {
             let output: LightID = []
 
