@@ -93,6 +93,7 @@ export abstract class BaseGameplayObject<
     x: number
     y: number
 
+    /** Moves the note to the separate fake note array on save. */
     fake?: boolean
 
     coordinates?: Vec2
