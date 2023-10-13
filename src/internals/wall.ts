@@ -19,8 +19,8 @@ export class Wall
                 d: this.duration,
                 h: this.height,
                 w: this.width,
-                x: this.lineIndex,
-                y: this.lineLayer,
+                x: this.x,
+                y: this.y,
                 customData: {
                     animation: animationToJson(this.animation, v3),
                     size: this.scale,
@@ -40,7 +40,7 @@ export class Wall
 
         return {
             _duration: this.duration,
-            _lineIndex: this.lineIndex,
+            _lineIndex: this.x,
             _time: this.time,
             _type: 0,
             _width: this.width,

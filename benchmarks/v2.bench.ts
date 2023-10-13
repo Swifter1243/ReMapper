@@ -70,8 +70,8 @@ Deno.bench('rm4.notePushObj', { group: 'notePush' }, () => {
     note({
         time: rand(0, 1000),
         fake: rand(0, 2) === 0,
-        lineIndex: 3,
-        lineLayer: 2,
+        x: 3,
+        y: 2,
         direction: rand(0, 8),
         type: NoteType.BLUE,
     }).push()
@@ -79,8 +79,8 @@ Deno.bench('rm4.notePushObj', { group: 'notePush' }, () => {
 Deno.bench('rm4.notePushArgs', { group: 'notePush' }, () => {
     const n = note(rand(0, 1000), NoteType.BLUE)
 
-    n.lineIndex = 3
-    n.lineLayer = 2
+    n.x = 3
+    n.y = 2
     n.direction = rand(0, 8)
     n.fake = rand(0, 2) === 0
 

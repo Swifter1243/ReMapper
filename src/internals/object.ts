@@ -1,6 +1,6 @@
 import { bsmap } from '../deps.ts'
 
-import { NoteType } from '../data/constants.ts'
+import { NoteCut, NoteType } from '../data/constants.ts'
 import { getActiveDiff, info } from '../data/beatmap_handler.ts'
 
 import { getJumps } from '../utils/math.ts'
@@ -68,8 +68,8 @@ export abstract class BaseGameplayObject<
     ) {
         super(obj)
         this.animation = obj.animation ?? {}
-        this.lineIndex = obj.lineIndex ?? 0
-        this.lineLayer = obj.lineLayer ?? 0
+        this.x = obj.x ?? 0
+        this.y = obj.y ?? 0
         this.fake = obj.fake ?? false
         this.coordinates = obj.coordinates
         this.rotation = obj.rotation
@@ -90,8 +90,8 @@ export abstract class BaseGameplayObject<
         }
     }
 
-    lineIndex: number
-    lineLayer: number
+    x: number
+    y: number
 
     fake?: boolean
 
@@ -186,7 +186,7 @@ export abstract class BaseSliderObject<TV3 extends bsmap.v3.IBaseSlider>
     /** The color of the object. */
     type: NoteType
     /** The cut direction of the head. */
-    headDirection: number
+    headDirection: NoteCut
     /** The time the tail arrives at the player. */
     tailTime: number
     /** The lane of the tail. */

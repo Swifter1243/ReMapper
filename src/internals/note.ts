@@ -111,8 +111,8 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
                 b: this.time,
                 c: this.type,
                 d: this.direction,
-                x: this.lineIndex,
-                y: this.lineLayer,
+                x: this.x,
+                y: this.y,
                 customData: {
                     animation: animationToJson(this.animation, v3),
                     flip: this.flip,
@@ -143,8 +143,8 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
 
         return {
             _cutDirection: this.direction,
-            _lineIndex: this.lineIndex,
-            _lineLayer: this.lineLayer,
+            _lineIndex: this.x,
+            _lineLayer: this.y,
             _time: this.time,
             _type: this.type,
             _customData: {
@@ -200,8 +200,8 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
         if (v3) {
             return {
                 b: this.time,
-                x: this.lineIndex,
-                y: this.lineLayer,
+                x: this.x,
+                y: this.y,
                 customData: {
                     animation: animationToJson(this.animation, v3),
                     flip: this.flip,
@@ -224,8 +224,8 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
 
         return {
             _cutDirection: 0,
-            _lineIndex: this.lineIndex,
-            _lineLayer: this.lineLayer,
+            _lineIndex: this.x,
+            _lineLayer: this.y,
             _time: this.time,
             _type: 3,
             _customData: {
@@ -294,8 +294,8 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
             tb: this.tailTime,
             tx: this.tailX,
             ty: this.tailY,
-            x: this.lineIndex,
-            y: this.lineLayer,
+            x: this.x,
+            y: this.y,
             customData: {
                 animation: animationToJson(this.animation, v3),
                 color: this.color,
@@ -388,8 +388,8 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
             tb: this.tailTime,
             tx: this.tailX,
             ty: this.tailY,
-            x: this.lineIndex,
-            y: this.lineLayer,
+            x: this.x,
+            y: this.y,
             customData: {
                 animation: animationToJson(this.animation, v3),
                 color: this.color,

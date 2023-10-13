@@ -4,20 +4,15 @@ import { getActiveDiff } from '../data/beatmap_handler.ts'
 export type Condition = (event: LightEvent) => boolean
 export type Process = (event: LightEvent) => void
 
+/*
+ * Class used to iterate through every event in the map.
+ * Has various tools to transform the events.
+ */
 export class BaseLightRemapper {
     /** Conditions that each event needs to pass. */
     conditions: Condition[] = []
     /** Function to run on each event. */
     processes: Process[] = []
-
-    /**
-     * Class used to iterate through every event in the map.
-     * Has various tools to transform the events.
-     * @param condition Optional initializing condition each event needs to pass.
-     */
-    constructor(condition?: Condition) {
-        if (condition) this.conditions.push(condition)
-    }
 
     /**
      * Add a condition that events must pass.

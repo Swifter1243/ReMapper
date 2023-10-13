@@ -31,8 +31,8 @@ export function wall(
     return new Wall({
         time: time as number ?? 0,
         duration: duration ?? 1,
-        lineIndex: x ?? 0,
-        lineLayer: y ?? 0,
+        x: x ?? 0,
+        y: y ?? 0,
         height: height,
         width: width,
     })

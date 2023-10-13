@@ -22,8 +22,8 @@ function toNoteOrBomb(b: bsmap.v2.INote): Note | Bomb {
             time: b._time,
             type: b._type as 0 | 1,
             direction: b._cutDirection,
-            lineLayer: b._lineLayer,
-            lineIndex: b._lineIndex,
+            y: b._lineLayer,
+            x: b._lineIndex,
             customData: b._customData,
 
             localRotation: b._customData?._localRotation,
@@ -107,8 +107,8 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
                         duration: o._duration,
                         fake: o._customData?._fake,
                         interactable: o._customData?._interactable,
-                        lineIndex: o._lineIndex,
-                        lineLayer: o._type,
+                        x: o._lineIndex,
+                        y: o._type,
                         width: o._width,
                         localNJS: o._customData?._noteJumpMovementSpeed,
                         localOffset: o._customData

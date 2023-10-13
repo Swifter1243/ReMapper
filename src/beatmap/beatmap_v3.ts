@@ -18,8 +18,8 @@ function toNoteOrBomb(
         | Parameters<typeof note>
         | Parameters<typeof bomb> = [{
             time: obj.b,
-            lineLayer: obj.x,
-            lineIndex: obj.y,
+            y: obj.x,
+            x: obj.y,
             customData: obj.customData,
 
             localRotation: obj.customData?.localRotation,
@@ -73,8 +73,8 @@ function toWall(
 ) {
     return wall({
         time: o.b,
-        lineIndex: o.x,
-        lineLayer: o.y,
+        x: o.x,
+        y: o.y,
         width: o.w,
         height: o.h,
         duration: o.d,

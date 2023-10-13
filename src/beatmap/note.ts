@@ -21,8 +21,8 @@ export function note(
         time: time as number ?? 0,
         type: type ?? NoteType.BLUE,
         direction: direction ?? NoteCut.DOWN,
-        lineIndex: x ?? 0,
-        lineLayer: y ?? 0,
+        x: x ?? 0,
+        y: y ?? 0,
     })
 }
 
@@ -42,8 +42,8 @@ export function bomb(
 
     return new Bomb({
         time: time as number ?? 0,
-        lineIndex: x ?? 0,
-        lineLayer: y ?? 0,
+        x: x ?? 0,
+        y: y ?? 0,
     })
 }
 
@@ -72,8 +72,8 @@ export function chain(
         tailTime: tailTime ?? 0,
         type: type ?? NoteType.BLUE,
         headDirection: direction ?? NoteCut.DOWN,
-        lineIndex: x ?? 0,
-        lineLayer: y ?? 0,
+        x: x ?? 0,
+        y: y ?? 0,
         tailX: tailX ?? 0,
         tailY: tailY ?? 0,
         links: links ?? 4,
@@ -116,8 +116,8 @@ export function arc(
         tailTime: tailTime ?? 0,
         headDirection: headDirection ?? NoteCut.DOWN,
         tailDirection: tailDirection ?? NoteCut.DOWN,
-        lineIndex: x ?? 0,
-        lineLayer: y ?? 0,
+        x: x ?? 0,
+        y: y ?? 0,
         tailX: tailX ?? 0,
         tailY: tailY ?? 0,
     })

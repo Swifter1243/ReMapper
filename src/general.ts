@@ -116,7 +116,7 @@ function objBetween<T extends BeatmapObject>(
  * @param max Maximum time of the notes.
  * @param forEach Function for each note.
  */
-export function notesBetween(
+export function allNotesBetween(
     min: number,
     max: number,
     forEach?: (obj: AnyNote) => void

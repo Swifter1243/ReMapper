@@ -4,6 +4,8 @@ import { arrHas } from '../utils/array_utils.ts'
 import { LightID } from '../types/environment_types.ts'
 import { copy } from '../utils/general.ts'
 
+export const lightRemapper = () => new LightRemapper()
+
 export class LightRemapper extends LightRemapperInternals.BaseLightRemapper {
     private complexifyLightIDs(
         lightID: LightID,
