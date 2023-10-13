@@ -4,7 +4,7 @@ import {
     GeometryMaterial,
     GeoType,
     JsonWrapper,
-    Lookup,
+    LookupMethod,
     Replace,
     TrackValue,
     Vec3,
@@ -125,7 +125,7 @@ export class Environment extends BaseEnvironmentEnhancement<
     /** The object name to look up in the environment. */
     id: string
     /** The method of looking up the object name in the environment. */
-    lookupMethod: Lookup
+    lookupMethod: LookupMethod
 
     toJson(v3: true): bsmap.v3.IChromaEnvironmentID
     toJson(v3: false): bsmap.v2.IChromaEnvironmentID

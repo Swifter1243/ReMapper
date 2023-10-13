@@ -21,7 +21,7 @@ export type TubeBloomPrePassLight<T extends number | PointDefinitionLinear> = {
 export type GeometryMaterial = RawGeometryMaterial | string
 
 /** Lookup methods for environment objects. */
-export type Lookup =
+export type LookupMethod =
     | 'Contains'
     | 'Regex'
     | 'Exact'

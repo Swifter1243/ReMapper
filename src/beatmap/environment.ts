@@ -3,7 +3,7 @@ import {
     EASE,
     GeometryMaterial,
     GeoType,
-    Lookup,
+    LookupMethod,
     RawKeyframesAny,
 } from '../types/mod.ts'
 
@@ -21,7 +21,7 @@ export function environment(
         | ConstructorParameters<typeof EnvironmentInternals.Environment>
         | [
             id?: string,
-            lookupMethod?: Lookup,
+            lookupMethod?: LookupMethod,
         ]
 ): EnvironmentInternals.Environment {
     const [first] = params
