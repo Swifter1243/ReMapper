@@ -28,9 +28,14 @@ export abstract class BaseNote<
     ) {
         super(fields as ExcludedObjectFields<BaseNote<TV3>>)
         this.flip = fields.flip
-        this.noteGravity = fields.noteGravity
-        this.noteLook = fields.noteLook
+        this.noteGravity = fields.noteGravity ?? true
+        this.noteLook = fields.noteLook ?? true
         this.spawnEffect = fields.spawnEffect
+        this.link = fields.link
+        this.directionBadCut = fields.directionBadCut ?? true
+        this.speedBadCut = fields.speedBadCut ?? true
+        this.saberTypeBadCut = fields.saberTypeBadCut ?? true
+        this.debris = fields.debris ?? true
     }
 
     declare animation: NoteAnimationData
@@ -43,6 +48,16 @@ export abstract class BaseNote<
     noteLook?: boolean
     /** Whether this note will have a spawn effect. */
     spawnEffect?: boolean
+    /** When cut, all notes with the same link string will also be cut. */
+    link?: string
+    /** The ability to bad cut this note based on direction. */
+    directionBadCut?: boolean
+    /** The ability to bad cut this note based on speed. */
+    speedBadCut?: boolean
+    /** The ability to bad cut this note based on saber type. */
+    saberTypeBadCut?: boolean
+    /** Whether debris shows when this note is hit. */
+    debris?: boolean
 
     /**
      * Push this note to the difficulty.
@@ -101,12 +116,8 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
                 customData: {
                     animation: animationToJson(this.animation, v3),
                     flip: this.flip,
-                    disableNoteGravity: this.noteGravity !== undefined
-                        ? !this.noteGravity
-                        : undefined,
-                    disableNoteLook: this.noteLook !== undefined
-                        ? !this.noteLook
-                        : undefined,
+                    disableNoteGravity: this.noteGravity ? undefined : true,
+                    disableNoteLook: this.noteLook ? undefined : true,
                     spawnEffect: this.spawnEffect,
                     color: this.color,
                     coordinates: this.coordinates,
@@ -114,10 +125,17 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
                     noteJumpMovementSpeed: this.localNJS,
                     noteJumpStartBeatOffset: this.localOffset,
                     track: this.track.value,
-                    uninteractable: this.interactable !== undefined
-                        ? !this.interactable
-                        : undefined,
+                    uninteractable: this.interactable ? undefined : true,
                     worldRotation: this.rotation,
+                    link: this.link,
+                    disableBadCutDirection: this.directionBadCut
+                        ? undefined
+                        : true,
+                    disableBadCutSpeed: this.speedBadCut ? undefined : true,
+                    disableBadCutSaberType: this.saberTypeBadCut
+                        ? undefined
+                        : true,
+                    disableDebris: this.debris ? undefined : true,
                     ...this.customData,
                 },
             } satisfies bsmap.v3.IColorNote
@@ -132,15 +150,9 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
             _customData: {
                 _animation: animationToJson(this.animation, v3),
                 _flip: this.flip,
-                _disableNoteGravity: this.noteGravity !== undefined
-                    ? !this.noteGravity
-                    : undefined,
-                _disableNoteLook: this.noteLook !== undefined
-                    ? !this.noteLook
-                    : undefined,
-                _disableSpawnEffect: this.spawnEffect !== undefined
-                    ? !this.spawnEffect
-                    : undefined,
+                _disableNoteGravity: this.noteGravity ? undefined : true,
+                _disableNoteLook: this.noteLook ? undefined : true,
+                _disableSpawnEffect: this.spawnEffect ? undefined : true,
                 _color: this.color,
                 _position: this.coordinates,
                 _localRotation: this.localRotation,
@@ -195,9 +207,16 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
                     flip: this.flip,
                     disableNoteLook: !this.noteLook,
                     disableNoteGravity: !this.noteGravity,
-
                     spawnEffect: this.spawnEffect,
-
+                    link: this.link,
+                    disableBadCutDirection: this.directionBadCut
+                        ? undefined
+                        : true,
+                    disableBadCutSpeed: this.speedBadCut ? undefined : true,
+                    disableBadCutSaberType: this.saberTypeBadCut
+                        ? undefined
+                        : true,
+                    disableDebris: this.debris ? undefined : true,
                     ...this.customData,
                 },
             } satisfies bsmap.v3.IBombNote
@@ -241,8 +260,14 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
         this.links = fields.links ?? 4
         this.squish = fields.squish ?? 0
         this.flip = fields.flip
-        this.noteGravity = fields.noteGravity
-        this.noteLook = fields.noteLook
+        this.noteGravity = fields.noteGravity ?? true
+        this.noteLook = fields.noteLook ?? true
+        this.spawnEffect = fields.spawnEffect
+        this.link = fields.link
+        this.directionBadCut = fields.directionBadCut ?? true
+        this.speedBadCut = fields.speedBadCut ?? true
+        this.saberTypeBadCut = fields.saberTypeBadCut ?? true
+        this.debris = fields.debris ?? true
     }
 
     /**
@@ -279,12 +304,18 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
                 flip: this.flip,
                 noteJumpMovementSpeed: this.localNJS,
                 noteJumpStartBeatOffset: this.localOffset,
-                uninteractable: !this.interactable,
+                uninteractable: this.interactable ? undefined : true,
                 localRotation: this.localRotation,
-                disableNoteGravity: !this.noteGravity,
-                disableNoteLook: !this.noteLook,
+                disableNoteGravity: this.noteGravity ? undefined : true,
+                disableNoteLook: this.noteLook ? undefined : true,
                 track: this.track.value,
                 worldRotation: this.rotation,
+                spawnEffect: this.spawnEffect,
+                link: this.link,
+                disableBadCutDirection: this.directionBadCut ? undefined : true,
+                disableBadCutSpeed: this.speedBadCut ? undefined : true,
+                disableBadCutSaberType: this.saberTypeBadCut ? undefined : true,
+                disableDebris: this.debris ? undefined : true,
                 ...this.customData,
             },
         } satisfies bsmap.v3.IChain
@@ -300,6 +331,18 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
     noteGravity?: boolean
     /** Whether this chain will look at the player. */
     noteLook?: boolean
+    /** Whether this note will have a spawn effect. */
+    spawnEffect?: boolean
+    /** When cut, all notes with the same link string will also be cut. */
+    link?: string
+    /** The ability to bad cut this note based on direction. */
+    directionBadCut?: boolean
+    /** The ability to bad cut this note based on speed. */
+    speedBadCut?: boolean
+    /** The ability to bad cut this note based on saber type. */
+    saberTypeBadCut?: boolean
+    /** Whether debris shows when this note is hit. */
+    debris?: boolean
 }
 
 export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
@@ -324,7 +367,7 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
         this.tailLength = fields.tailLength ?? 0
         this.anchorMode = fields.anchorMode ?? AnchorMode.STRAIGHT
         this.flip = fields.flip
-        this.noteGravity = fields.noteGravity
+        this.noteGravity = fields.noteGravity ?? true
     }
 
     toJson(v3: true): bsmap.v3.IArc
@@ -355,9 +398,9 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
                 flip: this.flip,
                 noteJumpMovementSpeed: this.localNJS,
                 noteJumpStartBeatOffset: this.localOffset,
-                uninteractable: !this.interactable,
+                uninteractable: this.interactable ? undefined : true,
                 localRotation: this.localRotation,
-                disableNoteGravity: !this.noteGravity,
+                disableNoteGravity: this.noteGravity ? undefined : true,
                 track: this.track.value,
                 worldRotation: this.rotation,
                 ...this.customData,

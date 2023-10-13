@@ -56,6 +56,11 @@ function toNoteOrBomb(
         type: colorNote.c,
         direction: colorNote.d,
         angleOffset: colorNote.a,
+        link: colorNote.customData?.link,
+        directionBadCut: colorNote.customData?.disableBadCutDirection,
+        speedBadCut: colorNote.customData?.disableBadCutSpeed,
+        saberTypeBadCut: colorNote.customData?.disableBadCutSaberType,
+        debris: colorNote.customData?.disableDebris, 
         ...params[0],
     })
 
