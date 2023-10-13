@@ -30,7 +30,7 @@ export abstract class BaseNote<
         this.flip = fields.flip
         this.noteGravity = fields.noteGravity ?? true
         this.noteLook = fields.noteLook ?? true
-        this.spawnEffect = fields.spawnEffect
+        this.spawnEffect = fields.spawnEffect ?? true
         this.link = fields.link
         this.directionBadCut = fields.directionBadCut ?? true
         this.speedBadCut = fields.speedBadCut ?? true
@@ -118,7 +118,7 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
                     flip: this.flip,
                     disableNoteGravity: this.noteGravity ? undefined : true,
                     disableNoteLook: this.noteLook ? undefined : true,
-                    spawnEffect: this.spawnEffect,
+                    spawnEffect: this.spawnEffect ? undefined : false,
                     color: this.color,
                     coordinates: this.coordinates,
                     localRotation: this.localRotation,
@@ -159,9 +159,9 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
                 _noteJumpMovementSpeed: this.localNJS,
                 _noteJumpStartBeatOffset: this.localOffset,
                 _track: this.track.value,
-                _interactable: this.interactable,
+                _interactable: this.interactable ? undefined : false,
                 _rotation: this.rotation,
-                _fake: this.fake,
+                _fake: this.fake ? true : undefined,
                 _cutDirection: this.angleOffset, //?
                 ...this.customData,
             },
@@ -205,9 +205,9 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
                 customData: {
                     animation: animationToJson(this.animation, v3),
                     flip: this.flip,
-                    disableNoteLook: !this.noteLook,
-                    disableNoteGravity: !this.noteGravity,
-                    spawnEffect: this.spawnEffect,
+                    disableNoteLook: this.noteLook ? undefined : true,
+                    disableNoteGravity: this.noteGravity ? undefined : true,
+                    spawnEffect: this.spawnEffect ? undefined : false,
                     link: this.link,
                     disableBadCutDirection: this.directionBadCut
                         ? undefined
@@ -231,9 +231,9 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
             _customData: {
                 _animation: animationToJson(this.animation, v3),
                 _flip: this.flip,
-                _disableNoteGravity: !this.noteGravity,
-                _disableNoteLook: !this.noteLook,
-                _disableSpawnEffect: !this.spawnEffect,
+                _disableNoteGravity: this.noteGravity ? undefined : true,
+                _disableNoteLook: this.noteLook ? undefined : true,
+                _disableSpawnEffect: this.spawnEffect ? undefined : false,
                 ...this.customData,
             },
         } satisfies bsmap.v2.INote
@@ -262,7 +262,7 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
         this.flip = fields.flip
         this.noteGravity = fields.noteGravity ?? true
         this.noteLook = fields.noteLook ?? true
-        this.spawnEffect = fields.spawnEffect
+        this.spawnEffect = fields.spawnEffect ?? true
         this.link = fields.link
         this.directionBadCut = fields.directionBadCut ?? true
         this.speedBadCut = fields.speedBadCut ?? true
@@ -310,7 +310,7 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
                 disableNoteLook: this.noteLook ? undefined : true,
                 track: this.track.value,
                 worldRotation: this.rotation,
-                spawnEffect: this.spawnEffect,
+                spawnEffect: this.spawnEffect ? undefined : false,
                 link: this.link,
                 disableBadCutDirection: this.directionBadCut ? undefined : true,
                 disableBadCutSpeed: this.speedBadCut ? undefined : true,
