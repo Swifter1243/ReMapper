@@ -4,7 +4,7 @@ import { RMJson } from './rm_json.ts'
 import { getActiveDiff } from './data/beatmap_handler.ts'
 import { OnlyNumbersOptional } from './types/util_types.ts'
 import { FILENAME, FILEPATH } from './types/beatmap_types.ts'
-import { Note, Bomb, Arc, Chain } from "./internals/note.ts"
+import * as NoteInternals from "./internals/note.ts"
 import { Wall } from './internals/wall.ts'
 import { LightEvent } from './internals/basic_event.ts'
 
@@ -96,8 +96,12 @@ export function sortObjects<T extends Record<string, number>>(
     )
 }
 
+export type Note = NoteInternals.Note
+export type Bomb = NoteInternals.Bomb
+export type Arc = NoteInternals.Arc
+export type Chain = NoteInternals.Chain
 export type AnyNote = Note | Bomb | Arc | Chain
-type BeatmapObject = AnyNote | Wall | LightEvent
+export type BeatmapObject = AnyNote | Wall | LightEvent
 
 function objBetween<T extends BeatmapObject>(
     array: T[],
