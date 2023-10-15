@@ -469,12 +469,12 @@ export namespace CustomEventInternals {
          * @param width Exact width for the texture.
          * @param height Exact height for the texture.
          */
-        constructor(json: Json, id: string, width: number, height: number) {
+        constructor(json: Json, id: string, width?: number, height?: number) {
             super(json);
             this.type = "DeclareRenderTexture";
             this.id = id;
-            this.width = width;
-            this.height = height;
+            if (width !== undefined) this.width = width;
+            if (height !== undefined) this.height = height;
         }
 
         /** Name of the depth texture. */
@@ -767,7 +767,7 @@ export class CustomEvent extends CustomEventInternals.BaseEvent {
      * @param width Exact width for the texture.
      * @param height Exact height for the texture.
      */
-    declareRenderTexture = (id: string, width: number, height: number) =>
+    declareRenderTexture = (id: string, width?: number, height?: number) =>
         new CustomEventInternals.DeclareRenderTexture(this.json, id, width, height);
 
     destroyTexture = (id: string | string[]) =>
