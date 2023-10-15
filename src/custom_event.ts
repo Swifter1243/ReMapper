@@ -380,10 +380,10 @@ export namespace CustomEventInternals {
          * @param properties Properties to set.
          * @param easing An easing for the animation to follow.
          */
-        constructor(json: Json, asset: string, duration?: number, properties?: MaterialProperty[], easing?: EASE) {
+        constructor(json: Json, asset?: string, duration?: number, properties?: MaterialProperty[], easing?: EASE) {
             super(json);
             this.type = "Blit";
-            this.asset = asset;
+            if (asset) this.asset = asset;
             if (duration) this.duration = duration;
             if (properties) this.properties = properties;
             if (easing) this.easing = easing;
@@ -745,7 +745,7 @@ export class CustomEvent extends CustomEventInternals.BaseEvent {
      * @param properties Properties to set.
      * @param easing An easing for the animation to follow.
      */
-    blit = (asset: string, duration?: number, properties?: MaterialProperty[], easing?: EASE) =>
+    blit = (asset?: string, duration?: number, properties?: MaterialProperty[], easing?: EASE) =>
         new CustomEventInternals.Blit(this.json, asset, duration, properties, easing);
 
     /**
