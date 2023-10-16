@@ -753,8 +753,9 @@ function reduceDecimalsPostProcess(_: never, diff: Difficulty) {
  * Automatically zip the map, including only necessary files.
  * @param excludeDiffs Difficulties to exclude.
  * @param zipName Name of the zip (don't include ".zip"). Uses folder name if undefined.
+ * @param includeBundle Whether to include asset bundle.
  */
-export function exportZip(excludeDiffs: FILENAME<DIFFS>[] = [], zipName?: string) {
+export function exportZip(excludeDiffs: FILENAME<DIFFS>[] = [], zipName?: string, includeBundle = false) {
     if (!info.json) throw new Error("The Info object has not been loaded.");
 
     const absoluteInfoFileName = info.fileName === "Info.dat" ? Deno.cwd() + `\\${info.fileName}` : info.fileName;
@@ -766,6 +767,7 @@ export function exportZip(excludeDiffs: FILENAME<DIFFS>[] = [], zipName?: string
         if (fs.existsSync(dir)) files.push(dir);
     }
 
+    if (includeBundle) pushFile('bundle')
     pushFile(exportInfo._songFilename);
     if (exportInfo._coverImageFilename !== undefined) pushFile(exportInfo._coverImageFilename);
 
