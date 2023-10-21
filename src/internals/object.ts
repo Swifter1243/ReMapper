@@ -25,8 +25,8 @@ export type ExcludedObjectFields<Class, Replacement = ObjectReplacements> =
     >
 
 export type ExcludeObjectFields = {
-    NJS: never
-    offset: never
+    definiteNJS: never
+    definiteOffset: never
     isModded: never
     isGameplayModded: never
     halfJumpDur: never
@@ -74,8 +74,8 @@ export abstract class BaseGameplayObject<
         this.coordinates = obj.coordinates
         this.rotation = obj.rotation
         this.localRotation = obj.localRotation
-        this.localNJS = obj.localNJS
-        this.localOffset = obj.localOffset
+        this.NJS = obj.NJS
+        this.offset = obj.offset
         this.interactable = obj.interactable ?? true
         this.track = obj.track instanceof Track
             ? obj.track
@@ -104,10 +104,10 @@ export abstract class BaseGameplayObject<
     localRotation?: Vec3
 
     /** The note jump speed of the object. */
-    localNJS?: number
+    NJS?: number
 
     /** The spawn offset of the object. */
-    localOffset?: number
+    offset?: number
 
     /** Whether this object is interactable. */
     interactable?: boolean
@@ -124,13 +124,13 @@ export abstract class BaseGameplayObject<
     animation: GameplayObjectAnimationData
 
     /** The note jump speed of the object. Refers to the difficulty if undefined. */
-    get NJS() {
-        return this.localNJS ?? getActiveDiff().NJS
+    get definiteNJS() {
+        return this.NJS ?? getActiveDiff().NJS
     }
 
     /** The spawn offset of the object. Refers to the difficulty if undefined. */
-    get offset() {
-        return this.localOffset ?? getActiveDiff().offset
+    get definiteOffset() {
+        return this.offset ?? getActiveDiff().offset
     }
 
     /**
@@ -139,7 +139,7 @@ export abstract class BaseGameplayObject<
      * This function will output half of this, so it will end when the note is supposed to be hit.
      */
     get halfJumpDur() {
-        return getJumps(this.NJS, this.offset, info._beatsPerMinute).halfDur
+        return getJumps(this.definiteNJS, this.definiteOffset, info._beatsPerMinute).halfDur
     }
 
     /**
@@ -147,7 +147,7 @@ export abstract class BaseGameplayObject<
      * Jump Distance is the Z distance from when the object starts it's jump to when it's deleted.
      */
     get jumpDist() {
-        return getJumps(this.NJS, this.offset, info._beatsPerMinute).dist
+        return getJumps(this.definiteNJS, this.definiteOffset, info._beatsPerMinute).dist
     }
 
     /** The lifespan of the object. */
@@ -160,8 +160,8 @@ export abstract class BaseGameplayObject<
                 'Warning: The lifespan of a note has a minimum of 0.25 beats.',
             )
         }
-        const defaultJumps = getJumps(this.NJS, 0, info._beatsPerMinute)
-        this.localOffset = (value - 2 * defaultJumps.halfDur) / 2
+        const defaultJumps = getJumps(this.definiteNJS, 0, info._beatsPerMinute)
+        this.offset = (value - 2 * defaultJumps.halfDur) / 2
     }
 
     /** The time of the start of the object's lifespan. */

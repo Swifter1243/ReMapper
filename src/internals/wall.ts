@@ -24,8 +24,8 @@ export class Wall
                 customData: {
                     animation: animationToJson(this.animation, v3),
                     size: this.scale,
-                    noteJumpMovementSpeed: this.localNJS,
-                    noteJumpStartBeatOffset: this.localOffset,
+                    noteJumpMovementSpeed: this.NJS,
+                    noteJumpStartBeatOffset: this.offset,
                     localRotation: this.localRotation,
                     coordinates: this.coordinates,
                     worldRotation: this.rotation,
@@ -47,8 +47,8 @@ export class Wall
             _customData: {
                 _animation: animationToJson(this.animation, v3),
                 _scale: this.scale,
-                _noteJumpMovementSpeed: this.localNJS,
-                _noteJumpStartBeatOffset: this.localOffset,
+                _noteJumpMovementSpeed: this.NJS,
+                _noteJumpStartBeatOffset: this.offset,
                 _localRotation: this.localRotation,
                 _position: this.coordinates,
                 _rotation: this.rotation,

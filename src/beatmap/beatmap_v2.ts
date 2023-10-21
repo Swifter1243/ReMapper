@@ -31,8 +31,8 @@ function toNoteOrBomb(b: bsmap.v2.INote): Note | Bomb {
             color: b._customData?._color as ColorVec,
             flip: b._customData?._flip,
             interactable: b._customData?._interactable,
-            localNJS: b._customData?._noteJumpMovementSpeed,
-            localOffset: b._customData?._noteJumpStartBeatOffset,
+            NJS: b._customData?._noteJumpMovementSpeed,
+            offset: b._customData?._noteJumpStartBeatOffset,
 
             rotation: typeof b._customData?._rotation === 'number'
                 ? [0, b._customData._rotation, 0]
@@ -110,8 +110,8 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
                         x: o._lineIndex,
                         y: o._type,
                         width: o._width,
-                        localNJS: o._customData?._noteJumpMovementSpeed,
-                        localOffset: o._customData
+                        NJS: o._customData?._noteJumpMovementSpeed,
+                        offset: o._customData
                             ?._noteJumpStartBeatOffset,
                         localRotation: o._customData?._localRotation,
                         rotation: o._customData?._rotation as Vec3 | undefined,
