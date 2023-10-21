@@ -27,6 +27,8 @@ export function isEmptyObject(o: unknown): boolean {
  * @param obj Object to prune.
  */
 export function jsonPrune<T extends Record<string, any>>(obj: T) {
+    if (typeof obj !== "object") return obj;
+
     Object.entries(obj).forEach(([prop, v]) => {
         if (v === undefined) {
             delete obj[prop]
