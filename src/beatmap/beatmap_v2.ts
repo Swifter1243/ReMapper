@@ -63,8 +63,8 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
     declare version: bsmap.v2.IDifficulty['_version']
 
     constructor(
-        diffSet: bsmap.v2.IInfoSetDifficulty,
-        diffSetMap: bsmap.v2.IInfoSet,
+        info: bsmap.v2.IInfoSetDifficulty,
+        setInfo: bsmap.v2.IInfoSet,
         mapFile: DIFFPATH,
         relativeMapFile: DIFFNAME,
         json: bsmap.v2.IDifficulty,
@@ -182,8 +182,8 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
 
         super(
             json,
-            diffSet,
-            diffSetMap,
+            info,
+            setInfo,
             mapFile,
             relativeMapFile,
             {

@@ -78,11 +78,11 @@ export abstract class AbstractDifficulty<
     /** The Json of the difficulty set
      * (e.g. Standard) that this difficulty is contained in inside of the Info.dat.
      */
-    diffSet: bsmap.v2.IInfoSetDifficulty
+    info: bsmap.v2.IInfoSetDifficulty
     /** The Json of the difficulty set map
      * (e.g. Hard) that this difficulty is contained in inside of the Info.dat.
      */
-    diffSetMap: bsmap.v2.IInfoSet
+    setInfo: bsmap.v2.IInfoSet
     /** The path to the output file of this difficulty. */
     mapFile: DIFFPATH
     /** The filename of the output file of this difficulty. */
@@ -122,15 +122,15 @@ export abstract class AbstractDifficulty<
      */
     constructor(
         json: TD,
-        diffSet: bsmap.v2.IInfoSetDifficulty,
-        diffSetMap: bsmap.v2.IInfoSet,
+        info: bsmap.v2.IInfoSetDifficulty,
+        setInfo: bsmap.v2.IInfoSet,
         mapFile: DIFFPATH,
         relativeMapFile: DIFFNAME,
         inner: RMDifficulty,
     ) {
         this.json = json
-        this.diffSet = diffSet
-        this.diffSetMap = diffSetMap
+        this.info = info
+        this.setInfo = setInfo
         this.mapFile = mapFile
         this.relativeMapFile = relativeMapFile
 
@@ -357,104 +357,104 @@ export abstract class AbstractDifficulty<
     // Info.dat
     /** The note jump speed for this difficulty. */
     get NJS() {
-        return this.diffSet._noteJumpMovementSpeed
+        return this.info._noteJumpMovementSpeed
     }
     set NJS(value: number) {
-        this.diffSet._noteJumpMovementSpeed = value
+        this.info._noteJumpMovementSpeed = value
     }
 
     /** The note offset for this difficulty. */
     get offset() {
-        return this.diffSet._noteJumpStartBeatOffset
+        return this.info._noteJumpStartBeatOffset
     }
     set offset(value: number) {
-        this.diffSet._noteJumpStartBeatOffset = value
+        this.info._noteJumpStartBeatOffset = value
     }
 
     /** The filename for this difficulty. */
     get fileName() {
-        return this.diffSet._beatmapFilename
+        return this.info._beatmapFilename
     }
     set fileName(value: string) {
-        this.diffSet._beatmapFilename = value
+        this.info._beatmapFilename = value
     }
 
     /** The name of the difficulty set. E.g. Standard */
     get diffSetName() {
-        return this.diffSetMap._beatmapCharacteristicName
+        return this.setInfo._beatmapCharacteristicName
     }
     set diffSetName(value: bsmap.CharacteristicName) {
-        this.diffSetMap._beatmapCharacteristicName = value
+        this.setInfo._beatmapCharacteristicName = value
     }
 
     /** The name of the difficulty. E.g. Hard */
     get name() {
-        return this.diffSet._difficulty
+        return this.info._difficulty
     }
     set name(value: bsmap.DifficultyName) {
-        this.diffSet._difficulty = value
+        this.info._difficulty = value
     }
 
     /** The difficulty rank. */
     get diffRank() {
-        return this.diffSet._difficultyRank
+        return this.info._difficultyRank
     }
     set diffRank(value: bsmap.DifficultyRank) {
-        this.diffSet._difficultyRank = value
+        this.info._difficultyRank = value
     }
 
     /** The mod requirements for this difficulty. */
     get requirements() {
-        return this.diffSet._customData?._requirements
+        return this.info._customData?._requirements
     }
     set requirements(value: string[] | undefined) {
-        this.diffSet._customData ??= {}
-        this.diffSet._customData._requirements = value
+        this.info._customData ??= {}
+        this.info._customData._requirements = value
     }
 
     /** The mod suggestions for this difficulty. */
     get suggestions() {
-        return this.diffSet._customData?._suggestions
+        return this.info._customData?._suggestions
     }
     set suggestions(value: string[] | undefined) {
-        this.diffSet._customData ??= {}
-        this.diffSet._customData._suggestions = value
+        this.info._customData ??= {}
+        this.info._customData._suggestions = value
     }
 
     /** The unaliased settings object. */
     get rawSettings() {
-        return this.diffSet._customData?._settings
+        return this.info._customData?._settings
     }
     set rawSettings(value: bsmap.IChromaInfoCustomData['_settings']) {
-        this.diffSet._customData ??= {}
-        this.diffSet._customData._settings = value
+        this.info._customData ??= {}
+        this.info._customData._settings = value
     }
 
     /** Warnings to display in the info button. */
     get warnings() {
-        return this.diffSet._customData?._warnings
+        return this.info._customData?._warnings
     }
     set warnings(value: string[] | undefined) {
-        this.diffSet._customData ??= {}
-        this.diffSet._customData._warnings = value
+        this.info._customData ??= {}
+        this.info._customData._warnings = value
     }
 
     /** Information to display in the info button. */
-    get information() {
-        return this.diffSet._customData?._information
+    get buttonInfo() {
+        return this.info._customData?._information
     }
-    set information(value: string[] | undefined) {
-        this.diffSet._customData ??= {}
-        this.diffSet._customData._information = value
+    set buttonInfo(value: string[] | undefined) {
+        this.info._customData ??= {}
+        this.info._customData._information = value
     }
 
     /** The custom difficulty name. */
     get label() {
-        return this.diffSet._customData?._difficultyLabel
+        return this.info._customData?._difficultyLabel
     }
     set label(value: string | undefined) {
-        this.diffSet._customData ??= {}
-        this.diffSet._customData._difficultyLabel = value
+        this.info._customData ??= {}
+        this.info._customData._difficultyLabel = value
     }
 }
 
