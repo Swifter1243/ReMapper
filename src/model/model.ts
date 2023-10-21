@@ -26,8 +26,6 @@ import { cacheData, parseFilePath } from '../general.ts'
 
 import * as CustomEventInternals from '../internals/custom_event.ts'
 
-import { Environment, Geometry } from '../beatmap/environment.ts'
-
 import { setBaseEnvironmentTrack } from '../beatmap/beatmap.ts'
 import { animateComponent, animateTrack } from '../beatmap/custom_event.ts'
 import { backLasers } from '../beatmap/basic_event.ts'
@@ -808,7 +806,7 @@ export async function getModel(
             ),
         )
         if (process) process(data.objects)
-        return data.objects as ModelObject[]
+        return data.objects as ReadonlyArray<Readonly<ModelObject>>
     }, processing)
 }
 

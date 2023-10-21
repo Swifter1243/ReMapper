@@ -8,7 +8,7 @@ export * from './types/mod.ts'
 export * from './general.ts'
 
 // TODO: Finish
-// export * from './model/mod.ts'
+export * from './model/mod.ts'
 export * from './rm_json.ts'
 
 export * from './deps.ts'

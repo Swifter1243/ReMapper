@@ -18,7 +18,6 @@ import {
 import {
     bakeAnimation,
     complexifyArray,
-    isSimple,
 } from '../animation/animation_utils.ts'
 
 import { wall } from '../beatmap/wall.ts'
