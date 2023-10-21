@@ -1,14 +1,14 @@
-import { bomb, note } from './note.ts'
+import { arc, bomb, chain, note } from './note.ts'
 import { wall } from './wall.ts'
 import { bsmap } from '../deps.ts'
 import { AbstractDifficulty } from './abstract_beatmap.ts'
-import { Bomb, Note } from '../internals/note.ts'
+import { Arc, Bomb, Chain, Note } from '../internals/note.ts'
 import { Track } from '../animation/track.ts'
 import { DIFFNAME, DIFFPATH } from '../types/beatmap_types.ts'
 import { ColorVec, Vec3 } from '../types/data_types.ts'
 import { AnimationPropertiesV3 } from '../internals/animation.ts'
 import { EventGroup } from '../data/constants.ts'
-import { jsonPrune } from "../utils/json.ts"
+import { jsonPrune } from '../utils/json.ts'
 
 function toNoteOrBomb(
     obj: bsmap.v3.IColorNote | bsmap.v3.IBombNote,
@@ -32,9 +32,9 @@ function toNoteOrBomb(
             NJS: obj.customData?.noteJumpMovementSpeed,
             offset: obj.customData?.noteJumpStartBeatOffset,
 
-            rotation: typeof obj.customData?.localRotation === 'number'
-                ? [0, obj.customData.localRotation, 0]
-                : obj.customData?.localRotation,
+            rotation: typeof obj.customData?.worldRotation === 'number'
+                ? [0, obj.customData.worldRotation, 0]
+                : obj.customData?.worldRotation,
             noteLook: obj.customData?.disableNoteLook !== undefined
                 ? !obj.customData?.disableNoteLook
                 : undefined,
@@ -60,11 +60,103 @@ function toNoteOrBomb(
         directionBadCut: colorNote.customData?.disableBadCutDirection,
         speedBadCut: colorNote.customData?.disableBadCutSpeed,
         saberTypeBadCut: colorNote.customData?.disableBadCutSaberType,
-        debris: colorNote.customData?.disableDebris, 
+        debris: colorNote.customData?.disableDebris,
         ...params[0],
     })
 
     return n
+}
+
+function toArc(
+    obj: bsmap.v3.IArc,
+): Arc {
+    return arc({
+        time: obj.b,
+        type: obj.c,
+        y: obj.x,
+        x: obj.y,
+        customData: obj.customData,
+
+        localRotation: obj.customData?.localRotation,
+        color: obj.customData?.color as ColorVec,
+        flip: obj.customData?.flip,
+        interactable: obj.customData?.uninteractable !== undefined
+            ? !obj.customData?.uninteractable
+            : undefined,
+        NJS: obj.customData?.noteJumpMovementSpeed,
+        offset: obj.customData?.noteJumpStartBeatOffset,
+
+        rotation: typeof obj.customData?.worldRotation === 'number'
+            ? [0, obj.customData.worldRotation, 0]
+            : obj.customData?.worldRotation,
+        noteGravity: obj.customData?.disableNoteGravity !== undefined
+            ? !obj.customData?.disableNoteGravity
+            : undefined,
+        coordinates: obj.customData?.coordinates,
+        track: new Track(obj.customData?.track),
+        animation: obj.customData?.animation as AnimationPropertiesV3,
+
+        anchorMode: obj.m,
+        headDirection: obj.d,
+        headLength: obj.mu,
+        tailCoordinates: obj.customData?.tailCoordinates,
+        tailDirection: obj.tc,
+        tailLength: obj.tmu,
+        tailTime: obj.tb,
+        tailX: obj.tx,
+        tailY: obj.ty,
+    })
+}
+
+function toChain(
+    obj: bsmap.v3.IChain,
+    fake: boolean,
+): Chain {
+    return chain({
+        time: obj.b,
+        type: obj.c,
+        y: obj.x,
+        x: obj.y,
+        customData: obj.customData,
+
+        localRotation: obj.customData?.localRotation,
+        fake: fake,
+        color: obj.customData?.color as ColorVec,
+        flip: obj.customData?.flip,
+        interactable: obj.customData?.uninteractable !== undefined
+            ? !obj.customData?.uninteractable
+            : undefined,
+        NJS: obj.customData?.noteJumpMovementSpeed,
+        offset: obj.customData?.noteJumpStartBeatOffset,
+
+        rotation: typeof obj.customData?.worldRotation === 'number'
+            ? [0, obj.customData.worldRotation, 0]
+            : obj.customData?.worldRotation,
+        noteLook: obj.customData?.disableNoteLook !== undefined
+            ? !obj.customData?.disableNoteLook
+            : undefined,
+        noteGravity: obj.customData?.disableNoteGravity !== undefined
+            ? !obj.customData?.disableNoteGravity
+            : undefined,
+        spawnEffect: obj.customData?.spawnEffect,
+        coordinates: obj.customData?.coordinates,
+        track: new Track(obj.customData?.track),
+        animation: obj.customData?.animation as AnimationPropertiesV3,
+
+        link: obj.customData?.link,
+        directionBadCut: obj.customData?.disableBadCutDirection,
+        speedBadCut: obj.customData?.disableBadCutSpeed,
+        saberTypeBadCut: obj.customData?.disableBadCutSaberType,
+        debris: obj.customData?.disableDebris,
+
+        headDirection: obj.d,
+        tailCoordinates: obj.customData?.tailCoordinates,
+        tailTime: obj.tb,
+        tailX: obj.tx,
+        tailY: obj.ty,
+        links: obj.sc,
+        squish: obj.s,
+    })
 }
 
 function toWall(
@@ -85,7 +177,7 @@ function toWall(
 
         fake: fake,
         interactable: !o.customData?.uninteractable,
-        
+
         NJS: o.customData?.noteJumpMovementSpeed,
         offset: o.customData
             ?.noteJumpStartBeatOffset,
@@ -129,6 +221,16 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
             (notes) => notes.map((o) => toNoteOrBomb(o, false)) as Bomb[],
         ) ?? []
 
+        const arcs: Arc[] = runProcess(
+            'sliders',
+            (arcs) => arcs.map((o) => toArc(o)) as Arc[],
+        ) ?? []
+
+        const chains: Chain[] = runProcess(
+            'burstSliders',
+            (chains) => chains.map((o) => toChain(o, false)) as Chain[],
+        ) ?? []
+
         const obstacles = runProcess(
             'obstacles',
             (obstacles) => obstacles.map((o) => toWall(o, false)),
@@ -151,6 +253,15 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
                 ) as Bomb[],
             )
             delete json.customData.fakeBombNotes
+        }
+
+        if (json.customData?.fakeBurstSliders) {
+            bombs.push(
+                ...json.customData.fakeBurstSliders.map((o) =>
+                    toChain(o, true)
+                ) as Chain[],
+            )
+            delete json.customData.fakeBurstSliders
         }
 
         if (json.customData?.fakeObstacles) {
@@ -226,8 +337,8 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
                 notes,
                 bombs,
                 version: json.version,
-                arcs: [],
-                chains: [],
+                arcs: arcs,
+                chains: chains,
                 walls: obstacles,
                 basicEvents: [],
                 laserSpeedEvents: [],
@@ -259,25 +370,39 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
                 sortItems,
             )
 
+        const bombNotes = this.bombs.filter((e) => !e.fake)
+            .map((e) => (e.toJson(true)))
+            .sort(
+                sortItems,
+            )
+
+        const chains = this.chains.filter((e) => !e.fake)
+            .map((e) => (e.toJson(true)))
+            .sort(
+                sortItems,
+            )
+
+        const arcs = this.arcs
+            .map((e) => (e.toJson(true)))
+            .sort(
+                sortItems,
+            )
+
         // console.log(this.notes[0].toJson(true))
 
         return {
             colorNotes: colorNotes,
-            bombNotes: this.bombs.filter((e) => !e.fake)
-                .map((e) => (e.toJson(true)))
-                .sort(
-                    sortItems,
-                ),
+            bombNotes: bombNotes,
             basicBeatmapEvents: [],
             bpmEvents: [],
-            burstSliders: [],
+            burstSliders: chains,
             colorBoostBeatmapEvents: [],
             lightColorEventBoxGroups: [],
             lightRotationEventBoxGroups: [],
             lightTranslationEventBoxGroups: [],
             rotationEvents: [],
             obstacles: this.walls.map((o) => (o.toJson(true))),
-            sliders: [],
+            sliders: arcs,
             version: '3.2.0',
             waypoints: [],
             customData: jsonPrune({
@@ -287,6 +412,11 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
                         sortItems,
                     ),
                 fakeBombNotes: this.bombs.filter((e) => e.fake)
+                    .map((e) => e.toJson(true))
+                    .sort(
+                        sortItems,
+                    ),
+                fakeBurstSliders: this.chains.filter((e) => e.fake)
                     .map((e) => e.toJson(true))
                     .sort(
                         sortItems,

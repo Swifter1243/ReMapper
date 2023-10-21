@@ -27,6 +27,7 @@ export abstract class BaseNote<
         fields: ExcludedObjectFields<BaseNote<TV3>>,
     ) {
         super(fields as ExcludedObjectFields<BaseNote<TV3>>)
+        this.fake = fields.fake ?? false
         this.flip = fields.flip
         this.noteGravity = fields.noteGravity ?? true
         this.noteLook = fields.noteLook ?? true
@@ -40,6 +41,8 @@ export abstract class BaseNote<
 
     declare animation: NoteAnimationData
 
+    /** Moves the note to the separate fake note array on save. */
+    fake?: boolean
     /** Specifies an initial position the note will spawn at before going to it's unmodified position.  */
     flip?: Vec2
     /** Whether note gravity (the effect where notes move to their vertical row from the bottom row) is enabled. */
@@ -257,6 +260,7 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
         fields: ExcludedObjectFields<Chain>,
     ) {
         super(fields as ExcludedObjectFields<Chain>)
+        this.fake = fields.fake ?? false
         this.links = fields.links ?? 4
         this.squish = fields.squish ?? 0
         this.flip = fields.flip
@@ -321,6 +325,8 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
         } satisfies bsmap.v3.IChain
     }
 
+    /** Moves the note to the separate fake note array on save. */
+    fake?: boolean
     /** The amount of links in the chain. */
     links: number
     /** An interpolation or extrapolation of the path between the head and tail. */

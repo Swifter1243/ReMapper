@@ -69,6 +69,7 @@ export class Wall
         this.height = fields.height ?? 1
         this.width = fields.width ?? 1
         this.scale = fields.scale
+        this.fake = fields.fake ?? false
     }
 
     /**
@@ -89,6 +90,8 @@ export class Wall
     width: number
     /** The scale of the wall. */
     scale?: Vec3
+    /** Moves the note to the separate fake note array on save. */
+    fake?: boolean
 
     get life() {
         return this.halfJumpDur * 2 + this.duration

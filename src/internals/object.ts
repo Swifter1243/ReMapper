@@ -70,7 +70,6 @@ export abstract class BaseGameplayObject<
         this.animation = obj.animation ?? {}
         this.x = obj.x ?? 0
         this.y = obj.y ?? 0
-        this.fake = obj.fake ?? false
         this.coordinates = obj.coordinates
         this.rotation = obj.rotation
         this.localRotation = obj.localRotation
@@ -92,9 +91,6 @@ export abstract class BaseGameplayObject<
 
     x: number
     y: number
-
-    /** Moves the note to the separate fake note array on save. */
-    fake?: boolean
 
     coordinates?: Vec2
 
