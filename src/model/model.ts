@@ -15,6 +15,7 @@ import {
     ModelGroup,
     ModelObject,
     ObjectInput,
+    ReadonlyModel,
     StaticObjectInput,
 } from '../types/model_types.ts'
 
@@ -806,7 +807,7 @@ export async function getModel(
             ),
         )
         if (process) process(data.objects)
-        return data.objects as ReadonlyArray<Readonly<ModelObject>>
+        return data.objects as ReadonlyModel
     }, processing)
 }
 

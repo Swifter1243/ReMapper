@@ -53,3 +53,9 @@ export type TJson = Record<string, unknown>
 
 /** Replace the keys of one type with another */
 export type Replace<T, N> = Omit<T, keyof N> & N
+
+export type SingleMutable<T> = { -readonly[P in keyof T]: T[P] }
+
+export type Mutable<T> = SingleMutable<SingleMutable<T>[]>[0]
+
+export type DeepMutable<T> = { -readonly [P in keyof T]: DeepMutable<T[P]> }

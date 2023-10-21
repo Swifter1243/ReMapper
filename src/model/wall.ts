@@ -15,19 +15,16 @@ import {
     OptimizeSettings,
 } from '../animation/anim_optimizer.ts'
 
-import {
-    bakeAnimation,
-    complexifyArray,
-} from '../animation/animation_utils.ts'
+import { bakeAnimation, complexifyArray } from '../animation/animation_utils.ts'
 
 import { wall } from '../beatmap/wall.ts'
 import { Wall } from '../internals/wall.ts'
 
 import { getModel } from './model.ts'
-import { ModelObject } from '../types/model_types.ts'
+import { ModelObject, ReadonlyModel } from '../types/model_types.ts'
 import { Vec3 } from '../types/data_types.ts'
 import { copy } from '../utils/general.ts'
-import { getKeyframeTime } from '../animation/keyframe.ts'
+import { getKeyframeTime, isSimple } from '../animation/keyframe.ts'
 
 let modelToWallCount = 0
 
@@ -74,7 +71,7 @@ export function worldToWall(
  * @param animOptimizer The optimizer for the animation baking (if using array of objects).
  */
 export async function modelToWall(
-    input: string | ModelObject[],
+    input: string | ReadonlyModel,
     start: number,
     end: number,
     wallCall?: (wall: Wall) => void,
@@ -146,7 +143,7 @@ export async function modelToWall(
     w.coordinates = [0, 0]
     w.interactable = false
 
-    let objects: ModelObject[]
+    let objects: ReadonlyModel
 
     if (typeof input === 'string') {
         objects = await getModel(
@@ -193,7 +190,7 @@ export async function modelToWall(
         )
     } else {
         objects = input.map((x, i) => {
-            x = copy(x)
+            const o = copy(x)
             const animated = isAnimated(x)
 
             const anim = bakeAnimation(
@@ -211,15 +208,15 @@ export async function modelToWall(
                 animOptimizer,
             )
 
-            x.pos = anim.pos
-            x.rot = anim.rot
-            x.scale = anim.scale
+            o.pos = anim.pos
+            o.rot = anim.rot
+            o.scale = anim.scale
 
-            distributeAnim(x.pos, i, input.length)
-            distributeAnim(x.rot, i, input.length)
-            distributeAnim(x.scale, i, input.length)
+            distributeAnim(o.pos, i, input.length)
+            distributeAnim(o.rot, i, input.length)
+            distributeAnim(o.scale, i, input.length)
 
-            return x
+            return o
         })
     }
 

@@ -1,4 +1,7 @@
 // deno-lint-ignore-file no-explicit-any
+
+import { Mutable } from "../types/util_types.ts";
+
 /**
  * Copies @param obj with the new properties in @param overwrite
  * @param obj Original
@@ -20,7 +23,7 @@ export function copyWith<T extends Record<string | number | symbol, never>>(
  * @param obj Object to copy
  * @returns The copy
  */
-export function copy<T>(obj: T): T {
+export function copy<T>(obj: T): Mutable<T> {
     if (obj === null || obj === undefined || typeof obj !== 'object') return obj
 
     const newObj = Array.isArray(obj) ? new Array(obj.length) : Object.create(obj)
@@ -39,7 +42,7 @@ export function copy<T>(obj: T): T {
         newObj[k] = newValue
     })
 
-    return newObj as T
+    return newObj
 }
 
 /**

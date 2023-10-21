@@ -12,8 +12,10 @@ import { ColorVec, Transform, Vec3 } from './data_types.ts'
 export type GroupObjectTypes =
     | EnvironmentInternals.Environment
     | EnvironmentInternals.Geometry
+    
 /** Allowed options for providing data to a ModelScene. */
 export type ObjectInput = FILEPATH | ModelObject[]
+
 /** Input options for the "static" method in a ModelScene. */
 export type StaticOptions = {
     /** The input of objects. Can be an array of objects or a path to a model. */
@@ -30,6 +32,7 @@ export type StaticOptions = {
         anchor?: Vec3
     }
 }
+
 /** Input options for the "animate" method in a ModelScene. */
 export type AnimatedOptions = StaticOptions & {
     /** Whether or not to re-bake the object animations if you input an array of objects.
@@ -42,10 +45,13 @@ export type AnimatedOptions = StaticOptions & {
     /** Whether to mirror the animation. */
     mirror?: boolean
 }
+
 /** Allowed inputs for the "static" method in ModelScene. */
 export type StaticObjectInput = ObjectInput | StaticOptions
+
 /** Allowed inputs for the "animate" method in ModelScene. */
 export type AnimatedObjectInput = ObjectInput | AnimatedOptions
+
 export type ModelGroup = {
     object?: GroupObjectTypes
     anchor?: Vec3
@@ -63,6 +69,8 @@ export interface ModelObject {
     color?: ColorVec
     track?: string
 }
+
+export type ReadonlyModel = ReadonlyArray<Readonly<ModelObject>>
 
 export type Duration = number | undefined
 export type AnimationStart = number | undefined

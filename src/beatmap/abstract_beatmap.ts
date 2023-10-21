@@ -264,7 +264,8 @@ export abstract class AbstractDifficulty<
             diffName,
             JSON.stringify(
                 outputJSON,
-                sortedProcess.length > 0 ? transformer : undefined,
+                // sortedProcess.length > 0 ? transformer : undefined,
+                undefined,
                 pretty ? 2 : 0,
             ),
         )
