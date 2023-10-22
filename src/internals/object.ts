@@ -97,7 +97,7 @@ export abstract class BaseObject<
 
             const params = {
                 time: obj.b,
-            } satisfies Params
+            } as Params
 
             Object.assign(this, params)
         } else {
@@ -105,7 +105,7 @@ export abstract class BaseObject<
 
             const params = {
                 time: obj._time,
-            } satisfies Params
+            } as Params
 
             Object.assign(this, params)
         }
@@ -272,7 +272,7 @@ export abstract class BaseGameplayObject<
                 track: new Track(obj.customData?.track),
                 NJS: obj.customData?.noteJumpMovementSpeed,
                 offset: obj.customData?.noteJumpStartBeatOffset,
-            } satisfies Params
+            } as Params
 
             Object.assign(this, params)
             return super.fromJson(obj, v3)
@@ -295,7 +295,9 @@ export abstract class BaseGameplayObject<
                 track: new Track(obj._customData?._track),
                 NJS: obj._customData?._noteJumpMovementSpeed,
                 offset: obj._customData?._noteJumpStartBeatOffset,
-            } satisfies Params
+                life: this.life,
+                lifeStart: this.lifeStart,
+            } as Params
 
             Object.assign(this, params)
             return super.fromJson(obj, v3)
@@ -396,7 +398,7 @@ export abstract class BaseNote<
                     obj.customData?.disableBadCutSaberType,
                 ),
                 link: obj.customData?.link,
-            } satisfies Params
+            } as Params
 
             Object.assign(this, params)
             return super.fromJson(obj, v3)
@@ -416,7 +418,7 @@ export abstract class BaseNote<
                     obj._customData?._disableSpawnEffect,
                 ),
                 fake: obj._customData?._fake,
-            } satisfies Params
+            } as Params
 
             // Walls in V2 don't have a "y" property
             this.y = obj._lineLayer
