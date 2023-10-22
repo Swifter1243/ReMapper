@@ -2,7 +2,7 @@ import { getActiveDiff } from "../data/beatmap_handler.ts";
 import { bsmap } from "../deps.ts";
 import { copy } from "../utils/general.ts";
 import { animationToJson } from "./animation.ts";
-import { BaseNote, ExcludedObjectFields } from "./object.ts";
+import { BaseNote, ExcludedObjectFields, defaultBoolean, exportInvertedBoolean } from "./object.ts";
 
 export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
     /**
@@ -40,18 +40,29 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
                 customData: {
                     animation: animationToJson(this.animation, v3),
                     flip: this.flip,
-                    disableNoteLook: this.noteLook ? undefined : true,
-                    disableNoteGravity: this.noteGravity ? undefined : true,
-                    spawnEffect: this.spawnEffect ? undefined : false,
+                    disableNoteGravity: exportInvertedBoolean(
+                        this.noteGravity,
+                        false,
+                    ),
+                    disableNoteLook: exportInvertedBoolean(
+                        this.noteLook,
+                        false,
+                    ),
+                    spawnEffect: defaultBoolean(this.spawnEffect, true),
                     link: this.link,
-                    disableBadCutDirection: this.directionBadCut
-                        ? undefined
-                        : true,
-                    disableBadCutSpeed: this.speedBadCut ? undefined : true,
-                    disableBadCutSaberType: this.saberTypeBadCut
-                        ? undefined
-                        : true,
-                    disableDebris: this.debris ? undefined : true,
+                    disableBadCutDirection: exportInvertedBoolean(
+                        this.directionBadCut,
+                        false,
+                    ),
+                    disableBadCutSpeed: exportInvertedBoolean(
+                        this.speedBadCut,
+                        false,
+                    ),
+                    disableBadCutSaberType: exportInvertedBoolean(
+                        this.saberTypeBadCut,
+                        false,
+                    ),
+                    disableDebris: exportInvertedBoolean(this.debris, false),
                     ...this.customData,
                 },
             } satisfies bsmap.v3.IBombNote
@@ -66,9 +77,18 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
             _customData: {
                 _animation: animationToJson(this.animation, v3),
                 _flip: this.flip,
-                _disableNoteGravity: this.noteGravity ? undefined : true,
-                _disableNoteLook: this.noteLook ? undefined : true,
-                _disableSpawnEffect: this.spawnEffect ? undefined : false,
+                _disableNoteGravity: exportInvertedBoolean(
+                    this.noteGravity,
+                    false,
+                ),
+                _disableNoteLook: exportInvertedBoolean(
+                    this.noteLook,
+                    false,
+                ),
+                _disableSpawnEffect: exportInvertedBoolean(
+                    this.spawnEffect,
+                    false,
+                ),
                 ...this.customData,
             },
         } satisfies bsmap.v2.INote

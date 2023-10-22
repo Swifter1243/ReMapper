@@ -7,7 +7,9 @@ import { animationToJson } from './animation.ts'
 import {
     BaseSliderObject,
     ExcludedObjectFields,
-    invertedBoolean,
+    defaultBoolean,
+    exportInvertedBoolean,
+    importInvertedBoolean,
 } from './object.ts'
 
 export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
@@ -68,20 +70,20 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
         const params = {
             flip: obj.customData?.flip,
 
-            noteLook: invertedBoolean(obj.customData?.disableNoteLook),
-            noteGravity: invertedBoolean(
+            noteLook: importInvertedBoolean(obj.customData?.disableNoteLook),
+            noteGravity: importInvertedBoolean(
                 obj.customData?.disableNoteGravity,
             ),
             spawnEffect: obj.customData?.spawnEffect,
 
-            debris: invertedBoolean(obj.customData?.disableDebris),
-            speedBadCut: invertedBoolean(
+            debris: importInvertedBoolean(obj.customData?.disableDebris),
+            speedBadCut: importInvertedBoolean(
                 obj.customData?.disableBadCutSpeed,
             ),
-            directionBadCut: invertedBoolean(
+            directionBadCut: importInvertedBoolean(
                 obj.customData?.disableBadCutDirection,
             ),
-            saberTypeBadCut: invertedBoolean(
+            saberTypeBadCut: importInvertedBoolean(
                 obj.customData?.disableBadCutSaberType,
             ),
             link: obj.customData?.link,
@@ -117,18 +119,21 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
                 flip: this.flip,
                 noteJumpMovementSpeed: this.NJS,
                 noteJumpStartBeatOffset: this.offset,
-                uninteractable: this.interactable ? undefined : true,
+                uninteractable: exportInvertedBoolean(this.interactable, false),
                 localRotation: this.localRotation,
-                disableNoteGravity: this.noteGravity ? undefined : true,
-                disableNoteLook: this.noteLook ? undefined : true,
+                disableNoteGravity: exportInvertedBoolean(
+                    this.noteGravity,
+                    false,
+                ),
+                disableNoteLook: exportInvertedBoolean(this.noteLook, false),
                 track: this.track.value,
                 worldRotation: this.rotation,
-                spawnEffect: this.spawnEffect ? undefined : false,
+                spawnEffect: defaultBoolean(this.spawnEffect, true),
                 link: this.link,
-                disableBadCutDirection: this.directionBadCut ? undefined : true,
-                disableBadCutSpeed: this.speedBadCut ? undefined : true,
-                disableBadCutSaberType: this.saberTypeBadCut ? undefined : true,
-                disableDebris: this.debris ? undefined : true,
+                disableBadCutDirection: exportInvertedBoolean(this.directionBadCut, false),
+                disableBadCutSpeed: exportInvertedBoolean(this.speedBadCut, false),
+                disableBadCutSaberType: exportInvertedBoolean(this.saberTypeBadCut, false),
+                disableDebris: exportInvertedBoolean(this.debris, false),
                 ...this.customData,
             },
         } satisfies bsmap.v3.IChain

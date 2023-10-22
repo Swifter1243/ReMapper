@@ -26,8 +26,23 @@ import {
 } from './animation.ts'
 import { TrackValue } from '../types/animation_types.ts'
 
-export function invertedBoolean(bool: boolean | undefined) {
+export function importInvertedBoolean(bool: boolean | undefined) {
     return bool !== undefined ? !bool : undefined
+}
+
+export function exportInvertedBoolean(
+    bool: boolean | undefined,
+    defaultValue: boolean,
+) {
+    const invert = importInvertedBoolean(bool)
+    return defaultBoolean(invert, defaultValue)
+}
+
+export function defaultBoolean(
+    bool: boolean | undefined,
+    defaultValue: boolean
+) {
+    return bool === defaultValue ? undefined : bool
 }
 
 export type ObjectReplacements = {
@@ -247,7 +262,9 @@ export abstract class BaseGameplayObject<
                 animation: obj.customData?.animation as AnimationPropertiesV3,
                 color: obj.customData?.color as ColorVec,
                 coordinates: obj.customData?.coordinates,
-                interactable: invertedBoolean(obj.customData?.uninteractable),
+                interactable: importInvertedBoolean(
+                    obj.customData?.uninteractable,
+                ),
                 localRotation: obj.customData?.localRotation,
                 rotation: typeof obj.customData?.worldRotation === 'number'
                     ? [0, obj.customData.worldRotation, 0]
@@ -359,21 +376,23 @@ export abstract class BaseNote<
             const params = {
                 flip: obj.customData?.flip,
 
-                noteLook: invertedBoolean(obj.customData?.disableNoteLook),
-                noteGravity: invertedBoolean(
+                noteLook: importInvertedBoolean(
+                    obj.customData?.disableNoteLook,
+                ),
+                noteGravity: importInvertedBoolean(
                     obj.customData?.disableNoteGravity,
                 ),
                 spawnEffect: obj.customData?.spawnEffect,
 
-                debris: invertedBoolean(obj.customData?.disableDebris),
+                debris: importInvertedBoolean(obj.customData?.disableDebris),
                 // TODO: Badcut on bombs is incorrect.
-                speedBadCut: invertedBoolean(
+                speedBadCut: importInvertedBoolean(
                     obj.customData?.disableBadCutSpeed,
                 ),
-                directionBadCut: invertedBoolean(
+                directionBadCut: importInvertedBoolean(
                     obj.customData?.disableBadCutDirection,
                 ),
-                saberTypeBadCut: invertedBoolean(
+                saberTypeBadCut: importInvertedBoolean(
                     obj.customData?.disableBadCutSaberType,
                 ),
                 link: obj.customData?.link,
@@ -387,13 +406,16 @@ export abstract class BaseNote<
             const params = {
                 flip: obj._customData?._flip,
 
-                noteLook: invertedBoolean(obj._customData?._disableNoteLook),
-                noteGravity: invertedBoolean(
+                noteLook: importInvertedBoolean(
+                    obj._customData?._disableNoteLook,
+                ),
+                noteGravity: importInvertedBoolean(
                     obj._customData?._disableNoteGravity,
                 ),
-                spawnEffect: invertedBoolean(
+                spawnEffect: importInvertedBoolean(
                     obj._customData?._disableSpawnEffect,
                 ),
+                fake: obj._customData?._fake
             } as Params
 
             // Walls in V2 don't have a "y" property

@@ -3,10 +3,14 @@ import { bsmap } from '../deps.ts'
 import { NoteCut, NoteType } from '../data/constants.ts'
 import { getActiveDiff } from '../data/beatmap_handler.ts'
 
-import { BaseGameplayObject, BaseNote, ExcludedObjectFields } from './object.ts'
+import {
+    BaseNote,
+    defaultBoolean,
+    ExcludedObjectFields,
+    exportInvertedBoolean,
+} from './object.ts'
 import { copy } from '../utils/general.ts'
 import { animationToJson } from './animation.ts'
-import { Bomb } from './bomb.ts'
 import { SubclassExclusiveProps } from '../mod.ts'
 
 export { Bomb } from './bomb.ts'
@@ -62,7 +66,7 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
             const params = {
                 type: obj.c,
                 direction: obj.d,
-                angleOffset: obj.a
+                angleOffset: obj.a,
             } as Params
 
             Object.assign(this, params)
@@ -94,26 +98,40 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
                 customData: {
                     animation: animationToJson(this.animation, v3),
                     flip: this.flip,
-                    disableNoteGravity: this.noteGravity ? undefined : true,
-                    disableNoteLook: this.noteLook ? undefined : true,
-                    spawnEffect: this.spawnEffect ? undefined : false,
+                    disableNoteGravity: exportInvertedBoolean(
+                        this.noteGravity,
+                        false,
+                    ),
+                    disableNoteLook: exportInvertedBoolean(
+                        this.noteLook,
+                        false,
+                    ),
+                    spawnEffect: defaultBoolean(this.spawnEffect, true),
                     color: this.color,
                     coordinates: this.coordinates,
                     localRotation: this.localRotation,
                     noteJumpMovementSpeed: this.NJS,
                     noteJumpStartBeatOffset: this.offset,
                     track: this.track.value,
-                    uninteractable: this.interactable ? undefined : true,
+                    uninteractable: exportInvertedBoolean(
+                        this.interactable,
+                        false,
+                    ),
                     worldRotation: this.rotation,
                     link: this.link,
-                    disableBadCutDirection: this.directionBadCut
-                        ? undefined
-                        : true,
-                    disableBadCutSpeed: this.speedBadCut ? undefined : true,
-                    disableBadCutSaberType: this.saberTypeBadCut
-                        ? undefined
-                        : true,
-                    disableDebris: this.debris ? undefined : true,
+                    disableBadCutDirection: exportInvertedBoolean(
+                        this.directionBadCut,
+                        false,
+                    ),
+                    disableBadCutSpeed: exportInvertedBoolean(
+                        this.speedBadCut,
+                        false,
+                    ),
+                    disableBadCutSaberType: exportInvertedBoolean(
+                        this.saberTypeBadCut,
+                        false,
+                    ),
+                    disableDebris: exportInvertedBoolean(this.debris, false),
                     ...this.customData,
                 },
             } satisfies bsmap.v3.IColorNote
@@ -128,18 +146,27 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
             _customData: {
                 _animation: animationToJson(this.animation, v3),
                 _flip: this.flip,
-                _disableNoteGravity: this.noteGravity ? undefined : true,
-                _disableNoteLook: this.noteLook ? undefined : true,
-                _disableSpawnEffect: this.spawnEffect ? undefined : true,
+                _disableNoteGravity: exportInvertedBoolean(
+                    this.noteGravity,
+                    false,
+                ),
+                _disableNoteLook: exportInvertedBoolean(
+                    this.noteLook,
+                    false,
+                ),
+                _disableSpawnEffect: exportInvertedBoolean(
+                    this.spawnEffect,
+                    false,
+                ),
                 _color: this.color,
                 _position: this.coordinates,
                 _localRotation: this.localRotation,
                 _noteJumpMovementSpeed: this.NJS,
                 _noteJumpStartBeatOffset: this.offset,
                 _track: this.track.value,
-                _interactable: this.interactable ? undefined : false,
+                _interactable: defaultBoolean(this.interactable, true),
                 _rotation: this.rotation,
-                _fake: this.fake ? true : undefined,
+                _fake: defaultBoolean(this.fake, false),
                 _cutDirection: this.angleOffset, //?
                 ...this.customData,
             },

@@ -3,7 +3,12 @@ import { bsmap } from '../deps.ts'
 
 import { getActiveDiff } from '../data/beatmap_handler.ts'
 
-import { BaseGameplayObject, ExcludedObjectFields } from './object.ts'
+import {
+    BaseGameplayObject,
+    defaultBoolean,
+    ExcludedObjectFields,
+    exportInvertedBoolean,
+} from './object.ts'
 import { Vec3 } from '../types/data_types.ts'
 import { copy } from '../utils/general.ts'
 import { animationToJson } from './animation.ts'
@@ -40,6 +45,7 @@ export class Wall
                 duration: obj._duration,
                 scale: obj._customData?._scale,
                 width: obj._width,
+                fake: obj._customData?._fake
             } as Params
 
             Object.assign(this, params)
@@ -68,8 +74,11 @@ export class Wall
                     worldRotation: this.rotation,
                     track: this.track.value,
                     color: this.color,
-                    uninteractable: !(this.interactable ?? false),
-                    fake: this.fake ?? true,
+                    uninteractable: exportInvertedBoolean(
+                        this.interactable,
+                        false,
+                    ),
+                    fake: defaultBoolean(this.fake, false),
                     ...this.customData,
                 },
             } satisfies bsmap.v3.IObstacle
@@ -91,8 +100,8 @@ export class Wall
                 _rotation: this.rotation,
                 _track: this.track.value,
                 _color: this.color,
-                _interactable: this.interactable ?? false,
-                _fake: this.fake ?? true,
+                _interactable: defaultBoolean(this.interactable, true),
+                _fake: defaultBoolean(this.fake, false),
                 ...this.customData,
             },
         } satisfies bsmap.v2.IObstacle

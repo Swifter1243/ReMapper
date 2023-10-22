@@ -8,7 +8,8 @@ import { animationToJson } from './animation.ts'
 import {
     BaseSliderObject,
     ExcludedObjectFields,
-    invertedBoolean,
+    exportInvertedBoolean,
+    importInvertedBoolean,
 } from './object.ts'
 
 export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
@@ -54,9 +55,11 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
             anchorMode: obj.m,
             flip: obj.customData?.flip,
             headLength: obj.mu,
-            noteGravity: invertedBoolean(obj.customData?.disableNoteGravity),
+            noteGravity: importInvertedBoolean(
+                obj.customData?.disableNoteGravity,
+            ),
             tailDirection: obj.tc,
-            tailLength: obj.tmu
+            tailLength: obj.tmu,
         } as Params
 
         Object.assign(this, params)
@@ -91,9 +94,12 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
                 flip: this.flip,
                 noteJumpMovementSpeed: this.NJS,
                 noteJumpStartBeatOffset: this.offset,
-                uninteractable: this.interactable ? undefined : true,
+                uninteractable: exportInvertedBoolean(this.interactable, false),
                 localRotation: this.localRotation,
-                disableNoteGravity: this.noteGravity ? undefined : true,
+                disableNoteGravity: exportInvertedBoolean(
+                    this.noteGravity,
+                    false,
+                ),
                 track: this.track.value,
                 worldRotation: this.rotation,
                 ...this.customData,
