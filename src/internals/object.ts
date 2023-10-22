@@ -11,7 +11,7 @@ import { Fields, ObjectFields, Replace, TJson } from '../types/util_types.ts'
 import { ColorVec, Vec2, Vec3 } from '../types/data_types.ts'
 import { JsonWrapper } from '../types/beatmap_types.ts'
 import { copy } from '../utils/general.ts'
-import { GameplayObjectAnimationData } from './animation.ts'
+import { GameplayObjectAnimationData, NoteAnimationData } from './animation.ts'
 import { TrackValue } from '../types/animation_types.ts'
 
 export type ObjectReplacements = {
@@ -135,7 +135,11 @@ export abstract class BaseGameplayObject<
      * This function will output half of this, so it will end when the note is supposed to be hit.
      */
     get halfJumpDur() {
-        return getJumps(this.definiteNJS, this.definiteOffset, info._beatsPerMinute).halfDur
+        return getJumps(
+            this.definiteNJS,
+            this.definiteOffset,
+            info._beatsPerMinute,
+        ).halfDur
     }
 
     /**
@@ -143,7 +147,11 @@ export abstract class BaseGameplayObject<
      * Jump Distance is the Z distance from when the object starts it's jump to when it's deleted.
      */
     get jumpDist() {
-        return getJumps(this.definiteNJS, this.definiteOffset, info._beatsPerMinute).dist
+        return getJumps(
+            this.definiteNJS,
+            this.definiteOffset,
+            info._beatsPerMinute,
+        ).dist
     }
 
     /** The lifespan of the object. */
@@ -176,6 +184,64 @@ export abstract class BaseGameplayObject<
         jsonRemove(customData, 'animation.color')
         return !isEmptyObject(customData)
     }
+}
+
+export abstract class BaseNote<
+    TV3 extends bsmap.v3.IColorNote | bsmap.v3.IBombNote,
+> extends BaseGameplayObject<bsmap.v2.INote, TV3> {
+    /**
+     * Note object for ease of creation.
+     * @param time Time this note will be hit.
+     * @param type The color of the note.
+     * @param direction The direction the note will be cut.
+     * @param x The lane of the note.
+     * @param y The vertical row of the note.
+     */
+    constructor(
+        fields: ExcludedObjectFields<BaseNote<TV3>>,
+    ) {
+        super(fields as ExcludedObjectFields<BaseNote<TV3>>)
+        this.fake = fields.fake ?? false
+        this.flip = fields.flip
+        this.noteGravity = fields.noteGravity ?? true
+        this.noteLook = fields.noteLook ?? true
+        this.spawnEffect = fields.spawnEffect ?? true
+        this.link = fields.link
+        this.directionBadCut = fields.directionBadCut ?? true
+        this.speedBadCut = fields.speedBadCut ?? true
+        this.saberTypeBadCut = fields.saberTypeBadCut ?? true
+        this.debris = fields.debris ?? true
+    }
+
+    declare animation: NoteAnimationData
+
+    /** Moves the note to the separate fake note array on save. */
+    fake?: boolean
+    /** Specifies an initial position the note will spawn at before going to it's unmodified position.  */
+    flip?: Vec2
+    /** Whether note gravity (the effect where notes move to their vertical row from the bottom row) is enabled. */
+    noteGravity?: boolean
+    /** Whether this note will look at the player. */
+    noteLook?: boolean
+    /** Whether this note will have a spawn effect. */
+    spawnEffect?: boolean
+    /** When cut, all notes with the same link string will also be cut. */
+    link?: string
+    /** The ability to bad cut this note based on direction. */
+    directionBadCut?: boolean
+    /** The ability to bad cut this note based on speed. */
+    speedBadCut?: boolean
+    /** The ability to bad cut this note based on saber type. */
+    saberTypeBadCut?: boolean
+    /** Whether debris shows when this note is hit. */
+    debris?: boolean
+
+    /**
+     * Push this note to the difficulty.
+     * @param fake Whether this note will be pushed to the fakeNotes array.
+     * @param clone Whether this object will be copied before being pushed.
+     */
+    abstract push(clone: boolean): void
 }
 
 export abstract class BaseSliderObject<TV3 extends bsmap.v3.IBaseSlider>
