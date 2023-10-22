@@ -6,8 +6,8 @@ import { copy } from '../utils/general.ts'
 import { animationToJson } from './animation.ts'
 import {
     BaseSliderObject,
-    ExcludedObjectFields,
     defaultBoolean,
+    ExcludedObjectFields,
     exportInvertedBoolean,
     importInvertedBoolean,
 } from './object.ts'
@@ -89,7 +89,7 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
             link: obj.customData?.link,
             links: obj.sc,
             squish: obj.s,
-        } as Params
+        } satisfies Params
 
         Object.assign(this, params)
         return super.fromJson(obj, v3)
@@ -130,9 +130,18 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
                 worldRotation: this.rotation,
                 spawnEffect: defaultBoolean(this.spawnEffect, true),
                 link: this.link,
-                disableBadCutDirection: exportInvertedBoolean(this.directionBadCut, false),
-                disableBadCutSpeed: exportInvertedBoolean(this.speedBadCut, false),
-                disableBadCutSaberType: exportInvertedBoolean(this.saberTypeBadCut, false),
+                disableBadCutDirection: exportInvertedBoolean(
+                    this.directionBadCut,
+                    false,
+                ),
+                disableBadCutSpeed: exportInvertedBoolean(
+                    this.speedBadCut,
+                    false,
+                ),
+                disableBadCutSaberType: exportInvertedBoolean(
+                    this.saberTypeBadCut,
+                    false,
+                ),
                 disableDebris: exportInvertedBoolean(this.debris, false),
                 ...this.customData,
             },

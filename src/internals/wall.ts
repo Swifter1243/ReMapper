@@ -34,7 +34,7 @@ export class Wall
                 height: obj.h,
                 scale: obj.customData?.size,
                 width: obj.w,
-            } as Params
+            } satisfies Params
 
             Object.assign(this, params)
             return super.fromJson(obj, true)
@@ -45,8 +45,8 @@ export class Wall
                 duration: obj._duration,
                 scale: obj._customData?._scale,
                 width: obj._width,
-                fake: obj._customData?._fake
-            } as Params
+                fake: obj._customData?._fake,
+            } satisfies Params
 
             Object.assign(this, params)
             return super.fromJson(obj, false)

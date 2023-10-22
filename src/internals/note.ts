@@ -67,7 +67,7 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
                 type: obj.c,
                 direction: obj.d,
                 angleOffset: obj.a,
-            } as Params
+            } satisfies Params
 
             Object.assign(this, params)
             return super.fromJson(obj, v3)
@@ -77,7 +77,7 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
             const params = {
                 type: obj._type,
                 direction: obj._cutDirection,
-            } as Params
+            } satisfies Params
 
             Object.assign(this, params)
             return super.fromJson(obj, v3)

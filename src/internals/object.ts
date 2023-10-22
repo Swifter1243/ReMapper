@@ -40,7 +40,7 @@ export function exportInvertedBoolean(
 
 export function defaultBoolean(
     bool: boolean | undefined,
-    defaultValue: boolean
+    defaultValue: boolean,
 ) {
     return bool === defaultValue ? undefined : bool
 }
@@ -97,7 +97,7 @@ export abstract class BaseObject<
 
             const params = {
                 time: obj.b,
-            } as Params
+            } satisfies Params
 
             Object.assign(this, params)
         } else {
@@ -105,7 +105,7 @@ export abstract class BaseObject<
 
             const params = {
                 time: obj._time,
-            } as Params
+            } satisfies Params
 
             Object.assign(this, params)
         }
@@ -272,7 +272,7 @@ export abstract class BaseGameplayObject<
                 track: new Track(obj.customData?.track),
                 NJS: obj.customData?.noteJumpMovementSpeed,
                 offset: obj.customData?.noteJumpStartBeatOffset,
-            } as Params
+            } satisfies Params
 
             Object.assign(this, params)
             return super.fromJson(obj, v3)
@@ -295,7 +295,7 @@ export abstract class BaseGameplayObject<
                 track: new Track(obj._customData?._track),
                 NJS: obj._customData?._noteJumpMovementSpeed,
                 offset: obj._customData?._noteJumpStartBeatOffset,
-            } as Params
+            } satisfies Params
 
             Object.assign(this, params)
             return super.fromJson(obj, v3)
@@ -396,7 +396,7 @@ export abstract class BaseNote<
                     obj.customData?.disableBadCutSaberType,
                 ),
                 link: obj.customData?.link,
-            } as Params
+            } satisfies Params
 
             Object.assign(this, params)
             return super.fromJson(obj, v3)
@@ -415,8 +415,8 @@ export abstract class BaseNote<
                 spawnEffect: importInvertedBoolean(
                     obj._customData?._disableSpawnEffect,
                 ),
-                fake: obj._customData?._fake
-            } as Params
+                fake: obj._customData?._fake,
+            } satisfies Params
 
             // Walls in V2 don't have a "y" property
             this.y = obj._lineLayer
@@ -476,7 +476,7 @@ export abstract class BaseSliderObject<TV3 extends bsmap.v3.IBaseSlider>
             tailTime: obj.tb,
             tailX: obj.tx,
             tailY: obj.ty,
-        } as Params
+        } satisfies Params
 
         Object.assign(this, params)
         return super.fromJson(obj, v3)

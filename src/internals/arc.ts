@@ -60,7 +60,7 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
             ),
             tailDirection: obj.tc,
             tailLength: obj.tmu,
-        } as Params
+        } satisfies Params
 
         Object.assign(this, params)
         return super.fromJson(obj, v3)
