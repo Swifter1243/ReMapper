@@ -9,56 +9,12 @@ import { DIFFNAME, DIFFPATH } from '../types/beatmap_types.ts'
 import { ColorVec, Vec3 } from '../types/data_types.ts'
 import {
     AnimationPropertiesV2,
-    animationToJson,
     jsonToAnimation,
 } from '../internals/animation.ts'
 import { EventGroup } from '../data/constants.ts'
 import { jsonPrune } from '../utils/json.ts'
+import { Wall } from '../internals/wall.ts'
 
-function toNoteOrBomb(b: bsmap.v2.INote): Note | Bomb {
-    const params:
-        | Parameters<typeof note>
-        | Parameters<typeof bomb> = [{
-            time: b._time,
-            type: b._type as 0 | 1,
-            direction: b._cutDirection,
-            y: b._lineLayer,
-            x: b._lineIndex,
-            customData: b._customData,
-
-            localRotation: b._customData?._localRotation,
-            fake: b._customData?._fake,
-            color: b._customData?._color as ColorVec,
-            flip: b._customData?._flip,
-            interactable: b._customData?._interactable,
-            NJS: b._customData?._noteJumpMovementSpeed,
-            offset: b._customData?._noteJumpStartBeatOffset,
-
-            rotation: typeof b._customData?._rotation === 'number'
-                ? [0, b._customData._rotation, 0]
-                : b._customData?._rotation,
-            noteLook: b._customData?._disableNoteLook !== undefined
-                ? b._customData?._disableNoteLook
-                : undefined,
-            noteGravity: b._customData?._disableNoteGravity !== undefined
-                ? b._customData?._disableNoteGravity
-                : undefined,
-            spawnEffect: b._customData?._disableSpawnEffect !== undefined
-                ? b._customData?._disableSpawnEffect
-                : undefined,
-            coordinates: b._customData?._position,
-            track: new Track(b._customData?._track),
-            animation: jsonToAnimation(
-                b._customData?._animation as AnimationPropertiesV2 ?? {},
-            ),
-        }]
-
-    if (b._type === 3) {
-        return bomb(...params)
-    }
-
-    return note(...params)
-}
 export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
     declare version: bsmap.v2.IDifficulty['_version']
 
@@ -83,42 +39,23 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
         const notes: Note[] = runProcess(
             '_notes',
             (notes) =>
-                notes.filter((n) => n._type !== 3).map(toNoteOrBomb) as Note[],
+                notes.filter((n) => n._type !== 3).map((o) =>
+                    note().fromJson(o, false)
+                ),
         ) ?? []
         const bombs: Bomb[] = runProcess(
             '_notes',
             (notes) =>
-                notes.filter((n) => n._type === 3).map(toNoteOrBomb) as Bomb[],
+                notes.filter((n) => n._type === 3).map((o) =>
+                    bomb().fromJson(o, false)
+                ),
         ) ?? []
 
-        const obstacles = runProcess(
+        const obstacles: Wall[] = runProcess(
             '_obstacles',
             (obstacles) =>
                 obstacles.map((o) =>
-                    wall({
-                        time: o._time,
-                        animation: jsonToAnimation(
-                            o._customData
-                                ?._animation as AnimationPropertiesV2 ?? {},
-                        ),
-                        color: o._customData?._color as ColorVec,
-                        coordinates: o._customData?._position,
-                        customData: o._customData,
-                        duration: o._duration,
-                        fake: o._customData?._fake,
-                        interactable: o._customData?._interactable,
-                        x: o._lineIndex,
-                        y: o._type,
-                        width: o._width,
-                        NJS: o._customData?._noteJumpMovementSpeed,
-                        offset: o._customData
-                            ?._noteJumpStartBeatOffset,
-                        localRotation: o._customData?._localRotation,
-                        rotation: o._customData?._rotation as Vec3 | undefined,
-                        scale: o._customData?._scale as Vec3,
-                        track: new Track(o._customData?._track),
-                        // TODO: height
-                    })
+                    wall().fromJson(o, false)
                 ),
         ) ?? []
 
@@ -137,9 +74,7 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
         const lightEvents = json._events.filter((x) =>
             x._type >= 4 && x._type <= 7 && x._type !== 5
         )
-        const boostEvents = json._events.filter((x) =>
-            x._type ===5
-        )
+        const boostEvents = json._events.filter((x) => x._type === 5)
         const zoomEvents = json._events.filter((x) =>
             x._type === EventGroup.RING_ZOOM
         )

@@ -7,12 +7,28 @@ import { getJumps } from '../utils/math.ts'
 import { isEmptyObject, jsonRemove } from '../utils/json.ts'
 
 import { Track } from '../animation/track.ts'
-import { Fields, ObjectFields, Replace, TJson } from '../types/util_types.ts'
+import {
+    Fields,
+    ObjectFields,
+    Replace,
+    SubclassExclusiveProps,
+    TJson,
+} from '../types/util_types.ts'
 import { ColorVec, Vec2, Vec3 } from '../types/data_types.ts'
 import { JsonWrapper } from '../types/beatmap_types.ts'
 import { copy } from '../utils/general.ts'
-import { GameplayObjectAnimationData, NoteAnimationData } from './animation.ts'
+import {
+    AnimationPropertiesV2,
+    AnimationPropertiesV3,
+    GameplayObjectAnimationData,
+    jsonToAnimation,
+    NoteAnimationData,
+} from './animation.ts'
 import { TrackValue } from '../types/animation_types.ts'
+
+export function invertedBoolean(bool: boolean | undefined) {
+    return bool !== undefined ? !bool : undefined
+}
 
 export type ObjectReplacements = {
     track?: TrackValue | Track
@@ -52,6 +68,34 @@ export abstract class BaseObject<
     /** Checks if the object has modded properties. */
     get isModded() {
         return !isEmptyObject(this.toJson(true).customData)
+    }
+
+    fromJson(json: TV3, v3: true): this
+    fromJson(json: TV2, v3: false): this
+    fromJson(json: TV2 | TV3, v3: boolean): this {
+        type Params = ObjectFields<BaseObject<TV2, TV3>>
+
+        // TODO: Import custom data, exclude fields imported
+
+        if (v3) {
+            const obj = json as TV3
+
+            const params = {
+                time: obj.b,
+            } as Params
+
+            Object.assign(this, params)
+        } else {
+            const obj = json as TV2
+
+            const params = {
+                time: obj._time,
+            } as Params
+
+            Object.assign(this, params)
+        }
+
+        return this
     }
 
     abstract toJson(v3: true): TV3
@@ -184,6 +228,62 @@ export abstract class BaseGameplayObject<
         jsonRemove(customData, 'animation.color')
         return !isEmptyObject(customData)
     }
+
+    fromJson(json: TV3, v3: true): this
+    fromJson(json: TV2, v3: false): this
+    fromJson(json: TV2 | TV3, v3: boolean): this {
+        type Params = SubclassExclusiveProps<
+            ExcludedObjectFields<BaseGameplayObject<TV2, TV3>>,
+            BaseObject<TV2, TV3>
+        >
+
+        if (v3) {
+            const obj = json as TV3
+
+            const params = {
+                x: obj.x,
+                y: obj.y,
+
+                animation: obj.customData?.animation as AnimationPropertiesV3,
+                color: obj.customData?.color as ColorVec,
+                coordinates: obj.customData?.coordinates,
+                interactable: invertedBoolean(obj.customData?.uninteractable),
+                localRotation: obj.customData?.localRotation,
+                rotation: typeof obj.customData?.worldRotation === 'number'
+                    ? [0, obj.customData.worldRotation, 0]
+                    : obj.customData?.worldRotation,
+                track: new Track(obj.customData?.track),
+                NJS: obj.customData?.noteJumpMovementSpeed,
+                offset: obj.customData?.noteJumpStartBeatOffset,
+            } as Params
+
+            Object.assign(this, params)
+            return super.fromJson(obj, v3)
+        } else {
+            const obj = json as TV2
+
+            const params = {
+                x: obj._lineIndex,
+
+                animation: jsonToAnimation(
+                    obj._customData?._animation as AnimationPropertiesV2 ?? {},
+                ),
+                color: obj._customData?._color as ColorVec,
+                coordinates: obj._customData?._position,
+                interactable: obj._customData?._interactable,
+                localRotation: obj._customData?._localRotation,
+                rotation: typeof obj._customData?._rotation === 'number'
+                    ? [0, obj._customData._rotation, 0]
+                    : obj._customData?._rotation,
+                track: new Track(obj._customData?._track),
+                NJS: obj._customData?._noteJumpMovementSpeed,
+                offset: obj._customData?._noteJumpStartBeatOffset,
+            } as Params
+
+            Object.assign(this, params)
+            return super.fromJson(obj, v3)
+        }
+    }
 }
 
 export abstract class BaseNote<
@@ -242,6 +342,67 @@ export abstract class BaseNote<
      * @param clone Whether this object will be copied before being pushed.
      */
     abstract push(clone: boolean): void
+
+    fromJson(json: TV3, v3: true): this
+    fromJson(json: bsmap.v2.INote, v3: false): this
+    fromJson(json: TV3 | bsmap.v2.INote, v3: boolean): this {
+        type Params = Fields<
+            SubclassExclusiveProps<
+                BaseNote<TV3>,
+                BaseGameplayObject<bsmap.v2.INote, TV3>
+            >
+        >
+
+        if (v3) {
+            const obj = json as TV3
+
+            const params = {
+                flip: obj.customData?.flip,
+
+                noteLook: invertedBoolean(obj.customData?.disableNoteLook),
+                noteGravity: invertedBoolean(
+                    obj.customData?.disableNoteGravity,
+                ),
+                spawnEffect: obj.customData?.spawnEffect,
+
+                debris: invertedBoolean(obj.customData?.disableDebris),
+                // TODO: Badcut on bombs is incorrect.
+                speedBadCut: invertedBoolean(
+                    obj.customData?.disableBadCutSpeed,
+                ),
+                directionBadCut: invertedBoolean(
+                    obj.customData?.disableBadCutDirection,
+                ),
+                saberTypeBadCut: invertedBoolean(
+                    obj.customData?.disableBadCutSaberType,
+                ),
+                link: obj.customData?.link,
+            } as Params
+
+            Object.assign(this, params)
+            return super.fromJson(obj, v3)
+        } else {
+            const obj = json as bsmap.v2.INote
+
+            const params = {
+                flip: obj._customData?._flip,
+
+                noteLook: invertedBoolean(obj._customData?._disableNoteLook),
+                noteGravity: invertedBoolean(
+                    obj._customData?._disableNoteGravity,
+                ),
+                spawnEffect: invertedBoolean(
+                    obj._customData?._disableSpawnEffect,
+                ),
+            } as Params
+
+            // Walls in V2 don't have a "y" property
+            this.y = obj._lineLayer
+
+            Object.assign(this, params)
+            return super.fromJson(obj, v3)
+        }
+    }
 }
 
 export abstract class BaseSliderObject<TV3 extends bsmap.v3.IBaseSlider>
@@ -269,5 +430,33 @@ export abstract class BaseSliderObject<TV3 extends bsmap.v3.IBaseSlider>
         this.tailTime = obj.tailTime ?? 0
         this.tailX = obj.tailX ?? 0
         this.tailY = obj.tailY ?? 0
+    }
+
+    fromJson(json: TV3, v3: true): this
+    fromJson(json: never, v3: false): this
+    fromJson(json: never | TV3, v3: boolean): this {
+        if (!v3) throw 'V2 is not supported for slider notes'
+
+        type Params = Fields<
+            SubclassExclusiveProps<
+                BaseSliderObject<TV3>,
+                BaseGameplayObject<never, TV3>
+            >
+        >
+
+        const obj = json as TV3
+
+        const params = {
+            type: obj.c,
+
+            headDirection: obj.d,
+            tailCoordinates: obj.customData?.tailCoordinates,
+            tailTime: obj.tb,
+            tailX: obj.tx,
+            tailY: obj.ty,
+        } as Params
+
+        Object.assign(this, params)
+        return super.fromJson(obj, v3)
     }
 }

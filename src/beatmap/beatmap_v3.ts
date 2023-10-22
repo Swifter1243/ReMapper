@@ -5,190 +5,10 @@ import { AbstractDifficulty } from './abstract_beatmap.ts'
 import { Arc, Bomb, Chain, Note } from '../internals/note.ts'
 import { Track } from '../animation/track.ts'
 import { DIFFNAME, DIFFPATH } from '../types/beatmap_types.ts'
-import { ColorVec, Vec3 } from '../types/data_types.ts'
+import { Vec3 } from '../types/data_types.ts'
 import { AnimationPropertiesV3 } from '../internals/animation.ts'
 import { EventGroup } from '../data/constants.ts'
 import { jsonPrune } from '../utils/json.ts'
-
-function toNoteOrBomb(
-    obj: bsmap.v3.IColorNote | bsmap.v3.IBombNote,
-    fake: boolean,
-): Note | Bomb {
-    const params:
-        | Parameters<typeof note>
-        | Parameters<typeof bomb> = [{
-            time: obj.b,
-            y: obj.x,
-            x: obj.y,
-            customData: obj.customData,
-
-            localRotation: obj.customData?.localRotation,
-            fake: fake,
-            color: obj.customData?.color as ColorVec,
-            flip: obj.customData?.flip,
-            interactable: obj.customData?.uninteractable !== undefined
-                ? !obj.customData?.uninteractable
-                : undefined,
-            NJS: obj.customData?.noteJumpMovementSpeed,
-            offset: obj.customData?.noteJumpStartBeatOffset,
-
-            rotation: typeof obj.customData?.worldRotation === 'number'
-                ? [0, obj.customData.worldRotation, 0]
-                : obj.customData?.worldRotation,
-            noteLook: obj.customData?.disableNoteLook !== undefined
-                ? !obj.customData?.disableNoteLook
-                : undefined,
-            noteGravity: obj.customData?.disableNoteGravity !== undefined
-                ? !obj.customData?.disableNoteGravity
-                : undefined,
-            spawnEffect: obj.customData?.spawnEffect,
-            coordinates: obj.customData?.coordinates,
-            track: new Track(obj.customData?.track),
-            animation: obj.customData?.animation as AnimationPropertiesV3,
-        }]
-
-    if (!Object.hasOwn(obj, 'c')) {
-        return bomb(...params as Parameters<typeof bomb>)
-    }
-
-    const colorNote = obj as bsmap.v3.IColorNote
-    const n = note({
-        type: colorNote.c,
-        direction: colorNote.d,
-        angleOffset: colorNote.a,
-        link: colorNote.customData?.link,
-        directionBadCut: colorNote.customData?.disableBadCutDirection,
-        speedBadCut: colorNote.customData?.disableBadCutSpeed,
-        saberTypeBadCut: colorNote.customData?.disableBadCutSaberType,
-        debris: colorNote.customData?.disableDebris,
-        ...params[0],
-    })
-
-    return n
-}
-
-function toArc(
-    obj: bsmap.v3.IArc,
-): Arc {
-    return arc({
-        time: obj.b,
-        type: obj.c,
-        y: obj.x,
-        x: obj.y,
-        customData: obj.customData,
-
-        localRotation: obj.customData?.localRotation,
-        color: obj.customData?.color as ColorVec,
-        flip: obj.customData?.flip,
-        interactable: obj.customData?.uninteractable !== undefined
-            ? !obj.customData?.uninteractable
-            : undefined,
-        NJS: obj.customData?.noteJumpMovementSpeed,
-        offset: obj.customData?.noteJumpStartBeatOffset,
-
-        rotation: typeof obj.customData?.worldRotation === 'number'
-            ? [0, obj.customData.worldRotation, 0]
-            : obj.customData?.worldRotation,
-        noteGravity: obj.customData?.disableNoteGravity !== undefined
-            ? !obj.customData?.disableNoteGravity
-            : undefined,
-        coordinates: obj.customData?.coordinates,
-        track: new Track(obj.customData?.track),
-        animation: obj.customData?.animation as AnimationPropertiesV3,
-
-        anchorMode: obj.m,
-        headDirection: obj.d,
-        headLength: obj.mu,
-        tailCoordinates: obj.customData?.tailCoordinates,
-        tailDirection: obj.tc,
-        tailLength: obj.tmu,
-        tailTime: obj.tb,
-        tailX: obj.tx,
-        tailY: obj.ty,
-    })
-}
-
-function toChain(
-    obj: bsmap.v3.IChain,
-    fake: boolean,
-): Chain {
-    return chain({
-        time: obj.b,
-        type: obj.c,
-        y: obj.x,
-        x: obj.y,
-        customData: obj.customData,
-
-        localRotation: obj.customData?.localRotation,
-        fake: fake,
-        color: obj.customData?.color as ColorVec,
-        flip: obj.customData?.flip,
-        interactable: obj.customData?.uninteractable !== undefined
-            ? !obj.customData?.uninteractable
-            : undefined,
-        NJS: obj.customData?.noteJumpMovementSpeed,
-        offset: obj.customData?.noteJumpStartBeatOffset,
-
-        rotation: typeof obj.customData?.worldRotation === 'number'
-            ? [0, obj.customData.worldRotation, 0]
-            : obj.customData?.worldRotation,
-        noteLook: obj.customData?.disableNoteLook !== undefined
-            ? !obj.customData?.disableNoteLook
-            : undefined,
-        noteGravity: obj.customData?.disableNoteGravity !== undefined
-            ? !obj.customData?.disableNoteGravity
-            : undefined,
-        spawnEffect: obj.customData?.spawnEffect,
-        coordinates: obj.customData?.coordinates,
-        track: new Track(obj.customData?.track),
-        animation: obj.customData?.animation as AnimationPropertiesV3,
-
-        link: obj.customData?.link,
-        directionBadCut: obj.customData?.disableBadCutDirection,
-        speedBadCut: obj.customData?.disableBadCutSpeed,
-        saberTypeBadCut: obj.customData?.disableBadCutSaberType,
-        debris: obj.customData?.disableDebris,
-
-        headDirection: obj.d,
-        tailCoordinates: obj.customData?.tailCoordinates,
-        tailTime: obj.tb,
-        tailX: obj.tx,
-        tailY: obj.ty,
-        links: obj.sc,
-        squish: obj.s,
-    })
-}
-
-function toWall(
-    o: bsmap.v3.IObstacle,
-    fake: boolean,
-) {
-    return wall({
-        time: o.b,
-        x: o.x,
-        y: o.y,
-        width: o.w,
-        height: o.h,
-        duration: o.d,
-        animation: o.customData?.animation as AnimationPropertiesV3,
-        color: o.customData?._color,
-        coordinates: o.customData?._position,
-        customData: o.customData,
-
-        fake: fake,
-        interactable: !o.customData?.uninteractable,
-
-        NJS: o.customData?.noteJumpMovementSpeed,
-        offset: o.customData
-            ?.noteJumpStartBeatOffset,
-        localRotation: o.customData?.localRotation,
-        rotation: o.customData?.localRotation as
-            | Vec3
-            | undefined,
-        track: new Track(o.customData?.track),
-        // TODO: height
-    })
-}
 
 export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
     declare version: bsmap.v3.IDifficulty['version']
@@ -213,35 +33,35 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
 
         const notes: Note[] = runProcess(
             'colorNotes',
-            (notes) => notes.map((o) => toNoteOrBomb(o, false)) as Note[],
+            (notes) => notes.map((o) => note().fromJson(o, true)),
         ) ?? []
 
         const bombs: Bomb[] = runProcess(
             'bombNotes',
-            (notes) => notes.map((o) => toNoteOrBomb(o, false)) as Bomb[],
+            (notes) => notes.map((o) => bomb().fromJson(o, true)),
         ) ?? []
 
         const arcs: Arc[] = runProcess(
             'sliders',
-            (arcs) => arcs.map((o) => toArc(o)) as Arc[],
+            (arcs) => arcs.map((o) => arc().fromJson(o, true)),
         ) ?? []
 
         const chains: Chain[] = runProcess(
             'burstSliders',
-            (chains) => chains.map((o) => toChain(o, false)) as Chain[],
+            (chains) => chains.map((o) => chain().fromJson(o, true)),
         ) ?? []
 
         const obstacles = runProcess(
             'obstacles',
-            (obstacles) => obstacles.map((o) => toWall(o, false)),
+            (obstacles) => obstacles.map((o) => wall().fromJson(o, true)),
         ) ?? []
 
         // Fake stuff
         if (json.customData?.fakeColorNotes) {
             notes.push(
                 ...json.customData.fakeColorNotes.map((o) =>
-                    toNoteOrBomb(o, true)
-                ) as Note[],
+                    note({ fake: true }).fromJson(o, true)
+                ),
             )
             delete json.customData.fakeColorNotes
         }
@@ -249,24 +69,26 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         if (json.customData?.fakeBombNotes) {
             bombs.push(
                 ...json.customData.fakeBombNotes.map((o) =>
-                    toNoteOrBomb(o, true)
-                ) as Bomb[],
+                    bomb({ fake: true }).fromJson(o, true)
+                ),
             )
             delete json.customData.fakeBombNotes
         }
 
         if (json.customData?.fakeBurstSliders) {
-            bombs.push(
+            chains.push(
                 ...json.customData.fakeBurstSliders.map((o) =>
-                    toChain(o, true)
-                ) as Chain[],
+                    chain({ fake: true }).fromJson(o, true)
+                ),
             )
             delete json.customData.fakeBurstSliders
         }
 
         if (json.customData?.fakeObstacles) {
             obstacles.push(
-                ...json.customData.fakeObstacles.map((o) => toWall(o, true)),
+                ...json.customData.fakeObstacles.map((o) =>
+                    wall({ fake: true }).fromJson(o, true)
+                ),
             )
             delete json.customData.fakeObstacles
         }

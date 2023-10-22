@@ -76,9 +76,11 @@ export type DIFFNAME = FILENAME<DIFFS>
 // I literally don't know how to do this with Records
 // deno-lint-ignore ban-types
 export interface JsonWrapper<TV2 extends object, TV3 extends object> {
+    fromJson(json: TV3, v3: true): this
+    fromJson(json: TV2, v3: false): this
+    fromJson(json: TV3 | TV2, v3: boolean): this
+
     toJson(v3: true): TV3
-
     toJson(v3: false): TV2
-
     toJson(v3: boolean): TV2 | TV3
 }

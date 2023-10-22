@@ -7,9 +7,46 @@ import { BaseGameplayObject, ExcludedObjectFields } from './object.ts'
 import { Vec3 } from '../types/data_types.ts'
 import { copy } from '../utils/general.ts'
 import { animationToJson } from './animation.ts'
+import { Fields, SubclassExclusiveProps } from '../types/util_types.ts'
 
 export class Wall
     extends BaseGameplayObject<bsmap.v2.IObstacle, bsmap.v3.IObstacle> {
+    fromJson(json: bsmap.v3.IObstacle, v3: true): this
+    fromJson(json: bsmap.v2.IObstacle, v3: false): this
+    fromJson(json: bsmap.v2.IObstacle | bsmap.v3.IObstacle, v3: boolean): this {
+        type Params = Fields<
+            SubclassExclusiveProps<
+                Wall,
+                BaseGameplayObject<bsmap.v2.IObstacle, bsmap.v3.IObstacle>
+            >
+        >
+
+        if (v3) {
+            const obj = json as bsmap.v3.IObstacle
+
+            const params = {
+                duration: obj.d,
+                height: obj.h,
+                scale: obj.customData?.size,
+                width: obj.w,
+            } as Params
+
+            Object.assign(this, params)
+            return super.fromJson(obj, true)
+        } else {
+            const obj = json as bsmap.v2.IObstacle
+
+            const params = {
+                duration: obj._duration,
+                scale: obj._customData?._scale,
+                width: obj._width,
+            } as Params
+
+            Object.assign(this, params)
+            return super.fromJson(obj, false)
+        }
+    }
+
     toJson(v3: true): bsmap.v3.IObstacle
     toJson(v3: false): bsmap.v2.IObstacle
     toJson(v3 = true): bsmap.v2.IObstacle | bsmap.v3.IObstacle {

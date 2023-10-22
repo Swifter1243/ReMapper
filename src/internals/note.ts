@@ -3,9 +3,11 @@ import { bsmap } from '../deps.ts'
 import { NoteCut, NoteType } from '../data/constants.ts'
 import { getActiveDiff } from '../data/beatmap_handler.ts'
 
-import { BaseNote, ExcludedObjectFields } from './object.ts'
+import { BaseGameplayObject, BaseNote, ExcludedObjectFields } from './object.ts'
 import { copy } from '../utils/general.ts'
 import { animationToJson } from './animation.ts'
+import { Bomb } from './bomb.ts'
+import { SubclassExclusiveProps } from '../mod.ts'
 
 export { Bomb } from './bomb.ts'
 export { Arc } from './arc.ts'
@@ -44,6 +46,38 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
     push(clone = true) {
         getActiveDiff().notes.push(clone ? copy(this) : this)
         return this
+    }
+
+    fromJson(json: bsmap.v3.IColorNote, v3: true): this
+    fromJson(json: bsmap.v2.INote, v3: false): this
+    fromJson(json: bsmap.v3.IColorNote | bsmap.v2.INote, v3: boolean): this {
+        type Params = SubclassExclusiveProps<
+            Note,
+            BaseNote<bsmap.v3.IColorNote | bsmap.v3.IBombNote>
+        >
+
+        if (v3) {
+            const obj = json as bsmap.v3.IColorNote
+
+            const params = {
+                type: obj.c,
+                direction: obj.d,
+                angleOffset: obj.a
+            } as Params
+
+            Object.assign(this, params)
+            return super.fromJson(obj, v3)
+        } else {
+            const obj = json as bsmap.v2.INote
+
+            const params = {
+                type: obj._type,
+                direction: obj._cutDirection,
+            } as Params
+
+            Object.assign(this, params)
+            return super.fromJson(obj, v3)
+        }
     }
 
     toJson(v3: true): bsmap.v3.IColorNote

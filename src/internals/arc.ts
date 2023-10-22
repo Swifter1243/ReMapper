@@ -2,9 +2,14 @@ import { getActiveDiff } from '../data/beatmap_handler.ts'
 import { AnchorMode, NoteCut } from '../data/constants.ts'
 import { bsmap } from '../deps.ts'
 import { Vec2 } from '../types/data_types.ts'
+import { Fields, SubclassExclusiveProps } from '../types/util_types.ts'
 import { copy } from '../utils/general.ts'
 import { animationToJson } from './animation.ts'
-import { BaseSliderObject, ExcludedObjectFields } from './object.ts'
+import {
+    BaseSliderObject,
+    ExcludedObjectFields,
+    invertedBoolean,
+} from './object.ts'
 
 export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
     /**
@@ -31,10 +36,37 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
         this.noteGravity = fields.noteGravity ?? true
     }
 
+    fromJson(json: bsmap.v3.IArc, v3: true): this
+    fromJson(json: never, v3: false): this
+    fromJson(json: never, v3: boolean): this {
+        if (!v3) throw 'V2 is not supported for arcs'
+
+        type Params = Fields<
+            SubclassExclusiveProps<
+                Arc,
+                BaseSliderObject<bsmap.v3.IBaseSlider>
+            >
+        >
+
+        const obj = json as bsmap.v3.IArc
+
+        const params = {
+            anchorMode: obj.m,
+            flip: obj.customData?.flip,
+            headLength: obj.mu,
+            noteGravity: invertedBoolean(obj.customData?.disableNoteGravity),
+            tailDirection: obj.tc,
+            tailLength: obj.tmu
+        } as Params
+
+        Object.assign(this, params)
+        return super.fromJson(obj, v3)
+    }
+
     toJson(v3: true): bsmap.v3.IArc
     toJson(v3: false): never
     toJson(v3 = true): bsmap.v3.IArc {
-        if (!v3) throw 'V2 is not supported for chains'
+        if (!v3) throw 'V2 is not supported for arcs'
 
         return {
             b: this.time,

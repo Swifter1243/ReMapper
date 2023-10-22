@@ -1,9 +1,14 @@
 import { getActiveDiff } from '../data/beatmap_handler.ts'
 import { bsmap } from '../deps.ts'
 import { Vec2 } from '../types/data_types.ts'
+import { Fields, SubclassExclusiveProps } from '../types/util_types.ts'
 import { copy } from '../utils/general.ts'
 import { animationToJson } from './animation.ts'
-import { BaseSliderObject, ExcludedObjectFields } from './object.ts'
+import {
+    BaseSliderObject,
+    ExcludedObjectFields,
+    invertedBoolean,
+} from './object.ts'
 
 export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
     /**
@@ -44,6 +49,48 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
     push(clone = true) {
         getActiveDiff().chains.push(clone ? copy(this) : this)
         return this
+    }
+
+    fromJson(json: bsmap.v3.IChain, v3: true): this
+    fromJson(json: never, v3: false): this
+    fromJson(json: never, v3: boolean): this {
+        if (!v3) throw 'V2 is not supported for chains'
+
+        type Params = Fields<
+            SubclassExclusiveProps<
+                Chain,
+                BaseSliderObject<bsmap.v3.IBaseSlider>
+            >
+        >
+
+        const obj = json as bsmap.v3.IChain
+
+        const params = {
+            flip: obj.customData?.flip,
+
+            noteLook: invertedBoolean(obj.customData?.disableNoteLook),
+            noteGravity: invertedBoolean(
+                obj.customData?.disableNoteGravity,
+            ),
+            spawnEffect: obj.customData?.spawnEffect,
+
+            debris: invertedBoolean(obj.customData?.disableDebris),
+            speedBadCut: invertedBoolean(
+                obj.customData?.disableBadCutSpeed,
+            ),
+            directionBadCut: invertedBoolean(
+                obj.customData?.disableBadCutDirection,
+            ),
+            saberTypeBadCut: invertedBoolean(
+                obj.customData?.disableBadCutSaberType,
+            ),
+            link: obj.customData?.link,
+            links: obj.sc,
+            squish: obj.s,
+        } as Params
+
+        Object.assign(this, params)
+        return super.fromJson(obj, v3)
     }
 
     toJson(v3: true): bsmap.v3.IChain

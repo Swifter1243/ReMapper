@@ -59,3 +59,7 @@ export type SingleMutable<T> = { -readonly[P in keyof T]: T[P] }
 export type Mutable<T> = SingleMutable<SingleMutable<T>[]>[0]
 
 export type DeepMutable<T> = { -readonly [P in keyof T]: DeepMutable<T[P]> }
+
+export type SubclassExclusiveProps<Subclass, Class> = {
+    [K in Exclude<keyof Subclass, keyof Class>]: Subclass[K]
+}
