@@ -14,6 +14,7 @@ import {
 import { EventGroup } from '../data/constants.ts'
 import { jsonPrune } from '../utils/json.ts'
 import { Wall } from '../internals/wall.ts'
+import { environment, geometry } from './environment.ts'
 
 export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
     declare version: bsmap.v2.IDifficulty['_version']
@@ -53,10 +54,7 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
 
         const obstacles: Wall[] = runProcess(
             '_obstacles',
-            (obstacles) =>
-                obstacles.map((o) =>
-                    wall().fromJson(o, false)
-                ),
+            (obstacles) => obstacles.map((o) => wall().fromJson(o, false)),
         ) ?? []
 
         // 0-3 laser
@@ -115,6 +113,27 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
         )
         // TODO: Deserialize
 
+        // environment
+        const environmentArr =
+            json._customData?._environment?.filter((x) =>
+                x._geometry === undefined
+            ).map((x) =>
+                environment().fromJson(
+                    x as bsmap.v2.IChromaEnvironmentID,
+                    false,
+                )
+            ) ?? []
+
+        const geometryArr =
+            json._customData?._environment?.filter((x) =>
+                x._geometry !== undefined
+            ).map((x) =>
+                geometry().fromJson(
+                    x as bsmap.v2.IChromaEnvironmentGeometry,
+                    false,
+                )
+            ) ?? []
+
         super(
             json,
             info,
@@ -144,8 +163,8 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
                 geoMaterials: {},
                 pointDefinitions: {},
                 customData: json._customData ?? {},
-                environment: [],
-                geometry: [],
+                environment: environmentArr,
+                geometry: geometryArr,
             },
         )
     }
@@ -154,19 +173,27 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
         const sortItems = (a: { _time: number }, b: { _time: number }) =>
             a._time - b._time
 
+        const notes = [...this.notes, ...this.bombs].map((e) =>
+            jsonPrune(e.toJson(false))
+        ).sort(sortItems)
+
+        const environmentArr = this.environment.map((e) => e.toJson(false))
+        const geometryArr = this.geometry.map((e) => e.toJson(false))
+
         return {
-            _notes: [...this.notes, ...this.bombs].map((e) =>
-                jsonPrune(e.toJson(false))
-            )
-                .sort(
-                    sortItems,
-                ),
+            _notes: notes,
             _events: [],
             _obstacles: this.walls.map((o) => jsonPrune(o.toJson(false))),
             _sliders: [],
             _version: '2.6.0',
             _waypoints: [],
-            _customData: this.customData,
+            _customData: jsonPrune({
+                ...this.customData,
+                environment: [
+                    ...environmentArr,
+                    ...geometryArr,
+                ],
+            }),
             _specialEventsKeywordFilters: { _keywords: [] },
         }
     }

@@ -9,6 +9,7 @@ import { Vec3 } from '../types/data_types.ts'
 import { AnimationPropertiesV3 } from '../internals/animation.ts'
 import { EventGroup } from '../data/constants.ts'
 import { jsonPrune } from '../utils/json.ts'
+import { environment, geometry } from './environment.ts'
 
 export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
     declare version: bsmap.v3.IDifficulty['version']
@@ -149,6 +150,24 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         )
         // TODO: Deserialize
 
+        // environment
+        const environmentArr =
+            json.customData?.environment?.filter((x) =>
+                x.geometry === undefined
+            ).map((x) =>
+                environment().fromJson(x as bsmap.v3.IChromaEnvironmentID, true)
+            ) ?? []
+
+        const geometryArr =
+            json.customData?.environment?.filter((x) =>
+                x.geometry !== undefined
+            ).map((x) =>
+                geometry().fromJson(
+                    x as bsmap.v3.IChromaEnvironmentGeometry,
+                    true,
+                )
+            ) ?? []
+
         super(
             json,
             info,
@@ -177,8 +196,8 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
 
                 pointDefinitions: {},
                 customData: json.customData ?? {},
-                environment: [],
-                geometry: [],
+                environment: environmentArr,
+                geometry: geometryArr,
             },
         )
     }
@@ -210,7 +229,8 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
                 sortItems,
             )
 
-        // console.log(this.notes[0].toJson(true))
+        const environmentArr = this.environment.map((e) => e.toJson(true))
+        const geometryArr = this.geometry.map((e) => e.toJson(true))
 
         return {
             colorNotes: colorNotes,
@@ -228,6 +248,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
             version: '3.2.0',
             waypoints: [],
             customData: jsonPrune({
+                ...this.customData,
                 fakeColorNotes: this.notes.filter((e) => e.fake)
                     .map((e) => e.toJson(true))
                     .sort(
@@ -243,7 +264,10 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
                     .sort(
                         sortItems,
                     ),
-                ...this.customData,
+                environment: [
+                    ...environmentArr,
+                    ...geometryArr,
+                ],
             }),
             useNormalEventsAsCompatibleEvents: true,
             basicEventTypesWithKeywords: {

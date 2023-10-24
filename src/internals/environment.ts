@@ -6,6 +6,7 @@ import {
     JsonWrapper,
     LookupMethod,
     Replace,
+    SubclassExclusiveProps,
     TrackValue,
     Vec3,
 } from '../types/mod.ts'
@@ -65,8 +66,8 @@ export abstract class BaseEnvironmentEnhancement<
 
         this.components = fields.components
         this.group = fields.group
-        this.lightsID = fields.lightsID
-        this.lightsType = fields.lightsType
+        this.lightID = fields.lightID
+        this.lightType = fields.lightType
     }
 
     /** How many times to duplicate this object. */
@@ -93,8 +94,53 @@ export abstract class BaseEnvironmentEnhancement<
     /** Group used with "animateEnvGroup". Not saved to the difficulty. */
     group?: unknown
 
-    lightsID?: number
-    lightsType?: number
+    lightID?: number
+    lightType?: number
+
+    fromJson(json: TV3, v3: true): this
+    fromJson(json: TV2, v3: false): this
+    fromJson(json: TV2 | TV3, v3: boolean): this {
+        type Params = Fields<BaseEnvironmentEnhancement<TV2, TV3>>
+
+        // TODO: Import custom data, exclude fields imported
+
+        if (v3) {
+            const obj = json as TV3
+
+            const params = {
+                track: new Track(obj.track),
+                active: obj.active,
+                duplicate: obj.duplicate,
+                lightID: obj.components?.ILightWithId?.lightID,
+                lightType: obj.components?.ILightWithId?.type,
+                localPosition: obj.localPosition,
+                localRotation: obj.localRotation,
+                position: obj.position,
+                rotation: obj.rotation,
+                scale: obj.scale,
+            } as Params
+
+            Object.assign(this, params)
+        } else {
+            const obj = json as TV2
+
+            const params = {
+                track: new Track(obj._track),
+                active: obj._active,
+                duplicate: obj._duplicate,
+                lightID: obj._lightID,
+                localPosition: obj._localPosition,
+                localRotation: obj._localRotation,
+                position: obj._position,
+                rotation: obj._rotation,
+                scale: obj._scale,
+            } as Params
+
+            Object.assign(this, params)
+        }
+
+        return this
+    }
 
     abstract toJson(v3: true): TV3
     abstract toJson(v3: false): TV2
@@ -127,6 +173,43 @@ export class Environment extends BaseEnvironmentEnhancement<
     /** The method of looking up the object name in the environment. */
     lookupMethod: LookupMethod
 
+    fromJson(json: bsmap.v3.IChromaEnvironmentID, v3: true): this
+    fromJson(json: bsmap.v2.IChromaEnvironmentID, v3: false): this
+    fromJson(
+        json: bsmap.v2.IChromaEnvironmentID | bsmap.v3.IChromaEnvironmentID,
+        v3: boolean,
+    ): this {
+        type Params = SubclassExclusiveProps<
+            Environment,
+            BaseEnvironmentEnhancement<
+                bsmap.v2.IChromaEnvironmentID,
+                bsmap.v3.IChromaEnvironmentID
+            >
+        >
+
+        if (v3) {
+            const obj = json as bsmap.v3.IChromaEnvironmentID
+
+            const params = {
+                id: obj.id,
+                lookupMethod: obj.lookupMethod,
+            } as Params
+
+            Object.assign(this, params)
+            return super.fromJson(obj, v3)
+        } else {
+            const obj = json as bsmap.v2.IChromaEnvironmentID
+
+            const params = {
+                id: obj._id,
+                lookupMethod: obj._lookupMethod,
+            } as Params
+
+            Object.assign(this, params)
+            return super.fromJson(obj, v3)
+        }
+    }
+
     toJson(v3: true): bsmap.v3.IChromaEnvironmentID
     toJson(v3: false): bsmap.v2.IChromaEnvironmentID
     toJson(
@@ -139,8 +222,8 @@ export class Environment extends BaseEnvironmentEnhancement<
                 active: this.active,
                 components: {
                     ILightWithId: {
-                        lightID: this.lightsID,
-                        type: this.lightsType,
+                        lightID: this.lightID,
+                        type: this.lightType,
                     },
                     ...this.components,
                 },
@@ -161,7 +244,7 @@ export class Environment extends BaseEnvironmentEnhancement<
             _lookupMethod: this.lookupMethod,
             _active: this.active,
             _duplicate: this.duplicate,
-            _lightID: this.lightsID,
+            _lightID: this.lightID,
             _localPosition: this.localPosition,
             _localRotation: this.localRotation,
             _position: this.position,
@@ -204,6 +287,47 @@ export class Geometry extends BaseEnvironmentEnhancement<
     /** Whether this geometry object has collision. */
     collision?: boolean
 
+    fromJson(json: bsmap.v3.IChromaEnvironmentGeometry, v3: true): this
+    fromJson(json: bsmap.v2.IChromaEnvironmentGeometry, v3: false): this
+    fromJson(
+        json:
+            | bsmap.v2.IChromaEnvironmentGeometry
+            | bsmap.v3.IChromaEnvironmentGeometry,
+        v3: boolean,
+    ): this {
+        type Params = SubclassExclusiveProps<
+            Geometry,
+            BaseEnvironmentEnhancement<
+                bsmap.v2.IChromaEnvironmentID,
+                bsmap.v3.IChromaEnvironmentID
+            >
+        >
+
+        if (v3) {
+            const obj = json as bsmap.v3.IChromaEnvironmentGeometry
+
+            const params = {
+                collision: obj.geometry.collision,
+                material: obj.geometry.material,
+                type: obj.geometry.type
+            } as Params
+
+            Object.assign(this, params)
+            return super.fromJson(obj, v3)
+        } else {
+            const obj = json as bsmap.v2.IChromaEnvironmentGeometry
+
+            const params = {
+                collision: obj._geometry._collision,
+                material: obj._geometry._material,
+                type: obj._geometry._type
+            } as Params
+
+            Object.assign(this, params)
+            return super.fromJson(obj, v3)
+        }
+    }
+
     toJson(v3: true): bsmap.v3.IChromaEnvironmentGeometry
     toJson(v3: false): bsmap.v2.IChromaEnvironmentGeometry
     toJson(
@@ -221,8 +345,8 @@ export class Geometry extends BaseEnvironmentEnhancement<
                 active: this.active,
                 components: {
                     ILightWithId: {
-                        lightID: this.lightsID,
-                        type: this.lightsType,
+                        lightID: this.lightID,
+                        type: this.lightType,
                     },
                     ...this.components,
                 },
@@ -248,7 +372,7 @@ export class Geometry extends BaseEnvironmentEnhancement<
             },
             _active: this.active,
             _duplicate: this.duplicate,
-            _lightID: this.lightsID,
+            _lightID: this.lightID,
             _localPosition: this.localPosition,
             _localRotation: this.localRotation,
             _position: this.position,
