@@ -273,6 +273,33 @@ export abstract class AbstractDifficulty<
         RMLog(`${diffName} successfully saved!`)
     }
 
+    clear() {
+        this.notes = []
+        this.bombs = []
+        this.arcs = []
+        this.chains = []
+        this.walls = []
+
+        this.basicEvents = []
+        this.laserSpeedEvents = []
+        this.ringZoomEvents = []
+        this.ringSpinEvents = []
+        this.rotationEvent = []
+
+        this.animateComponents = []
+        this.animateTracks = []
+        this.assignPathAnimations = []
+        this.assignPlayerTracks = []
+        this.assignTrackParents = []
+
+        this.pointDefinitions = {}
+        this.customData = {}
+        this.environment = []
+        this.geometry = []
+
+        this.geoMaterials = {}
+    }
+
     /**
      * Add/remove a mod requirement from the difficulty.
      * @param requirement The requirement to effect.
