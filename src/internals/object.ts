@@ -294,9 +294,7 @@ export abstract class BaseGameplayObject<
                     : obj._customData?._rotation,
                 track: new Track(obj._customData?._track),
                 NJS: obj._customData?._noteJumpMovementSpeed,
-                offset: obj._customData?._noteJumpStartBeatOffset,
-                life: this.life,
-                lifeStart: this.lifeStart,
+                offset: obj._customData?._noteJumpStartBeatOffset
             } as Params
 
             Object.assign(this, params)
