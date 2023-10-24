@@ -1,7 +1,7 @@
 // deno-lint-ignore-file adjacent-overload-signatures
 import { bsmap } from '../deps.ts'
 
-import { getActiveDiff } from '../data/beatmap_handler.ts'
+import { activeDiff, getActiveDiff, settings } from '../data/beatmap_handler.ts'
 
 import {
     BaseGameplayObject,
@@ -34,7 +34,7 @@ export class Wall
                 height: obj.h,
                 scale: obj.customData?.size,
                 width: obj.w,
-            } satisfies Params
+            } as Params
 
             Object.assign(this, params)
             return super.fromJson(obj, true)
@@ -46,7 +46,7 @@ export class Wall
                 scale: obj._customData?._scale,
                 width: obj._width,
                 fake: obj._customData?._fake,
-            } satisfies Params
+            } as Params
 
             Object.assign(this, params)
             return super.fromJson(obj, false)
@@ -56,6 +56,15 @@ export class Wall
     toJson(v3: true): bsmap.v3.IObstacle
     toJson(v3: false): bsmap.v2.IObstacle
     toJson(v3 = true): bsmap.v2.IObstacle | bsmap.v3.IObstacle {
+        const diff = activeDiff
+        let NJS = this.NJS
+        let offset = this.offset
+
+        if (diff && settings.forceJumpsForNoodle) {
+            NJS ??= diff.NJS
+            offset ??= diff.offset
+        }
+
         if (v3) {
             return {
                 b: this.time,
@@ -67,8 +76,8 @@ export class Wall
                 customData: {
                     animation: animationToJson(this.animation, v3),
                     size: this.scale,
-                    noteJumpMovementSpeed: this.NJS,
-                    noteJumpStartBeatOffset: this.offset,
+                    noteJumpMovementSpeed: NJS,
+                    noteJumpStartBeatOffset: offset,
                     localRotation: this.localRotation,
                     coordinates: this.coordinates,
                     worldRotation: this.rotation,
@@ -93,8 +102,8 @@ export class Wall
             _customData: {
                 _animation: animationToJson(this.animation, v3),
                 _scale: this.scale,
-                _noteJumpMovementSpeed: this.NJS,
-                _noteJumpStartBeatOffset: this.offset,
+                _noteJumpMovementSpeed: NJS,
+                _noteJumpStartBeatOffset: offset,
                 _localRotation: this.localRotation,
                 _position: this.coordinates,
                 _rotation: this.rotation,

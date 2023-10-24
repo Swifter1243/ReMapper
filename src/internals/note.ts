@@ -1,7 +1,7 @@
 import { bsmap } from '../deps.ts'
 
 import { NoteCut, NoteType } from '../data/constants.ts'
-import { getActiveDiff } from '../data/beatmap_handler.ts'
+import { activeDiff, getActiveDiff } from '../data/beatmap_handler.ts'
 
 import {
     BaseNote,
@@ -11,7 +11,7 @@ import {
 } from './object.ts'
 import { copy } from '../utils/general.ts'
 import { animationToJson } from './animation.ts'
-import { SubclassExclusiveProps } from '../mod.ts'
+import { settings, SubclassExclusiveProps } from '../mod.ts'
 
 export { Bomb } from './bomb.ts'
 export { Arc } from './arc.ts'
@@ -67,7 +67,7 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
                 type: obj.c,
                 direction: obj.d,
                 angleOffset: obj.a,
-            } satisfies Params
+            } as Params
 
             Object.assign(this, params)
             return super.fromJson(obj, v3)
@@ -75,9 +75,9 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
             const obj = json as bsmap.v2.INote
 
             const params = {
-                type: obj._type,
+                type: obj._type as NoteType,
                 direction: obj._cutDirection,
-            } satisfies Params
+            } as Params
 
             Object.assign(this, params)
             return super.fromJson(obj, v3)
@@ -87,6 +87,15 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
     toJson(v3: true): bsmap.v3.IColorNote
     toJson(v3: false): bsmap.v2.INote
     toJson(v3 = true): bsmap.v2.INote | bsmap.v3.IColorNote {
+        const diff = activeDiff
+        let NJS = this.NJS
+        let offset = this.offset
+
+        if (diff && settings.forceJumpsForNoodle) {
+            NJS ??= diff.NJS
+            offset ??= diff.offset
+        }
+
         if (v3) {
             return {
                 a: Math.round(this.angleOffset),
@@ -110,8 +119,8 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
                     color: this.color,
                     coordinates: this.coordinates,
                     localRotation: this.localRotation,
-                    noteJumpMovementSpeed: this.NJS,
-                    noteJumpStartBeatOffset: this.offset,
+                    noteJumpMovementSpeed: NJS,
+                    noteJumpStartBeatOffset: offset,
                     track: this.track.value,
                     uninteractable: exportInvertedBoolean(
                         this.interactable,
@@ -161,8 +170,8 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
                 _color: this.color,
                 _position: this.coordinates,
                 _localRotation: this.localRotation,
-                _noteJumpMovementSpeed: this.NJS,
-                _noteJumpStartBeatOffset: this.offset,
+                _noteJumpMovementSpeed: NJS,
+                _noteJumpStartBeatOffset: offset,
                 _track: this.track.value,
                 _interactable: defaultBoolean(this.interactable, true),
                 _rotation: this.rotation,

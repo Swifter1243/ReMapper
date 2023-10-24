@@ -1,4 +1,4 @@
-import { getActiveDiff } from '../data/beatmap_handler.ts'
+import { activeDiff, getActiveDiff, settings } from '../data/beatmap_handler.ts'
 import { AnchorMode, NoteCut } from '../data/constants.ts'
 import { bsmap } from '../deps.ts'
 import { Vec2 } from '../types/data_types.ts'
@@ -71,6 +71,15 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
     toJson(v3 = true): bsmap.v3.IArc {
         if (!v3) throw 'V2 is not supported for arcs'
 
+        const diff = activeDiff
+        let NJS = this.NJS
+        let offset = this.offset
+
+        if (diff && settings.forceJumpsForNoodle) {
+            NJS ??= diff.NJS
+            offset ??= diff.offset
+        }
+
         return {
             b: this.time,
             c: this.type,
@@ -92,8 +101,8 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
                 coordinates: this.coordinates,
                 tailCoordinates: this.tailCoordinates,
                 flip: this.flip,
-                noteJumpMovementSpeed: this.NJS,
-                noteJumpStartBeatOffset: this.offset,
+                noteJumpMovementSpeed: NJS,
+                noteJumpStartBeatOffset: offset,
                 uninteractable: exportInvertedBoolean(this.interactable, false),
                 localRotation: this.localRotation,
                 disableNoteGravity: exportInvertedBoolean(

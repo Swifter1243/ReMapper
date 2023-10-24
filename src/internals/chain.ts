@@ -1,4 +1,4 @@
-import { getActiveDiff } from '../data/beatmap_handler.ts'
+import { activeDiff, getActiveDiff, settings } from '../data/beatmap_handler.ts'
 import { bsmap } from '../deps.ts'
 import { Vec2 } from '../types/data_types.ts'
 import { Fields, SubclassExclusiveProps } from '../types/util_types.ts'
@@ -89,7 +89,7 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
             link: obj.customData?.link,
             links: obj.sc,
             squish: obj.s,
-        } satisfies Params
+        } as Params
 
         Object.assign(this, params)
         return super.fromJson(obj, v3)
@@ -99,6 +99,15 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
     toJson(v3: false): never
     toJson(v3 = true): bsmap.v3.IChain {
         if (!v3) throw 'V2 is not supported for chains'
+
+        const diff = activeDiff
+        let NJS = this.NJS
+        let offset = this.offset
+
+        if (diff && settings.forceJumpsForNoodle) {
+            NJS ??= diff.NJS
+            offset ??= diff.offset
+        }
 
         return {
             b: this.time,
@@ -117,8 +126,8 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
                 coordinates: this.coordinates,
                 tailCoordinates: this.tailCoordinates,
                 flip: this.flip,
-                noteJumpMovementSpeed: this.NJS,
-                noteJumpStartBeatOffset: this.offset,
+                noteJumpMovementSpeed: NJS,
+                noteJumpStartBeatOffset: offset,
                 uninteractable: exportInvertedBoolean(this.interactable, false),
                 localRotation: this.localRotation,
                 disableNoteGravity: exportInvertedBoolean(
@@ -145,7 +154,7 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
                 disableDebris: exportInvertedBoolean(this.debris, false),
                 ...this.customData,
             },
-        } satisfies bsmap.v3.IChain
+        } as bsmap.v3.IChain
     }
 
     /** Moves the note to the separate fake note array on save. */

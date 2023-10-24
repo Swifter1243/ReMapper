@@ -1,4 +1,4 @@
-import { getActiveDiff } from "../data/beatmap_handler.ts";
+import { activeDiff, getActiveDiff, settings } from "../data/beatmap_handler.ts";
 import { bsmap } from "../deps.ts";
 import { copy } from "../utils/general.ts";
 import { animationToJson } from "./animation.ts";
@@ -32,6 +32,15 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
     toJson(v3: true): bsmap.v3.IBombNote
     toJson(v3: false): bsmap.v2.INote
     toJson(v3 = true): bsmap.v2.INote | bsmap.v3.IBombNote {
+        const diff = activeDiff
+        let NJS = this.NJS
+        let offset = this.offset
+
+        if (diff && settings.forceJumpsForNoodle) {
+            NJS ??= diff.NJS
+            offset ??= diff.offset
+        }
+
         if (v3) {
             return {
                 b: this.time,
@@ -48,6 +57,14 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
                         this.noteLook,
                         false,
                     ),
+                    noteJumpMovementSpeed: NJS,
+                    noteJumpStartBeatOffset: offset,
+                    uninteractable: exportInvertedBoolean(this.interactable, false),
+                    localRotation: this.localRotation,
+                    color: this.color,
+                    coordinates: this.coordinates,
+                    track: this.track.value,
+                    worldRotation: this.rotation,
                     spawnEffect: defaultBoolean(this.spawnEffect, true),
                     link: this.link,
                     disableBadCutDirection: exportInvertedBoolean(
@@ -65,7 +82,7 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
                     disableDebris: exportInvertedBoolean(this.debris, false),
                     ...this.customData,
                 },
-            } satisfies bsmap.v3.IBombNote
+            } as bsmap.v3.IBombNote
         }
 
         return {
@@ -77,6 +94,15 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
             _customData: {
                 _animation: animationToJson(this.animation, v3),
                 _flip: this.flip,
+                _color: this.color,
+                _noteJumpMovementSpeed: NJS,
+                _noteJumpStartBeatOffset: offset,
+                _interactable: defaultBoolean(this.interactable, true),
+                _fake: this.fake,
+                _localRotation: this.localRotation,
+                _position: this.coordinates,
+                _rotation: this.rotation,
+                _track: this.track.value,
                 _disableNoteGravity: exportInvertedBoolean(
                     this.noteGravity,
                     false,
@@ -91,6 +117,6 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
                 ),
                 ...this.customData,
             },
-        } satisfies bsmap.v2.INote
+        } as bsmap.v2.INote
     }
 }
