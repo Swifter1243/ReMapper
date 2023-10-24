@@ -43,11 +43,14 @@ export async function collectBeatmapFiles(
 ) {
     if (!info) throw new Error('The Info object has not been loaded.')
 
+    const makeTempDir = Deno.makeTempDir()
+
     const exportInfo = copy(info)
     const unsanitizedFiles: (string | undefined)[] = [
         exportInfo._songFilename,
         exportInfo._coverImageFilename,
         'cinema-video.json',
+        'BPMInfo.dat',
     ]
 
     for (let s = 0; s < exportInfo._difficultyBeatmapSets.length; s++) {
@@ -81,11 +84,12 @@ export async function collectBeatmapFiles(
         .map((v) => path.join(workingDir, v!)) // prepend workspace dir
         .map((v) => [v, fs.exists(v)]) // ensure file exists
 
-    const files: string[] = filesPromise.filter(async (v) => await v[1]).map((
-        v,
-    ) => v[0])
+    const files: string[] = (await Promise.all(filesPromise
+        .map(async (v) => [v[0], await v[1]]))) // wait for boolean promises
+        .filter(v => v[1]) // filter by existing files
+        .map(v => v[0]) as string[] // export as string array
 
-    const tempDir = await Deno.makeTempDir()
+    const tempDir = await makeTempDir
     const tempInfo = tempDir + `\\Info.dat`
     await Deno.writeTextFile(tempInfo, JSON.stringify(exportInfo, null, 0))
 
