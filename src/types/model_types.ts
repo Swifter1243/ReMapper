@@ -24,7 +24,7 @@ export type StaticOptions = {
     onCache?: (objs: ModelObject[]) => void
     /** Function to run on objects about to be processed.
      Be careful when mutating these, as cached objects are stored across script executions. */
-    objects?: (arr: ModelObject[]) => void
+    objects?: (arr: ReadonlyModel) => void
     /** Recache the objects when information in this array changes. Only works for path input. */
     processing?: any
     /** Transform the objects. */

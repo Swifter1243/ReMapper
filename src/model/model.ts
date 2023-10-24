@@ -44,6 +44,7 @@ import {
 import { FILEPATH } from '../types/beatmap_types.ts'
 import { Vec3, Vec4 } from '../types/data_types.ts'
 import { copy } from '../utils/general.ts'
+import { Environment, Geometry } from '../internals/environment.ts'
 
 let modelSceneCount = 0
 let noYeet = true
