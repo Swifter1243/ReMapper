@@ -1,6 +1,7 @@
 docs/
 dist/
 deno_cache/
+deno.lock
 
 # Madge
 madge/image.png
