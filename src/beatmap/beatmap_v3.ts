@@ -194,7 +194,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
                 assignPlayerTracks: [],
                 assignTrackParents: [],
 
-                pointDefinitions: {},
+                pointDefinitions: json.customData?.pointDefinitions ?? {},
                 customData: json.customData ?? {},
                 environment: environmentArr,
                 geometry: geometryArr,
@@ -268,6 +268,8 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
                     ...environmentArr,
                     ...geometryArr,
                 ],
+                pointDefinitions: this
+                    .pointDefinitions as bsmap.v3.IPointDefinition,
             }),
             useNormalEventsAsCompatibleEvents: true,
             basicEventTypesWithKeywords: {

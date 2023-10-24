@@ -134,6 +134,13 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
                 )
             ) ?? []
 
+        // point definitions
+        const pointDefinitions: Record<string, unknown> = {}
+
+        json._customData?._pointDefinitions?.forEach((x) => {
+            pointDefinitions[x._name] = x._points
+        })
+
         super(
             json,
             info,
@@ -161,7 +168,7 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
                 assignTrackParents: [],
 
                 geoMaterials: {},
-                pointDefinitions: {},
+                pointDefinitions: pointDefinitions,
                 customData: json._customData ?? {},
                 environment: environmentArr,
                 geometry: geometryArr,
@@ -180,6 +187,15 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
         const environmentArr = this.environment.map((e) => e.toJson(false))
         const geometryArr = this.geometry.map((e) => e.toJson(false))
 
+        const pointDefinitions = [] as bsmap.v2.IPointDefinition[]
+
+        Object.entries(this.pointDefinitions).forEach((x) => {
+            pointDefinitions.push({
+                _name: x[0],
+                _points: x[1] as bsmap.v2.IPointDefinition['_points'],
+            })
+        })
+
         return {
             _notes: notes,
             _events: [],
@@ -193,6 +209,7 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
                     ...environmentArr,
                     ...geometryArr,
                 ],
+                pointDefinitions: pointDefinitions,
             }),
             _specialEventsKeywordFilters: { _keywords: [] },
         }
