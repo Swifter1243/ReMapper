@@ -4,17 +4,13 @@ import { bsmap } from '../deps.ts'
 import {} from '../types/animation_types.ts'
 import { AbstractDifficulty } from './abstract_beatmap.ts'
 import { Bomb, Note } from '../internals/note.ts'
-import { Track } from '../animation/track.ts'
 import { DIFFNAME, DIFFPATH } from '../types/beatmap_types.ts'
-import { ColorVec, Vec3 } from '../types/data_types.ts'
-import {
-    AnimationPropertiesV2,
-    jsonToAnimation,
-} from '../internals/animation.ts'
+import { ColorVec } from '../types/data_types.ts'
 import { EventGroup } from '../data/constants.ts'
 import { jsonPrune } from '../utils/json.ts'
 import { Wall } from '../internals/wall.ts'
 import { environment, geometry } from './environment.ts'
+import { GeoShader, RawGeometryMaterial } from '../mod.ts'
 
 export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
     declare version: bsmap.v2.IDifficulty['_version']
@@ -141,6 +137,20 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
             pointDefinitions[x._name] = x._points
         })
 
+        // geometry materials
+        const materials: Record<string, RawGeometryMaterial> = {}
+
+        Object.entries(json._customData?._materials ?? {}).forEach(
+            ([key, value]) => {
+                materials[key] = {
+                    shader: value._shader as GeoShader,
+                    color: value._color as ColorVec,
+                    shaderKeywords: value._shaderKeywords,
+                    track: value._track,
+                }
+            },
+        )
+
         super(
             json,
             info,
@@ -167,7 +177,7 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
                 assignPlayerTracks: [],
                 assignTrackParents: [],
 
-                geoMaterials: {},
+                geoMaterials: materials,
                 pointDefinitions: pointDefinitions,
                 customData: json._customData ?? {},
                 environment: environmentArr,
@@ -196,6 +206,19 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
             })
         })
 
+        const materials: Record<string, bsmap.v2.IChromaMaterial> = {}
+
+        Object.entries(this.geoMaterials).forEach(
+            ([key, value]) => {
+                materials[key] = {
+                    _shader: value.shader,
+                    _color: value.color,
+                    _shaderKeywords: value.shaderKeywords,
+                    _track: value.track
+                }
+            },
+        )
+
         return {
             _notes: notes,
             _events: [],
@@ -210,6 +233,7 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
                     ...geometryArr,
                 ],
                 pointDefinitions: pointDefinitions,
+                materials: materials
             }),
             _specialEventsKeywordFilters: { _keywords: [] },
         }

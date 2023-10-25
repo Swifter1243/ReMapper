@@ -1,6 +1,5 @@
 // deno-lint-ignore-file no-explicit-any no-extra-semi
 import {
-    KeyframeValuesUnsafe,
     RawKeyframesVec3,
 } from '../types/animation_types.ts'
 import { RawGeometryMaterial } from '../types/environment_types.ts'
@@ -45,6 +44,8 @@ import { FILEPATH } from '../types/beatmap_types.ts'
 import { Vec3, Vec4 } from '../types/data_types.ts'
 import { copy } from '../utils/general.ts'
 import { Environment, Geometry } from '../internals/environment.ts'
+import { SingleKeyframeAbstract } from '../mod.ts'
+import { SingleKeyframe } from 'https://deno.land/x/remapper@2.1.0/src/animation.ts'
 
 let modelSceneCount = 0
 let noYeet = true
@@ -219,13 +220,13 @@ export class ModelScene {
                         for (let i = 0; i < x.pos.length; i++) {
                             let objPos = copy(
                                 x.pos[i],
-                            ) as KeyframeValuesUnsafe
+                            ) as SingleKeyframe
                             let objRot = copy(
                                 x.rot[i],
-                            ) as KeyframeValuesUnsafe
+                            ) as SingleKeyframe
                             let objScale = copy(
                                 x.scale[i],
-                            ) as KeyframeValuesUnsafe
+                            ) as SingleKeyframe
                             objPos.pop()
                             objRot.pop()
                             objScale.pop()
@@ -484,11 +485,11 @@ export class ModelScene {
                 } // Creating event for assigned
                 else {
                     const event = animateTrack(0, track)
-                    event.animation.set('position', x.pos, false)
-                    event.animation.set('rotation', x.rot, false)
-                    event.animation.set('scale', x.scale, false)
+                    event.animation.position = x.pos
+                    event.animation.rotation = x.rot
+                    event.animation.scale = x.scale
                     if (forAssigned) forAssigned(event)
-                    activeDiff.customEvents.push(event)
+                    activeDiff.animateTracks.push(event)
                 }
             })
         )
@@ -559,7 +560,7 @@ export class ModelScene {
                 if (firstInitializing) this.objectInfo[x].initialPos = []
             })
 
-            const dataPromise = this.getObjects(input).then((data) =>
+            this.getObjects(input).then((data) =>
                 data.forEach((x, i) => {
                     // Getting info about group
                     const key = x.track as string
@@ -624,21 +625,9 @@ export class ModelScene {
                     const event = animateTrack(time, track, duration)
 
                     if (delaying) {
-                        event.animation.set(
-                            'position',
-                            this.getFirstValues(x.pos),
-                            false,
-                        )
-                        event.animation.set(
-                            'rotation',
-                            this.getFirstValues(x.rot),
-                            false,
-                        )
-                        event.animation.set(
-                            'scale',
-                            this.getFirstValues(x.scale),
-                            false,
-                        )
+                        event.animation.position = this.getFirstValues(x.pos)
+                        event.animation.rotation = this.getFirstValues(x.rot)
+                        event.animation.scale = this.getFirstValues(x.scale)
                         if (forEvent) {
                             forEvent(event, objectInfo.perSwitch[time])
                         }
@@ -646,9 +635,9 @@ export class ModelScene {
                     }
 
                     event.time = time + start
-                    event.animation.set('position', x.pos, false)
-                    event.animation.set('rotation', x.rot, false)
-                    event.animation.set('scale', x.scale, false)
+                    event.animation.position = x.pos
+                    event.animation.rotation = x.rot
+                    event.animation.scale = x.scale
 
                     if (
                         typeof input === 'object' &&
@@ -687,7 +676,7 @@ export class ModelScene {
                     if (group.disappearWhenAbsent || group.object) {
                         for (let i = amount; i < objectInfo.max; i++) {
                             if (!yeetEvents[numSwitchTime]) {
-                                const event = animateTrack(eventTime)
+                                const event = animateTrack(eventTime, [])
                                 event.animation.position = 'yeet'
                                 yeetEvents[numSwitchTime] = event
                             }
@@ -748,7 +737,7 @@ export class ModelScene {
         })
 
         Object.keys(yeetEvents).forEach((x) => {
-            activeDiff.customEvents.push(yeetEvents[parseInt(x)])
+            activeDiff.animateTracks.push(yeetEvents[parseInt(x)])
         })
     }
 }

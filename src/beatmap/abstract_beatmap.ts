@@ -3,8 +3,8 @@ import { bsmap } from '../deps.ts'
 import {
     DIFFNAME,
     DIFFPATH,
-    GeometryMaterial,
     PointDefinitionAny,
+    RawGeometryMaterial,
     RawKeyframesAbstract,
     REQUIRE_MODS,
     SUGGEST_MODS,
@@ -56,7 +56,7 @@ export interface RMDifficulty {
     environment: EnvironmentInternals.Environment[]
     geometry: EnvironmentInternals.Geometry[]
 
-    geoMaterials: Record<string, GeometryMaterial>
+    geoMaterials: Record<string, RawGeometryMaterial>
 }
 
 /**
@@ -112,7 +112,7 @@ export abstract class AbstractDifficulty<
     customData: Record<string, unknown>
     environment: EnvironmentInternals.Environment[]
     geometry: EnvironmentInternals.Geometry[]
-    geoMaterials: Record<string, GeometryMaterial>
+    geoMaterials: Record<string, RawGeometryMaterial>
 
     /**
      * Creates a difficulty. Can be used to access various information and the map data.

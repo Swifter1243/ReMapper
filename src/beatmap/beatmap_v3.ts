@@ -3,13 +3,11 @@ import { wall } from './wall.ts'
 import { bsmap } from '../deps.ts'
 import { AbstractDifficulty } from './abstract_beatmap.ts'
 import { Arc, Bomb, Chain, Note } from '../internals/note.ts'
-import { Track } from '../animation/track.ts'
 import { DIFFNAME, DIFFPATH } from '../types/beatmap_types.ts'
-import { Vec3 } from '../types/data_types.ts'
-import { AnimationPropertiesV3 } from '../internals/animation.ts'
 import { EventGroup } from '../data/constants.ts'
 import { jsonPrune } from '../utils/json.ts'
 import { environment, geometry } from './environment.ts'
+import { RawGeometryMaterial } from '../mod.ts'
 
 export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
     declare version: bsmap.v3.IDifficulty['version']
@@ -168,6 +166,11 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
                 )
             ) ?? []
 
+        const materials = (json.customData?.materials ?? {}) as Record<
+            string,
+            RawGeometryMaterial
+        >
+
         super(
             json,
             info,
@@ -186,7 +189,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
                 ringSpinEvents: [],
                 ringZoomEvents: [],
                 rotationEvent: [],
-                geoMaterials: {},
+                geoMaterials: materials,
 
                 animateComponents: [],
                 animateTracks: [],
@@ -268,6 +271,10 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
                     ...environmentArr,
                     ...geometryArr,
                 ],
+                materials: this.geoMaterials as Record<
+                    string,
+                    bsmap.v3.IChromaMaterial
+                >,
                 pointDefinitions: this
                     .pointDefinitions as bsmap.v3.IPointDefinition,
             }),

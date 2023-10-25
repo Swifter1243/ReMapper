@@ -27,7 +27,7 @@ export function isEmptyObject(o: unknown): boolean {
  * @param obj Object to prune.
  */
 export function jsonPrune<T extends Record<string, any>>(obj: T) {
-    if (typeof obj !== "object") return obj;
+    if (typeof obj !== 'object') return obj
 
     Object.entries(obj).forEach(([prop, v]) => {
         if (v === undefined) {
@@ -37,16 +37,9 @@ export function jsonPrune<T extends Record<string, any>>(obj: T) {
 
         const type = typeof v
         if (type === 'object') {
-            if (Array.isArray(v)) {
-                if (v.length === 0) {
-                    delete obj[prop]
-                }
-            } else {
-                const rec = v as TJson
-                jsonPrune(rec)
-                if (isEmptyObject(rec)) {
-                    delete obj[prop]
-                }
+            jsonPrune(v)
+            if (!Array.isArray(v) && isEmptyObject(v)) {
+                delete obj[prop]
             }
         } else if (type === 'string' && v.length === 0) {
             delete obj[prop]
@@ -76,7 +69,11 @@ export function fastJsonPruneV3<
     }
 
     const animation = obj.customData.animation
-    const animationEntries = animation && Object.entries(animation) as [keyof typeof animation, string | unknown[]][]
+    const animationEntries = animation &&
+        Object.entries(animation) as [
+            keyof typeof animation,
+            string | unknown[],
+        ][]
     if (animationEntries) {
         let length = animationEntries.length
         animationEntries.forEach(([k, v]) => {
@@ -122,7 +119,11 @@ export function fastJsonPruneV2<
     }
 
     const animation = obj._customData._animation
-    const animationEntries = animation && Object.entries(animation) as [keyof typeof animation, string | unknown[]][]
+    const animationEntries = animation &&
+        Object.entries(animation) as [
+            keyof typeof animation,
+            string | unknown[],
+        ][]
     if (animationEntries) {
         let length = animationEntries.length
         animationEntries.forEach(([k, v]) => {

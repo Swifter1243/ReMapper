@@ -21,7 +21,7 @@ export function copyWith<T extends Record<string | number | symbol, never>>(
  * @param obj Object to copy
  * @returns The copy
  */
-export function copy<T>(obj: ReadonlyArray<T>): T;
+export function copy<T>(obj: ReadonlyArray<T>): T[];
 export function copy<T>(obj: readonly T[]): T[];
 export function copy<T>(obj: Readonly<T>): T;
 export function copy<T>(obj: readonly Readonly<T>[]): T[];
