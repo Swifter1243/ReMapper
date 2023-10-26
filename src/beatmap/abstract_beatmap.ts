@@ -88,6 +88,7 @@ export abstract class AbstractDifficulty<
     /** The filename of the output file of this difficulty. */
     relativeMapFile: DIFFNAME
     private postProcesses = new Map<number, PostProcessFn[]>()
+    awaitingCompletion = new Set<Promise<unknown>>()
 
     // Initialized by constructor using Object.assign
     version: bsmap.v2.IDifficulty['_version'] | bsmap.v3.IDifficulty['version']
@@ -173,6 +174,14 @@ export abstract class AbstractDifficulty<
         this.addPostProcess(pruneCustomData, -1)
     }
 
+    async runAsync<T>(callback: () => Promise<T>) {
+        const promise = callback()
+        this.awaitingCompletion.add(promise)
+        const result = await promise
+        this.awaitingCompletion.delete(promise)
+        return result
+    }
+
     /**
      * Go through every animation in this difficulty and optimize it.
      * Warning, this is an expensive action and may be redundant based on what has already been optimized.
@@ -232,6 +241,7 @@ export abstract class AbstractDifficulty<
             diffName = (await parseFilePath(diffName, '.dat')).path as DIFFPATH
         } else diffName = this.mapFile
 
+        await Promise.all(this.awaitingCompletion)
         const outputJSON = this.toJSON()
 
         // this.doPostProcess(undefined, outputJSON)

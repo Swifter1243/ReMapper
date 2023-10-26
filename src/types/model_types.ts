@@ -28,7 +28,7 @@ export type StaticOptions = {
     /** Recache the objects when information in this array changes. Only works for path input. */
     processing?: any
     /** Transform the objects. */
-    transform: Transform & {
+    transform?: Transform & {
         anchor?: Vec3
     }
 }
