@@ -56,8 +56,8 @@ export type ExcludedObjectFields<Class, Replacement = ObjectReplacements> =
     >
 
 export type ExcludeObjectFields = {
-    definiteNJS: never
-    definiteOffset: never
+    implicitNJS: never
+    implicitOffset: never
     isModded: never
     isGameplayModded: never
     halfJumpDur: never
@@ -179,12 +179,12 @@ export abstract class BaseGameplayObject<
     animation: GameplayObjectAnimationData
 
     /** The note jump speed of the object. Refers to the difficulty if undefined. */
-    get definiteNJS() {
+    get implicitNJS() {
         return this.NJS ?? getActiveDiff().NJS
     }
 
     /** The spawn offset of the object. Refers to the difficulty if undefined. */
-    get definiteOffset() {
+    get implicitOffset() {
         return this.offset ?? getActiveDiff().offset
     }
 
@@ -195,8 +195,8 @@ export abstract class BaseGameplayObject<
      */
     get halfJumpDur() {
         return getJumps(
-            this.definiteNJS,
-            this.definiteOffset,
+            this.implicitNJS,
+            this.implicitOffset,
             info._beatsPerMinute,
         ).halfDur
     }
@@ -207,8 +207,8 @@ export abstract class BaseGameplayObject<
      */
     get jumpDist() {
         return getJumps(
-            this.definiteNJS,
-            this.definiteOffset,
+            this.implicitNJS,
+            this.implicitOffset,
             info._beatsPerMinute,
         ).dist
     }
@@ -223,7 +223,7 @@ export abstract class BaseGameplayObject<
                 'Warning: The lifespan of a note has a minimum of 0.25 beats.',
             )
         }
-        const defaultJumps = getJumps(this.definiteNJS, 0, info._beatsPerMinute)
+        const defaultJumps = getJumps(this.implicitNJS, 0, info._beatsPerMinute)
         this.offset = (value - 2 * defaultJumps.halfDur) / 2
     }
 
