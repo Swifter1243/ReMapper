@@ -1,4 +1,3 @@
-// deno-lint-ignore-file adjacent-overload-signatures
 import { bsmap } from '../deps.ts'
 
 import { activeDiff, getActiveDiff, settings } from '../data/beatmap_handler.ts'
@@ -147,20 +146,4 @@ export class Wall
     scale?: Vec3
     /** Moves the note to the separate fake note array on save. */
     fake?: boolean
-
-    get life() {
-        return this.halfJumpDur * 2 + this.duration
-    }
-
-    get lifeStart() {
-        return this.time - this.halfJumpDur
-    }
-
-    set life(value: number) {
-        this.duration = value - (this.halfJumpDur * 2)
-    }
-
-    set lifeStart(value: number) {
-        this.time = value + this.halfJumpDur
-    }
 }
