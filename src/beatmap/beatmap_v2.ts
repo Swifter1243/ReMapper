@@ -1,7 +1,6 @@
 import { bomb, note } from './note.ts'
 import { wall } from './wall.ts'
 import { bsmap } from '../deps.ts'
-import {} from '../types/animation_types.ts'
 import { AbstractDifficulty } from './abstract_beatmap.ts'
 import { Bomb, Note } from '../internals/note.ts'
 import { DIFFNAME, DIFFPATH } from '../types/beatmap_types.ts'
@@ -10,7 +9,14 @@ import { EventGroup } from '../data/constants.ts'
 import { jsonPrune } from '../utils/json.ts'
 import { Wall } from '../internals/wall.ts'
 import { environment, geometry } from './environment.ts'
-import { GeoShader, RawGeometryMaterial } from '../mod.ts'
+import {
+    animateComponent,
+    animateTrack,
+    assignPathAnimation,
+    assignPlayerToTrack,
+    assignTrackParent,
+} from './custom_event.ts'
+import { GeoShader, RawGeometryMaterial } from '../types/environment_types.ts'
 
 export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
     declare version: bsmap.v2.IDifficulty['_version']
@@ -92,22 +98,38 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
 
         /// custom events
         const customEvents = json?._customData?._customEvents
-        const animateTracks = customEvents?.filter((x) =>
-            x._type === 'AnimateTrack'
-        )
-        const assignPathTracks = customEvents?.filter((x) =>
-            x._type === 'AssignPathAnimation'
-        )
-        const assignParent = customEvents?.filter((x) =>
-            x._type === 'AssignTrackParent'
-        )
-        const assignPlayer = customEvents?.filter((x) =>
-            x._type === 'AssignPlayerToTrack'
-        )
-        const assignFog = customEvents?.filter((x) =>
-            x._type === 'AssignFogTrack'
-        )
-        // TODO: Deserialize
+
+        const animateTracks =
+            customEvents?.filter((x) => x._type === 'AnimateTrack').map((x) =>
+                animateTrack(0, '').fromJson(
+                    x as bsmap.v2.ICustomEventAnimateTrack,
+                    false,
+                )
+            ) ?? []
+
+        const assignPathTracks =
+            customEvents?.filter((x) => x._type === 'AssignPathAnimation').map((
+                x,
+            ) => assignPathAnimation(0, '').fromJson(
+                x as bsmap.v2.ICustomEventAssignPathAnimation,
+                false,
+            )) ?? []
+
+        const assignParent =
+            customEvents?.filter((x) => x._type === 'AssignTrackParent').map((
+                x,
+            ) => assignTrackParent(0, [], '').fromJson(
+                x as bsmap.v2.ICustomEventAssignTrackParent,
+                false,
+            )) ?? []
+
+        const assignPlayer =
+            customEvents?.filter((x) => x._type === 'AssignPlayerToTrack').map((
+                x,
+            ) => assignPlayerToTrack(0, '').fromJson(
+                x as bsmap.v2.ICustomEventAssignPlayerToTrack,
+                false,
+            )) ?? []
 
         // environment
         const environmentArr =
@@ -172,10 +194,10 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
                 rotationEvent: [],
 
                 animateComponents: [],
-                animateTracks: [],
-                assignPathAnimations: [],
-                assignPlayerTracks: [],
-                assignTrackParents: [],
+                animateTracks: animateTracks,
+                assignPathAnimations: assignPathTracks,
+                assignPlayerTracks: assignPlayer,
+                assignTrackParents: assignParent,
 
                 geoMaterials: materials,
                 pointDefinitions: pointDefinitions,
@@ -214,10 +236,19 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
                     _shader: value.shader,
                     _color: value.color,
                     _shaderKeywords: value.shaderKeywords,
-                    _track: value.track
+                    _track: value.track,
                 }
             },
         )
+
+        const customEvents = [
+            ...this.animateTracks,
+            ...this.assignPathAnimations,
+            ...this.assignTrackParents,
+            ...this.assignPlayerTracks,
+            ...this.animateComponents,
+        ].map((x) => x.toJson(false))
+            .sort(sortItems)
 
         return {
             _notes: notes,
@@ -233,7 +264,8 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
                     ...geometryArr,
                 ],
                 pointDefinitions: pointDefinitions,
-                materials: materials
+                customEvents: customEvents,
+                materials: materials,
             }),
             _specialEventsKeywordFilters: { _keywords: [] },
         }

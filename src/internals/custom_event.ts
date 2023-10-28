@@ -12,7 +12,7 @@ import {
 } from '../types/environment_types.ts'
 import { getActiveDiff } from '../data/beatmap_handler.ts'
 import { Track } from '../animation/track.ts'
-import { Fields, TJson } from '../types/util_types.ts'
+import { Fields, SubclassExclusiveProps, TJson } from '../types/util_types.ts'
 import { JsonWrapper } from '../types/beatmap_types.ts'
 import { copy } from '../utils/general.ts'
 import { AnimationPropertiesV3, animationToJson } from './animation.ts'
@@ -36,7 +36,33 @@ export abstract class BaseCustomEvent<
     /** Push this event to the difficulty.
      * @param clone Whether this object will be copied before being pushed.
      */
-    abstract push(clone: boolean): BaseCustomEvent<TV2, TV3>;
+    abstract push(clone: boolean): BaseCustomEvent<TV2, TV3>
+
+    fromJson(json: TV3, v3: true): this
+    fromJson(json: TV2, v3: false): this
+    fromJson(json: TV2 | TV3, v3: boolean): this {
+        type Params = Fields<BaseCustomEvent<TV2, TV3>>
+
+        if (v3) {
+            const obj = json as TV3
+
+            const params = {
+                time: obj.b,
+            } as Params
+
+            Object.assign(this, params)
+        } else {
+            const obj = json as TV2
+
+            const params = {
+                time: obj._time,
+            } as Params
+
+            Object.assign(this, params)
+        }
+
+        return this
+    }
 
     abstract toJson(v3: true): TV3
     abstract toJson(v3: false): TV2
@@ -47,6 +73,50 @@ export class AnimateTrack extends BaseCustomEvent<
     bsmap.v2.ICustomEventAnimateTrack,
     bsmap.v3.ICustomEventAnimateTrack
 > {
+    fromJson(json: bsmap.v3.ICustomEventAnimateTrack, v3: true): this
+    fromJson(json: bsmap.v2.ICustomEventAnimateTrack, v3: false): this
+    fromJson(
+        json:
+            | bsmap.v2.ICustomEventAnimateTrack
+            | bsmap.v3.ICustomEventAnimateTrack,
+        v3: boolean,
+    ): this {
+        type Params = Fields<
+            SubclassExclusiveProps<
+                AnimateTrack,
+                BaseCustomEvent<
+                    bsmap.v2.ICustomEvent,
+                    bsmap.v3.ICustomEvent
+                >
+            >
+        >
+
+        if (v3) {
+            const obj = json as bsmap.v3.ICustomEventAnimateTrack
+
+            const params = {
+                duration: obj.d.duration,
+                ease: obj.d.easing,
+                repeat: obj.d.repeat,
+                track: new Track(obj.d.track),
+            } as Params
+
+            Object.assign(this, params)
+            return super.fromJson(obj, v3)
+        } else {
+            const obj = json as bsmap.v2.ICustomEventAnimateTrack
+
+            const params = {
+                duration: obj._data._duration,
+                ease: obj._data._easing,
+                track: new Track(obj._data._track),
+            } as Params
+
+            Object.assign(this, params)
+            return super.fromJson(obj, v3)
+        }
+    }
+
     toJson(v3: true): bsmap.v3.ICustomEventAnimateTrack
     toJson(v3: false): bsmap.v2.ICustomEventAnimateTrack
     toJson(
@@ -58,19 +128,6 @@ export class AnimateTrack extends BaseCustomEvent<
             return {
                 b: this.time,
                 d: {
-                    // color: this.animate.color as bsmap.ColorPointDefinition[],
-                    // time: this.animate.time as bsmap.PercentPointDefinition[],
-                    // dissolve: this.animate.dissolve as bsmap.PercentPointDefinition[],
-                    // dissolveArrow: this.animate
-                    //   .dissolveArrow as bsmap.PercentPointDefinition[],
-                    // interactable: this.animate
-                    //   .uninteractable as bsmap.PercentPointDefinition[], // TODO: fixup
-                    // localRotation: this.animate
-                    //   .localRotation as bsmap.Vector3PointDefinition[],
-                    // position: this.animate.position as bsmap.Vector3PointDefinition[],
-                    // rotation: this.animate.rotation as bsmap.Vector3PointDefinition[],
-                    // scale: this.animate.scale as bsmap.Vector3PointDefinition[],
-
                     repeat: this.repeat,
                     easing: this.ease,
                     track: this.track.value,
@@ -91,19 +148,6 @@ export class AnimateTrack extends BaseCustomEvent<
         return {
             _time: this.time,
             _data: {
-                // _color: this.animate.color as bsmap.ColorPointDefinition[],
-                // _time: this.animate.time as bsmap.PercentPointDefinition[],
-                // _dissolve: this.animate.dissolve as bsmap.PercentPointDefinition[],
-                // _dissolveArrow: this.animate
-                //   .dissolveArrow as bsmap.PercentPointDefinition[],
-                // _interactable: this.animate
-                //   .uninteractable as bsmap.PercentPointDefinition[], // TODO: fixup
-                // _localRotation: this.animate
-                //   .localRotation as bsmap.Vector3PointDefinition[],
-                // _position: this.animate.position as bsmap.Vector3PointDefinition[],
-                // _rotation: this.animate.rotation as bsmap.Vector3PointDefinition[],
-                // _scale: this.animate.scale as bsmap.Vector3PointDefinition[],
-
                 _easing: this.ease,
                 _track: this.track.value,
                 _duration: this.duration,
@@ -149,7 +193,6 @@ export class AnimateTrack extends BaseCustomEvent<
         if (params.easing) this.ease = params.easing
     }
 
-    
     /** Push this event to the difficulty.
      * @param clone Whether this object will be copied before being pushed.
      */
@@ -163,6 +206,51 @@ export class AssignPathAnimation extends BaseCustomEvent<
     bsmap.v2.ICustomEventAssignPathAnimation,
     bsmap.v3.ICustomEventAssignPathAnimation
 > {
+    fromJson(json: bsmap.v3.ICustomEventAssignPathAnimation, v3: true): this
+    fromJson(json: bsmap.v2.ICustomEventAssignPathAnimation, v3: false): this
+    fromJson(
+        json:
+            | bsmap.v2.ICustomEventAssignPathAnimation
+            | bsmap.v3.ICustomEventAssignPathAnimation,
+        v3: boolean,
+    ): this {
+        type Params = Fields<
+            SubclassExclusiveProps<
+                AssignPathAnimation,
+                BaseCustomEvent<
+                    bsmap.v2.ICustomEvent,
+                    bsmap.v3.ICustomEvent
+                >
+            >
+        >
+
+        if (v3) {
+            const obj = json as bsmap.v3.ICustomEventAssignPathAnimation
+
+            const params = {
+                // @ts-ignore 2322
+                duration: obj.d.duration,
+                ease: obj.d.easing,
+                track: new Track(obj.d.track),
+            } as Params
+
+            Object.assign(this, params)
+            return super.fromJson(obj, v3)
+        } else {
+            const obj = json as bsmap.v2.ICustomEventAssignPathAnimation
+
+            const params = {
+                // @ts-ignore 2322
+                duration: obj._data._duration,
+                ease: obj._data._easing,
+                track: new Track(obj._data._track),
+            } as Params
+
+            Object.assign(this, params)
+            return super.fromJson(obj, v3)
+        }
+    }
+
     toJson(v3: true): bsmap.v3.ICustomEventAssignPathAnimation
     toJson(v3: false): bsmap.v2.ICustomEventAssignPathAnimation
     toJson(
@@ -176,18 +264,8 @@ export class AssignPathAnimation extends BaseCustomEvent<
             return {
                 b: this.time,
                 d: {
-                    // color: this.animate.color as bsmap.ColorPointDefinition[],
-                    // dissolve: this.animate.dissolve as bsmap.PercentPointDefinition[],
-                    // dissolveArrow: this.animate
-                    //   .dissolveArrow as bsmap.PercentPointDefinition[],
-                    // interactable: this.animate
-                    //   .uninteractable as bsmap.PercentPointDefinition[], // TODO: fixup
-                    // localRotation: this.animate
-                    //   .localRotation as bsmap.Vector3PointDefinition[],
-                    // position: this.animate.position as bsmap.Vector3PointDefinition[],
-                    // rotation: this.animate.rotation as bsmap.Vector3PointDefinition[],
-                    // scale: this.animate.scale as bsmap.Vector3PointDefinition[],
-
+                    // @ts-ignore 2322
+                    duration: this.duration,
                     easing: this.ease,
                     track: this.track.value,
                     ...this.data,
@@ -200,18 +278,8 @@ export class AssignPathAnimation extends BaseCustomEvent<
         return {
             _time: this.time,
             _data: {
-                // _color: this.animate.color as bsmap.ColorPointDefinition[],
-                // _dissolve: this.animate.dissolve as bsmap.PercentPointDefinition[],
-                // _dissolveArrow: this.animate
-                //   .dissolveArrow as bsmap.PercentPointDefinition[],
-                // _interactable: this.animate
-                //   .uninteractable as bsmap.PercentPointDefinition[], // TODO: fixup
-                // _localRotation: this.animate
-                //   .localRotation as bsmap.Vector3PointDefinition[],
-                // _position: this.animate.position as bsmap.Vector3PointDefinition[],
-                // _rotation: this.animate.rotation as bsmap.Vector3PointDefinition[],
-                // _scale: this.animate.scale as bsmap.Vector3PointDefinition[],
-
+                // @ts-ignore 2322
+                _duration: this.duration,
                 _easing: this.ease,
                 _track: this.track.value,
                 ...this.data,
@@ -253,7 +321,7 @@ export class AssignPathAnimation extends BaseCustomEvent<
         if (params.easing) this.ease = params.easing
     }
 
-        /** Push this event to the difficulty.
+    /** Push this event to the difficulty.
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
@@ -266,6 +334,49 @@ export class AssignTrackParent extends BaseCustomEvent<
     bsmap.v2.ICustomEventAssignTrackParent,
     bsmap.v3.ICustomEventAssignTrackParent
 > {
+    fromJson(json: bsmap.v3.ICustomEventAssignTrackParent, v3: true): this
+    fromJson(json: bsmap.v2.ICustomEventAssignTrackParent, v3: false): this
+    fromJson(
+        json:
+            | bsmap.v2.ICustomEventAssignTrackParent
+            | bsmap.v3.ICustomEventAssignTrackParent,
+        v3: boolean,
+    ): this {
+        type Params = Fields<
+            SubclassExclusiveProps<
+                AssignTrackParent,
+                BaseCustomEvent<
+                    bsmap.v2.ICustomEvent,
+                    bsmap.v3.ICustomEvent
+                >
+            >
+        >
+
+        if (v3) {
+            const obj = json as bsmap.v3.ICustomEventAssignTrackParent
+
+            const params = {
+                childrenTracks: obj.d.childrenTracks,
+                parentTrack: obj.d.parentTrack,
+                worldPositionStays: obj.d.worldPositionStays,
+            } as Params
+
+            Object.assign(this, params)
+            return super.fromJson(obj, v3)
+        } else {
+            const obj = json as bsmap.v2.ICustomEventAssignTrackParent
+
+            const params = {
+                childrenTracks: obj._data._childrenTracks,
+                parentTrack: obj._data._parentTrack,
+                worldPositionStays: obj._data._worldPositionStays,
+            } as Params
+
+            Object.assign(this, params)
+            return super.fromJson(obj, v3)
+        }
+    }
+
     toJson(v3: true): bsmap.v3.ICustomEventAssignTrackParent
     toJson(v3: false): bsmap.v2.ICustomEventAssignTrackParent
     toJson(
@@ -314,7 +425,7 @@ export class AssignTrackParent extends BaseCustomEvent<
         this.worldPositionStays = params.worldPositionStays
     }
 
-        /** Push this event to the difficulty.
+    /** Push this event to the difficulty.
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
@@ -347,6 +458,47 @@ export class AssignPlayerToTrack extends BaseCustomEvent<
 
     /** Track the player will be assigned to. */
     track?: string
+    target?: bsmap.PlayerObject
+
+    fromJson(json: bsmap.v3.ICustomEventAssignPlayerToTrack, v3: true): this
+    fromJson(json: bsmap.v2.ICustomEventAssignPlayerToTrack, v3: false): this
+    fromJson(
+        json:
+            | bsmap.v2.ICustomEventAssignPlayerToTrack
+            | bsmap.v3.ICustomEventAssignPlayerToTrack,
+        v3: boolean,
+    ): this {
+        type Params = Fields<
+            SubclassExclusiveProps<
+                AssignPlayerToTrack,
+                BaseCustomEvent<
+                    bsmap.v2.ICustomEvent,
+                    bsmap.v3.ICustomEvent
+                >
+            >
+        >
+
+        if (v3) {
+            const obj = json as bsmap.v3.ICustomEventAssignPlayerToTrack
+
+            const params = {
+                track: obj.d.track,
+                target: obj.d.target,
+            } as Params
+
+            Object.assign(this, params)
+            return super.fromJson(obj, v3)
+        } else {
+            const obj = json as bsmap.v2.ICustomEventAssignPlayerToTrack
+
+            const params = {
+                track: obj._data._track,
+            } as Params
+
+            Object.assign(this, params)
+            return super.fromJson(obj, v3)
+        }
+    }
 
     toJson(v3: true): bsmap.v3.ICustomEventAssignPlayerToTrack
     toJson(v3: false): bsmap.v2.ICustomEventAssignPlayerToTrack
@@ -360,9 +512,16 @@ export class AssignPlayerToTrack extends BaseCustomEvent<
                 b: this.time,
                 d: {
                     track: this.track!,
+                    target: this.target,
                 },
                 t: 'AssignPlayerToTrack',
             } satisfies bsmap.v3.ICustomEventAssignPlayerToTrack
+        }
+
+        if (this.target) {
+            console.log(
+                'Target is unsupported in v2 at the moment, may be implemented later',
+            )
         }
 
         return {
@@ -374,7 +533,7 @@ export class AssignPlayerToTrack extends BaseCustomEvent<
         } satisfies bsmap.v2.ICustomEventAssignPlayerToTrack
     }
 
-        /** Push this event to the difficulty.
+    /** Push this event to the difficulty.
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
@@ -426,6 +585,39 @@ export class AnimateComponent
     /** The "TubeBloomPrePassLight component to animate." */
     lightMultiplier: TubeBloomPrePassLight<PointDefinitionLinear> = {}
 
+    fromJson(json: bsmap.v3.ICustomEventAnimateComponent, v3: true): this
+    fromJson(json: never, v3: false): this
+    fromJson(json: never | bsmap.v3.ICustomEventAnimateComponent, v3: boolean): this {
+        type Params = Fields<
+            SubclassExclusiveProps<
+            AnimateComponent,
+                BaseCustomEvent<
+                    bsmap.v2.ICustomEvent,
+                    bsmap.v3.ICustomEvent
+                >
+            >
+        >
+
+        if (v3) {
+            const obj = json as bsmap.v3.ICustomEventAnimateComponent
+
+            const params = {
+                duration: obj.d.duration,
+                easing: obj.d.easing,
+                fog: obj.d.BloomFogEnvironment,
+                // @ts-ignore 2322
+                lightID: obj.d.ILightWithId,
+                lightMultiplier: obj.d.TubeBloomPrePassLight,
+                track: new Track(obj.d.track),
+            } as Params
+
+            Object.assign(this, params)
+            return super.fromJson(obj, v3)
+        }
+
+        throw 'V2 not supported for animating components'
+    }
+
     toJson(v3: true): bsmap.v3.ICustomEventAnimateComponent
     toJson(v3: false): never
     toJson(v3 = true): bsmap.v3.ICustomEventAnimateComponent {
@@ -461,7 +653,7 @@ export class AnimateComponent
         } satisfies bsmap.v3.ICustomEventAnimateComponent
     }
 
-        /** Push this event to the difficulty.
+    /** Push this event to the difficulty.
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {

@@ -8,6 +8,13 @@ import { EventGroup } from '../data/constants.ts'
 import { jsonPrune } from '../utils/json.ts'
 import { environment, geometry } from './environment.ts'
 import { RawGeometryMaterial } from '../mod.ts'
+import {
+    animateComponent,
+    animateTrack,
+    assignPathAnimation,
+    assignPlayerToTrack,
+    assignTrackParent,
+} from './custom_event.ts'
 
 export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
     declare version: bsmap.v3.IDifficulty['version']
@@ -129,24 +136,47 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         )
 
         /// custom events
-
         const customEvents = json?.customData?.customEvents
-        const animateTracks = customEvents?.filter((x) =>
-            x.t === 'AnimateTrack'
-        )
-        const assignPathTracks = customEvents?.filter((x) =>
-            x.t === 'AssignPathAnimation'
-        )
-        const assignParent = customEvents?.filter((x) =>
-            x.t === 'AssignTrackParent'
-        )
-        const assignPlayer = customEvents?.filter((x) =>
-            x.t === 'AssignPlayerToTrack'
-        )
-        const animateComponents = customEvents?.filter((x) =>
-            x.t === 'AnimateComponent'
-        )
-        // TODO: Deserialize
+
+        const animateTracks =
+            customEvents?.filter((x) => x.t === 'AnimateTrack').map((x) =>
+                animateTrack(0, '').fromJson(
+                    x as bsmap.v3.ICustomEventAnimateTrack,
+                    true,
+                )
+            ) ?? []
+
+        const assignPathTracks =
+            customEvents?.filter((x) => x.t === 'AssignPathAnimation').map((
+                x,
+            ) => assignPathAnimation(0, '').fromJson(
+                x as bsmap.v3.ICustomEventAssignPathAnimation,
+                true,
+            )) ?? []
+
+        const assignParent =
+            customEvents?.filter((x) => x.t === 'AssignTrackParent').map((x) =>
+                assignTrackParent(0, [], '').fromJson(
+                    x as bsmap.v3.ICustomEventAssignTrackParent,
+                    true,
+                )
+            ) ?? []
+
+        const assignPlayer =
+            customEvents?.filter((x) => x.t === 'AssignPlayerToTrack').map((
+                x,
+            ) => assignPlayerToTrack(0, '').fromJson(
+                x as bsmap.v3.ICustomEventAssignPlayerToTrack,
+                true,
+            )) ?? []
+
+        const animateComponents =
+            customEvents?.filter((x) => x.t === 'AnimateComponent').map((x) =>
+                animateComponent(0, '').fromJson(
+                    x as bsmap.v3.ICustomEventAnimateComponent,
+                    true,
+                )
+            ) ?? []
 
         // environment
         const environmentArr =
@@ -191,11 +221,11 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
                 rotationEvent: [],
                 geoMaterials: materials,
 
-                animateComponents: [],
-                animateTracks: [],
-                assignPathAnimations: [],
-                assignPlayerTracks: [],
-                assignTrackParents: [],
+                animateComponents: animateComponents,
+                animateTracks: animateTracks,
+                assignPathAnimations: assignPathTracks,
+                assignPlayerTracks: assignPlayer,
+                assignTrackParents: assignParent,
 
                 pointDefinitions: json.customData?.pointDefinitions ?? {},
                 customData: json.customData ?? {},
@@ -210,30 +240,31 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
 
         const colorNotes = this.notes.filter((e) => !e.fake)
             .map((e) => (e.toJson(true)))
-            .sort(
-                sortItems,
-            )
+            .sort(sortItems)
 
         const bombNotes = this.bombs.filter((e) => !e.fake)
             .map((e) => (e.toJson(true)))
-            .sort(
-                sortItems,
-            )
+            .sort(sortItems)
 
         const chains = this.chains.filter((e) => !e.fake)
             .map((e) => (e.toJson(true)))
-            .sort(
-                sortItems,
-            )
+            .sort(sortItems)
 
         const arcs = this.arcs
             .map((e) => (e.toJson(true)))
-            .sort(
-                sortItems,
-            )
+            .sort(sortItems)
 
         const environmentArr = this.environment.map((e) => e.toJson(true))
         const geometryArr = this.geometry.map((e) => e.toJson(true))
+
+        const customEvents = [
+            ...this.animateTracks,
+            ...this.assignPathAnimations,
+            ...this.assignTrackParents,
+            ...this.assignPlayerTracks,
+            ...this.animateComponents,
+        ].map((x) => x.toJson(true))
+            .sort(sortItems)
 
         return {
             colorNotes: colorNotes,
@@ -275,6 +306,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
                     string,
                     bsmap.v3.IChromaMaterial
                 >,
+                customEvents: customEvents,
                 pointDefinitions: this
                     .pointDefinitions as bsmap.v3.IPointDefinition,
             }),

@@ -139,11 +139,11 @@ export abstract class BaseGameplayObject<
             ? obj.track
             : new Track(obj.track)
         this.color = obj.color
-        if (obj.life) {
+
+        if (obj.life !== undefined) {
             this.life = obj.life
         }
-
-        if (obj.lifeStart) {
+        if (obj.lifeStart !== undefined) {
             this.lifeStart = obj.lifeStart
         }
     }
@@ -294,7 +294,7 @@ export abstract class BaseGameplayObject<
                     : obj._customData?._rotation,
                 track: new Track(obj._customData?._track),
                 NJS: obj._customData?._noteJumpMovementSpeed,
-                offset: obj._customData?._noteJumpStartBeatOffset
+                offset: obj._customData?._noteJumpStartBeatOffset,
             } as Params
 
             Object.assign(this, params)
