@@ -20,9 +20,9 @@ import { copy } from '../utils/general.ts'
 import {
     AnimationPropertiesV2,
     AnimationPropertiesV3,
-    GameplayObjectAnimationData,
     jsonToAnimation,
     NoteAnimationData,
+ObjectAnimationData,
 } from './animation.ts'
 import { TrackValue } from '../types/animation_types.ts'
 
@@ -176,7 +176,7 @@ export abstract class BaseGameplayObject<
     color?: ColorVec
 
     /** The animation json on the object. */
-    animation: GameplayObjectAnimationData
+    animation: ObjectAnimationData
 
     /** The note jump speed of the object. Refers to the difficulty if undefined. */
     get implicitNJS() {
@@ -453,6 +453,8 @@ export abstract class BaseSliderObject<TV3 extends bsmap.v3.IBaseSlider>
         this.tailX = obj.tailX ?? 0
         this.tailY = obj.tailY ?? 0
     }
+
+    declare animation: NoteAnimationData
 
     fromJson(json: TV3, v3: true): this
     fromJson(json: never, v3: false): this
