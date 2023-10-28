@@ -816,7 +816,7 @@ export async function getModel(
 ) {
     const parsedPath = await parseFilePath(filePath, '.rmmodel')
     const inputPath = parsedPath.path
-    const mTime = Deno.statSync(inputPath).mtime?.toString()
+    const mTime = await Deno.stat(inputPath).then(x => x.mtime?.toString())
     processing ??= []
     processing.push.apply(processing, [mTime, process?.toString()])
 
@@ -828,7 +828,7 @@ export async function getModel(
                 (await parseFilePath(filePath, '.rmmodel')).path,
             ),
         )
-        if (process) process(data.objects)
+        process?.(data.objects)
         return data.objects as ReadonlyModel
     }, processing)
 }
