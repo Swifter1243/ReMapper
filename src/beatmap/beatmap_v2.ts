@@ -10,13 +10,14 @@ import { jsonPrune } from '../utils/json.ts'
 import { Wall } from '../internals/wall.ts'
 import { environment, geometry } from './environment.ts'
 import {
-    animateComponent,
     animateTrack,
     assignPathAnimation,
     assignPlayerToTrack,
     assignTrackParent,
 } from './custom_event.ts'
 import { GeoShader, RawGeometryMaterial } from '../types/environment_types.ts'
+import { arrSplit } from '../utils/array_utils.ts'
+import { event } from './mod.ts'
 
 export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
     declare version: bsmap.v2.IDifficulty['_version']
@@ -59,42 +60,85 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
             (obstacles) => obstacles.map((o) => wall().fromJson(o, false)),
         ) ?? []
 
-        // 0-3 laser
-        const lasersEvents = json._events.filter((x) =>
-            (x._type >= 0 && x._type <= 3) ||
-            (x._type === EventGroup.LEFT_EXTRA ||
-                x._type === EventGroup.RIGHT_EXTRA)
+        // Events
+        const lightEventsFilter = arrSplit(json._events, (x) => {
+            return x._type === EventGroup.BACK_LASERS ||
+                x._type === EventGroup.RING_LIGHTS ||
+                x._type === EventGroup.LEFT_LASERS ||
+                x._type === EventGroup.RIGHT_LASERS ||
+                x._type === EventGroup.CENTER_LASERS ||
+                x._type === EventGroup.LEFT_EXTRA ||
+                x._type === EventGroup.RIGHT_EXTRA ||
+                x._type === EventGroup.BILLIE_LEFT ||
+                x._type === EventGroup.BILLIE_RIGHT ||
+                x._type === EventGroup.GAGA_LEFT ||
+                x._type === EventGroup.GAGA_RIGHT
+        })
+        json._events = lightEventsFilter[1]
+
+        const laserSpeedEventsFilter = arrSplit(
+            json._events,
+            (x) => {
+                return x._type === EventGroup.LEFT_ROTATING_LASERS ||
+                    x._type === EventGroup.RIGHT_ROTATING_LASERS
+            },
         )
-        const lasersRotateEvents = json._events.filter((x) =>
-            x._type === EventGroup.LEFT_ROTATING ||
-            x._type === EventGroup.RIGHT_ROTATING
+        json._events = laserSpeedEventsFilter[1]
+
+        const ringZoomEventsFilter = arrSplit(json._events, (x) => {
+            return x._type === EventGroup.RING_ZOOM
+        })
+        json._events = ringZoomEventsFilter[1]
+
+        const ringSpinEventsFilter = arrSplit(json._events, (x) => {
+            return x._type === EventGroup.RING_SPIN
+        })
+        json._events = ringSpinEventsFilter[1]
+
+        const rotationEventsFilter = arrSplit(json._events, (x) => {
+            return x._type === EventGroup.EARLY_ROTATION ||
+                x._type === EventGroup.LATE_ROTATION
+        })
+        json._events = rotationEventsFilter[1]
+
+        const boostEventsFilter = arrSplit(json._events, (x) => {
+            return x._type === EventGroup.BOOST
+        })
+        json._events = boostEventsFilter[1]
+
+        const lightEvents = lightEventsFilter[0].map((o) =>
+            event.backLasers().fromJson(o as bsmap.v2.IEventLight, false)
         )
 
-        // 4 to 7 are lights
-        const lightEvents = json._events.filter((x) =>
-            x._type >= 4 && x._type <= 7 && x._type !== 5
-        )
-        const boostEvents = json._events.filter((x) => x._type === 5)
-        const zoomEvents = json._events.filter((x) =>
-            x._type === EventGroup.RING_ZOOM
-        )
-        const ringRotateEvents = json._events.filter((x) =>
-            x._type === EventGroup.RING_SPIN
-        )
-        // 90/360 maps
-        const laneEvents = json._events.filter((x) =>
-            x._type === 13 || x._type === 14
-        )
-        // idk
-        const utilityEvents = json._events.filter((x) =>
-            x._type >= 16 && x._type <= 19
-        )
-        // bts?
-        const specialEvents = json._events.filter((x) =>
-            x._type >= 40 && x._type <= 43
+        const laserSpeedEvents = laserSpeedEventsFilter[0].map((o) =>
+            event.leftLaserSpeed(0).fromJson(
+                o as bsmap.v2.IEventLaser,
+                false,
+            )
         )
 
-        const bpmRotationEvents = json._events.filter((x) => x._type === 100)
+        const ringZoomEvents = ringZoomEventsFilter[0].map((o) =>
+            event.ringZoom(0).fromJson(o as bsmap.v2.IEventZoom, false)
+        )
+
+        const ringSpinEvents = ringSpinEventsFilter[0].map((o) =>
+            event.ringSpin(0).fromJson(o as bsmap.v2.IEventRing, false)
+        )
+
+        const rotationEvents = rotationEventsFilter[0].map((o) =>
+            event.lateRotation(0).fromJson(
+                o as bsmap.v2.IEventLaneRotation,
+                false,
+            )
+        )
+
+        const boostEvents = boostEventsFilter[0].map((o) =>
+            event.boost(0, false).fromJson(o, false)
+        )
+
+        const baseBasicEvents = json._events.map((o) =>
+            event.baseBasicEvent(0).fromJson(o, false)
+        )
 
         /// custom events
         const customEvents = json?._customData?._customEvents
@@ -187,11 +231,13 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
                 chains: [],
                 walls: obstacles,
 
-                basicEvents: [],
-                laserSpeedEvents: [],
-                ringSpinEvents: [],
-                ringZoomEvents: [],
-                rotationEvent: [],
+                lightEvents: lightEvents,
+                laserSpeedEvents: laserSpeedEvents,
+                ringSpinEvents: ringSpinEvents,
+                ringZoomEvents: ringZoomEvents,
+                rotationEvents: rotationEvents,
+                boostEvents: boostEvents,
+                baseBasicEvents: baseBasicEvents,
 
                 animateComponents: [],
                 animateTracks: animateTracks,
@@ -212,13 +258,16 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
         const sortItems = (a: { _time: number }, b: { _time: number }) =>
             a._time - b._time
 
+        // Notes
         const notes = [...this.notes, ...this.bombs].map((e) =>
             jsonPrune(e.toJson(false))
         ).sort(sortItems)
 
+        // Environment
         const environmentArr = this.environment.map((e) => e.toJson(false))
         const geometryArr = this.geometry.map((e) => e.toJson(false))
 
+        // Point Definitions
         const pointDefinitions = [] as bsmap.v2.IPointDefinition[]
 
         Object.entries(this.pointDefinitions).forEach((x) => {
@@ -228,6 +277,7 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
             })
         })
 
+        // Materials
         const materials: Record<string, bsmap.v2.IChromaMaterial> = {}
 
         Object.entries(this.geoMaterials).forEach(
@@ -241,6 +291,19 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
             },
         )
 
+        // Events
+        const basicEvents = [
+            ...this.lightEvents,
+            ...this.laserSpeedEvents,
+            ...this.ringZoomEvents,
+            ...this.ringSpinEvents,
+            ...this.rotationEvents,
+            ...this.boostEvents,
+            ...this.baseBasicEvents,
+        ].map((o) => o.toJson(false))
+            .sort(sortItems)
+
+        // Custom Events
         const customEvents = [
             ...this.animateTracks,
             ...this.assignPathAnimations,
@@ -252,7 +315,7 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
 
         return {
             _notes: notes,
-            _events: [],
+            _events: basicEvents,
             _obstacles: this.walls.map((o) => jsonPrune(o.toJson(false))),
             _sliders: [],
             _version: '2.6.0',

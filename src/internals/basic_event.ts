@@ -3,7 +3,11 @@ import { bsmap } from '../deps.ts'
 import { EASE } from '../types/animation_types.ts'
 import { BaseObject } from './object.ts'
 import { getActiveDiff } from '../data/beatmap_handler.ts'
-import { ObjectFields } from '../types/util_types.ts'
+import {
+    Fields,
+    ObjectFields,
+    SubclassExclusiveProps,
+} from '../types/util_types.ts'
 import { LightID } from '../types/environment_types.ts'
 import { ColorVec } from '../types/data_types.ts'
 import { copy } from '../utils/general.ts'
@@ -42,10 +46,81 @@ export abstract class BaseEvent<
     value: TV2['_value'] | TV3['i'] = 0!
     /** The value of the event, but allowing decimals. */
     floatValue = 1
+
+    fromJson(json: TV3, v3: true): this
+    fromJson(json: TV2, v3: false): this
+    fromJson(
+        json: TV3 | TV2,
+        v3: boolean,
+    ): this {
+        // TODO: Implement custom data
+
+        type Params = SubclassExclusiveProps<
+            BaseEvent,
+            BaseObject<TV2, TV3>
+        >
+
+        if (v3) {
+            const obj = json as TV3
+
+            const params = {
+                type: obj.et,
+                floatValue: obj.f,
+                value: obj.i,
+            } as Params
+
+            Object.assign(this, params)
+            return super.fromJson(obj, true)
+        } else {
+            const obj = json as TV2
+
+            const params = {
+                type: obj._type,
+                floatValue: obj._floatValue,
+                value: obj._value,
+            } as Params
+
+            Object.assign(this, params)
+            return super.fromJson(obj, false)
+        }
+    }
 }
 
-export class LightEvent
-    extends BaseEvent<bsmap.v2.IEventLight, bsmap.v3.IBasicEventLight> {
+export class BaseBasicEvent extends BaseEvent {
+    push(
+        clone: boolean,
+    ) {
+        getActiveDiff().baseBasicEvents.push(clone ? copy(this) : this)
+        return this
+    }
+
+    toJson(v3: true): bsmap.v3.IBasicEvent
+    toJson(v3: false): bsmap.v2.IEvent
+    toJson(v3 = true): bsmap.v2.IEvent | bsmap.v3.IBasicEvent {
+        if (v3) {
+            return {
+                b: this.time,
+                et: this.type,
+                f: this.floatValue,
+                i: this.value,
+                customData: this.customData,
+            } satisfies bsmap.v3.IBasicEvent
+        } else {
+            return {
+                _floatValue: this.floatValue,
+                _time: this.time,
+                _type: this.type,
+                _value: this.value,
+                _customData: this.customData,
+            } satisfies bsmap.v2.IEvent
+        }
+    }
+}
+
+export class LightEvent<
+    TV2 extends bsmap.v2.IEventLight = bsmap.v2.IEventLight,
+    TV3 extends bsmap.v3.IBasicEventLight = bsmap.v3.IBasicEventLight,
+> extends BaseEvent<TV2, TV3> {
     /** Create an event that turns lights off
      * @param lightID The lightIDs to target.
      */
@@ -122,20 +197,56 @@ export class LightEvent
     lerpType?: 'RGB' | 'HSV'
 
     push(
-        clone: boolean,
-    ): LightEvent {
-        getActiveDiff().basicEvents.push(clone ? copy(this) : this)
+        clone = true,
+    ): LightEvent<TV2, TV3> {
+        getActiveDiff().lightEvents.push(clone ? copy(this) : this)
         return this
     }
 
-    toJson(v3: true): bsmap.v3.IBasicEventLight
-    toJson(v3: false): bsmap.v2.IEventLight
+    fromJson(json: TV3, v3: true): this
+    fromJson(json: TV2, v3: false): this
+    fromJson(json: TV2 | TV3, v3: boolean): this {
+        type Params = Fields<
+            SubclassExclusiveProps<
+                LightEvent,
+                BaseEvent
+            >
+        >
+
+        if (v3) {
+            const obj = json as TV3
+
+            const params = {
+                color: obj.customData?.color,
+                easing: obj.customData?.easing,
+                lerpType: obj.customData?.lerpType,
+                lightID: obj.customData?.lightID,
+            } as Params
+
+            Object.assign(this, params)
+            return super.fromJson(obj, true)
+        } else {
+            const obj = json as TV2
+
+            const params = {
+                color: obj._customData?._color,
+                easing: obj._customData?._easing,
+                lerpType: obj._customData?._lerpType,
+                lightID: obj._customData?._lightID,
+            } as Params
+
+            Object.assign(this, params)
+            return super.fromJson(obj, false)
+        }
+    }
+
+    toJson(v3: true): TV3
+    toJson(v3: false): TV2
     toJson(v3 = true): bsmap.v3.IBasicEventLight | bsmap.v2.IEventLight {
-        // TODO: Fix any
         if (v3) {
             return {
                 b: this.time,
-                et: this.type as bsmap.v3.IBasicEventLight["et"],
+                et: this.type as bsmap.v3.IBasicEventLight['et'],
                 f: this.floatValue,
                 i: this.value,
                 customData: {
@@ -150,7 +261,7 @@ export class LightEvent
             return {
                 _floatValue: this.floatValue,
                 _time: this.time,
-                _type: this.type as bsmap.v2.IEventLight["_type"],
+                _type: this.type as bsmap.v2.IEventLight['_type'],
                 _value: this.value,
                 _customData: {
                     _color: this.color,
@@ -174,8 +285,11 @@ export class LightEvent
 //   customData: {}
 // })
 
-export class LaserSpeedEvent
-    extends BaseEvent<bsmap.v2.IEventLaser, bsmap.v3.IBasicEventLaserRotation> {
+export class LaserSpeedEvent<
+    TV2 extends bsmap.v2.IEventLaser = bsmap.v2.IEventLaser,
+    TV3 extends bsmap.v3.IBasicEventLaserRotation =
+        bsmap.v3.IBasicEventLaserRotation,
+> extends BaseEvent<TV2, TV3> {
     /**
      * Controls rotating laser speed.
      * @param json Json to import.
@@ -184,7 +298,7 @@ export class LaserSpeedEvent
      * @param direction Direction of the rotating lasers.
      * @param lockRotation Whether the existing rotation should be kept.
      */
-    constructor(obj: LightFields<LaserSpeedEvent>) {
+    constructor(obj: LightFields<LaserSpeedEvent<TV2, TV3>>) {
         super(obj)
     }
 
@@ -196,21 +310,58 @@ export class LaserSpeedEvent
     direction?: number
 
     push(
-        clone: boolean,
-    ): LaserSpeedEvent {
+        clone = true,
+    ): LaserSpeedEvent<TV2, TV3> {
         getActiveDiff().laserSpeedEvents.push(clone ? copy(this) : this)
         return this
     }
 
-    toJson(v3: true): bsmap.v3.IBasicEventLaserRotation
-    toJson(v3: false): bsmap.v2.IEventLaser
+    fromJson(json: TV3, v3: true): this
+    fromJson(json: TV2, v3: false): this
+    fromJson(json: TV2 | TV3, v3: boolean): this {
+        type Params = Fields<
+            SubclassExclusiveProps<
+                LaserSpeedEvent,
+                BaseEvent
+            >
+        >
+
+        if (v3) {
+            const obj = json as TV3
+
+            const params = {
+                direction: obj.customData?.direction,
+                lockRotation: obj.customData?.lockRotation,
+                speed: obj.customData?.speed,
+            } as Params
+
+            Object.assign(this, params)
+            return super.fromJson(obj, true)
+        } else {
+            const obj = json as TV2
+
+            const params = {
+                direction: obj._customData?._direction,
+                lockRotation: obj._customData?._lockPosition,
+                speed: obj._customData?._preciseSpeed,
+                // TODO: Confirm if this is correct?
+                // _preciseSpeed vs _speed
+            } as Params
+
+            Object.assign(this, params)
+            return super.fromJson(obj, false)
+        }
+    }
+
+    toJson(v3: true): TV3
+    toJson(v3: false): TV2
     toJson(
         v3: boolean,
     ): bsmap.v2.IEventLaser | bsmap.v3.IBasicEventLaserRotation {
         if (v3) {
             return {
                 b: this.time,
-                et: this.type as bsmap.v3.IBasicEventLaserRotation["et"],
+                et: this.type as bsmap.v3.IBasicEventLaserRotation['et'],
                 f: this.floatValue,
                 i: this.value,
                 customData: {
@@ -224,7 +375,7 @@ export class LaserSpeedEvent
             return {
                 _floatValue: this.floatValue,
                 _time: this.time,
-                _type: this.type as bsmap.v2.IEventLaser["_type"],
+                _type: this.type as bsmap.v2.IEventLaser['_type'],
                 _value: this.value,
                 _customData: {
                     _direction: this.direction,
@@ -257,10 +408,46 @@ export class RingZoomEvent
     speed?: number
 
     push(
-        clone: boolean,
+        clone = true,
     ): RingZoomEvent {
         getActiveDiff().ringZoomEvents.push(clone ? copy(this) : this)
         return this
+    }
+
+    fromJson(json: bsmap.v3.IBasicEventRing, v3: true): this
+    fromJson(json: bsmap.v2.IEventZoom, v3: false): this
+    fromJson(
+        json: bsmap.v2.IEventZoom | bsmap.v3.IBasicEventRing,
+        v3: boolean,
+    ): this {
+        type Params = Fields<
+            SubclassExclusiveProps<
+                RingZoomEvent,
+                BaseEvent
+            >
+        >
+
+        if (v3) {
+            const obj = json as bsmap.v3.IBasicEventRing
+
+            const params = {
+                speed: obj.customData?.speed,
+                step: obj.customData?.step,
+            } as Params
+
+            Object.assign(this, params)
+            return super.fromJson(obj, true)
+        } else {
+            const obj = json as bsmap.v2.IEventZoom
+
+            const params = {
+                speed: obj._customData?._speed,
+                step: obj._customData?._step,
+            } as Params
+
+            Object.assign(this, params)
+            return super.fromJson(obj, false)
+        }
     }
 
     toJson(v3: true): bsmap.v3.IBasicEventRing
@@ -269,7 +456,7 @@ export class RingZoomEvent
         if (v3) {
             return {
                 b: this.time,
-                et: this.type as bsmap.v3.IBasicEventRing["et"],
+                et: this.type as bsmap.v3.IBasicEventRing['et'],
                 f: this.floatValue,
                 i: this.value,
                 customData: {
@@ -333,10 +520,54 @@ export class RingSpinEvent
     prop?: number
 
     push(
-        clone: boolean,
+        clone = true,
     ): RingSpinEvent {
         getActiveDiff().ringSpinEvents.push(clone ? copy(this) : this)
         return this
+    }
+
+    fromJson(json: bsmap.v3.IBasicEventRing, v3: true): this
+    fromJson(json: bsmap.v2.IEventRing, v3: false): this
+    fromJson(
+        json: bsmap.v3.IBasicEventRing | bsmap.v2.IEventRing,
+        v3: boolean,
+    ): this {
+        // TODO: Implement custom data
+
+        type Params = SubclassExclusiveProps<
+            RingSpinEvent,
+            BaseEvent
+        >
+
+        if (v3) {
+            const obj = json as bsmap.v3.IBasicEventRing
+
+            const params = {
+                direction: obj.customData?.direction,
+                nameFilter: obj.customData?.nameFilter,
+                prop: obj.customData?.prop,
+                rotation: obj.customData?.rotation,
+                speed: obj.customData?.speed,
+                step: obj.customData?.step,
+            } as Params
+
+            Object.assign(this, params)
+            return super.fromJson(obj, true)
+        } else {
+            const obj = json as bsmap.v2.IEventRing
+
+            const params = {
+                direction: obj._customData?._direction,
+                nameFilter: obj._customData?._nameFilter,
+                prop: obj._customData?._prop,
+                rotation: obj._customData?._rotation,
+                speed: obj._customData?._speed,
+                step: obj._customData?._step,
+            } as Params
+
+            Object.assign(this, params)
+            return super.fromJson(obj, false)
+        }
     }
 
     toJson(v3: true): bsmap.v3.IBasicEventRing
@@ -374,54 +605,6 @@ export class RingSpinEvent
                 ...this.customData,
             },
         } satisfies bsmap.v2.IEventRing
-    }
-}
-
-export class RotationEvent extends BaseEvent<
-    bsmap.v2.IEventLaneRotation,
-    bsmap.v3.IBasicEventLaneRotation
-> {
-    /**
-     * Event to spin the gameplay objects in the map.
-     * The new rotation events should be used instead.
-     * @param type Type of the event.
-     * @param rotation The rotation of the event.
-     * Must be a multiple of 15 between -60 and 60.
-     */
-    constructor(obj: LightFields<RotationEvent>) {
-        super(obj)
-    }
-
-    push(
-        clone: boolean,
-    ): RotationEvent {
-        getActiveDiff().rotationEvent.push(clone ? copy(this) : this)
-        return this
-    }
-
-    toJson(v3: true): bsmap.v3.IBasicEventLaneRotation
-    toJson(v3: false): bsmap.v2.IEventLaneRotation
-    toJson(
-        v3: boolean,
-    ): bsmap.v2.IEventLaneRotation | bsmap.v3.IBasicEventLaneRotation {
-        if (v3) {
-            return {
-                b: this.time,
-                f: this.floatValue,
-                i: this.value,
-                et: this.type as bsmap.v3.IBasicEventLaneRotation["et"],
-                customData: this.customData,
-            } satisfies bsmap.v3.IBasicEventLaneRotation
-        }
-        return {
-            _time: this.time,
-            _floatValue: this.floatValue,
-            _type: this.type as bsmap.v2.IEventLaneRotation["_type"],
-            _value: this.value,
-            _customData: {
-                _rotation: this.value,
-            },
-        } satisfies bsmap.v2.IEventLaneRotation
     }
 }
 

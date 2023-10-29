@@ -1,6 +1,6 @@
 import { Regex } from '../utils/regex.ts'
 
-import {Vec3} from "../types/data_types.ts";
+import { Vec3 } from '../types/data_types.ts'
 
 export const QUEST_WIP_PATH =
     '/sdcard/ModData/com.beatgames.beatsaber/Mods/SongLoader/CustomWIPLevels'
@@ -219,8 +219,8 @@ export enum EventGroup {
     RING_ZOOM,
     BILLIE_LEFT,
     BILLIE_RIGHT,
-    LEFT_ROTATING,
-    RIGHT_ROTATING,
+    LEFT_ROTATING_LASERS,
+    RIGHT_ROTATING_LASERS,
     EARLY_ROTATION,
     LATE_ROTATION,
     LOWER_HYDRAULICS,
@@ -255,15 +255,26 @@ export enum InterscopeGroup {
 }
 
 /** Rotation basic event values. */
-export enum RotationAction {
-    CCW_60,
-    CCW_45,
-    CCW_30,
-    CCW_15,
-    CW_15,
-    CW_30,
-    CW_45,
-    CW_60,
+export const RotationAction = {
+    CCW_60: 0,
+    CCW_45: 1,
+    CCW_30: 2,
+    CCW_15: 3,
+    CW_15: 4,
+    CW_30: 5,
+    CW_45: 6,
+    CW_60: 7,
+}
+
+export const InverseRotationAction = {
+    0: -60,
+    1: -45,
+    2: -30,
+    3: -15,
+    4: 15,
+    5: 30,
+    6: 45,
+    7: 60,
 }
 
 /**

@@ -30,6 +30,7 @@ import * as NoteInternals from '../internals/note.ts'
 import * as WallInternals from '../internals/wall.ts'
 import * as BasicEventInternals from '../internals/basic_event.ts'
 import { saveInfoDat } from '../data/info_file.ts'
+import { EventInternals } from '../internals/mod.ts'
 
 export interface RMDifficulty {
     version: bsmap.v2.IDifficulty['_version'] | bsmap.v3.IDifficulty['version']
@@ -39,11 +40,13 @@ export interface RMDifficulty {
     chains: NoteInternals.Chain[]
     walls: WallInternals.Wall[]
 
-    basicEvents: BasicEventInternals.LightEvent[]
+    lightEvents: BasicEventInternals.LightEvent[]
     laserSpeedEvents: BasicEventInternals.LaserSpeedEvent[]
     ringZoomEvents: BasicEventInternals.RingZoomEvent[]
     ringSpinEvents: BasicEventInternals.RingSpinEvent[]
-    rotationEvent: BasicEventInternals.RotationEvent[]
+    rotationEvents: EventInternals.RotationEvent[]
+    boostEvents: EventInternals.BoostEvent[]
+    baseBasicEvents: BasicEventInternals.BaseEvent[]
 
     animateComponents: CustomEventInternals.AnimateComponent[]
     animateTracks: CustomEventInternals.AnimateTrack[]
@@ -97,11 +100,13 @@ export abstract class AbstractDifficulty<
     arcs: NoteInternals.Arc[]
     chains: NoteInternals.Chain[]
     walls: WallInternals.Wall[]
-    basicEvents: BasicEventInternals.LightEvent[]
+    lightEvents: BasicEventInternals.LightEvent[]
     laserSpeedEvents: BasicEventInternals.LaserSpeedEvent[]
     ringZoomEvents: BasicEventInternals.RingZoomEvent[]
     ringSpinEvents: BasicEventInternals.RingSpinEvent[]
-    rotationEvent: BasicEventInternals.RotationEvent[]
+    rotationEvents: EventInternals.RotationEvent[]
+    boostEvents: EventInternals.BoostEvent[]
+    baseBasicEvents: BasicEventInternals.BaseEvent[]
 
     animateComponents: CustomEventInternals.AnimateComponent[]
     animateTracks: CustomEventInternals.AnimateTrack[]
@@ -136,7 +141,7 @@ export abstract class AbstractDifficulty<
         this.relativeMapFile = relativeMapFile
 
         this.arcs = inner.arcs
-        this.basicEvents = inner.basicEvents
+        this.lightEvents = inner.lightEvents
         this.bombs = inner.bombs
         this.chains = inner.chains
         this.customData = inner.customData
@@ -153,9 +158,11 @@ export abstract class AbstractDifficulty<
         this.geoMaterials = inner.geoMaterials
 
         this.laserSpeedEvents = inner.laserSpeedEvents
-        this.rotationEvent = inner.rotationEvent
+        this.rotationEvents = inner.rotationEvents
+        this.boostEvents = inner.boostEvents
         this.ringZoomEvents = inner.ringZoomEvents
         this.ringSpinEvents = inner.ringSpinEvents
+        this.baseBasicEvents = inner.baseBasicEvents
 
         this.pointDefinitions = inner.pointDefinitions
 
@@ -294,11 +301,11 @@ export abstract class AbstractDifficulty<
         this.chains = []
         this.walls = []
 
-        this.basicEvents = []
+        this.lightEvents = []
         this.laserSpeedEvents = []
         this.ringZoomEvents = []
         this.ringSpinEvents = []
-        this.rotationEvent = []
+        this.rotationEvents = []
 
         this.animateComponents = []
         this.animateTracks = []
@@ -373,14 +380,14 @@ export abstract class AbstractDifficulty<
     > {
         if (sorted) {
             return [
-                ...this.basicEvents,
+                ...this.lightEvents,
                 ...this.ringSpinEvents,
                 ...this.ringZoomEvents,
                 ...this.laserSpeedEvents,
             ].sort((a, b) => a.time - b.time)
         }
 
-        yield* this.basicEvents
+        yield* this.lightEvents
         yield* this.ringSpinEvents
         yield* this.ringZoomEvents
         yield* this.laserSpeedEvents

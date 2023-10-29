@@ -1,5 +1,6 @@
 export * as AnimationInternals from "./animation.ts"
 export * as BasicEventInternals from "./basic_event.ts"
+export * as EventInternals from "./event.ts"
 export * as CustomEventInternals from "./custom_event.ts"
 export * as EnvironmentInternals from "./environment.ts"
 export * as LightRemapperInternals from "./light_remapper.ts"

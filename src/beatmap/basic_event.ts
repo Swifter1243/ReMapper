@@ -1,24 +1,25 @@
-import {bsmap} from "../deps.ts"
+import { bsmap } from '../deps.ts'
 
-import {EventGroup, InterscopeGroup} from '../data/constants.ts'
+import { EventGroup, InterscopeGroup } from '../data/constants.ts'
 
-import * as EventInternals from '../internals/basic_event.ts'
-import {BaseEvent} from '../internals/basic_event.ts'
-import {Fields} from "../types/util_types.ts";
+import * as BasicEventInternals from '../internals/basic_event.ts'
+import { BaseEvent } from '../internals/basic_event.ts'
+import { Fields } from '../types/util_types.ts'
+import { BoostEvent, RotationEvent } from '../internals/event.ts'
 
 type LightParameters =
     | [
-        time?: EventInternals.LightEvent['time'],
-        value?: EventInternals.LightEvent['value'],
-        floatValue?: EventInternals.LightEvent['floatValue'],
+        time?: BasicEventInternals.LightEvent['time'],
+        value?: BasicEventInternals.LightEvent['value'],
+        floatValue?: BasicEventInternals.LightEvent['floatValue'],
     ]
-    | [data: Fields<EventInternals.LightEvent>]
-    | ConstructorParameters<typeof EventInternals.LightEvent>
+    | [data: Fields<BasicEventInternals.LightEvent>]
+    | ConstructorParameters<typeof BasicEventInternals.LightEvent>
 
-function fixupParams<TG extends EventInternals.LightEvent['type']>(
+function fixupParams<TG extends BasicEventInternals.LightEvent['type']>(
     group: TG,
     ...params: LightParameters
-): ConstructorParameters<typeof EventInternals.LightEvent> {
+): ConstructorParameters<typeof BasicEventInternals.LightEvent> {
     if (typeof params[0] === 'object') {
         const obj = params[0]
         return [obj]
@@ -32,72 +33,140 @@ function fixupParams<TG extends EventInternals.LightEvent['type']>(
         floatValue: floatValue ?? 1,
         value: value ?? 1,
         type: group,
-    }] satisfies ConstructorParameters<typeof EventInternals.LightEvent>
+    }] satisfies ConstructorParameters<typeof BasicEventInternals.LightEvent>
+}
+
+export function baseBasicEvent(
+    time: number,
+    type?: number,
+    value?: number,
+    floatValue?: number,
+): BasicEventInternals.BaseBasicEvent
+export function baseBasicEvent(
+    ...obj: ConstructorParameters<typeof BasicEventInternals.BaseBasicEvent>
+): BasicEventInternals.BaseBasicEvent
+
+export function baseBasicEvent(
+    ...params: [
+        time: number,
+        type?: number,
+        value?: number,
+        floatValue?: number,
+    ] | ConstructorParameters<typeof BasicEventInternals.BaseBasicEvent>
+): BasicEventInternals.BaseBasicEvent {
+    if (typeof params[0] === 'object') {
+        const obj = params[0]
+        return new BasicEventInternals.BaseBasicEvent({
+            ...obj,
+        })
+    }
+    const [time, type, value, floatValue] = params
+
+    return new BasicEventInternals.BaseBasicEvent({
+        time,
+        type: type ?? 0,
+        value: value ?? 0,
+        floatValue,
+    })
+}
+
+export function lightEvent(
+    time: number,
+    type?: number,
+    value?: number,
+    floatValue?: number,
+): BasicEventInternals.LightEvent
+export function lightEvent(
+    ...obj: ConstructorParameters<typeof BasicEventInternals.LightEvent>
+): BasicEventInternals.LightEvent
+
+export function lightEvent(
+    ...params: [
+        time: number,
+        type?: number,
+        value?: number,
+        floatValue?: number,
+    ] | ConstructorParameters<typeof BasicEventInternals.LightEvent>
+): BasicEventInternals.LightEvent {
+    if (typeof params[0] === 'object') {
+        const obj = params[0]
+        return new BasicEventInternals.LightEvent({
+            ...obj,
+        })
+    }
+    const [time, type, value, floatValue] = params
+
+    return new BasicEventInternals.LightEvent({
+        time,
+        type: type ?? 0,
+        value: value ?? 0,
+        floatValue,
+    })
 }
 
 /** Controls the back lasers. (Type 0) */
 export const backLasers = (...params: LightParameters) =>
-    new EventInternals.LightEvent(
+    new BasicEventInternals.LightEvent(
         ...fixupParams(EventGroup.BACK_LASERS, ...params),
     )
 
 /** Controls the ring lights. (Type 1) */
 export const ringLights = (...params: LightParameters) =>
-    new EventInternals.LightEvent(
+    new BasicEventInternals.LightEvent(
         ...fixupParams(EventGroup.RING_LIGHTS, ...params),
     )
 
 /** Controls the left lasers. (Type 2) */
 export const leftLasers = (...params: LightParameters) =>
-    new EventInternals.LightEvent(
+    new BasicEventInternals.LightEvent(
         ...fixupParams(EventGroup.LEFT_LASERS, ...params),
     )
 
 /** Controls the right lasers. (Type 3) */
 export const rightLasers = (...params: LightParameters) =>
-    new EventInternals.LightEvent(
+    new BasicEventInternals.LightEvent(
         ...fixupParams(EventGroup.RIGHT_LASERS, ...params),
     )
 
 /** Controls the center lasers. (Type 4) */
 export const centerLasers = (...params: LightParameters) =>
-    new EventInternals.LightEvent(
+    new BasicEventInternals.LightEvent(
         ...fixupParams(EventGroup.CENTER_LASERS, ...params),
     )
 
 /** Controls the extra left lasers in some environments. (Type 6) */
 export const extraLeft = (...params: LightParameters) =>
-    new EventInternals.LightEvent(
+    new BasicEventInternals.LightEvent(
         ...fixupParams(EventGroup.LEFT_EXTRA, ...params),
     )
 
 /** Controls the extra right lasers in some environments. (Type 7) */
 export const extraRight = (...params: LightParameters) =>
-    new EventInternals.LightEvent(
+    new BasicEventInternals.LightEvent(
         ...fixupParams(EventGroup.RIGHT_EXTRA, ...params),
     )
 
 /** Controls the left lasers in the Billie environment. (Type 10) */
 export const billieLeft = (...params: LightParameters) =>
-    new EventInternals.LightEvent(
+    new BasicEventInternals.LightEvent(
         ...fixupParams(EventGroup.BILLIE_LEFT, ...params),
     )
 
 /** Controls the right lasers in the Billie environment. (Type 11) */
 export const billieRight = (...params: LightParameters) =>
-    new EventInternals.LightEvent(
+    new BasicEventInternals.LightEvent(
         ...fixupParams(EventGroup.BILLIE_RIGHT, ...params),
     )
 
 /** Controls the outer left tower height in the Gaga environment. (Type 18) */
 export const gagaLeft = (...params: LightParameters) =>
-    new EventInternals.LightEvent(
+    new BasicEventInternals.LightEvent(
         ...fixupParams(EventGroup.GAGA_LEFT, ...params),
     )
 
 /** Controls the outer left tower height in the Gaga environment. (Type 19) */
 export const gagaRight = (...params: LightParameters) =>
-    new EventInternals.LightEvent(
+    new BasicEventInternals.LightEvent(
         ...fixupParams(EventGroup.GAGA_RIGHT, ...params),
     )
 
@@ -107,28 +176,28 @@ export const gagaRight = (...params: LightParameters) =>
  */
 export function moveCars(
     ...params: Omit<
-        ConstructorParameters<typeof EventInternals.RingSpinEvent>,
+        ConstructorParameters<typeof BasicEventInternals.RingSpinEvent>,
         'type'
     >
-): EventInternals.RingSpinEvent
+): BasicEventInternals.RingSpinEvent
 export function moveCars(
     time: number,
     value: InterscopeGroup,
-): EventInternals.RingSpinEvent
+): BasicEventInternals.RingSpinEvent
 export function moveCars(
     ...params:
         | [time: number, value: InterscopeGroup]
         | Omit<
-            ConstructorParameters<typeof EventInternals.RingSpinEvent>,
+            ConstructorParameters<typeof BasicEventInternals.RingSpinEvent>,
             'type'
         >
 ) {
     if (typeof params[0] === 'object') {
-        return new EventInternals.RingSpinEvent(params[0])
+        return new BasicEventInternals.RingSpinEvent(params[0])
     }
     const [time, value] = params
 
-    return new EventInternals.RingSpinEvent({
+    return new BasicEventInternals.RingSpinEvent({
         time: time,
         value: value as InterscopeGroup,
     })
@@ -137,7 +206,7 @@ export function moveCars(
 // TODO: Event extras
 /** Lower the hydraulics of the cars in the interscope environment. */
 export function lowerHydraulics(time: number) {
-    return new EventInternals.LightEvent({
+    return new BasicEventInternals.LightEvent({
         time: time,
         type: EventGroup.LOWER_HYDRAULICS,
         value: 0,
@@ -146,7 +215,7 @@ export function lowerHydraulics(time: number) {
 
 /** Raise the hydraulics of the cars in the interscope environment. */
 export function raiseHydraulics(time: number) {
-    return new EventInternals.LightEvent({
+    return new BasicEventInternals.LightEvent({
         time: time,
         type: EventGroup.RAISE_HYDRAULICS,
         value: 0,
@@ -156,15 +225,15 @@ export function raiseHydraulics(time: number) {
 export function ringSpin(
     time: number,
     rotation?: number,
-    direction?: EventInternals.RingSpinEvent['direction'],
+    direction?: BasicEventInternals.RingSpinEvent['direction'],
     step?: number,
     speed?: number,
     prop?: number,
     nameFilter?: string,
-): EventInternals.RingSpinEvent
+): BasicEventInternals.RingSpinEvent
 export function ringSpin(
-    ...obj: ConstructorParameters<typeof EventInternals.RingSpinEvent>
-): EventInternals.RingSpinEvent
+    ...obj: ConstructorParameters<typeof BasicEventInternals.RingSpinEvent>
+): BasicEventInternals.RingSpinEvent
 
 /**
  * Spin the rings of an environment.
@@ -180,20 +249,20 @@ export function ringSpin(
     ...params: [
         time: number,
         rotation?: number,
-        direction?: EventInternals.RingSpinEvent['direction'],
+        direction?: BasicEventInternals.RingSpinEvent['direction'],
         step?: number,
         speed?: number,
         prop?: number,
         nameFilter?: string,
-    ] | ConstructorParameters<typeof EventInternals.RingSpinEvent>
-): EventInternals.RingSpinEvent {
+    ] | ConstructorParameters<typeof BasicEventInternals.RingSpinEvent>
+): BasicEventInternals.RingSpinEvent {
     if (typeof params[0] === 'object') {
         const obj = params[0]
-        return new EventInternals.RingSpinEvent(obj)
+        return new BasicEventInternals.RingSpinEvent(obj)
     }
     const [time, rotation, direction, step, speed, prop, nameFilter] = params
 
-    return new EventInternals.RingSpinEvent({
+    return new BasicEventInternals.RingSpinEvent({
         time,
         value: rotation ?? 0,
         rotation,
@@ -208,10 +277,10 @@ export function ringSpin(
 export function ringZoom(
     time: number,
     speed?: number,
-): EventInternals.RingZoomEvent
+): BasicEventInternals.RingZoomEvent
 export function ringZoom(
-    ...obj: ConstructorParameters<typeof EventInternals.RingZoomEvent>
-): EventInternals.RingZoomEvent
+    ...obj: ConstructorParameters<typeof BasicEventInternals.RingZoomEvent>
+): BasicEventInternals.RingZoomEvent
 
 /**
  * Controls ring zoom.
@@ -222,20 +291,20 @@ export function ringZoom(
     ...params: [
         time: number,
         rotation?: number,
-        direction?: EventInternals.RingSpinEvent['direction'],
+        direction?: BasicEventInternals.RingSpinEvent['direction'],
         step?: number,
         speed?: number,
         prop?: number,
         nameFilter?: string,
-    ] | ConstructorParameters<typeof EventInternals.RingZoomEvent>
-): EventInternals.RingZoomEvent {
+    ] | ConstructorParameters<typeof BasicEventInternals.RingZoomEvent>
+): BasicEventInternals.RingZoomEvent {
     if (typeof params[0] === 'object') {
         const obj = params[0]
-        return new EventInternals.RingZoomEvent(obj)
+        return new BasicEventInternals.RingZoomEvent(obj)
     }
     const [time, speed] = params
 
-    return new EventInternals.RingZoomEvent({
+    return new BasicEventInternals.RingZoomEvent({
         time,
         value: speed ?? 0,
         speed,
@@ -245,17 +314,19 @@ export function ringZoom(
 export function leftLaserSpeed(
     time: number,
     speed?: number,
-    direction?: EventInternals.RingSpinEvent['direction'],
+    direction?: BasicEventInternals.RingSpinEvent['direction'],
     lockRotation?: boolean,
-): EventInternals.LaserSpeedEvent
+): BasicEventInternals.LaserSpeedEvent
 export function leftLaserSpeed(
     ...obj: [
         Omit<
-            ConstructorParameters<typeof EventInternals.LaserSpeedEvent>[0],
+            ConstructorParameters<
+                typeof BasicEventInternals.LaserSpeedEvent
+            >[0],
             'type'
         >,
     ]
-): EventInternals.LaserSpeedEvent
+): BasicEventInternals.LaserSpeedEvent
 
 /**
  * Controls left rotating laser speed.
@@ -267,27 +338,29 @@ export function leftLaserSpeed(
     ...params: [
         time: number,
         speed?: number,
-        direction?: EventInternals.RingSpinEvent['direction'],
+        direction?: BasicEventInternals.RingSpinEvent['direction'],
         lockRotation?: boolean,
     ] | [
         Omit<
-            ConstructorParameters<typeof EventInternals.LaserSpeedEvent>[0],
+            ConstructorParameters<
+                typeof BasicEventInternals.LaserSpeedEvent
+            >[0],
             'type'
         >,
     ]
-): EventInternals.LaserSpeedEvent {
+): BasicEventInternals.LaserSpeedEvent {
     if (typeof params[0] === 'object') {
         const obj = params[0]
-        return new EventInternals.LaserSpeedEvent({
+        return new BasicEventInternals.LaserSpeedEvent({
             ...obj,
-            type: EventGroup.LEFT_ROTATING,
+            type: EventGroup.LEFT_ROTATING_LASERS,
         })
     }
     const [time, speed, direction, lockRotation] = params
 
-    return new EventInternals.LaserSpeedEvent({
+    return new BasicEventInternals.LaserSpeedEvent({
         time,
-        type: EventGroup.LEFT_ROTATING,
+        type: EventGroup.LEFT_ROTATING_LASERS,
         value: speed ?? 0,
         lockRotation,
         direction,
@@ -298,17 +371,19 @@ export function leftLaserSpeed(
 export function rightLaserSpeed(
     time: number,
     speed?: number,
-    direction?: EventInternals.RingSpinEvent['direction'],
+    direction?: BasicEventInternals.RingSpinEvent['direction'],
     lockRotation?: boolean,
-): EventInternals.LaserSpeedEvent
+): BasicEventInternals.LaserSpeedEvent
 export function rightLaserSpeed(
     ...obj: [
         Omit<
-            ConstructorParameters<typeof EventInternals.LaserSpeedEvent>[0],
+            ConstructorParameters<
+                typeof BasicEventInternals.LaserSpeedEvent
+            >[0],
             'type'
         >,
     ]
-): EventInternals.LaserSpeedEvent
+): BasicEventInternals.LaserSpeedEvent
 
 /**
  * Controls right rotating laser speed.
@@ -320,27 +395,29 @@ export function rightLaserSpeed(
     ...params: [
         time: number,
         speed?: number,
-        direction?: EventInternals.RingSpinEvent['direction'],
+        direction?: BasicEventInternals.RingSpinEvent['direction'],
         lockRotation?: boolean,
     ] | [
         Omit<
-            ConstructorParameters<typeof EventInternals.LaserSpeedEvent>[0],
+            ConstructorParameters<
+                typeof BasicEventInternals.LaserSpeedEvent
+            >[0],
             'type'
         >,
     ]
-): EventInternals.LaserSpeedEvent {
+): BasicEventInternals.LaserSpeedEvent {
     if (typeof params[0] === 'object') {
         const obj = params[0]
-        return new EventInternals.LaserSpeedEvent({
+        return new BasicEventInternals.LaserSpeedEvent({
             ...obj,
-            type: EventGroup.RIGHT_ROTATING,
+            type: EventGroup.RIGHT_ROTATING_LASERS,
         })
     }
     const [time, speed, direction, lockRotation] = params
 
-    return new EventInternals.LaserSpeedEvent({
+    return new BasicEventInternals.LaserSpeedEvent({
         time,
-        type: EventGroup.RIGHT_ROTATING,
+        type: EventGroup.RIGHT_ROTATING_LASERS,
         value: speed ?? 0,
         lockRotation,
         direction,
@@ -351,15 +428,10 @@ export function rightLaserSpeed(
 export function earlyRotation(
     time: number,
     rotation?: number,
-): EventInternals.RotationEvent
+): RotationEvent
 export function earlyRotation(
-    ...obj: [
-        Omit<
-            ConstructorParameters<typeof EventInternals.RotationEvent>[0],
-            'type'
-        >,
-    ]
-): EventInternals.RotationEvent
+    ...obj: ConstructorParameters<typeof RotationEvent>
+): RotationEvent
 
 /**
  * Used for 360 mode, rotates future objects and active objects.
@@ -370,41 +442,30 @@ export function earlyRotation(
     ...params: [
         time: number,
         rotation?: number,
-    ] | [
-        Omit<
-            ConstructorParameters<typeof EventInternals.RotationEvent>[0],
-            'type'
-        >,
-    ]
-): EventInternals.RotationEvent {
+    ] | ConstructorParameters<typeof RotationEvent>
+): RotationEvent {
     if (typeof params[0] === 'object') {
         const obj = params[0]
-        return new EventInternals.RotationEvent({
+        return new RotationEvent({
             ...obj,
-            type: EventGroup.EARLY_ROTATION,
         })
     }
     const [time, rotation] = params
 
-    return new EventInternals.RotationEvent({
+    return new RotationEvent({
         time,
-        type: EventGroup.EARLY_ROTATION,
-        value: rotation ?? 0,
+        rotation,
+        early: true,
     })
 }
 
 export function lateRotation(
     time: number,
     rotation?: number,
-): EventInternals.RotationEvent
+): RotationEvent
 export function lateRotation(
-    ...obj: [
-        Omit<
-            ConstructorParameters<typeof EventInternals.RotationEvent>[0],
-            'type'
-        >,
-    ]
-): EventInternals.RotationEvent
+    ...obj: ConstructorParameters<typeof RotationEvent>
+): RotationEvent
 
 /**
  * Used for 360 mode, rotates future objects only.
@@ -415,26 +476,48 @@ export function lateRotation(
     ...params: [
         time: number,
         rotation?: number,
-    ] | [
-        Omit<
-            ConstructorParameters<typeof EventInternals.RotationEvent>[0],
-            'type'
-        >,
-    ]
-): EventInternals.RotationEvent {
+    ] | ConstructorParameters<typeof RotationEvent>
+): RotationEvent {
     if (typeof params[0] === 'object') {
         const obj = params[0]
-        return new EventInternals.RotationEvent({
+        return new RotationEvent({
             ...obj,
-            type: EventGroup.LATE_ROTATION,
         })
     }
     const [time, rotation] = params
 
-    return new EventInternals.RotationEvent({
+    return new RotationEvent({
         time,
-        type: EventGroup.LATE_ROTATION,
-        value: rotation ?? 0,
+        rotation,
+        early: false,
+    })
+}
+
+export function boost(
+    time: number,
+    boost: boolean,
+): BoostEvent
+export function boost(
+    ...obj: ConstructorParameters<typeof BoostEvent>
+): BoostEvent
+
+export function boost(
+    ...params: [
+        time: number,
+        boost: boolean,
+    ] | ConstructorParameters<typeof BoostEvent>
+): BoostEvent {
+    if (typeof params[0] === 'object') {
+        const obj = params[0]
+        return new BoostEvent({
+            ...obj,
+        })
+    }
+    const [time, boost] = params
+
+    return new BoostEvent({
+        time,
+        boost,
     })
 }
 

@@ -209,7 +209,7 @@ export function eventsBetween(
     max: number,
     forEach?: (obj: LightEvent) => void
 ) {
-    return objBetween(getActiveDiff().basicEvents, min, max, forEach)
+    return objBetween(getActiveDiff().lightEvents, min, max, forEach)
 }
 
 /**

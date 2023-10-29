@@ -3,6 +3,15 @@ import { lerp } from './math.ts'
 import { Vec3 } from '../types/data_types.ts'
 import { EASE } from '../types/animation_types.ts'
 
+export function arrSplit<T>(
+    array: T[],
+    filter: (obj: T, index: number, array: T[]) => boolean,
+) {
+    const pass: T[] = [], fail: T[] = []
+    array.forEach((e, idx, arr) => (filter(e, idx, arr) ? pass : fail).push(e))
+    return [pass, fail]
+}
+
 /**
  * Get the last element in an array.
  * @param arr Input array.
