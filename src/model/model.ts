@@ -18,7 +18,6 @@ import {
 
 import { arrAdd } from '../utils/array_utils.ts'
 import { combineTransforms, rotatePoint } from '../utils/math.ts'
-import { Regex } from '../utils/regex.ts'
 
 import { cacheData, parseFilePath } from '../general.ts'
 
@@ -43,6 +42,7 @@ import { Vec3, Vec4 } from '../types/data_types.ts'
 import { copy } from '../utils/general.ts'
 import { Environment, Geometry } from '../internals/environment.ts'
 import { SingleKeyframe } from 'https://deno.land/x/remapper@2.1.0/src/animation.ts'
+import { environment, geometry } from '../mod.ts'
 
 let modelSceneCount = 0
 let noYeet = true
@@ -858,11 +858,7 @@ export function debugObject(
     anchor?: Vec3,
     rotation?: Vec3,
 ) {
-    activeDiff.notes = []
-    activeDiff.walls = []
-    activeDiff.customEvents = []
-    activeDiff.environment = []
-    activeDiff.geometry = []
+    activeDiff.clear()
 
     backLasers().on([3, 3, 3, 1]).push(false)
 
@@ -872,12 +868,11 @@ export function debugObject(
     fogEvent.fog.startY = [-69420]
     fogEvent.push(false)
 
-    const removeUI = new Environment(
-        new Regex().add('NarrowGameHUD').end(),
-        'Regex',
-    )
-    removeUI.active = false
-    removeUI.push(false)
+    environment({
+        id: 'NarrowGameHUD', 
+        lookupMethod: 'EndsWith',
+        active: false,
+    }).push()
 
     activeDiff.geoMaterials['debugCubeX'] = {
         shader: 'Standard',
@@ -937,8 +932,8 @@ export function debugObject(
     ])
 
     const scene = new ModelScene(input, scale, anchor, rotation)
-    scene.addPrimaryGroups('debugCubeX', new Geometry(undefined, 'debugCubeX'))
-    scene.addPrimaryGroups('debugCubeY', new Geometry(undefined, 'debugCubeY'))
-    scene.addPrimaryGroups('debugCubeZ', new Geometry(undefined, 'debugCubeZ'))
+    scene.addPrimaryGroups('debugCubeX', geometry('Cube', 'debugCubeX'))
+    scene.addPrimaryGroups('debugCubeY', geometry('Cube', 'debugCubeY'))
+    scene.addPrimaryGroups('debugCubeZ', geometry('Cube', 'debugCubeZ'))
     scene.static(modelData)
 }
