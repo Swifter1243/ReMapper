@@ -3,10 +3,7 @@ import { bsmap } from '../deps.ts'
 import { EASE } from '../types/animation_types.ts'
 import { BaseObject } from './object.ts'
 import { getActiveDiff } from '../data/beatmap_handler.ts'
-import {
-    Fields,
-    SubclassExclusiveProps,
-} from '../types/util_types.ts'
+import { Fields, SubclassExclusiveProps } from '../types/util_types.ts'
 import { LightID } from '../types/environment_types.ts'
 import { ColorVec } from '../types/data_types.ts'
 import { copy } from '../utils/general.ts'
@@ -110,6 +107,23 @@ export class LightEvent<
     TV2 extends bsmap.v2.IEventLight = bsmap.v2.IEventLight,
     TV3 extends bsmap.v3.IBasicEventLight = bsmap.v3.IBasicEventLight,
 > extends BaseEvent<TV2, TV3> {
+    constructor(obj: Partial<Fields<LightEvent<TV2, TV3>>>) {
+        super(obj)
+        this.lightID = obj.lightID
+        this.color = obj.color
+        this.easing = obj.easing
+        this.lerpType = obj.lerpType
+    }
+
+    /** The lightIDs to target. */
+    lightID?: LightID
+    /** The color of the event. */
+    color?: ColorVec
+    /** The easing for transition events. Goes on start event. */
+    easing?: EASE
+    /** The color interpolation for transition events. Goes on start event. */
+    lerpType?: 'RGB' | 'HSV'
+
     /** Create an event that turns lights off
      * @param lightID The lightIDs to target.
      */
@@ -175,15 +189,6 @@ export class LightEvent<
         if (lightID !== undefined) this.lightID = lightID
         return this
     }
-
-    /** The lightIDs to target. */
-    lightID?: LightID
-    /** The color of the event. */
-    color?: ColorVec
-    /** The easing for transition events. Goes on start event. */
-    easing?: EASE
-    /** The color interpolation for transition events. Goes on start event. */
-    lerpType?: 'RGB' | 'HSV'
 
     push(
         clone = true,
