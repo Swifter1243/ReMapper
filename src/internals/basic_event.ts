@@ -5,18 +5,11 @@ import { BaseObject } from './object.ts'
 import { getActiveDiff } from '../data/beatmap_handler.ts'
 import {
     Fields,
-    ObjectFields,
     SubclassExclusiveProps,
 } from '../types/util_types.ts'
 import { LightID } from '../types/environment_types.ts'
 import { ColorVec } from '../types/data_types.ts'
 import { copy } from '../utils/general.ts'
-
-type LightFields<T extends { customData: T['customData'] }> =
-    & Omit<ObjectFields<T>, 'floatValue'>
-    & {
-        floatValue?: number
-    }
 
 export abstract class BaseEvent<
     TV2 extends bsmap.v2.IEvent = bsmap.v2.IEvent,
@@ -24,9 +17,11 @@ export abstract class BaseEvent<
 > extends BaseObject<TV2, TV3> {
     /** The bare minimum event. */
 
-    constructor(obj: LightFields<BaseEvent<TV2, TV3>>) {
+    constructor(obj: Partial<Fields<BaseEvent<TV2, TV3>>>) {
         super(obj)
-        this.floatValue ??= 1
+        this.type = obj.type ?? 0
+        this.value = obj.value ?? 0
+        this.floatValue = obj.floatValue ?? 1
     }
 
     /** Push this event to the difficulty
@@ -35,17 +30,11 @@ export abstract class BaseEvent<
     abstract push(clone: boolean): BaseEvent<TV2, TV3>
 
     /** The type of the event. */
-    type:
-        | TV2['_type']
-        | TV3['et']
-        | EventGroup.LOWER_HYDRAULICS
-        | EventGroup.RAISE_HYDRAULICS
-        | EventGroup.GAGA_LEFT
-        | EventGroup.GAGA_RIGHT = 0!
+    type: number
     /** The value of the event. */
-    value: TV2['_value'] | TV3['i'] = 0!
+    value: number
     /** The value of the event, but allowing decimals. */
-    floatValue = 1
+    floatValue: number
 
     fromJson(json: TV3, v3: true): this
     fromJson(json: TV2, v3: false): this
@@ -298,8 +287,11 @@ export class LaserSpeedEvent<
      * @param direction Direction of the rotating lasers.
      * @param lockRotation Whether the existing rotation should be kept.
      */
-    constructor(obj: LightFields<LaserSpeedEvent<TV2, TV3>>) {
+    constructor(obj: Partial<Fields<LaserSpeedEvent<TV2, TV3>>>) {
         super(obj)
+        this.lockRotation = obj.lockRotation,
+            this.speed = obj.speed,
+            this.direction = obj.direction
     }
 
     /** Whether the existing rotation should be kept. */
@@ -397,11 +389,13 @@ export class RingZoomEvent
      * @param step The position offset between each ring.
      * @param speed The speed of the zoom.
      */
-    constructor(obj: Omit<LightFields<RingZoomEvent>, 'type'>) {
+    constructor(obj: Partial<Omit<Fields<RingZoomEvent>, 'type'>>) {
         super({
             ...obj,
             type: EventGroup.RING_ZOOM,
         })
+        this.step = obj.step
+        this.speed = obj.speed
     }
 
     step?: number
@@ -494,12 +488,17 @@ export class RingSpinEvent
      * High values will cause rings to move simultneously, low values gives them significant delay.
      * @param nameFilter The ring object name to target.
      */
-    constructor(obj: Omit<LightFields<RingSpinEvent>, 'type'>) {
+    constructor(obj: Partial<Omit<Fields<RingSpinEvent>, 'type'>>) {
         super({
             ...obj,
             type: EventGroup.RING_SPIN,
         })
         this.type = EventGroup.RING_SPIN
+        this.speed = obj.speed
+        this.direction = obj.direction
+        this.nameFilter = obj.nameFilter
+        this.rotation = obj.rotation
+        this.step = obj.step
     }
 
     /** The speed multiplier of the spin. */
