@@ -444,6 +444,8 @@ export function iterateKeyframes<T extends NumberTuple>(
 export function mirrorAnimation<T extends NumberTuple>(
     animation: RawKeyframesAbstract<T>,
 ) {
+    if (complexifyArray(animation).length === 1) return animation
+
     const reversedAnim = reverseAnimation(animation)
     const output: ComplexKeyframesAbstract<T> = []
 

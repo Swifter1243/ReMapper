@@ -42,7 +42,6 @@ import { FILEPATH } from '../types/beatmap_types.ts'
 import { Vec3, Vec4 } from '../types/data_types.ts'
 import { copy } from '../utils/general.ts'
 import { Environment, Geometry } from '../internals/environment.ts'
-import { SingleKeyframeAbstract } from '../mod.ts'
 import { SingleKeyframe } from 'https://deno.land/x/remapper@2.1.0/src/animation.ts'
 
 let modelSceneCount = 0
@@ -566,6 +565,11 @@ export class ModelScene {
                 promises.push(
                     this.getObjects(input).then((data) =>
                         data.forEach((x, i) => {
+                            const objectIsStatic = 
+                                complexifyArray(x.pos).length === 1 &&
+                                complexifyArray(x.rot).length === 1 &&
+                                complexifyArray(x.scale).length === 1
+
                             // Getting info about group
                             const key = x.track as string
                             const group = this.groups[key]
@@ -632,6 +636,10 @@ export class ModelScene {
                                 }
                             }
 
+                            if (objectIsStatic && firstInitializing && group.object) {
+                                return
+                            }
+
                             const event = animateTrack(time, track, duration)
 
                             if (delaying) {
@@ -659,7 +667,8 @@ export class ModelScene {
                                 typeof input === 'object' &&
                                 !Array.isArray(input) &&
                                 input.loop !== undefined &&
-                                input.loop > 1
+                                input.loop > 1 &&
+                                !objectIsStatic
                             ) {
                                 event.repeat = input.loop - 1
                                 event.duration /= input.loop

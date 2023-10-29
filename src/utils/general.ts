@@ -21,10 +21,10 @@ export function copyWith<T extends Record<string | number | symbol, never>>(
  * @param obj Object to copy
  * @returns The copy
  */
-export function copy<T>(obj: ReadonlyArray<T>): T[];
-export function copy<T>(obj: readonly T[]): T[];
+export function copy<T extends []>(obj: ReadonlyArray<T>): T[];
+export function copy<T extends []>(obj: readonly T[]): T[];
 export function copy<T>(obj: Readonly<T>): T;
-export function copy<T>(obj: readonly Readonly<T>[]): T[];
+export function copy<T extends []>(obj: readonly Readonly<T>[]): T[];
 export function copy<T>(obj: T): T;
 export function copy<T>(obj: T): T {
     if (obj === null || obj === undefined || typeof obj !== 'object') return obj

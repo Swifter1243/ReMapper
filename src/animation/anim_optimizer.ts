@@ -278,8 +278,8 @@ function optimizeSimilarPoints(
     const aSpline = getKeyframeSpline(pointA)
     const bEasing = getKeyframeEasing(pointB)
     const bSpline = getKeyframeSpline(pointB)
-    const cEasing = getKeyframeEasing(pointC as KeyframeValuesUnsafe)
-    const cSpline = getKeyframeSpline(pointC as KeyframeValuesUnsafe)
+    const cEasing = getKeyframeEasing(pointC ?? [])
+    const cSpline = getKeyframeSpline(pointC ?? [])
 
     // ignore points who have different easing or smoothness since those can
     // be considered not similar even with small time differences
