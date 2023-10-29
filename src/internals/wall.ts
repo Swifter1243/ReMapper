@@ -136,6 +136,28 @@ export class Wall
         return this
     }
 
+    get life() {
+        return this.halfJumpDur * 2 + this.duration
+    }
+    set life(value: number) {
+        const life = value - this.duration
+        
+        if (life < 0.25) {
+            this.duration = 0
+            super.life = value
+        }
+        else {
+            super.life = life
+        }
+    }
+
+    get lifeStart() {
+        return this.time - this.halfJumpDur
+    }
+    set lifeStart(value: number) {
+        this.time = value + this.halfJumpDur
+    }
+
     /** The duration of the wall. */
     duration: number
     /** The height of the wall. */
