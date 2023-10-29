@@ -182,6 +182,10 @@ export abstract class AbstractDifficulty<
         return result
     }
 
+    async awaitAllAsync() {
+        await Promise.all(this.awaitingCompletion)
+    }
+
     /**
      * Go through every animation in this difficulty and optimize it.
      * Warning, this is an expensive action and may be redundant based on what has already been optimized.
@@ -241,7 +245,7 @@ export abstract class AbstractDifficulty<
             diffName = (await parseFilePath(diffName, '.dat')).path as DIFFPATH
         } else diffName = this.mapFile
 
-        await Promise.all(this.awaitingCompletion)
+        await this.awaitAllAsync()
         const outputJSON = this.toJSON()
 
         // this.doPostProcess(undefined, outputJSON)
