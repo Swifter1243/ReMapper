@@ -122,6 +122,14 @@ export function rand(start: number, end: number, roundResult?: number) {
 }
 
 /**
+ * A modulo operation that is always positive.
+ * E.g. -0.3 % 1 = 0.7
+ */
+export function positiveMod(a: number, b: number) {
+    return (a % b + b) % b
+}
+
+/**
  * Rounds a number to the nearest multiple of another number.
  * @param input Number to round.
  * @param number Number to round to.

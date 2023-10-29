@@ -1,4 +1,4 @@
-import { lerp, lerpEasing, lerpWrap } from '../utils/math.ts'
+import { lerp, lerpEasing, lerpWrap, positiveMod } from '../utils/math.ts'
 import { ColorVec, Vec3 } from '../types/data_types.ts'
 import { EASE } from '../types/animation_types.ts'
 import { arrLerp } from '../utils/array_utils.ts'
@@ -23,7 +23,7 @@ export function toIntegerColor<T extends ColorVec>(color: T, hsv = false) {
 
 /** Converts a color from HSV (hue, saturation, value) to RGB (red, green, blue) */
 export function HSVtoRGB<T extends ColorVec>(color: T) {
-    const h = color[0] % 1
+    const h = positiveMod(color[0], 1)
     const s = color[1]
     const v = color[2]
 
