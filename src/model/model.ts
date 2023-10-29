@@ -858,7 +858,10 @@ export function debugObject(
     anchor?: Vec3,
     rotation?: Vec3,
 ) {
-    activeDiff.clear()
+    const diff = getActiveDiff()
+    const materials = diff.geoMaterials
+    diff.clear()
+    diff.geoMaterials = materials
 
     backLasers().on([3, 3, 3, 1]).push(false)
 
@@ -874,19 +877,19 @@ export function debugObject(
         active: false,
     }).push()
 
-    activeDiff.geoMaterials['debugCubeX'] = {
+    activeDiff.geoMaterials.debugCubeX = {
         shader: 'Standard',
         color: [1, 0, 0],
         shaderKeywords: [],
     }
 
-    activeDiff.geoMaterials['debugCubeY'] = {
+    activeDiff.geoMaterials.debugCubeY = {
         shader: 'Standard',
         color: [0, 1, 0],
         shaderKeywords: [],
     }
 
-    activeDiff.geoMaterials['debugCubeZ'] = {
+    activeDiff.geoMaterials.debugCubeZ = {
         shader: 'Standard',
         color: [0, 0, 1],
         shaderKeywords: [],

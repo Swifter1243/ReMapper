@@ -3,16 +3,13 @@ import {
     ComplexKeyframesAbstract,
     ComplexKeyframesAny,
     ComplexKeyframesVec3,
-    ComplexKeyframesVec4,
     ComplexKeyframeValuesUnsafe,
     EASE,
     KeyframeValuesUnsafe,
     RawKeyframesAbstract,
     RawKeyframesAny,
     RawKeyframesVec3,
-    RawKeyframesVec4,
     SimpleKeyframesAny,
-    SingleKeyframeAbstract,
     SingleKeyframeValuesUnsafe,
 } from '../types/animation_types.ts'
 
@@ -33,7 +30,6 @@ import {
 } from '../utils/math.ts'
 import { optimizeKeyframes, OptimizeSettings } from './anim_optimizer.ts'
 
-import * as AnimationInternals from '../internals/animation.ts'
 import { NumberTuple } from '../types/util_types.ts'
 import { TransformKeyframe, Vec3, Vec4 } from '../types/data_types.ts'
 import { copy } from '../utils/general.ts'
@@ -49,7 +45,6 @@ import {
     setKeyframeEasing,
 } from './keyframe.ts'
 import { lerpHSV } from '../data/color.ts'
-import { ComplexKeyframesLinear, RawKeyframesLinear } from '../mod.ts'
 
 /**
  * Ensures that this value is in the format of an array of keyframes.
