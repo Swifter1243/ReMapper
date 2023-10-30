@@ -84,7 +84,7 @@ export function animateEnvGroup(
 
             const event = animateTrack(time, x.track.value)
             if (duration) event.duration = duration
-            if (easing) event.ease = easing
+            if (easing) event.easing = easing
 
             const keys = Object.keys(
                 newAnimation,
@@ -132,7 +132,7 @@ export function animateEnvTrack(
 
             const event = animateTrack(time, x.track.value)
             if (duration) event.duration = duration
-            if (easing) event.ease = easing
+            if (easing) event.easing = easing
 
             const keys = Object.keys(
                 newAnimation,

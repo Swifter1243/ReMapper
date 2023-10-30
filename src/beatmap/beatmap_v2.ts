@@ -111,7 +111,7 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
         )
 
         const laserSpeedEvents = laserSpeedEventsFilter[0].map((o) =>
-            event.leftLaserSpeed(0).fromJson(
+            event.leftLaserSpeed({}).fromJson(
                 o as bsmap.v2.IEventLaser,
                 false,
             )
@@ -122,22 +122,22 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
         )
 
         const ringSpinEvents = ringSpinEventsFilter[0].map((o) =>
-            event.ringSpin(0).fromJson(o as bsmap.v2.IEventRing, false)
+            event.ringSpin({}).fromJson(o as bsmap.v2.IEventRing, false)
         )
 
         const rotationEvents = rotationEventsFilter[0].map((o) =>
-            event.lateRotation(0).fromJson(
+            event.lateRotation({}).fromJson(
                 o as bsmap.v2.IEventLaneRotation,
                 false,
             )
         )
 
         const boostEvents = boostEventsFilter[0].map((o) =>
-            event.boost(0, false).fromJson(o, false)
+            event.boost({}).fromJson(o, false)
         )
 
         const baseBasicEvents = json._events.map((o) =>
-            event.baseBasicEvent(0).fromJson(o, false)
+            event.baseBasicEvent({}).fromJson(o, false)
         )
 
         /// custom events
@@ -145,7 +145,7 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
 
         const animateTracks =
             customEvents?.filter((x) => x._type === 'AnimateTrack').map((x) =>
-                animateTrack(0, '').fromJson(
+                animateTrack({}).fromJson(
                     x as bsmap.v2.ICustomEventAnimateTrack,
                     false,
                 )
@@ -154,7 +154,7 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
         const assignPathTracks =
             customEvents?.filter((x) => x._type === 'AssignPathAnimation').map((
                 x,
-            ) => assignPathAnimation(0, '').fromJson(
+            ) => assignPathAnimation({}).fromJson(
                 x as bsmap.v2.ICustomEventAssignPathAnimation,
                 false,
             )) ?? []
@@ -162,7 +162,7 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
         const assignParent =
             customEvents?.filter((x) => x._type === 'AssignTrackParent').map((
                 x,
-            ) => assignTrackParent(0, [], '').fromJson(
+            ) => assignTrackParent({}).fromJson(
                 x as bsmap.v2.ICustomEventAssignTrackParent,
                 false,
             )) ?? []
@@ -170,7 +170,7 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
         const assignPlayer =
             customEvents?.filter((x) => x._type === 'AssignPlayerToTrack').map((
                 x,
-            ) => assignPlayerToTrack(0, '').fromJson(
+            ) => assignPlayerToTrack({}).fromJson(
                 x as bsmap.v2.ICustomEventAssignPlayerToTrack,
                 false,
             )) ?? []

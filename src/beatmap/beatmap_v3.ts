@@ -151,44 +151,44 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         )
 
         const laserSpeedEvents = laserSpeedEventsFilter[0].map((o) =>
-            event.leftLaserSpeed(0).fromJson(
+            event.leftLaserSpeed({}).fromJson(
                 o as bsmap.v3.IBasicEventLaserRotation,
                 true,
             )
         )
 
         const ringZoomEvents = ringZoomEventsFilter[0].map((o) =>
-            event.ringZoom(0).fromJson(o as bsmap.v3.IBasicEventRing, true)
+            event.ringZoom({}).fromJson(o as bsmap.v3.IBasicEventRing, true)
         )
 
         const ringSpinEvents = ringSpinEventsFilter[0].map((o) =>
-            event.ringSpin(0).fromJson(o as bsmap.v3.IBasicEventRing, true)
+            event.ringSpin({}).fromJson(o as bsmap.v3.IBasicEventRing, true)
         )
 
         const rotationEvents = [
             ...rotationEventsFilter[0].map((o) =>
-                event.lateRotation(0).fromBasicEvent(
+                event.lateRotation({}).fromBasicEvent(
                     o as bsmap.v3.IBasicEventLaneRotation,
                 )
             ),
             ...json.rotationEvents.map((o) =>
-                event.lateRotation(0).fromJson(o, true)
+                event.lateRotation({}).fromJson(o, true)
             ),
         ]
 
         const boostEvents = [
             ...boostEventsFilter[0].map((o) =>
-                event.boost(0, true).fromBasicEvent(
+                event.boost({}).fromBasicEvent(
                     o as bsmap.v3.IBasicEventBoost,
                 )
             ),
             ...json.colorBoostBeatmapEvents.map((o) =>
-                event.boost(0, false).fromJson(o, true)
+                event.boost({}).fromJson(o, true)
             ),
         ]
 
         const baseBasicEvents = json.basicBeatmapEvents.map((o) =>
-            event.baseBasicEvent(0).fromJson(o, true)
+            event.baseBasicEvent({}).fromJson(o, true)
         )
 
         /// custom events
@@ -196,7 +196,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
 
         const animateTracks =
             customEvents?.filter((x) => x.t === 'AnimateTrack').map((x) =>
-                animateTrack(0, '').fromJson(
+                animateTrack({}).fromJson(
                     x as bsmap.v3.ICustomEventAnimateTrack,
                     true,
                 )
@@ -205,14 +205,14 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         const assignPathTracks =
             customEvents?.filter((x) => x.t === 'AssignPathAnimation').map((
                 x,
-            ) => assignPathAnimation(0, '').fromJson(
+            ) => assignPathAnimation({}).fromJson(
                 x as bsmap.v3.ICustomEventAssignPathAnimation,
                 true,
             )) ?? []
 
         const assignParent =
             customEvents?.filter((x) => x.t === 'AssignTrackParent').map((x) =>
-                assignTrackParent(0, [], '').fromJson(
+                assignTrackParent({}).fromJson(
                     x as bsmap.v3.ICustomEventAssignTrackParent,
                     true,
                 )
@@ -221,14 +221,14 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         const assignPlayer =
             customEvents?.filter((x) => x.t === 'AssignPlayerToTrack').map((
                 x,
-            ) => assignPlayerToTrack(0, '').fromJson(
+            ) => assignPlayerToTrack({}).fromJson(
                 x as bsmap.v3.ICustomEventAssignPlayerToTrack,
                 true,
             )) ?? []
 
         const animateComponents =
             customEvents?.filter((x) => x.t === 'AnimateComponent').map((x) =>
-                animateComponent(0, '').fromJson(
+                animateComponent({}).fromJson(
                     x as bsmap.v3.ICustomEventAnimateComponent,
                     true,
                 )

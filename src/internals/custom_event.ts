@@ -1,12 +1,7 @@
 import { bsmap } from '../deps.ts'
-import {
-    EASE,
-    PointDefinitionLinear,
-    TrackValue,
-} from '../types/animation_types.ts'
+import { EASE, PointDefinitionLinear } from '../types/animation_types.ts'
 import {
     BloomFogEnvironment,
-    Components,
     ILightWithId,
     TubeBloomPrePassLight,
 } from '../types/environment_types.ts'
@@ -16,21 +11,24 @@ import { Fields, SubclassExclusiveProps, TJson } from '../types/util_types.ts'
 import { JsonWrapper } from '../types/beatmap_types.ts'
 import { copy } from '../utils/general.ts'
 import { AnimationPropertiesV3, animationToJson } from './animation.ts'
+import { ExcludedObjectFields, ObjectReplacements } from './object.ts'
+
+type CustomEventExclusions = {
+    type: never
+}
 
 export abstract class BaseCustomEvent<
     TV2 extends bsmap.v2.ICustomEvent,
     TV3 extends bsmap.v3.ICustomEvent,
 > implements JsonWrapper<TV2, TV3> {
-    time = 0
-    type = ''
-    data: TJson = {}
+    time: number
+    type: string
+    data: TJson
 
-    constructor(time: number | Fields<BaseCustomEvent<TV2, TV3>> = 0) {
-        if (typeof time === 'object') {
-            Object.assign(this, time)
-        } else {
-            this.time = time
-        }
+    constructor(fields: Partial<Fields<BaseCustomEvent<TV2, TV3>>>) {
+        this.time = fields.time ?? 0
+        this.type = fields.type ?? ''
+        this.data = fields.data ?? {}
     }
 
     /** Push this event to the difficulty.
@@ -42,6 +40,8 @@ export abstract class BaseCustomEvent<
     fromJson(json: TV2, v3: false): this
     fromJson(json: TV2 | TV3, v3: boolean): this {
         type Params = Fields<BaseCustomEvent<TV2, TV3>>
+
+        // TODO: Import data
 
         if (v3) {
             const obj = json as TV3
@@ -73,6 +73,49 @@ export class AnimateTrack extends BaseCustomEvent<
     bsmap.v2.ICustomEventAnimateTrack,
     bsmap.v3.ICustomEventAnimateTrack
 > {
+    /**
+     * Animate a track.
+     */
+    constructor(
+        params: ExcludedObjectFields<
+            AnimateTrack,
+            ObjectReplacements,
+            CustomEventExclusions
+        >,
+    ) {
+        super(params)
+        this.type = 'AnimateTrack'
+        this.animation = params.animation ?? {}
+        this.duration = params.duration ?? 0
+        if (params.track) {
+            this.track = params.track instanceof Track
+                ? params.track
+                : new Track(params.track)
+        }
+        if (params.easing) this.easing = params.easing
+        if (params.repeat) this.repeat = params.repeat
+    }
+
+    /** The animation of this event. */
+    animation: AnimationPropertiesV3
+
+    duration: number
+
+    track: Track = new Track()
+
+    easing?: EASE
+
+    /** The amount of times to repeat this event. */
+    repeat?: number
+
+    /** Push this event to the difficulty.
+     * @param clone Whether this object will be copied before being pushed.
+     */
+    push(clone = true) {
+        getActiveDiff().animateTracks.push(clone ? copy(this) : this)
+        return this
+    }
+
     fromJson(json: bsmap.v3.ICustomEventAnimateTrack, v3: true): this
     fromJson(json: bsmap.v2.ICustomEventAnimateTrack, v3: false): this
     fromJson(
@@ -96,7 +139,7 @@ export class AnimateTrack extends BaseCustomEvent<
 
             const params = {
                 duration: obj.d.duration,
-                ease: obj.d.easing,
+                easing: obj.d.easing,
                 repeat: obj.d.repeat,
                 track: new Track(obj.d.track),
             } as Params
@@ -108,7 +151,7 @@ export class AnimateTrack extends BaseCustomEvent<
 
             const params = {
                 duration: obj._data._duration,
-                ease: obj._data._easing,
+                easing: obj._data._easing,
                 track: new Track(obj._data._track),
             } as Params
 
@@ -129,7 +172,7 @@ export class AnimateTrack extends BaseCustomEvent<
                 b: this.time,
                 d: {
                     repeat: this.repeat,
-                    easing: this.ease,
+                    easing: this.easing,
                     track: this.track.value,
                     duration: this.duration,
                     ...this.data,
@@ -148,7 +191,7 @@ export class AnimateTrack extends BaseCustomEvent<
         return {
             _time: this.time,
             _data: {
-                _easing: this.ease,
+                _easing: this.easing,
                 _track: this.track.value,
                 _duration: this.duration,
                 ...this.data,
@@ -157,6 +200,34 @@ export class AnimateTrack extends BaseCustomEvent<
             _type: 'AnimateTrack',
         } satisfies bsmap.v2.ICustomEventAnimateTrack
     }
+}
+
+export class AssignPathAnimation extends BaseCustomEvent<
+    bsmap.v2.ICustomEventAssignPathAnimation,
+    bsmap.v3.ICustomEventAssignPathAnimation
+> {
+    /**
+     * Animate objects on a track across their lifespan.
+     */
+    constructor(
+        params: ExcludedObjectFields<
+            AssignPathAnimation,
+            ObjectReplacements,
+            CustomEventExclusions
+        >,
+    ) {
+        super(params)
+        this.type = 'AnimateTrack'
+        this.animation = params.animation ?? {}
+        this.duration = params.duration ?? 0
+        if (params.track) {
+            this.track = params.track instanceof Track
+                ? params.track
+                : new Track(params.track)
+        }
+        if (params.easing) this.easing = params.easing
+    }
+
     /** The animation of this event. */
     animation: AnimationPropertiesV3
 
@@ -164,48 +235,16 @@ export class AnimateTrack extends BaseCustomEvent<
 
     track: Track = new Track()
 
-    ease?: EASE
-
-    /** The amount of times to repeat this event. */
-    repeat?: number
-
-    /**
-     * Animate a track.
-     * @param json The json to import.
-     * @param track Track(s) to effect.
-     * @param duration The duration of the animation.
-     * @param animation The animation properties to replace.
-     * @param easing The easing on this event's animation.
-     */
-    constructor(params: {
-        time?: number
-        track: TrackValue
-        duration?: number
-        animation?: AnimationPropertiesV3
-        easing?: EASE
-    }) {
-        super(params.time)
-        this.type = 'AnimateTrack'
-        this.animation = params.animation ?? {}
-        this.duration = params.duration ?? 0
-        if (params.track) this.track.value = params.track
-        if (params.duration) this.duration = params.duration
-        if (params.easing) this.ease = params.easing
-    }
+    easing?: EASE
 
     /** Push this event to the difficulty.
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        getActiveDiff().animateTracks.push(clone ? copy(this) : this)
+        getActiveDiff().assignPathAnimations.push(clone ? copy(this) : this)
         return this
     }
-}
 
-export class AssignPathAnimation extends BaseCustomEvent<
-    bsmap.v2.ICustomEventAssignPathAnimation,
-    bsmap.v3.ICustomEventAssignPathAnimation
-> {
     fromJson(json: bsmap.v3.ICustomEventAssignPathAnimation, v3: true): this
     fromJson(json: bsmap.v2.ICustomEventAssignPathAnimation, v3: false): this
     fromJson(
@@ -230,7 +269,7 @@ export class AssignPathAnimation extends BaseCustomEvent<
             const params = {
                 // @ts-ignore 2322
                 duration: obj.d.duration,
-                ease: obj.d.easing,
+                easing: obj.d.easing,
                 track: new Track(obj.d.track),
             } as Params
 
@@ -242,7 +281,7 @@ export class AssignPathAnimation extends BaseCustomEvent<
             const params = {
                 // @ts-ignore 2322
                 duration: obj._data._duration,
-                ease: obj._data._easing,
+                easing: obj._data._easing,
                 track: new Track(obj._data._track),
             } as Params
 
@@ -266,7 +305,7 @@ export class AssignPathAnimation extends BaseCustomEvent<
                 d: {
                     // @ts-ignore 2322
                     duration: this.duration,
-                    easing: this.ease,
+                    easing: this.easing,
                     track: this.track.value,
                     ...this.data,
                     ...animationToJson(this.animation, v3),
@@ -280,7 +319,7 @@ export class AssignPathAnimation extends BaseCustomEvent<
             _data: {
                 // @ts-ignore 2322
                 _duration: this.duration,
-                _easing: this.ease,
+                _easing: this.easing,
                 _track: this.track.value,
                 ...this.data,
                 ...animationToJson(this.animation, v3),
@@ -288,52 +327,44 @@ export class AssignPathAnimation extends BaseCustomEvent<
             _type: 'AssignPathAnimation',
         } satisfies bsmap.v2.ICustomEventAssignPathAnimation
     }
-    /** The animation of this event. */
-    animation: AnimationPropertiesV3
-
-    duration: number
-
-    track: Track = new Track()
-
-    ease?: EASE
-
-    /**
-     * Animate objects on a track across their lifespan.
-     * @param json The json to import.
-     * @param track Track(s) to effect.
-     * @param duration The time to transition from a previous path to this one.
-     * @param animation The animation properties to replace.
-     * @param easing The easing on this event's animation.
-     */
-    constructor(params: {
-        time?: number
-        track: TrackValue
-        duration?: number
-        animation?: AnimationPropertiesV3
-        easing?: EASE
-    }) {
-        super(params.time)
-        this.type = 'AnimateTrack'
-        this.animation = params.animation ?? {}
-        this.duration = params.duration ?? 0
-        if (params.track) this.track.value = params.track
-        if (params.duration) this.duration = params.duration
-        if (params.easing) this.ease = params.easing
-    }
-
-    /** Push this event to the difficulty.
-     * @param clone Whether this object will be copied before being pushed.
-     */
-    push(clone = true) {
-        getActiveDiff().assignPathAnimations.push(clone ? copy(this) : this)
-        return this
-    }
 }
 
 export class AssignTrackParent extends BaseCustomEvent<
     bsmap.v2.ICustomEventAssignTrackParent,
     bsmap.v3.ICustomEventAssignTrackParent
 > {
+    /**
+     * Assign tracks to a parent track.
+     */
+    constructor(
+        params: ExcludedObjectFields<
+            AssignTrackParent,
+            ObjectReplacements,
+            CustomEventExclusions
+        >,
+    ) {
+        super(params)
+        this.childrenTracks = params.childrenTracks ?? []
+        this.parentTrack = params.parentTrack ?? ''
+        this.worldPositionStays = params.worldPositionStays
+    }
+
+    /** Children tracks to assign. */
+    childrenTracks: string[]
+    /** Name of the parent track. */
+    parentTrack: string
+
+    /** Modifies the transform of children objects to remain in the same place relative to world space. */
+    worldPositionStays?: boolean
+
+    /** Push this event to the difficulty.
+     * @param clone Whether this object will be copied before being pushed.
+     */
+    push(clone = true) {
+        getActiveDiff().assignTrackParents.push(clone ? copy(this) : this)
+        return this
+    }
+
     fromJson(json: bsmap.v3.ICustomEventAssignTrackParent, v3: true): this
     fromJson(json: bsmap.v2.ICustomEventAssignTrackParent, v3: false): this
     fromJson(
@@ -406,40 +437,6 @@ export class AssignTrackParent extends BaseCustomEvent<
             _type: 'AssignTrackParent',
         } satisfies bsmap.v2.ICustomEventAssignTrackParent
     }
-    /**
-     * Assign tracks to a parent track.
-     * @param json Json to import.
-     * @param childrenTracks Children tracks to assign.
-     * @param parentTrack Name of the parent track.
-     * @param worldPositionStays Modifies the transform of children objects to remain in the same place relative to world space.
-     */
-    constructor(params: {
-        time?: number
-        childrenTracks: string[]
-        parentTrack: string
-        worldPositionStays?: boolean
-    }) {
-        super(params.time)
-        this.childrenTracks = params.childrenTracks
-        this.parentTrack = params.parentTrack
-        this.worldPositionStays = params.worldPositionStays
-    }
-
-    /** Push this event to the difficulty.
-     * @param clone Whether this object will be copied before being pushed.
-     */
-    push(clone = true) {
-        getActiveDiff().assignTrackParents.push(clone ? copy(this) : this)
-        return this
-    }
-
-    /** Children tracks to assign. */
-    childrenTracks: string[]
-    /** Name of the parent track. */
-    parentTrack: string
-
-    /** Modifies the transform of children objects to remain in the same place relative to world space. */
-    worldPositionStays?: boolean
 }
 
 export class AssignPlayerToTrack extends BaseCustomEvent<
@@ -448,17 +445,31 @@ export class AssignPlayerToTrack extends BaseCustomEvent<
 > {
     /**
      * Assigns the player to a track.
-     * @param json Json to import.
-     * @param track Track the player will be assigned to.
      */
-    constructor(time: number, track?: string) {
-        super(time)
-        this.track = track
+    constructor(
+        params: ExcludedObjectFields<
+            AssignPlayerToTrack,
+            // deno-lint-ignore ban-types
+            {},
+            CustomEventExclusions
+        >,
+    ) {
+        super(params)
+        this.track = params.track ?? ''
+        if (this.target) this.target = params.target
     }
 
     /** Track the player will be assigned to. */
-    track?: string
+    track: string
     target?: bsmap.PlayerObject
+
+    /** Push this event to the difficulty.
+     * @param clone Whether this object will be copied before being pushed.
+     */
+    push(clone = true) {
+        getActiveDiff().assignPlayerTracks.push(clone ? copy(this) : this)
+        return this
+    }
 
     fromJson(json: bsmap.v3.ICustomEventAssignPlayerToTrack, v3: true): this
     fromJson(json: bsmap.v2.ICustomEventAssignPlayerToTrack, v3: false): this
@@ -532,14 +543,6 @@ export class AssignPlayerToTrack extends BaseCustomEvent<
             _type: 'AssignPlayerToTrack',
         } satisfies bsmap.v2.ICustomEventAssignPlayerToTrack
     }
-
-    /** Push this event to the difficulty.
-     * @param clone Whether this object will be copied before being pushed.
-     */
-    push(clone = true) {
-        getActiveDiff().assignPlayerTracks.push(clone ? copy(this) : this)
-        return this
-    }
 }
 
 export class AnimateComponent
@@ -551,23 +554,26 @@ export class AnimateComponent
      * @param duration Duration of the animation.
      * @param easing The easing on the animation.
      */
-    constructor(params: {
-        time?: number
-        track?: TrackValue
-        duration?: number
-        easing?: EASE
-        components: Components<PointDefinitionLinear>
-    }) {
-        super(params.time)
+    constructor(
+        params: ExcludedObjectFields<
+            AnimateComponent,
+            ObjectReplacements,
+            CustomEventExclusions
+        >,
+    ) {
+        super(params)
         this.type = 'AnimateComponent'
-        this.track.value = params.track
+        if (params.track) {
+            this.track = params.track instanceof Track
+                ? params.track
+                : new Track(params.track)
+        }
         this.duration = params.duration
         this.easing = params.easing
 
-        params.components ??= {}
-        this.fog = params.components.BloomFogEnvironment ?? {}
-        this.lightID = params.components.ILightWithId ?? {}
-        this.lightMultiplier = params.components.TubeBloomPrePassLight ?? {}
+        this.fog = params.fog ?? {}
+        this.lightID = params.lightID ?? {}
+        this.lightMultiplier = params.lightMultiplier ?? {}
     }
 
     /** The track class for this event.
@@ -585,12 +591,23 @@ export class AnimateComponent
     /** The "TubeBloomPrePassLight component to animate." */
     lightMultiplier: TubeBloomPrePassLight<PointDefinitionLinear> = {}
 
+    /** Push this event to the difficulty.
+     * @param clone Whether this object will be copied before being pushed.
+     */
+    push(clone = true) {
+        getActiveDiff().animateComponents.push(clone ? copy(this) : this)
+        return this
+    }
+
     fromJson(json: bsmap.v3.ICustomEventAnimateComponent, v3: true): this
     fromJson(json: never, v3: false): this
-    fromJson(json: never | bsmap.v3.ICustomEventAnimateComponent, v3: boolean): this {
+    fromJson(
+        json: never | bsmap.v3.ICustomEventAnimateComponent,
+        v3: boolean,
+    ): this {
         type Params = Fields<
             SubclassExclusiveProps<
-            AnimateComponent,
+                AnimateComponent,
                 BaseCustomEvent<
                     bsmap.v2.ICustomEvent,
                     bsmap.v3.ICustomEvent
@@ -651,13 +668,5 @@ export class AnimateComponent
                 },
             },
         } satisfies bsmap.v3.ICustomEventAnimateComponent
-    }
-
-    /** Push this event to the difficulty.
-     * @param clone Whether this object will be copied before being pushed.
-     */
-    push(clone = true) {
-        getActiveDiff().animateComponents.push(clone ? copy(this) : this)
-        return this
     }
 }

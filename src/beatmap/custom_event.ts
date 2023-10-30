@@ -1,11 +1,6 @@
 import { bsmap } from '../deps.ts'
 import * as CustomEventInternals from '../internals/custom_event.ts'
-import {
-    EASE,
-    PointDefinitionLinear,
-    TrackValue,
-} from '../types/animation_types.ts'
-import { Components } from '../types/environment_types.ts'
+import { EASE, TrackValue } from '../types/animation_types.ts'
 
 export type CustomEvent = CustomEventInternals.BaseCustomEvent<
     bsmap.v2.ICustomEvent,
@@ -165,12 +160,47 @@ export function assignTrackParent(
     )
 }
 
+export function assignPlayerToTrack(
+    time: number,
+    track?: string,
+): CustomEventInternals.AssignPlayerToTrack
+export function assignPlayerToTrack(
+    ...params: ConstructorParameters<
+        typeof CustomEventInternals.AssignPlayerToTrack
+    >
+): CustomEventInternals.AssignPlayerToTrack
+
 /**
  * Assigns the player to a track.
  * @param track Track the player will be assigned to.
  */
-export const assignPlayerToTrack = (time: number, track?: string) =>
-    new CustomEventInternals.AssignPlayerToTrack(time, track)
+export function assignPlayerToTrack(
+    ...params:
+        | ConstructorParameters<typeof CustomEventInternals.AssignPlayerToTrack>
+        | [
+            time: number,
+            track?: string,
+        ]
+) {
+    const [first] = params
+
+    if (typeof first === 'object') {
+        return new CustomEventInternals.AssignPlayerToTrack(
+            ...params as ConstructorParameters<
+                typeof CustomEventInternals.AssignPlayerToTrack
+            >,
+        )
+    }
+
+    const [time, track] = params
+
+    return new CustomEventInternals.AssignPlayerToTrack(
+        {
+            time: time as number,
+            track
+        },
+    )
+}
 
 /**
  * Animate components on a track.
@@ -183,7 +213,6 @@ export function animateComponent(
     track: TrackValue,
     duration?: number,
     easing?: EASE,
-    components?: Components<PointDefinitionLinear>,
 ): CustomEventInternals.AnimateComponent
 export function animateComponent(
     ...params: ConstructorParameters<
@@ -198,8 +227,6 @@ export function animateComponent(
             track: TrackValue,
             duration?: number,
             easing?: EASE,
-
-            components?: Components<PointDefinitionLinear>,
         ]
 ) {
     const [first] = params
@@ -212,14 +239,13 @@ export function animateComponent(
         )
     }
 
-    const [time, track, duration, easing, components] = params
+    const [time, track, duration, easing] = params
 
     return new CustomEventInternals.AnimateComponent(
         {
             time: time as number,
             track,
             duration,
-            components: components!,
             easing,
         },
     )

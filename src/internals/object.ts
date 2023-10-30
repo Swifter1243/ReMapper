@@ -22,7 +22,7 @@ import {
     AnimationPropertiesV3,
     jsonToAnimation,
     NoteAnimationData,
-ObjectAnimationData,
+    ObjectAnimationData,
 } from './animation.ts'
 import { TrackValue } from '../types/animation_types.ts'
 
@@ -49,11 +49,14 @@ export type ObjectReplacements = {
     track?: TrackValue | Track
 }
 
-export type ExcludedObjectFields<Class, Replacement = ObjectReplacements> =
-    Omit<
-        Replace<Partial<Fields<Class>>, Replacement>,
-        keyof ExcludeObjectFields
-    >
+export type ExcludedObjectFields<
+    Class,
+    Replacement = ObjectReplacements,
+    Exclusion = ExcludeObjectFields,
+> = Omit<
+    Replace<Partial<Fields<Class>>, Replacement>,
+    keyof Exclusion
+>
 
 export type ExcludeObjectFields = {
     implicitNJS: never
