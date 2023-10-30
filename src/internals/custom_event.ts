@@ -101,7 +101,7 @@ export class AnimateTrack extends BaseCustomEvent<
 
     duration: number
 
-    track: Track = new Track()
+    track: Track = new Track('')
 
     easing?: EASE
 
@@ -165,7 +165,7 @@ export class AnimateTrack extends BaseCustomEvent<
     toJson(
         v3: boolean,
     ): bsmap.v2.ICustomEventAnimateTrack | bsmap.v3.ICustomEventAnimateTrack {
-        if (!this.track.value) throw 'Track cannot be null!'
+        if (this.track.value === undefined) throw 'Track cannot be null!'
 
         if (v3) {
             return {
@@ -233,7 +233,7 @@ export class AssignPathAnimation extends BaseCustomEvent<
 
     duration: number
 
-    track: Track = new Track()
+    track: Track = new Track('')
 
     easing?: EASE
 
@@ -297,7 +297,7 @@ export class AssignPathAnimation extends BaseCustomEvent<
     ):
         | bsmap.v2.ICustomEventAssignPathAnimation
         | bsmap.v3.ICustomEventAssignPathAnimation {
-        if (!this.track.value) throw 'Track cannot be null!'
+        if (this.track.value === undefined) throw 'Track cannot be null!'
 
         if (v3) {
             return {
@@ -579,7 +579,7 @@ export class AnimateComponent
     /** The track class for this event.
      * Please read the properties of this class to see how it works.
      */
-    track = new Track()
+    track = new Track('')
 
     duration?: number
     /** The easing on this event's animation. */
@@ -641,6 +641,8 @@ export class AnimateComponent
         if (!v3) {
             throw 'V2 not supported for animating components'
         }
+
+        if (this.track.value === undefined) throw 'Track cannot be null!'
 
         return {
             b: this.time,

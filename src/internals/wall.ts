@@ -79,7 +79,7 @@ export class Wall
                     noteJumpStartBeatOffset: offset,
                     localRotation: this.localRotation,
                     coordinates: this.coordinates,
-                    worldRotation: this.rotation,
+                    worldRotation: this.worldRotation,
                     track: this.track.value,
                     color: this.color,
                     uninteractable: exportInvertedBoolean(
@@ -105,7 +105,7 @@ export class Wall
                 _noteJumpStartBeatOffset: offset,
                 _localRotation: this.localRotation,
                 _position: this.coordinates,
-                _rotation: this.rotation,
+                _rotation: this.worldRotation,
                 _track: this.track.value,
                 _color: this.color,
                 _interactable: defaultBoolean(this.interactable, true),

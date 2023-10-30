@@ -133,7 +133,7 @@ export abstract class BaseGameplayObject<
         this.x = obj.x ?? 0
         this.y = obj.y ?? 0
         this.coordinates = obj.coordinates
-        this.rotation = obj.rotation
+        this.worldRotation = obj.worldRotation
         this.localRotation = obj.localRotation
         this.NJS = obj.NJS
         this.offset = obj.offset
@@ -157,7 +157,7 @@ export abstract class BaseGameplayObject<
     coordinates?: Vec2
 
     /** The rotation added to an object around the world origin. */
-    rotation?: Vec3
+    worldRotation?: Vec3
     /** The rotation added to an object around it's anchor point. */
     localRotation?: Vec3
 
@@ -269,7 +269,7 @@ export abstract class BaseGameplayObject<
                     obj.customData?.uninteractable,
                 ),
                 localRotation: obj.customData?.localRotation,
-                rotation: typeof obj.customData?.worldRotation === 'number'
+                worldRotation: typeof obj.customData?.worldRotation === 'number'
                     ? [0, obj.customData.worldRotation, 0]
                     : obj.customData?.worldRotation,
                 track: new Track(obj.customData?.track),
@@ -292,7 +292,7 @@ export abstract class BaseGameplayObject<
                 coordinates: obj._customData?._position,
                 interactable: obj._customData?._interactable,
                 localRotation: obj._customData?._localRotation,
-                rotation: typeof obj._customData?._rotation === 'number'
+                worldRotation: typeof obj._customData?._rotation === 'number'
                     ? [0, obj._customData._rotation, 0]
                     : obj._customData?._rotation,
                 track: new Track(obj._customData?._track),

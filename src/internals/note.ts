@@ -126,7 +126,7 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
                         this.interactable,
                         false,
                     ),
-                    worldRotation: this.rotation,
+                    worldRotation: this.worldRotation,
                     link: this.link,
                     disableBadCutDirection: exportInvertedBoolean(
                         this.directionBadCut,
@@ -174,7 +174,7 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
                 _noteJumpStartBeatOffset: offset,
                 _track: this.track.value,
                 _interactable: defaultBoolean(this.interactable, true),
-                _rotation: this.rotation,
+                _rotation: this.worldRotation,
                 _fake: defaultBoolean(this.fake, false),
                 _cutDirection: this.angleOffset, //?
                 ...this.customData,

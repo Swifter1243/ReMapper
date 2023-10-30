@@ -25,7 +25,7 @@ export type AnimationPropertiesV2 = {
 
 export type AnimationPropertiesV3 = {
     offsetPosition?: PointDefinitionVec3
-    offsetRotation?: PointDefinitionVec3
+    offsetWorldRotation?: PointDefinitionVec3
     localRotation?: PointDefinitionVec3
     scale?: PointDefinitionVec3
     dissolve?: PointDefinitionLinear
@@ -51,9 +51,9 @@ type AnimateV3Scuffed =
 type AnimationData = AnimationPropertiesV2 | AnimationPropertiesV3
 
 export interface ObjectAnimationData {
-    position?: PointDefinitionVec3
+    offsetPosition?: PointDefinitionVec3
     definitePosition?: PointDefinitionVec3
-    rotation?: PointDefinitionVec3
+    offsetWorldRotation?: PointDefinitionVec3
     localRotation?: PointDefinitionVec3
     scale?: PointDefinitionVec3
     dissolve?: PointDefinitionLinear
@@ -110,7 +110,7 @@ export function animationToJson(
         _localPosition: obj.localPosition,
         _localRotation: obj.localRotation,
         _position: obj.offsetPosition ?? obj.position,
-        _rotation: obj.offsetRotation ?? obj.rotation,
+        _rotation: obj.offsetWorldRotation ?? obj.rotation,
         _scale: obj.scale,
         _time: obj.time,
     } as AnimateV2Scuffed
@@ -128,7 +128,7 @@ export function jsonToAnimation(
         localPosition: obj._localPosition,
         localRotation: obj._localRotation,
         offsetPosition: obj._position,
-        offsetRotation: obj._rotation,
+        offsetWorldRotation: obj._rotation,
         position: obj._position,
         rotation: obj._rotation,
         scale: obj._scale,

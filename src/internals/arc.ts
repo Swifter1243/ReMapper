@@ -110,7 +110,7 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
                     false,
                 ),
                 track: this.track.value,
-                worldRotation: this.rotation,
+                worldRotation: this.worldRotation,
                 ...this.customData,
             },
         } satisfies bsmap.v3.IArc

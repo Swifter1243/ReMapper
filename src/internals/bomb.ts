@@ -64,7 +64,7 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
                     color: this.color,
                     coordinates: this.coordinates,
                     track: this.track.value,
-                    worldRotation: this.rotation,
+                    worldRotation: this.worldRotation,
                     spawnEffect: defaultBoolean(this.spawnEffect, true),
                     link: this.link,
                     disableBadCutDirection: exportInvertedBoolean(
@@ -101,7 +101,7 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
                 _fake: this.fake,
                 _localRotation: this.localRotation,
                 _position: this.coordinates,
-                _rotation: this.rotation,
+                _rotation: this.worldRotation,
                 _track: this.track.value,
                 _disableNoteGravity: exportInvertedBoolean(
                     this.noteGravity,
