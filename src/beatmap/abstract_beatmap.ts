@@ -59,7 +59,7 @@ export interface RMDifficulty {
     environment: EnvironmentInternals.Environment[]
     geometry: EnvironmentInternals.Geometry[]
 
-    geoMaterials: Record<string, RawGeometryMaterial>
+    geometryMaterials: Record<string, RawGeometryMaterial>
 }
 
 type ClearProperty =
@@ -142,7 +142,7 @@ export abstract class AbstractDifficulty<
     customData: Record<string, unknown>
     environment: EnvironmentInternals.Environment[]
     geometry: EnvironmentInternals.Geometry[]
-    geoMaterials: Record<string, RawGeometryMaterial>
+    geometryMaterials: Record<string, RawGeometryMaterial>
 
     /**
      * Creates a difficulty. Can be used to access various information and the map data.
@@ -179,7 +179,7 @@ export abstract class AbstractDifficulty<
         this.geometry = inner.geometry
         this.environment = inner.environment
 
-        this.geoMaterials = inner.geoMaterials
+        this.geometryMaterials = inner.geometryMaterials
 
         this.laserSpeedEvents = inner.laserSpeedEvents
         this.rotationEvents = inner.rotationEvents
@@ -346,7 +346,7 @@ export abstract class AbstractDifficulty<
         if (clear('Custom Data')) this.customData = {}
         if (clear('Environment')) this.environment = []
         if (clear('Geometry')) this.geometry = []
-        if (clear('Geometry Materials')) this.geoMaterials = {}
+        if (clear('Geometry Materials')) this.geometryMaterials = {}
     }
 
     /**

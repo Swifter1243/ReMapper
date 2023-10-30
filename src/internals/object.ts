@@ -16,7 +16,6 @@ import {
 } from '../types/util_types.ts'
 import { ColorVec, Vec2, Vec3 } from '../types/data_types.ts'
 import { JsonWrapper } from '../types/beatmap_types.ts'
-import { copy } from '../utils/general.ts'
 import {
     AnimationPropertiesV2,
     AnimationPropertiesV3,
@@ -25,6 +24,7 @@ import {
     ObjectAnimationData,
 } from './animation.ts'
 import { TrackValue } from '../types/animation_types.ts'
+import { jsonPrune } from '../mod.ts'
 
 export function importInvertedBoolean(bool: boolean | undefined) {
     return bool !== undefined ? !bool : undefined
@@ -85,7 +85,7 @@ export abstract class BaseObject<
 
     /** Checks if the object has modded properties. */
     get isModded() {
-        return !isEmptyObject(this.toJson(true).customData)
+        return !isEmptyObject(jsonPrune(this.toJson(true).customData as TJson))
     }
 
     fromJson(json: TV3, v3: true): this
@@ -239,11 +239,19 @@ export abstract class BaseGameplayObject<
     }
 
     get isGameplayModded() {
-        if (!this.isModded) return false
-        const customData = copy(this.toJson(true).customData) as TJson
+        const customData = jsonPrune(this.toJson(true).customData as TJson)
+        if (isEmptyObject(customData)) return false
         jsonRemove(customData, 'color')
         jsonRemove(customData, 'spawnEffect')
         jsonRemove(customData, 'animation.color')
+
+        if (this.NJS === undefined) {
+            jsonRemove(customData, 'noteJumpMovementSpeed')
+        }
+        if (this.offset === undefined) {
+            jsonRemove(customData, 'noteJumpStartBeatOffset')
+        }
+
         return !isEmptyObject(customData)
     }
 

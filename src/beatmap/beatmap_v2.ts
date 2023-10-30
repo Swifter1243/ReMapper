@@ -245,7 +245,7 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
                 assignPlayerTracks: assignPlayer,
                 assignTrackParents: assignParent,
 
-                geoMaterials: materials,
+                geometryMaterials: materials,
                 pointDefinitions: pointDefinitions,
                 customData: json._customData ?? {},
                 environment: environmentArr,
@@ -280,7 +280,7 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
         // Materials
         const materials: Record<string, bsmap.v2.IChromaMaterial> = {}
 
-        Object.entries(this.geoMaterials).forEach(
+        Object.entries(this.geometryMaterials).forEach(
             ([key, value]) => {
                 materials[key] = {
                     _shader: value.shader,

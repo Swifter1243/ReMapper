@@ -462,7 +462,7 @@ export class ModelScene {
                         if (group.defaultMaterial) {
                             const materialName =
                                 `modelScene${this.trackID}_${groupKey}_material`
-                            activeDiff.geoMaterials[materialName] =
+                            activeDiff.geometryMaterials[materialName] =
                                 group.defaultMaterial
                             ;(object as Geometry).material = materialName
                         }
@@ -733,7 +733,7 @@ export class ModelScene {
                     if (group.defaultMaterial) {
                         materialName =
                             `modelScene${this.trackID}_${groupKey}_material`
-                        activeDiff.geoMaterials[materialName] =
+                        activeDiff.geometryMaterials[materialName] =
                             group.defaultMaterial
                     }
 
@@ -875,19 +875,19 @@ export function debugObject(
         active: false,
     }).push()
 
-    activeDiff.geoMaterials.debugCubeX = {
+    activeDiff.geometryMaterials.debugCubeX = {
         shader: 'Standard',
         color: [1, 0, 0],
         shaderKeywords: [],
     }
 
-    activeDiff.geoMaterials.debugCubeY = {
+    activeDiff.geometryMaterials.debugCubeY = {
         shader: 'Standard',
         color: [0, 1, 0],
         shaderKeywords: [],
     }
 
-    activeDiff.geoMaterials.debugCubeZ = {
+    activeDiff.geometryMaterials.debugCubeZ = {
         shader: 'Standard',
         color: [0, 0, 1],
         shaderKeywords: [],

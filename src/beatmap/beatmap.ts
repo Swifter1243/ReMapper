@@ -1,4 +1,3 @@
-// deno-lint-ignore-file adjacent-overload-signatures
 import { adbDeno, compress, fs, path } from '../deps.ts'
 
 import { QUEST_WIP_PATH } from '../data/constants.ts'
@@ -13,6 +12,7 @@ import { DIFFPATH, DIFFS, FILENAME } from '../types/beatmap_types.ts'
 import { copy } from '../utils/general.ts'
 import { environment } from './environment.ts'
 import { Environment } from '../internals/environment.ts'
+import { readDifficulty, setActiveDiff } from '../mod.ts'
 
 /**
  * Converts an array of Json objects to a class counterpart.
@@ -28,6 +28,7 @@ export function arrJsonToClass<T>(
 ) {
     if (array === undefined) return
     for (let i = 0; i < array.length; i++) {
+        // deno-lint-ignore no-explicit-any
         array[i] = (new target() as any).import(array[i])
         if (callback) callback(array[i])
     }
@@ -86,8 +87,8 @@ export async function collectBeatmapFiles(
 
     const files: string[] = (await Promise.all(filesPromise
         .map(async (v) => [v[0], await v[1]]))) // wait for boolean promises
-        .filter(v => v[1]) // filter by existing files
-        .map(v => v[0]) as string[] // export as string array
+        .filter((v) => v[1]) // filter by existing files
+        .map((v) => v[0]) as string[] // export as string array
 
     const tempDir = await makeTempDir
     const tempInfo = tempDir + `\\Info.dat`
@@ -107,6 +108,8 @@ export async function exportZip(
     excludeDiffs: FILENAME<DIFFS>[] = [],
     zipName?: string,
 ) {
+    await currentTransfer
+
     const workingDir = Deno.cwd()
     zipName ??= `${path.parse(workingDir).name}`
     zipName = `${zipName}.zip`
@@ -163,6 +166,8 @@ export async function exportToQuest(
     console.log('Uploaded all files to quest')
 }
 
+let currentTransfer: Promise<void>
+
 /**
  * Transfer the visual aspect of maps to other difficulties.
  * @param diffs The difficulties being effected.
@@ -172,51 +177,83 @@ export async function exportToQuest(
  * Be mindful that the external difficulties don't have an input/output structure,
  * so new pushed notes for example may not be cleared on the next run and would build up.
  */
-export function transferVisuals(
-    diffs: DIFFPATH[],
+export async function transferVisuals(
+    diffs: DIFFPATH[] | DIFFPATH,
     forDiff?: (diff: RMDifficulty) => void,
     walls = true,
+    arcs = true,
 ) {
-    throw 'TODO: Implement'
-    // const startActive = activeDiff;
+    await currentTransfer
 
-    // diffs.forEach((x) => {
-    //   const workingDiff = new RMDifficulty(
-    //     parseFilePath(x, ".dat").path as DIFFPATH,
-    //   );
+    async function thisFunction() {
+        const currentDiff = getActiveDiff()
 
-    //   workingDiff.rawEnvironment = startActive.rawEnvironment;
-    //   workingDiff.pointDefinitions = startActive.pointDefinitions;
-    //   workingDiff.customEvents = startActive.customEvents;
-    //   workingDiff.events = startActive.events;
-    //   workingDiff.geoMaterials = startActive.geoMaterials;
-    //   workingDiff.boostEvents = startActive.boostEvents;
-    //   workingDiff.lightEventBoxes = startActive.lightEventBoxes;
-    //   workingDiff.lightRotationBoxes = startActive.lightRotationBoxes;
-    //   workingDiff.fakeNotes = startActive.fakeNotes;
-    //   workingDiff.fakeBombs = startActive.fakeBombs;
-    //   workingDiff.fakeWalls = startActive.fakeWalls;
-    //   workingDiff.fakeChains = startActive.fakeChains;
+        async function process(x: DIFFPATH) {
+            const workingDiff = await readDifficulty(
+                (await parseFilePath(x, '.dat')).path as DIFFPATH,
+            )
 
-    //   if (walls) {
-    //     for (let y = 0; y < workingDiff.walls.length; y++) {
-    //       const obstacle = workingDiff.walls[y];
-    //       if (obstacle.isModded) {
-    //         arrRemove(workingDiff.walls, y);
-    //         y--;
-    //       }
-    //     }
+            workingDiff.notes = workingDiff.notes
+                .filter((x) => !(x.fake ?? false))
+                .concat(currentDiff.notes.filter((x) => (x.fake ?? false)))
 
-    //     startActive.walls.forEach((y) => {
-    //       if (y.isModded) workingDiff.walls.push(y);
-    //     });
-    //   }
+            workingDiff.bombs = workingDiff.bombs
+                .filter((x) => !(x.fake ?? false))
+                .concat(currentDiff.bombs.filter((x) => (x.fake ?? false)))
 
-    //   if (forDiff !== undefined) forDiff(workingDiff);
-    //   workingDiff.save();
-    // });
+            workingDiff.chains = workingDiff.chains
+                .filter((x) => !(x.fake ?? false))
+                .concat(currentDiff.chains.filter((x) => (x.fake ?? false)))
 
-    // activeDiffSet(startActive);
+            if (arcs) workingDiff.arcs = currentDiff.arcs
+
+            // TODO: V3 lighting, note colors, fog
+
+            workingDiff.lightEvents = currentDiff.lightEvents
+            workingDiff.laserSpeedEvents = currentDiff.laserSpeedEvents
+            workingDiff.ringZoomEvents = currentDiff.ringZoomEvents
+            workingDiff.ringSpinEvents = currentDiff.ringSpinEvents
+            workingDiff.rotationEvents = currentDiff.rotationEvents
+            workingDiff.boostEvents = currentDiff.boostEvents
+            workingDiff.baseBasicEvents = currentDiff.baseBasicEvents
+
+            workingDiff.animateComponents = currentDiff.animateComponents
+            workingDiff.animateTracks = currentDiff.animateTracks
+            workingDiff.assignPathAnimations = currentDiff.assignPathAnimations
+            workingDiff.assignPlayerTracks = currentDiff.assignPlayerTracks
+            workingDiff.assignTrackParents = currentDiff.assignTrackParents
+
+            workingDiff.pointDefinitions = currentDiff.pointDefinitions
+            workingDiff.environment = currentDiff.environment
+            workingDiff.geometry = currentDiff.geometry
+            workingDiff.geometryMaterials = currentDiff.geometryMaterials
+
+            if (walls) {
+                workingDiff.walls = workingDiff.walls
+                    .filter((x) => !x.isGameplayModded)
+                    .concat(
+                        currentDiff.walls.filter((x) => x.isGameplayModded),
+                    )
+            }
+
+            if (forDiff !== undefined) forDiff(workingDiff)
+            workingDiff.save()
+        }
+
+        const promises: Promise<void>[] = []
+
+        const diffsArr = typeof diffs === 'object' ? diffs : [diffs]
+        diffsArr.forEach((x) => {
+            promises.push(process(x))
+        })
+
+        await Promise.all(promises)
+
+        setActiveDiff(currentDiff)
+    }
+
+    currentTransfer = thisFunction()
+    await currentTransfer
 }
 
 /** Get the base "Environment" object. */

@@ -277,7 +277,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
                 rotationEvents: rotationEvents,
                 boostEvents: boostEvents,
                 baseBasicEvents: baseBasicEvents,
-                geoMaterials: materials,
+                geometryMaterials: materials,
 
                 animateComponents: animateComponents,
                 animateTracks: animateTracks,
@@ -375,7 +375,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
                     ...environmentArr,
                     ...geometryArr,
                 ],
-                materials: this.geoMaterials as Record<
+                materials: this.geometryMaterials as Record<
                     string,
                     bsmap.v3.IChromaMaterial
                 >,
