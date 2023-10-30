@@ -4,7 +4,6 @@ import { EventGroup, InterscopeGroup } from '../data/constants.ts'
 
 import * as BasicEventInternals from '../internals/basic_event.ts'
 import { BaseEvent } from '../internals/basic_event.ts'
-import { Fields } from '../types/util_types.ts'
 import { BoostEvent, RotationEvent } from '../internals/event.ts'
 
 type LightParameters =
@@ -13,8 +12,12 @@ type LightParameters =
         value?: BasicEventInternals.LightEvent['value'],
         floatValue?: BasicEventInternals.LightEvent['floatValue'],
     ]
-    | [data: Fields<BasicEventInternals.LightEvent>]
-    | ConstructorParameters<typeof BasicEventInternals.LightEvent>
+    | [
+        data: Omit<
+            ConstructorParameters<typeof BasicEventInternals.LightEvent>[0],
+            'type'
+        >,
+    ]
 
 function fixupParams<TG extends BasicEventInternals.LightEvent['type']>(
     group: TG,

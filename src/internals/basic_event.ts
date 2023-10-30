@@ -1,12 +1,15 @@
 import { EventAction, EventGroup } from '../data/constants.ts'
 import { bsmap } from '../deps.ts'
 import { EASE } from '../types/animation_types.ts'
-import { BaseObject } from './object.ts'
+import { BaseObject, ExcludedObjectFields } from './object.ts'
 import { getActiveDiff } from '../data/beatmap_handler.ts'
 import { Fields, SubclassExclusiveProps } from '../types/util_types.ts'
 import { LightID } from '../types/environment_types.ts'
 import { ColorVec } from '../types/data_types.ts'
 import { copy } from '../utils/general.ts'
+
+// deno-lint-ignore ban-types
+type BasicEventExcludedFields<Class> = ExcludedObjectFields<Class, {}>
 
 export abstract class BaseEvent<
     TV2 extends bsmap.v2.IEvent = bsmap.v2.IEvent,
@@ -14,7 +17,7 @@ export abstract class BaseEvent<
 > extends BaseObject<TV2, TV3> {
     /** The bare minimum event. */
 
-    constructor(obj: Partial<Fields<BaseEvent<TV2, TV3>>>) {
+    constructor(obj: BasicEventExcludedFields<BaseEvent<TV2, TV3>>) {
         super(obj)
         this.type = obj.type ?? 0
         this.value = obj.value ?? 0
@@ -107,7 +110,7 @@ export class LightEvent<
     TV2 extends bsmap.v2.IEventLight = bsmap.v2.IEventLight,
     TV3 extends bsmap.v3.IBasicEventLight = bsmap.v3.IBasicEventLight,
 > extends BaseEvent<TV2, TV3> {
-    constructor(obj: Partial<Fields<LightEvent<TV2, TV3>>>) {
+    constructor(obj: BasicEventExcludedFields<LightEvent<TV2, TV3>>) {
         super(obj)
         this.lightID = obj.lightID
         this.color = obj.color
@@ -292,7 +295,7 @@ export class LaserSpeedEvent<
      * @param direction Direction of the rotating lasers.
      * @param lockRotation Whether the existing rotation should be kept.
      */
-    constructor(obj: Partial<Fields<LaserSpeedEvent<TV2, TV3>>>) {
+    constructor(obj: BasicEventExcludedFields<LaserSpeedEvent<TV2, TV3>>) {
         super(obj)
         this.lockRotation = obj.lockRotation,
             this.speed = obj.speed,
