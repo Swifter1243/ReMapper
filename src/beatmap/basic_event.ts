@@ -105,70 +105,81 @@ export function lightEvent(
 }
 
 /** Controls the back lasers. (Type 0) */
-export const backLasers = (...params: LightParameters) =>
-    new BasicEventInternals.LightEvent(
+export function backLasers(...params: LightParameters) {
+    return new BasicEventInternals.LightEvent(
         ...fixupParams(EventGroup.BACK_LASERS, ...params),
     )
+}
 
 /** Controls the ring lights. (Type 1) */
-export const ringLights = (...params: LightParameters) =>
-    new BasicEventInternals.LightEvent(
+export function ringLights(...params: LightParameters) {
+    return new BasicEventInternals.LightEvent(
         ...fixupParams(EventGroup.RING_LIGHTS, ...params),
     )
+}
 
 /** Controls the left lasers. (Type 2) */
-export const leftLasers = (...params: LightParameters) =>
-    new BasicEventInternals.LightEvent(
+export function leftLasers(...params: LightParameters) {
+    return new BasicEventInternals.LightEvent(
         ...fixupParams(EventGroup.LEFT_LASERS, ...params),
     )
+}
 
 /** Controls the right lasers. (Type 3) */
-export const rightLasers = (...params: LightParameters) =>
-    new BasicEventInternals.LightEvent(
+export function rightLasers(...params: LightParameters) {
+    return new BasicEventInternals.LightEvent(
         ...fixupParams(EventGroup.RIGHT_LASERS, ...params),
     )
+}
 
 /** Controls the center lasers. (Type 4) */
-export const centerLasers = (...params: LightParameters) =>
-    new BasicEventInternals.LightEvent(
+export function centerLasers(...params: LightParameters) {
+    return new BasicEventInternals.LightEvent(
         ...fixupParams(EventGroup.CENTER_LASERS, ...params),
     )
+}
 
 /** Controls the extra left lasers in some environments. (Type 6) */
-export const extraLeft = (...params: LightParameters) =>
-    new BasicEventInternals.LightEvent(
+export function extraLeft(...params: LightParameters) {
+    return new BasicEventInternals.LightEvent(
         ...fixupParams(EventGroup.LEFT_EXTRA, ...params),
     )
+}
 
 /** Controls the extra right lasers in some environments. (Type 7) */
-export const extraRight = (...params: LightParameters) =>
-    new BasicEventInternals.LightEvent(
+export function extraRight(...params: LightParameters) {
+    return new BasicEventInternals.LightEvent(
         ...fixupParams(EventGroup.RIGHT_EXTRA, ...params),
     )
+}
 
 /** Controls the left lasers in the Billie environment. (Type 10) */
-export const billieLeft = (...params: LightParameters) =>
-    new BasicEventInternals.LightEvent(
+export function billieLeft(...params: LightParameters) {
+    return new BasicEventInternals.LightEvent(
         ...fixupParams(EventGroup.BILLIE_LEFT, ...params),
     )
+}
 
 /** Controls the right lasers in the Billie environment. (Type 11) */
-export const billieRight = (...params: LightParameters) =>
-    new BasicEventInternals.LightEvent(
+export function billieRight(...params: LightParameters) {
+    return new BasicEventInternals.LightEvent(
         ...fixupParams(EventGroup.BILLIE_RIGHT, ...params),
     )
+}
 
 /** Controls the outer left tower height in the Gaga environment. (Type 18) */
-export const gagaLeft = (...params: LightParameters) =>
-    new BasicEventInternals.LightEvent(
+export function gagaLeft(...params: LightParameters) {
+    return new BasicEventInternals.LightEvent(
         ...fixupParams(EventGroup.GAGA_LEFT, ...params),
     )
+}
 
 /** Controls the outer left tower height in the Gaga environment. (Type 19) */
-export const gagaRight = (...params: LightParameters) =>
-    new BasicEventInternals.LightEvent(
+export function gagaRight(...params: LightParameters) {
+    return new BasicEventInternals.LightEvent(
         ...fixupParams(EventGroup.GAGA_RIGHT, ...params),
     )
+}
 
 /**
  * Move cars in the interscope environment.
