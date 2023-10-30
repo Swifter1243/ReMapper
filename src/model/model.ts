@@ -859,9 +859,7 @@ export function debugObject(
     rotation?: Vec3,
 ) {
     const diff = getActiveDiff()
-    const materials = diff.geoMaterials
-    diff.clear()
-    diff.geoMaterials = materials
+    diff.clear(['Geometry Materials'])
 
     backLasers().on([3, 3, 3, 1]).push(false)
 

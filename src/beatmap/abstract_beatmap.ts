@@ -62,6 +62,30 @@ export interface RMDifficulty {
     geoMaterials: Record<string, RawGeometryMaterial>
 }
 
+type ClearProperty =
+    | 'Notes'
+    | 'Bombs'
+    | 'Arcs'
+    | 'Chains'
+    | 'Walls'
+    | 'Light Events'
+    | 'Laser Speed Events'
+    | 'Ring Zoom Events'
+    | 'Ring Spin Events'
+    | 'Rotation Events'
+    | 'Boost Events'
+    | 'Base Basic Events'
+    | 'AnimateComponent Events'
+    | 'AnimateTrack Events'
+    | 'AssignPathAnimation Events'
+    | 'AssignPlayerToTrack Events'
+    | 'AssignTrackParent Events'
+    | 'Point Definitions'
+    | 'Custom Data'
+    | 'Environment'
+    | 'Geometry'
+    | 'Geometry Materials'
+
 /**
  * @returns null if remove value
  */
@@ -294,31 +318,35 @@ export abstract class AbstractDifficulty<
         RMLog(`${diffName} successfully saved!`)
     }
 
-    clear() {
-        this.notes = []
-        this.bombs = []
-        this.arcs = []
-        this.chains = []
-        this.walls = []
+    clear(exclude: ClearProperty[] = []) {
+        const excludeSet = new Set(exclude)
+        const clear = (property: ClearProperty) => !excludeSet.has(property)
 
-        this.lightEvents = []
-        this.laserSpeedEvents = []
-        this.ringZoomEvents = []
-        this.ringSpinEvents = []
-        this.rotationEvents = []
+        if (clear('Notes')) this.notes = []
+        if (clear('Bombs')) this.bombs = []
+        if (clear('Arcs')) this.arcs = []
+        if (clear('Chains')) this.chains = []
+        if (clear('Walls')) this.walls = []
 
-        this.animateComponents = []
-        this.animateTracks = []
-        this.assignPathAnimations = []
-        this.assignPlayerTracks = []
-        this.assignTrackParents = []
+        if (clear('Light Events')) this.lightEvents = []
+        if (clear('Laser Speed Events')) this.laserSpeedEvents = []
+        if (clear('Ring Zoom Events')) this.ringZoomEvents = []
+        if (clear('Ring Spin Events')) this.ringSpinEvents = []
+        if (clear('Rotation Events')) this.rotationEvents = []
+        if (clear('Boost Events')) this.boostEvents = []
+        if (clear('Base Basic Events')) this.baseBasicEvents = []
 
-        this.pointDefinitions = {}
-        this.customData = {}
-        this.environment = []
-        this.geometry = []
+        if (clear('AnimateComponent Events')) this.animateComponents = []
+        if (clear('AnimateTrack Events')) this.animateTracks = []
+        if (clear('AssignPathAnimation Events')) this.assignPathAnimations = []
+        if (clear('AssignPlayerToTrack Events')) this.assignPlayerTracks = []
+        if (clear('AssignTrackParent Events')) this.assignTrackParents = []
 
-        this.geoMaterials = {}
+        if (clear('Point Definitions')) this.pointDefinitions = {}
+        if (clear('Custom Data')) this.customData = {}
+        if (clear('Environment')) this.environment = []
+        if (clear('Geometry')) this.geometry = []
+        if (clear('Geometry Materials')) this.geoMaterials = {}
     }
 
     /**
