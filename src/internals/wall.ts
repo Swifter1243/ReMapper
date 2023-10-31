@@ -15,6 +15,66 @@ import { Fields, SubclassExclusiveProps } from '../types/util_types.ts'
 
 export class Wall
     extends BaseGameplayObject<bsmap.v2.IObstacle, bsmap.v3.IObstacle> {
+    constructor(
+        fields: ExcludedObjectFields<Wall>,
+    ) {
+        super(fields)
+        this.duration = fields.duration ?? 0
+        this.height = fields.height ?? 1
+        this.width = fields.width ?? 1
+        this.scale = fields.scale
+        this.fake = fields.fake ?? false
+    }
+
+    /**
+     * Push this wall to the difficulty.
+     * @param fake Whether this wall will be pushed to the fakeWalls array.
+     * @param clone Whether this object will be copied before being pushed.
+     */
+    push(clone = true) {
+        getActiveDiff().walls.push(clone ? copy(this) : this)
+        return this
+    }
+
+    get life() {
+        return this.halfJumpDur * 2 + this.duration
+    }
+    set life(value: number) {
+        const life = value - this.duration
+
+        if (life < 0.25) {
+            this.duration = 0
+            super.life = value
+        } else {
+            super.life = life
+        }
+    }
+
+    get lifeStart() {
+        return this.time - this.halfJumpDur
+    }
+    set lifeStart(value: number) {
+        this.time = value + this.halfJumpDur
+    }
+
+    /** The duration of the wall. */
+    duration: number
+    /** The height of the wall. */
+    height: number
+    /** The width of the wall. */
+    width: number
+    /** The scale of the wall. */
+    scale?: Vec3
+    /** Moves the note to the separate fake note array on save. */
+    fake?: boolean
+
+    get isGameplayModded() {
+        if (super.isGameplayModded) return true
+        if (this.scale) return true
+        if (this.fake) return true
+        return false
+    }
+
     fromJson(json: bsmap.v3.IObstacle, v3: true): this
     fromJson(json: bsmap.v2.IObstacle, v3: false): this
     fromJson(json: bsmap.v2.IObstacle | bsmap.v3.IObstacle, v3: boolean): this {
@@ -114,58 +174,4 @@ export class Wall
             },
         } satisfies bsmap.v2.IObstacle
     }
-
-    constructor(
-        fields: ExcludedObjectFields<Wall>,
-    ) {
-        super(fields)
-        this.duration = fields.duration ?? 0
-        this.height = fields.height ?? 1
-        this.width = fields.width ?? 1
-        this.scale = fields.scale
-        this.fake = fields.fake ?? false
-    }
-
-    /**
-     * Push this wall to the difficulty.
-     * @param fake Whether this wall will be pushed to the fakeWalls array.
-     * @param clone Whether this object will be copied before being pushed.
-     */
-    push(clone = true) {
-        getActiveDiff().walls.push(clone ? copy(this) : this)
-        return this
-    }
-
-    get life() {
-        return this.halfJumpDur * 2 + this.duration
-    }
-    set life(value: number) {
-        const life = value - this.duration
-        
-        if (life < 0.25) {
-            this.duration = 0
-            super.life = value
-        }
-        else {
-            super.life = life
-        }
-    }
-
-    get lifeStart() {
-        return this.time - this.halfJumpDur
-    }
-    set lifeStart(value: number) {
-        this.time = value + this.halfJumpDur
-    }
-
-    /** The duration of the wall. */
-    duration: number
-    /** The height of the wall. */
-    height: number
-    /** The width of the wall. */
-    width: number
-    /** The scale of the wall. */
-    scale?: Vec3
-    /** Moves the note to the separate fake note array on save. */
-    fake?: boolean
 }

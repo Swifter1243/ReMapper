@@ -53,6 +53,45 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
         return this
     }
 
+    /** Moves the note to the separate fake note array on save. */
+    fake?: boolean
+    /** The amount of links in the chain. */
+    links: number
+    /** An interpolation or extrapolation of the path between the head and tail. */
+    squish: number
+    /** Specifies an initial position the chain will spawn at before going to it's unmodified position.  */
+    flip?: Vec2
+    /** Whether note gravity (the effect where notes move to their vertical row from the bottom row) is enabled. */
+    noteGravity?: boolean
+    /** Whether this chain will look at the player. */
+    noteLook?: boolean
+    /** Whether this note will have a spawn effect. */
+    spawnEffect?: boolean
+    /** When cut, all notes with the same link string will also be cut. */
+    link?: string
+    /** The ability to bad cut this note based on direction. */
+    directionBadCut?: boolean
+    /** The ability to bad cut this note based on speed. */
+    speedBadCut?: boolean
+    /** The ability to bad cut this note based on saber type. */
+    saberTypeBadCut?: boolean
+    /** Whether debris shows when this note is hit. */
+    debris?: boolean
+
+    get isGameplayModded() {
+        if (super.isGameplayModded) return true
+        if (this.fake) return true
+        if (this.flip) return true
+        if (this.noteGravity === false) return true
+        if (this.noteLook === false) return true
+        if (this.link) return true
+        if (this.directionBadCut === false) return true
+        if (this.speedBadCut === false) return true
+        if (this.saberTypeBadCut === false) return true
+        if (this.debris === false) return true
+        return false
+    }
+
     fromJson(json: bsmap.v3.IChain, v3: true): this
     fromJson(json: never, v3: false): this
     fromJson(json: never, v3: boolean): this {
@@ -156,29 +195,4 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
             },
         } as bsmap.v3.IChain
     }
-
-    /** Moves the note to the separate fake note array on save. */
-    fake?: boolean
-    /** The amount of links in the chain. */
-    links: number
-    /** An interpolation or extrapolation of the path between the head and tail. */
-    squish: number
-    /** Specifies an initial position the chain will spawn at before going to it's unmodified position.  */
-    flip?: Vec2
-    /** Whether note gravity (the effect where notes move to their vertical row from the bottom row) is enabled. */
-    noteGravity?: boolean
-    /** Whether this chain will look at the player. */
-    noteLook?: boolean
-    /** Whether this note will have a spawn effect. */
-    spawnEffect?: boolean
-    /** When cut, all notes with the same link string will also be cut. */
-    link?: string
-    /** The ability to bad cut this note based on direction. */
-    directionBadCut?: boolean
-    /** The ability to bad cut this note based on speed. */
-    speedBadCut?: boolean
-    /** The ability to bad cut this note based on saber type. */
-    saberTypeBadCut?: boolean
-    /** Whether debris shows when this note is hit. */
-    debris?: boolean
 }

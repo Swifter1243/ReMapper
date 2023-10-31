@@ -4,7 +4,7 @@ import { NoteCut, NoteType } from '../data/constants.ts'
 import { getActiveDiff, info } from '../data/beatmap_handler.ts'
 
 import { getJumps } from '../utils/math.ts'
-import { isEmptyObject, jsonRemove } from '../utils/json.ts'
+import { isEmptyObject } from '../utils/json.ts'
 
 import { Track } from '../animation/track.ts'
 import {
@@ -239,20 +239,13 @@ export abstract class BaseGameplayObject<
     }
 
     get isGameplayModded() {
-        const customData = jsonPrune(this.toJson(true).customData as TJson)
-        if (isEmptyObject(customData)) return false
-        jsonRemove(customData, 'color')
-        jsonRemove(customData, 'spawnEffect')
-        jsonRemove(customData, 'animation.color')
-
-        if (this.NJS === undefined) {
-            jsonRemove(customData, 'noteJumpMovementSpeed')
-        }
-        if (this.offset === undefined) {
-            jsonRemove(customData, 'noteJumpStartBeatOffset')
-        }
-
-        return !isEmptyObject(customData)
+        if (this.coordinates) return true
+        if (this.worldRotation) return true
+        if (this.localRotation) return true
+        if (this.NJS !== undefined) return true
+        if (this.offset !== undefined) return true
+        if (this.interactable === false) return true
+        return false
     }
 
     fromJson(json: TV3, v3: true): this
@@ -371,6 +364,20 @@ export abstract class BaseNote<
      */
     abstract push(clone: boolean): void
 
+    get isGameplayModded() {
+        if (super.isGameplayModded) return true
+        if (this.fake) return true
+        if (this.flip) return true
+        if (this.noteGravity === false) return true
+        if (this.noteLook === false) return true
+        if (this.link) return true
+        if (this.directionBadCut === false) return true
+        if (this.speedBadCut === false) return true
+        if (this.saberTypeBadCut === false) return true
+        if (this.debris === false) return true
+        return false
+    }
+
     fromJson(json: TV3, v3: true): this
     fromJson(json: bsmap.v2.INote, v3: false): this
     fromJson(json: TV3 | bsmap.v2.INote, v3: boolean): this {
@@ -466,6 +473,12 @@ export abstract class BaseSliderObject<TV3 extends bsmap.v3.IBaseSlider>
     }
 
     declare animation: NoteAnimationData
+
+    get isGameplayModded() {
+        if (super.isGameplayModded) return true
+        if (this.tailCoordinates) return true
+        return false
+    }
 
     fromJson(json: TV3, v3: true): this
     fromJson(json: never, v3: false): this

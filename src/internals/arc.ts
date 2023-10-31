@@ -37,6 +37,34 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
         this.noteGravity = fields.noteGravity ?? true
     }
 
+    /**
+     * Push this arc to the difficulty
+     */
+    push(clone = true) {
+        getActiveDiff().arcs.push(clone ? copy(this) : this)
+        return this
+    }
+
+    /** The cut direction of the tail of the arc. */
+    tailDirection: NoteCut
+    /** Multiplier for the distance the start of the arc shoots outward. */
+    headLength: number
+    /** Multiplier for the distance the end of the arc shoots outward. */
+    tailLength: number
+    /** How the arc curves from the head to the midpoint. */
+    anchorMode: AnchorMode
+    /** Specifies an initial position the arc will spawn at before going to it's unmodified position.  */
+    flip?: Vec2
+    /** Whether note gravity (the effect where notes move to their vertical row from the bottom row) is enabled. */
+    noteGravity?: boolean
+
+    get isGameplayModded() {
+        if (super.isGameplayModded) return true
+        if (this.flip) return true
+        if (this.noteGravity === false) return true
+        return false
+    }
+
     fromJson(json: bsmap.v3.IArc, v3: true): this
     fromJson(json: never, v3: false): this
     fromJson(json: never, v3: boolean): this {
@@ -115,25 +143,4 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
             },
         } satisfies bsmap.v3.IArc
     }
-
-    /**
-     * Push this arc to the difficulty
-     */
-    push(clone = true) {
-        getActiveDiff().arcs.push(clone ? copy(this) : this)
-        return this
-    }
-
-    /** The cut direction of the tail of the arc. */
-    tailDirection: NoteCut
-    /** Multiplier for the distance the start of the arc shoots outward. */
-    headLength: number
-    /** Multiplier for the distance the end of the arc shoots outward. */
-    tailLength: number
-    /** How the arc curves from the head to the midpoint. */
-    anchorMode: AnchorMode
-    /** Specifies an initial position the arc will spawn at before going to it's unmodified position.  */
-    flip?: Vec2
-    /** Whether note gravity (the effect where notes move to their vertical row from the bottom row) is enabled. */
-    noteGravity?: boolean
 }
