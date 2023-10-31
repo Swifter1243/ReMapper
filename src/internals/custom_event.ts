@@ -1,7 +1,6 @@
 import { bsmap } from '../deps.ts'
 import { EASE, PointDefinitionLinear } from '../types/animation_types.ts'
 import {
-    BloomFogEnvironment,
     ILightWithId,
     TubeBloomPrePassLight,
 } from '../types/environment_types.ts'
@@ -571,7 +570,6 @@ export class AnimateComponent
         this.duration = params.duration
         this.easing = params.easing
 
-        this.fog = params.fog ?? {}
         this.lightID = params.lightID ?? {}
         this.lightMultiplier = params.lightMultiplier ?? {}
     }
@@ -586,8 +584,6 @@ export class AnimateComponent
     easing?: EASE
     /** The "ILightWithId" component to animate. */
     lightID: ILightWithId<PointDefinitionLinear> = {}
-    /** The "BloomFogEnvironment" component to animate. */
-    fog: BloomFogEnvironment<PointDefinitionLinear> = {}
     /** The "TubeBloomPrePassLight component to animate." */
     lightMultiplier: TubeBloomPrePassLight<PointDefinitionLinear> = {}
 
@@ -655,13 +651,6 @@ export class AnimateComponent
                     colorAlphaMultiplier: this
                         .lightMultiplier as bsmap.FloatPointDefinition[],
                     bloomFogIntensityMultiplier: undefined!,
-                },
-                BloomFogEnvironment: {
-                    attenuation: this.fog
-                        ?.attenuation as bsmap.FloatPointDefinition[],
-                    height: this.fog?.height as bsmap.FloatPointDefinition[],
-                    offset: this.fog?.offset as bsmap.FloatPointDefinition[],
-                    startY: this.fog?.startY as bsmap.FloatPointDefinition[],
                 },
                 // @ts-ignore 2322
                 ILightWithId: {

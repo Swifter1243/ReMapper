@@ -22,11 +22,20 @@ export class Track {
      * Safely check if the track contains this value.
      * @param value
      */
-    has(value: string) {
+    has(value: TrackValue) {
         if (!this.value) return false
-        if (typeof this.value === 'string') return this.value === value
 
-        return this.value.some((x) => x === value)
+        if (typeof this.value === 'string') {
+            if (typeof value === 'string') {
+                return this.value === value
+            }
+            return value.some((x) => x === this.value)
+        }
+
+        if (typeof value === 'string') {
+            return this.value.some((x) => x === value)
+        }
+        return this.value.some((x) => value.some((y) => y === x))
     }
 
     /**

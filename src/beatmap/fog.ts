@@ -1,65 +1,132 @@
-// deno-lint-ignore-file no-extra-semi
-import * as CustomEventInternals from '../internals/custom_event.ts'
-import { animateComponent } from './custom_event.ts'
-import {
-    ComplexKeyframesLinear,
-    PointDefinitionLinear,
-} from '../types/animation_types.ts'
-
-import { getBaseEnvironment, setBaseEnvironmentTrack } from './beatmap.ts'
 import { BloomFogEnvironment } from '../types/environment_types.ts'
+import { bsmap, ComplexKeyframesLinear, getActiveDiff } from '../mod.ts'
 
 // TODO: Maybe make this a difficulty based thing?
-let fogInitialized = false
-type AnyFog = BloomFogEnvironment<number | ComplexKeyframesLinear>
+export type AnyFog = BloomFogEnvironment<
+    number | ComplexKeyframesLinear | string
+>
 
-/**
- * Edits the base Environment object's fog component.
- * Or spawns an event to animate the fog.
- * @param fog The fog component.
- * @param time The time of the event.
- * @param duration The duration of the animation.
- * @param event The animation event.
- */
-export function adjustFog(
-    fog: AnyFog,
-    time?: number,
-    duration?: number,
-    event?: (event: CustomEventInternals.AnimateComponent) => void,
-) {
-    let isStatic = !(
-        time !== undefined ||
-        duration !== undefined ||
-        event ||
-        fogInitialized
-    )
+export class FogEvent {
+    fog: AnyFog
+    time?: number
+    duration?: number
 
-    Object.entries(fog).forEach((x) => {
-        if (typeof x[1] !== 'number') isStatic = false
-    })
+    constructor(animation: AnyFog, time?: number, duration?: number) {
+        this.fog = animation
+        if (time) this.time = time
+        if (duration) this.duration = duration
+    }
 
-    if (isStatic) {
-        getBaseEnvironment((env) => {
-            env.components ??= {}
-            env.components.BloomFogEnvironment = fog as BloomFogEnvironment<
-                number
-            >
-        })
-        fogInitialized = true
-    } else {
-        setBaseEnvironmentTrack('fog')
+    complexifyFog(v3 = true) {
+        const obj = {} as Record<string, unknown>
 
-        const fogEvent = animateComponent(time ?? 0, 'fog', duration)
+        Object.entries(this.fog).map(([key, value]) => {
+            const newValue = typeof value === 'number' ? [value] : value
+            obj[v3 ? key : `_${key}`] = newValue
+        }) 
+        
+        return obj as BloomFogEnvironment<ComplexKeyframesLinear | string>
+    }
 
-        Object.entries(fog).forEach((x) => {
-            // TODO: what?
-            if (typeof x[1] === 'number') {
-                ;(fog as any)[x[0]] = [x[1]]
+    exportV3() {
+        const isStatic = !(
+            this.time ||
+            this.duration ||
+            Object.values(this.fog).some((x) => typeof x !== 'number')
+        )
+
+        if (isStatic) {
+            return {
+                id: '[0]Environment',
+                lookupMethod: 'EndsWith',
+                components: {
+                    BloomFogEnvironment: this.fog,
+                },
+            } as bsmap.v3.IChromaEnvironment
+        }
+
+        return {
+            b: this.time ?? 0,
+            t: 'AnimateComponent',
+            d: {
+                duration: this.duration,
+                track: 'ReMapper_Fog',
+                BloomFogEnvironment: this.complexifyFog(),
+            },
+        } as bsmap.v3.ICustomEventAnimateComponent
+    }
+
+    exportV2() {
+        return {
+            _time: this.time ?? 0,
+            _type: 'AnimateTrack',
+            _data: {
+                _track: 'ReMapper_Fog',
+                _duration: this.duration,
+                ...this.complexifyFog(false)
             }
-        })
+        } as bsmap.v2.ICustomEventAnimateTrack
+    }
+}
 
-        fogEvent.fog = fog as BloomFogEnvironment<PointDefinitionLinear>
-        if (event) event(fogEvent)
-        fogEvent.push()
+type Overload1 = [
+    AnyFog & {
+        time?: number
+        duration?: number
+    },
+]
+
+type Overload2 = [
+    time: number,
+    params: AnyFog & {
+        duration?: number
+    },
+]
+
+type Overload3 = [
+    time: number,
+    duration: number,
+    params: AnyFog,
+]
+
+export function adjustFog(
+    ...params: Overload1
+): void
+export function adjustFog(
+    ...params: Overload2
+): void
+export function adjustFog(
+    ...params: Overload3
+): void
+
+export function adjustFog(
+    ...params:
+        | Overload1
+        | Overload2
+        | Overload3
+) {
+    if (typeof params[0] === 'object') {
+        const obj = (params as Overload1)[0]
+
+        getActiveDiff().fogEvents.push(
+            new FogEvent(obj, obj.time, obj.duration),
+        )
+
+        delete obj.time
+        delete obj.duration
+    } else if (params.length === 2) {
+        const obj = params as Overload2
+
+        getActiveDiff().fogEvents.push(
+            new FogEvent(obj[1], obj[0]),
+        )
+
+        delete obj[1].duration
+    } else {
+        const obj = params as Overload3
+
+        getActiveDiff().fogEvents.push(
+            new FogEvent(obj[2], obj[0], obj[1]),
+        )
     }
 }

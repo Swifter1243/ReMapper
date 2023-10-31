@@ -64,7 +64,6 @@ export type RawGeometryMaterial = {
 /** All components on environment objects. */
 export type Components<N extends number | PointDefinitionLinear = number> = {
     ILightWithId?: ILightWithId<N>
-    BloomFogEnvironment?: BloomFogEnvironment<N>
     TubeBloomPrePassLight?: TubeBloomPrePassLight<N>
 }
 

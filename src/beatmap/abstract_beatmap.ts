@@ -31,6 +31,7 @@ import * as WallInternals from '../internals/wall.ts'
 import * as BasicEventInternals from '../internals/basic_event.ts'
 import { saveInfoDat } from '../data/info_file.ts'
 import { EventInternals } from '../internals/mod.ts'
+import { FogEvent } from './fog.ts'
 
 export interface RMDifficulty {
     version: bsmap.v2.IDifficulty['_version'] | bsmap.v3.IDifficulty['version']
@@ -58,8 +59,8 @@ export interface RMDifficulty {
     customData: Record<string, unknown>
     environment: EnvironmentInternals.Environment[]
     geometry: EnvironmentInternals.Geometry[]
-
     geometryMaterials: Record<string, RawGeometryMaterial>
+    fogEvents: FogEvent[]
 }
 
 type ClearProperty =
@@ -124,6 +125,7 @@ export abstract class AbstractDifficulty<
     arcs: NoteInternals.Arc[]
     chains: NoteInternals.Chain[]
     walls: WallInternals.Wall[]
+
     lightEvents: BasicEventInternals.LightEvent[]
     laserSpeedEvents: BasicEventInternals.LaserSpeedEvent[]
     ringZoomEvents: BasicEventInternals.RingZoomEvent[]
@@ -143,6 +145,7 @@ export abstract class AbstractDifficulty<
     environment: EnvironmentInternals.Environment[]
     geometry: EnvironmentInternals.Geometry[]
     geometryMaterials: Record<string, RawGeometryMaterial>
+    fogEvents: FogEvent[]
 
     /**
      * Creates a difficulty. Can be used to access various information and the map data.
@@ -158,42 +161,39 @@ export abstract class AbstractDifficulty<
         relativeMapFile: DIFFNAME,
         inner: RMDifficulty,
     ) {
+        this.version = inner.version
         this.json = json
         this.info = info
         this.setInfo = setInfo
         this.mapFile = mapFile
         this.relativeMapFile = relativeMapFile
 
-        this.arcs = inner.arcs
-        this.lightEvents = inner.lightEvents
+        this.notes = inner.notes
         this.bombs = inner.bombs
+        this.arcs = inner.arcs
         this.chains = inner.chains
-        this.customData = inner.customData
+        this.walls = inner.walls
+        
+        this.lightEvents = inner.lightEvents
+        this.laserSpeedEvents = inner.laserSpeedEvents
+        this.ringZoomEvents = inner.ringZoomEvents
+        this.ringSpinEvents = inner.ringSpinEvents
+        this.rotationEvents = inner.rotationEvents
+        this.boostEvents = inner.boostEvents
+        this.baseBasicEvents = inner.baseBasicEvents
 
-        this.animateTracks = inner.animateTracks
         this.animateComponents = inner.animateComponents
+        this.animateTracks = inner.animateTracks
         this.assignPathAnimations = inner.assignPathAnimations
         this.assignPlayerTracks = inner.assignPlayerTracks
         this.assignTrackParents = inner.assignTrackParents
-
-        this.geometry = inner.geometry
-        this.environment = inner.environment
-
-        this.geometryMaterials = inner.geometryMaterials
-
-        this.laserSpeedEvents = inner.laserSpeedEvents
-        this.rotationEvents = inner.rotationEvents
-        this.boostEvents = inner.boostEvents
-        this.ringZoomEvents = inner.ringZoomEvents
-        this.ringSpinEvents = inner.ringSpinEvents
-        this.baseBasicEvents = inner.baseBasicEvents
-
+        
         this.pointDefinitions = inner.pointDefinitions
-
-        this.walls = inner.walls
-        this.notes = inner.notes
-
-        this.version = inner.version
+        this.customData = inner.customData
+        this.environment = inner.environment
+        this.geometry = inner.geometry
+        this.geometryMaterials = inner.geometryMaterials
+        this.fogEvents = inner.fogEvents
 
         this.registerProcessors()
     }

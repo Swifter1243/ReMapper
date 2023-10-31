@@ -7,7 +7,7 @@ import { DIFFNAME, DIFFPATH } from '../types/beatmap_types.ts'
 import { EventGroup } from '../data/constants.ts'
 import { jsonPrune } from '../utils/json.ts'
 import { environment, geometry } from './environment.ts'
-import { arrSplit, RawGeometryMaterial } from '../mod.ts'
+import { arrSplit, RawGeometryMaterial, Track } from '../mod.ts'
 import {
     animateComponent,
     animateTrack,
@@ -16,6 +16,7 @@ import {
     assignTrackParent,
 } from './custom_event.ts'
 import { event } from './mod.ts'
+import { AnyFog, FogEvent } from './fog.ts'
 
 export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
     declare version: bsmap.v3.IDifficulty['version']
@@ -38,6 +39,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
             return callback(json[key])
         }
 
+        // Notes
         const notes: Note[] = runProcess(
             'colorNotes',
             (notes) => notes.map((o) => note().fromJson(o, true)),
@@ -191,7 +193,62 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
             event.baseBasicEvent({}).fromJson(o, true)
         )
 
-        /// custom events
+        // Fog
+        const fogEvents: FogEvent[] = []
+
+        if (json.customData?.environment) {
+            json.customData.environment = json.customData.environment.filter(
+                (x) => {
+                    if (x.components?.BloomFogEnvironment !== undefined) {
+                        fogEvents.push(
+                            new FogEvent(x.components.BloomFogEnvironment),
+                        )
+                        return false
+                    }
+
+                    return true
+                },
+            )
+        }
+
+        if (json.customData?.customEvents) {
+            const environmentTrack = new Track()
+
+            json.customData.customEvents = json.customData.customEvents.filter(
+                (x) => {
+                    if (
+                        x.t === 'AnimateComponent' &&
+                        x.d.BloomFogEnvironment !== undefined
+                    ) {
+                        environmentTrack.add(x.d.track)
+
+                        fogEvents.push(
+                            new FogEvent(
+                                x.d.BloomFogEnvironment as AnyFog,
+                                x.b,
+                                x.d.duration,
+                            ),
+                        )
+                        return false
+                    }
+
+                    return true
+                },
+            )
+
+            if (
+                environmentTrack.value !== undefined &&
+                json.customData.environment !== undefined
+            ) {
+                json.customData.environment = json.customData.environment
+                    .filter((x) => {
+                        if (x.track === undefined) return true
+                        return !environmentTrack.has(x.track)
+                    })
+            }
+        }
+
+        // Custom Events
         const customEvents = json?.customData?.customEvents
 
         const animateTracks =
@@ -234,7 +291,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
                 )
             ) ?? []
 
-        // environment
+        // Environment
         const environmentArr =
             json.customData?.environment?.filter((x) =>
                 x.geometry === undefined
@@ -264,12 +321,14 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
             mapFile,
             relativeMapFile,
             {
+                version: json.version,
+
                 notes,
                 bombs,
-                version: json.version,
                 arcs: arcs,
                 chains: chains,
                 walls: obstacles,
+
                 lightEvents: lightEvents,
                 laserSpeedEvents: laserSpeedEvents,
                 ringSpinEvents: ringSpinEvents,
@@ -277,7 +336,6 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
                 rotationEvents: rotationEvents,
                 boostEvents: boostEvents,
                 baseBasicEvents: baseBasicEvents,
-                geometryMaterials: materials,
 
                 animateComponents: animateComponents,
                 animateTracks: animateTracks,
@@ -289,6 +347,8 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
                 customData: json.customData ?? {},
                 environment: environmentArr,
                 geometry: geometryArr,
+                geometryMaterials: materials,
+                fogEvents: fogEvents,
             },
         )
     }
@@ -314,8 +374,10 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
             .sort(sortItems)
 
         // Environment
-        const environmentArr = this.environment.map((e) => e.toJson(true))
-        const geometryArr = this.geometry.map((e) => e.toJson(true))
+        const environment = [
+            ...this.environment.map((e) => e.toJson(true)),
+            ...this.geometry.map((e) => e.toJson(true)),
+        ]
 
         // Events
         const basicEvents = [
@@ -345,6 +407,32 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         ].map((x) => x.toJson(true))
             .sort(sortItems)
 
+        // Fog
+        let fogEnvironment: bsmap.v3.IChromaEnvironment
+        let animatedFog = false
+
+        this.fogEvents.forEach((x) => {
+            const result = x.exportV3()
+
+            if (Object.hasOwn(result, 'id') && !fogEnvironment) {
+                fogEnvironment = result as bsmap.v3.IChromaEnvironment
+            } else {
+                customEvents.push(
+                    result as bsmap.v3.ICustomEventAnimateComponent,
+                )
+                animatedFog = true
+            }
+        })
+
+        if (animatedFog) {
+            fogEnvironment ??= {
+                id: '[0]Environment',
+                lookupMethod: 'EndsWith'
+            }
+            fogEnvironment.track = 'ReMapper_Fog'
+        }
+        if (fogEnvironment!) environment.push(fogEnvironment)
+
         return {
             colorNotes: colorNotes,
             bombNotes: bombNotes,
@@ -371,10 +459,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
                 fakeBurstSliders: this.chains.filter((e) => e.fake)
                     .map((e) => e.toJson(true))
                     .sort(sortItems),
-                environment: [
-                    ...environmentArr,
-                    ...geometryArr,
-                ],
+                environment: environment,
                 materials: this.geometryMaterials as Record<
                     string,
                     bsmap.v3.IChromaMaterial

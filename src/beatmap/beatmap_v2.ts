@@ -17,7 +17,7 @@ import {
 } from './custom_event.ts'
 import { GeoShader, RawGeometryMaterial } from '../types/environment_types.ts'
 import { arrSplit } from '../utils/array_utils.ts'
-import { event } from './mod.ts'
+import { AnyFog, event, FogEvent } from './mod.ts'
 
 export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
     declare version: bsmap.v2.IDifficulty['_version']
@@ -40,6 +40,7 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
             return callback(json[key])
         }
 
+        // Notes
         const notes: Note[] = runProcess(
             '_notes',
             (notes) =>
@@ -140,7 +141,45 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
             event.baseBasicEvent({}).fromJson(o, false)
         )
 
-        /// custom events
+        // Fog
+        const fogEvents: FogEvent[] = []
+
+        if (json._customData?._customEvents) {
+            json._customData._customEvents = json._customData._customEvents
+                .filter(
+                    (x) => {
+                        const obj: AnyFog = {}
+                        // @ts-ignore 2322
+                        obj.attenuation = x._data._attenuation
+                        // @ts-ignore 2322
+                        obj.height = x._data._height
+                        // @ts-ignore 2322
+                        obj.offset = x._data._offset
+                        // @ts-ignore 2322
+                        obj.startY = x._data._startY
+
+                        jsonPrune(obj)
+
+                        if (
+                            x._type === 'AnimateTrack' &&
+                            Object.keys(obj).length > 0
+                        ) {
+                            fogEvents.push(
+                                new FogEvent(
+                                    obj as AnyFog,
+                                    x._time,
+                                    x._data._duration,
+                                ),
+                            )
+                            return false
+                        }
+
+                        return true
+                    },
+                )
+        }
+
+        // Custom events
         const customEvents = json?._customData?._customEvents
 
         const animateTracks =
@@ -175,7 +214,7 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
                 false,
             )) ?? []
 
-        // environment
+        // Environment
         const environmentArr =
             json._customData?._environment?.filter((x) =>
                 x._geometry === undefined
@@ -196,14 +235,14 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
                 )
             ) ?? []
 
-        // point definitions
+        // Point definitions
         const pointDefinitions: Record<string, unknown> = {}
 
         json._customData?._pointDefinitions?.forEach((x) => {
             pointDefinitions[x._name] = x._points
         })
 
-        // geometry materials
+        // Geometry materials
         const materials: Record<string, RawGeometryMaterial> = {}
 
         Object.entries(json._customData?._materials ?? {}).forEach(
@@ -250,6 +289,7 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
                 customData: json._customData ?? {},
                 environment: environmentArr,
                 geometry: geometryArr,
+                fogEvents: fogEvents,
             },
         )
     }
@@ -264,8 +304,10 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
         ).sort(sortItems)
 
         // Environment
-        const environmentArr = this.environment.map((e) => e.toJson(false))
-        const geometryArr = this.geometry.map((e) => e.toJson(false))
+        const environment = [
+            ...this.environment.map((e) => e.toJson(false)),
+            ...this.geometry.map((e) => e.toJson(false)),
+        ]
 
         // Point Definitions
         const pointDefinitions = [] as bsmap.v2.IPointDefinition[]
@@ -313,6 +355,22 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
         ].map((x) => x.toJson(false))
             .sort(sortItems)
 
+        // Fog
+        if (this.fogEvents.length > 0) {
+            customEvents.push({
+                _time: 0,
+                // @ts-ignore 2322
+                _type: 'AssignFogTrack',
+                _data: {
+                    _track: 'ReMapper_Fog',
+                },
+            })
+        }
+
+        this.fogEvents.forEach((x) => {
+            customEvents.push(x.exportV2())
+        })
+
         return {
             _notes: notes,
             _events: basicEvents,
@@ -322,13 +380,10 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
             _waypoints: [],
             _customData: jsonPrune({
                 ...this.customData,
-                environment: [
-                    ...environmentArr,
-                    ...geometryArr,
-                ],
-                pointDefinitions: pointDefinitions,
-                customEvents: customEvents,
-                materials: materials,
+                _environment: environment,
+                _pointDefinitions: pointDefinitions,
+                _customEvents: customEvents,
+                _materials: materials,
             }),
             _specialEventsKeywordFilters: { _keywords: [] },
         }
