@@ -42,7 +42,7 @@ import { Vec3, Vec4 } from '../types/data_types.ts'
 import { copy } from '../utils/general.ts'
 import { Environment, Geometry } from '../internals/environment.ts'
 import { SingleKeyframe } from 'https://deno.land/x/remapper@2.1.0/src/animation.ts'
-import { environment, geometry } from '../mod.ts'
+import { adjustFog, environment, geometry } from '../mod.ts'
 
 let modelSceneCount = 0
 let noYeet = true
@@ -863,11 +863,10 @@ export function debugObject(
 
     backLasers().on([3, 3, 3, 1]).push(false)
 
-    setBaseEnvironmentTrack('fog')
-    const fogEvent = animateComponent(0, 'fog')
-    fogEvent.fog.attenuation = [0.000001]
-    fogEvent.fog.startY = [-69420]
-    fogEvent.push(false)
+    adjustFog({
+        attenuation: 0.000001,
+        startY: 0,
+    })
 
     environment({
         id: 'NarrowGameHUD', 

@@ -86,6 +86,7 @@ type ClearProperty =
     | 'Environment'
     | 'Geometry'
     | 'Geometry Materials'
+    | 'Fog Events'
 
 /**
  * @returns null if remove value
@@ -347,6 +348,7 @@ export abstract class AbstractDifficulty<
         if (clear('Environment')) this.environment = []
         if (clear('Geometry')) this.geometry = []
         if (clear('Geometry Materials')) this.geometryMaterials = {}
+        if (clear('Fog Events')) this.fogEvents = []
     }
 
     /**
