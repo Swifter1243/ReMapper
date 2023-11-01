@@ -35,6 +35,8 @@ import { FogEvent } from './fog.ts'
 
 export interface RMDifficulty {
     version: bsmap.v2.IDifficulty['_version'] | bsmap.v3.IDifficulty['version']
+    v3: boolean,
+
     notes: NoteInternals.Note[]
     bombs: NoteInternals.Bomb[]
     arcs: NoteInternals.Arc[]
@@ -121,6 +123,8 @@ export abstract class AbstractDifficulty<
 
     // Initialized by constructor using Object.assign
     version: bsmap.v2.IDifficulty['_version'] | bsmap.v3.IDifficulty['version']
+    v3: boolean
+
     notes: NoteInternals.Note[]
     bombs: NoteInternals.Bomb[]
     arcs: NoteInternals.Arc[]
@@ -163,6 +167,8 @@ export abstract class AbstractDifficulty<
         inner: RMDifficulty,
     ) {
         this.version = inner.version
+        this.v3 = inner.v3
+
         this.json = json
         this.info = info
         this.setInfo = setInfo

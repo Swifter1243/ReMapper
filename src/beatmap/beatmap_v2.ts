@@ -263,9 +263,11 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
             mapFile,
             relativeMapFile,
             {
+                version: json._version,
+                v3: false,
+
                 notes,
                 bombs,
-                version: json._version,
                 arcs: [],
                 chains: [],
                 walls: obstacles,

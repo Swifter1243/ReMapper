@@ -322,6 +322,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
             relativeMapFile,
             {
                 version: json.version,
+                v3: true,
 
                 notes,
                 bombs,

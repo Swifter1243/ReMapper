@@ -1,4 +1,6 @@
+import { iterateKeyframes } from "../animation/animation_utils.ts";
 import { environment } from '../beatmap/environment.ts'
+import { RawKeyframesVec3 } from "../types/animation_types.ts";
 import { LookupMethod } from '../types/environment_types.ts'
 
 let nextID = 0
@@ -52,4 +54,22 @@ export function mirroredIterator(
             callback(i, s, name)
         }
     }
+}
+
+export function positionToV2(position: RawKeyframesVec3) {
+    iterateKeyframes(position, x => {
+        x[0] /= 0.6
+        x[1] /= 0.6
+        x[2] /= 0.6
+    })
+    return position
+}
+
+export function positionToV3(position: RawKeyframesVec3) {
+    iterateKeyframes(position, x => {
+        x[0] *= 0.6
+        x[1] *= 0.6
+        x[2] *= 0.6
+    })
+    return position
 }

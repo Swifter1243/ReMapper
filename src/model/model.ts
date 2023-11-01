@@ -23,8 +23,7 @@ import { cacheData, parseFilePath } from '../general.ts'
 
 import * as CustomEventInternals from '../internals/custom_event.ts'
 
-import { setBaseEnvironmentTrack } from '../beatmap/beatmap.ts'
-import { animateComponent, animateTrack } from '../beatmap/custom_event.ts'
+import { animateTrack } from '../beatmap/custom_event.ts'
 import { backLasers } from '../beatmap/basic_event.ts'
 
 import {
@@ -42,7 +41,7 @@ import { Vec3, Vec4 } from '../types/data_types.ts'
 import { copy } from '../utils/general.ts'
 import { Environment, Geometry } from '../internals/environment.ts'
 import { SingleKeyframe } from 'https://deno.land/x/remapper@2.1.0/src/animation.ts'
-import { adjustFog, environment, geometry } from '../mod.ts'
+import { adjustFog, environment, geometry, positionToV2 } from '../mod.ts'
 
 let modelSceneCount = 0
 let noYeet = true
@@ -158,6 +157,7 @@ export class ModelScene {
         this.groups[group as string].defaultMaterial = undefined
 
     private async getObjects(input: AnimatedObjectInput) {
+        const v3 = getActiveDiff().v3
         let objectInput = input as ObjectInput
         let options = {} as AnimatedOptions
 
@@ -177,6 +177,7 @@ export class ModelScene {
                 onCache,
                 this.groups,
                 this.optimizer,
+                v3
             ]
 
             const model = getModel(
@@ -260,6 +261,10 @@ export class ModelScene {
                                 objScale = (objScale as Vec3).map((x, i) =>
                                     x * (scale as Vec3)[i]
                                 )
+                            }
+
+                            if (!v3) {
+                                positionToV2(objPos as Vec3)
                             }
 
                             ;(x.pos)[i] = [...(objPos as Vec3), (x.pos)[i][3]]
@@ -348,6 +353,10 @@ export class ModelScene {
                         this.bakeAnimFreq,
                         this.optimizer,
                     )
+
+                    if (!v3) {
+                        positionToV2(bakedCube.pos)
+                    }
 
                     x.pos = bakedCube.pos
                     x.rot = bakedCube.rot
@@ -781,6 +790,12 @@ export class ModelScene {
             })
         })
     }
+}
+
+export function modelScene(
+    ...params: ConstructorParameters<typeof ModelScene>
+): ModelScene {
+    return new ModelScene(...params)
 }
 
 /**
