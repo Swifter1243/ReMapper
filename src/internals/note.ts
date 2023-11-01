@@ -177,7 +177,9 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
                 _interactable: defaultBoolean(this.interactable, true),
                 _rotation: this.worldRotation,
                 _fake: defaultBoolean(this.fake, false),
-                _cutDirection: this.angleOffset, //?
+                _cutDirection: this.angleOffset !== 0
+                    ? this.angleOffset
+                    : undefined,
                 ...this.customData,
             },
         } satisfies bsmap.v2.INote

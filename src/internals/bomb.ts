@@ -100,7 +100,7 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
                 _noteJumpMovementSpeed: NJS,
                 _noteJumpStartBeatOffset: offset,
                 _interactable: defaultBoolean(this.interactable, true),
-                _fake: this.fake,
+                _fake: defaultBoolean(this.fake, false),
                 _localRotation: this.localRotation,
                 _position: this.coordinates,
                 _rotation: this.worldRotation,
