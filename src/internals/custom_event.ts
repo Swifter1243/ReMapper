@@ -11,6 +11,7 @@ import { JsonWrapper } from '../types/beatmap_types.ts'
 import { copy } from '../utils/general.ts'
 import { AnimationPropertiesV3, animationToJson } from './animation.ts'
 import { ExcludedObjectFields, ObjectReplacements } from './object.ts'
+import { jsonPrune } from "../utils/json.ts";
 
 type CustomEventExclusions = {
     type: never
@@ -63,9 +64,9 @@ export abstract class BaseCustomEvent<
         return this
     }
 
-    abstract toJson(v3: true): TV3
-    abstract toJson(v3: false): TV2
-    abstract toJson(v3: boolean): TV2 | TV3
+    abstract toJson(v3: true, prune?: boolean): TV3
+    abstract toJson(v3: false, prune?: boolean): TV2
+    abstract toJson(v3: boolean, prune?: boolean): TV2 | TV3
 }
 
 export class AnimateTrack extends BaseCustomEvent<
@@ -159,15 +160,15 @@ export class AnimateTrack extends BaseCustomEvent<
         }
     }
 
-    toJson(v3: true): bsmap.v3.ICustomEventAnimateTrack
-    toJson(v3: false): bsmap.v2.ICustomEventAnimateTrack
+    toJson(v3: true, prune?: boolean): bsmap.v3.ICustomEventAnimateTrack
+    toJson(v3: false, prune?: boolean): bsmap.v2.ICustomEventAnimateTrack
     toJson(
-        v3: boolean,
+        v3: boolean, prune = true
     ): bsmap.v2.ICustomEventAnimateTrack | bsmap.v3.ICustomEventAnimateTrack {
         if (this.track.value === undefined) throw 'Track cannot be null!'
 
         if (v3) {
-            return {
+            const output = {
                 b: this.time,
                 d: {
                     repeat: this.repeat,
@@ -179,6 +180,7 @@ export class AnimateTrack extends BaseCustomEvent<
                 },
                 t: 'AnimateTrack',
             } satisfies bsmap.v3.ICustomEventAnimateTrack
+            return prune ? jsonPrune(output) : output
         }
 
         if (this.repeat) {
@@ -187,7 +189,7 @@ export class AnimateTrack extends BaseCustomEvent<
             )
         }
 
-        return {
+        const output = {
             _time: this.time,
             _data: {
                 _easing: this.easing,
@@ -198,6 +200,7 @@ export class AnimateTrack extends BaseCustomEvent<
             },
             _type: 'AnimateTrack',
         } satisfies bsmap.v2.ICustomEventAnimateTrack
+        return prune ? jsonPrune(output) : output
     }
 }
 
@@ -289,17 +292,17 @@ export class AssignPathAnimation extends BaseCustomEvent<
         }
     }
 
-    toJson(v3: true): bsmap.v3.ICustomEventAssignPathAnimation
-    toJson(v3: false): bsmap.v2.ICustomEventAssignPathAnimation
+    toJson(v3: true, prune?: boolean): bsmap.v3.ICustomEventAssignPathAnimation
+    toJson(v3: false, prune?: boolean): bsmap.v2.ICustomEventAssignPathAnimation
     toJson(
-        v3: boolean,
+        v3: boolean, prune = true
     ):
         | bsmap.v2.ICustomEventAssignPathAnimation
         | bsmap.v3.ICustomEventAssignPathAnimation {
         if (this.track.value === undefined) throw 'Track cannot be null!'
 
         if (v3) {
-            return {
+            const output = {
                 b: this.time,
                 d: {
                     // @ts-ignore 2322
@@ -311,9 +314,10 @@ export class AssignPathAnimation extends BaseCustomEvent<
                 },
                 t: 'AssignPathAnimation',
             } satisfies bsmap.v3.ICustomEventAssignPathAnimation
+            return prune ? jsonPrune(output) : output
         }
 
-        return {
+        const output = {
             _time: this.time,
             _data: {
                 // @ts-ignore 2322
@@ -325,6 +329,7 @@ export class AssignPathAnimation extends BaseCustomEvent<
             },
             _type: 'AssignPathAnimation',
         } satisfies bsmap.v2.ICustomEventAssignPathAnimation
+        return prune ? jsonPrune(output) : output
     }
 }
 
@@ -407,15 +412,15 @@ export class AssignTrackParent extends BaseCustomEvent<
         }
     }
 
-    toJson(v3: true): bsmap.v3.ICustomEventAssignTrackParent
-    toJson(v3: false): bsmap.v2.ICustomEventAssignTrackParent
+    toJson(v3: true, prune?: boolean): bsmap.v3.ICustomEventAssignTrackParent
+    toJson(v3: false, prune?: boolean): bsmap.v2.ICustomEventAssignTrackParent
     toJson(
-        v3: boolean,
+        v3: boolean, prune = true
     ):
         | bsmap.v2.ICustomEventAssignTrackParent
         | bsmap.v3.ICustomEventAssignTrackParent {
         if (v3) {
-            return {
+            const output = {
                 b: this.time,
                 d: {
                     childrenTracks: this.childrenTracks,
@@ -424,9 +429,10 @@ export class AssignTrackParent extends BaseCustomEvent<
                 },
                 t: 'AssignTrackParent',
             } satisfies bsmap.v3.ICustomEventAssignTrackParent
+            return prune ? jsonPrune(output) : output
         }
 
-        return {
+        const output = {
             _data: {
                 _childrenTracks: this.childrenTracks,
                 _parentTrack: this.parentTrack,
@@ -435,6 +441,7 @@ export class AssignTrackParent extends BaseCustomEvent<
             _time: this.time,
             _type: 'AssignTrackParent',
         } satisfies bsmap.v2.ICustomEventAssignTrackParent
+        return prune ? jsonPrune(output) : output
     }
 }
 
@@ -510,15 +517,15 @@ export class AssignPlayerToTrack extends BaseCustomEvent<
         }
     }
 
-    toJson(v3: true): bsmap.v3.ICustomEventAssignPlayerToTrack
-    toJson(v3: false): bsmap.v2.ICustomEventAssignPlayerToTrack
+    toJson(v3: true, prune?: boolean): bsmap.v3.ICustomEventAssignPlayerToTrack
+    toJson(v3: false, prune?: boolean): bsmap.v2.ICustomEventAssignPlayerToTrack
     toJson(
-        v3: boolean,
+        v3: boolean, prune = true
     ):
         | bsmap.v2.ICustomEventAssignPlayerToTrack
         | bsmap.v3.ICustomEventAssignPlayerToTrack {
         if (v3) {
-            return {
+            const output = {
                 b: this.time,
                 d: {
                     track: this.track!,
@@ -526,6 +533,7 @@ export class AssignPlayerToTrack extends BaseCustomEvent<
                 },
                 t: 'AssignPlayerToTrack',
             } satisfies bsmap.v3.ICustomEventAssignPlayerToTrack
+            return prune ? jsonPrune(output) : output
         }
 
         if (this.target) {
@@ -534,13 +542,14 @@ export class AssignPlayerToTrack extends BaseCustomEvent<
             )
         }
 
-        return {
+        const output = {
             _data: {
                 _track: this.track!,
             },
             _time: this.time,
             _type: 'AssignPlayerToTrack',
         } satisfies bsmap.v2.ICustomEventAssignPlayerToTrack
+        return prune ? jsonPrune(output) : output
     }
 }
 
@@ -631,16 +640,16 @@ export class AnimateComponent
         throw 'V2 not supported for animating components'
     }
 
-    toJson(v3: true): bsmap.v3.ICustomEventAnimateComponent
-    toJson(v3: false): never
-    toJson(v3 = true): bsmap.v3.ICustomEventAnimateComponent {
+    toJson(v3: true, prune?: boolean): bsmap.v3.ICustomEventAnimateComponent
+    toJson(v3: false, prune?: boolean): never
+    toJson(v3 = true, prune = true): bsmap.v3.ICustomEventAnimateComponent {
         if (!v3) {
             throw 'V2 not supported for animating components'
         }
 
         if (this.track.value === undefined) throw 'Track cannot be null!'
 
-        return {
+        const output = {
             b: this.time,
             t: 'AnimateComponent',
             d: {
@@ -659,5 +668,6 @@ export class AnimateComponent
                 },
             },
         } satisfies bsmap.v3.ICustomEventAnimateComponent
+        return prune ? jsonPrune(output) : output
     }
 }

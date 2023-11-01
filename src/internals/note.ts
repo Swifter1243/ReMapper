@@ -11,7 +11,7 @@ import {
 } from './object.ts'
 import { copy } from '../utils/general.ts'
 import { animationToJson } from './animation.ts'
-import { settings, SubclassExclusiveProps } from '../mod.ts'
+import { jsonPrune, settings, SubclassExclusiveProps } from '../mod.ts'
 
 export { Bomb } from './bomb.ts'
 export { Arc } from './arc.ts'
@@ -84,9 +84,9 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
         }
     }
 
-    toJson(v3: true): bsmap.v3.IColorNote
-    toJson(v3: false): bsmap.v2.INote
-    toJson(v3 = true): bsmap.v2.INote | bsmap.v3.IColorNote {
+    toJson(v3: true, prune?: boolean): bsmap.v3.IColorNote
+    toJson(v3: false, prune?: boolean): bsmap.v2.INote
+    toJson(v3 = true, prune = true): bsmap.v2.INote | bsmap.v3.IColorNote {
         const diff = activeDiff
         let NJS = this.NJS
         let offset = this.offset
@@ -97,7 +97,7 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
         }
 
         if (v3) {
-            return {
+            const output = {
                 a: Math.round(this.angleOffset),
                 b: this.time,
                 c: this.type,
@@ -144,9 +144,10 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
                     ...this.customData,
                 },
             } satisfies bsmap.v3.IColorNote
+            return prune ? jsonPrune(output) : output
         }
 
-        return {
+        const output = {
             _cutDirection: this.direction,
             _lineIndex: this.x,
             _lineLayer: this.y,
@@ -180,5 +181,6 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
                 ...this.customData,
             },
         } satisfies bsmap.v2.INote
+        return prune ? jsonPrune(output) : output
     }
 }

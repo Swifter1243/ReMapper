@@ -12,6 +12,7 @@ import { Vec3 } from '../types/data_types.ts'
 import { copy } from '../utils/general.ts'
 import { animationToJson } from './animation.ts'
 import { Fields, SubclassExclusiveProps } from '../types/util_types.ts'
+import { jsonPrune } from "../utils/json.ts";
 
 export class Wall
     extends BaseGameplayObject<bsmap.v2.IObstacle, bsmap.v3.IObstacle> {
@@ -112,9 +113,9 @@ export class Wall
         }
     }
 
-    toJson(v3: true): bsmap.v3.IObstacle
-    toJson(v3: false): bsmap.v2.IObstacle
-    toJson(v3 = true): bsmap.v2.IObstacle | bsmap.v3.IObstacle {
+    toJson(v3: true, prune?: boolean): bsmap.v3.IObstacle
+    toJson(v3: false, prune?: boolean): bsmap.v2.IObstacle
+    toJson(v3 = true, prune = true): bsmap.v2.IObstacle | bsmap.v3.IObstacle {
         const diff = activeDiff
         let NJS = this.NJS
         let offset = this.offset
@@ -125,7 +126,7 @@ export class Wall
         }
 
         if (v3) {
-            return {
+            const output = {
                 b: this.time,
                 d: this.duration,
                 h: this.height,
@@ -150,9 +151,10 @@ export class Wall
                     ...this.customData,
                 },
             } satisfies bsmap.v3.IObstacle
+            return prune ? jsonPrune(output) : output
         }
 
-        return {
+        const output = {
             _duration: this.duration,
             _lineIndex: this.x,
             _time: this.time,
@@ -173,5 +175,6 @@ export class Wall
                 ...this.customData,
             },
         } satisfies bsmap.v2.IObstacle
+        return prune ? jsonPrune(output) : output
     }
 }

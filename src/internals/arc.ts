@@ -4,6 +4,7 @@ import { bsmap } from '../deps.ts'
 import { Vec2 } from '../types/data_types.ts'
 import { Fields, SubclassExclusiveProps } from '../types/util_types.ts'
 import { copy } from '../utils/general.ts'
+import { jsonPrune } from "../utils/json.ts";
 import { animationToJson } from './animation.ts'
 import {
     BaseSliderObject,
@@ -94,9 +95,9 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
         return super.fromJson(obj, v3)
     }
 
-    toJson(v3: true): bsmap.v3.IArc
-    toJson(v3: false): never
-    toJson(v3 = true): bsmap.v3.IArc {
+    toJson(v3: true, prune?: boolean): bsmap.v3.IArc
+    toJson(v3: false, prune?: boolean): never
+    toJson(v3 = true, prune = true): bsmap.v3.IArc {
         if (!v3) throw 'V2 is not supported for arcs'
 
         const diff = activeDiff
@@ -108,7 +109,7 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
             offset ??= diff.offset
         }
 
-        return {
+        const output = {
             b: this.time,
             c: this.type,
             d: this.headDirection,
@@ -142,5 +143,6 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
                 ...this.customData,
             },
         } satisfies bsmap.v3.IArc
+        return prune ? jsonPrune(output) : output
     }
 }

@@ -3,6 +3,7 @@ import { bsmap } from '../deps.ts'
 import { Vec2 } from '../types/data_types.ts'
 import { Fields, SubclassExclusiveProps } from '../types/util_types.ts'
 import { copy } from '../utils/general.ts'
+import { jsonPrune } from "../utils/json.ts";
 import { animationToJson } from './animation.ts'
 import {
     BaseSliderObject,
@@ -134,9 +135,9 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
         return super.fromJson(obj, v3)
     }
 
-    toJson(v3: true): bsmap.v3.IChain
-    toJson(v3: false): never
-    toJson(v3 = true): bsmap.v3.IChain {
+    toJson(v3: true, prune?: boolean): bsmap.v3.IChain
+    toJson(v3: false, prune?: boolean): never
+    toJson(v3 = true, prune = true): bsmap.v3.IChain {
         if (!v3) throw 'V2 is not supported for chains'
 
         const diff = activeDiff
@@ -148,7 +149,7 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
             offset ??= diff.offset
         }
 
-        return {
+        const output = {
             b: this.time,
             c: this.type,
             d: this.headDirection,
@@ -194,5 +195,6 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
                 ...this.customData,
             },
         } as bsmap.v3.IChain
+        return prune ? jsonPrune(output) : output
     }
 }

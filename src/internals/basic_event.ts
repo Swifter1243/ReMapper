@@ -7,6 +7,7 @@ import { Fields, SubclassExclusiveProps } from '../types/util_types.ts'
 import { LightID } from '../types/environment_types.ts'
 import { ColorVec } from '../types/data_types.ts'
 import { copy } from '../utils/general.ts'
+import { jsonPrune } from '../utils/json.ts'
 
 // deno-lint-ignore ban-types
 type BasicEventExcludedFields<Class> = ExcludedObjectFields<Class, {}>
@@ -83,25 +84,27 @@ export class BaseBasicEvent extends BaseEvent {
         return this
     }
 
-    toJson(v3: true): bsmap.v3.IBasicEvent
-    toJson(v3: false): bsmap.v2.IEvent
-    toJson(v3 = true): bsmap.v2.IEvent | bsmap.v3.IBasicEvent {
+    toJson(v3: true, prune?: boolean): bsmap.v3.IBasicEvent
+    toJson(v3: false, prune?: boolean): bsmap.v2.IEvent
+    toJson(v3 = true, prune = true): bsmap.v2.IEvent | bsmap.v3.IBasicEvent {
         if (v3) {
-            return {
+            const output = {
                 b: this.time,
                 et: this.type,
                 f: this.floatValue,
                 i: this.value,
                 customData: this.customData,
             } satisfies bsmap.v3.IBasicEvent
+            return prune ? jsonPrune(output) : output
         } else {
-            return {
+            const output = {
                 _floatValue: this.floatValue,
                 _time: this.time,
                 _type: this.type,
                 _value: this.value,
                 _customData: this.customData,
             } satisfies bsmap.v2.IEvent
+            return prune ? jsonPrune(output) : output
         }
     }
 }
@@ -237,11 +240,11 @@ export class LightEvent<
         }
     }
 
-    toJson(v3: true): TV3
-    toJson(v3: false): TV2
-    toJson(v3 = true): bsmap.v3.IBasicEventLight | bsmap.v2.IEventLight {
+    toJson(v3: true, prune?: boolean): TV3
+    toJson(v3: false, prune?: boolean): TV2
+    toJson(v3 = true, prune = true): bsmap.v3.IBasicEventLight | bsmap.v2.IEventLight {
         if (v3) {
-            return {
+            const output = {
                 b: this.time,
                 et: this.type as bsmap.v3.IBasicEventLight['et'],
                 f: this.floatValue,
@@ -254,8 +257,9 @@ export class LightEvent<
                     ...this.customData,
                 },
             } satisfies bsmap.v3.IBasicEventLight
+            return prune ? jsonPrune(output) : output
         } else {
-            return {
+            const output = {
                 _floatValue: this.floatValue,
                 _time: this.time,
                 _type: this.type as bsmap.v2.IEventLight['_type'],
@@ -268,6 +272,7 @@ export class LightEvent<
                     ...this.customData,
                 },
             } satisfies bsmap.v2.IEventLight
+            return prune ? jsonPrune(output) : output
         }
     }
 }
@@ -353,13 +358,13 @@ export class LaserSpeedEvent<
         }
     }
 
-    toJson(v3: true): TV3
-    toJson(v3: false): TV2
+    toJson(v3: true, prune?: boolean): TV3
+    toJson(v3: false, prune?: boolean): TV2
     toJson(
-        v3: boolean,
+        v3: boolean, prune = true
     ): bsmap.v2.IEventLaser | bsmap.v3.IBasicEventLaserRotation {
         if (v3) {
-            return {
+            const output = {
                 b: this.time,
                 et: this.type as bsmap.v3.IBasicEventLaserRotation['et'],
                 f: this.floatValue,
@@ -371,8 +376,9 @@ export class LaserSpeedEvent<
                     ...this.customData,
                 },
             } satisfies bsmap.v3.IBasicEventLaserRotation
+            return prune ? jsonPrune(output) : output
         } else {
-            return {
+            const output = {
                 _floatValue: this.floatValue,
                 _time: this.time,
                 _type: this.type as bsmap.v2.IEventLaser['_type'],
@@ -385,6 +391,7 @@ export class LaserSpeedEvent<
                     ...this.customData,
                 },
             } satisfies bsmap.v2.IEventLaser
+            return prune ? jsonPrune(output) : output
         }
     }
 }
@@ -452,11 +459,11 @@ export class RingZoomEvent
         }
     }
 
-    toJson(v3: true): bsmap.v3.IBasicEventRing
-    toJson(v3: false): bsmap.v2.IEventZoom
-    toJson(v3 = true): bsmap.v2.IEventZoom | bsmap.v3.IBasicEventRing {
+    toJson(v3: true, prune?: boolean): bsmap.v3.IBasicEventRing
+    toJson(v3: false, prune?: boolean): bsmap.v2.IEventZoom
+    toJson(v3 = true, prune = true): bsmap.v2.IEventZoom | bsmap.v3.IBasicEventRing {
         if (v3) {
-            return {
+            const output = {
                 b: this.time,
                 et: this.type as bsmap.v3.IBasicEventRing['et'],
                 f: this.floatValue,
@@ -467,8 +474,9 @@ export class RingZoomEvent
                     ...this.customData,
                 },
             } satisfies bsmap.v3.IBasicEventRing
+            return prune ? jsonPrune(output) : output
         }
-        return {
+        const output = {
             _floatValue: this.floatValue,
             _time: this.time,
             // deno-lint-ignore no-explicit-any
@@ -480,6 +488,7 @@ export class RingZoomEvent
                 ...this.customData,
             },
         } satisfies bsmap.v2.IEventZoom
+        return prune ? jsonPrune(output) : output
     }
 }
 
@@ -577,9 +586,9 @@ export class RingSpinEvent
         }
     }
 
-    toJson(v3: true): bsmap.v3.IBasicEventRing
-    toJson(v3: false): bsmap.v2.IEventRing
-    toJson(v3 = true): bsmap.v2.IEventRing | bsmap.v3.IBasicEventRing {
+    toJson(v3: true, prune?: boolean): bsmap.v3.IBasicEventRing
+    toJson(v3: false, prune?: boolean): bsmap.v2.IEventRing
+    toJson(v3 = true, prune = true): bsmap.v2.IEventRing | bsmap.v3.IBasicEventRing {
         if (v3) {
             return {
                 b: this.time,

@@ -1,6 +1,6 @@
 import { EventGroup } from '../data/constants.ts'
 import { bsmap } from '../deps.ts'
-import { InverseRotationAction, RotationAction, copy, getActiveDiff } from '../mod.ts'
+import { InverseRotationAction, RotationAction, copy, getActiveDiff, jsonPrune } from '../mod.ts'
 import { ObjectFields, SubclassExclusiveProps } from '../types/util_types.ts'
 import { BaseObject } from './object.ts'
 
@@ -79,18 +79,19 @@ export class RotationEvent
         }
     }
 
-    toJson(v3: true): bsmap.v3.IRotationEvent
-    toJson(v3: false): bsmap.v2.IEventLaneRotation
+    toJson(v3: true, prune?: boolean): bsmap.v3.IRotationEvent
+    toJson(v3: false, prune?: boolean): bsmap.v2.IEventLaneRotation
     toJson(
-        v3: boolean,
+        v3: boolean, prune = true
     ): bsmap.v2.IEventLaneRotation | bsmap.v3.IRotationEvent {
         if (v3) {
-            return {
+            const output = {
                 b: this.time,
                 e: this.early ? 1 : 0,
                 r: this.rotation,
                 customData: this.customData,
             } satisfies bsmap.v3.IRotationEvent
+            return prune ? jsonPrune(output) : output
         }
 
         let vanillaRotation
@@ -179,23 +180,25 @@ export class BoostEvent
         }
     }
 
-    toJson(v3: true): bsmap.v3.IColorBoostEvent
-    toJson(v3: false): bsmap.v2.IEvent
-    toJson(v3 = true): bsmap.v2.IEvent | bsmap.v3.IColorBoostEvent {
+    toJson(v3: true, prune?: boolean): bsmap.v3.IColorBoostEvent
+    toJson(v3: false, prune?: boolean): bsmap.v2.IEvent
+    toJson(v3 = true, prune = true): bsmap.v2.IEvent | bsmap.v3.IColorBoostEvent {
         if (v3) {
-            return {
+            const output = {
                 b: this.time,
                 o: this.boost,
                 customData: this.customData,
             } satisfies bsmap.v3.IColorBoostEvent
+            return prune ? jsonPrune(output) : output
         }
 
-        return {
+        const output = {
             _time: this.time,
             _floatValue: 0,
             _type: EventGroup.BOOST,
             _value: this.boost ? 1 : 0,
             _customData: this.customData,
         } satisfies bsmap.v2.IEvent
+        return prune ? jsonPrune(output) : output
     }
 }

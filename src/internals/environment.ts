@@ -15,6 +15,7 @@ import { Track } from '../animation/track.ts'
 
 import { getActiveDiff } from '../data/beatmap_handler.ts'
 import { copy } from '../utils/general.ts'
+import { jsonPrune } from "../utils/json.ts";
 
 export type AbstractEnvironment = BaseEnvironmentEnhancement<
     bsmap.v2.IChromaEnvironmentBase,
@@ -142,9 +143,9 @@ export abstract class BaseEnvironmentEnhancement<
         return this
     }
 
-    abstract toJson(v3: true): TV3
-    abstract toJson(v3: false): TV2
-    abstract toJson(v3: boolean): TV3 | TV2
+    abstract toJson(v3: true, prune?: boolean): TV3
+    abstract toJson(v3: false, prune?: boolean): TV2
+    abstract toJson(v3: boolean, prune?: boolean): TV3 | TV2
 }
 
 export class Environment extends BaseEnvironmentEnhancement<
@@ -210,13 +211,13 @@ export class Environment extends BaseEnvironmentEnhancement<
         }
     }
 
-    toJson(v3: true): bsmap.v3.IChromaEnvironmentID
-    toJson(v3: false): bsmap.v2.IChromaEnvironmentID
+    toJson(v3: true, prune?: boolean): bsmap.v3.IChromaEnvironmentID
+    toJson(v3: false, prune?: boolean): bsmap.v2.IChromaEnvironmentID
     toJson(
-        v3: boolean,
+        v3: boolean, prune = true
     ): bsmap.v2.IChromaEnvironmentID | bsmap.v3.IChromaEnvironmentID {
         if (v3) {
-            return {
+            const output = {
                 id: this.id,
                 lookupMethod: this.lookupMethod,
                 active: this.active,
@@ -235,11 +236,12 @@ export class Environment extends BaseEnvironmentEnhancement<
                 scale: this.scale,
                 track: this.track?.value as string,
             } satisfies bsmap.v3.IChromaEnvironmentID
+            return prune ? jsonPrune(output) : output
         }
 
         if (this.components) throw 'Components are not supported in v2'
 
-        return {
+        const output = {
             _id: this.id,
             _lookupMethod: this.lookupMethod,
             _active: this.active,
@@ -252,6 +254,7 @@ export class Environment extends BaseEnvironmentEnhancement<
             _scale: this.scale,
             _track: this.track?.value as string,
         } satisfies bsmap.v2.IChromaEnvironmentID
+        return prune ? jsonPrune(output) : output
     }
 }
 
@@ -328,15 +331,15 @@ export class Geometry extends BaseEnvironmentEnhancement<
         }
     }
 
-    toJson(v3: true): bsmap.v3.IChromaEnvironmentGeometry
-    toJson(v3: false): bsmap.v2.IChromaEnvironmentGeometry
+    toJson(v3: true, prune?: boolean): bsmap.v3.IChromaEnvironmentGeometry
+    toJson(v3: false, prune?: boolean): bsmap.v2.IChromaEnvironmentGeometry
     toJson(
-        v3: boolean,
+        v3: boolean, prune = true
     ):
         | bsmap.v2.IChromaEnvironmentGeometry
         | bsmap.v3.IChromaEnvironmentGeometry {
         if (v3) {
-            return {
+            const output = {
                 geometry: {
                     material: this.material,
                     type: this.type,
@@ -358,9 +361,10 @@ export class Geometry extends BaseEnvironmentEnhancement<
                 scale: this.scale,
                 track: this.track?.value as string,
             } satisfies bsmap.v3.IChromaEnvironmentGeometry
+            return prune ? jsonPrune(output) : output
         }
 
-        return {
+        const output = {
             _geometry: {
                 _material: typeof this.material === 'string' ? this.material : {
                     _shader: this.material?.shader,
@@ -380,5 +384,6 @@ export class Geometry extends BaseEnvironmentEnhancement<
             _scale: this.scale,
             _track: this.track?.value as string,
         } satisfies bsmap.v2.IChromaEnvironmentGeometry
+        return prune ? jsonPrune(output) : output
     }
 }

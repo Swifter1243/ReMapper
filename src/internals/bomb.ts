@@ -1,6 +1,7 @@
 import { activeDiff, getActiveDiff, settings } from "../data/beatmap_handler.ts";
 import { bsmap } from "../deps.ts";
 import { copy } from "../utils/general.ts";
+import { jsonPrune } from "../utils/json.ts";
 import { animationToJson } from "./animation.ts";
 import { BaseNote, ExcludedObjectFields, defaultBoolean, exportInvertedBoolean } from "./object.ts";
 
@@ -29,9 +30,9 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
     }
 
     // TODO: Move to base note class
-    toJson(v3: true): bsmap.v3.IBombNote
-    toJson(v3: false): bsmap.v2.INote
-    toJson(v3 = true): bsmap.v2.INote | bsmap.v3.IBombNote {
+    toJson(v3: true, prune?: boolean): bsmap.v3.IBombNote
+    toJson(v3: false, prune?: boolean): bsmap.v2.INote
+    toJson(v3 = true, prune = true): bsmap.v2.INote | bsmap.v3.IBombNote {
         const diff = activeDiff
         let NJS = this.NJS
         let offset = this.offset
@@ -42,7 +43,7 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
         }
 
         if (v3) {
-            return {
+            const output = {
                 b: this.time,
                 x: this.x,
                 y: this.y,
@@ -83,9 +84,10 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
                     ...this.customData,
                 },
             } as bsmap.v3.IBombNote
+            return prune ? jsonPrune(output) : output
         }
 
-        return {
+        const output = {
             _cutDirection: 0,
             _lineIndex: this.x,
             _lineLayer: this.y,
@@ -118,5 +120,6 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
                 ...this.customData,
             },
         } as bsmap.v2.INote
+        return prune ? jsonPrune(output) : output
     }
 }
