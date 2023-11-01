@@ -292,7 +292,9 @@ export abstract class AbstractDifficulty<
         const promise1 = RMJson.then((rm) => rm.save())
 
         const sortedProcess = [...this.postProcesses.entries()]
+            // ascending
             .sort(([a], [b]) => a - b)
+            // descending
             .reverse()
             .flatMap(([, arr]) => arr)
 
@@ -575,7 +577,7 @@ function pruneCustomData(
     k: string,
     v: unknown,
 ): unknown {
-    if (k !== 'customData') return
+    if (k !== 'customData') return v
 
     /// if customData is not an object
     if (typeof v !== 'object') return {}
@@ -583,11 +585,11 @@ function pruneCustomData(
     /// if no value
     if (!v) return null
 
-    // only prune the values of the map
-    // so empty arrays don't get yeeted
+    jsonPrune(v);
 
-    Object.values(v).forEach((x) => {
-        jsonPrune(x)
-    })
+    if (Object.entries(v).length === 0) {
+        return null; // remove customData if empty
+    }
+    
     return v
 }
