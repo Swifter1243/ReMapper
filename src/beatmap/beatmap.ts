@@ -12,7 +12,7 @@ import { DIFFPATH, DIFFS, FILENAME } from '../types/beatmap_types.ts'
 import { copy } from '../utils/general.ts'
 import { environment } from './environment.ts'
 import { Environment } from '../internals/environment.ts'
-import { readDifficulty, setActiveDiff } from '../mod.ts'
+import { isEmptyObject, readDifficulty, setActiveDiff } from '../mod.ts'
 
 /**
  * Converts an array of Json objects to a class counterpart.
@@ -182,6 +182,7 @@ export async function transferVisuals(
     forDiff?: (diff: RMDifficulty) => void,
     walls = true,
     arcs = true,
+    colorSchemes = true,
 ) {
     await currentTransfer
 
@@ -227,6 +228,34 @@ export async function transferVisuals(
             workingDiff.environment = currentDiff.environment
             workingDiff.geometry = currentDiff.geometry
             workingDiff.geometryMaterials = currentDiff.geometryMaterials
+
+            if (colorSchemes) {
+                workingDiff.info._customData ??= {}
+                workingDiff.info._customData._colorLeft = currentDiff.info
+                    ._customData?._colorLeft
+                workingDiff.info._customData._colorRight = currentDiff.info
+                    ._customData?._colorRight
+                workingDiff.info._customData._envColorLeft = currentDiff.info
+                    ._customData?._envColorLeft
+                workingDiff.info._customData._envColorRight = currentDiff.info
+                    ._customData?._envColorRight
+                workingDiff.info._customData._envColorLeftBoost = currentDiff
+                    .info
+                    ._customData?._envColorLeftBoost
+                workingDiff.info._customData._envColorRightBoost = currentDiff
+                    .info
+                    ._customData?._envColorRightBoost
+                workingDiff.info._customData._envColorWhite = currentDiff.info
+                    ._customData?._envColorWhite
+                workingDiff.info._customData._envColorWhiteBoost = currentDiff
+                    .info
+                    ._customData?._envColorWhiteBoost
+                workingDiff.info._customData._obstacleColor = currentDiff.info
+                    ._customData?._obstacleColor
+                if (isEmptyObject(workingDiff.info._customData)) {
+                    delete workingDiff.info._customData
+                }
+            }
 
             if (walls) {
                 workingDiff.walls = workingDiff.walls
