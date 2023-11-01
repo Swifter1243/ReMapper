@@ -208,7 +208,7 @@ export abstract class AbstractDifficulty<
     private registerProcessors() {
         // low priority
         // we want this to be last
-        this.addPostProcess(reduceDecimalsPostProcess, -1)
+        this.addPostProcess(reduceDecimalsPostProcess, -10)
         this.addPostProcess(pruneCustomData, -1)
     }
 
@@ -590,6 +590,6 @@ function pruneCustomData(
     if (Object.entries(v).length === 0) {
         return null; // remove customData if empty
     }
-    
+
     return v
 }
