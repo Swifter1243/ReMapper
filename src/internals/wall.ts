@@ -120,7 +120,7 @@ export class Wall
         let NJS = this.NJS
         let offset = this.offset
 
-        if (diff && settings.forceJumpsForNoodle) {
+        if (diff && settings.forceJumpsForNoodle && this.isGameplayModded) {
             NJS ??= diff.NJS
             offset ??= diff.offset
         }

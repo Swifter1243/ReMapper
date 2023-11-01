@@ -37,7 +37,7 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
         let NJS = this.NJS
         let offset = this.offset
 
-        if (diff && settings.forceJumpsForNoodle) {
+        if (diff && settings.forceJumpsForNoodle && this.isGameplayModded) {
             NJS ??= diff.NJS
             offset ??= diff.offset
         }

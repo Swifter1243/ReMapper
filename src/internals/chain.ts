@@ -144,7 +144,7 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
         let NJS = this.NJS
         let offset = this.offset
 
-        if (diff && settings.forceJumpsForNoodle) {
+        if (diff && settings.forceJumpsForNoodle && this.isGameplayModded) {
             NJS ??= diff.NJS
             offset ??= diff.offset
         }

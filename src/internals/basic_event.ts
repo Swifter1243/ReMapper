@@ -590,7 +590,7 @@ export class RingSpinEvent
     toJson(v3: false, prune?: boolean): bsmap.v2.IEventRing
     toJson(v3 = true, prune = true): bsmap.v2.IEventRing | bsmap.v3.IBasicEventRing {
         if (v3) {
-            return {
+            const output = {
                 b: this.time,
                 et: EventGroup.RING_SPIN,
                 f: this.floatValue,
@@ -604,9 +604,10 @@ export class RingSpinEvent
                     step: this.step,
                 },
             } satisfies bsmap.v3.IBasicEventRing
+            return prune ? jsonPrune(output) : output
         }
 
-        return {
+        const output = {
             _floatValue: this.floatValue,
             _time: this.time,
             _type: EventGroup.RING_SPIN,
@@ -621,6 +622,7 @@ export class RingSpinEvent
                 ...this.customData,
             },
         } satisfies bsmap.v2.IEventRing
+        return prune ? jsonPrune(output) : output
     }
 }
 

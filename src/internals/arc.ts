@@ -4,7 +4,7 @@ import { bsmap } from '../deps.ts'
 import { Vec2 } from '../types/data_types.ts'
 import { Fields, SubclassExclusiveProps } from '../types/util_types.ts'
 import { copy } from '../utils/general.ts'
-import { jsonPrune } from "../utils/json.ts";
+import { jsonPrune } from '../utils/json.ts'
 import { animationToJson } from './animation.ts'
 import {
     BaseSliderObject,
@@ -104,7 +104,7 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
         let NJS = this.NJS
         let offset = this.offset
 
-        if (diff && settings.forceJumpsForNoodle) {
+        if (diff && settings.forceJumpsForNoodle && this.isGameplayModded) {
             NJS ??= diff.NJS
             offset ??= diff.offset
         }
