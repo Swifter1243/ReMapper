@@ -9,6 +9,7 @@ import { jsonPrune } from '../utils/json.ts'
 import { environment, geometry } from './environment.ts'
 import { arrSplit, RawGeometryMaterial, Track } from '../mod.ts'
 import {
+abstractCustomEvent,
     animateComponent,
     animateTrack,
     assignPathAnimation,
@@ -249,47 +250,76 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         }
 
         // Custom Events
-        const customEvents = json?.customData?.customEvents
+        let customEvents = json?.customData?.customEvents ?? []
 
-        const animateTracks =
-            customEvents?.filter((x) => x.t === 'AnimateTrack').map((x) =>
-                animateTrack({}).fromJson(
-                    x as bsmap.v3.ICustomEventAnimateTrack,
-                    true,
-                )
-            ) ?? []
+        const animateTracksFilter = arrSplit(
+            customEvents,
+            (x) => x.t === 'AnimateTrack',
+        )
 
-        const assignPathTracks =
-            customEvents?.filter((x) => x.t === 'AssignPathAnimation').map((
-                x,
-            ) => assignPathAnimation({}).fromJson(
+        const animateTracks = animateTracksFilter[0].map((x) =>
+            animateTrack({}).fromJson(
+                x as bsmap.v3.ICustomEventAnimateTrack,
+                true,
+            )
+        )
+        customEvents = animateTracksFilter[1]
+
+        const assignPathTracksFilter = arrSplit(
+            customEvents,
+            (x) => x.t === 'AssignPathAnimation',
+        )
+
+        const assignPathTracks = assignPathTracksFilter[0].map((x) =>
+            assignPathAnimation({}).fromJson(
                 x as bsmap.v3.ICustomEventAssignPathAnimation,
                 true,
-            )) ?? []
+            )
+        )
+        customEvents = assignPathTracksFilter[1]
 
-        const assignParent =
-            customEvents?.filter((x) => x.t === 'AssignTrackParent').map((x) =>
-                assignTrackParent({}).fromJson(
-                    x as bsmap.v3.ICustomEventAssignTrackParent,
-                    true,
-                )
-            ) ?? []
+        const assignParentFilter = arrSplit(
+            customEvents,
+            (x) => x.t === 'AssignTrackParent',
+        )
 
-        const assignPlayer =
-            customEvents?.filter((x) => x.t === 'AssignPlayerToTrack').map((
-                x,
-            ) => assignPlayerToTrack({}).fromJson(
+        const assignParent = assignParentFilter[0].map((x) =>
+            assignTrackParent({}).fromJson(
+                x as bsmap.v3.ICustomEventAssignTrackParent,
+                true,
+            )
+        )
+        customEvents = assignParentFilter[1]
+
+        const assignPlayerFilter = arrSplit(
+            customEvents,
+            (x) => x.t === 'AssignPlayerToTrack',
+        )
+
+        const assignPlayer = assignPlayerFilter[0].map((x) =>
+            assignPlayerToTrack({}).fromJson(
                 x as bsmap.v3.ICustomEventAssignPlayerToTrack,
                 true,
-            )) ?? []
+            )
+        )
+        customEvents = assignPlayerFilter[1]
 
-        const animateComponents =
-            customEvents?.filter((x) => x.t === 'AnimateComponent').map((x) =>
-                animateComponent({}).fromJson(
-                    x as bsmap.v3.ICustomEventAnimateComponent,
-                    true,
-                )
-            ) ?? []
+        const animateComponentsFilter = arrSplit(
+            customEvents,
+            (x) => x.t === 'AnimateComponent',
+        )
+
+        const animateComponents = animateComponentsFilter[0].map((x) =>
+            animateComponent({}).fromJson(
+                x as bsmap.v3.ICustomEventAnimateComponent,
+                true,
+            )
+        )
+        customEvents = animateComponentsFilter[1]
+
+        const abstractCustomEvents = customEvents.map((x) =>
+            abstractCustomEvent({}).fromJson(x, true)
+        )
 
         // Environment
         const environmentArr =
@@ -343,6 +373,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
                 assignPathAnimations: assignPathTracks,
                 assignPlayerTracks: assignPlayer,
                 assignTrackParents: assignParent,
+                abstractCustomEvents: abstractCustomEvents,
 
                 pointDefinitions: json.customData?.pointDefinitions ?? {},
                 customData: json.customData ?? {},
@@ -405,6 +436,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
             ...this.assignTrackParents,
             ...this.assignPlayerTracks,
             ...this.animateComponents,
+            ...this.abstractCustomEvents,
         ].map((x) => x.toJson(true))
             .sort(sortItems)
 
@@ -428,7 +460,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         if (animatedFog) {
             fogEnvironment ??= {
                 id: '[0]Environment',
-                lookupMethod: 'EndsWith'
+                lookupMethod: 'EndsWith',
             }
             fogEnvironment.track = 'ReMapper_Fog'
         }

@@ -56,6 +56,7 @@ export interface RMDifficulty {
     assignPathAnimations: CustomEventInternals.AssignPathAnimation[]
     assignPlayerTracks: CustomEventInternals.AssignPlayerToTrack[]
     assignTrackParents: CustomEventInternals.AssignTrackParent[]
+    abstractCustomEvents: CustomEventInternals.AbstractCustomEvent[]
 
     pointDefinitions: Record<string, unknown>
     customData: Record<string, unknown>
@@ -144,6 +145,7 @@ export abstract class AbstractDifficulty<
     assignPathAnimations: CustomEventInternals.AssignPathAnimation[]
     assignPlayerTracks: CustomEventInternals.AssignPlayerToTrack[]
     assignTrackParents: CustomEventInternals.AssignTrackParent[]
+    abstractCustomEvents: CustomEventInternals.AbstractCustomEvent[]
 
     pointDefinitions: Record<string, unknown>
     customData: Record<string, unknown>
@@ -194,6 +196,7 @@ export abstract class AbstractDifficulty<
         this.assignPathAnimations = inner.assignPathAnimations
         this.assignPlayerTracks = inner.assignPlayerTracks
         this.assignTrackParents = inner.assignTrackParents
+        this.abstractCustomEvents = inner.abstractCustomEvents
         
         this.pointDefinitions = inner.pointDefinitions
         this.customData = inner.customData

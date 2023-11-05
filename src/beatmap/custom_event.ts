@@ -1,6 +1,7 @@
 import { bsmap } from '../deps.ts'
 import * as CustomEventInternals from '../internals/custom_event.ts'
 import { EASE, TrackValue } from '../types/animation_types.ts'
+import { TJson } from '../types/util_types.ts'
 
 export type CustomEvent = CustomEventInternals.BaseCustomEvent<
     bsmap.v2.ICustomEvent,
@@ -247,6 +248,46 @@ export function animateComponent(
             track,
             duration,
             easing,
+        },
+    )
+}
+
+export function abstractCustomEvent(
+    time: number,
+    type: string,
+    data: TJson
+): CustomEventInternals.AbstractCustomEvent
+export function abstractCustomEvent(
+    ...params: ConstructorParameters<
+        typeof CustomEventInternals.AbstractCustomEvent
+    >
+): CustomEventInternals.AbstractCustomEvent
+export function abstractCustomEvent(
+    ...params:
+        | ConstructorParameters<typeof CustomEventInternals.AbstractCustomEvent>
+        | [
+            time: number,
+            type: string,
+            data: TJson
+        ]
+) {
+    const [first] = params
+
+    if (typeof first === 'object') {
+        return new CustomEventInternals.AbstractCustomEvent(
+            ...params as ConstructorParameters<
+                typeof CustomEventInternals.AbstractCustomEvent
+            >,
+        )
+    }
+
+    const [time, type, data] = params
+
+    return new CustomEventInternals.AbstractCustomEvent(
+        {
+            time: time as number,
+            type,
+            data
         },
     )
 }

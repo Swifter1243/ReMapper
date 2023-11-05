@@ -11,7 +11,7 @@ import { JsonWrapper } from '../types/beatmap_types.ts'
 import { copy } from '../utils/general.ts'
 import { AnimationPropertiesV3, animationToJson } from './animation.ts'
 import { ExcludedObjectFields, ObjectReplacements } from './object.ts'
-import { jsonPrune } from "../utils/json.ts";
+import { jsonPrune } from '../utils/json.ts'
 
 type CustomEventExclusions = {
     type: never
@@ -71,7 +71,7 @@ export abstract class BaseCustomEvent<
 
             const params = {
                 time: obj._time,
-                data: obj._type as unknown as TJson
+                data: obj._type as unknown as TJson,
             } as Params
 
             Object.assign(this, params)
@@ -179,7 +179,8 @@ export class AnimateTrack extends BaseCustomEvent<
     toJson(v3: true, prune?: boolean): bsmap.v3.ICustomEventAnimateTrack
     toJson(v3: false, prune?: boolean): bsmap.v2.ICustomEventAnimateTrack
     toJson(
-        v3: boolean, prune = true
+        v3: boolean,
+        prune = true,
     ): bsmap.v2.ICustomEventAnimateTrack | bsmap.v3.ICustomEventAnimateTrack {
         if (this.track.value === undefined) throw 'Track cannot be null!'
 
@@ -311,7 +312,8 @@ export class AssignPathAnimation extends BaseCustomEvent<
     toJson(v3: true, prune?: boolean): bsmap.v3.ICustomEventAssignPathAnimation
     toJson(v3: false, prune?: boolean): bsmap.v2.ICustomEventAssignPathAnimation
     toJson(
-        v3: boolean, prune = true
+        v3: boolean,
+        prune = true,
     ):
         | bsmap.v2.ICustomEventAssignPathAnimation
         | bsmap.v3.ICustomEventAssignPathAnimation {
@@ -420,7 +422,10 @@ export class AssignTrackParent extends BaseCustomEvent<
             const params = {
                 childrenTracks: getDataProp(obj._data, '_childrenTracks'),
                 parentTrack: getDataProp(obj._data, '_parentTrack'),
-                worldPositionStays: getDataProp(obj._data, '_worldPositionStays'),
+                worldPositionStays: getDataProp(
+                    obj._data,
+                    '_worldPositionStays',
+                ),
             } as Params
 
             Object.assign(this, params)
@@ -431,7 +436,8 @@ export class AssignTrackParent extends BaseCustomEvent<
     toJson(v3: true, prune?: boolean): bsmap.v3.ICustomEventAssignTrackParent
     toJson(v3: false, prune?: boolean): bsmap.v2.ICustomEventAssignTrackParent
     toJson(
-        v3: boolean, prune = true
+        v3: boolean,
+        prune = true,
     ):
         | bsmap.v2.ICustomEventAssignTrackParent
         | bsmap.v3.ICustomEventAssignTrackParent {
@@ -442,7 +448,7 @@ export class AssignTrackParent extends BaseCustomEvent<
                     childrenTracks: this.childrenTracks,
                     parentTrack: this.parentTrack,
                     worldPositionStays: this.worldPositionStays,
-                    ...this.data
+                    ...this.data,
                 },
                 t: 'AssignTrackParent',
             } satisfies bsmap.v3.ICustomEventAssignTrackParent
@@ -454,7 +460,7 @@ export class AssignTrackParent extends BaseCustomEvent<
                 _childrenTracks: this.childrenTracks,
                 _parentTrack: this.parentTrack,
                 _worldPositionStays: this.worldPositionStays,
-                ...this.data
+                ...this.data,
             },
             _time: this.time,
             _type: 'AssignTrackParent',
@@ -538,7 +544,8 @@ export class AssignPlayerToTrack extends BaseCustomEvent<
     toJson(v3: true, prune?: boolean): bsmap.v3.ICustomEventAssignPlayerToTrack
     toJson(v3: false, prune?: boolean): bsmap.v2.ICustomEventAssignPlayerToTrack
     toJson(
-        v3: boolean, prune = true
+        v3: boolean,
+        prune = true,
     ):
         | bsmap.v2.ICustomEventAssignPlayerToTrack
         | bsmap.v3.ICustomEventAssignPlayerToTrack {
@@ -548,7 +555,7 @@ export class AssignPlayerToTrack extends BaseCustomEvent<
                 d: {
                     track: this.track!,
                     target: this.target,
-                    ...this.data
+                    ...this.data,
                 },
                 t: 'AssignPlayerToTrack',
             } satisfies bsmap.v3.ICustomEventAssignPlayerToTrack
@@ -564,7 +571,7 @@ export class AssignPlayerToTrack extends BaseCustomEvent<
         const output = {
             _data: {
                 _track: this.track!,
-                ...this.data
+                ...this.data,
             },
             _time: this.time,
             _type: 'AssignPlayerToTrack',
@@ -686,9 +693,76 @@ export class AnimateComponent
                     lightID: this.lightID?.lightID,
                     type: this.lightID?.type,
                 },
-                ...this.data
+                ...this.data,
             },
         } satisfies bsmap.v3.ICustomEventAnimateComponent
         return prune ? jsonPrune(output) : output
+    }
+}
+
+export class AbstractCustomEvent extends BaseCustomEvent<
+    bsmap.v2.ICustomEvent,
+    bsmap.v3.ICustomEvent
+> {
+    /** Push this event to the difficulty.
+     * @param clone Whether this object will be copied before being pushed.
+     */
+    push(clone = true) {
+        getActiveDiff().abstractCustomEvents.push(clone ? copy(this) : this)
+        return this
+    }
+
+    fromJson(json: bsmap.v3.ICustomEvent, v3: true): this
+    fromJson(json: bsmap.v2.ICustomEvent, v3: false): this
+    fromJson(json: bsmap.v2.ICustomEvent | bsmap.v3.ICustomEvent, v3: boolean): this {
+        type Params = Fields<
+            SubclassExclusiveProps<
+                CustomEvent,
+                BaseCustomEvent<
+                    bsmap.v2.ICustomEvent,
+                    bsmap.v3.ICustomEvent
+                >
+            >
+        >
+
+        if (v3) {
+            const obj = json as bsmap.v3.ICustomEvent
+
+            const params = {
+                type: obj.t
+            } as Params
+
+            Object.assign(this, params)
+        } else {
+            const obj = json as bsmap.v2.ICustomEvent
+
+            const params = {
+                type: obj._type
+            } as Params
+
+            Object.assign(this, params)
+        }
+
+        return this
+    }
+
+    toJson(v3: true, prune?: boolean | undefined): bsmap.v3.ICustomEvent
+    toJson(v3: false, prune?: boolean | undefined): bsmap.v2.ICustomEvent
+    toJson(v3: boolean, prune?: boolean | undefined) {
+        if (v3) {
+            const result = {
+                b: this.time,
+                t: this.type as bsmap.v3.ICustomEvent['t'],
+                d: this.data as unknown as bsmap.v3.ICustomEvent['d']
+            } as bsmap.v3.ICustomEvent
+            return prune ? jsonPrune(result) : result
+        }
+
+        const result = {
+            _time: this.time,
+            _type: this.type as bsmap.v2.ICustomEvent['_type'],
+            _data: this.data as unknown as bsmap.v2.ICustomEvent['_data'],
+        } as bsmap.v2.ICustomEvent
+        return prune ? jsonPrune(result) : result
     }
 }
