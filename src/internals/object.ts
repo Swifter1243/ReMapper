@@ -45,6 +45,28 @@ export function defaultBoolean(
     return bool === defaultValue ? undefined : bool
 }
 
+export function getCDProp<
+    T extends Record<string, unknown>,
+    K extends keyof T,
+>(
+    obj: { customData?: T; _customData?: T },
+    prop: K,
+) {
+    if (obj._customData && obj._customData[prop] !== undefined) {
+        const result = obj._customData[prop]
+        delete obj._customData[prop]
+        return result as T[K]
+    }
+
+    if (obj.customData && obj.customData[prop] !== undefined) {
+        const result = obj.customData[prop]
+        delete obj.customData[prop]
+        return result as T[K]
+    }
+
+    return undefined
+}
+
 export type ObjectReplacements = {
     track?: TrackValue | Track
 }
@@ -93,13 +115,12 @@ export abstract class BaseObject<
     fromJson(json: TV2 | TV3, v3: boolean): this {
         type Params = ObjectFields<BaseObject<TV2, TV3>>
 
-        // TODO: Import custom data, exclude fields imported
-
         if (v3) {
             const obj = json as TV3
 
             const params = {
                 time: obj.b,
+                customData: obj.customData,
             } as Params
 
             Object.assign(this, params)
@@ -108,6 +129,7 @@ export abstract class BaseObject<
 
             const params = {
                 time: obj._time,
+                customData: obj._customData,
             } as Params
 
             Object.assign(this, params)
@@ -263,19 +285,19 @@ export abstract class BaseGameplayObject<
                 x: obj.x,
                 y: obj.y,
 
-                animation: obj.customData?.animation as AnimationPropertiesV3,
-                color: obj.customData?.color as ColorVec,
-                coordinates: obj.customData?.coordinates,
+                animation: getCDProp(obj, 'animation') as AnimationPropertiesV3,
+                color: getCDProp(obj, 'color') as ColorVec,
+                coordinates: getCDProp(obj, 'coordinates'),
                 interactable: importInvertedBoolean(
-                    obj.customData?.uninteractable,
+                    getCDProp(obj, 'uninteractable'),
                 ),
-                localRotation: obj.customData?.localRotation,
+                localRotation: getCDProp(obj, 'localRotation'),
                 worldRotation: typeof obj.customData?.worldRotation === 'number'
-                    ? [0, obj.customData.worldRotation, 0]
-                    : obj.customData?.worldRotation,
-                track: new Track(obj.customData?.track),
-                NJS: obj.customData?.noteJumpMovementSpeed,
-                offset: obj.customData?.noteJumpStartBeatOffset,
+                    ? [0, getCDProp(obj, 'worldRotation'), 0]
+                    : getCDProp(obj, 'worldRotation'),
+                track: new Track(getCDProp(obj, 'track')),
+                NJS: getCDProp(obj, 'noteJumpMovementSpeed'),
+                offset: getCDProp(obj, 'noteJumpStartBeatOffset'),
             } as Params
 
             Object.assign(this, params)
@@ -287,18 +309,18 @@ export abstract class BaseGameplayObject<
                 x: obj._lineIndex,
 
                 animation: jsonToAnimation(
-                    obj._customData?._animation as AnimationPropertiesV2 ?? {},
+                    getCDProp(obj, '_animation') as AnimationPropertiesV2 ?? {},
                 ),
-                color: obj._customData?._color as ColorVec,
-                coordinates: obj._customData?._position,
-                interactable: obj._customData?._interactable,
-                localRotation: obj._customData?._localRotation,
+                color: getCDProp(obj, '_color') as ColorVec,
+                coordinates: getCDProp(obj, '_position'),
+                interactable: getCDProp(obj, '_interactable'),
+                localRotation: getCDProp(obj, '_localRotation'),
                 worldRotation: typeof obj._customData?._rotation === 'number'
-                    ? [0, obj._customData._rotation, 0]
-                    : obj._customData?._rotation,
-                track: new Track(obj._customData?._track),
-                NJS: obj._customData?._noteJumpMovementSpeed,
-                offset: obj._customData?._noteJumpStartBeatOffset,
+                    ? [0, getCDProp(obj, '_rotation'), 0]
+                    : getCDProp(obj, '_rotation'),
+                track: new Track(getCDProp(obj, '_track')),
+                NJS: getCDProp(obj, '_noteJumpMovementSpeed'),
+                offset: getCDProp(obj, '_noteJumpStartBeatOffset'),
             } as Params
 
             Object.assign(this, params)
@@ -392,28 +414,28 @@ export abstract class BaseNote<
             const obj = json as TV3
 
             const params = {
-                flip: obj.customData?.flip,
+                flip: getCDProp(obj, 'flip'),
 
                 noteLook: importInvertedBoolean(
-                    obj.customData?.disableNoteLook,
+                    getCDProp(obj, 'disableNoteLook'),
                 ),
                 noteGravity: importInvertedBoolean(
-                    obj.customData?.disableNoteGravity,
+                    getCDProp(obj, 'disableNoteGravity'),
                 ),
-                spawnEffect: obj.customData?.spawnEffect,
+                spawnEffect: getCDProp(obj, 'spawnEffect'),
 
-                debris: importInvertedBoolean(obj.customData?.disableDebris),
+                debris: importInvertedBoolean(getCDProp(obj, 'disableDebris')),
                 // TODO: Badcut on bombs is incorrect.
                 speedBadCut: importInvertedBoolean(
-                    obj.customData?.disableBadCutSpeed,
+                    getCDProp(obj, 'disableBadCutSpeed'),
                 ),
                 directionBadCut: importInvertedBoolean(
-                    obj.customData?.disableBadCutDirection,
+                    getCDProp(obj, 'disableBadCutDirection'),
                 ),
                 saberTypeBadCut: importInvertedBoolean(
-                    obj.customData?.disableBadCutSaberType,
+                    getCDProp(obj, 'disableBadCutSaberType'),
                 ),
-                link: obj.customData?.link,
+                link: getCDProp(obj, 'link'),
             } as Params
 
             Object.assign(this, params)
@@ -422,18 +444,18 @@ export abstract class BaseNote<
             const obj = json as bsmap.v2.INote
 
             const params = {
-                flip: obj._customData?._flip,
+                flip: getCDProp(obj, '_flip'),
 
                 noteLook: importInvertedBoolean(
-                    obj._customData?._disableNoteLook,
+                    getCDProp(obj, '_disableNoteLook'),
                 ),
                 noteGravity: importInvertedBoolean(
-                    obj._customData?._disableNoteGravity,
+                    getCDProp(obj, '_disableNoteGravity'),
                 ),
                 spawnEffect: importInvertedBoolean(
-                    obj._customData?._disableSpawnEffect,
+                    getCDProp(obj, '_disableSpawnEffect'),
                 ),
-                fake: obj._customData?._fake,
+                fake: getCDProp(obj, '_fake'),
             } as Params
 
             // Walls in V2 don't have a "y" property
@@ -498,7 +520,7 @@ export abstract class BaseSliderObject<TV3 extends bsmap.v3.IBaseSlider>
             type: obj.c,
 
             headDirection: obj.d,
-            tailCoordinates: obj.customData?.tailCoordinates,
+            tailCoordinates: getCDProp(obj, 'tailCoordinates'),
             tailTime: obj.tb,
             tailX: obj.tx,
             tailY: obj.ty,

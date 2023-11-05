@@ -1,4 +1,4 @@
-// deno-lint-ignore-file no-explicit-any no-extra-semi
+// deno-lint-ignore-file no-explicit-any
 import { RawKeyframesVec3 } from '../types/animation_types.ts'
 import { RawGeometryMaterial } from '../types/environment_types.ts'
 import { activeDiff, getActiveDiff } from '../data/beatmap_handler.ts'
@@ -40,7 +40,6 @@ import { FILEPATH } from '../types/beatmap_types.ts'
 import { Vec3, Vec4 } from '../types/data_types.ts'
 import { copy } from '../utils/general.ts'
 import { Environment, Geometry } from '../internals/environment.ts'
-import { SingleKeyframe } from 'https://deno.land/x/remapper@2.1.0/src/animation.ts'
 import { adjustFog, environment, geometry, positionToV2 } from '../mod.ts'
 
 let modelSceneCount = 0
@@ -218,13 +217,13 @@ export class ModelScene {
                         for (let i = 0; i < x.pos.length; i++) {
                             let objPos = copy(
                                 x.pos[i],
-                            ) as SingleKeyframe
+                            ) as number[]
                             let objRot = copy(
                                 x.rot[i],
-                            ) as SingleKeyframe
+                            ) as number[]
                             let objScale = copy(
                                 x.scale[i],
-                            ) as SingleKeyframe
+                            ) as number[]
                             objPos.pop()
                             objRot.pop()
                             objScale.pop()

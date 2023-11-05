@@ -10,6 +10,7 @@ import {
     defaultBoolean,
     ExcludedObjectFields,
     exportInvertedBoolean,
+    getCDProp,
     importInvertedBoolean,
 } from './object.ts'
 
@@ -110,23 +111,23 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
         const params = {
             flip: obj.customData?.flip,
 
-            noteLook: importInvertedBoolean(obj.customData?.disableNoteLook),
+            noteLook: importInvertedBoolean(getCDProp(obj, 'disableNoteLook')),
             noteGravity: importInvertedBoolean(
-                obj.customData?.disableNoteGravity,
+                getCDProp(obj, 'disableNoteGravity'),
             ),
-            spawnEffect: obj.customData?.spawnEffect,
+            spawnEffect: getCDProp(obj, 'spawnEffect'),
 
-            debris: importInvertedBoolean(obj.customData?.disableDebris),
+            debris: importInvertedBoolean(getCDProp(obj, 'disableDebris')),
             speedBadCut: importInvertedBoolean(
-                obj.customData?.disableBadCutSpeed,
+                getCDProp(obj, 'disableBadCutSpeed'),
             ),
             directionBadCut: importInvertedBoolean(
-                obj.customData?.disableBadCutDirection,
+                getCDProp(obj, 'disableBadCutDirection'),
             ),
             saberTypeBadCut: importInvertedBoolean(
-                obj.customData?.disableBadCutSaberType,
+                getCDProp(obj, 'disableBadCutSaberType'),
             ),
-            link: obj.customData?.link,
+            link: getCDProp(obj, 'link'),
             links: obj.sc,
             squish: obj.s,
         } as Params

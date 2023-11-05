@@ -7,6 +7,7 @@ import {
     defaultBoolean,
     ExcludedObjectFields,
     exportInvertedBoolean,
+    getCDProp,
 } from './object.ts'
 import { Vec3 } from '../types/data_types.ts'
 import { copy } from '../utils/general.ts'
@@ -92,7 +93,7 @@ export class Wall
             const params = {
                 duration: obj.d,
                 height: obj.h,
-                scale: obj.customData?.size,
+                scale: getCDProp(obj, 'size'),
                 width: obj.w,
             } as Params
 
@@ -103,9 +104,9 @@ export class Wall
 
             const params = {
                 duration: obj._duration,
-                scale: obj._customData?._scale,
+                scale: getCDProp(obj, '_scale'),
                 width: obj._width,
-                fake: obj._customData?._fake,
+                fake: getCDProp(obj, '_fake'),
             } as Params
 
             Object.assign(this, params)

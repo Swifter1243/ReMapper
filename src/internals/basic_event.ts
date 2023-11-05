@@ -1,7 +1,7 @@
 import { EventAction, EventGroup } from '../data/constants.ts'
 import { bsmap } from '../deps.ts'
 import { EASE } from '../types/animation_types.ts'
-import { BaseObject, ExcludedObjectFields } from './object.ts'
+import { BaseObject, ExcludedObjectFields, getCDProp } from './object.ts'
 import { getActiveDiff } from '../data/beatmap_handler.ts'
 import { Fields, SubclassExclusiveProps } from '../types/util_types.ts'
 import { LightID } from '../types/environment_types.ts'
@@ -217,10 +217,10 @@ export class LightEvent<
             const obj = json as TV3
 
             const params = {
-                color: obj.customData?.color,
-                easing: obj.customData?.easing,
-                lerpType: obj.customData?.lerpType,
-                lightID: obj.customData?.lightID,
+                color: getCDProp(obj, 'color'),
+                easing: getCDProp(obj, 'easing'),
+                lerpType: getCDProp(obj, 'lerpType'),
+                lightID: getCDProp(obj, 'lightID'),
             } as Params
 
             Object.assign(this, params)
@@ -229,10 +229,10 @@ export class LightEvent<
             const obj = json as TV2
 
             const params = {
-                color: obj._customData?._color,
-                easing: obj._customData?._easing,
-                lerpType: obj._customData?._lerpType,
-                lightID: obj._customData?._lightID,
+                color: getCDProp(obj, '_color'),
+                easing: getCDProp(obj, '_easing'),
+                lerpType: getCDProp(obj, '_lerpType'),
+                lightID: getCDProp(obj, '_lightID'),
             } as Params
 
             Object.assign(this, params)
@@ -335,9 +335,9 @@ export class LaserSpeedEvent<
             const obj = json as TV3
 
             const params = {
-                direction: obj.customData?.direction,
-                lockRotation: obj.customData?.lockRotation,
-                speed: obj.customData?.speed,
+                direction: getCDProp(obj, 'direction'),
+                lockRotation: getCDProp(obj, 'lockRotation'),
+                speed: getCDProp(obj, 'speed'),
             } as Params
 
             Object.assign(this, params)
@@ -346,9 +346,9 @@ export class LaserSpeedEvent<
             const obj = json as TV2
 
             const params = {
-                direction: obj._customData?._direction,
-                lockRotation: obj._customData?._lockPosition,
-                speed: obj._customData?._preciseSpeed,
+                direction: getCDProp(obj, '_direction'),
+                lockRotation: getCDProp(obj, '_lockPosition'),
+                speed: getCDProp(obj, '_preciseSpeed'),
                 // TODO: Confirm if this is correct?
                 // _preciseSpeed vs _speed
             } as Params
@@ -440,8 +440,8 @@ export class RingZoomEvent
             const obj = json as bsmap.v3.IBasicEventRing
 
             const params = {
-                speed: obj.customData?.speed,
-                step: obj.customData?.step,
+                speed: getCDProp(obj, 'speed'),
+                step: getCDProp(obj, 'step'),
             } as Params
 
             Object.assign(this, params)
@@ -450,8 +450,8 @@ export class RingZoomEvent
             const obj = json as bsmap.v2.IEventZoom
 
             const params = {
-                speed: obj._customData?._speed,
-                step: obj._customData?._step,
+                speed: getCDProp(obj, '_speed'),
+                step: getCDProp(obj, '_step'),
             } as Params
 
             Object.assign(this, params)
@@ -559,12 +559,12 @@ export class RingSpinEvent
             const obj = json as bsmap.v3.IBasicEventRing
 
             const params = {
-                direction: obj.customData?.direction,
-                nameFilter: obj.customData?.nameFilter,
-                prop: obj.customData?.prop,
-                rotation: obj.customData?.rotation,
-                speed: obj.customData?.speed,
-                step: obj.customData?.step,
+                direction: getCDProp(obj, 'direction'),
+                nameFilter: getCDProp(obj, 'nameFilter'),
+                prop: getCDProp(obj, 'prop'),
+                rotation: getCDProp(obj, 'rotation'),
+                speed: getCDProp(obj, 'speed'),
+                step: getCDProp(obj, 'step'),
             } as Params
 
             Object.assign(this, params)
@@ -573,12 +573,12 @@ export class RingSpinEvent
             const obj = json as bsmap.v2.IEventRing
 
             const params = {
-                direction: obj._customData?._direction,
-                nameFilter: obj._customData?._nameFilter,
-                prop: obj._customData?._prop,
-                rotation: obj._customData?._rotation,
-                speed: obj._customData?._speed,
-                step: obj._customData?._step,
+                direction: getCDProp(obj, '_direction'),
+                nameFilter: getCDProp(obj, '_nameFilter'),
+                prop: getCDProp(obj, '_prop'),
+                rotation: getCDProp(obj, '_rotation'),
+                speed: getCDProp(obj, '_speed'),
+                step: getCDProp(obj, '_step'),
             } as Params
 
             Object.assign(this, params)

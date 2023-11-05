@@ -10,6 +10,7 @@ import {
     BaseSliderObject,
     ExcludedObjectFields,
     exportInvertedBoolean,
+    getCDProp,
     importInvertedBoolean,
 } from './object.ts'
 
@@ -82,10 +83,10 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
 
         const params = {
             anchorMode: obj.m,
-            flip: obj.customData?.flip,
+            flip: getCDProp(obj, 'flip'),
             headLength: obj.mu,
             noteGravity: importInvertedBoolean(
-                obj.customData?.disableNoteGravity,
+                getCDProp(obj, 'disableNoteGravity'),
             ),
             tailDirection: obj.tc,
             tailLength: obj.tmu,

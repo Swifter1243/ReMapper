@@ -2,7 +2,7 @@ import { EventGroup } from '../data/constants.ts'
 import { bsmap } from '../deps.ts'
 import { InverseRotationAction, RotationAction, copy, getActiveDiff, jsonPrune } from '../mod.ts'
 import { ObjectFields, SubclassExclusiveProps } from '../types/util_types.ts'
-import { BaseObject } from './object.ts'
+import { BaseObject, getCDProp } from './object.ts'
 
 export class RotationEvent
     extends BaseObject<bsmap.v2.IEventLaneRotation, bsmap.v3.IRotationEvent> {
@@ -68,7 +68,7 @@ export class RotationEvent
 
             const params = {
                 early: obj._type === EventGroup.EARLY_ROTATION,
-                rotation: obj._customData?._rotation ??
+                rotation: getCDProp(obj, '_rotation') ??
                     InverseRotationAction[
                         obj._value as keyof typeof InverseRotationAction
                     ],
