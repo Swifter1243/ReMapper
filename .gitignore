@@ -2,7 +2,7 @@ docs/
 dist/
 deno_cache/
 deno.lock
-test_map/
+test_map
 
 # Madge
 madge/image.png
