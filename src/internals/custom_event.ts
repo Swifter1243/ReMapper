@@ -17,6 +17,22 @@ type CustomEventExclusions = {
     type: never
 }
 
+function getDataProp<
+    T,
+    K extends keyof T,
+>(
+    obj: T,
+    prop: K,
+) {
+    if (obj[prop] !== undefined) {
+        const result = obj[prop]
+        delete obj[prop]
+        return result as T[K]
+    }
+
+    return undefined
+}
+
 export abstract class BaseCustomEvent<
     TV2 extends bsmap.v2.ICustomEvent,
     TV3 extends bsmap.v3.ICustomEvent,
@@ -41,13 +57,12 @@ export abstract class BaseCustomEvent<
     fromJson(json: TV2 | TV3, v3: boolean): this {
         type Params = Fields<BaseCustomEvent<TV2, TV3>>
 
-        // TODO: Import data
-
         if (v3) {
             const obj = json as TV3
 
             const params = {
                 time: obj.b,
+                data: obj.d as unknown as TJson,
             } as Params
 
             Object.assign(this, params)
@@ -56,6 +71,7 @@ export abstract class BaseCustomEvent<
 
             const params = {
                 time: obj._time,
+                data: obj._type as unknown as TJson
             } as Params
 
             Object.assign(this, params)
@@ -138,10 +154,10 @@ export class AnimateTrack extends BaseCustomEvent<
             const obj = json as bsmap.v3.ICustomEventAnimateTrack
 
             const params = {
-                duration: obj.d.duration,
-                easing: obj.d.easing,
-                repeat: obj.d.repeat,
-                track: new Track(obj.d.track),
+                duration: getDataProp(obj.d, 'duration'),
+                easing: getDataProp(obj.d, 'easing'),
+                repeat: getDataProp(obj.d, 'repeat'),
+                track: new Track(getDataProp(obj.d, 'track')),
             } as Params
 
             Object.assign(this, params)
@@ -150,9 +166,9 @@ export class AnimateTrack extends BaseCustomEvent<
             const obj = json as bsmap.v2.ICustomEventAnimateTrack
 
             const params = {
-                duration: obj._data._duration,
-                easing: obj._data._easing,
-                track: new Track(obj._data._track),
+                duration: getDataProp(obj._data, '_duration'),
+                easing: getDataProp(obj._data, '_easing'),
+                track: new Track(getDataProp(obj._data, '_track')),
             } as Params
 
             Object.assign(this, params)
@@ -270,9 +286,9 @@ export class AssignPathAnimation extends BaseCustomEvent<
 
             const params = {
                 // @ts-ignore 2322
-                duration: obj.d.duration,
-                easing: obj.d.easing,
-                track: new Track(obj.d.track),
+                duration: getDataProp(obj.d, 'duration') as number,
+                easing: getDataProp(obj.d, 'easing'),
+                track: new Track(getDataProp(obj.d, 'track')),
             } as Params
 
             Object.assign(this, params)
@@ -282,9 +298,9 @@ export class AssignPathAnimation extends BaseCustomEvent<
 
             const params = {
                 // @ts-ignore 2322
-                duration: obj._data._duration,
-                easing: obj._data._easing,
-                track: new Track(obj._data._track),
+                duration: getDataProp(obj._data, '_duration') as number,
+                easing: getDataProp(obj._data, '_easing'),
+                track: new Track(getDataProp(obj._data, '_track')),
             } as Params
 
             Object.assign(this, params)
@@ -391,9 +407,9 @@ export class AssignTrackParent extends BaseCustomEvent<
             const obj = json as bsmap.v3.ICustomEventAssignTrackParent
 
             const params = {
-                childrenTracks: obj.d.childrenTracks,
-                parentTrack: obj.d.parentTrack,
-                worldPositionStays: obj.d.worldPositionStays,
+                childrenTracks: getDataProp(obj.d, 'childrenTracks'),
+                parentTrack: getDataProp(obj.d, 'parentTrack'),
+                worldPositionStays: getDataProp(obj.d, 'worldPositionStays'),
             } as Params
 
             Object.assign(this, params)
@@ -402,9 +418,9 @@ export class AssignTrackParent extends BaseCustomEvent<
             const obj = json as bsmap.v2.ICustomEventAssignTrackParent
 
             const params = {
-                childrenTracks: obj._data._childrenTracks,
-                parentTrack: obj._data._parentTrack,
-                worldPositionStays: obj._data._worldPositionStays,
+                childrenTracks: getDataProp(obj._data, '_childrenTracks'),
+                parentTrack: getDataProp(obj._data, '_parentTrack'),
+                worldPositionStays: getDataProp(obj._data, '_worldPositionStays'),
             } as Params
 
             Object.assign(this, params)
@@ -426,6 +442,7 @@ export class AssignTrackParent extends BaseCustomEvent<
                     childrenTracks: this.childrenTracks,
                     parentTrack: this.parentTrack,
                     worldPositionStays: this.worldPositionStays,
+                    ...this.data
                 },
                 t: 'AssignTrackParent',
             } satisfies bsmap.v3.ICustomEventAssignTrackParent
@@ -437,6 +454,7 @@ export class AssignTrackParent extends BaseCustomEvent<
                 _childrenTracks: this.childrenTracks,
                 _parentTrack: this.parentTrack,
                 _worldPositionStays: this.worldPositionStays,
+                ...this.data
             },
             _time: this.time,
             _type: 'AssignTrackParent',
@@ -499,8 +517,8 @@ export class AssignPlayerToTrack extends BaseCustomEvent<
             const obj = json as bsmap.v3.ICustomEventAssignPlayerToTrack
 
             const params = {
-                track: obj.d.track,
-                target: obj.d.target,
+                track: getDataProp(obj.d, 'track'),
+                target: getDataProp(obj.d, 'target'),
             } as Params
 
             Object.assign(this, params)
@@ -509,7 +527,7 @@ export class AssignPlayerToTrack extends BaseCustomEvent<
             const obj = json as bsmap.v2.ICustomEventAssignPlayerToTrack
 
             const params = {
-                track: obj._data._track,
+                track: getDataProp(obj._data, '_track'),
             } as Params
 
             Object.assign(this, params)
@@ -530,6 +548,7 @@ export class AssignPlayerToTrack extends BaseCustomEvent<
                 d: {
                     track: this.track!,
                     target: this.target,
+                    ...this.data
                 },
                 t: 'AssignPlayerToTrack',
             } satisfies bsmap.v3.ICustomEventAssignPlayerToTrack
@@ -545,6 +564,7 @@ export class AssignPlayerToTrack extends BaseCustomEvent<
         const output = {
             _data: {
                 _track: this.track!,
+                ...this.data
             },
             _time: this.time,
             _type: 'AssignPlayerToTrack',
@@ -624,13 +644,13 @@ export class AnimateComponent
             const obj = json as bsmap.v3.ICustomEventAnimateComponent
 
             const params = {
-                duration: obj.d.duration,
-                easing: obj.d.easing,
-                fog: obj.d.BloomFogEnvironment,
+                duration: getDataProp(obj.d, 'duration'),
+                easing: getDataProp(obj.d, 'easing'),
+                fog: getDataProp(obj.d, 'BloomFogEnvironment'),
                 // @ts-ignore 2322
-                lightID: obj.d.ILightWithId,
-                lightMultiplier: obj.d.TubeBloomPrePassLight,
-                track: new Track(obj.d.track),
+                lightID: getDataProp(obj.d, 'ILightWithID'),
+                lightMultiplier: getDataProp(obj.d, 'TubeBloomPrePassLight'),
+                track: new Track(getDataProp(obj.d, 'track')),
             } as Params
 
             Object.assign(this, params)
@@ -666,6 +686,7 @@ export class AnimateComponent
                     lightID: this.lightID?.lightID,
                     type: this.lightID?.type,
                 },
+                ...this.data
             },
         } satisfies bsmap.v3.ICustomEventAnimateComponent
         return prune ? jsonPrune(output) : output
