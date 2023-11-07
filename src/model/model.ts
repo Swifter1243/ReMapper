@@ -1,4 +1,4 @@
-// deno-lint-ignore-file no-explicit-any
+// deno-lint-ignore-file no-explicit-any no-extra-semi
 import { RawKeyframesVec3 } from '../types/animation_types.ts'
 import { RawGeometryMaterial } from '../types/environment_types.ts'
 import { activeDiff, getActiveDiff } from '../data/beatmap_handler.ts'
@@ -37,10 +37,10 @@ import {
     mirrorAnimation,
 } from '../animation/animation_utils.ts'
 import { FILEPATH } from '../types/beatmap_types.ts'
-import { Vec3, Vec4 } from '../types/data_types.ts'
+import { ColorVec, Vec3, Vec4 } from '../types/data_types.ts'
 import { copy } from '../utils/general.ts'
 import { Environment, Geometry } from '../internals/environment.ts'
-import { adjustFog, environment, geometry, positionToV2 } from '../mod.ts'
+import { adjustFog, DeepReadonly, environment, geometry, positionToV2 } from '../mod.ts'
 
 let modelSceneCount = 0
 let noYeet = true
@@ -398,7 +398,7 @@ export class ModelScene {
         index: number,
     ) => object ? `modelScene${this.trackID}_${track}_${index}` : track
 
-    private getFirstValues(keyframes: RawKeyframesVec3) {
+    private getFirstValues(keyframes: DeepReadonly<RawKeyframesVec3>) {
         const complexTransform = complexifyArray(copy(keyframes))[0]
         return [
             complexTransform[0],
@@ -407,7 +407,7 @@ export class ModelScene {
         ] as Vec3
     }
 
-    private getFirstTransform(obj: ModelObject) {
+    private getFirstTransform(obj: DeepReadonly<ModelObject>) {
         return {
             pos: this.getFirstValues(obj.pos),
             rot: this.getFirstValues(obj.rot),
@@ -481,7 +481,7 @@ export class ModelScene {
                             typeof object.material !== 'string' &&
                             !object.material.color &&
                             x.color
-                        ) object.material.color = x.color
+                        ) object.material.color = copy(x.color) as ColorVec
 
                         object.track.value = track
                         object.position = pos
@@ -492,9 +492,9 @@ export class ModelScene {
                     } // Creating event for assigned
                     else {
                         const event = animateTrack(0, track)
-                        event.animation.position = x.pos
-                        event.animation.rotation = x.rot
-                        event.animation.scale = x.scale
+                        event.animation.position = x.pos as RawKeyframesVec3
+                        event.animation.rotation = x.rot as RawKeyframesVec3
+                        event.animation.scale = x.scale as RawKeyframesVec3
                         if (forAssigned) forAssigned(event)
                         activeDiff.animateTracks.push(event)
                     }
@@ -629,17 +629,18 @@ export class ModelScene {
                                 !group.object.material.color &&
                                 x.color
                             ) {
-                                x.color[3] ??= 1
+                                const color = x.color as Vec4
+                                color[3] ??= 1
                                 animatedMaterials.push(track)
 
                                 if (firstInitializing) {
-                                    objectInfo.initialPos![i].color = x.color
+                                    objectInfo.initialPos![i].color = color
                                 } else {
                                     const event = animateTrack(
                                         time,
                                         track + '_material',
                                     )
-                                    event.animation.color = x.color as Vec4
+                                    event.animation.color = color
                                     event.push(false)
                                 }
                             }
@@ -667,9 +668,9 @@ export class ModelScene {
                             }
 
                             event.time = time + start
-                            event.animation.position = x.pos
-                            event.animation.rotation = x.rot
-                            event.animation.scale = x.scale
+                            event.animation.position = x.pos as RawKeyframesVec3
+                            event.animation.rotation = x.rot as RawKeyframesVec3
+                            event.animation.scale = x.scale as RawKeyframesVec3
 
                             if (
                                 typeof input === 'object' &&

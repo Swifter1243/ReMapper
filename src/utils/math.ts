@@ -6,6 +6,7 @@ import { EASE } from '../types/animation_types.ts'
 import { arrAdd, arrMul, arrSubtract, toArr } from './array_utils.ts'
 import { Bounds, Transform, Vec3 } from '../types/data_types.ts'
 import { copy } from './general.ts'
+import { DeepReadonly } from '../types/util_types.ts'
 
 export const EPSILON = 1e-3
 
@@ -192,7 +193,7 @@ export function getDistance<T extends [] | number[]>(
  */
 export function magnitude(vector: number[]) {
     let sum = 0
-    vector.forEach(x => sum += x * x)
+    vector.forEach((x) => sum += x * x)
     return Math.sqrt(sum)
 }
 
@@ -203,15 +204,17 @@ export function magnitude(vector: number[]) {
  * @param anchor Location of the rotation anchor.
  */
 export function rotatePoint(
-    point: Vec3,
-    rotation: Vec3,
-    anchor: Vec3 = [0, 0, 0],
+    point: Readonly<Vec3>,
+    rotation: Readonly<Vec3>,
+    anchor: Readonly<Vec3> = [0, 0, 0],
 ) {
-    const mathRot = toRadians(rotation)
-    const vector = toThreeVec3(arrAdd(point, arrMul(anchor, -1))).applyEuler(
+    const mathRot = toRadians(rotation as Vec3)
+    const vector = toThreeVec3(
+        arrAdd(point as Vec3, arrMul(anchor as Vec3, -1)),
+    ).applyEuler(
         new three.Euler(...mathRot, 'YXZ'),
     )
-    return arrAdd(toArr(vector), anchor) as Vec3
+    return arrAdd(toArr(vector), anchor as Vec3)
 }
 
 /**
@@ -219,7 +222,7 @@ export function rotatePoint(
  * @param rotation Rotation to apply.
  * @param length Length of the vector.
  */
-export function rotateVector(rotation: Vec3, length: number) {
+export function rotateVector(rotation: Readonly<Vec3>, length: number) {
     return rotatePoint([0, -length, 0], rotation)
 }
 
@@ -227,7 +230,7 @@ export function rotateVector(rotation: Vec3, length: number) {
  * Convert an array of numbers from degrees to radians.
  * @param values Input array of numbers.
  */
-export function toRadians<T extends number | number[]>(values: T) {
+export function toRadians<T extends number | [] | number[]>(values: T) {
     const toRadNum = (x: number) => x * (Math.PI / 180)
 
     if (typeof values === 'number') {
@@ -241,7 +244,7 @@ export function toRadians<T extends number | number[]>(values: T) {
  * Convert an array of numbers from radians to degrees.
  * @param values Input array of numbers.
  */
-export function toDegrees<T extends number | number[]>(values: T) {
+export function toDegrees<T extends number | [] | number[]>(values: T) {
     const toDegreesNum = (x: number) => x * (180 / Math.PI)
 
     if (typeof values === 'number') {
@@ -255,26 +258,27 @@ export function toDegrees<T extends number | number[]>(values: T) {
  * Converts a three number array to three Vector3.
  * @param v Array to convert.
  */
-export const toThreeVec3 = (v: Vec3) => new three.Vector3(...v)
+export const toThreeVec3 = (v: Readonly<Vec3>) => new three.Vector3(...v)
 
 /**
  * Converts a three number array to three Euler.
  * @param v Array to convert.
  */
-export const toThreeEuler = (v: Vec3) => new three.Euler(...toRadians(v), 'YXZ')
+export const toThreeEuler = (v: Readonly<Vec3>) =>
+    new three.Euler(...toRadians(v as Vec3), 'YXZ')
 
 /**
  * Converts a three number array to three Quaternion.
  * @param v Array to convert.
  */
-export const toThreeQuaternion = (v: Vec3) =>
+export const toThreeQuaternion = (v: Readonly<Vec3>) =>
     new three.Quaternion().setFromEuler(toThreeEuler(v))
 
 /**
  * Takes a transformation and converts it to matrix.
  * @param transform Transform to convert.
  */
-export function getMatrixFromTransform(transform: Transform) {
+export function getMatrixFromTransform(transform: DeepReadonly<Transform>) {
     const m = new three.Matrix4()
     const pos = transform.pos ?? [0, 0, 0]
     const rot = transform.rot ?? [0, 0, 0]
@@ -308,8 +312,8 @@ export function getTransformFromMatrix(matrix: three.Matrix4) {
  * @returns
  */
 export function combineTransforms(
-    target: Readonly<Transform>,
-    transform: Readonly<Transform>,
+    target: DeepReadonly<Transform>,
+    transform: DeepReadonly<Transform>,
     anchor: Vec3 = [0, 0, 0],
 ) {
     const newTarget = copy(target) as Transform
@@ -334,7 +338,9 @@ export function combineTransforms(
  * Gets information about the bounding box of a box or a bunch of boxes.
  * @param boxes Can be one box or an array of boxes.
  */
-export function getBoxBounds(boxes: Transform | Transform[]): Bounds {
+export function getBoxBounds(
+    boxes: DeepReadonly<Transform> | DeepReadonly<Transform>[],
+): Bounds {
     let lowBound: Vec3 | undefined
     let highBound: Vec3 | undefined
 
@@ -359,7 +365,7 @@ export function getBoxBounds(boxes: Transform | Transform[]): Bounds {
         corners.forEach((c) => {
             c = c.map((x, i) => (x / 2) * scale[i]) as Vec3
             c = rotatePoint(c, rot)
-            c = arrAdd(c, pos)
+            c = arrAdd(c, pos as Vec3)
 
             if (lowBound === undefined) {
                 lowBound = copy(c)

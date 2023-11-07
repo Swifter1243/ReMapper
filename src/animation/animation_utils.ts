@@ -30,7 +30,7 @@ import {
 } from '../utils/math.ts'
 import { optimizeKeyframes, OptimizeSettings } from './anim_optimizer.ts'
 
-import { NumberTuple } from '../types/util_types.ts'
+import { DeepReadonly, NumberTuple } from '../types/util_types.ts'
 import { TransformKeyframe, Vec3, Vec4 } from '../types/data_types.ts'
 import { copy } from '../utils/general.ts'
 import {
@@ -52,7 +52,7 @@ import { lerpHSV } from '../data/color.ts'
  * @param array The keyframe or array of keyframes.
  */
 export function complexifyArray<T extends NumberTuple>(
-    array: RawKeyframesAbstract<T>,
+    array: DeepReadonly<RawKeyframesAbstract<T>> | RawKeyframesAbstract<T>,
 ): ComplexKeyframesAbstract<T> {
     if (!isSimple(array)) return array as ComplexKeyframesAbstract<T>
     return [[...array, 0]] as ComplexKeyframesAbstract<T>
@@ -288,9 +288,9 @@ export function combineAnimations(
  */
 export function bakeAnimation(
     animation: {
-        pos?: RawKeyframesVec3
-        rot?: RawKeyframesVec3
-        scale?: RawKeyframesVec3
+        pos?: DeepReadonly<RawKeyframesVec3>
+        rot?: DeepReadonly<RawKeyframesVec3>
+        scale?: DeepReadonly<RawKeyframesVec3>
     },
     forKeyframe?: (transform: TransformKeyframe) => void,
     animFreq?: number,
@@ -309,7 +309,7 @@ export function bakeAnimation(
         scale: <ComplexKeyframesVec3> [],
     }
 
-    function getDomain(arr: RawKeyframesAny) {
+    function getDomain(arr: DeepReadonly<RawKeyframesAny>) {
         const newArr = complexifyArray<[number] | Vec3 | Vec4>(arr)
 
         let min = 1

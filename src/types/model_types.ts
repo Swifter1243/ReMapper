@@ -7,6 +7,7 @@ import type * as EnvironmentInternals from '../internals/environment.ts'
 
 import { FILEPATH } from './beatmap_types.ts'
 import { ColorVec, Transform, Vec3 } from './data_types.ts'
+import { DeepReadonly } from "./util_types.ts";
 
 /** Objects that are allowed to be spawned with a ModelScene. */
 export type GroupObjectTypes =
@@ -26,7 +27,7 @@ export type StaticOptions = {
      Be careful when mutating these, as cached objects are stored across script executions. */
     objects?: (arr: ReadonlyModel) => void
     /** Recache the objects when information in this array changes. Only works for path input. */
-    processing?: any
+    processing?: unknown
     /** Transform the objects. */
     transform?: Transform & {
         anchor?: Vec3
@@ -70,7 +71,16 @@ export interface ModelObject {
     track?: string
 }
 
-export type ReadonlyModel = ReadonlyArray<Readonly<ModelObject>>
+export type TextObject = {
+    pos: Vec3
+    rot: Vec3
+    scale: Vec3
+    color?: ColorVec
+    track?: string
+}
+
+export type ReadonlyModel = DeepReadonly<ModelObject[]>
+export type ReadonlyText = DeepReadonly<TextObject[]>
 
 export type Duration = number | undefined
 export type AnimationStart = number | undefined

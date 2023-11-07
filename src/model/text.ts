@@ -5,15 +5,9 @@ import {OptimizeSettings} from "../animation/anim_optimizer.ts";
 import {Wall} from "../internals/wall.ts";
 import {modelToWall} from "./wall.ts";
 import {getModel} from "./model.ts";
-import {Bounds, ColorVec, Transform, Vec3} from "../types/data_types.ts";
-
-type TextObject = {
-    pos: Vec3
-    rot: Vec3
-    scale: Vec3
-    color?: ColorVec
-    track?: string
-}
+import {Bounds, Transform, Vec3} from "../types/data_types.ts";
+import { ReadonlyText, TextObject } from "../types/model_types.ts";
+import { copy } from "../utils/general.ts";
 
 export class Text {
     /** How the text will be anchored horizontally. */
@@ -35,7 +29,7 @@ export class Text {
     /** A scalar of the letter spacing which is used as the width of a space. */
     wordSpacing = 0.8
     /** The model data of the text. */
-    model: TextObject[] = []
+    model: ReadonlyText = []
 
     /**
      * An interface to generate objects from text.
@@ -52,9 +46,9 @@ export class Text {
      */
     async import(input: string | TextObject[]) {
         if (typeof input === 'string') {
-            this.model = await getModel(input) as TextObject[]
+            this.model = await getModel(input) as ReadonlyText
         } else this.model = input
-        const bounds = getBoxBounds(this.model)
+        const bounds = getBoxBounds(this.model as TextObject[])
         this.modelHeight = bounds.highBound[1]
     }
 
@@ -64,14 +58,19 @@ export class Text {
      */
     toObjects(text: string) {
         const letters: Record<string, {
-            model: TextObject[]
+            model: ReadonlyText
             bounds: Bounds
         }> = {}
-        const model: TextObject[] = []
+        
+        const model: {
+            pos: Vec3,
+            rot: Readonly<Vec3>,
+            scale: Readonly<Vec3>
+        }[] = []
 
         function getLetter(char: string, self: Text) {
             if (letters[char]) return letters[char]
-            const letterModel: TextObject[] = self.model.filter((x) =>
+            const letterModel = self.model.filter((x) =>
                 x.track === char
             )
             if (letterModel.length === 0) return undefined
@@ -99,7 +98,7 @@ export class Text {
 
             letter.model.forEach((x) => {
                 const letterModel = {
-                    pos: x.pos,
+                    pos: copy(x.pos) as Vec3,
                     rot: x.rot,
                     scale: x.scale,
                 }
@@ -140,7 +139,7 @@ export class Text {
             if (this.verticalAnchor === 'Top') x.pos[1] -= this.height
         })
 
-        return model
+        return model as ReadonlyText
     }
 
     /**

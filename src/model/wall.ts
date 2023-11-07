@@ -22,7 +22,7 @@ import { Wall } from '../internals/wall.ts'
 
 import { getModel } from './model.ts'
 import { ModelObject, ReadonlyModel } from '../types/model_types.ts'
-import { Vec3 } from '../types/data_types.ts'
+import { ColorVec, Vec3 } from '../types/data_types.ts'
 import { copy } from '../utils/general.ts'
 import { getKeyframeTime, isSimple } from '../animation/keyframe.ts'
 import { getActiveDiff } from '../mod.ts'
@@ -193,8 +193,8 @@ export async function modelToWall(
             )
         } else {
             objects = input.map((x, i) => {
-                const o = copy(x)
-                const animated = isAnimated(x)
+                const o = copy(x) as ModelObject
+                const animated = isAnimated(o)
     
                 const anim = bakeAnimation(
                     {
@@ -226,16 +226,16 @@ export async function modelToWall(
         objects.forEach((x, i) => {
             const o = copy(w)
     
-            o.animation.definitePosition = x.pos
-            if (x.color) o.color = x.color
+            o.animation.definitePosition = copy(x.pos) as RawKeyframesVec3
+            if (x.color) o.color = copy(x.color) as ColorVec
     
-            if (isSimple(x.rot)) o.localRotation = x.rot as Vec3
-            else o.animation.localRotation = x.rot
+            if (isSimple(x.rot)) o.localRotation = copy(x.rot) as Vec3
+            else o.animation.localRotation = copy(x.rot) as RawKeyframesVec3
     
-            if (isSimple(x.scale)) o.scale = x.scale as Vec3
+            if (isSimple(x.scale)) o.scale = copy(x.scale) as Vec3
             else {
                 o.scale = [1, 1, 1]
-                o.animation.scale = x.scale
+                o.animation.scale = copy(x.scale) as RawKeyframesVec3
             }
     
             distributeWall(o, i, objects.length)
