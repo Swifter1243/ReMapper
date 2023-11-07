@@ -59,7 +59,8 @@ export async function collectBeatmapFiles(
         for (let m = 0; m < set._difficultyBeatmaps.length; m++) {
             const map = set._difficultyBeatmaps[m]
             let passed = true
-            excludeDiffs.forEach(async (d) => {
+
+            await Promise.all(excludeDiffs.map(async (d) => {
                 if (
                     map._beatmapFilename ===
                         (await parseFilePath(d, '.dat')).path
@@ -68,7 +69,7 @@ export async function collectBeatmapFiles(
                     m--
                     passed = false
                 }
-            })
+            }))
 
             if (passed) unsanitizedFiles.push(map._beatmapFilename)
         }
