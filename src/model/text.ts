@@ -1,35 +1,50 @@
-import {combineTransforms, getBoxBounds} from "../utils/math.ts";
+import { combineTransforms, getBoxBounds } from '../utils/math.ts'
 
-import {OptimizeSettings} from "../animation/anim_optimizer.ts";
+import { OptimizeSettings } from '../animation/anim_optimizer.ts'
 
-import {Wall} from "../internals/wall.ts";
-import {modelToWall} from "./wall.ts";
-import {getModel} from "./model.ts";
-import {Bounds, Transform, Vec3} from "../types/data_types.ts";
-import { ReadonlyText, TextObject } from "../types/model_types.ts";
-import { copy } from "../utils/general.ts";
+import { Wall } from '../internals/wall.ts'
+import { modelToWall } from './wall.ts'
+import { getModel } from './model.ts'
+import { Bounds, Transform, Vec3 } from '../types/data_types.ts'
+import { ReadonlyText, TextObject } from '../types/model_types.ts'
+import { copy } from '../utils/general.ts'
+import { getActiveDiff } from '../mod.ts'
 
-export class Text {
+interface TextInfo {
     /** How the text will be anchored horizontally. */
-    horizontalAnchor: 'Left' | 'Center' | 'Right' = 'Center'
+    horizontalAnchor: 'Left' | 'Center' | 'Right'
     /** How the text will be anchored vertically. */
-    verticalAnchor: 'Top' | 'Center' | 'Bottom' = 'Bottom'
+    verticalAnchor: 'Top' | 'Center' | 'Bottom'
     /** The position of the text box. */
-    position: Vec3 | undefined = undefined
+    position: Vec3 | undefined
     /** The rotation of the text box. */
-    rotation: Vec3 | undefined = undefined
+    rotation: Vec3 | undefined
     /** The scale of the text box. */
-    scale: Vec3 | undefined = undefined
+    scale: Vec3 | undefined
     /** The height of the text box. */
-    height = 2
-    /** The height of the text model. Generated from input. */
-    modelHeight = 0
+    height: number
     /** A scalar of the model height which is used to space letters. */
-    letterSpacing = 0.8
+    letterSpacing: number
     /** A scalar of the letter spacing which is used as the width of a space. */
+    wordSpacing: number
+}
+
+export class Text implements TextInfo {
+    horizontalAnchor: 'Left' | 'Center' | 'Right' = 'Center'
+    verticalAnchor: 'Top' | 'Center' | 'Bottom' = 'Bottom'
+    position: Vec3 | undefined = undefined
+    rotation: Vec3 | undefined = undefined
+    scale: Vec3 | undefined = undefined
+    height = 2
+    letterSpacing = 0.8
     wordSpacing = 0.8
+
     /** The model data of the text. */
     model: ReadonlyText = []
+    /** The height of the text model. Generated from input. */
+    modelHeight = 0
+
+    importPromise: Promise<void>
 
     /**
      * An interface to generate objects from text.
@@ -37,7 +52,7 @@ export class Text {
      * @param input The model data of the text. Can be either a path to a model or a collection of objects.
      */
     constructor(input: string | TextObject[]) {
-        this.import(input)
+        this.importPromise = this.import(input)
     }
 
     /**
@@ -56,23 +71,34 @@ export class Text {
      * Generate an array of objects containing model data for a string of text.
      * @param text The string of text to generate.
      */
-    toObjects(text: string) {
+    async toObjects(text: string) {
+        const info: TextInfo = {
+            height: this.height,
+            horizontalAnchor: this.horizontalAnchor,
+            letterSpacing: this.letterSpacing,
+            position: copy(this.position),
+            rotation: copy(this.rotation),
+            scale: copy(this.scale),
+            verticalAnchor: this.verticalAnchor,
+            wordSpacing: this.wordSpacing,
+        }
+
+        await this.importPromise
+
         const letters: Record<string, {
             model: ReadonlyText
             bounds: Bounds
         }> = {}
-        
+
         const model: {
-            pos: Vec3,
-            rot: Readonly<Vec3>,
+            pos: Vec3
+            rot: Readonly<Vec3>
             scale: Readonly<Vec3>
         }[] = []
 
         function getLetter(char: string, self: Text) {
             if (letters[char]) return letters[char]
-            const letterModel = self.model.filter((x) =>
-                x.track === char
-            )
+            const letterModel = self.model.filter((x) => x.track === char)
             if (letterModel.length === 0) return undefined
 
             letters[char] = {
@@ -83,13 +109,13 @@ export class Text {
         }
 
         let length = 0
-        const letterWidth = this.modelHeight * this.letterSpacing
+        const letterWidth = this.modelHeight * info.letterSpacing
 
         for (let i = 0; i < text.length; i++) {
             const char = text[i]
 
             if (char === ' ') {
-                length += letterWidth * this.wordSpacing
+                length += letterWidth * info.wordSpacing
                 continue
             }
 
@@ -111,19 +137,19 @@ export class Text {
             length += letterWidth
         }
 
-        const scalar = this.height / this.modelHeight
+        const scalar = info.height / this.modelHeight
         let transform: undefined | Transform = undefined
-        if (this.position || this.rotation || this.scale) {
+        if (info.position || info.rotation || info.scale) {
             transform = {
-                pos: this.position,
-                rot: this.rotation,
-                scale: this.scale,
+                pos: info.position,
+                rot: info.rotation,
+                scale: info.scale,
             }
         }
 
         model.forEach((x) => {
-            if (this.horizontalAnchor === 'Center') x.pos[0] -= length / 2
-            if (this.horizontalAnchor === 'Right') x.pos[0] -= length
+            if (info.horizontalAnchor === 'Center') x.pos[0] -= length / 2
+            if (info.horizontalAnchor === 'Right') x.pos[0] -= length
 
             x.pos = x.pos.map((y) => y * scalar) as Vec3
             x.scale = x.scale.map((y) => y * scalar) as Vec3
@@ -135,8 +161,8 @@ export class Text {
                 x.scale = combined.scale
             }
 
-            if (this.verticalAnchor === 'Center') x.pos[1] -= this.height / 2
-            if (this.verticalAnchor === 'Top') x.pos[1] -= this.height
+            if (info.verticalAnchor === 'Center') x.pos[1] -= info.height / 2
+            if (info.verticalAnchor === 'Top') x.pos[1] -= info.height
         })
 
         return model as ReadonlyText
@@ -153,7 +179,7 @@ export class Text {
      * @param animFreq The frequency for the animation baking (if using array of objects).
      * @param animOptimizer The optimizer for the animation baking (if using array of objects).
      */
-    toWalls(
+    async toWalls(
         text: string,
         start: number,
         end: number,
@@ -162,15 +188,23 @@ export class Text {
         animFreq?: number,
         animOptimizer = new OptimizeSettings(),
     ) {
-        const model = this.toObjects(text)
-        modelToWall(
-            model,
-            start,
-            end,
-            wall,
-            distribution,
-            animFreq,
-            animOptimizer,
-        )
+        await getActiveDiff().runAsync(async () => {
+            const model = await this.toObjects(text)
+            modelToWall(
+                model,
+                start,
+                end,
+                wall,
+                distribution,
+                animFreq,
+                animOptimizer,
+            )
+        })
     }
+}
+
+export function text(
+    ...params: ConstructorParameters<typeof Text>
+): Text {
+    return new Text(...params)
 }
