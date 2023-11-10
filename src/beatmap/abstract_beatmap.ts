@@ -35,7 +35,7 @@ import { FogEvent } from './fog.ts'
 
 export interface RMDifficulty {
     version: bsmap.v2.IDifficulty['_version'] | bsmap.v3.IDifficulty['version']
-    v3: boolean,
+    v3: boolean
 
     notes: NoteInternals.Note[]
     bombs: NoteInternals.Bomb[]
@@ -121,6 +121,7 @@ export abstract class AbstractDifficulty<
     relativeMapFile: DIFFNAME
     private postProcesses = new Map<number, PostProcessFn[]>()
     awaitingCompletion = new Set<Promise<unknown>>()
+    savePromise?: Promise<void>
 
     // Initialized by constructor using Object.assign
     version: bsmap.v2.IDifficulty['_version'] | bsmap.v3.IDifficulty['version']
@@ -182,7 +183,7 @@ export abstract class AbstractDifficulty<
         this.arcs = inner.arcs
         this.chains = inner.chains
         this.walls = inner.walls
-        
+
         this.lightEvents = inner.lightEvents
         this.laserSpeedEvents = inner.laserSpeedEvents
         this.ringZoomEvents = inner.ringZoomEvents
@@ -197,7 +198,7 @@ export abstract class AbstractDifficulty<
         this.assignPlayerTracks = inner.assignPlayerTracks
         this.assignTrackParents = inner.assignTrackParents
         this.abstractCustomEvents = inner.abstractCustomEvents
-        
+
         this.pointDefinitions = inner.pointDefinitions
         this.customData = inner.customData
         this.environment = inner.environment
@@ -282,51 +283,57 @@ export abstract class AbstractDifficulty<
      * If left blank, the beatmap file name will be used for the save.
      */
     async save(diffName?: DIFFPATH, pretty = false) {
-        if (diffName) {
-            diffName = (await parseFilePath(diffName, '.dat')).path as DIFFPATH
-        } else diffName = this.mapFile
+        async function thisProcess(self: AbstractDifficulty) {
+            if (diffName) {
+                diffName = (await parseFilePath(diffName, '.dat'))
+                    .path as DIFFPATH
+            } else diffName = self.mapFile
 
-        await this.awaitAllAsync()
-        const outputJSON = this.toJSON()
+            await self.awaitAllAsync()
+            const outputJSON = self.toJSON()
 
-        // this.doPostProcess(undefined, outputJSON)
+            // this.doPostProcess(undefined, outputJSON)
 
-        const promise3 = saveInfoDat()
-        const promise1 = RMJson.then((rm) => rm.save())
+            const promise3 = saveInfoDat()
+            const promise1 = RMJson.then((rm) => rm.save())
 
-        const sortedProcess = [...this.postProcesses.entries()]
-            // ascending
-            .sort(([a], [b]) => a - b)
-            // descending
-            .reverse()
-            .flatMap(([, arr]) => arr)
+            const sortedProcess = [...self.postProcesses.entries()]
+                // ascending
+                .sort(([a], [b]) => a - b)
+                // descending
+                .reverse()
+                .flatMap(([, arr]) => arr)
 
-        const transformer = (k: string, v: unknown) => {
-            let newValue = v
+            const transformer = (k: string, v: unknown) => {
+                let newValue = v
 
-            sortedProcess.forEach((process) => {
-                const oldValue = newValue
-                newValue = process(k, newValue)
+                sortedProcess.forEach((process) => {
+                    const oldValue = newValue
+                    newValue = process(k, newValue)
 
-                /// if undefined, use previous value
-                if (newValue === undefined) {
-                    newValue = oldValue
-                }
-            })
+                    /// if undefined, use previous value
+                    if (newValue === undefined) {
+                        newValue = oldValue
+                    }
+                })
 
-            return newValue
+                return newValue
+            }
+
+            const promise2 = Deno.writeTextFile(
+                diffName,
+                JSON.stringify(
+                    outputJSON,
+                    sortedProcess.length > 0 ? transformer : undefined,
+                    pretty ? 2 : 0,
+                ),
+            )
+            await Promise.all([promise1, promise2, promise3])
+            RMLog(`${diffName} successfully saved!`)
         }
 
-        const promise2 = Deno.writeTextFile(
-            diffName,
-            JSON.stringify(
-                outputJSON,
-                sortedProcess.length > 0 ? transformer : undefined,
-                pretty ? 2 : 0,
-            ),
-        )
-        await Promise.all([promise1, promise2, promise3])
-        RMLog(`${diffName} successfully saved!`)
+        this.savePromise = thisProcess(this)
+        await this.savePromise
     }
 
     clear(exclude: ClearProperty[] = []) {
@@ -588,10 +595,10 @@ function pruneCustomData(
     /// if no value
     if (!v) return null
 
-    jsonPrune(v);
+    jsonPrune(v)
 
     if (Object.entries(v).length === 0) {
-        return null; // remove customData if empty
+        return null // remove customData if empty
     }
 
     return v

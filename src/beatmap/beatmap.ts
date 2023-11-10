@@ -41,8 +41,14 @@ export function arrJsonToClass<T>(
  */
 export async function collectBeatmapFiles(
     excludeDiffs: FILENAME<DIFFS>[] = [],
+    awaitSave = true
 ) {
     if (!info) throw new Error('The Info object has not been loaded.')
+
+    const diff = getActiveDiff()
+    if (awaitSave && diff) {
+        await diff.savePromise
+    }
 
     const makeTempDir = Deno.makeTempDir()
 
