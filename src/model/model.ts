@@ -37,10 +37,17 @@ import {
     mirrorAnimation,
 } from '../animation/animation_utils.ts'
 import { FILEPATH } from '../types/beatmap_types.ts'
-import { ColorVec, Vec3, Vec4 } from '../types/data_types.ts'
+import { ColorVec, TransformKeyframe, Vec3, Vec4 } from '../types/data_types.ts'
 import { copy } from '../utils/general.ts'
 import { Environment, Geometry } from '../internals/environment.ts'
-import { adjustFog, DeepReadonly, environment, geometry, positionToV2 } from '../mod.ts'
+import {
+    adjustFog,
+    DeepReadonly,
+    environment,
+    geometry,
+    positionToV2,
+    SceneObjectInfo,
+} from '../mod.ts'
 
 let modelSceneCount = 0
 let noYeet = true
@@ -50,11 +57,7 @@ export class ModelScene {
     optimizer = new OptimizeSettings()
     bakeAnimFreq = 1 / 32
     trackID: number
-    objectInfo = <Record<string, {
-        max: number
-        perSwitch: Record<number, number>
-        initialPos?: ModelObject[]
-    }>> {}
+    sceneObjectInfo = <Record<string, SceneObjectInfo>> {}
     initializePositions = true
 
     /**
@@ -156,6 +159,9 @@ export class ModelScene {
         this.groups[group as string].defaultMaterial = undefined
 
     private async getObjects(input: AnimatedObjectInput) {
+        // deno-lint-ignore no-this-alias
+        const self = this
+
         const v3 = getActiveDiff().v3
         let objectInput = input as ObjectInput
         let options = {} as AnimatedOptions
@@ -165,7 +171,122 @@ export class ModelScene {
             options = input
         }
 
-        if (typeof objectInput === 'string') {
+        function makeStatic(obj: ModelObject) {
+            const doStatic = (k: RawKeyframesVec3) =>
+                typeof k[0] === 'object'
+                    ? [k[0][0], k[0][1], k[0][2]] as Vec3
+                    : k as Vec3
+
+            obj.pos = doStatic(obj.pos)
+            obj.rot = doStatic(obj.rot)
+            obj.scale = doStatic(obj.scale)
+        }
+
+        function processFileObjects(
+            fileObjects: ModelObject[],
+        ) {
+            if (options.onCache) options.onCache(fileObjects)
+            fileObjects.forEach((x) => {
+                if (options.static) {
+                    makeStatic(x)
+                }
+
+                // Getting relevant object transforms
+                let scale: Vec3 | undefined
+                let anchor: Vec3 | undefined
+                let rotation: Vec3 | undefined
+
+                const group = self.groups[x.track as string]
+                if (group) {
+                    if (group.scale) scale = group.scale
+                    if (group.anchor) anchor = group.anchor
+                    if (group.rotation) rotation = group.rotation
+                }
+
+                // Making keyframes a consistent array format
+                x.pos = complexifyArray(x.pos)
+                x.rot = complexifyArray(x.rot)
+                x.scale = complexifyArray(x.scale)
+
+                // Applying transformation to each keyframe
+                for (let i = 0; i < x.pos.length; i++) {
+                    let objPos = copy(
+                        x.pos[i],
+                    ) as number[]
+                    let objRot = copy(
+                        x.rot[i],
+                    ) as number[]
+                    let objScale = copy(
+                        x.scale[i],
+                    ) as number[]
+                    objPos.pop()
+                    objRot.pop()
+                    objScale.pop()
+
+                    if (options.transform) {
+                        const combined = combineTransforms(
+                            {
+                                pos: objPos as Vec3,
+                                rot: objRot as Vec3,
+                                scale: objScale as Vec3,
+                            },
+                            options.transform,
+                            options.transform.anchor,
+                        )
+                        objPos = combined.pos
+                        objRot = combined.rot
+                        objScale = combined.scale
+                    }
+
+                    if (anchor) {
+                        objPos = applyAnchor(
+                            objPos as Vec3,
+                            objRot as Vec3,
+                            objScale as Vec3,
+                            anchor,
+                        )
+                    }
+
+                    if (rotation) {
+                        objRot = (objRot as Vec3).map((x, i) =>
+                            (x + (rotation as Vec3)[i]) % 360
+                        )
+                    }
+
+                    if (scale) {
+                        objScale = (objScale as Vec3).map((x, i) =>
+                            x * (scale as Vec3)[i]
+                        )
+                    }
+
+                    if (!v3) {
+                        positionToV2(objPos as Vec3)
+                    }
+
+                    ;(x.pos)[i] = [...(objPos as Vec3), (x.pos)[i][3]]
+                    ;(x.rot)[i] = [...(objRot as Vec3), (x.rot)[i][3]]
+                    ;(x.scale)[i] = [
+                        ...(objScale as Vec3),
+                        (x.scale)[i][3],
+                    ]
+                }
+
+                // Optimizing object
+                x.pos = optimizeKeyframes(x.pos, self.optimizer)
+                x.rot = optimizeKeyframes(x.rot, self.optimizer)
+                x.scale = optimizeKeyframes(x.scale, self.optimizer)
+
+                // Loop animation
+                if (options.mirror) {
+                    x.pos = mirrorAnimation(x.pos)
+                    x.rot = mirrorAnimation(x.rot)
+                    x.scale = mirrorAnimation(x.scale)
+                }
+            })
+            return fileObjects
+        }
+
+        async function stringProcess(objectInput: string) {
             const inputPath =
                 (await parseFilePath(objectInput, '.rmmodel')).path
             const onCache = options.onCache
@@ -174,137 +295,30 @@ export class ModelScene {
             const processing: any[] = [
                 options,
                 onCache,
-                this.groups,
-                this.optimizer,
-                v3
+                self.groups,
+                self.optimizer,
+                v3,
             ]
 
             const model = getModel(
                 inputPath,
-                `modelScene${this.trackID}_${inputPath}`,
-                (fileObjects) => {
-                    if (options.onCache) options.onCache(fileObjects)
-                    fileObjects.forEach((x) => {
-                        if (options.static) {
-                            const makeStatic = (k: RawKeyframesVec3) =>
-                                typeof k[0] === 'object'
-                                    ? [k[0][0], k[0][1], k[0][2]] as Vec3
-                                    : k as Vec3
-
-                            x.pos = makeStatic(x.pos)
-                            x.rot = makeStatic(x.rot)
-                            x.scale = makeStatic(x.scale)
-                        }
-
-                        // Getting relevant object transforms
-                        let scale: Vec3 | undefined
-                        let anchor: Vec3 | undefined
-                        let rotation: Vec3 | undefined
-
-                        const group = this.groups[x.track as string]
-                        if (group) {
-                            if (group.scale) scale = group.scale
-                            if (group.anchor) anchor = group.anchor
-                            if (group.rotation) rotation = group.rotation
-                        }
-
-                        // Making keyframes a consistent array format
-                        x.pos = complexifyArray(x.pos)
-                        x.rot = complexifyArray(x.rot)
-                        x.scale = complexifyArray(x.scale)
-
-                        // Applying transformation to each keyframe
-                        for (let i = 0; i < x.pos.length; i++) {
-                            let objPos = copy(
-                                x.pos[i],
-                            ) as number[]
-                            let objRot = copy(
-                                x.rot[i],
-                            ) as number[]
-                            let objScale = copy(
-                                x.scale[i],
-                            ) as number[]
-                            objPos.pop()
-                            objRot.pop()
-                            objScale.pop()
-
-                            if (options.transform) {
-                                const combined = combineTransforms(
-                                    {
-                                        pos: objPos as Vec3,
-                                        rot: objRot as Vec3,
-                                        scale: objScale as Vec3,
-                                    },
-                                    options.transform,
-                                    options.transform.anchor,
-                                )
-                                objPos = combined.pos
-                                objRot = combined.rot
-                                objScale = combined.scale
-                            }
-
-                            if (anchor) {
-                                objPos = applyAnchor(
-                                    objPos as Vec3,
-                                    objRot as Vec3,
-                                    objScale as Vec3,
-                                    anchor,
-                                )
-                            }
-                            if (rotation) {
-                                objRot = (objRot as Vec3).map((x, i) =>
-                                    (x + (rotation as Vec3)[i]) % 360
-                                )
-                            }
-                            if (scale) {
-                                objScale = (objScale as Vec3).map((x, i) =>
-                                    x * (scale as Vec3)[i]
-                                )
-                            }
-
-                            if (!v3) {
-                                positionToV2(objPos as Vec3)
-                            }
-
-                            ;(x.pos)[i] = [...(objPos as Vec3), (x.pos)[i][3]]
-                            ;(x.rot)[i] = [...(objRot as Vec3), (x.rot)[i][3]]
-                            ;(x.scale)[i] = [
-                                ...(objScale as Vec3),
-                                (x.scale)[i][3],
-                            ]
-                        }
-
-                        // Optimizing object
-                        x.pos = optimizeKeyframes(x.pos, this.optimizer)
-                        x.rot = optimizeKeyframes(x.rot, this.optimizer)
-                        x.scale = optimizeKeyframes(x.scale, this.optimizer)
-
-                        // Loop animation
-                        if (options.mirror) {
-                            x.pos = mirrorAnimation(x.pos)
-                            x.rot = mirrorAnimation(x.rot)
-                            x.scale = mirrorAnimation(x.scale)
-                        }
-                    })
-                    return fileObjects
-                },
+                `modelScene${self.trackID}_${inputPath}`,
+                processFileObjects,
                 processing,
             )
             if (options.objects) options.objects(await model)
             return model
-        } else {
+        }
+
+        function objectProcess(
+            objectInput: ModelObject[],
+        ) {
             const outputObjects: ModelObject[] = []
             if (options.objects) options.objects(objectInput)
+
             objectInput.forEach((x) => {
                 if (options.static) {
-                    const makeStatic = (k: RawKeyframesVec3) =>
-                        typeof k[0] === 'object'
-                            ? [k[0][0], k[0][1], k[0][2]] as Vec3
-                            : k as Vec3
-
-                    x.pos = makeStatic(x.pos)
-                    x.rot = makeStatic(x.rot)
-                    x.scale = makeStatic(x.scale)
+                    makeStatic(x)
                 }
 
                 // Getting relevant object transforms
@@ -312,11 +326,35 @@ export class ModelScene {
                 let anchor: Vec3 | undefined
                 let rotation: Vec3 | undefined
 
-                const group = this.groups[x.track as string]
+                const group = self.groups[x.track as string]
                 if (group) {
                     if (group.scale) scale = group.scale
                     if (group.anchor) anchor = group.anchor
                     if (group.rotation) rotation = group.rotation
+                }
+
+                function getBakedTransform(transform: TransformKeyframe) {
+                    if (options.transform) {
+                        const combined = combineTransforms(
+                            {
+                                pos: transform.pos,
+                                rot: transform.rot,
+                                scale: transform.scale,
+                            },
+                            options.transform,
+                            options.transform.anchor,
+                        )
+                        transform.pos = combined.pos
+                        transform.rot = combined.rot
+                        transform.scale = combined.scale
+                    }
+
+                    transform.pos = applyAnchor(
+                        transform.pos,
+                        transform.rot,
+                        transform.scale,
+                        anchor ?? [0, 0, 0] as Vec3,
+                    )
                 }
 
                 if (
@@ -326,31 +364,9 @@ export class ModelScene {
                     // Baking animation
                     const bakedCube: ModelObject = bakeAnimation(
                         { pos: x.pos, rot: x.rot, scale: x.scale },
-                        (transform) => {
-                            if (options.transform) {
-                                const combined = combineTransforms(
-                                    {
-                                        pos: transform.pos,
-                                        rot: transform.rot,
-                                        scale: transform.scale,
-                                    },
-                                    options.transform,
-                                    options.transform.anchor,
-                                )
-                                transform.pos = combined.pos
-                                transform.rot = combined.rot
-                                transform.scale = combined.scale
-                            }
-
-                            transform.pos = applyAnchor(
-                                transform.pos,
-                                transform.rot,
-                                transform.scale,
-                                anchor ?? [0, 0, 0] as Vec3,
-                            )
-                        },
-                        this.bakeAnimFreq,
-                        this.optimizer,
+                        getBakedTransform,
+                        self.bakeAnimFreq,
+                        self.optimizer,
                     )
 
                     if (!v3) {
@@ -390,6 +406,12 @@ export class ModelScene {
 
             return outputObjects
         }
+
+        if (typeof objectInput === 'string') {
+            return await stringProcess(objectInput)
+        } else {
+            return objectProcess(objectInput)
+        }
     }
 
     private getPieceTrack = (
@@ -427,10 +449,14 @@ export class ModelScene {
         forAssigned?: (event: CustomEventInternals.AnimateTrack) => void,
     ) {
         const diff = getActiveDiff()
-        return await diff.runAsync(async () => {
+
+        // deno-lint-ignore no-this-alias
+        const self = this
+
+        async function process() {
             // Initialize info
-            Object.keys(this.groups).forEach((x) => {
-                this.objectInfo[x] = {
+            Object.keys(self.groups).forEach((x) => {
+                self.sceneObjectInfo[x] = {
                     max: 0,
                     perSwitch: {
                         0: 0,
@@ -438,72 +464,71 @@ export class ModelScene {
                 }
             })
 
-            await this.getObjects(input).then((data) =>
-                data.forEach((x) => {
-                    // Getting info about group
-                    const groupKey = x.track as string
-                    const group = this.groups[groupKey]
+            const data = await self.getObjects(input)
+            data.forEach((x) => {
+                // Getting info about group
+                const groupKey = x.track as string
+                const group = self.groups[groupKey]
 
-                    // Registering data about object amounts
-                    const objectInfo = this.objectInfo[groupKey]
-                    if (!objectInfo) return
-                    objectInfo.perSwitch[0]++
-                    if (objectInfo.perSwitch[0] > objectInfo.max) {
-                        objectInfo.max = objectInfo.perSwitch[0]
+                // Registering data about object amounts
+                const objectInfo = self.sceneObjectInfo[groupKey]
+                if (!objectInfo) return
+                objectInfo.perSwitch[0]++
+                if (objectInfo.perSwitch[0] > objectInfo.max) {
+                    objectInfo.max = objectInfo.perSwitch[0]
+                }
+
+                const track = self.getPieceTrack(
+                    group.object,
+                    groupKey,
+                    objectInfo.perSwitch[0] - 1,
+                )
+
+                // Get transforms
+                const pos = self.getFirstValues(x.pos)
+                const rot = self.getFirstValues(x.rot)
+                const scale = self.getFirstValues(x.scale)
+
+                // Creating objects
+                if (group.object) {
+                    const object = copy(group.object)
+
+                    if (group.defaultMaterial) {
+                        const materialName =
+                            `modelScene${self.trackID}_${groupKey}_material`
+                        activeDiff.geometryMaterials[materialName] =
+                            group.defaultMaterial
+                        ;(object as Geometry).material = materialName
                     }
 
-                    const track = this.getPieceTrack(
-                        group.object,
-                        groupKey,
-                        objectInfo.perSwitch[0] - 1,
-                    )
+                    if (
+                        object instanceof Geometry &&
+                        !group.defaultMaterial &&
+                        typeof object.material !== 'string' &&
+                        !object.material.color &&
+                        x.color
+                    ) object.material.color = copy(x.color) as ColorVec
 
-                    // Get transforms
-                    const pos = this.getFirstValues(x.pos)
-                    const rot = this.getFirstValues(x.rot)
-                    const scale = this.getFirstValues(x.scale)
+                    object.track.value = track
+                    object.position = pos
+                    object.rotation = rot
+                    object.scale = scale
+                    if (forObject) forObject(object)
+                    object.push(false)
+                } // Creating event for assigned
+                else {
+                    const event = animateTrack(0, track)
+                    event.animation.position = x.pos as RawKeyframesVec3
+                    event.animation.rotation = x.rot as RawKeyframesVec3
+                    event.animation.scale = x.scale as RawKeyframesVec3
+                    if (forAssigned) forAssigned(event)
+                    activeDiff.animateTracks.push(event)
+                }
+            })
 
-                    // Creating objects
-                    if (group.object) {
-                        const object = copy(group.object)
-
-                        if (group.defaultMaterial) {
-                            const materialName =
-                                `modelScene${this.trackID}_${groupKey}_material`
-                            activeDiff.geometryMaterials[materialName] =
-                                group.defaultMaterial
-                            ;(object as Geometry).material = materialName
-                        }
-
-                        if (
-                            object instanceof Geometry &&
-                            !group.defaultMaterial &&
-                            typeof object.material !== 'string' &&
-                            !object.material.color &&
-                            x.color
-                        ) object.material.color = copy(x.color) as ColorVec
-
-                        object.track.value = track
-                        object.position = pos
-                        object.rotation = rot
-                        object.scale = scale
-                        if (forObject) forObject(object)
-                        object.push(false)
-                    } // Creating event for assigned
-                    else {
-                        const event = animateTrack(0, track)
-                        event.animation.position = x.pos as RawKeyframesVec3
-                        event.animation.rotation = x.rot as RawKeyframesVec3
-                        event.animation.scale = x.scale as RawKeyframesVec3
-                        if (forAssigned) forAssigned(event)
-                        activeDiff.animateTracks.push(event)
-                    }
-                })
-            )
-
-            Object.keys(this.groups).forEach((x) => {
-                const objectInfo = this.objectInfo[x]
-                const group = this.groups[x]
+            Object.keys(self.groups).forEach((x) => {
+                const objectInfo = self.sceneObjectInfo[x]
+                const group = self.groups[x]
 
                 if (
                     objectInfo.max === 0 && !group.object &&
@@ -515,7 +540,9 @@ export class ModelScene {
                     event.push(false)
                 }
             })
-        })
+        }
+
+        return await diff.runAsync(process)
     }
 
     /**
@@ -536,19 +563,23 @@ export class ModelScene {
         ForEvent?,
     ][], forObject?: (object: GroupObjectTypes) => void) {
         const diff = getActiveDiff()
-        return await diff.runAsync(async () => {
+
+        // deno-lint-ignore no-this-alias
+        const self = this
+
+        async function process() {
             createYeetDef()
             switches.sort((a, b) => a[1] - b[1])
 
             // Initialize info
             const animatedMaterials: string[] = []
 
-            Object.keys(this.groups).forEach((x) => {
-                this.objectInfo[x] = {
+            Object.keys(self.groups).forEach((x) => {
+                self.sceneObjectInfo[x] = {
                     max: 0,
                     perSwitch: {},
                 }
-                if (!this.groups[x].object) this.objectInfo[x].max = 1
+                if (!self.groups[x].object) self.sceneObjectInfo[x].max = 1
             })
 
             const promises: Promise<unknown>[] = []
@@ -561,135 +592,146 @@ export class ModelScene {
                 const start = x[3] ?? 0
                 const forEvent = x[4]
 
-                const firstInitializing = this.initializePositions &&
+                const firstInitializing = self.initializePositions &&
                     switchIndex === 0 &&
                     time !== 0
+
                 const delaying = !firstInitializing && start > 0
-                Object.keys(this.groups).forEach((x) => {
-                    this.objectInfo[x].perSwitch[time] = 0
-                    if (firstInitializing) this.objectInfo[x].initialPos = []
+
+                Object.keys(self.groups).forEach((x) => {
+                    self.sceneObjectInfo[x].perSwitch[time] = 0
+                    if (firstInitializing) {
+                        self.sceneObjectInfo[x].initialPos = []
+                    }
                 })
 
-                promises.push(
-                    this.getObjects(input).then((data) =>
-                        data.forEach((x, i) => {
-                            const objectIsStatic = 
-                                complexifyArray(x.pos).length === 1 &&
-                                complexifyArray(x.rot).length === 1 &&
-                                complexifyArray(x.scale).length === 1
+                const objectPromise = self.getObjects(input)
+                objectPromise.then((data) =>
+                    data.forEach((x, i) => {
+                        const objectIsStatic =
+                            complexifyArray(x.pos).length === 1 &&
+                            complexifyArray(x.rot).length === 1 &&
+                            complexifyArray(x.scale).length === 1
 
-                            // Getting info about group
-                            const key = x.track as string
-                            const group = this.groups[key]
+                        // Getting info about group
+                        const key = x.track as string
+                        const group = self.groups[key]
 
-                            // Registering data about object amounts
-                            const objectInfo = this.objectInfo[key]
-                            if (!objectInfo) return
-                            objectInfo.perSwitch[time]++
-                            if (objectInfo.perSwitch[time] > objectInfo.max) {
-                                objectInfo.max = objectInfo.perSwitch[time]
-                            }
+                        // Registering data about object amounts
+                        const objectInfo = self.sceneObjectInfo[key]
+                        if (!objectInfo) return
+                        objectInfo.perSwitch[time]++
+                        if (objectInfo.perSwitch[time] > objectInfo.max) {
+                            objectInfo.max = objectInfo.perSwitch[time]
+                        }
 
-                            const track = this.getPieceTrack(
-                                group.object,
-                                key,
-                                objectInfo.perSwitch[time] - 1,
-                            )
+                        const track = self.getPieceTrack(
+                            group.object,
+                            key,
+                            objectInfo.perSwitch[time] - 1,
+                        )
 
-                            // Set initializing data
-                            if (firstInitializing) {
-                                objectInfo.initialPos![i] = this
-                                    .getFirstTransform(
-                                        x,
-                                    )
-                            }
-
-                            // Initialize assigned object position
-                            if (!group.object && firstInitializing) {
-                                const event = animateTrack(0, track)
-                                const initalizePos = objectInfo.initialPos![i]
-                                event.animation.position = initalizePos
-                                    .pos as Vec3
-                                event.animation.rotation = initalizePos
-                                    .rot as Vec3
-                                event.animation.scale = initalizePos
-                                    .scale as Vec3
-                                if (forEvent) {
-                                    forEvent(event, objectInfo.perSwitch[time])
-                                }
-                                event.push(false)
-                            }
-
-                            // Creating event
-                            if (
-                                group.object &&
-                                group.object instanceof Geometry &&
-                                !group.defaultMaterial &&
-                                typeof group.object.material !== 'string' &&
-                                !group.object.material.color &&
-                                x.color
-                            ) {
-                                const color = x.color as Vec4
-                                color[3] ??= 1
-                                animatedMaterials.push(track)
-
-                                if (firstInitializing) {
-                                    objectInfo.initialPos![i].color = color
-                                } else {
-                                    const event = animateTrack(
-                                        time,
-                                        track + '_material',
-                                    )
-                                    event.animation.color = color
-                                    event.push(false)
-                                }
-                            }
-
-                            if (objectIsStatic && firstInitializing && group.object) {
-                                return
-                            }
-
-                            const event = animateTrack(time, track, duration)
-
-                            if (delaying) {
-                                event.animation.position = this.getFirstValues(
-                                    x.pos,
+                        // Set initializing data
+                        if (firstInitializing) {
+                            objectInfo.initialPos![i] = self
+                                .getFirstTransform(
+                                    x,
                                 )
-                                event.animation.rotation = this.getFirstValues(
-                                    x.rot,
-                                )
-                                event.animation.scale = this.getFirstValues(
-                                    x.scale,
-                                )
-                                if (forEvent) {
-                                    forEvent(event, objectInfo.perSwitch[time])
-                                }
-                                event.push()
-                            }
+                        }
 
-                            event.time = time + start
-                            event.animation.position = x.pos as RawKeyframesVec3
-                            event.animation.rotation = x.rot as RawKeyframesVec3
-                            event.animation.scale = x.scale as RawKeyframesVec3
+                        // Initialize assigned object position
+                        if (!group.object && firstInitializing) {
+                            const event = animateTrack(0, track)
+                            const initalizePos = objectInfo.initialPos![i]
 
-                            if (
-                                typeof input === 'object' &&
-                                !Array.isArray(input) &&
-                                input.loop !== undefined &&
-                                input.loop > 1 &&
-                                !objectIsStatic
-                            ) {
-                                event.repeat = input.loop - 1
-                                event.duration /= input.loop
-                            }
+                            event.animation.position = initalizePos
+                                .pos as Vec3
+                            event.animation.rotation = initalizePos
+                                .rot as Vec3
+                            event.animation.scale = initalizePos
+                                .scale as Vec3
 
                             if (forEvent) {
                                 forEvent(event, objectInfo.perSwitch[time])
                             }
+
                             event.push(false)
-                        })
-                    ),
+                        }
+
+                        // Creating event
+                        if (
+                            group.object &&
+                            group.object instanceof Geometry &&
+                            !group.defaultMaterial &&
+                            typeof group.object.material !== 'string' &&
+                            !group.object.material.color &&
+                            x.color
+                        ) {
+                            const color = x.color as Vec4
+                            color[3] ??= 1
+                            animatedMaterials.push(track)
+
+                            if (firstInitializing) {
+                                objectInfo.initialPos![i].color = color
+                            } else {
+                                const event = animateTrack(
+                                    time,
+                                    track + '_material',
+                                )
+                                event.animation.color = color
+                                event.push(false)
+                            }
+                        }
+
+                        if (
+                            objectIsStatic && firstInitializing &&
+                            group.object
+                        ) {
+                            return
+                        }
+
+                        const event = animateTrack(time, track, duration)
+
+                        if (delaying) {
+                            event.animation.position = self.getFirstValues(
+                                x.pos,
+                            )
+                            event.animation.rotation = self.getFirstValues(
+                                x.rot,
+                            )
+                            event.animation.scale = self.getFirstValues(
+                                x.scale,
+                            )
+                            if (forEvent) {
+                                forEvent(event, objectInfo.perSwitch[time])
+                            }
+                            event.push()
+                        }
+
+                        event.time = time + start
+                        event.animation.position = x.pos as RawKeyframesVec3
+                        event.animation.rotation = x.rot as RawKeyframesVec3
+                        event.animation.scale = x.scale as RawKeyframesVec3
+
+                        if (
+                            typeof input === 'object' &&
+                            !Array.isArray(input) &&
+                            input.loop !== undefined &&
+                            input.loop > 1 &&
+                            !objectIsStatic
+                        ) {
+                            event.repeat = input.loop - 1
+                            event.duration /= input.loop
+                        }
+
+                        if (forEvent) {
+                            forEvent(event, objectInfo.perSwitch[time])
+                        }
+                        event.push(false)
+                    })
                 )
+
+                promises.push()
             })
 
             const yeetEvents: Record<
@@ -699,39 +741,52 @@ export class ModelScene {
 
             await Promise.all(promises)
 
-            Object.keys(this.groups).forEach((groupKey) => {
-                const group = this.groups[groupKey]
-                const objectInfo = this.objectInfo[groupKey]
+            function yeet(
+                switchTime: string,
+                switchIndex: number,
+                group: ModelGroup,
+                groupKey: string,
+                objectInfo: SceneObjectInfo,
+            ) {
+                const numSwitchTime = parseInt(switchTime)
+                const firstInitializing = self.initializePositions &&
+                    switchIndex === 0 && numSwitchTime !== 0
+                const eventTime = firstInitializing ? 0 : parseInt(switchTime)
+                const amount = objectInfo.perSwitch[numSwitchTime]
+
+                if (group.disappearWhenAbsent || group.object) {
+                    for (let i = amount; i < objectInfo.max; i++) {
+                        if (!yeetEvents[numSwitchTime]) {
+                            const event = animateTrack(eventTime, [])
+                            event.animation.position = 'yeet'
+                            yeetEvents[numSwitchTime] = event
+                        }
+                        yeetEvents[numSwitchTime].track.add(
+                            self.getPieceTrack(
+                                group.object,
+                                groupKey,
+                                i,
+                            ),
+                        )
+                    }
+                }
+            }
+
+            Object.keys(self.groups).forEach((groupKey) => {
+                const group = self.groups[groupKey]
+                const objectInfo = self.sceneObjectInfo[groupKey]
                 if (!objectInfo) return
 
                 // Yeeting objects
                 Object.keys(objectInfo.perSwitch).forEach(
-                    (switchTime, switchIndex) => {
-                        const numSwitchTime = parseInt(switchTime)
-                        const firstInitializing = this.initializePositions &&
-                            switchIndex === 0 && numSwitchTime !== 0
-                        const eventTime = firstInitializing
-                            ? 0
-                            : parseInt(switchTime)
-                        const amount = objectInfo.perSwitch[numSwitchTime]
-
-                        if (group.disappearWhenAbsent || group.object) {
-                            for (let i = amount; i < objectInfo.max; i++) {
-                                if (!yeetEvents[numSwitchTime]) {
-                                    const event = animateTrack(eventTime, [])
-                                    event.animation.position = 'yeet'
-                                    yeetEvents[numSwitchTime] = event
-                                }
-                                yeetEvents[numSwitchTime].track.add(
-                                    this.getPieceTrack(
-                                        group.object,
-                                        groupKey,
-                                        i,
-                                    ),
-                                )
-                            }
-                        }
-                    },
+                    (switchTime, switchIndex) =>
+                        yeet(
+                            switchTime,
+                            switchIndex,
+                            group,
+                            groupKey,
+                            objectInfo,
+                        ),
                 )
 
                 const initializing = objectInfo.initialPos !== undefined
@@ -741,14 +796,14 @@ export class ModelScene {
                     let materialName: string | undefined = undefined
                     if (group.defaultMaterial) {
                         materialName =
-                            `modelScene${this.trackID}_${groupKey}_material`
+                            `modelScene${self.trackID}_${groupKey}_material`
                         activeDiff.geometryMaterials[materialName] =
                             group.defaultMaterial
                     }
 
                     for (let i = 0; i < objectInfo.max; i++) {
                         const object = copy(group.object)
-                        object.track.value = this.getPieceTrack(
+                        object.track.value = self.getPieceTrack(
                             group.object,
                             groupKey,
                             i,
@@ -759,10 +814,11 @@ export class ModelScene {
                             object.position = initialPos.pos as Vec3
                             object.rotation = initialPos.rot as Vec3
                             object.scale = initialPos.scale as Vec3
+
                             if (initialPos.color) {
-                                ;((object as Geometry)
-                                    .material as RawGeometryMaterial).color =
-                                        initialPos.color
+                                const material = (object as Geometry)
+                                    .material as RawGeometryMaterial
+                                material.color = initialPos.color
                             }
                         }
 
@@ -774,9 +830,9 @@ export class ModelScene {
                                 x === object.track.value
                             )
                         ) {
-                            ;((object as Geometry)
-                                .material as RawGeometryMaterial)
-                                .track = object.track.value + '_material'
+                            const material = (object as Geometry)
+                                .material as RawGeometryMaterial
+                            material.track = object.track.value + '_material'
                         }
 
                         if (forObject) forObject(object)
@@ -788,7 +844,9 @@ export class ModelScene {
             Object.keys(yeetEvents).forEach((x) => {
                 activeDiff.animateTracks.push(yeetEvents[parseInt(x)])
             })
-        })
+        }
+
+        return await diff.runAsync(process)
     }
 }
 
@@ -840,7 +898,7 @@ export async function getModel(
 ) {
     const parsedPath = await parseFilePath(filePath, '.rmmodel')
     const inputPath = parsedPath.path
-    const mTime = await Deno.stat(inputPath).then(x => x.mtime?.toString())
+    const mTime = await Deno.stat(inputPath).then((x) => x.mtime?.toString())
     processing ??= []
     processing.push.apply(processing, [mTime, process?.toString()])
 
@@ -884,7 +942,7 @@ export function debugObject(
     })
 
     environment({
-        id: 'NarrowGameHUD', 
+        id: 'NarrowGameHUD',
         lookupMethod: 'EndsWith',
         active: false,
     }).push()

@@ -79,6 +79,12 @@ export type TextObject = {
     track?: string
 }
 
+export type SceneObjectInfo = {
+    max: number
+    perSwitch: Record<number, number>
+    initialPos?: ModelObject[]
+}
+
 export type ReadonlyModel = DeepReadonly<ModelObject[]>
 export type ReadonlyText = DeepReadonly<TextObject[]>
 
