@@ -5,7 +5,7 @@ import {CachedData} from "./types/beatmap_types.ts";
 async function readRemapperJson(): Promise<ReMapperJson> {
     const json = new ReMapperJson()
 
-    if (!fs.existsSync(RMCacheFilename)) {
+    if (!await fs.exists(RMCacheFilename)) {
         await json.save()
     }
     try {
