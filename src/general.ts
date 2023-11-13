@@ -1,12 +1,12 @@
 import { EPSILON, getSeconds } from './utils/math.ts'
 import { fs, path } from './deps.ts'
-import { RMJson } from './rm_json.ts'
 import { getActiveDiff } from './data/beatmap_handler.ts'
 import { OnlyNumbersOptional } from './types/util_types.ts'
 import { FILENAME, FILEPATH } from './types/beatmap_types.ts'
 import * as NoteInternals from "./internals/note.ts"
 import { Wall } from './internals/wall.ts'
 import { LightEvent } from './internals/basic_event.ts'
+import { getActiveCache } from './rm_cache.ts'
 
 /**
  * Store data in the ReMapper cache.
@@ -29,7 +29,7 @@ export async function cacheData<T>(
         return outputData
     }
 
-    const rmCache = await RMJson
+    const rmCache = await getActiveCache()
 
     const cachedData = rmCache.cachedData[name]
     if (cachedData !== undefined) {

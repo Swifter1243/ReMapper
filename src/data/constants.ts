@@ -374,5 +374,3 @@ export const ENV = {
     },
 }
 
-/** Filename of the cache. */
-export const RMCacheFilename = 'RM_Cache.json'

@@ -1,17 +1,21 @@
-import {RMCacheFilename} from "./data/constants.ts";
-import {fs} from "./deps.ts";
+import { getWorkingDirectory } from "./data/beatmap_handler.ts";
+import {fs, path} from "./deps.ts";
 import {CachedData} from "./types/beatmap_types.ts";
 
-async function readRemapperJson(): Promise<ReMapperJson> {
-    const json = new ReMapperJson()
+export function getCacheLocation() {
+    return path.join(getWorkingDirectory(), 'RM_Cache.json') 
+}
 
-    if (!await fs.exists(RMCacheFilename)) {
+export async function readRemapperCache(): Promise<ReMapperCache> {
+    const json = new ReMapperCache()
+
+    if (!await fs.exists(getCacheLocation())) {
         await json.save()
     }
     try {
         Object.assign(
             json,
-            JSON.parse(await Deno.readTextFile(RMCacheFilename)),
+            JSON.parse(await Deno.readTextFile(getCacheLocation())),
         )
     } catch (e) {
         console.error(`Suffered from error, invalidating cache: ${e}`)
@@ -28,7 +32,7 @@ async function readRemapperJson(): Promise<ReMapperJson> {
     return json
 }
 
-class ReMapperJson {
+class ReMapperCache {
     /** Amount of times the ReMapper script has been run. */
     runs = 0
     /** The cached data in the cache. */
@@ -37,7 +41,7 @@ class ReMapperJson {
     /** Save the cache. */
     async save(): Promise<void> {
         await Deno.writeTextFile(
-            RMCacheFilename,
+            getCacheLocation(),
             JSON.stringify({
                 runs: this.runs,
                 cachedData: this.cachedData,
@@ -47,4 +51,14 @@ class ReMapperJson {
 }
 
 /** The ReMapper cache. */
-export const RMJson = readRemapperJson()
+let activeCache: Promise<ReMapperCache>
+
+export function loadCache() {
+    activeCache = readRemapperCache()
+}
+
+export async function getActiveCache() {
+    if (activeCache) return await activeCache
+
+    throw 'There is no active ReMapper Cache. Waiting for a working directory.'
+}

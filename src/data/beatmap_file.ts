@@ -1,4 +1,4 @@
-import { asserts, bsmap, semver } from '../deps.ts'
+import { asserts, bsmap, path, semver } from '../deps.ts'
 
 import { DIFFNAME, DIFFPATH } from '../types/beatmap_types.ts'
 
@@ -7,25 +7,55 @@ import { AbstractDifficulty } from '../beatmap/abstract_beatmap.ts'
 import { V3Difficulty } from '../beatmap/beatmap_v3.ts'
 import { V2Difficulty } from '../beatmap/beatmap_v2.ts'
 import { readInfoDat } from './info_file.ts'
-import { setActiveDiff } from './beatmap_handler.ts'
+import {
+    attachWorkingDirectory,
+    setActiveDiff,
+    setWorkingDirectory,
+    workingDirectoryExists,
+} from './beatmap_handler.ts'
 
 export async function readDifficulty(
     input: DIFFPATH,
     output?: DIFFPATH,
     process: boolean = true,
 ): Promise<AbstractDifficulty> {
-    const parsedInput = parseFilePath(input, '.dat')
-    const parsedOutput = parseFilePath(output ?? input, '.dat')
+    if (
+        workingDirectoryExists() && (
+            path.isAbsolute(input) ||
+            path.isAbsolute(output ?? '')
+        )
+    ) {
+        throw 'A working directory is already defined and your difficulties are not in it.'
+    }
 
-    await Promise.all([parsedInput, parsedOutput])
+    input = attachWorkingDirectory(input) as DIFFPATH
+    output = attachWorkingDirectory(output ?? input) as DIFFPATH
 
-    const mapFile = (await parsedOutput).path as DIFFPATH
-    const relativeMapFile = (await parsedOutput).name as DIFFNAME
+    const parsedInput = await parseFilePath(input, '.dat')
+    const parsedOutput = await parseFilePath(output, '.dat')
 
-    // If the path contains a separator of any kind, use it instead of the default "Info.dat"
-    const infoPromise = readInfoDat(await parsedOutput, relativeMapFile)
+    if (parsedInput.dir && !workingDirectoryExists()) {
+        const workingDirectory = path.isAbsolute(parsedInput.path)
+            ? parsedInput.dir
+            : path.join(Deno.cwd(), parsedInput.dir)
 
-    const jsonPromise = Deno.readTextFile((await parsedInput).path)
+        setWorkingDirectory(workingDirectory)
+    }
+
+    if (parsedOutput.dir && !workingDirectoryExists()) {
+        const workingDirectory = path.isAbsolute(parsedOutput.path)
+            ? parsedOutput.dir
+            : path.join(Deno.cwd(), parsedOutput.dir)
+
+        setWorkingDirectory(workingDirectory)
+    }
+
+    if (!workingDirectoryExists()) {
+        setWorkingDirectory(Deno.cwd())
+    }
+
+    const infoPromise = readInfoDat(parsedOutput.name as DIFFNAME)
+    const jsonPromise = Deno.readTextFile(parsedInput.path)
 
     const infoData = await infoPromise
     const json = JSON.parse(await jsonPromise) as
@@ -33,8 +63,8 @@ export async function readDifficulty(
         | bsmap.v3.IDifficulty
 
     const v3 = Object.hasOwn(json, 'version') &&
-    // lazy
-    // deno-lint-ignore no-explicit-any
+        // lazy
+        // deno-lint-ignore no-explicit-any
         semver.satisfies((json as any)['version'], '>=3.0.0')
 
     let diff: AbstractDifficulty
@@ -44,16 +74,12 @@ export async function readDifficulty(
         diff = new V3Difficulty(
             infoData.diffSet,
             infoData.diffSetMap,
-            mapFile,
-            relativeMapFile,
             json as bsmap.v3.IDifficulty,
         )
     } else {
         diff = new V2Difficulty(
             infoData.diffSet,
             infoData.diffSetMap,
-            mapFile,
-            relativeMapFile,
             json as bsmap.v2.IDifficulty,
         )
     }
@@ -68,7 +94,11 @@ export async function readDifficultyV2(
 ) {
     const diff = await readDifficulty(...params)
 
-    asserts.assertInstanceOf(diff, V2Difficulty, `Not a v2 difficulty! ${diff.version}`)
+    asserts.assertInstanceOf(
+        diff,
+        V2Difficulty,
+        `Not a v2 difficulty! ${diff.version}`,
+    )
 
     return diff
 }
@@ -77,7 +107,11 @@ export async function readDifficultyV3(
 ) {
     const diff = await readDifficulty(...params)
 
-    asserts.assertInstanceOf(diff, V3Difficulty, `Not a v3 difficulty! ${diff.version}`)
+    asserts.assertInstanceOf(
+        diff,
+        V3Difficulty,
+        `Not a v3 difficulty! ${diff.version}`,
+    )
 
     return diff
 }

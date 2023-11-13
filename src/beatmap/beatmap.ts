@@ -12,7 +12,7 @@ import { DIFFPATH, DIFFS, FILENAME } from '../types/beatmap_types.ts'
 import { copy } from '../utils/general.ts'
 import { environment } from './environment.ts'
 import { Environment } from '../internals/environment.ts'
-import { isEmptyObject, readDifficulty, setActiveDiff } from '../mod.ts'
+import { getWorkingDirectory, isEmptyObject, readDifficulty, setActiveDiff } from '../mod.ts'
 
 /**
  * Converts an array of Json objects to a class counterpart.
@@ -69,7 +69,7 @@ export async function collectBeatmapFiles(
             await Promise.all(excludeDiffs.map(async (d) => {
                 if (
                     map._beatmapFilename ===
-                        (await parseFilePath(d, '.dat')).path
+                        (await parseFilePath(d, '.dat')).name
                 ) {
                     arrRemove(set._difficultyBeatmaps, m)
                     m--
@@ -86,7 +86,7 @@ export async function collectBeatmapFiles(
         }
     }
 
-    const workingDir = Deno.cwd()
+    const workingDir = getWorkingDirectory()
     const filesPromise: [string, Promise<boolean>][] = unsanitizedFiles
         .filter((v) => v) // check not undefined or null
         .map((v) => path.join(workingDir, v!)) // prepend workspace dir
@@ -117,17 +117,29 @@ export async function exportZip(
 ) {
     await currentTransfer
 
-    const workingDir = Deno.cwd()
+    const workingDir = getWorkingDirectory()
     zipName ??= `${path.parse(workingDir).name}`
     zipName = `${zipName}.zip`
     zipName = zipName.replaceAll(' ', '_')
+    zipName = encodeURI(zipName)
 
     const files = (await collectBeatmapFiles(excludeDiffs))
         .map((v) => `"${v}"`) // surround with quotes for safety
 
-    compress(files, zipName, { flags: [], overwrite: true }).then(() => {
-        RMLog(`${zipName} has been zipped!`)
-    })
+    if (workingDir !== Deno.cwd()) {
+        // Compress function doesn't seem to have an option for destination..
+        // So this is my cringe workaround
+        const tempZipName = 'TEMP_MAP_ZIP.zip'
+        const destination = path.join(workingDir, tempZipName)
+        await compress(files, tempZipName, { flags: [], overwrite: true })
+        await fs.move(tempZipName, destination)
+        await Deno.rename(destination, path.join(workingDir, zipName))
+    }
+    else {
+        await compress(files, zipName, { flags: [], overwrite: true })
+    }
+
+    RMLog(`${zipName} has been zipped!`)
 }
 
 /**
@@ -152,7 +164,7 @@ export async function exportToQuest(
     })
 
     const files = await collectBeatmapFiles(excludeDiffs) // surround with quotes for safety
-    const cwd = Deno.cwd()
+    const cwd = getWorkingDirectory()
 
     const questSongFolder = `${QUEST_WIP_PATH}/${info._songName}`
 
@@ -197,9 +209,7 @@ export async function transferVisuals(
         const currentDiff = getActiveDiff()
 
         async function process(x: DIFFPATH) {
-            const workingDiff = await readDifficulty(
-                (await parseFilePath(x, '.dat')).path as DIFFPATH,
-            )
+            const workingDiff = await readDifficulty(x)
 
             workingDiff.notes = workingDiff.notes
                 .filter((x) => !(x.fake ?? false))

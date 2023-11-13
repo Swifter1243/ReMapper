@@ -9,6 +9,6 @@ export * from './general.ts'
 
 // TODO: Finish
 export * from './model/mod.ts'
-export * from './rm_json.ts'
+export * from './rm_cache.ts'
 
 export * from './deps.ts'

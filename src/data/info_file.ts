@@ -1,20 +1,22 @@
-import {bsmap, path} from "../deps.ts"
+import { bsmap, path } from '../deps.ts'
 
-import {info, workingDirectory, setWorkingDirectory, setInfo} from "./beatmap_handler.ts";
-import {parseFilePath} from "../general.ts";
+import {
+    getWorkingDirectory,
+    info,
+    setInfo,
+} from './beatmap_handler.ts'
+import { DIFFNAME } from '../mod.ts'
 
-export async function saveInfoDat() {
-    await Deno.writeTextFile(workingDirectory, JSON.stringify(info))
+export function getInfoPath() {
+    return path.join(getWorkingDirectory(), 'Info.dat')
 }
 
-export async function readInfoDat(
-    parsedOutput: Awaited<ReturnType<typeof parseFilePath>>,
-    relativeMapFile: string,
-) {
-    setWorkingDirectory(path.join(parsedOutput.dir ?? Deno.cwd(), 'Info.dat'))
-    const json = await Deno.readTextFile(
-        workingDirectory,
-    )
+export async function saveInfoDat() {
+    await Deno.writeTextFile(getInfoPath(), JSON.stringify(info))
+}
+
+export async function readInfoDat(difficultyName: DIFFNAME) {
+    const json = await Deno.readTextFile(getInfoPath())
 
     setInfo(JSON.parse(json))
 
@@ -22,14 +24,14 @@ export async function readInfoDat(
 
     const diffSetMap = info._difficultyBeatmapSets.find((e) => {
         diffSet = e._difficultyBeatmaps.find((s) =>
-            s._beatmapFilename === relativeMapFile
+            s._beatmapFilename === difficultyName
         )
 
         return diffSet
     })
 
     if (!diffSetMap || !diffSet) {
-        throw `The difficulty ${parsedOutput.name} does not exist in your Info.dat`
+        throw `The difficulty ${difficultyName} does not exist in your Info.dat`
     }
 
     return {

@@ -20,8 +20,7 @@ import {
 } from '../animation/anim_optimizer.ts'
 import { AnyNote, parseFilePath, RMLog } from '../general.ts'
 
-import { RMJson } from '../rm_json.ts'
-import { settings } from '../data/beatmap_handler.ts' // TODO: Cyclic, fix
+import { attachWorkingDirectory, settings } from '../data/beatmap_handler.ts' // TODO: Cyclic, fix
 
 import * as AnimationInternals from '../internals/animation.ts'
 import * as CustomEventInternals from '../internals/custom_event.ts'
@@ -32,6 +31,7 @@ import * as BasicEventInternals from '../internals/basic_event.ts'
 import { saveInfoDat } from '../data/info_file.ts'
 import { EventInternals } from '../internals/mod.ts'
 import { FogEvent } from './fog.ts'
+import { getActiveCache } from '../rm_cache.ts'
 
 export interface RMDifficulty {
     version: bsmap.v2.IDifficulty['_version'] | bsmap.v3.IDifficulty['version']
@@ -115,10 +115,6 @@ export abstract class AbstractDifficulty<
      * (e.g. Hard) that this difficulty is contained in inside of the Info.dat.
      */
     setInfo: bsmap.v2.IInfoSet
-    /** The path to the output file of this difficulty. */
-    mapFile: DIFFPATH
-    /** The filename of the output file of this difficulty. */
-    relativeMapFile: DIFFNAME
     private postProcesses = new Map<number, PostProcessFn[]>()
     awaitingCompletion = new Set<Promise<unknown>>()
     savePromise?: Promise<void>
@@ -165,8 +161,6 @@ export abstract class AbstractDifficulty<
         json: TD,
         info: bsmap.v2.IInfoSetDifficulty,
         setInfo: bsmap.v2.IInfoSet,
-        mapFile: DIFFPATH,
-        relativeMapFile: DIFFNAME,
         inner: RMDifficulty,
     ) {
         this.version = inner.version
@@ -175,8 +169,6 @@ export abstract class AbstractDifficulty<
         this.json = json
         this.info = info
         this.setInfo = setInfo
-        this.mapFile = mapFile
-        this.relativeMapFile = relativeMapFile
 
         this.notes = inner.notes
         this.bombs = inner.bombs
@@ -286,8 +278,8 @@ export abstract class AbstractDifficulty<
         async function thisProcess(self: AbstractDifficulty) {
             if (diffName) {
                 diffName = (await parseFilePath(diffName, '.dat'))
-                    .path as DIFFPATH
-            } else diffName = self.mapFile
+                    .name as DIFFPATH
+            } else diffName = self.fileName as DIFFNAME
 
             await self.awaitAllAsync()
             const outputJSON = self.toJSON()
@@ -295,7 +287,7 @@ export abstract class AbstractDifficulty<
             // this.doPostProcess(undefined, outputJSON)
 
             const promise3 = saveInfoDat()
-            const promise1 = RMJson.then((rm) => rm.save())
+            const promise1 = getActiveCache().then((rm) => rm.save())
 
             const sortedProcess = [...self.postProcesses.entries()]
                 // ascending
@@ -321,7 +313,7 @@ export abstract class AbstractDifficulty<
             }
 
             const promise2 = Deno.writeTextFile(
-                diffName,
+                attachWorkingDirectory(diffName),
                 JSON.stringify(
                     outputJSON,
                     sortedProcess.length > 0 ? transformer : undefined,
@@ -468,7 +460,7 @@ export abstract class AbstractDifficulty<
 
     /** The filename for this difficulty. */
     get fileName() {
-        return this.info._beatmapFilename
+        return this.info._beatmapFilename as DIFFNAME
     }
     set fileName(value: string) {
         this.info._beatmapFilename = value

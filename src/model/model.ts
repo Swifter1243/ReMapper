@@ -42,6 +42,7 @@ import { copy } from '../utils/general.ts'
 import { Environment, Geometry } from '../internals/environment.ts'
 import {
     adjustFog,
+    attachWorkingDirectory,
     DeepReadonly,
     environment,
     geometry,
@@ -897,7 +898,7 @@ export async function getModel(
     processing?: any[],
 ) {
     const parsedPath = await parseFilePath(filePath, '.rmmodel')
-    const inputPath = parsedPath.path
+    const inputPath = attachWorkingDirectory(parsedPath.path)
     const mTime = await Deno.stat(inputPath).then((x) => x.mtime?.toString())
     processing ??= []
     processing.push.apply(processing, [mTime, process?.toString()])
@@ -905,11 +906,7 @@ export async function getModel(
     name ??= parsedPath.name
 
     return cacheData(name, async () => {
-        const data = JSON.parse(
-            await Deno.readTextFile(
-                (await parseFilePath(filePath, '.rmmodel')).path,
-            ),
-        )
+        const data = JSON.parse(await Deno.readTextFile(inputPath))
         process?.(data.objects)
         return data.objects as ReadonlyModel
     }, processing)

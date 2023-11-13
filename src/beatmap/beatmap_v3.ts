@@ -3,7 +3,6 @@ import { wall } from './wall.ts'
 import { bsmap } from '../deps.ts'
 import { AbstractDifficulty } from './abstract_beatmap.ts'
 import { Arc, Bomb, Chain, Note } from '../internals/note.ts'
-import { DIFFNAME, DIFFPATH } from '../types/beatmap_types.ts'
 import { EventGroup } from '../data/constants.ts'
 import { jsonPrune } from '../utils/json.ts'
 import { environment, geometry } from './environment.ts'
@@ -25,8 +24,6 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
     constructor(
         info: bsmap.v2.IInfoSetDifficulty,
         setInfo: bsmap.v2.IInfoSet,
-        mapFile: DIFFPATH,
-        relativeMapFile: DIFFNAME,
         json: bsmap.v3.IDifficulty,
         process?: (keyof bsmap.v3.IDifficulty)[],
     ) {
@@ -348,8 +345,6 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
             json,
             info,
             setInfo,
-            mapFile,
-            relativeMapFile,
             {
                 version: json.version,
                 v3: true,

@@ -1,9 +1,10 @@
-import {bsmap} from '../deps.ts'
+import {bsmap, path} from '../deps.ts'
 
 import type {AbstractDifficulty} from '../beatmap/abstract_beatmap.ts'
+import { loadCache } from "../rm_cache.ts";
 
 export let info: bsmap.v2.IInfo
-export let workingDirectory: string
+let workingDirectory: string
 export let activeDiff: AbstractDifficulty
 export const settings = {
     forceJumpsForNoodle: true,
@@ -26,15 +27,27 @@ export function getActiveDiff() {
 }
 
 
-export function setWorkingDirectory(info: string) {
-    workingDirectory = info
+export function setWorkingDirectory(directory: string) {
+    workingDirectory = directory
+
+    loadCache()
 }
 
 
 export function getWorkingDirectory() {
     if (workingDirectory) return workingDirectory
 
-    throw new Error('There is currently no loaded info.dat.')
+    throw new Error('There is currently no working directory.')
+}
+
+export function workingDirectoryExists() {
+    return workingDirectory !== undefined
+}
+
+export function attachWorkingDirectory(file: string) {
+    if (path.isAbsolute(file)) return file
+    
+    return path.join(workingDirectory ?? '', file)
 }
 
 
