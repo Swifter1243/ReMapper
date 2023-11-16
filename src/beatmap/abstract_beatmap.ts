@@ -11,7 +11,6 @@ import {
     TJson,
 } from '../types/mod.ts'
 
-import { jsonPrune } from '../utils/json.ts'
 import { setDecimals } from '../utils/math.ts'
 
 import {
@@ -205,7 +204,6 @@ export abstract class AbstractDifficulty<
         // low priority
         // we want this to be last
         this.addPostProcess(reduceDecimalsPostProcess, -10)
-        this.addPostProcess(pruneCustomData, -1)
     }
 
     async runAsync<T>(callback: () => Promise<T>) {
@@ -575,23 +573,25 @@ function reduceDecimalsPostProcess(
     // }
 }
 
-function pruneCustomData(
-    k: string,
-    v: unknown,
-): unknown {
-    if (k !== 'customData') return v
+//! Redundant, toJson prunes.
 
-    /// if customData is not an object
-    if (typeof v !== 'object') return {}
+// function pruneCustomData(
+//     k: string,
+//     v: unknown,
+// ): unknown {
+//     if (k !== 'customData') return v
 
-    /// if no value
-    if (!v) return null
+//     /// if customData is not an object
+//     if (typeof v !== 'object') return {}
 
-    jsonPrune(v)
+//     /// if no value
+//     if (!v) return null
 
-    if (Object.entries(v).length === 0) {
-        return null // remove customData if empty
-    }
+//     jsonPrune(v)
 
-    return v
-}
+//     if (Object.entries(v).length === 0) {
+//         return null // remove customData if empty
+//     }
+
+//     return v
+// }
