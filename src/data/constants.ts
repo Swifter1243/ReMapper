@@ -236,11 +236,11 @@ export enum EventAction {
     BLUE_ON,
     BLUE_FLASH,
     BLUE_FADE,
-    BLUE_IN,
+    BLUE_TRANSITION,
     RED_ON,
     RED_FLASH,
     RED_FADE,
-    RED_IN,
+    RED_TRANSITION,
 }
 
 /** Interscope car groups. */

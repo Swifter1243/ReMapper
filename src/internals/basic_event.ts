@@ -187,10 +187,10 @@ export class LightEvent<
      * @param lightID The lightIDs to target.
      * @returns
      */
-    in(color: ColorVec | boolean = true, lightID?: LightID) {
+    transition(color: ColorVec | boolean = true, lightID?: LightID) {
         this.value = typeof color === 'boolean' && color
-            ? EventAction.BLUE_IN
-            : EventAction.RED_IN
+            ? EventAction.BLUE_TRANSITION
+            : EventAction.RED_TRANSITION
         if (typeof color !== 'boolean') this.color = color
         if (lightID !== undefined) this.lightID = lightID
         return this
