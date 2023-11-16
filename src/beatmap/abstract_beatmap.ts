@@ -49,6 +49,7 @@ export interface RMDifficulty {
     rotationEvents: EventInternals.RotationEvent[]
     boostEvents: EventInternals.BoostEvent[]
     baseBasicEvents: BasicEventInternals.BaseEvent[]
+    bpmEvents: EventInternals.BPMEvent[]
 
     animateComponents: CustomEventInternals.AnimateComponent[]
     animateTracks: CustomEventInternals.AnimateTrack[]
@@ -135,6 +136,7 @@ export abstract class AbstractDifficulty<
     rotationEvents: EventInternals.RotationEvent[]
     boostEvents: EventInternals.BoostEvent[]
     baseBasicEvents: BasicEventInternals.BaseEvent[]
+    bpmEvents: EventInternals.BPMEvent[]
 
     animateComponents: CustomEventInternals.AnimateComponent[]
     animateTracks: CustomEventInternals.AnimateTrack[]
@@ -182,6 +184,7 @@ export abstract class AbstractDifficulty<
         this.rotationEvents = inner.rotationEvents
         this.boostEvents = inner.boostEvents
         this.baseBasicEvents = inner.baseBasicEvents
+        this.bpmEvents = inner.bpmEvents
 
         this.animateComponents = inner.animateComponents
         this.animateTracks = inner.animateTracks

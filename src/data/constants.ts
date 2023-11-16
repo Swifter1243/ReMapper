@@ -227,6 +227,7 @@ export enum EventGroup {
     RAISE_HYDRAULICS,
     GAGA_LEFT,
     GAGA_RIGHT,
+    BPM = 100
 }
 
 /** Basic lighting event actions. */

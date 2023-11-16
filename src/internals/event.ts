@@ -228,8 +228,8 @@ type V2BPM = bsmap.v2.IBPMChange | bsmap.v2.IBPMChangeOld | bsmap.v2.IEvent
 type V3BPM = bsmap.v3.IBPMChange | bsmap.v3.IBPMEvent
 
 export abstract class BPMEvent<
-    TV2 extends V2BPM,
-    TV3 extends V3BPM,
+    TV2 extends V2BPM = V2BPM,
+    TV3 extends V3BPM = V3BPM,
 > extends BaseObject<TV2, TV3> {
     push(
         clone = true,
@@ -308,7 +308,7 @@ export class OfficialBPMEvent extends BPMEvent<
         const output = {
             _time: this.time,
             _floatValue: this.bpm,
-            _type: 100,
+            _type: EventGroup.BPM,
             _value: 0,
             _customData: this.customData,
         } satisfies bsmap.v2.IEvent
@@ -332,6 +332,49 @@ export class CommunityBPMEvent extends BPMEvent<
     mediocreMapper: boolean
     beatsPerBar: number
     metronomeOffset: number
+
+    fromJson(json: bsmap.v3.IBPMChange, v3: true): this
+    fromJson(json: bsmap.v2.IBPMChange | bsmap.v2.IBPMChangeOld, v3: false): this
+    fromJson(
+        json: bsmap.v2.IBPMChange | bsmap.v2.IBPMChangeOld | bsmap.v3.IBPMChange,
+        v3: boolean,
+    ): this {
+        type Params = SubclassExclusiveProps<
+            CommunityBPMEvent,
+            BPMEvent<
+                bsmap.v2.IBPMChange | bsmap.v2.IBPMChangeOld,
+                bsmap.v3.IBPMChange
+            >
+        >
+
+        if (v3) {
+            const obj = json as bsmap.v3.IBPMChange
+
+            const params = {
+                bpm: obj.m,
+                beatsPerBar: obj.p,
+                metronomeOffset: obj.o,
+                mediocreMapper: false
+            } as Params
+
+            Object.assign(this, params)
+            return super.fromJson(obj, true)
+        } else {
+            const obj = json as bsmap.v2.IBPMChange | bsmap.v2.IBPMChangeOld
+
+            const mediocreMapper = obj._bpm !== undefined
+
+            const params = {
+                bpm: mediocreMapper ? obj._bpm : obj._BPM,
+                beatsPerBar: obj._beatsPerBar,
+                mediocreMapper: mediocreMapper,
+                metronomeOffset: obj._metronomeOffset
+            } as Params
+
+            Object.assign(this, params)
+            return super.fromJson(obj, false)
+        }
+    }
 
     toJson(v3: true, prune?: boolean): bsmap.v3.IBPMChange
     toJson(
@@ -362,5 +405,13 @@ export class CommunityBPMEvent extends BPMEvent<
             } satisfies bsmap.v2.IBPMChangeOld
             return prune ? jsonPrune(output) : output
         }
+
+        const output = {
+            _time: this.time,
+            _BPM: this.bpm,
+            _beatsPerBar: this.beatsPerBar,
+            _metronomeOffset: this.metronomeOffset,
+        } satisfies bsmap.v2.IBPMChange
+        return prune ? jsonPrune(output) : output
     }
 }

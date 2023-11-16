@@ -4,7 +4,7 @@ import { EventGroup, InterscopeGroup } from '../data/constants.ts'
 
 import * as BasicEventInternals from '../internals/basic_event.ts'
 import { BaseEvent } from '../internals/basic_event.ts'
-import { BoostEvent, RotationEvent } from '../internals/event.ts'
+import { BoostEvent, CommunityBPMEvent, OfficialBPMEvent, RotationEvent } from '../internals/event.ts'
 
 type LightParameters =
     | [
@@ -539,3 +539,60 @@ export type AbstractEvent = BaseEvent<
     bsmap.v2.IEvent,
     bsmap.v3.IBasicEvent
 >
+
+
+export function officialBpmEvent(
+    time: number,
+    bpm: number,
+): OfficialBPMEvent
+export function officialBpmEvent(
+    ...obj: ConstructorParameters<typeof OfficialBPMEvent>
+): OfficialBPMEvent
+
+export function officialBpmEvent(
+    ...params: [
+        time: number,
+        bpm: number,
+    ] | ConstructorParameters<typeof OfficialBPMEvent>
+): OfficialBPMEvent {
+    if (typeof params[0] === 'object') {
+        const obj = params[0]
+        return new OfficialBPMEvent({
+            ...obj,
+        })
+    }
+    const [time, bpm] = params
+
+    return new OfficialBPMEvent({
+        time,
+        bpm,
+    })
+}
+
+export function communityBpmEvent(
+    time: number,
+    bpm: number,
+): CommunityBPMEvent
+export function communityBpmEvent(
+    ...obj: ConstructorParameters<typeof CommunityBPMEvent>
+): CommunityBPMEvent
+
+export function communityBpmEvent(
+    ...params: [
+        time: number,
+        bpm: number,
+    ] | ConstructorParameters<typeof CommunityBPMEvent>
+): CommunityBPMEvent {
+    if (typeof params[0] === 'object') {
+        const obj = params[0]
+        return new CommunityBPMEvent({
+            ...obj,
+        })
+    }
+    const [time, bpm] = params
+
+    return new CommunityBPMEvent({
+        time,
+        bpm,
+    })
+}

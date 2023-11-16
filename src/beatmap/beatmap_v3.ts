@@ -8,7 +8,7 @@ import { jsonPrune } from '../utils/json.ts'
 import { environment, geometry } from './environment.ts'
 import { arrSplit, RawGeometryMaterial, Track } from '../mod.ts'
 import {
-abstractCustomEvent,
+    abstractCustomEvent,
     animateComponent,
     animateTrack,
     assignPathAnimation,
@@ -146,6 +146,11 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         })
         json.basicBeatmapEvents = boostEventsFilter[1]
 
+        const bpmEventsFilter = arrSplit(json.basicBeatmapEvents, (x) => {
+            return x.et === EventGroup.BPM
+        })
+        json.basicBeatmapEvents = bpmEventsFilter[1]
+
         const lightEvents = lightEventsFilter[0].map((o) =>
             event.backLasers().fromJson(o as bsmap.v3.IBasicEventLight, true)
         )
@@ -190,6 +195,15 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         const baseBasicEvents = json.basicBeatmapEvents.map((o) =>
             event.baseBasicEvent({}).fromJson(o, true)
         )
+
+        const bpmEvents = [
+            ...bpmEventsFilter[0].map((o) =>
+                event.officialBpmEvent({}).fromBasicEvent(o)
+            ),
+            ...(json.customData?.BPMChanges ?? []).map((o) => 
+                event.communityBpmEvent({}).fromJson(o, true)
+            )
+        ]
 
         // Fog
         const fogEvents: FogEvent[] = []
@@ -362,6 +376,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
                 rotationEvents: rotationEvents,
                 boostEvents: boostEvents,
                 baseBasicEvents: baseBasicEvents,
+                bpmEvents: bpmEvents,
 
                 animateComponents: animateComponents,
                 animateTracks: animateTracks,
