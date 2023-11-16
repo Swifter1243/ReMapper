@@ -2,9 +2,11 @@ import { EventGroup } from '../data/constants.ts'
 import { bsmap } from '../deps.ts'
 import {
     copy,
+    Fields,
     getActiveDiff,
     InverseRotationAction,
     jsonPrune,
+    JsonWrapper,
     RotationAction,
 } from '../mod.ts'
 import { ObjectFields, SubclassExclusiveProps } from '../types/util_types.ts'
@@ -146,8 +148,8 @@ export class BoostEvent
     }
 
     fromBasicEvent(json: bsmap.v3.IBasicEventBoost) {
-        this.boost = json.i === 1
         this.time = json.b
+        this.boost = json.i === 1
         this.customData = json.customData
         return this
     }
@@ -230,20 +232,56 @@ type V3BPM = bsmap.v3.IBPMChange | bsmap.v3.IBPMEvent
 export abstract class BPMEvent<
     TV2 extends V2BPM = V2BPM,
     TV3 extends V3BPM = V3BPM,
-> extends BaseObject<TV2, TV3> {
+> implements JsonWrapper<TV2, TV3> {
+    constructor(obj: Partial<Fields<BPMEvent>>) {
+        this.time = obj.time ?? 0
+    }
+
+    time: number
+
     push(
         clone = true,
     ) {
         getActiveDiff().bpmEvents.push(clone ? copy(this) : this)
         return this
     }
+
+    fromJson(json: TV3, v3: true): this
+    fromJson(json: TV2, v3: false): this
+    fromJson(json: TV2 | TV3, v3: boolean): this {
+        type Params = ObjectFields<BaseObject<TV2, TV3>>
+
+        if (v3) {
+            const obj = json as TV3
+
+            const params = {
+                time: obj.b,
+            } as Params
+
+            Object.assign(this, params)
+        } else {
+            const obj = json as TV2
+
+            const params = {
+                time: obj._time,
+            } as Params
+
+            Object.assign(this, params)
+        }
+
+        return this
+    }
+
+    abstract toJson(v3: true, prune?: boolean): TV3
+    abstract toJson(v3: false, prune?: boolean): TV2
+    abstract toJson(v3: true, prune?: boolean): TV2 | TV3
 }
 
 export class OfficialBPMEvent extends BPMEvent<
     bsmap.v2.IEvent,
     bsmap.v3.IBPMEvent
 > {
-    constructor(obj: Partial<ObjectFields<OfficialBPMEvent>>) {
+    constructor(obj: Partial<Fields<OfficialBPMEvent>>) {
         super(obj)
         this.bpm = obj.bpm ?? 0
     }
@@ -251,7 +289,8 @@ export class OfficialBPMEvent extends BPMEvent<
     bpm: number
 
     fromBasicEvent(json: bsmap.v3.IBasicEvent) {
-        this.bpm = json.et
+        this.time = json.b
+        this.bpm = json.f
         return this
     }
 
@@ -300,7 +339,7 @@ export class OfficialBPMEvent extends BPMEvent<
             const output = {
                 b: this.time,
                 m: this.bpm,
-                customData: this.customData,
+                customData: undefined,
             } satisfies bsmap.v3.IBPMEvent
             return prune ? jsonPrune(output) : output
         }
@@ -310,7 +349,7 @@ export class OfficialBPMEvent extends BPMEvent<
             _floatValue: this.bpm,
             _type: EventGroup.BPM,
             _value: 0,
-            _customData: this.customData,
+            _customData: undefined,
         } satisfies bsmap.v2.IEvent
         return prune ? jsonPrune(output) : output
     }
@@ -320,7 +359,7 @@ export class CommunityBPMEvent extends BPMEvent<
     bsmap.v2.IBPMChange | bsmap.v2.IBPMChangeOld,
     bsmap.v3.IBPMChange
 > {
-    constructor(obj: Partial<ObjectFields<CommunityBPMEvent>>) {
+    constructor(obj: Partial<Fields<CommunityBPMEvent>>) {
         super(obj)
         this.bpm = obj.bpm ?? 0
         this.mediocreMapper = obj.mediocreMapper ?? false
@@ -334,9 +373,15 @@ export class CommunityBPMEvent extends BPMEvent<
     metronomeOffset: number
 
     fromJson(json: bsmap.v3.IBPMChange, v3: true): this
-    fromJson(json: bsmap.v2.IBPMChange | bsmap.v2.IBPMChangeOld, v3: false): this
     fromJson(
-        json: bsmap.v2.IBPMChange | bsmap.v2.IBPMChangeOld | bsmap.v3.IBPMChange,
+        json: bsmap.v2.IBPMChange | bsmap.v2.IBPMChangeOld,
+        v3: false,
+    ): this
+    fromJson(
+        json:
+            | bsmap.v2.IBPMChange
+            | bsmap.v2.IBPMChangeOld
+            | bsmap.v3.IBPMChange,
         v3: boolean,
     ): this {
         type Params = SubclassExclusiveProps<
@@ -354,7 +399,7 @@ export class CommunityBPMEvent extends BPMEvent<
                 bpm: obj.m,
                 beatsPerBar: obj.p,
                 metronomeOffset: obj.o,
-                mediocreMapper: false
+                mediocreMapper: false,
             } as Params
 
             Object.assign(this, params)
@@ -368,7 +413,7 @@ export class CommunityBPMEvent extends BPMEvent<
                 bpm: mediocreMapper ? obj._bpm : obj._BPM,
                 beatsPerBar: obj._beatsPerBar,
                 mediocreMapper: mediocreMapper,
-                metronomeOffset: obj._metronomeOffset
+                metronomeOffset: obj._metronomeOffset,
             } as Params
 
             Object.assign(this, params)

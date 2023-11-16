@@ -9,7 +9,7 @@ import { jsonPrune } from '../utils/json.ts'
 import { Wall } from '../internals/wall.ts'
 import { environment, geometry } from './environment.ts'
 import {
-abstractCustomEvent,
+    abstractCustomEvent,
     animateTrack,
     assignPathAnimation,
     assignPlayerToTrack,
@@ -17,7 +17,8 @@ abstractCustomEvent,
 } from './custom_event.ts'
 import { GeoShader, RawGeometryMaterial } from '../types/environment_types.ts'
 import { arrSplit } from '../utils/array_utils.ts'
-import { AnyFog, event, FogEvent } from './mod.ts'
+import { CommunityBPMEvent, OfficialBPMEvent } from '../internals/event.ts'
+import { AnyFog, event, FogEvent } from '../mod.ts'
 
 export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
     declare version: bsmap.v2.IDifficulty['_version']
@@ -105,6 +106,11 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
         })
         json._events = boostEventsFilter[1]
 
+        const bpmEventsFilter = arrSplit(json._events, (x) => {
+            return x._type === EventGroup.BPM
+        })
+        json._events = bpmEventsFilter[1]
+
         const lightEvents = lightEventsFilter[0].map((o) =>
             event.backLasers().fromJson(o as bsmap.v2.IEventLight, false)
         )
@@ -138,6 +144,16 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
         const baseBasicEvents = json._events.map((o) =>
             event.baseBasicEvent({}).fromJson(o, false)
         )
+
+        const bpmEvents = [
+            ...bpmEventsFilter[0].map((o) =>
+                event.officialBpmEvent({}).fromJson(o, false)
+            ),
+            ...[
+                ...json._customData?._BPMChanges ?? [],
+                ...json._customData?._bpmChanges ?? [],
+            ].map((o) => event.communityBpmEvent({}).fromJson(o, false)),
+        ]
 
         // Fog
         const fogEvents: FogEvent[] = []
@@ -299,6 +315,7 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
                 rotationEvents: rotationEvents,
                 boostEvents: boostEvents,
                 baseBasicEvents: baseBasicEvents,
+                bpmEvents: bpmEvents,
 
                 animateComponents: [],
                 animateTracks: animateTracks,
@@ -357,6 +374,16 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
         )
 
         // Events
+        const bpmEventsFilter = arrSplit(
+            this.bpmEvents,
+            (x) => x instanceof OfficialBPMEvent,
+        )
+
+        const mediocreEventsFilter = arrSplit(
+            bpmEventsFilter[1] as CommunityBPMEvent[],
+            (x) => x.mediocreMapper,
+        )
+
         const basicEvents = [
             ...this.lightEvents,
             ...this.laserSpeedEvents,
@@ -365,6 +392,7 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
             ...this.rotationEvents,
             ...this.boostEvents,
             ...this.baseBasicEvents,
+            ...(bpmEventsFilter[0] as OfficialBPMEvent[]),
         ].map((o) => o.toJson(false))
             .sort(sortItems)
 
@@ -400,13 +428,21 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
             _sliders: [],
             _version: '2.6.0',
             _waypoints: [],
-            _customData: jsonPrune({
-                ...this.customData,
-                _environment: environment,
-                _pointDefinitions: pointDefinitions,
-                _customEvents: customEvents,
-                _materials: materials,
-            }),
+            _customData: jsonPrune(
+                {
+                    ...this.customData,
+                    _environment: environment,
+                    _pointDefinitions: pointDefinitions,
+                    _customEvents: customEvents,
+                    _materials: materials,
+                    _bpmChanges: mediocreEventsFilter[0]
+                        .map((o) => o.toJson(false))
+                        .sort(sortItems) as bsmap.v2.IBPMChangeOld[],
+                    _BPMChanges: mediocreEventsFilter[1]
+                        .map((o) => o.toJson(false))
+                        .sort(sortItems) as bsmap.v2.IBPMChange[],
+                } satisfies bsmap.v2.ICustomDataDifficulty,
+            ),
             _specialEventsKeywordFilters: { _keywords: [] },
         }
     }

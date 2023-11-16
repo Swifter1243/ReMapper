@@ -90,6 +90,7 @@ type ClearProperty =
     | 'Geometry'
     | 'Geometry Materials'
     | 'Fog Events'
+    | 'BPM Events'
 
 /**
  * @returns null if remove value
@@ -346,6 +347,7 @@ export abstract class AbstractDifficulty<
         if (clear('Rotation Events')) this.rotationEvents = []
         if (clear('Boost Events')) this.boostEvents = []
         if (clear('Base Basic Events')) this.baseBasicEvents = []
+        if (clear('BPM Events')) this.bpmEvents = []
 
         if (clear('AnimateComponent Events')) this.animateComponents = []
         if (clear('AnimateTrack Events')) this.animateTracks = []

@@ -17,6 +17,7 @@ import {
 } from './custom_event.ts'
 import { event } from './mod.ts'
 import { AnyFog, FogEvent } from './fog.ts'
+import { CommunityBPMEvent, OfficialBPMEvent } from '../internals/event.ts'
 
 export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
     declare version: bsmap.v3.IDifficulty['version']
@@ -200,9 +201,12 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
             ...bpmEventsFilter[0].map((o) =>
                 event.officialBpmEvent({}).fromBasicEvent(o)
             ),
-            ...(json.customData?.BPMChanges ?? []).map((o) => 
+            ...(json.customData?.BPMChanges ?? []).map((o) =>
                 event.communityBpmEvent({}).fromJson(o, true)
-            )
+            ),
+            ...json.bpmEvents.map((o) =>
+                event.officialBpmEvent({}).fromJson(o, true)
+            ),
         ]
 
         // Fog
@@ -439,6 +443,19 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
             .map((x) => x.toJson(true))
             .sort(sortItems)
 
+        const bpmEventsFilter = arrSplit(
+            this.bpmEvents,
+            (x) => x instanceof OfficialBPMEvent,
+        )
+
+        const officialBPMEvents = (bpmEventsFilter[0] as OfficialBPMEvent[])
+            .map((x) => x.toJson(true))
+            .sort(sortItems)
+
+        const communityBPMEvents = (bpmEventsFilter[1] as CommunityBPMEvent[])
+            .map((x) => x.toJson(true))
+            .sort(sortItems)
+
         // Custom events
         const customEvents = [
             ...this.animateTracks,
@@ -480,7 +497,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
             colorNotes: colorNotes,
             bombNotes: bombNotes,
             basicBeatmapEvents: basicEvents,
-            bpmEvents: [],
+            bpmEvents: officialBPMEvents,
             burstSliders: chains,
             colorBoostBeatmapEvents: boostEvents,
             lightColorEventBoxGroups: [],
@@ -491,26 +508,29 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
             sliders: arcs,
             version: '3.2.0',
             waypoints: [],
-            customData: jsonPrune({
-                ...this.customData,
-                fakeColorNotes: this.notes.filter((e) => e.fake)
-                    .map((e) => e.toJson(true))
-                    .sort(sortItems),
-                fakeBombNotes: this.bombs.filter((e) => e.fake)
-                    .map((e) => e.toJson(true))
-                    .sort(sortItems),
-                fakeBurstSliders: this.chains.filter((e) => e.fake)
-                    .map((e) => e.toJson(true))
-                    .sort(sortItems),
-                environment: environment,
-                materials: this.geometryMaterials as Record<
-                    string,
-                    bsmap.v3.IChromaMaterial
-                >,
-                customEvents: customEvents,
-                pointDefinitions: this
-                    .pointDefinitions as bsmap.v3.IPointDefinition,
-            }),
+            customData: jsonPrune(
+                {
+                    ...this.customData,
+                    fakeColorNotes: this.notes.filter((e) => e.fake)
+                        .map((e) => e.toJson(true))
+                        .sort(sortItems),
+                    fakeBombNotes: this.bombs.filter((e) => e.fake)
+                        .map((e) => e.toJson(true))
+                        .sort(sortItems),
+                    fakeBurstSliders: this.chains.filter((e) => e.fake)
+                        .map((e) => e.toJson(true))
+                        .sort(sortItems),
+                    environment: environment,
+                    materials: this.geometryMaterials as Record<
+                        string,
+                        bsmap.v3.IChromaMaterial
+                    >,
+                    customEvents: customEvents,
+                    pointDefinitions: this
+                        .pointDefinitions as bsmap.v3.IPointDefinition,
+                    BPMChanges: communityBPMEvents,
+                } satisfies bsmap.v3.ICustomDataDifficulty,
+            ),
             useNormalEventsAsCompatibleEvents: true,
             basicEventTypesWithKeywords: {
                 d: [],
