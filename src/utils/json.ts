@@ -38,7 +38,7 @@ export function jsonPrune<T extends Record<string, any>>(obj: T) {
         const type = typeof v
         if (type === 'object') {
             jsonPrune(v)
-            if (isEmptyObject(v)) {
+            if (!Array.isArray(v) && isEmptyObject(v)) {
                 delete obj[k]
             }
         } else if (type === 'string' && v.length === 0) {
