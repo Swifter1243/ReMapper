@@ -109,6 +109,13 @@ export class BaseBasicEvent extends BaseEvent {
     }
 }
 
+export type LightColor = 'Red' | 'Blue' | 'White'
+
+type ActionFunctionParams = [
+    color?: ColorVec | LightColor,
+    lightID?: LightID,
+]
+
 export class LightEvent<
     TV2 extends bsmap.v2.IEventLight = bsmap.v2.IEventLight,
     TV3 extends bsmap.v3.IBasicEventLight = bsmap.v3.IBasicEventLight,
@@ -139,47 +146,56 @@ export class LightEvent<
         return this
     }
 
+    private makeAction(
+        actions: { [K in LightColor]: EventAction },
+    ) {
+        return (...params: ActionFunctionParams) => {
+            let [color, lightID] = params
+            color ??= 'Blue'
+
+            if (typeof color === 'string') {
+                this.value = actions[color]
+            } else {
+                this.color = color
+            }
+
+            if (lightID) this.lightID = lightID
+            return this
+        }
+    }
+
     /**
      * Create an event that turns lights on.
      * @param color Can be boolean to determine if the light is blue (true), or a color.
      * @param lightID The lightIDs to target.
      */
-    on(color: ColorVec | boolean = true, lightID?: LightID) {
-        this.value = typeof color === 'boolean' && color
-            ? EventAction.BLUE_ON
-            : EventAction.RED_ON
-        if (typeof color !== 'boolean') this.color = color
-        if (lightID) this.lightID = lightID
-        return this
-    }
+    on = this.makeAction({
+        Blue: EventAction.BLUE_ON,
+        Red: EventAction.RED_ON,
+        White: EventAction.WHITE_ON,
+    })
 
     /**
      * Create an event that flashes the lights.
      * @param color Can be boolean to determine if the light is blue (true), or a color.
      * @param lightID The lightIDs to target.
      */
-    flash(color: ColorVec | boolean = true, lightID?: LightID) {
-        this.value = typeof color === 'boolean' && color
-            ? EventAction.BLUE_FLASH
-            : EventAction.RED_FLASH
-        if (typeof color !== 'boolean') this.color = color
-        if (lightID) this.lightID = lightID
-        return this
-    }
+    flash = this.makeAction({
+        Blue: EventAction.BLUE_FLASH,
+        Red: EventAction.RED_FLASH,
+        White: EventAction.WHITE_FLASH,
+    })
 
     /**
      * Create an event that fades the lights out.
      * @param color Can be boolean to determine if the light is blue (true), or a color.
      * @param lightID The lightIDs to target.
      */
-    fade(color: ColorVec | boolean = true, lightID?: LightID) {
-        this.value = typeof color === 'boolean' && color
-            ? EventAction.BLUE_FADE
-            : EventAction.RED_FADE
-        if (typeof color !== 'boolean') this.color = color
-        if (lightID) this.lightID = lightID
-        return this
-    }
+    fade = this.makeAction({
+        Blue: EventAction.BLUE_FADE,
+        Red: EventAction.RED_FADE,
+        White: EventAction.WHITE_FADE,
+    })
 
     /**
      * Create an event that makes the lights fade in to this color from the previous.
@@ -187,14 +203,11 @@ export class LightEvent<
      * @param lightID The lightIDs to target.
      * @returns
      */
-    transition(color: ColorVec | boolean = true, lightID?: LightID) {
-        this.value = typeof color === 'boolean' && color
-            ? EventAction.BLUE_TRANSITION
-            : EventAction.RED_TRANSITION
-        if (typeof color !== 'boolean') this.color = color
-        if (lightID !== undefined) this.lightID = lightID
-        return this
-    }
+    transition = this.makeAction({
+        Blue: EventAction.BLUE_TRANSITION,
+        Red: EventAction.RED_TRANSITION,
+        White: EventAction.WHITE_TRANSITION,
+    })
 
     push(
         clone = true,
@@ -242,7 +255,10 @@ export class LightEvent<
 
     toJson(v3: true, prune?: boolean): TV3
     toJson(v3: false, prune?: boolean): TV2
-    toJson(v3 = true, prune = true): bsmap.v3.IBasicEventLight | bsmap.v2.IEventLight {
+    toJson(
+        v3 = true,
+        prune = true,
+    ): bsmap.v3.IBasicEventLight | bsmap.v2.IEventLight {
         if (v3) {
             const output = {
                 b: this.time,
@@ -361,7 +377,8 @@ export class LaserSpeedEvent<
     toJson(v3: true, prune?: boolean): TV3
     toJson(v3: false, prune?: boolean): TV2
     toJson(
-        v3: boolean, prune = true
+        v3: boolean,
+        prune = true,
     ): bsmap.v2.IEventLaser | bsmap.v3.IBasicEventLaserRotation {
         if (v3) {
             const output = {
@@ -461,7 +478,10 @@ export class RingZoomEvent
 
     toJson(v3: true, prune?: boolean): bsmap.v3.IBasicEventRing
     toJson(v3: false, prune?: boolean): bsmap.v2.IEventZoom
-    toJson(v3 = true, prune = true): bsmap.v2.IEventZoom | bsmap.v3.IBasicEventRing {
+    toJson(
+        v3 = true,
+        prune = true,
+    ): bsmap.v2.IEventZoom | bsmap.v3.IBasicEventRing {
         if (v3) {
             const output = {
                 b: this.time,
@@ -588,7 +608,10 @@ export class RingSpinEvent
 
     toJson(v3: true, prune?: boolean): bsmap.v3.IBasicEventRing
     toJson(v3: false, prune?: boolean): bsmap.v2.IEventRing
-    toJson(v3 = true, prune = true): bsmap.v2.IEventRing | bsmap.v3.IBasicEventRing {
+    toJson(
+        v3 = true,
+        prune = true,
+    ): bsmap.v2.IEventRing | bsmap.v3.IBasicEventRing {
         if (v3) {
             const output = {
                 b: this.time,

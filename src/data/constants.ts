@@ -227,7 +227,7 @@ export enum EventGroup {
     RAISE_HYDRAULICS,
     GAGA_LEFT,
     GAGA_RIGHT,
-    BPM = 100
+    BPM = 100,
 }
 
 /** Basic lighting event actions. */
@@ -241,6 +241,10 @@ export enum EventAction {
     RED_FLASH,
     RED_FADE,
     RED_TRANSITION,
+    WHITE_ON,
+    WHITE_FLASH,
+    WHITE_FADE,
+    WHITE_TRANSITION,
 }
 
 /** Interscope car groups. */
@@ -374,4 +378,3 @@ export const ENV = {
         },
     },
 }
-
