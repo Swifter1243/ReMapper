@@ -4,8 +4,8 @@ import { bsmap } from '../deps.ts'
 import { AbstractDifficulty } from './abstract_beatmap.ts'
 import { Arc, Bomb, Chain, Note } from '../internals/note.ts'
 import { EventGroup } from '../data/constants.ts'
-import { jsonPrune } from '../utils/json.ts'
 import { environment, geometry } from './environment.ts'
+import { shallowPrune } from '../utils/json.ts'
 import { arrSplit, RawGeometryMaterial, Track } from '../mod.ts'
 import {
     abstractCustomEvent,
@@ -208,6 +208,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
                 event.officialBpmEvent({}).fromJson(o, true)
             ),
         ]
+        delete json.customData?.BPMChanges
 
         // Fog
         const fogEvents: FogEvent[] = []
@@ -266,6 +267,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
 
         // Custom Events
         let customEvents = json?.customData?.customEvents ?? []
+        delete json.customData?.customEvents
 
         const animateTracksFilter = arrSplit(
             customEvents,
@@ -353,11 +355,13 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
                     true,
                 )
             ) ?? []
+        delete json.customData?.environment
 
         const materials = (json.customData?.materials ?? {}) as Record<
             string,
             RawGeometryMaterial
         >
+        delete json.customData?.materials
 
         super(
             json,
@@ -508,29 +512,27 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
             sliders: arcs,
             version: '3.2.0',
             waypoints: [],
-            customData: jsonPrune(
-                {
-                    ...this.customData,
-                    fakeColorNotes: this.notes.filter((e) => e.fake)
-                        .map((e) => e.toJson(true))
-                        .sort(sortItems),
-                    fakeBombNotes: this.bombs.filter((e) => e.fake)
-                        .map((e) => e.toJson(true))
-                        .sort(sortItems),
-                    fakeBurstSliders: this.chains.filter((e) => e.fake)
-                        .map((e) => e.toJson(true))
-                        .sort(sortItems),
-                    environment: environment,
-                    materials: this.geometryMaterials as Record<
-                        string,
-                        bsmap.v3.IChromaMaterial
-                    >,
-                    customEvents: customEvents,
-                    pointDefinitions: this
-                        .pointDefinitions as bsmap.v3.IPointDefinition,
-                    BPMChanges: communityBPMEvents,
-                } satisfies bsmap.v3.ICustomDataDifficulty,
-            ),
+            customData: shallowPrune({
+                ...this.customData,
+                fakeColorNotes: this.notes.filter((e) => e.fake)
+                    .map((e) => e.toJson(true))
+                    .sort(sortItems),
+                fakeBombNotes: this.bombs.filter((e) => e.fake)
+                    .map((e) => e.toJson(true))
+                    .sort(sortItems),
+                fakeBurstSliders: this.chains.filter((e) => e.fake)
+                    .map((e) => e.toJson(true))
+                    .sort(sortItems),
+                environment: environment,
+                materials: this.geometryMaterials as Record<
+                    string,
+                    bsmap.v3.IChromaMaterial
+                >,
+                customEvents: customEvents,
+                pointDefinitions: this
+                    .pointDefinitions as bsmap.v3.IPointDefinition,
+                BPMChanges: communityBPMEvents,
+            }) satisfies bsmap.v3.ICustomDataDifficulty,
             useNormalEventsAsCompatibleEvents: true,
             basicEventTypesWithKeywords: {
                 d: [],

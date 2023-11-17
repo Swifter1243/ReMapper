@@ -714,10 +714,13 @@ export class AbstractCustomEvent extends BaseCustomEvent<
 
     fromJson(json: bsmap.v3.ICustomEvent, v3: true): this
     fromJson(json: bsmap.v2.ICustomEvent, v3: false): this
-    fromJson(json: bsmap.v2.ICustomEvent | bsmap.v3.ICustomEvent, v3: boolean): this {
+    fromJson(
+        json: bsmap.v2.ICustomEvent | bsmap.v3.ICustomEvent,
+        v3: boolean,
+    ): this {
         type Params = Fields<
             SubclassExclusiveProps<
-                CustomEvent,
+                AbstractCustomEvent,
                 BaseCustomEvent<
                     bsmap.v2.ICustomEvent,
                     bsmap.v3.ICustomEvent
@@ -729,7 +732,7 @@ export class AbstractCustomEvent extends BaseCustomEvent<
             const obj = json as bsmap.v3.ICustomEvent
 
             const params = {
-                type: obj.t
+                type: obj.t,
             } as Params
 
             Object.assign(this, params)
@@ -737,7 +740,7 @@ export class AbstractCustomEvent extends BaseCustomEvent<
             const obj = json as bsmap.v2.ICustomEvent
 
             const params = {
-                type: obj._type
+                type: obj._type,
             } as Params
 
             Object.assign(this, params)
@@ -753,7 +756,7 @@ export class AbstractCustomEvent extends BaseCustomEvent<
             const result = {
                 b: this.time,
                 t: this.type as bsmap.v3.ICustomEvent['t'],
-                d: this.data as unknown as bsmap.v3.ICustomEvent['d']
+                d: this.data as unknown as bsmap.v3.ICustomEvent['d'],
             } as bsmap.v3.ICustomEvent
             return prune ? jsonPrune(result) : result
         }

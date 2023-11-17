@@ -5,7 +5,7 @@ import { AbstractDifficulty } from './abstract_beatmap.ts'
 import { Bomb, Note } from '../internals/note.ts'
 import { ColorVec } from '../types/data_types.ts'
 import { EventGroup } from '../data/constants.ts'
-import { jsonPrune } from '../utils/json.ts'
+import { jsonPrune, shallowPrune } from '../utils/json.ts'
 import { Wall } from '../internals/wall.ts'
 import { environment, geometry } from './environment.ts'
 import {
@@ -18,7 +18,7 @@ import {
 import { GeoShader, RawGeometryMaterial } from '../types/environment_types.ts'
 import { arrSplit } from '../utils/array_utils.ts'
 import { CommunityBPMEvent, OfficialBPMEvent } from '../internals/event.ts'
-import { AnyFog, event, FogEvent } from '../mod.ts'
+import { AnyFog, event, FogEvent, TJson } from '../mod.ts'
 
 export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
     declare version: bsmap.v2.IDifficulty['_version']
@@ -154,6 +154,8 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
                 ...json._customData?._bpmChanges ?? [],
             ].map((o) => event.communityBpmEvent({}).fromJson(o, false)),
         ]
+        delete json._customData?._BPMChanges
+        delete json._customData?._bpmChanges
 
         // Fog
         const fogEvents: FogEvent[] = []
@@ -194,7 +196,8 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
         }
 
         // Custom events
-        let customEvents = json?._customData?._customEvents ?? []
+        let customEvents = json._customData?._customEvents ?? []
+        delete json._customData?._customEvents
 
         const animateTracksFilter = arrSplit(
             customEvents,
@@ -273,12 +276,15 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
                 )
             ) ?? []
 
+        delete json._customData?._environment
+
         // Point definitions
-        const pointDefinitions: Record<string, unknown> = {}
+        const pointDefinitions: TJson = {}
 
         json._customData?._pointDefinitions?.forEach((x) => {
             pointDefinitions[x._name] = x._points
         })
+        delete json._customData?._pointDefinitions
 
         // Geometry materials
         const materials: Record<string, RawGeometryMaterial> = {}
@@ -293,6 +299,7 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
                 }
             },
         )
+        delete json._customData?._materials
 
         super(
             json,
@@ -428,21 +435,19 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
             _sliders: [],
             _version: '2.6.0',
             _waypoints: [],
-            _customData: jsonPrune(
-                {
-                    ...this.customData,
-                    _environment: environment,
-                    _pointDefinitions: pointDefinitions,
-                    _customEvents: customEvents,
-                    _materials: materials,
-                    _bpmChanges: mediocreEventsFilter[0]
-                        .map((o) => o.toJson(false))
-                        .sort(sortItems) as bsmap.v2.IBPMChangeOld[],
-                    _BPMChanges: mediocreEventsFilter[1]
-                        .map((o) => o.toJson(false))
-                        .sort(sortItems) as bsmap.v2.IBPMChange[],
-                } satisfies bsmap.v2.ICustomDataDifficulty,
-            ),
+            _customData: shallowPrune({
+                ...this.customData,
+                _environment: environment,
+                _pointDefinitions: pointDefinitions,
+                _customEvents: customEvents,
+                _materials: materials,
+                _bpmChanges: mediocreEventsFilter[0]
+                    .map((o) => o.toJson(false))
+                    .sort(sortItems) as bsmap.v2.IBPMChangeOld[],
+                _BPMChanges: mediocreEventsFilter[1]
+                    .map((o) => o.toJson(false))
+                    .sort(sortItems) as bsmap.v2.IBPMChange[],
+            }) satisfies bsmap.v2.ICustomDataDifficulty,
             _specialEventsKeywordFilters: { _keywords: [] },
         }
     }

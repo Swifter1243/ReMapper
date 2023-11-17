@@ -6,7 +6,7 @@ import { TJson } from '../types/util_types.ts'
  * Checks if an object is empty.
  * @param o Object to check.
  */
-export function isEmptyObject(o: unknown): boolean {
+export function isEmptyObject(o: unknown, recursive = true): boolean {
     // If undefined, it is empty
     if (o === undefined) return true
 
@@ -19,7 +19,7 @@ export function isEmptyObject(o: unknown): boolean {
     }
 
     // Check for non empty objects inside
-    return !Object.values(o as TJson).some((x) => !isEmptyObject(x))
+    return !Object.values(o as TJson).some((x) => !isEmptyObject(x)) && recursive
 }
 
 /**
@@ -29,20 +29,42 @@ export function isEmptyObject(o: unknown): boolean {
 export function jsonPrune<T extends Record<string, any>>(obj: T) {
     if (typeof obj !== 'object') return obj
 
-    Object.entries(obj).forEach(([prop, v]) => {
+    Object.entries(obj).forEach(([k, v]) => {
         if (v === undefined) {
-            delete obj[prop]
+            delete obj[k]
             return
         }
 
         const type = typeof v
         if (type === 'object') {
             jsonPrune(v)
-            if (!Array.isArray(v) && isEmptyObject(v)) {
-                delete obj[prop]
+            if (isEmptyObject(v)) {
+                delete obj[k]
             }
         } else if (type === 'string' && v.length === 0) {
-            delete obj[prop]
+            delete obj[k]
+        }
+    })
+
+    return obj as T
+}
+
+export function shallowPrune<T extends Record<string, any>>(obj: T) {
+    if (typeof obj !== 'object') return obj
+
+    Object.entries(obj).forEach(([k, v]) => {
+        if (k === undefined) {
+            delete obj[k]
+            return
+        }
+
+        const type = typeof v
+        if (type === 'object') {
+            if (isEmptyObject(v, false)) {
+                delete obj[k]
+            }
+        } else if (type === 'string' && v.length === 0) {
+            delete obj[k]
         }
     })
 
