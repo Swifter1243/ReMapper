@@ -53,7 +53,7 @@ export function shallowPrune<T extends Record<string, any>>(obj: T) {
     if (typeof obj !== 'object') return obj
 
     Object.entries(obj).forEach(([k, v]) => {
-        if (k === undefined) {
+        if (v === undefined) {
             delete obj[k]
             return
         }
