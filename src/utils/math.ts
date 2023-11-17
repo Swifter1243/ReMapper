@@ -3,7 +3,7 @@ import { three } from '../deps.ts'
 import * as easings from '../data/easings.ts'
 import { EASE } from '../types/animation_types.ts'
 
-import { arrAdd, arrMul, arrSubtract, toArr } from './array_utils.ts'
+import { arrAdd, arrDiv, arrMul, arrSubtract, toArr } from './array_utils.ts'
 import { Bounds, Transform, Vec3 } from '../types/data_types.ts'
 import { copy } from './general.ts'
 import { DeepReadonly } from '../types/util_types.ts'
@@ -195,6 +195,13 @@ export function magnitude(vector: number[]) {
     let sum = 0
     vector.forEach((x) => sum += x * x)
     return Math.sqrt(sum)
+}
+
+/**
+ * Normalize a vector, making it's magnitude 1.
+ */
+export function normalize<T extends number[]>(vector: T) {
+    return arrDiv(vector, magnitude(vector))
 }
 
 /**
