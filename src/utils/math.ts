@@ -3,7 +3,7 @@ import { three } from '../deps.ts'
 import * as easings from '../data/easings.ts'
 import { EASE } from '../types/animation_types.ts'
 
-import { arrAdd, arrDiv, arrMul, arrSubtract, toArr } from './array_utils.ts'
+import { arrAdd, arrDivide, arrMultiply, arrSubtract, toArr } from './array_utils.ts'
 import { Bounds, Transform, Vec3 } from '../types/data_types.ts'
 import { copy } from './general.ts'
 import { DeepReadonly } from '../types/util_types.ts'
@@ -201,7 +201,7 @@ export function magnitude(vector: number[]) {
  * Normalize a vector, making it's magnitude 1.
  */
 export function normalize<T extends number[]>(vector: T) {
-    return arrDiv(vector, magnitude(vector))
+    return arrDivide(vector, magnitude(vector))
 }
 
 /**
@@ -217,7 +217,7 @@ export function rotatePoint(
 ) {
     const mathRot = toRadians(rotation as Vec3)
     const vector = toThreeVec3(
-        arrAdd(point as Vec3, arrMul(anchor as Vec3, -1)),
+        arrAdd(point as Vec3, arrMultiply(anchor as Vec3, -1)),
     ).applyEuler(
         new three.Euler(...mathRot, 'YXZ'),
     )

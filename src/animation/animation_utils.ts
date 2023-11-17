@@ -17,7 +17,7 @@ import {
     arrAdd,
     arrLast,
     arrLerp,
-    arrMul,
+    arrMultiply,
     arrRemove,
 } from '../utils/array_utils.ts'
 
@@ -161,12 +161,12 @@ export function splineCatmullRomLerp(
     const q2 = -3 * ttt + 4 * tt + t
     const q3 = ttt - tt
 
-    const o0 = arrMul(p0, q0)
-    const o1 = arrMul(p1, q1)
-    const o2 = arrMul(p2, q2)
-    const o3 = arrMul(p3, q3)
+    const o0 = arrMultiply(p0, q0)
+    const o1 = arrMultiply(p1, q1)
+    const o2 = arrMultiply(p2, q2)
+    const o3 = arrMultiply(p3, q3)
 
-    return arrMul(arrAdd(arrAdd(o0, o1), arrAdd(o2, o3)), 0.5)
+    return arrMultiply(arrAdd(arrAdd(o0, o1), arrAdd(o2, o3)), 0.5)
 }
 
 function timeInKeyframes(time: number, animation: ComplexKeyframeValuesUnsafe) {

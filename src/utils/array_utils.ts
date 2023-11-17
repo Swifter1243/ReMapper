@@ -65,7 +65,7 @@ export const arrLerp = <T extends [] | number[]>(
  * @param arr Input array.
  * @param value Can be a number or an array.
  */
-export function arrMul<T extends [] | number[]>(
+export function arrMultiply<T extends [] | number[]>(
     arr: T,
     value: { [K in keyof T]: number } | number,
 ) {
@@ -79,7 +79,7 @@ export function arrMul<T extends [] | number[]>(
  * @param arr Input array.
  * @param value Can be a number or an array.
  */
-export function arrDiv<T extends [] | number[]>(
+export function arrDivide<T extends [] | number[]>(
     arr: T,
     value: { [K in keyof T]: number } | number,
 ) {
