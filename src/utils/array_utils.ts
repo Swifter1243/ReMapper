@@ -58,7 +58,7 @@ export const arrLerp = <T extends [] | number[]>(
     end: { [K in keyof T]: number },
     fraction: number,
     easing?: EASE,
-) => start.map((x, i) => lerp(x, end[i], fraction, easing))
+) => start.map((x, i) => lerp(x, end[i], fraction, easing)) as T
 
 /**
  * Multiply an array either by a number or another array.
