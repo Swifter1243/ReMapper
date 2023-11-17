@@ -111,11 +111,6 @@ export class BaseBasicEvent extends BaseEvent {
 
 export type LightColor = 'Red' | 'Blue' | 'White'
 
-type ActionFunctionParams = [
-    color?: ColorVec | LightColor,
-    lightID?: LightID,
-]
-
 export class LightEvent<
     TV2 extends bsmap.v2.IEventLight = bsmap.v2.IEventLight,
     TV3 extends bsmap.v3.IBasicEventLight = bsmap.v3.IBasicEventLight,
@@ -149,10 +144,10 @@ export class LightEvent<
     private makeAction(
         actions: { [K in LightColor]: EventAction },
     ) {
-        return (...params: ActionFunctionParams) => {
-            let [color, lightID] = params
-            color ??= 'Blue'
-
+        return (
+            color: ColorVec | LightColor = 'Blue',
+            lightID?: LightID,
+        ) => {
             if (typeof color === 'string') {
                 this.value = actions[color]
             } else {
