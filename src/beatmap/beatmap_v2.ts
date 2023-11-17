@@ -55,6 +55,7 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
                 ),
         ) ?? []
 
+        // Walls
         const obstacles: Wall[] = runProcess(
             '_obstacles',
             (obstacles) => obstacles.map((o) => wall().fromJson(o, false)),
@@ -346,9 +347,14 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
             a._time - b._time
 
         // Notes
-        const notes = [...this.notes, ...this.bombs].map((e) =>
-            jsonPrune(e.toJson(false))
-        ).sort(sortItems)
+        const notes = [...this.notes, ...this.bombs]
+            .map((e) => jsonPrune(e.toJson(false)))
+            .sort(sortItems)
+
+        // Walls
+        const obstacles = this.walls
+            .map((e) => jsonPrune(e.toJson(false)))
+            .sort(sortItems)
 
         // Environment
         const environment = [
@@ -431,7 +437,7 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
         return {
             _notes: notes,
             _events: basicEvents,
-            _obstacles: this.walls.map((o) => jsonPrune(o.toJson(false))),
+            _obstacles: obstacles,
             _sliders: [],
             _version: '2.6.0',
             _waypoints: [],

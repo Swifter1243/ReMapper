@@ -30,7 +30,6 @@ export class Wall
 
     /**
      * Push this wall to the difficulty.
-     * @param fake Whether this wall will be pushed to the fakeWalls array.
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {

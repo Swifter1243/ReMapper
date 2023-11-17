@@ -423,6 +423,11 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
             .map((e) => (e.toJson(true)))
             .sort(sortItems)
 
+        // Walls
+        const obstacles = this.walls.filter((e) => !e.fake)
+            .map((e) => (e.toJson(true)))
+            .sort(sortItems)
+
         // Environment
         const environment = [
             ...this.environment.map((e) => e.toJson(true)),
@@ -508,7 +513,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
             lightRotationEventBoxGroups: [],
             lightTranslationEventBoxGroups: [],
             rotationEvents: rotationEvents,
-            obstacles: this.walls.map((o) => (o.toJson(true))),
+            obstacles: obstacles,
             sliders: arcs,
             version: '3.2.0',
             waypoints: [],
@@ -521,6 +526,9 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
                     .map((e) => e.toJson(true))
                     .sort(sortItems),
                 fakeBurstSliders: this.chains.filter((e) => e.fake)
+                    .map((e) => e.toJson(true))
+                    .sort(sortItems),
+                fakeObstacles: this.walls.filter((e) => e.fake)
                     .map((e) => e.toJson(true))
                     .sort(sortItems),
                 environment: environment,
