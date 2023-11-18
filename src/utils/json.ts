@@ -19,7 +19,12 @@ export function isEmptyObject(o: unknown, recursive = true): boolean {
     }
 
     // Check for non empty objects inside
-    return !Object.values(o as TJson).some((x) => !isEmptyObject(x)) && recursive
+    if (recursive) {
+        return Object.values(o as TJson).every((x) => isEmptyObject(x))
+    }
+
+    /// Not empty
+    return false;
 }
 
 /**
