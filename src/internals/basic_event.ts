@@ -151,6 +151,7 @@ export class LightEvent<
             if (typeof color === 'string') {
                 this.value = actions[color]
             } else {
+                this.value = Object.values(actions)[0]
                 this.color = color
             }
 
