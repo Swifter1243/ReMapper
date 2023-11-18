@@ -7,9 +7,32 @@ export function arrSplit<T>(
     array: T[],
     filter: (obj: T, index: number, array: T[]) => boolean,
 ) {
-    const pass: T[] = [], fail: T[] = []
-    array.forEach((e, idx, arr) => (filter(e, idx, arr) ? pass : fail).push(e))
-    return [pass, fail]
+    const passVal = 0;
+    const failVal = 1;
+
+    const map = arrSplit2(array, (obj, index, array) => filter(obj, index, array) ? passVal : failVal)
+
+    return [map[passVal], map[failVal]]
+}
+export function arrSplit2<T, K extends string | number | symbol>(
+    array: T[],
+    filter: (obj: T, index: number, array: T[]) => K,
+): Record<K, T[]> {
+    const map = {} as Record<K, T[]>
+
+    array.forEach((e, idx, arr) => {
+        const key = filter(e, idx, arr)
+        const mapArr = map[key]
+        // existing array found
+        if (mapArr) {
+            mapArr.push(e);
+            return;
+        }
+
+        // no array found
+        map[key] = [e];
+    })
+    return map
 }
 
 /**
