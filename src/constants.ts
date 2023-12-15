@@ -498,7 +498,8 @@ export type GEO_SHADER =
 export type MATERIAL_PROP_TYPE =
     "Texture" |
     "Float" |
-    "Color"
+    "Color" |
+    "Vector"
 
 /** Types allowed for animator properties. */
 export type ANIMATOR_PROP_TYPE =
