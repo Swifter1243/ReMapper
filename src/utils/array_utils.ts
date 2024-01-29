@@ -12,7 +12,7 @@ export function arrSplit<T>(
 
     const map = arrSplit2(array, (obj, index, array) => filter(obj, index, array) ? passVal : failVal)
 
-    return [map[passVal], map[failVal]]
+    return [map[passVal] ?? [], map[failVal] ?? []]
 }
 export function arrSplit2<T, K extends string | number | symbol>(
     array: T[],
