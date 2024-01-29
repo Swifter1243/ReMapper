@@ -3,7 +3,7 @@ import { bsmap } from '../deps.ts'
 import {
     copy,
     Fields,
-    getActiveDiff,
+    getActiveDifficulty,
     InverseRotationAction,
     jsonPrune,
     JsonWrapper,
@@ -32,7 +32,7 @@ export class RotationEvent
     push(
         clone = true,
     ) {
-        getActiveDiff().rotationEvents.push(clone ? copy(this) : this)
+        getActiveDifficulty().rotationEvents.push(clone ? copy(this) : this)
         return this
     }
 
@@ -143,7 +143,7 @@ export class BoostEvent
     push(
         clone = true,
     ) {
-        getActiveDiff().boostEvents.push(clone ? copy(this) : this)
+        getActiveDifficulty().boostEvents.push(clone ? copy(this) : this)
         return this
     }
 
@@ -242,7 +242,7 @@ export abstract class BPMEvent<
     push(
         clone = true,
     ) {
-        getActiveDiff().bpmEvents.push(clone ? copy(this) : this)
+        getActiveDifficulty().bpmEvents.push(clone ? copy(this) : this)
         return this
     }
 

@@ -10,13 +10,13 @@ SingleKeyframeAbstract,
 SingleKeyframeValuesUnsafe,
 } from '../types/animation_types.ts'
 import type { DeepReadonly, NumberTuple } from "../types/mod.ts";
-import { arrRemove } from '../utils/array_utils.ts'
+import { arrayRemove } from '../utils/array_utils.ts'
 
 /**
  * Checks if value is an array of keyframes.
  * @param array The keyframe or array of keyframes.
  */
-export const isSimple = (array: DeepReadonly<KeyframeValuesUnsafe>) =>
+export const areKeyframesSimple = (array: DeepReadonly<KeyframeValuesUnsafe>) =>
     typeof array[0] !== 'object'
 
 /** Get the index of the time value of a keyframe. */
@@ -78,7 +78,7 @@ export function setKeyframeHSVLerp(
     if (hasHSVLerp) setKeyframeFlag(data, 'lerpHSV')
     else {
         const flagIndex = getKeyframeFlagIndex(data, 'lerpHSV')
-        if (flagIndex !== -1) arrRemove(data as number[], flagIndex)
+        if (flagIndex !== -1) arrayRemove(data as number[], flagIndex)
     }
 }
 
@@ -161,7 +161,7 @@ export function keyframesMap<
         filter?: boolean // if true, will remove al
     },
 ): K {
-    if (isSimple(keyframe)) {
+    if (areKeyframesSimple(keyframe)) {
         const simpleKeyframe = [...keyframe,0] as unknown as Readonly<ComplexKeyframesAbstract<T>[0]>
 
         // TODO: Redo

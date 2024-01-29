@@ -1,4 +1,4 @@
-import { getActiveDiff } from '../data/beatmap_handler.ts'
+import { getActiveDifficulty } from '../data/beatmap_handler.ts'
 import { AnyNote } from '../general.ts'
 import { NoteCut, NoteInternals, TrackValue } from '../mod.ts'
 
@@ -68,7 +68,7 @@ export class BaseNoteRemapper<T extends AnyNote> {
      */
     run(log = false) {
         const notes: T[] = []
-        const diff = getActiveDiff()
+        const diff = getActiveDifficulty()
         if (this.typeFilter.has('Note')) notes.push(...diff.notes as T[])
         if (this.typeFilter.has('Bomb')) notes.push(...diff.bombs as T[])
         if (this.typeFilter.has('Chain')) notes.push(...diff.chains as T[])
@@ -80,11 +80,11 @@ export class BaseNoteRemapper<T extends AnyNote> {
         return this.addCondition((x) => x.beat >= min && x.beat < max)
     }
 
-    betweenXPos(min: number, max: number) {
+    betweenXPositions(min: number, max: number) {
         return this.addCondition((x) => x.x >= min && x.x < max)
     }
 
-    betweenYPos(min: number, max: number) {
+    betweenYPositions(min: number, max: number) {
         return this.addCondition((x) => x.y >= min && x.y < max)
     }
 
@@ -94,13 +94,13 @@ export class BaseNoteRemapper<T extends AnyNote> {
         })
     }
 
-    addTrackByXPos(prefix = 'x_') {
+    addTrackByXPosition(prefix = 'x_') {
         return this.addProcess((x) => {
             x.track.add(prefix + x.x)
         })
     }
 
-    addTrackByYPos(prefix = 'y_') {
+    addTrackByYPosition(prefix = 'y_') {
         return this.addProcess((x) => {
             x.track.add(prefix + x.y)
         })

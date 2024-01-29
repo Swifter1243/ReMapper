@@ -32,7 +32,7 @@ export function getInfoDat() {
     throw new Error('There is currently no loaded info.dat.')
 }
 
-export function getInfoDiffSets(difficultyName: DIFFNAME) {
+export function getInfoDifficultySets(difficultyName: DIFFNAME) {
     const info = getInfoDat()
     let diffSet: bsmap.v2.IInfoSetDifficulty | undefined
 

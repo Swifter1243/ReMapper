@@ -1,9 +1,9 @@
 import { adbDeno, compress, fs, path } from '../deps.ts'
 
 import { QUEST_WIP_PATH } from '../data/constants.ts'
-import { getActiveDiff } from '../data/beatmap_handler.ts'
+import { getActiveDifficulty } from '../data/beatmap_handler.ts'
 
-import { arrRemove } from '../utils/array_utils.ts'
+import { arrayRemove } from '../utils/array_utils.ts'
 
 import { parseFilePath, RMLog } from '../general.ts'
 
@@ -12,7 +12,7 @@ import { DIFFPATH, DIFFS, FILENAME } from '../types/beatmap_types.ts'
 import { copy } from '../utils/general.ts'
 import { environment } from './environment.ts'
 import { Environment } from '../internals/environment.ts'
-import { getWorkingDirectory, isEmptyObject, readDifficulty, setActiveDiff } from '../mod.ts'
+import { getWorkingDirectory, isEmptyObject, readDifficulty, setActiveDifficulty } from '../mod.ts'
 import { getInfoDat } from '../data/mod.ts'
 
 /**
@@ -22,7 +22,7 @@ import { getInfoDat } from '../data/mod.ts'
  * @param target Class to convert to. Must have "import" function.
  * @param callback Optional function to run on each converted class.
  */
-export function arrJsonToClass<T>(
+export function arrayJSONToClass<T>(
     array: T[],
     target: { new (): T },
     callback?: (obj: T) => void,
@@ -46,7 +46,7 @@ export async function collectBeatmapFiles(
 ) {
     const info = getInfoDat()
 
-    const diff = getActiveDiff()
+    const diff = getActiveDifficulty()
     if (awaitSave && diff) {
         await diff.savePromise
     }
@@ -72,7 +72,7 @@ export async function collectBeatmapFiles(
                     map._beatmapFilename ===
                         (await parseFilePath(d, '.dat')).name
                 ) {
-                    arrRemove(set._difficultyBeatmaps, m)
+                    arrayRemove(set._difficultyBeatmaps, m)
                     m--
                     passed = false
                 }
@@ -82,7 +82,7 @@ export async function collectBeatmapFiles(
         }
 
         if (set._difficultyBeatmaps.length === 0) {
-            arrRemove(exportInfo._difficultyBeatmapSets, s)
+            arrayRemove(exportInfo._difficultyBeatmapSets, s)
             s--
         }
     }
@@ -208,7 +208,7 @@ export async function transferVisuals(
     await currentTransfer
 
     async function thisFunction() {
-        const currentDiff = getActiveDiff()
+        const currentDiff = getActiveDifficulty()
 
         async function process(x: DIFFPATH) {
             const workingDiff = await readDifficulty(x)
@@ -297,7 +297,7 @@ export async function transferVisuals(
 
         await Promise.all(promises)
 
-        setActiveDiff(currentDiff)
+        setActiveDifficulty(currentDiff)
     }
 
     currentTransfer = thisFunction()
@@ -306,7 +306,7 @@ export async function transferVisuals(
 
 /** Get the base "Environment" object. */
 export function getBaseEnvironment(callback: (env: Environment) => void) {
-    const search = getActiveDiff().environment.filter((x) =>
+    const search = getActiveDifficulty().environment.filter((x) =>
         x.id === '[0]Environment' && x.lookupMethod === 'EndsWith'
     )
 

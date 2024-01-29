@@ -14,12 +14,12 @@ export const settings = {
  * Set the difficulty that objects are being created for.
  * @param diff The difficulty to set to.
  */
-export function setActiveDiff(diff: AbstractDifficulty) {
+export function setActiveDifficulty(diff: AbstractDifficulty) {
     activeDiff = diff
 }
 
 /** Get the active difficulty, ensuring that it is indeed active. */
-export function getActiveDiff() {
+export function getActiveDifficulty() {
     if (activeDiff) return activeDiff
 
     throw new Error('There is currently no loaded difficulty.')

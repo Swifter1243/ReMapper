@@ -287,7 +287,7 @@ export const InverseRotationAction = {
  * ModelScene is NOT limited to these!
  * You can figure out the transforms for ANY object.
  */
-export const ENV = {
+export const ENVIRONMENT_TRANSFORMS = {
     BTS: {
         PILLAR: {
             ID: new Regex().start().add('PillarPair').separate().add('PillarL')

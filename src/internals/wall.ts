@@ -1,6 +1,6 @@
 import { bsmap } from '../deps.ts'
 
-import { activeDiff, getActiveDiff, settings } from '../data/beatmap_handler.ts'
+import { activeDiff, getActiveDifficulty, settings } from '../data/beatmap_handler.ts'
 
 import {
     BaseGameplayObject,
@@ -41,7 +41,7 @@ export class Wall
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        getActiveDiff().walls.push(clone ? copy(this) : this)
+        getActiveDifficulty().walls.push(clone ? copy(this) : this)
         return this
     }
 

@@ -8,7 +8,7 @@ import { getModel } from './model.ts'
 import { Bounds, Transform, Vec3 } from '../types/data_types.ts'
 import { ReadonlyText, TextObject } from '../types/model_types.ts'
 import { copy } from '../utils/general.ts'
-import { getActiveDiff } from '../mod.ts'
+import { getActiveDifficulty } from '../mod.ts'
 
 interface TextInfo {
     /** How the text will be anchored horizontally. */
@@ -188,7 +188,7 @@ export class Text implements TextInfo {
         animFreq?: number,
         animOptimizer = new OptimizeSettings(),
     ) {
-        await getActiveDiff().runAsync(async () => {
+        await getActiveDifficulty().runAsync(async () => {
             const model = await this.toObjects(text)
             modelToWall(
                 model,

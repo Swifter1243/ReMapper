@@ -10,7 +10,7 @@ import {
 import * as AnimationInternals from '../internals/animation.ts'
 import * as EnvironmentInternals from '../internals/environment.ts'
 
-import { getActiveDiff } from '../data/beatmap_handler.ts'
+import { getActiveDifficulty } from '../data/beatmap_handler.ts'
 import { combineAnimations } from '../animation/animation_utils.ts'
 
 import { animateTrack } from './custom_event.ts'
@@ -62,14 +62,14 @@ export function geometry(
  * @param duration Duration of the animation.
  * @param easing Easing on the animation.
  */
-export function animateEnvGroup(
+export function animateEnvironmentsInGroup(
     group: string,
     beat: number,
     animation: (animation: AnimationInternals.EnvironmentAnimationData) => void,
     duration?: number,
     easing?: EASE,
 ) {
-    const environmentCombined = getActiveDiff()
+    const environmentCombined = getActiveDifficulty()
         .environmentEnhancementsCombined()
 
     for (const x of environmentCombined) {
@@ -115,14 +115,14 @@ export function animateEnvGroup(
  * @param duration Duration of the animation.
  * @param easing Easing on the animation.
  */
-export function animateEnvTrack(
+export function animateEnvironmentsOnTrack(
     track: string,
     beat: number,
     animation: (animation: AnimationInternals.EnvironmentAnimationData) => void,
     duration?: number,
     easing?: EASE,
 ) {
-    const environmentCombined = getActiveDiff()
+    const environmentCombined = getActiveDifficulty()
         .environmentEnhancementsCombined()
 
     for (const x of environmentCombined) {

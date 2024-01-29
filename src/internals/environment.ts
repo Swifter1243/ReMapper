@@ -13,7 +13,7 @@ import {
 
 import { Track } from '../animation/track.ts'
 
-import { getActiveDiff } from '../data/beatmap_handler.ts'
+import { getActiveDifficulty } from '../data/beatmap_handler.ts'
 import { copy } from '../utils/general.ts'
 import { jsonPrune } from "../utils/json.ts";
 
@@ -154,7 +154,7 @@ export class Environment extends BaseEnvironmentEnhancement<
     bsmap.v3.IChromaEnvironmentID
 > {
     push(clone = true): void {
-        getActiveDiff().environment.push(clone ? copy(this) : this)
+        getActiveDifficulty().environment.push(clone ? copy(this) : this)
     }
 
     /**
@@ -264,7 +264,7 @@ export class Geometry extends BaseEnvironmentEnhancement<
     bsmap.v3.IChromaEnvironmentGeometry
 > {
     push(clone = true): void {
-        getActiveDiff().geometry.push(clone ? copy(this) : this)
+        getActiveDifficulty().geometry.push(clone ? copy(this) : this)
     }
 
     /**

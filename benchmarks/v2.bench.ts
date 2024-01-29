@@ -1,11 +1,11 @@
 import { colorNotesBetween } from '../src/general.ts'
 import {
-    setActiveDiff,
+    setActiveDifficulty,
     bsmap,
     copy,
     note,
     NoteType,
-    rand,
+    random,
     V2Difficulty,
 } from '../src/mod.ts'
 
@@ -13,11 +13,11 @@ import * as remapperv2 from 'https://deno.land/x/remapper@2.1.0/src/mod.ts'
 
 // TODO: Seed, otherwise results will NEVER be consistent
 const notes: bsmap.v2.INote[] = [...Array(1000).keys()].map(() => ({
-    _time: rand(0, 1000),
-    _cutDirection: rand(0, 8),
-    _lineIndex: rand(0, 3),
-    _lineLayer: rand(0, 3),
-    _type: rand(0, 1) as 0 | 1,
+    _time: random(0, 1000),
+    _cutDirection: random(0, 8),
+    _lineIndex: random(0, 3),
+    _lineLayer: random(0, 3),
+    _type: random(0, 1) as 0 | 1,
     _customData: {},
 } satisfies bsmap.v2.INote))
 
@@ -68,30 +68,30 @@ resetToEmptyDiff()
 
 Deno.bench('rm4.notePushObj', { group: 'notePush' }, () => {
     note({
-        beat: rand(0, 1000),
-        fake: rand(0, 2) === 0,
+        beat: random(0, 1000),
+        fake: random(0, 2) === 0,
         x: 3,
         y: 2,
-        direction: rand(0, 8),
+        direction: random(0, 8),
         type: NoteType.BLUE,
     }).push()
 })
 Deno.bench('rm4.notePushArgs', { group: 'notePush' }, () => {
-    const n = note(rand(0, 1000), NoteType.BLUE)
+    const n = note(random(0, 1000), NoteType.BLUE)
 
     n.x = 3
     n.y = 2
-    n.direction = rand(0, 8)
-    n.fake = rand(0, 2) === 0
+    n.direction = random(0, 8)
+    n.fake = random(0, 2) === 0
 
     n.push()
 })
 Deno.bench('rm2.notePush', { group: 'notePush' }, () => {
-    const n = new remapperv2.Note(rand(0, 1000), remapperv2.NOTE.BLUE)
+    const n = new remapperv2.Note(random(0, 1000), remapperv2.NOTE.BLUE)
 
     n.position = [3, 2]
-    n.direction = rand(0, 8)
-    n.fake = rand(0, 2) === 0
+    n.direction = random(0, 8)
+    n.fake = random(0, 2) === 0
 
     n.push()
 })
@@ -167,7 +167,7 @@ function rm2ParseJson() {
 }
 
 function resetToEmptyDiff() {
-    setActiveDiff(copy(diff))
+    setActiveDifficulty(copy(diff))
     remapperv2.activeDiffSet(remapperv2.copy(v2OldDiff))
 }
 

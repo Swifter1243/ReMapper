@@ -6,7 +6,7 @@ import { Arc, Bomb, Chain, Note } from '../internals/note.ts'
 import { EventGroup } from '../data/constants.ts'
 import { environment, geometry } from './environment.ts'
 import { shallowPrune } from '../utils/json.ts'
-import { arrSplit, RawGeometryMaterial, Track } from '../mod.ts'
+import { arraySplit, RawGeometryMaterial, Track } from '../mod.ts'
 import {
     abstractCustomEvent,
     animateComponent,
@@ -107,7 +107,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         }
 
         // Events
-        const lightEventsFilter = arrSplit(json.basicBeatmapEvents, (x) => {
+        const lightEventsFilter = arraySplit(json.basicBeatmapEvents, (x) => {
             return x.et === EventGroup.BACK_LASERS ||
                 x.et === EventGroup.RING_LIGHTS ||
                 x.et === EventGroup.LEFT_LASERS ||
@@ -122,7 +122,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         })
         json.basicBeatmapEvents = lightEventsFilter[1]
 
-        const laserSpeedEventsFilter = arrSplit(
+        const laserSpeedEventsFilter = arraySplit(
             json.basicBeatmapEvents,
             (x) => {
                 return x.et === EventGroup.LEFT_ROTATING_LASERS ||
@@ -131,28 +131,28 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         )
         json.basicBeatmapEvents = laserSpeedEventsFilter[1]
 
-        const ringZoomEventsFilter = arrSplit(json.basicBeatmapEvents, (x) => {
+        const ringZoomEventsFilter = arraySplit(json.basicBeatmapEvents, (x) => {
             return x.et === EventGroup.RING_ZOOM
         })
         json.basicBeatmapEvents = ringZoomEventsFilter[1]
 
-        const ringSpinEventsFilter = arrSplit(json.basicBeatmapEvents, (x) => {
+        const ringSpinEventsFilter = arraySplit(json.basicBeatmapEvents, (x) => {
             return x.et === EventGroup.RING_SPIN
         })
         json.basicBeatmapEvents = ringSpinEventsFilter[1]
 
-        const rotationEventsFilter = arrSplit(json.basicBeatmapEvents, (x) => {
+        const rotationEventsFilter = arraySplit(json.basicBeatmapEvents, (x) => {
             return x.et === EventGroup.EARLY_ROTATION ||
                 x.et === EventGroup.LATE_ROTATION
         })
         json.basicBeatmapEvents = rotationEventsFilter[1]
 
-        const boostEventsFilter = arrSplit(json.basicBeatmapEvents, (x) => {
+        const boostEventsFilter = arraySplit(json.basicBeatmapEvents, (x) => {
             return x.et === EventGroup.BOOST
         })
         json.basicBeatmapEvents = boostEventsFilter[1]
 
-        const bpmEventsFilter = arrSplit(json.basicBeatmapEvents, (x) => {
+        const bpmEventsFilter = arraySplit(json.basicBeatmapEvents, (x) => {
             return x.et === EventGroup.BPM
         })
         json.basicBeatmapEvents = bpmEventsFilter[1]
@@ -274,7 +274,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         let customEvents = json?.customData?.customEvents ?? []
         delete json.customData?.customEvents
 
-        const animateTracksFilter = arrSplit(
+        const animateTracksFilter = arraySplit(
             customEvents,
             (x) => x.t === 'AnimateTrack',
         )
@@ -287,7 +287,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         )
         customEvents = animateTracksFilter[1]
 
-        const assignPathTracksFilter = arrSplit(
+        const assignPathTracksFilter = arraySplit(
             customEvents,
             (x) => x.t === 'AssignPathAnimation',
         )
@@ -300,7 +300,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         )
         customEvents = assignPathTracksFilter[1]
 
-        const assignParentFilter = arrSplit(
+        const assignParentFilter = arraySplit(
             customEvents,
             (x) => x.t === 'AssignTrackParent',
         )
@@ -313,7 +313,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         )
         customEvents = assignParentFilter[1]
 
-        const assignPlayerFilter = arrSplit(
+        const assignPlayerFilter = arraySplit(
             customEvents,
             (x) => x.t === 'AssignPlayerToTrack',
         )
@@ -326,7 +326,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         )
         customEvents = assignPlayerFilter[1]
 
-        const animateComponentsFilter = arrSplit(
+        const animateComponentsFilter = arraySplit(
             customEvents,
             (x) => x.t === 'AnimateComponent',
         )
@@ -463,7 +463,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
             .map((x) => x.toJson(true))
             .sort(sortItems)
 
-        const bpmEventsFilter = arrSplit(
+        const bpmEventsFilter = arraySplit(
             this.bpmEvents,
             (x) => x instanceof OfficialBPMEvent,
         )

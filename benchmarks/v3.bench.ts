@@ -1,22 +1,22 @@
 import {
-    setActiveDiff,
+    setActiveDifficulty,
     bsmap,
     copy,
     note,
     colorNotesBetween,
     NoteType,
-    rand,
+    random,
     V3Difficulty,
 } from '../src/mod.ts'
 
 import * as remapperv3 from 'https://deno.land/x/remapper@3.1.1/src/mod.ts'
 
 const notes: bsmap.v3.IColorNote[] = [...Array(1000).keys()].map(() => ({
-    b: rand(0, 1000),
-    d: rand(0, 8),
-    x: rand(0, 3),
-    y: rand(0, 3),
-    c: rand(0, 3) as any,
+    b: random(0, 1000),
+    d: random(0, 8),
+    x: random(0, 3),
+    y: random(0, 3),
+    c: random(0, 3) as any,
     a: 0,
     customData: {},
 } satisfies bsmap.v3.IColorNote))
@@ -73,33 +73,33 @@ resetToEmptyDiff()
 
 Deno.bench('rm4.notePushObj', { group: 'notePush' }, () => {
     note({
-        beat: rand(0, 1000),
-        fake: rand(0, 2) === 0,
+        beat: random(0, 1000),
+        fake: random(0, 2) === 0,
         x: 3,
         y: 2,
-        direction: rand(0, 8),
+        direction: random(0, 8),
         type: NoteType.BLUE,
     }).push()
 })
 Deno.bench('rm4.notePushArgs', { group: 'notePush' }, () => {
-    const n = note(rand(0, 1000), NoteType.BLUE)
+    const n = note(random(0, 1000), NoteType.BLUE)
 
     n.x = 3
     n.y = 2
-    n.direction = rand(0, 8)
-    n.fake = rand(0, 2) === 0
+    n.direction = random(0, 8)
+    n.fake = random(0, 2) === 0
 
     n.push()
 })
 
 Deno.bench('rm3.notePush', { group: 'notePush' }, () => {
-    const n = new remapperv3.Note(rand(0, 1000), remapperv3.NOTETYPE.BLUE)
+    const n = new remapperv3.Note(random(0, 1000), remapperv3.NOTETYPE.BLUE)
 
     n.x = 3
     n.y = 2
-    n.direction = rand(0, 8)
+    n.direction = random(0, 8)
 
-    n.push(rand(0, 2) === 0)
+    n.push(random(0, 2) === 0)
 })
 
 // Using the same variable is intentional, as that means we are benchmarking
@@ -246,7 +246,7 @@ function rm3ParseJson() {
 }
 
 function resetToEmptyDiff() {
-    setActiveDiff(copy(diff))
+    setActiveDifficulty(copy(diff))
     remapperv3.activeDiffSet(remapperv3.copy(v3OldDiff))
 }
 

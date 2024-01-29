@@ -4,7 +4,7 @@ import {
     ILightWithId,
     TubeBloomPrePassLight,
 } from '../types/environment_types.ts'
-import { getActiveDiff } from '../data/beatmap_handler.ts'
+import { getActiveDifficulty } from '../data/beatmap_handler.ts'
 import { Track } from '../animation/track.ts'
 import { Fields, SubclassExclusiveProps, TJson } from '../types/util_types.ts'
 import { JsonWrapper } from '../types/beatmap_types.ts'
@@ -128,7 +128,7 @@ export class AnimateTrack extends BaseCustomEvent<
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        getActiveDiff().animateTracks.push(clone ? copy(this) : this)
+        getActiveDifficulty().animateTracks.push(clone ? copy(this) : this)
         return this
     }
 
@@ -260,7 +260,7 @@ export class AssignPathAnimation extends BaseCustomEvent<
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        getActiveDiff().assignPathAnimations.push(clone ? copy(this) : this)
+        getActiveDifficulty().assignPathAnimations.push(clone ? copy(this) : this)
         return this
     }
 
@@ -383,7 +383,7 @@ export class AssignTrackParent extends BaseCustomEvent<
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        getActiveDiff().assignTrackParents.push(clone ? copy(this) : this)
+        getActiveDifficulty().assignTrackParents.push(clone ? copy(this) : this)
         return this
     }
 
@@ -497,7 +497,7 @@ export class AssignPlayerToTrack extends BaseCustomEvent<
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        getActiveDiff().assignPlayerTracks.push(clone ? copy(this) : this)
+        getActiveDifficulty().assignPlayerTracks.push(clone ? copy(this) : this)
         return this
     }
 
@@ -627,7 +627,7 @@ export class AnimateComponent
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        getActiveDiff().animateComponents.push(clone ? copy(this) : this)
+        getActiveDifficulty().animateComponents.push(clone ? copy(this) : this)
         return this
     }
 
@@ -708,7 +708,7 @@ export class AbstractCustomEvent extends BaseCustomEvent<
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        getActiveDiff().abstractCustomEvents.push(clone ? copy(this) : this)
+        getActiveDifficulty().abstractCustomEvents.push(clone ? copy(this) : this)
         return this
     }
 

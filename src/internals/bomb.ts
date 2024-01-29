@@ -1,4 +1,4 @@
-import { activeDiff, getActiveDiff, settings } from "../data/beatmap_handler.ts";
+import { activeDiff, getActiveDifficulty, settings } from "../data/beatmap_handler.ts";
 import { bsmap } from "../deps.ts";
 import { copy } from "../utils/general.ts";
 import { jsonPrune } from "../utils/json.ts";
@@ -25,7 +25,7 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        getActiveDiff().bombs.push(clone ? copy(this) : this)
+        getActiveDifficulty().bombs.push(clone ? copy(this) : this)
         return this
     }
 

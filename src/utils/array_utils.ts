@@ -3,18 +3,18 @@ import { lerp } from './math.ts'
 import { Vec3 } from '../types/data_types.ts'
 import { EASE } from '../types/animation_types.ts'
 
-export function arrSplit<T>(
+export function arraySplit<T>(
     array: T[],
     filter: (obj: T, index: number, array: T[]) => boolean,
 ) {
     const passVal = 0;
     const failVal = 1;
 
-    const map = arrSplit2(array, (obj, index, array) => filter(obj, index, array) ? passVal : failVal)
+    const map = arraySplit2(array, (obj, index, array) => filter(obj, index, array) ? passVal : failVal)
 
     return [map[passVal] ?? [], map[failVal] ?? []]
 }
-export function arrSplit2<T, K extends string | number | symbol>(
+export function arraySplit2<T, K extends string | number | symbol>(
     array: T[],
     filter: (obj: T, index: number, array: T[]) => K,
 ): Record<K, T[]> {
@@ -39,14 +39,14 @@ export function arrSplit2<T, K extends string | number | symbol>(
  * Get the last element in an array.
  * @param arr Input array.
  */
-export const arrLast = <T>(arr: T[]) => arr[arr.length - 1]
+export const arrayLastElement = <T>(arr: T[]) => arr[arr.length - 1]
 
 /**
  * Add either a number or another array to an array.
  * @param arr Input array.
  * @param value Can be a number or an array.
  */
-export function arrAdd<T extends [] | number[]>(
+export function arrayAdd<T extends [] | number[]>(
     arr: T,
     value: { [K in keyof T]: number } | number,
 ) {
@@ -60,7 +60,7 @@ export function arrAdd<T extends [] | number[]>(
  * @param arr Input array.
  * @param value Can be a number or an array.
  */
-export function arrSubtract<T extends [] | number[]>(
+export function arraySubtract<T extends [] | number[]>(
     arr: T,
     value: { [K in keyof T]: number } | number,
 ) {
@@ -76,7 +76,7 @@ export function arrSubtract<T extends [] | number[]>(
  * @param fraction Value to find in between start and end.
  * @param easing Optional easing.
  */
-export const arrLerp = <T extends [] | number[]>(
+export const arrayLerp = <T extends [] | number[]>(
     start: T,
     end: { [K in keyof T]: number },
     fraction: number,
@@ -88,7 +88,7 @@ export const arrLerp = <T extends [] | number[]>(
  * @param arr Input array.
  * @param value Can be a number or an array.
  */
-export function arrMultiply<T extends [] | number[]>(
+export function arrayMultiply<T extends [] | number[]>(
     arr: T,
     value: { [K in keyof T]: number } | number,
 ) {
@@ -102,7 +102,7 @@ export function arrMultiply<T extends [] | number[]>(
  * @param arr Input array.
  * @param value Can be a number or an array.
  */
-export function arrDivide<T extends [] | number[]>(
+export function arrayDivide<T extends [] | number[]>(
     arr: T,
     value: { [K in keyof T]: number } | number,
 ) {
@@ -117,7 +117,7 @@ export function arrDivide<T extends [] | number[]>(
  * @param arr2 Second array.
  * @param lenience The maximum difference 2 numbers in an array can have before they're considered not equal.
  */
-export function arrEqual<T extends [] | number[]>(
+export function areArraysEqual<T extends [] | number[]>(
     arr1: T,
     arr2: { [K in keyof T]: number },
     lenience = 0,
@@ -141,7 +141,7 @@ export function arrEqual<T extends [] | number[]>(
  * @param arr Array to mutate.
  * @param index Element to remove. Can be -1 to remove last element.
  */
-export function arrRemove<T>(arr: T[], index: number) {
+export function arrayRemove<T>(arr: T[], index: number) {
     if (index === -1) index = arr.length - 1
     if (index > arr.length - 1 || index < 0) return
 
@@ -157,25 +157,25 @@ export function arrRemove<T>(arr: T[], index: number) {
  * @param arr Input array.
  * @param value Value to check for.
  */
-export const arrHas = <T>(arr: T[], value: T) => arr.some((x) => x === value)
+export const doesArrayHave = <T>(arr: T[], value: T) => arr.some((x) => x === value)
 
 /**
  * Add values of one array to another.
  * @param arr Array to add values to.
  * @param arr2 Values to add.
  */
-export const arrAppend = <T>(arr: T[], arr2: T[]) => arr.push(...arr2)
+export const appendArray = <T>(arr: T[], arr2: T[]) => arr.push(...arr2)
 
 /**
  * Generate an array from a range of numbers.
  * @param start Starting number.
  * @param start Ending number.
  */
-export const arrFill = (start: number, end: number) =>
+export const fillArrayWithValues = (start: number, end: number) =>
     Array.from({ length: end - start + 1 }, (_, i) => i + start)
 
 /**
  * Convert three Vector3 and Euler classes to a three number array.
  * @param v Vector or Euler to convert.
  */
-export const toArr = (v: three.Vector3 | three.Euler) => [v.x, v.y, v.z] as Vec3
+export const threeClassToArray = (v: three.Vector3 | three.Euler) => [v.x, v.y, v.z] as Vec3

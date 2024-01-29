@@ -1,10 +1,10 @@
 import { lerp, lerpEasing, lerpWrap, positiveMod } from '../utils/math.ts'
 import { ColorVec, Vec3 } from '../types/data_types.ts'
 import { EASE } from '../types/animation_types.ts'
-import { arrLerp } from '../utils/array_utils.ts'
+import { arrayLerp } from '../utils/array_utils.ts'
 
 /** Converts color from integer space (0-255 with whole numbers) to linear space (0-1 with decimals) */
-export function toLinearColor<T extends ColorVec>(color: T, hsv = false) {
+export function to01Color<T extends ColorVec>(color: T, hsv = false) {
     if (hsv) {
         return color.map((x, i) => !i ? x * 360 : x * 100) as T
     }
@@ -133,7 +133,7 @@ export function lerpRGB(
         end[3] ??= 1
     }
 
-    return arrLerp(start, end, fraction, easing) as ColorVec
+    return arrayLerp(start, end, fraction, easing) as ColorVec
 }
 
 /** Lerps an HSV (hue, saturation, value) color with another HSV color */

@@ -1,7 +1,7 @@
 import { bsmap } from '../deps.ts'
 
 import { NoteCut, NoteType } from '../data/constants.ts'
-import { activeDiff, getActiveDiff } from '../data/beatmap_handler.ts'
+import { activeDiff, getActiveDifficulty } from '../data/beatmap_handler.ts'
 
 import {
     BaseNote,
@@ -48,7 +48,7 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        getActiveDiff().notes.push(clone ? copy(this) : this)
+        getActiveDifficulty().notes.push(clone ? copy(this) : this)
         return this
     }
 

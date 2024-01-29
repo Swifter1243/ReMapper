@@ -14,11 +14,11 @@ import {
 } from '../types/animation_types.ts'
 
 import {
-    arrAdd,
-    arrLast,
-    arrLerp,
-    arrMultiply,
-    arrRemove,
+    arrayAdd,
+    arrayLastElement,
+    arrayLerp,
+    arrayMultiply,
+    arrayRemove,
 } from '../utils/array_utils.ts'
 
 import {
@@ -41,7 +41,7 @@ import {
     getKeyframeTime,
     getKeyframeTimeIndex,
     getKeyframeValues,
-    isSimple,
+    areKeyframesSimple,
     setKeyframeEasing,
 } from './keyframe.ts'
 import { lerpHSV } from '../data/color.ts'
@@ -54,7 +54,7 @@ import { lerpHSV } from '../data/color.ts'
 export function complexifyArray<T extends NumberTuple>(
     array: DeepReadonly<RawKeyframesAbstract<T>> | RawKeyframesAbstract<T>,
 ): ComplexKeyframesAbstract<T> {
-    if (!isSimple(array)) return array as ComplexKeyframesAbstract<T>
+    if (!areKeyframesSimple(array)) return array as ComplexKeyframesAbstract<T>
     return [[...array, 0]] as ComplexKeyframesAbstract<T>
 }
 
@@ -66,7 +66,7 @@ export function complexifyArray<T extends NumberTuple>(
 export function simplifyArray<T extends NumberTuple>(
     array: RawKeyframesAbstract<T>,
 ): RawKeyframesAbstract<T> {
-    if (array.length <= 1 && !isSimple(array)) {
+    if (array.length <= 1 && !areKeyframesSimple(array)) {
         const keyframe = array[0] as KeyframeValuesUnsafe
         const keyframeTime = getKeyframeTime(keyframe)
         if (keyframeTime === 0) {
@@ -91,7 +91,7 @@ export function getValuesAtTime<K extends string = AnimationKeys>(
         throw 'Does not support point definitions!'
     }
 
-    if (isSimple(animation)) return animation as unknown as SimpleKeyframesAny
+    if (areKeyframesSimple(animation)) return animation as unknown as SimpleKeyframesAny
 
     const complexAnimation = animation as ComplexKeyframesAny
 
@@ -127,7 +127,7 @@ export function getValuesAtTime<K extends string = AnimationKeys>(
             ) as SimpleKeyframesAny
         }
 
-        return arrLerp(
+        return arrayLerp(
             lValues,
             rValues,
             timeInfo.normalTime,
@@ -161,12 +161,12 @@ export function splineCatmullRomLerp(
     const q2 = -3 * ttt + 4 * tt + t
     const q3 = ttt - tt
 
-    const o0 = arrMultiply(p0, q0)
-    const o1 = arrMultiply(p1, q1)
-    const o2 = arrMultiply(p2, q2)
-    const o3 = arrMultiply(p3, q3)
+    const o0 = arrayMultiply(p0, q0)
+    const o1 = arrayMultiply(p1, q1)
+    const o2 = arrayMultiply(p2, q2)
+    const o3 = arrayMultiply(p3, q3)
 
-    return arrMultiply(arrAdd(arrAdd(o0, o1), arrAdd(o2, o3)), 0.5)
+    return arrayMultiply(arrayAdd(arrayAdd(o0, o1), arrayAdd(o2, o3)), 0.5)
 }
 
 function timeInKeyframes(time: number, animation: ComplexKeyframeValuesUnsafe) {
@@ -183,7 +183,7 @@ function timeInKeyframes(time: number, animation: ComplexKeyframeValuesUnsafe) {
         return { interpolate: false, l: l }
     }
 
-    const last = arrLast(animation)
+    const last = arrayLastElement(animation)
     const lastTime = getKeyframeTime(last)
 
     if (lastTime <= time) {
@@ -236,12 +236,12 @@ export function combineAnimations(
     let simpleArr = copy(anim1)
     let complexArr: ComplexKeyframeValuesUnsafe = []
 
-    if (isSimple(anim1) && isSimple(anim2)) {
+    if (areKeyframesSimple(anim1) && areKeyframesSimple(anim2)) {
         complexArr = complexifyArray<[number] | Vec3 | Vec4>(anim2)
-    } else if (!isSimple(anim1) && isSimple(anim2)) {
+    } else if (!areKeyframesSimple(anim1) && areKeyframesSimple(anim2)) {
         simpleArr = copy(anim2)
         complexArr = copy(anim1) as ComplexKeyframesAny
-    } else if (!isSimple(anim1) && !isSimple(anim2)) {
+    } else if (!areKeyframesSimple(anim1) && !areKeyframesSimple(anim2)) {
         console.error(`[${anim1}] and [${anim2}] are unable to combine!`)
     } else {
         complexArr = copy(anim2) as ComplexKeyframesAny
@@ -376,7 +376,7 @@ export function bakeAnimation(
 export function reverseAnimation<T extends NumberTuple>(
     animation: RawKeyframesAbstract<T>,
 ) {
-    if (isSimple(animation)) return animation
+    if (areKeyframesSimple(animation)) return animation
     const keyframes: ComplexKeyframesAbstract<T> = []
     ;(animation as ComplexKeyframesAbstract<T>).forEach((x, i) => {
         const k = copy(x)
@@ -406,7 +406,7 @@ export function reverseAnimation<T extends NumberTuple>(
 
             const last = keyframes[i + 1]
             setKeyframeEasing(last, getKeyframeEasing(current))
-            arrRemove(current, getKeyframeFlagIndex(current, 'ease', false))
+            arrayRemove(current, getKeyframeFlagIndex(current, 'ease', false))
         }
     }
 

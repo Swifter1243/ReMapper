@@ -7,7 +7,7 @@ import {
     RawKeyframesVec3,
 } from '../types/animation_types.ts'
 
-import { arrAdd } from '../utils/array_utils.ts'
+import { arrayAdd } from '../utils/array_utils.ts'
 import { rotatePoint } from '../utils/math.ts'
 
 import {
@@ -24,8 +24,8 @@ import { getModel } from './model.ts'
 import { ModelObject, ReadonlyModel } from '../types/model_types.ts'
 import { ColorVec, Vec3 } from '../types/data_types.ts'
 import { copy } from '../utils/general.ts'
-import { getKeyframeTime, isSimple } from '../animation/keyframe.ts'
-import { getActiveDiff } from '../mod.ts'
+import { getKeyframeTime, areKeyframesSimple } from '../animation/keyframe.ts'
+import { getActiveDifficulty } from '../mod.ts'
 
 let modelToWallCount = 0
 
@@ -49,7 +49,7 @@ export function worldToWall(
 
     let offset = [0, -0.5, -0.5] as Vec3
     offset = rotatePoint(offset.map((x, i) => x * scale[i]) as Vec3, rot)
-    pos = arrAdd(pos, offset)
+    pos = arrayAdd(pos, offset)
 
     pos[1] += 0.2
     pos[0] -= animated ? 0.5 : scale[0] / 2
@@ -80,7 +80,7 @@ export async function modelToWall(
     animFreq?: number,
     animOptimizer = new OptimizeSettings(),
 ) {
-    const diff = getActiveDiff()
+    const diff = getActiveDifficulty()
     return await diff.runAsync(async () => {
         animFreq ??= 1 / 64
         distribution ??= 1
@@ -91,9 +91,9 @@ export async function modelToWall(
     
         function isAnimated(obj: ModelObject) {
             return (
-                !isSimple(obj.pos) ||
-                !isSimple(obj.rot) ||
-                !isSimple(obj.scale)
+                !areKeyframesSimple(obj.pos) ||
+                !areKeyframesSimple(obj.rot) ||
+                !areKeyframesSimple(obj.scale)
             )
         }
     
@@ -129,7 +129,7 @@ export async function modelToWall(
             if (distribution === undefined || length < 1) return
             const nums = getDistributeNums(index, length)
     
-            if (isSimple(anim)) {
+            if (areKeyframesSimple(anim)) {
                 return anim
             }
     
@@ -229,10 +229,10 @@ export async function modelToWall(
             o.animation.definitePosition = copy(x.pos) as RawKeyframesVec3
             if (x.color) o.color = copy(x.color) as ColorVec
     
-            if (isSimple(x.rot)) o.localRotation = copy(x.rot) as Vec3
+            if (areKeyframesSimple(x.rot)) o.localRotation = copy(x.rot) as Vec3
             else o.animation.localRotation = copy(x.rot) as RawKeyframesVec3
     
-            if (isSimple(x.scale)) o.scale = copy(x.scale) as Vec3
+            if (areKeyframesSimple(x.scale)) o.scale = copy(x.scale) as Vec3
             else {
                 o.scale = [1, 1, 1]
                 o.animation.scale = copy(x.scale) as RawKeyframesVec3
@@ -280,9 +280,9 @@ export function debugWall(
     w.coordinates = [0, 0]
 
     if (
-        !isSimple(pos) ||
-        !isSimple(rot) ||
-        !isSimple(scale)
+        !areKeyframesSimple(pos) ||
+        !areKeyframesSimple(rot) ||
+        !areKeyframesSimple(scale)
     ) {
         transform = bakeAnimation(
             transform,

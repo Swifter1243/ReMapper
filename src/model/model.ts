@@ -1,7 +1,7 @@
 // deno-lint-ignore-file no-explicit-any no-extra-semi
 import { RawKeyframesVec3 } from '../types/animation_types.ts'
 import { RawGeometryMaterial } from '../types/environment_types.ts'
-import { activeDiff, getActiveDiff } from '../data/beatmap_handler.ts'
+import { activeDiff, getActiveDifficulty } from '../data/beatmap_handler.ts'
 import {
     AnimatedObjectInput,
     AnimatedOptions,
@@ -16,7 +16,7 @@ import {
     StaticObjectInput,
 } from '../types/model_types.ts'
 
-import { arrAdd } from '../utils/array_utils.ts'
+import { arrayAdd } from '../utils/array_utils.ts'
 import { combineTransforms, rotatePoint } from '../utils/math.ts'
 
 import { cacheData, parseFilePath } from '../general.ts'
@@ -163,7 +163,7 @@ export class ModelScene {
         // deno-lint-ignore no-this-alias
         const self = this
 
-        const v3 = getActiveDiff().v3
+        const v3 = getActiveDifficulty().v3
         let objectInput = input as ObjectInput
         let options = {} as AnimatedOptions
 
@@ -449,7 +449,7 @@ export class ModelScene {
         forObject?: (object: GroupObjectTypes) => void,
         forAssigned?: (event: CustomEventInternals.AnimateTrack) => void,
     ) {
-        const diff = getActiveDiff()
+        const diff = getActiveDifficulty()
 
         // deno-lint-ignore no-this-alias
         const self = this
@@ -563,7 +563,7 @@ export class ModelScene {
         AnimationStart?,
         ForEvent?,
     ][], forObject?: (object: GroupObjectTypes) => void) {
-        const diff = getActiveDiff()
+        const diff = getActiveDifficulty()
 
         // deno-lint-ignore no-this-alias
         const self = this
@@ -880,7 +880,7 @@ export function applyAnchor(
 function createYeetDef() {
     if (noYeet === true) {
         noYeet = false
-        getActiveDiff().pointDefinitions.yeet = [0, -69420, 0]
+        getActiveDifficulty().pointDefinitions.yeet = [0, -69420, 0]
     }
 }
 
@@ -928,7 +928,7 @@ export function debugObject(
     anchor?: Vec3,
     rotation?: Vec3,
 ) {
-    const diff = getActiveDiff()
+    const diff = getActiveDifficulty()
     diff.clear(['Geometry Materials'])
 
     backLasers().on([3, 3, 3, 1]).push(false)
@@ -967,7 +967,7 @@ export function debugObject(
     function addCubes(transforms: [Vec3, Vec3?, string?][], track?: string) {
         transforms.forEach((transform) => {
             const data: ModelObject = {
-                pos: arrAdd(transform[0], [0, 10, 0]) as Vec3,
+                pos: arrayAdd(transform[0], [0, 10, 0]) as Vec3,
                 rot: [0, 0, 0],
                 scale: transform[1] ?? [1, 1, 1],
             }

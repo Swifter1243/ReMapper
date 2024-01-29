@@ -1,4 +1,4 @@
-import { activeDiff, getActiveDiff, settings } from '../data/beatmap_handler.ts'
+import { activeDiff, getActiveDifficulty, settings } from '../data/beatmap_handler.ts'
 import { AnchorMode, NoteCut } from '../data/constants.ts'
 import { bsmap } from '../deps.ts'
 import { Vec2 } from '../types/data_types.ts'
@@ -43,7 +43,7 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
      * Push this arc to the difficulty
      */
     push(clone = true) {
-        getActiveDiff().arcs.push(clone ? copy(this) : this)
+        getActiveDifficulty().arcs.push(clone ? copy(this) : this)
         return this
     }
 

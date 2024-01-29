@@ -1,6 +1,6 @@
 import { EPSILON, getSeconds } from './utils/math.ts'
 import { fs, path } from './deps.ts'
-import { getActiveDiff } from './data/beatmap_handler.ts'
+import { getActiveDifficulty } from './data/beatmap_handler.ts'
 import { OnlyNumbersOptional } from './types/util_types.ts'
 import { FILENAME, FILEPATH } from './types/beatmap_types.ts'
 import * as NoteInternals from "./internals/note.ts"
@@ -103,13 +103,13 @@ export type Chain = NoteInternals.Chain
 export type AnyNote = Note | Bomb | Arc | Chain
 export type BeatmapObject = AnyNote | Wall | LightEvent
 
-function objBetween<T extends BeatmapObject>(
+function objectsBetween<T extends BeatmapObject>(
     array: T[],
     min: number,
     max: number,
     forEach?: (obj: T) => void
 ) {
-    const filtered = filterObjects(array, min, max, 'time')
+    const filtered = filterObjects(array, min, max, 'beat')
     if (forEach) filtered.forEach(forEach)
     return filtered
 }
@@ -125,7 +125,7 @@ export function allNotesBetween(
     max: number,
     forEach?: (obj: AnyNote) => void
 ) {
-    return objBetween(getActiveDiff().allNotes as AnyNote[], min, max, forEach)
+    return objectsBetween(getActiveDifficulty().allNotes as AnyNote[], min, max, forEach)
 }
 
 /**
@@ -139,7 +139,7 @@ export function colorNotesBetween(
     max: number,
     forEach?: (obj: Note) => void
 ) {
-    return objBetween(getActiveDiff().notes, min, max, forEach)
+    return objectsBetween(getActiveDifficulty().notes, min, max, forEach)
 }
 
 /**
@@ -153,7 +153,7 @@ export function bombsBetween(
     max: number,
     forEach?: (obj: Bomb) => void
 ) {
-    return objBetween(getActiveDiff().bombs, min, max, forEach)
+    return objectsBetween(getActiveDifficulty().bombs, min, max, forEach)
 }
 
 /**
@@ -167,7 +167,7 @@ export function arcsBetween(
     max: number,
     forEach?: (obj: Arc) => void
 ) {
-    return objBetween(getActiveDiff().arcs, min, max, forEach)
+    return objectsBetween(getActiveDifficulty().arcs, min, max, forEach)
 }
 
 /**
@@ -181,7 +181,7 @@ export function chainsBetween(
     max: number,
     forEach?: (obj: Chain) => void
 ) {
-    return objBetween(getActiveDiff().chains, min, max, forEach)
+    return objectsBetween(getActiveDifficulty().chains, min, max, forEach)
 }
 
 /**
@@ -195,7 +195,7 @@ export function wallsBetween(
     max: number,
     forEach?: (obj: Wall) => void
 ) {
-    return objBetween(getActiveDiff().walls, min, max, forEach)
+    return objectsBetween(getActiveDifficulty().walls, min, max, forEach)
 }
 
 /**
@@ -209,7 +209,7 @@ export function eventsBetween(
     max: number,
     forEach?: (obj: LightEvent) => void
 ) {
-    return objBetween(getActiveDiff().lightEvents, min, max, forEach)
+    return objectsBetween(getActiveDifficulty().lightEvents, min, max, forEach)
 }
 
 /**

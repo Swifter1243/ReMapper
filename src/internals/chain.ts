@@ -1,4 +1,4 @@
-import { activeDiff, getActiveDiff, settings } from '../data/beatmap_handler.ts'
+import { activeDiff, getActiveDifficulty, settings } from '../data/beatmap_handler.ts'
 import { bsmap } from '../deps.ts'
 import { Vec2 } from '../types/data_types.ts'
 import { Fields, SubclassExclusiveProps } from '../types/util_types.ts'
@@ -51,7 +51,7 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        getActiveDiff().chains.push(clone ? copy(this) : this)
+        getActiveDifficulty().chains.push(clone ? copy(this) : this)
         return this
     }
 

@@ -3,7 +3,7 @@ import { three } from '../deps.ts'
 import * as easings from '../data/easings.ts'
 import { EASE } from '../types/animation_types.ts'
 
-import { arrAdd, arrDivide, arrMultiply, arrSubtract, toArr } from './array_utils.ts'
+import { arrayAdd, arrayDivide, arrayMultiply, arraySubtract, threeClassToArray } from './array_utils.ts'
 import { Bounds, Transform, Vec3 } from '../types/data_types.ts'
 import { copy } from './general.ts'
 import { DeepReadonly } from '../types/util_types.ts'
@@ -74,14 +74,14 @@ export function lerpRotation(
         new three.Euler(...toRadians(end), 'YXZ'),
     )
     q1.slerp(q2, fraction)
-    return rotFromQuaternion(q1)
+    return eulerFromQuaternion(q1)
 }
 
 /**
  * Converts a quaternion to a euler rotation.
  * @param q Input quaternion.
  */
-export function rotFromQuaternion(q: three.Quaternion) {
+export function eulerFromQuaternion(q: three.Quaternion) {
     let euler = new three.Euler(0, 0, 0, 'YXZ').setFromQuaternion(q)
         .toArray() as number[]
     euler.pop()
@@ -117,7 +117,7 @@ export function findFraction(beginning: number, length: number, time: number) {
  * @param end Maximum value.
  * @param roundResult If defined, result will be rounded to nearest multiple of this number.
  */
-export function rand(start: number, end: number, roundResult?: number) {
+export function random(start: number, end: number, roundResult?: number) {
     const result = Math.random() * (end - start) + start
     return roundResult ? round(result, roundResult) : result
 }
@@ -185,7 +185,7 @@ export function getDistance<T extends [] | number[]>(
     A: T,
     B: { [K in keyof T]: number },
 ) {
-    return magnitude(arrSubtract(A, B))
+    return magnitude(arraySubtract(A, B))
 }
 
 /**
@@ -201,7 +201,7 @@ export function magnitude(vector: number[]) {
  * Normalize a vector, making it's magnitude 1.
  */
 export function normalize<T extends number[]>(vector: T) {
-    return arrDivide(vector, magnitude(vector))
+    return arrayDivide(vector, magnitude(vector))
 }
 
 /**
@@ -217,11 +217,11 @@ export function rotatePoint(
 ) {
     const mathRot = toRadians(rotation as Vec3)
     const vector = toThreeVec3(
-        arrAdd(point as Vec3, arrMultiply(anchor as Vec3, -1)),
+        arrayAdd(point as Vec3, arrayMultiply(anchor as Vec3, -1)),
     ).applyEuler(
         new three.Euler(...mathRot, 'YXZ'),
     )
-    return arrAdd(toArr(vector), anchor as Vec3)
+    return arrayAdd(threeClassToArray(vector), anchor as Vec3)
 }
 
 /**
@@ -303,11 +303,11 @@ export function getTransformFromMatrix(matrix: three.Matrix4) {
     const q = new three.Quaternion()
     const scale = new three.Vector3()
     matrix.decompose(pos, q, scale)
-    const rot = rotFromQuaternion(q)
+    const rot = eulerFromQuaternion(q)
     return {
-        pos: toArr(pos),
+        pos: threeClassToArray(pos),
         rot: rot,
-        scale: toArr(scale),
+        scale: threeClassToArray(scale),
     }
 }
 
@@ -327,7 +327,7 @@ export function combineTransforms(
     const newTransform = copy(transform) as Transform
 
     newTarget.pos ??= [0, 0, 0]
-    newTarget.pos = arrSubtract(newTarget.pos, anchor)
+    newTarget.pos = arraySubtract(newTarget.pos, anchor)
 
     const targetM = getMatrixFromTransform(newTarget)
     const transformM = getMatrixFromTransform(newTransform)
@@ -372,7 +372,7 @@ export function getBoxBounds(
         corners.forEach((c) => {
             c = c.map((x, i) => (x / 2) * scale[i]) as Vec3
             c = rotatePoint(c, rot)
-            c = arrAdd(c, pos as Vec3)
+            c = arrayAdd(c, pos as Vec3)
 
             if (lowBound === undefined) {
                 lowBound = copy(c)

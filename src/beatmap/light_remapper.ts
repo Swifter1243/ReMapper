@@ -1,5 +1,5 @@
 import * as LightRemapperInternals from '../internals/light_remapper.ts'
-import { arrHas } from '../utils/array_utils.ts'
+import { doesArrayHave } from '../utils/array_utils.ts'
 
 import { LightID } from '../types/environment_types.ts'
 import { copy } from '../utils/general.ts'
@@ -44,7 +44,7 @@ export class LightRemapper extends LightRemapperInternals.BaseLightRemapper {
                         : [lightIDs]
                     let passed = false
                     this.complexifyLightIDs(x.lightID, (ids) => {
-                        if (ids.some((i) => arrHas(arrIDs, i))) passed = true
+                        if (ids.some((i) => doesArrayHave(arrIDs, i))) passed = true
                         return ids
                     })
                     return passed

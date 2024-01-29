@@ -8,11 +8,11 @@ import { V3Difficulty } from '../beatmap/beatmap_v3.ts'
 import { V2Difficulty } from '../beatmap/beatmap_v2.ts'
 import {
     attachWorkingDirectory,
-    setActiveDiff,
+    setActiveDifficulty,
     setWorkingDirectory,
     workingDirectoryExists,
 } from './beatmap_handler.ts'
-import { getInfoDiffSets } from './info_file.ts'
+import { getInfoDifficultySets } from './info_file.ts'
 import { loadInfoDat } from '../mod.ts'
 
 export async function readDifficulty(
@@ -58,7 +58,7 @@ export async function readDifficulty(
     const jsonPromise = Deno.readTextFile(parsedInput.path)
 
     await loadInfoDat()
-    const infoData = getInfoDiffSets(parsedOutput.name as DIFFNAME)
+    const infoData = getInfoDifficultySets(parsedOutput.name as DIFFNAME)
     const json = JSON.parse(await jsonPromise) as
         | bsmap.v2.IDifficulty
         | bsmap.v3.IDifficulty
@@ -85,7 +85,7 @@ export async function readDifficulty(
         )
     }
 
-    setActiveDiff(diff)
+    setActiveDifficulty(diff)
 
     return diff
 }

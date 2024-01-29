@@ -1,5 +1,5 @@
 import { BloomFogEnvironment } from '../types/environment_types.ts'
-import { bsmap, ComplexKeyframesLinear, getActiveDiff } from '../mod.ts'
+import { bsmap, ComplexKeyframesLinear, getActiveDifficulty } from '../mod.ts'
 
 // TODO: Maybe make this a difficulty based thing?
 export type AnyFog = BloomFogEnvironment<
@@ -108,7 +108,7 @@ export function adjustFog(
     if (typeof params[0] === 'object') {
         const obj = (params as Overload1)[0]
 
-        getActiveDiff().fogEvents.push(
+        getActiveDifficulty().fogEvents.push(
             new FogEvent(obj, obj.beat, obj.duration),
         )
 
@@ -117,7 +117,7 @@ export function adjustFog(
     } else if (params.length === 2) {
         const obj = params as Overload2
 
-        getActiveDiff().fogEvents.push(
+        getActiveDifficulty().fogEvents.push(
             new FogEvent(obj[1], obj[0]),
         )
 
@@ -125,7 +125,7 @@ export function adjustFog(
     } else {
         const obj = params as Overload3
 
-        getActiveDiff().fogEvents.push(
+        getActiveDifficulty().fogEvents.push(
             new FogEvent(obj[2], obj[0], obj[1]),
         )
     }

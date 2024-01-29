@@ -1,5 +1,5 @@
 import { LightEvent } from './basic_event.ts'
-import { getActiveDiff } from '../data/beatmap_handler.ts'
+import { getActiveDifficulty } from '../data/beatmap_handler.ts'
 
 export type Condition = (event: LightEvent) => boolean
 export type Process = (event: LightEvent) => void
@@ -80,7 +80,7 @@ export class BaseLightRemapper {
      * Run the algorithm.
      * @param log Log the output JSON of each event.
      */
-    run = (log = false) => this.processEvents(getActiveDiff().lightEvents, log)
+    run = (log = false) => this.processEvents(getActiveDifficulty().lightEvents, log)
 
     /**
      * Process events through the algorithm.
