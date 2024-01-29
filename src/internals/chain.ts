@@ -142,11 +142,10 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
         if (!v3) throw 'V2 is not supported for chains'
 
         const diff = activeDiff
-        let NJS = this.NJS
+        const NJS = this.NJS
         let offset = this.offset
 
         if (diff && settings.forceJumpsForNoodle && this.isGameplayModded) {
-            NJS ??= diff.NJS
             offset ??= diff.offset
         }
 

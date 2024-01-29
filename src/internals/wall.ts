@@ -117,11 +117,10 @@ export class Wall
     toJson(v3: false, prune?: boolean): bsmap.v2.IObstacle
     toJson(v3 = true, prune = true): bsmap.v2.IObstacle | bsmap.v3.IObstacle {
         const diff = activeDiff
-        let NJS = this.NJS
+        const NJS = this.NJS
         let offset = this.offset
 
         if (diff && settings.forceJumpsForNoodle && this.isGameplayModded) {
-            NJS ??= diff.NJS
             offset ??= diff.offset
         }
 
