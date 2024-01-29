@@ -4,6 +4,7 @@ import {
     getWorkingDirectory,
 } from './beatmap_handler.ts'
 import { DIFFNAME } from '../mod.ts'
+import { RMLog } from '../general.ts'
 
 let info: bsmap.v2.IInfo
 
@@ -13,6 +14,7 @@ export function getInfoPath() {
 
 function saveInfoDat() {
     Deno.writeTextFileSync(getInfoPath(), JSON.stringify(info, null, 4))
+    RMLog('Info.dat successfully saved!')
 }
 
 export async function loadInfoDat() {
