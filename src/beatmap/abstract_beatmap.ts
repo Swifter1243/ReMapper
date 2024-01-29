@@ -27,7 +27,6 @@ import * as EnvironmentInternals from '../internals/environment.ts'
 import * as NoteInternals from '../internals/note.ts'
 import * as WallInternals from '../internals/wall.ts'
 import * as BasicEventInternals from '../internals/basic_event.ts'
-import { saveInfoDat } from '../data/info_file.ts'
 import { EventInternals } from '../internals/mod.ts'
 import { FogEvent } from './fog.ts'
 import { getActiveCache } from '../rm_cache.ts'
@@ -291,7 +290,6 @@ export abstract class AbstractDifficulty<
 
             // this.doPostProcess(undefined, outputJSON)
 
-            const promise3 = saveInfoDat()
             const promise1 = getActiveCache().then((rm) => rm.save())
 
             const sortedProcess = [...self.postProcesses.entries()]
@@ -325,7 +323,7 @@ export abstract class AbstractDifficulty<
                     pretty ? 2 : 0,
                 ),
             )
-            await Promise.all([promise1, promise2, promise3])
+            await Promise.all([promise1, promise2])
             RMLog(`${diffName} successfully saved!`)
         }
 

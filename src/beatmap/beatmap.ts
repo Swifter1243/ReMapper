@@ -1,7 +1,7 @@
 import { adbDeno, compress, fs, path } from '../deps.ts'
 
 import { QUEST_WIP_PATH } from '../data/constants.ts'
-import { getActiveDiff, info } from '../data/beatmap_handler.ts'
+import { getActiveDiff } from '../data/beatmap_handler.ts'
 
 import { arrRemove } from '../utils/array_utils.ts'
 
@@ -13,6 +13,7 @@ import { copy } from '../utils/general.ts'
 import { environment } from './environment.ts'
 import { Environment } from '../internals/environment.ts'
 import { getWorkingDirectory, isEmptyObject, readDifficulty, setActiveDiff } from '../mod.ts'
+import { getInfoDat } from '../data/mod.ts'
 
 /**
  * Converts an array of Json objects to a class counterpart.
@@ -43,7 +44,7 @@ export async function collectBeatmapFiles(
     excludeDiffs: FILENAME<DIFFS>[] = [],
     awaitSave = true
 ) {
-    if (!info) throw new Error('The Info object has not been loaded.')
+    const info = getInfoDat()
 
     const diff = getActiveDiff()
     if (awaitSave && diff) {
@@ -154,6 +155,7 @@ export async function exportToQuest(
     options?: adbDeno.InvokeADBOptions,
 ) {
     const adbBinary = adbDeno.getADBBinary(adbDeno.defaultADBPath())
+    const info = getInfoDat()
 
     // Download ADB
     const adbPromise = fs.exists(adbBinary).then(async (exists) => {

@@ -1,9 +1,8 @@
-import {bsmap, path} from '../deps.ts'
+import {path} from '../deps.ts'
 
 import type {AbstractDifficulty} from '../beatmap/abstract_beatmap.ts'
 import { loadCache } from "../rm_cache.ts";
 
-export let info: bsmap.v2.IInfo
 let workingDirectory: string
 export let activeDiff: AbstractDifficulty
 export const settings = {
@@ -48,17 +47,5 @@ export function attachWorkingDirectory(file: string) {
     if (path.isAbsolute(file)) return file
     
     return path.join(workingDirectory ?? '', file)
-}
-
-
-export function setInfo(i: bsmap.v2.IInfo) {
-    info = i
-}
-
-
-export function getInfo() {
-    if (info) return info
-
-    throw new Error('There is currently no loaded info.dat.')
 }
 

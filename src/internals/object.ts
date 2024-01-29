@@ -1,7 +1,7 @@
 import { bsmap } from '../deps.ts'
 
 import { NoteCut, NoteType } from '../data/constants.ts'
-import { getActiveDiff, info } from '../data/beatmap_handler.ts'
+import { getActiveDiff } from '../data/beatmap_handler.ts'
 
 import { getJumps } from '../utils/math.ts'
 import { isEmptyObject } from '../utils/json.ts'
@@ -25,6 +25,7 @@ import {
 } from './animation.ts'
 import { TrackValue } from '../types/animation_types.ts'
 import { jsonPrune } from '../mod.ts'
+import { getInfoDat } from '../data/info_file.ts'
 
 export function importInvertedBoolean(bool: boolean | undefined) {
     return bool !== undefined ? !bool : undefined
@@ -222,7 +223,7 @@ export abstract class BaseGameplayObject<
         return getJumps(
             this.implicitNJS,
             this.implicitOffset,
-            info._beatsPerMinute,
+            getInfoDat()._beatsPerMinute,
         ).halfDur
     }
 
@@ -234,7 +235,7 @@ export abstract class BaseGameplayObject<
         return getJumps(
             this.implicitNJS,
             this.implicitOffset,
-            info._beatsPerMinute,
+            getInfoDat()._beatsPerMinute,
         ).dist
     }
 
@@ -248,7 +249,7 @@ export abstract class BaseGameplayObject<
                 'Warning: The lifespan of a note has a minimum of 0.25 beats.',
             )
         }
-        const defaultJumps = getJumps(this.implicitNJS, 0, info._beatsPerMinute)
+        const defaultJumps = getJumps(this.implicitNJS, 0, getInfoDat()._beatsPerMinute)
         this.offset = (value - 2 * defaultJumps.halfDur) / 2
     }
 
