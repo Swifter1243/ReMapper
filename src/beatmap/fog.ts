@@ -8,12 +8,12 @@ export type AnyFog = BloomFogEnvironment<
 
 export class FogEvent {
     fog: AnyFog
-    time?: number
+    beat?: number
     duration?: number
 
-    constructor(animation: AnyFog, time?: number, duration?: number) {
+    constructor(animation: AnyFog, beat?: number, duration?: number) {
         this.fog = animation
-        if (time) this.time = time
+        if (beat) this.beat = beat
         if (duration) this.duration = duration
     }
 
@@ -30,7 +30,7 @@ export class FogEvent {
 
     exportV3() {
         const isStatic = !(
-            this.time ||
+            this.beat ||
             this.duration ||
             Object.values(this.fog).some((x) => typeof x !== 'number')
         )
@@ -46,7 +46,7 @@ export class FogEvent {
         }
 
         return {
-            b: this.time ?? 0,
+            b: this.beat ?? 0,
             t: 'AnimateComponent',
             d: {
                 duration: this.duration,
@@ -58,7 +58,7 @@ export class FogEvent {
 
     exportV2() {
         return {
-            _time: this.time ?? 0,
+            _time: this.beat ?? 0,
             _type: 'AnimateTrack',
             _data: {
                 _track: 'ReMapper_Fog',
@@ -71,20 +71,20 @@ export class FogEvent {
 
 type Overload1 = [
     AnyFog & {
-        time?: number
+        beat?: number
         duration?: number
     },
 ]
 
 type Overload2 = [
-    time: number,
+    beat: number,
     params: AnyFog & {
         duration?: number
     },
 ]
 
 type Overload3 = [
-    time: number,
+    beat: number,
     duration: number,
     params: AnyFog,
 ]
@@ -109,10 +109,10 @@ export function adjustFog(
         const obj = (params as Overload1)[0]
 
         getActiveDiff().fogEvents.push(
-            new FogEvent(obj, obj.time, obj.duration),
+            new FogEvent(obj, obj.beat, obj.duration),
         )
 
-        delete obj.time
+        delete obj.beat
         delete obj.duration
     } else if (params.length === 2) {
         const obj = params as Overload2

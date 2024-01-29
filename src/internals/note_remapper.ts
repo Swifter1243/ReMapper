@@ -77,7 +77,7 @@ export class BaseNoteRemapper<T extends AnyNote> {
     }
 
     betweenTime(min: number, max: number) {
-        return this.addCondition((x) => x.time >= min && x.time < max)
+        return this.addCondition((x) => x.beat >= min && x.beat < max)
     }
 
     betweenXPos(min: number, max: number) {

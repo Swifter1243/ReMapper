@@ -3,7 +3,7 @@ import {Wall} from "../internals/wall.ts";
 
 /**
  * Wall object for ease of creation.
- * @param time The time this wall will arrive at the player.
+ * @param beat The time this wall will arrive at the player.
  * @param duration The duration of the wall.
  * @param x The lane of the wall.
  * @param y The vertical row of the wall.
@@ -13,7 +13,7 @@ import {Wall} from "../internals/wall.ts";
 
 export function wall(
     ...params: ConstructorParameters<typeof Wall> | [
-        time?: number,
+        beat?: number,
         duration?: number,
         x?: number,
         y?: number,
@@ -26,10 +26,10 @@ export function wall(
         return new Wall(first)
     }
 
-    const [time, duration, x, y, height, width] = params
+    const [beat, duration, x, y, height, width] = params
 
     return new Wall({
-        time: time as number ?? 0,
+        beat: beat as number ?? 0,
         duration: duration ?? 1,
         x: x ?? 0,
         y: y ?? 0,

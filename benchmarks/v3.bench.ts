@@ -73,7 +73,7 @@ resetToEmptyDiff()
 
 Deno.bench('rm4.notePushObj', { group: 'notePush' }, () => {
     note({
-        time: rand(0, 1000),
+        beat: rand(0, 1000),
         fake: rand(0, 2) === 0,
         x: 3,
         y: 2,

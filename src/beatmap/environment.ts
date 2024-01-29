@@ -57,14 +57,14 @@ export function geometry(
 /**
  * Targets any environment objects in a group and animates them based on their original transforms.
  * @param group The group to target.
- * @param time The time of the animation.
+ * @param beat The time of the animation.
  * @param animation Callback for the animation that will be used.
  * @param duration Duration of the animation.
  * @param easing Easing on the animation.
  */
 export function animateEnvGroup(
     group: string,
-    time: number,
+    beat: number,
     animation: (animation: AnimationInternals.EnvironmentAnimationData) => void,
     duration?: number,
     easing?: EASE,
@@ -82,7 +82,7 @@ export function animateEnvGroup(
                 envCount++
             }
 
-            const event = animateTrack(time, x.track.value)
+            const event = animateTrack(beat, x.track.value)
             if (duration) event.duration = duration
             if (easing) event.easing = easing
 
@@ -110,14 +110,14 @@ export function animateEnvGroup(
 /**
  * Targets any environment objects in a track and animates them based on their original transforms.
  * @param track The track to target.
- * @param time The time of the animation.
+ * @param beat The time of the animation.
  * @param animation Callback for the animation that will be used.
  * @param duration Duration of the animation.
  * @param easing Easing on the animation.
  */
 export function animateEnvTrack(
     track: string,
-    time: number,
+    beat: number,
     animation: (animation: AnimationInternals.EnvironmentAnimationData) => void,
     duration?: number,
     easing?: EASE,
@@ -130,7 +130,7 @@ export function animateEnvTrack(
             const newAnimation: AnimationInternals.AnimationPropertiesV3 = {}
             animation(newAnimation)
 
-            const event = animateTrack(time, x.track.value)
+            const event = animateTrack(beat, x.track.value)
             if (duration) event.duration = duration
             if (easing) event.easing = easing
 

@@ -16,7 +16,7 @@ export type CustomEvent = CustomEventInternals.BaseCustomEvent<
  * @param easing The easing on this event's animation.
  */
 export function animateTrack(
-    time: number,
+    beat: number,
     track: TrackValue,
     duration?: number,
     animation?: CustomEventInternals.AnimateTrack['animation'],
@@ -29,7 +29,7 @@ export function animateTrack(
     ...params:
         | ConstructorParameters<typeof CustomEventInternals.AnimateTrack>
         | [
-            time: number,
+            beat: number,
             track: TrackValue,
             duration?: number,
             animation?: CustomEventInternals.AnimateTrack['animation'],
@@ -46,11 +46,11 @@ export function animateTrack(
         )
     }
 
-    const [time, track, duration, animation, easing] = params
+    const [beat, track, duration, animation, easing] = params
 
     return new CustomEventInternals.AnimateTrack(
         {
-            time: time as number,
+            beat: beat as number,
             track: track as TrackValue,
             duration,
             animation,
@@ -67,7 +67,7 @@ export function animateTrack(
  * @param easing The easing on this event's animation.
  */
 export function assignPathAnimation(
-    time: number,
+    beat: number,
     track: TrackValue,
     duration?: number,
     animation?: CustomEventInternals.AnimateTrack['animation'],
@@ -82,7 +82,7 @@ export function assignPathAnimation(
     ...params:
         | ConstructorParameters<typeof CustomEventInternals.AssignPathAnimation>
         | [
-            time: number,
+            beat: number,
             track: TrackValue,
             duration?: number,
             animation?: CustomEventInternals.AssignPathAnimation['animation'],
@@ -99,11 +99,11 @@ export function assignPathAnimation(
         )
     }
 
-    const [time, track, duration, animation, easing] = params
+    const [beat, track, duration, animation, easing] = params
 
     return new CustomEventInternals.AssignPathAnimation(
         {
-            time: time as number,
+            beat: beat as number,
             track: track as TrackValue,
             duration,
             animation,
@@ -119,7 +119,7 @@ export function assignPathAnimation(
  * @param worldPositionStays Modifies the transform of children objects to remain in the same place relative to world space.
  */
 export function assignTrackParent(
-    time: number,
+    beat: number,
     childrenTracks: string[],
     parentTrack: string,
     worldPositionStays?: boolean,
@@ -133,7 +133,7 @@ export function assignTrackParent(
     ...params:
         | ConstructorParameters<typeof CustomEventInternals.AssignTrackParent>
         | [
-            time: number,
+            beat: number,
             childrenTracks: string[],
             parentTrack: string,
             worldPositionStays?: boolean,
@@ -149,11 +149,11 @@ export function assignTrackParent(
         )
     }
 
-    const [time, childrenTracks, parentTrack, worldPositionStays] = params
+    const [beat, childrenTracks, parentTrack, worldPositionStays] = params
 
     return new CustomEventInternals.AssignTrackParent(
         {
-            time: time as number,
+            beat: beat as number,
             childrenTracks: childrenTracks!,
             parentTrack: parentTrack!,
             worldPositionStays,
@@ -162,7 +162,7 @@ export function assignTrackParent(
 }
 
 export function assignPlayerToTrack(
-    time: number,
+    beat: number,
     track?: string,
 ): CustomEventInternals.AssignPlayerToTrack
 export function assignPlayerToTrack(
@@ -179,7 +179,7 @@ export function assignPlayerToTrack(
     ...params:
         | ConstructorParameters<typeof CustomEventInternals.AssignPlayerToTrack>
         | [
-            time: number,
+            beat: number,
             track?: string,
         ]
 ) {
@@ -193,11 +193,11 @@ export function assignPlayerToTrack(
         )
     }
 
-    const [time, track] = params
+    const [beat, track] = params
 
     return new CustomEventInternals.AssignPlayerToTrack(
         {
-            time: time as number,
+            beat: beat as number,
             track
         },
     )
@@ -210,7 +210,7 @@ export function assignPlayerToTrack(
  * @param easing The easing on the animation.
  */
 export function animateComponent(
-    time: number,
+    beat: number,
     track: TrackValue,
     duration?: number,
     easing?: EASE,
@@ -224,7 +224,7 @@ export function animateComponent(
     ...params:
         | ConstructorParameters<typeof CustomEventInternals.AnimateComponent>
         | [
-            time: number,
+            beat: number,
             track: TrackValue,
             duration?: number,
             easing?: EASE,
@@ -240,11 +240,11 @@ export function animateComponent(
         )
     }
 
-    const [time, track, duration, easing] = params
+    const [beat, track, duration, easing] = params
 
     return new CustomEventInternals.AnimateComponent(
         {
-            time: time as number,
+            beat: beat as number,
             track,
             duration,
             easing,
@@ -253,7 +253,7 @@ export function animateComponent(
 }
 
 export function abstractCustomEvent(
-    time: number,
+    beat: number,
     type: string,
     data: TJson
 ): CustomEventInternals.AbstractCustomEvent
@@ -266,7 +266,7 @@ export function abstractCustomEvent(
     ...params:
         | ConstructorParameters<typeof CustomEventInternals.AbstractCustomEvent>
         | [
-            time: number,
+            beat: number,
             type: string,
             data: TJson
         ]
@@ -281,11 +281,11 @@ export function abstractCustomEvent(
         )
     }
 
-    const [time, type, data] = params
+    const [beat, type, data] = params
 
     return new CustomEventInternals.AbstractCustomEvent(
         {
-            time: time as number,
+            beat: beat as number,
             type,
             data
         },

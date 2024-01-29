@@ -426,7 +426,7 @@ export abstract class AbstractDifficulty<
                 ...this.ringSpinEvents,
                 ...this.ringZoomEvents,
                 ...this.laserSpeedEvents,
-            ].sort((a, b) => a.time - b.time)
+            ].sort((a, b) => a.beat - b.beat)
         }
 
         yield* this.lightEvents

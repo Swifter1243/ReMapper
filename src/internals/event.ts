@@ -42,7 +42,7 @@ export class RotationEvent
             InverseRotationAction[
                 json.i as keyof typeof InverseRotationAction
             ]
-        this.time = json.b
+        this.beat = json.b
         this.customData = json.customData
         return this
     }
@@ -95,7 +95,7 @@ export class RotationEvent
     ): bsmap.v2.IEventLaneRotation | bsmap.v3.IRotationEvent {
         if (v3) {
             const output = {
-                b: this.time,
+                b: this.beat,
                 e: this.early ? 1 : 0,
                 r: this.rotation,
                 customData: this.customData,
@@ -116,7 +116,7 @@ export class RotationEvent
         }
 
         return {
-            _time: this.time,
+            _time: this.beat,
             _floatValue: 0,
             _type: this.early
                 ? EventGroup.EARLY_ROTATION
@@ -148,7 +148,7 @@ export class BoostEvent
     }
 
     fromBasicEvent(json: bsmap.v3.IBasicEventBoost) {
-        this.time = json.b
+        this.beat = json.b
         this.boost = json.i === 1
         this.customData = json.customData
         return this
@@ -197,7 +197,7 @@ export class BoostEvent
     ): bsmap.v2.IEvent | bsmap.v3.IColorBoostEvent {
         if (v3) {
             const output = {
-                b: this.time,
+                b: this.beat,
                 o: this.boost,
                 customData: this.customData,
             } satisfies bsmap.v3.IColorBoostEvent
@@ -205,7 +205,7 @@ export class BoostEvent
         }
 
         const output = {
-            _time: this.time,
+            _time: this.beat,
             _floatValue: 0,
             _type: EventGroup.BOOST,
             _value: this.boost ? 1 : 0,
@@ -234,10 +234,10 @@ export abstract class BPMEvent<
     TV3 extends V3BPM = V3BPM,
 > implements JsonWrapper<TV2, TV3> {
     constructor(obj: Partial<Fields<BPMEvent>>) {
-        this.time = obj.time ?? 0
+        this.beat = obj.beat ?? 0
     }
 
-    time: number
+    beat: number
 
     push(
         clone = true,
@@ -255,7 +255,7 @@ export abstract class BPMEvent<
             const obj = json as TV3
 
             const params = {
-                time: obj.b,
+                beat: obj.b,
             } as Params
 
             Object.assign(this, params)
@@ -263,7 +263,7 @@ export abstract class BPMEvent<
             const obj = json as TV2
 
             const params = {
-                time: obj._time,
+                beat: obj._time,
             } as Params
 
             Object.assign(this, params)
@@ -289,7 +289,7 @@ export class OfficialBPMEvent extends BPMEvent<
     bpm: number
 
     fromBasicEvent(json: bsmap.v3.IBasicEvent) {
-        this.time = json.b
+        this.beat = json.b
         this.bpm = json.f
         return this
     }
@@ -337,7 +337,7 @@ export class OfficialBPMEvent extends BPMEvent<
     ): bsmap.v2.IEvent | bsmap.v3.IBPMEvent {
         if (v3) {
             const output = {
-                b: this.time,
+                b: this.beat,
                 m: this.bpm,
                 customData: undefined,
             } satisfies bsmap.v3.IBPMEvent
@@ -345,7 +345,7 @@ export class OfficialBPMEvent extends BPMEvent<
         }
 
         const output = {
-            _time: this.time,
+            _time: this.beat,
             _floatValue: this.bpm,
             _type: EventGroup.BPM,
             _value: 0,
@@ -432,7 +432,7 @@ export class CommunityBPMEvent extends BPMEvent<
     ): bsmap.v2.IBPMChange | bsmap.v2.IBPMChangeOld | bsmap.v3.IBPMChange {
         if (v3) {
             const output = {
-                b: this.time,
+                b: this.beat,
                 m: this.bpm,
                 o: this.metronomeOffset,
                 p: this.beatsPerBar,
@@ -442,7 +442,7 @@ export class CommunityBPMEvent extends BPMEvent<
 
         if (this.mediocreMapper) {
             const output = {
-                _time: this.time,
+                _time: this.beat,
                 _bpm: this.bpm,
                 _BPM: undefined as never,
                 _beatsPerBar: this.beatsPerBar,
@@ -452,7 +452,7 @@ export class CommunityBPMEvent extends BPMEvent<
         }
 
         const output = {
-            _time: this.time,
+            _time: this.beat,
             _BPM: this.bpm,
             _beatsPerBar: this.beatsPerBar,
             _metronomeOffset: this.metronomeOffset,

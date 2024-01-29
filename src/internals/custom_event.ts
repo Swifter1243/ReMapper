@@ -37,12 +37,12 @@ export abstract class BaseCustomEvent<
     TV2 extends bsmap.v2.ICustomEvent,
     TV3 extends bsmap.v3.ICustomEvent,
 > implements JsonWrapper<TV2, TV3> {
-    time: number
+    beat: number
     type: string
     data: TJson
 
     constructor(fields: Partial<Fields<BaseCustomEvent<TV2, TV3>>>) {
-        this.time = fields.time ?? 0
+        this.beat = fields.beat ?? 0
         this.type = fields.type ?? ''
         this.data = fields.data ?? {}
     }
@@ -61,7 +61,7 @@ export abstract class BaseCustomEvent<
             const obj = json as TV3
 
             const params = {
-                time: obj.b,
+                beat: obj.b,
                 data: obj.d as unknown as TJson,
             } as Params
 
@@ -70,7 +70,7 @@ export abstract class BaseCustomEvent<
             const obj = json as TV2
 
             const params = {
-                time: obj._time,
+                beat: obj._time,
                 data: obj._type as unknown as TJson,
             } as Params
 
@@ -186,7 +186,7 @@ export class AnimateTrack extends BaseCustomEvent<
 
         if (v3) {
             const output = {
-                b: this.time,
+                b: this.beat,
                 d: {
                     repeat: this.repeat,
                     easing: this.easing,
@@ -207,7 +207,7 @@ export class AnimateTrack extends BaseCustomEvent<
         }
 
         const output = {
-            _time: this.time,
+            _time: this.beat,
             _data: {
                 _easing: this.easing,
                 _track: this.track.value,
@@ -321,7 +321,7 @@ export class AssignPathAnimation extends BaseCustomEvent<
 
         if (v3) {
             const output = {
-                b: this.time,
+                b: this.beat,
                 d: {
                     // @ts-ignore 2322
                     duration: this.duration,
@@ -336,7 +336,7 @@ export class AssignPathAnimation extends BaseCustomEvent<
         }
 
         const output = {
-            _time: this.time,
+            _time: this.beat,
             _data: {
                 // @ts-ignore 2322
                 _duration: this.duration,
@@ -443,7 +443,7 @@ export class AssignTrackParent extends BaseCustomEvent<
         | bsmap.v3.ICustomEventAssignTrackParent {
         if (v3) {
             const output = {
-                b: this.time,
+                b: this.beat,
                 d: {
                     childrenTracks: this.childrenTracks,
                     parentTrack: this.parentTrack,
@@ -462,7 +462,7 @@ export class AssignTrackParent extends BaseCustomEvent<
                 _worldPositionStays: this.worldPositionStays,
                 ...this.data,
             },
-            _time: this.time,
+            _time: this.beat,
             _type: 'AssignTrackParent',
         } satisfies bsmap.v2.ICustomEventAssignTrackParent
         return prune ? jsonPrune(output) : output
@@ -551,7 +551,7 @@ export class AssignPlayerToTrack extends BaseCustomEvent<
         | bsmap.v3.ICustomEventAssignPlayerToTrack {
         if (v3) {
             const output = {
-                b: this.time,
+                b: this.beat,
                 d: {
                     track: this.track!,
                     target: this.target,
@@ -573,7 +573,7 @@ export class AssignPlayerToTrack extends BaseCustomEvent<
                 _track: this.track!,
                 ...this.data,
             },
-            _time: this.time,
+            _time: this.beat,
             _type: 'AssignPlayerToTrack',
         } satisfies bsmap.v2.ICustomEventAssignPlayerToTrack
         return prune ? jsonPrune(output) : output
@@ -677,7 +677,7 @@ export class AnimateComponent
         if (this.track.value === undefined) throw 'Track cannot be null!'
 
         const output = {
-            b: this.time,
+            b: this.beat,
             t: 'AnimateComponent',
             d: {
                 duration: this.duration ?? 0,
@@ -754,7 +754,7 @@ export class AbstractCustomEvent extends BaseCustomEvent<
     toJson(v3: boolean, prune?: boolean | undefined) {
         if (v3) {
             const result = {
-                b: this.time,
+                b: this.beat,
                 t: this.type as bsmap.v3.ICustomEvent['t'],
                 d: this.data as unknown as bsmap.v3.ICustomEvent['d'],
             } as bsmap.v3.ICustomEvent
@@ -762,7 +762,7 @@ export class AbstractCustomEvent extends BaseCustomEvent<
         }
 
         const result = {
-            _time: this.time,
+            _time: this.beat,
             _type: this.type as bsmap.v2.ICustomEvent['_type'],
             _data: this.data as unknown as bsmap.v2.ICustomEvent['_data'],
         } as bsmap.v2.ICustomEvent

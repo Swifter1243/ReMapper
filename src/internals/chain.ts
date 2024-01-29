@@ -17,8 +17,8 @@ import {
 export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
     /**
      * Chain object for ease of creation.
-     * @param time The time this chain will be hit.
-     * @param tailTime The time that the tail of the chain reaches the player.
+     * @param beat The time this chain will be hit.
+     * @param tailBeat The time that the tail of the chain reaches the player.
      * @param type The color of the chain.
      * @param direction The cut direction of the chain.
      * @param x The lane of the chain.
@@ -151,12 +151,12 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
         }
 
         const output = {
-            b: this.time,
+            b: this.beat,
             c: this.type,
             d: this.headDirection,
             sc: this.links,
             s: this.squish,
-            tb: this.tailTime,
+            tb: this.tailBeat,
             tx: this.tailX,
             ty: this.tailY,
             x: this.x,

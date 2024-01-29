@@ -52,10 +52,10 @@ export class Wall
     }
 
     get lifeStart() {
-        return this.time - this.halfJumpDur
+        return this.beat - this.halfJumpDur
     }
     set lifeStart(value: number) {
-        this.time = value + this.halfJumpDur
+        this.beat = value + this.halfJumpDur
     }
 
     /** The duration of the wall. */
@@ -127,7 +127,7 @@ export class Wall
 
         if (v3) {
             const output = {
-                b: this.time,
+                b: this.beat,
                 d: this.duration,
                 h: this.height,
                 w: this.width,
@@ -157,7 +157,7 @@ export class Wall
         const output = {
             _duration: this.duration,
             _lineIndex: this.x,
-            _time: this.time,
+            _time: this.beat,
             _type: 0,
             _width: this.width,
             _customData: {

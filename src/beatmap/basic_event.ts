@@ -8,7 +8,7 @@ import { BoostEvent, CommunityBPMEvent, OfficialBPMEvent, RotationEvent } from '
 
 type LightParameters =
     | [
-        time?: BasicEventInternals.LightEvent['time'],
+        beat?: BasicEventInternals.LightEvent['beat'],
         value?: BasicEventInternals.LightEvent['value'],
         floatValue?: BasicEventInternals.LightEvent['floatValue'],
     ]
@@ -28,10 +28,10 @@ function fixupParams<TG extends BasicEventInternals.LightEvent['type']>(
         return [obj]
     }
 
-    const [time, value, floatValue] = params
+    const [beat, value, floatValue] = params
 
     return [{
-        time: time ?? 0,
+        beat: beat ?? 0,
         customData: {},
         floatValue: floatValue ?? 1,
         value: value ?? 1,
@@ -40,7 +40,7 @@ function fixupParams<TG extends BasicEventInternals.LightEvent['type']>(
 }
 
 export function baseBasicEvent(
-    time: number,
+    beat: number,
     type?: number,
     value?: number,
     floatValue?: number,
@@ -51,7 +51,7 @@ export function baseBasicEvent(
 
 export function baseBasicEvent(
     ...params: [
-        time: number,
+        beat: number,
         type?: number,
         value?: number,
         floatValue?: number,
@@ -63,10 +63,10 @@ export function baseBasicEvent(
             ...obj,
         })
     }
-    const [time, type, value, floatValue] = params
+    const [beat, type, value, floatValue] = params
 
     return new BasicEventInternals.BaseBasicEvent({
-        time,
+        beat,
         type: type ?? 0,
         value: value ?? 0,
         floatValue,
@@ -74,7 +74,7 @@ export function baseBasicEvent(
 }
 
 export function lightEvent(
-    time: number,
+    beat: number,
     type?: number,
     value?: number,
     floatValue?: number,
@@ -85,7 +85,7 @@ export function lightEvent(
 
 export function lightEvent(
     ...params: [
-        time: number,
+        beat: number,
         type?: number,
         value?: number,
         floatValue?: number,
@@ -97,10 +97,10 @@ export function lightEvent(
             ...obj,
         })
     }
-    const [time, type, value, floatValue] = params
+    const [beat, type, value, floatValue] = params
 
     return new BasicEventInternals.LightEvent({
-        time,
+        beat,
         type: type ?? 0,
         value: value ?? 0,
         floatValue,
@@ -195,12 +195,12 @@ export function moveCars(
     >
 ): BasicEventInternals.RingSpinEvent
 export function moveCars(
-    time: number,
+    beat: number,
     value: InterscopeGroup,
 ): BasicEventInternals.RingSpinEvent
 export function moveCars(
     ...params:
-        | [time: number, value: InterscopeGroup]
+        | [beat: number, value: InterscopeGroup]
         | Omit<
             ConstructorParameters<typeof BasicEventInternals.RingSpinEvent>,
             'type'
@@ -209,35 +209,35 @@ export function moveCars(
     if (typeof params[0] === 'object') {
         return new BasicEventInternals.RingSpinEvent(params[0])
     }
-    const [time, value] = params
+    const [beat, value] = params
 
     return new BasicEventInternals.RingSpinEvent({
-        time: time,
+        beat: beat,
         value: value as InterscopeGroup,
     })
 }
 
 // TODO: Event extras
 /** Lower the hydraulics of the cars in the interscope environment. */
-export function lowerHydraulics(time: number) {
+export function lowerHydraulics(beat: number) {
     return new BasicEventInternals.LightEvent({
-        time: time,
+        beat: beat,
         type: EventGroup.LOWER_HYDRAULICS,
         value: 0,
     })
 }
 
 /** Raise the hydraulics of the cars in the interscope environment. */
-export function raiseHydraulics(time: number) {
+export function raiseHydraulics(beat: number) {
     return new BasicEventInternals.LightEvent({
-        time: time,
+        beat: beat,
         type: EventGroup.RAISE_HYDRAULICS,
         value: 0,
     })
 }
 
 export function ringSpin(
-    time: number,
+    beat: number,
     rotation?: number,
     direction?: BasicEventInternals.RingSpinEvent['direction'],
     step?: number,
@@ -261,7 +261,7 @@ export function ringSpin(
  */
 export function ringSpin(
     ...params: [
-        time: number,
+        beat: number,
         rotation?: number,
         direction?: BasicEventInternals.RingSpinEvent['direction'],
         step?: number,
@@ -274,10 +274,10 @@ export function ringSpin(
         const obj = params[0]
         return new BasicEventInternals.RingSpinEvent(obj)
     }
-    const [time, rotation, direction, step, speed, prop, nameFilter] = params
+    const [beat, rotation, direction, step, speed, prop, nameFilter] = params
 
     return new BasicEventInternals.RingSpinEvent({
-        time,
+        beat,
         value: rotation ?? 0,
         rotation,
         direction,
@@ -289,7 +289,7 @@ export function ringSpin(
 }
 
 export function ringZoom(
-    time: number,
+    beat: number,
     speed?: number,
 ): BasicEventInternals.RingZoomEvent
 export function ringZoom(
@@ -303,7 +303,7 @@ export function ringZoom(
  */
 export function ringZoom(
     ...params: [
-        time: number,
+        beat: number,
         rotation?: number,
         direction?: BasicEventInternals.RingSpinEvent['direction'],
         step?: number,
@@ -316,17 +316,17 @@ export function ringZoom(
         const obj = params[0]
         return new BasicEventInternals.RingZoomEvent(obj)
     }
-    const [time, speed] = params
+    const [beat, speed] = params
 
     return new BasicEventInternals.RingZoomEvent({
-        time,
+        beat,
         value: speed ?? 0,
         speed,
     })
 }
 
 export function leftLaserSpeed(
-    time: number,
+    beat: number,
     speed?: number,
     direction?: BasicEventInternals.RingSpinEvent['direction'],
     lockRotation?: boolean,
@@ -350,7 +350,7 @@ export function leftLaserSpeed(
  */
 export function leftLaserSpeed(
     ...params: [
-        time: number,
+        beat: number,
         speed?: number,
         direction?: BasicEventInternals.RingSpinEvent['direction'],
         lockRotation?: boolean,
@@ -370,10 +370,10 @@ export function leftLaserSpeed(
             type: EventGroup.LEFT_ROTATING_LASERS,
         })
     }
-    const [time, speed, direction, lockRotation] = params
+    const [beat, speed, direction, lockRotation] = params
 
     return new BasicEventInternals.LaserSpeedEvent({
-        time,
+        beat,
         type: EventGroup.LEFT_ROTATING_LASERS,
         value: speed ?? 0,
         lockRotation,
@@ -383,7 +383,7 @@ export function leftLaserSpeed(
 }
 
 export function rightLaserSpeed(
-    time: number,
+    beat: number,
     speed?: number,
     direction?: BasicEventInternals.RingSpinEvent['direction'],
     lockRotation?: boolean,
@@ -407,7 +407,7 @@ export function rightLaserSpeed(
  */
 export function rightLaserSpeed(
     ...params: [
-        time: number,
+        beat: number,
         speed?: number,
         direction?: BasicEventInternals.RingSpinEvent['direction'],
         lockRotation?: boolean,
@@ -427,10 +427,10 @@ export function rightLaserSpeed(
             type: EventGroup.RIGHT_ROTATING_LASERS,
         })
     }
-    const [time, speed, direction, lockRotation] = params
+    const [beat, speed, direction, lockRotation] = params
 
     return new BasicEventInternals.LaserSpeedEvent({
-        time,
+        beat,
         type: EventGroup.RIGHT_ROTATING_LASERS,
         value: speed ?? 0,
         lockRotation,
@@ -440,7 +440,7 @@ export function rightLaserSpeed(
 }
 
 export function earlyRotation(
-    time: number,
+    beat: number,
     rotation?: number,
 ): RotationEvent
 export function earlyRotation(
@@ -454,7 +454,7 @@ export function earlyRotation(
  */
 export function earlyRotation(
     ...params: [
-        time: number,
+        beat: number,
         rotation?: number,
     ] | ConstructorParameters<typeof RotationEvent>
 ): RotationEvent {
@@ -464,17 +464,17 @@ export function earlyRotation(
             ...obj,
         })
     }
-    const [time, rotation] = params
+    const [beat, rotation] = params
 
     return new RotationEvent({
-        time,
+        beat,
         rotation,
         early: true,
     })
 }
 
 export function lateRotation(
-    time: number,
+    beat: number,
     rotation?: number,
 ): RotationEvent
 export function lateRotation(
@@ -488,7 +488,7 @@ export function lateRotation(
  */
 export function lateRotation(
     ...params: [
-        time: number,
+        beat: number,
         rotation?: number,
     ] | ConstructorParameters<typeof RotationEvent>
 ): RotationEvent {
@@ -498,17 +498,17 @@ export function lateRotation(
             ...obj,
         })
     }
-    const [time, rotation] = params
+    const [beat, rotation] = params
 
     return new RotationEvent({
-        time,
+        beat,
         rotation,
         early: false,
     })
 }
 
 export function boost(
-    time: number,
+    beat: number,
     boost: boolean,
 ): BoostEvent
 export function boost(
@@ -517,7 +517,7 @@ export function boost(
 
 export function boost(
     ...params: [
-        time: number,
+        beat: number,
         boost: boolean,
     ] | ConstructorParameters<typeof BoostEvent>
 ): BoostEvent {
@@ -527,10 +527,10 @@ export function boost(
             ...obj,
         })
     }
-    const [time, boost] = params
+    const [beat, boost] = params
 
     return new BoostEvent({
-        time,
+        beat,
         boost,
     })
 }
@@ -542,7 +542,7 @@ export type AbstractEvent = BaseEvent<
 
 
 export function officialBpmEvent(
-    time: number,
+    beat: number,
     bpm: number,
 ): OfficialBPMEvent
 export function officialBpmEvent(
@@ -551,7 +551,7 @@ export function officialBpmEvent(
 
 export function officialBpmEvent(
     ...params: [
-        time: number,
+        beat: number,
         bpm: number,
     ] | ConstructorParameters<typeof OfficialBPMEvent>
 ): OfficialBPMEvent {
@@ -561,16 +561,16 @@ export function officialBpmEvent(
             ...obj,
         })
     }
-    const [time, bpm] = params
+    const [beat, bpm] = params
 
     return new OfficialBPMEvent({
-        time,
+        beat,
         bpm,
     })
 }
 
 export function communityBpmEvent(
-    time: number,
+    beat: number,
     bpm: number,
 ): CommunityBPMEvent
 export function communityBpmEvent(
@@ -579,7 +579,7 @@ export function communityBpmEvent(
 
 export function communityBpmEvent(
     ...params: [
-        time: number,
+        beat: number,
         bpm: number,
     ] | ConstructorParameters<typeof CommunityBPMEvent>
 ): CommunityBPMEvent {
@@ -589,10 +589,10 @@ export function communityBpmEvent(
             ...obj,
         })
     }
-    const [time, bpm] = params
+    const [beat, bpm] = params
 
     return new CommunityBPMEvent({
-        time,
+        beat,
         bpm,
     })
 }

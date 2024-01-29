@@ -42,7 +42,7 @@ export abstract class BaseEnvironmentEnhancement<
 
     /**
      * Note object for ease of creation.
-     * @param time Time this note will be hit.
+     * @param beat Time this note will be hit.
      * @param type The color of the note.
      * @param direction The direction the note will be cut.
      * @param x The lane of the note.

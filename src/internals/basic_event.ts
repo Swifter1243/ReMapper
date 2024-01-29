@@ -89,7 +89,7 @@ export class BaseBasicEvent extends BaseEvent {
     toJson(v3 = true, prune = true): bsmap.v2.IEvent | bsmap.v3.IBasicEvent {
         if (v3) {
             const output = {
-                b: this.time,
+                b: this.beat,
                 et: this.type,
                 f: this.floatValue,
                 i: this.value,
@@ -99,7 +99,7 @@ export class BaseBasicEvent extends BaseEvent {
         } else {
             const output = {
                 _floatValue: this.floatValue,
-                _time: this.time,
+                _time: this.beat,
                 _type: this.type,
                 _value: this.value,
                 _customData: this.customData,
@@ -257,7 +257,7 @@ export class LightEvent<
     ): bsmap.v3.IBasicEventLight | bsmap.v2.IEventLight {
         if (v3) {
             const output = {
-                b: this.time,
+                b: this.beat,
                 et: this.type as bsmap.v3.IBasicEventLight['et'],
                 f: this.floatValue,
                 i: this.value,
@@ -273,7 +273,7 @@ export class LightEvent<
         } else {
             const output = {
                 _floatValue: this.floatValue,
-                _time: this.time,
+                _time: this.beat,
                 _type: this.type as bsmap.v2.IEventLight['_type'],
                 _value: this.value,
                 _customData: {
@@ -378,7 +378,7 @@ export class LaserSpeedEvent<
     ): bsmap.v2.IEventLaser | bsmap.v3.IBasicEventLaserRotation {
         if (v3) {
             const output = {
-                b: this.time,
+                b: this.beat,
                 et: this.type as bsmap.v3.IBasicEventLaserRotation['et'],
                 f: this.floatValue,
                 i: this.value,
@@ -393,7 +393,7 @@ export class LaserSpeedEvent<
         } else {
             const output = {
                 _floatValue: this.floatValue,
-                _time: this.time,
+                _time: this.beat,
                 _type: this.type as bsmap.v2.IEventLaser['_type'],
                 _value: this.value,
                 _customData: {
@@ -480,7 +480,7 @@ export class RingZoomEvent
     ): bsmap.v2.IEventZoom | bsmap.v3.IBasicEventRing {
         if (v3) {
             const output = {
-                b: this.time,
+                b: this.beat,
                 et: this.type as bsmap.v3.IBasicEventRing['et'],
                 f: this.floatValue,
                 i: this.value,
@@ -494,7 +494,7 @@ export class RingZoomEvent
         }
         const output = {
             _floatValue: this.floatValue,
-            _time: this.time,
+            _time: this.beat,
             // deno-lint-ignore no-explicit-any
             _type: this.type as any,
             _value: this.value,
@@ -610,7 +610,7 @@ export class RingSpinEvent
     ): bsmap.v2.IEventRing | bsmap.v3.IBasicEventRing {
         if (v3) {
             const output = {
-                b: this.time,
+                b: this.beat,
                 et: EventGroup.RING_SPIN,
                 f: this.floatValue,
                 i: this.value,
@@ -628,7 +628,7 @@ export class RingSpinEvent
 
         const output = {
             _floatValue: this.floatValue,
-            _time: this.time,
+            _time: this.beat,
             _type: EventGroup.RING_SPIN,
             _value: this.value,
             _customData: {

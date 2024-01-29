@@ -709,7 +709,7 @@ export class ModelScene {
                             event.push()
                         }
 
-                        event.time = time + start
+                        event.beat = time + start
                         event.animation.position = x.pos as RawKeyframesVec3
                         event.animation.rotation = x.rot as RawKeyframesVec3
                         event.animation.scale = x.scale as RawKeyframesVec3

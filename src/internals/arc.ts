@@ -17,8 +17,8 @@ import {
 export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
     /**
      * Arc object for ease of creation.
-     * @param time The time this arc will be hit.
-     * @param tailTime The time that the tail of the arc reaches the player.
+     * @param beat The time this arc will be hit.
+     * @param tailBeat The time that the tail of the arc reaches the player.
      * @param type The color of the arc.
      * @param headDirection The cut direction of the head of the arc.
      * @param tailDirection The cut direction of the tail of the arc.
@@ -111,7 +111,7 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
         }
 
         const output = {
-            b: this.time,
+            b: this.beat,
             c: this.type,
             d: this.headDirection,
 
@@ -120,7 +120,7 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
             tmu: this.tailLength,
             tc: this.tailDirection,
 
-            tb: this.tailTime,
+            tb: this.tailBeat,
             tx: this.tailX,
             ty: this.tailY,
             x: this.x,

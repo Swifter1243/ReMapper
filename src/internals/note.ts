@@ -99,7 +99,7 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
         if (v3) {
             const output = {
                 a: Math.round(this.angleOffset),
-                b: this.time,
+                b: this.beat,
                 c: this.type,
                 d: this.direction,
                 x: this.x,
@@ -151,7 +151,7 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
             _cutDirection: this.direction,
             _lineIndex: this.x,
             _lineLayer: this.y,
-            _time: this.time,
+            _time: this.beat,
             _type: this.type,
             _customData: {
                 _animation: animationToJson(this.animation, v3),

@@ -3,7 +3,7 @@ import {Arc, Bomb, Chain, Note} from "../internals/note.ts";
 
 export function note(
     ...params: ConstructorParameters<typeof Note> | [
-        time?: number,
+        beat?: number,
         type?: NoteType,
         direction?: NoteCut,
         x?: number,
@@ -15,10 +15,10 @@ export function note(
         return new Note(first)
     }
 
-    const [time, type, direction, x, y] = params
+    const [beat, type, direction, x, y] = params
 
     return new Note({
-        time: time as number ?? 0,
+        beat: beat as number ?? 0,
         type: type ?? NoteType.BLUE,
         direction: direction ?? NoteCut.DOWN,
         x: x ?? 0,
@@ -28,7 +28,7 @@ export function note(
 
 export function bomb(
     ...params: ConstructorParameters<typeof Bomb> | [
-        time?: number,
+        beat?: number,
         x?: number,
         y?: number,
     ]
@@ -38,10 +38,10 @@ export function bomb(
         return new Bomb(first)
     }
 
-    const [time, x, y] = params
+    const [beat, x, y] = params
 
     return new Bomb({
-        time: time as number ?? 0,
+        beat: beat as number ?? 0,
         x: x ?? 0,
         y: y ?? 0,
     })
@@ -49,8 +49,8 @@ export function bomb(
 
 export function chain(
     ...params: ConstructorParameters<typeof Chain> | [
-        time?: number,
-        tailTime?: number,
+        beat?: number,
+        tailBeat?: number,
         type?: NoteType,
         headDirection?: NoteCut,
         tailDirection?: NoteCut,
@@ -65,11 +65,11 @@ export function chain(
         return new Chain(first)
     }
 
-    const [time, tailTime, type, direction, x, y, tailX, tailY, links] = params
+    const [beat, tailBeat, type, direction, x, y, tailX, tailY, links] = params
 
     return new Chain({
-        time: time as number ?? 0,
-        tailTime: tailTime ?? 0,
+        beat: beat as number ?? 0,
+        tailBeat: tailBeat ?? 0,
         type: type ?? NoteType.BLUE,
         headDirection: direction ?? NoteCut.DOWN,
         x: x ?? 0,
@@ -82,7 +82,7 @@ export function chain(
 
 export function arc(
     ...params: ConstructorParameters<typeof Arc> | [
-        time?: number,
+        beat?: number,
         tailTime?: number,
         type?: NoteType,
         headDirection?: NoteCut,
@@ -99,8 +99,8 @@ export function arc(
     }
 
     const [
-        time,
-        tailTime,
+        beat,
+        tailBeat,
         type,
         headDirection,
         tailDirection,
@@ -111,9 +111,9 @@ export function arc(
     ] = params
 
     return new Arc({
-        time: time as number ?? 0,
+        beat: beat as number ?? 0,
         type: type ?? NoteType.BLUE,
-        tailTime: tailTime ?? 0,
+        tailBeat: tailBeat ?? 0,
         headDirection: headDirection ?? NoteCut.DOWN,
         tailDirection: tailDirection ?? NoteCut.DOWN,
         x: x ?? 0,

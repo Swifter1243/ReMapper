@@ -8,7 +8,7 @@ import { BaseNote, ExcludedObjectFields, defaultBoolean, exportInvertedBoolean }
 export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
     /**
      * Bomb object for ease of creation.
-     * @param time The time this bomb will reach the player.
+     * @param beat The time this bomb will reach the player.
      * @param x The lane of the note.
      * @param y The vertical row of the note.
      */
@@ -44,7 +44,7 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
 
         if (v3) {
             const output = {
-                b: this.time,
+                b: this.beat,
                 x: this.x,
                 y: this.y,
                 customData: {
@@ -91,7 +91,7 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
             _cutDirection: 0,
             _lineIndex: this.x,
             _lineLayer: this.y,
-            _time: this.time,
+            _time: this.beat,
             _type: 3,
             _customData: {
                 _animation: animationToJson(this.animation, v3),

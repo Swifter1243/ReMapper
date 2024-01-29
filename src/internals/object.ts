@@ -94,14 +94,14 @@ export abstract class BaseObject<
     TV3 extends bsmap.v3.IBaseObject,
 > implements JsonWrapper<TV2, TV3> {
     /** The time that this object is scheduled for. */
-    time: number
+    beat: number
     /** Any community made data on this object. */
     customData: TV2['_customData'] | TV3['customData']
 
     constructor(
         obj: ObjectFields<BaseObject<TV2, TV3>> | Record<string, unknown>,
     ) {
-        this.time = (obj.time as number | undefined) ?? 0
+        this.beat = (obj.beat as number | undefined) ?? 0
         this.customData = obj.customData ?? {}
     }
 
@@ -119,7 +119,7 @@ export abstract class BaseObject<
             const obj = json as TV3
 
             const params = {
-                time: obj.b,
+                beat: obj.b,
                 customData: obj.customData,
             } as Params
 
@@ -128,7 +128,7 @@ export abstract class BaseObject<
             const obj = json as TV2
 
             const params = {
-                time: obj._time,
+                beat: obj._time,
                 customData: obj._customData,
             } as Params
 
@@ -254,10 +254,10 @@ export abstract class BaseGameplayObject<
 
     /** The time of the start of the object's lifespan. */
     get lifeStart() {
-        return this.time - this.life / 2
+        return this.beat - this.life / 2
     }
     set lifeStart(value: number) {
-        this.time = value + this.life / 2
+        this.beat = value + this.life / 2
     }
 
     get isGameplayModded() {
@@ -334,7 +334,7 @@ export abstract class BaseNote<
 > extends BaseGameplayObject<bsmap.v2.INote, TV3> {
     /**
      * Note object for ease of creation.
-     * @param time Time this note will be hit.
+     * @param beat Time this note will be hit.
      * @param type The color of the note.
      * @param direction The direction the note will be cut.
      * @param x The lane of the note.
@@ -474,7 +474,7 @@ export abstract class BaseSliderObject<TV3 extends bsmap.v3.IBaseSlider>
     /** The cut direction of the head. */
     headDirection: NoteCut
     /** The time the tail arrives at the player. */
-    tailTime: number
+    tailBeat: number
     /** The lane of the tail. */
     tailX: number
     /** The vertical row of the tail. */
@@ -489,7 +489,7 @@ export abstract class BaseSliderObject<TV3 extends bsmap.v3.IBaseSlider>
         super(obj)
         this.type = obj.type ?? NoteType.RED
         this.headDirection = obj.headDirection ?? 0
-        this.tailTime = obj.tailTime ?? 0
+        this.tailBeat = obj.tailBeat ?? 0
         this.tailX = obj.tailX ?? 0
         this.tailY = obj.tailY ?? 0
     }
@@ -521,7 +521,7 @@ export abstract class BaseSliderObject<TV3 extends bsmap.v3.IBaseSlider>
 
             headDirection: obj.d,
             tailCoordinates: getCDProp(obj, 'tailCoordinates'),
-            tailTime: obj.tb,
+            tailBeat: obj.tb,
             tailX: obj.tx,
             tailY: obj.ty,
         } satisfies Params

@@ -64,7 +64,7 @@ export class BaseLightRemapper {
         this.conditions = []
 
         const event = new LightEvent({
-            time: 0,
+            beat: 0,
             type: 0,
             value: 0,
             floatValue: 1,
