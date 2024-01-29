@@ -21,11 +21,19 @@ export class Wall
         fields: ExcludedObjectFields<Wall>,
     ) {
         super(fields)
+
         this.duration = fields.duration ?? 0
         this.height = fields.height ?? 1
         this.width = fields.width ?? 1
         this.scale = fields.scale
         this.fake = fields.fake ?? false
+
+        if (fields.life !== undefined) {
+            this.life = fields.life
+        }
+        if (fields.lifeStart !== undefined) {
+            this.lifeStart = fields.lifeStart
+        }
     }
 
     /**
@@ -59,7 +67,7 @@ export class Wall
     }
 
     /** The duration of the wall. */
-    duration: number
+    duration!: number
     /** The height of the wall. */
     height: number
     /** The width of the wall. */
