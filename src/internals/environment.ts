@@ -59,6 +59,7 @@ export abstract class BaseEnvironmentEnhancement<
         this.active = fields.active
         this.scale = fields.scale
         this.position = fields.position
+        this.rotation = fields.rotation
         this.localPosition = fields.localPosition
         this.localRotation = fields.localRotation
         this.track = fields.track instanceof Track
