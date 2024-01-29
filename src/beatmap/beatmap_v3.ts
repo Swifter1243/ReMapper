@@ -21,6 +21,11 @@ import { CommunityBPMEvent, OfficialBPMEvent } from '../internals/event.ts'
 
 export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
     declare version: bsmap.v3.IDifficulty['version']
+    declare waypoints: bsmap.v3.IWaypoint[]
+    basicEventTypesWithKeywords:
+        bsmap.v3.IDifficulty['basicEventTypesWithKeywords']
+    useNormalEventsAsCompatibleEvents:
+        bsmap.v3.IDifficulty['useNormalEventsAsCompatibleEvents']
 
     constructor(
         info: bsmap.v2.IInfoSetDifficulty,
@@ -370,6 +375,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
             {
                 version: json.version,
                 v3: true,
+                waypoints: json.waypoints,
 
                 notes,
                 bombs,
@@ -401,6 +407,11 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
                 fogEvents: fogEvents,
             },
         )
+
+        // Extra
+        this.basicEventTypesWithKeywords = json.basicEventTypesWithKeywords
+        this.useNormalEventsAsCompatibleEvents =
+            json.useNormalEventsAsCompatibleEvents
     }
 
     toJSON(): bsmap.v3.IDifficulty {
@@ -516,7 +527,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
             obstacles: obstacles,
             sliders: arcs,
             version: '3.2.0',
-            waypoints: [],
+            waypoints: this.waypoints,
             customData: shallowPrune({
                 ...this.customData,
                 fakeColorNotes: this.notes.filter((e) => e.fake)
@@ -541,10 +552,9 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
                     .pointDefinitions as bsmap.v3.IPointDefinition,
                 BPMChanges: communityBPMEvents,
             }) satisfies bsmap.v3.ICustomDataDifficulty,
-            useNormalEventsAsCompatibleEvents: true,
-            basicEventTypesWithKeywords: {
-                d: [],
-            },
+            useNormalEventsAsCompatibleEvents:
+                this.useNormalEventsAsCompatibleEvents,
+            basicEventTypesWithKeywords: this.basicEventTypesWithKeywords,
         }
     }
 }

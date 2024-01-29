@@ -22,6 +22,9 @@ import { AnyFog, event, FogEvent, TJson } from '../mod.ts'
 
 export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
     declare version: bsmap.v2.IDifficulty['_version']
+    declare waypoints: bsmap.v2.IWaypoint[]
+    specialEventsKeywordFilters:
+        bsmap.v2.IDifficulty['_specialEventsKeywordFilters']
 
     constructor(
         info: bsmap.v2.IInfoSetDifficulty,
@@ -309,6 +312,7 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
             {
                 version: json._version,
                 v3: false,
+                waypoints: json._waypoints,
 
                 notes,
                 bombs,
@@ -340,6 +344,9 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
                 fogEvents: fogEvents,
             },
         )
+
+        // Extra
+        this.specialEventsKeywordFilters = json._specialEventsKeywordFilters
     }
 
     toJSON(): bsmap.v2.IDifficulty {
@@ -440,7 +447,7 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
             _obstacles: obstacles,
             _sliders: [],
             _version: '2.6.0',
-            _waypoints: [],
+            _waypoints: this.waypoints,
             _customData: shallowPrune({
                 ...this.customData,
                 _environment: environment,
@@ -454,7 +461,7 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
                     .map((o) => o.toJson(false))
                     .sort(sortItems) as bsmap.v2.IBPMChange[],
             }) satisfies bsmap.v2.ICustomDataDifficulty,
-            _specialEventsKeywordFilters: { _keywords: [] },
+            _specialEventsKeywordFilters: this.specialEventsKeywordFilters,
         }
     }
 }

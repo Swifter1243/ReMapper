@@ -35,6 +35,7 @@ import { getActiveCache } from '../rm_cache.ts'
 export interface RMDifficulty {
     version: bsmap.v2.IDifficulty['_version'] | bsmap.v3.IDifficulty['version']
     v3: boolean
+    waypoints: bsmap.v2.IWaypoint[] | bsmap.v3.IWaypoint[]
 
     notes: NoteInternals.Note[]
     bombs: NoteInternals.Bomb[]
@@ -123,6 +124,7 @@ export abstract class AbstractDifficulty<
     // Initialized by constructor using Object.assign
     version: bsmap.v2.IDifficulty['_version'] | bsmap.v3.IDifficulty['version']
     v3: boolean
+    waypoints: bsmap.v2.IWaypoint[] | bsmap.v3.IWaypoint[]
 
     notes: NoteInternals.Note[]
     bombs: NoteInternals.Bomb[]
@@ -167,6 +169,7 @@ export abstract class AbstractDifficulty<
     ) {
         this.version = inner.version
         this.v3 = inner.v3
+        this.waypoints = inner.waypoints
 
         this.json = json
         this.info = info
