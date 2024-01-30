@@ -384,7 +384,8 @@ export function lookAt(
     let up = [0, 1, 0] as Vec3
     let right = crossProduct(up, forward)
     up = crossProduct(forward, right)
-    return matrixFromBasisVectors(right, up, forward)
+    const m = matrixFromBasisVectors(right, up, forward)
+    return getTransformFromMatrix(m).rot
 }
 
 /**
