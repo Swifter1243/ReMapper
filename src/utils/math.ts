@@ -1,9 +1,15 @@
-// deno-lint-ignore-file no-extra-semi
+// deno-lint-ignore-file
 import { three } from '../deps.ts'
 import * as easings from '../data/easings.ts'
 import { EASE } from '../types/animation_types.ts'
 
-import { arrayAdd, arrayDivide, arrayMultiply, arraySubtract, threeClassToArray } from './array_utils.ts'
+import {
+    arrayAdd,
+    arrayDivide,
+    arrayMultiply,
+    arraySubtract,
+    threeClassToArray,
+} from './array_utils.ts'
 import { Bounds, Transform, Vec3 } from '../types/data_types.ts'
 import { copy } from './general.ts'
 import { DeepReadonly } from '../types/util_types.ts'
@@ -198,6 +204,34 @@ export function magnitude(vector: number[]) {
 }
 
 /**
+ * Gets the dot product between 2 vectors of the same length.
+ */
+export function dotProduct<T extends [] | number[]>(
+    array1: T,
+    array2: { [K in keyof T]: number },
+) {
+    let sum = 0
+    array1.forEach((x, i) => sum += x * array2[i])
+    return sum
+}
+
+/**
+ * Gets a cross product between two Vec3s.
+ */
+export function crossProduct(
+    array1: Vec3,
+    array2: Vec3,
+) {
+    const [a, b, c] = array1
+    const [d, e, f] = array2
+    return [
+        (b * f) - (c * e),
+        (c * d) - (a * f),
+        (a * e) - (b * d),
+    ] as Vec3
+}
+
+/**
  * Normalize a vector, making it's magnitude 1.
  */
 export function normalize<T extends number[]>(vector: T) {
@@ -295,6 +329,34 @@ export function getMatrixFromTransform(transform: DeepReadonly<Transform>) {
 }
 
 /**
+ * Get a Matrix4x4 from 3D basis vectors.
+ */
+export function matrixFromBasisVectors(
+    basisX: Vec3,
+    basisY: Vec3,
+    basisZ: Vec3,
+) {
+    return new three.Matrix4().set(
+        basisX[0],
+        basisY[0],
+        basisZ[0],
+        0,
+        basisX[1],
+        basisY[1],
+        basisZ[1],
+        0,
+        basisX[2],
+        basisY[2],
+        basisZ[2],
+        0,
+        0,
+        0,
+        0,
+        1,
+    )
+}
+
+/**
  * Takes matrix and converts it to a transformation.
  * @param matrix Matrix to convert.
  */
@@ -309,6 +371,46 @@ export function getTransformFromMatrix(matrix: three.Matrix4) {
         rot: rot,
         scale: threeClassToArray(scale),
     }
+}
+
+/**
+ * Find the rotation from an eye location to a target.
+ */
+export function lookAt(
+    eye: Vec3,
+    target: Vec3,
+) {
+    const forward = normalize(arraySubtract(target, eye))
+    let up = [0, 1, 0] as Vec3
+    let right = crossProduct(up, forward)
+    up = crossProduct(forward, right)
+    return matrixFromBasisVectors(right, up, forward)
+}
+
+/**
+ * Apply a matrix transformation to a point
+ */
+export function applyMatrixToPoint(
+    matrix: three.Matrix4,
+    point: Vec3
+) {
+    return combineTransforms({
+        pos: point
+    }, getTransformFromMatrix(matrix)).pos
+}
+
+/**
+ * Combine 2 rotations. Not commutative.
+ */
+export function combineRotations(
+    target: Vec3,
+    rotation: Vec3
+) {
+    return combineTransforms({
+        rot: target
+    }, {
+        rot: rotation
+    }).rot
 }
 
 /**
