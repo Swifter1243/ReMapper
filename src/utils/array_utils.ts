@@ -7,10 +7,13 @@ export function arraySplit<T>(
     array: T[],
     filter: (obj: T, index: number, array: T[]) => boolean,
 ) {
-    const passVal = 0;
-    const failVal = 1;
+    const passVal = 0
+    const failVal = 1
 
-    const map = arraySplit2(array, (obj, index, array) => filter(obj, index, array) ? passVal : failVal)
+    const map = arraySplit2(
+        array,
+        (obj, index, array) => filter(obj, index, array) ? passVal : failVal,
+    )
 
     return [map[passVal] ?? [], map[failVal] ?? []]
 }
@@ -25,12 +28,12 @@ export function arraySplit2<T, K extends string | number | symbol>(
         const mapArr = map[key]
         // existing array found
         if (mapArr) {
-            mapArr.push(e);
-            return;
+            mapArr.push(e)
+            return
         }
 
         // no array found
-        map[key] = [e];
+        map[key] = [e]
     })
     return map
 }
@@ -153,11 +156,18 @@ export function arrayRemove<T>(arr: T[], index: number) {
 }
 
 /**
+ * Prefer a tuple on a number array
+ */
+export const vec = <T extends number[]>(...params: T) =>
+    params as { [K in keyof T]: number }
+
+/**
  * Check if an array contains a value.
  * @param arr Input array.
  * @param value Value to check for.
  */
-export const doesArrayHave = <T>(arr: T[], value: T) => arr.some((x) => x === value)
+export const doesArrayHave = <T>(arr: T[], value: T) =>
+    arr.some((x) => x === value)
 
 /**
  * Add values of one array to another.
@@ -178,4 +188,5 @@ export const fillArrayWithValues = (start: number, end: number) =>
  * Convert three Vector3 and Euler classes to a three number array.
  * @param v Vector or Euler to convert.
  */
-export const threeClassToArray = (v: three.Vector3 | three.Euler) => [v.x, v.y, v.z] as Vec3
+export const threeClassToArray = (v: three.Vector3 | three.Euler) =>
+    [v.x, v.y, v.z] as Vec3
