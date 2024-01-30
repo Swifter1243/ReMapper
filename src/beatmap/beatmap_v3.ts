@@ -18,6 +18,11 @@ import {
 import { event } from './mod.ts'
 import { AnyFog, FogEvent } from './fog.ts'
 import { CommunityBPMEvent, OfficialBPMEvent } from '../internals/event.ts'
+import {
+    lightColorEventBoxGroup,
+    lightRotationEventBoxGroup,
+    lightTranslationEventBoxGroup,
+} from './lighting_v3.ts'
 
 export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
     declare version: bsmap.v3.IDifficulty['version']
@@ -131,20 +136,29 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         )
         json.basicBeatmapEvents = laserSpeedEventsFilter[1]
 
-        const ringZoomEventsFilter = arraySplit(json.basicBeatmapEvents, (x) => {
-            return x.et === EventGroup.RING_ZOOM
-        })
+        const ringZoomEventsFilter = arraySplit(
+            json.basicBeatmapEvents,
+            (x) => {
+                return x.et === EventGroup.RING_ZOOM
+            },
+        )
         json.basicBeatmapEvents = ringZoomEventsFilter[1]
 
-        const ringSpinEventsFilter = arraySplit(json.basicBeatmapEvents, (x) => {
-            return x.et === EventGroup.RING_SPIN
-        })
+        const ringSpinEventsFilter = arraySplit(
+            json.basicBeatmapEvents,
+            (x) => {
+                return x.et === EventGroup.RING_SPIN
+            },
+        )
         json.basicBeatmapEvents = ringSpinEventsFilter[1]
 
-        const rotationEventsFilter = arraySplit(json.basicBeatmapEvents, (x) => {
-            return x.et === EventGroup.EARLY_ROTATION ||
-                x.et === EventGroup.LATE_ROTATION
-        })
+        const rotationEventsFilter = arraySplit(
+            json.basicBeatmapEvents,
+            (x) => {
+                return x.et === EventGroup.EARLY_ROTATION ||
+                    x.et === EventGroup.LATE_ROTATION
+            },
+        )
         json.basicBeatmapEvents = rotationEventsFilter[1]
 
         const boostEventsFilter = arraySplit(json.basicBeatmapEvents, (x) => {
@@ -368,6 +382,24 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         >
         delete json.customData?.materials
 
+        // V3 Lighting
+        const lightColorEventBoxGroups = (json.lightColorEventBoxGroups ?? [])
+            .map(
+                (x) => lightColorEventBoxGroup().fromJson(x, true),
+            )
+
+        const lightRotationEventBoxGroups =
+            (json.lightRotationEventBoxGroups ?? [])
+                .map(
+                    (x) => lightRotationEventBoxGroup().fromJson(x, true),
+                )
+
+        const lightTranslationEventBoxGroups =
+            (json.lightTranslationEventBoxGroups ?? [])
+                .map(
+                    (x) => lightTranslationEventBoxGroup().fromJson(x, true),
+                )
+
         super(
             json,
             info,
@@ -391,6 +423,10 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
                 boostEvents: boostEvents,
                 baseBasicEvents: baseBasicEvents,
                 bpmEvents: bpmEvents,
+
+                lightColorEventBoxGroups: lightColorEventBoxGroups,
+                lightRotationEventBoxGroups: lightRotationEventBoxGroups,
+                lightTranslationEventBoxGroups: lightTranslationEventBoxGroups,
 
                 animateComponents: animateComponents,
                 animateTracks: animateTracks,
@@ -513,6 +549,21 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         }
         if (fogEnvironment!) environment.push(fogEnvironment)
 
+        // V3 Lighting
+        const lightColorEventBoxGroups = this.lightColorEventBoxGroups.map(
+            (x) => x.toJson(true),
+        ).sort(sortItems)
+
+        const lightRotationEventBoxGroups = this.lightRotationEventBoxGroups
+            .map(
+                (x) => x.toJson(true),
+            ).sort(sortItems)
+
+        const lightTranslationEventBoxGroups = this
+            .lightTranslationEventBoxGroups.map(
+                (x) => x.toJson(true),
+            ).sort(sortItems)
+
         return {
             colorNotes: colorNotes,
             bombNotes: bombNotes,
@@ -520,9 +571,9 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
             bpmEvents: officialBPMEvents,
             burstSliders: chains,
             colorBoostBeatmapEvents: boostEvents,
-            lightColorEventBoxGroups: [],
-            lightRotationEventBoxGroups: [],
-            lightTranslationEventBoxGroups: [],
+            lightColorEventBoxGroups: lightColorEventBoxGroups,
+            lightRotationEventBoxGroups: lightRotationEventBoxGroups,
+            lightTranslationEventBoxGroups: lightTranslationEventBoxGroups,
             rotationEvents: rotationEvents,
             obstacles: obstacles,
             sliders: arcs,

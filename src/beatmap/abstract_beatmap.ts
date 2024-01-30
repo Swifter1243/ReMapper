@@ -27,6 +27,7 @@ import * as EnvironmentInternals from '../internals/environment.ts'
 import * as NoteInternals from '../internals/note.ts'
 import * as WallInternals from '../internals/wall.ts'
 import * as BasicEventInternals from '../internals/basic_event.ts'
+import * as LightingV3 from '../internals/lighting_v3.ts'
 import { EventInternals } from '../internals/mod.ts'
 import { FogEvent } from './fog.ts'
 import { getActiveCache } from '../rm_cache.ts'
@@ -50,6 +51,10 @@ export interface RMDifficulty {
     boostEvents: EventInternals.BoostEvent[]
     baseBasicEvents: BasicEventInternals.BaseEvent[]
     bpmEvents: EventInternals.BPMEvent[]
+
+    lightColorEventBoxGroups: LightingV3.LightColorEventBoxGroup[]
+    lightRotationEventBoxGroups: LightingV3.LightRotationEventBoxGroup[]
+    lightTranslationEventBoxGroups: LightingV3.LightTranslationEventBoxGroup[]
 
     animateComponents: CustomEventInternals.AnimateComponent[]
     animateTracks: CustomEventInternals.AnimateTrack[]
@@ -140,6 +145,10 @@ export abstract class AbstractDifficulty<
     baseBasicEvents: BasicEventInternals.BaseEvent[]
     bpmEvents: EventInternals.BPMEvent[]
 
+    lightColorEventBoxGroups: LightingV3.LightColorEventBoxGroup[]
+    lightRotationEventBoxGroups: LightingV3.LightRotationEventBoxGroup[]
+    lightTranslationEventBoxGroups: LightingV3.LightTranslationEventBoxGroup[]
+
     animateComponents: CustomEventInternals.AnimateComponent[]
     animateTracks: CustomEventInternals.AnimateTrack[]
     assignPathAnimations: CustomEventInternals.AssignPathAnimation[]
@@ -188,6 +197,10 @@ export abstract class AbstractDifficulty<
         this.boostEvents = inner.boostEvents
         this.baseBasicEvents = inner.baseBasicEvents
         this.bpmEvents = inner.bpmEvents
+
+        this.lightColorEventBoxGroups = inner.lightColorEventBoxGroups
+        this.lightRotationEventBoxGroups = inner.lightRotationEventBoxGroups
+        this.lightTranslationEventBoxGroups = inner.lightTranslationEventBoxGroups
 
         this.animateComponents = inner.animateComponents
         this.animateTracks = inner.animateTracks

@@ -329,6 +329,10 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
                 baseBasicEvents: baseBasicEvents,
                 bpmEvents: bpmEvents,
 
+                lightColorEventBoxGroups: [],
+                lightRotationEventBoxGroups: [],
+                lightTranslationEventBoxGroups: [],
+
                 animateComponents: [],
                 animateTracks: animateTracks,
                 assignPathAnimations: assignPathTracks,

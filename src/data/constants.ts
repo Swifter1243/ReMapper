@@ -139,7 +139,7 @@ export enum AnchorMode {
 }
 
 /** The distribution types for V3 lights. */
-export enum DistType {
+export enum DistributionType {
     WAVE = 1,
     STEP,
 }
@@ -171,9 +171,10 @@ export enum LightColor {
 }
 
 /** The rotation axis for V3 light rotations. */
-export enum Axis {
+export enum LightAxis {
     X,
     Y,
+    Z,
 }
 
 /** The easings for V3 light rotations. */
@@ -186,7 +187,7 @@ export enum RotationEase {
 }
 
 /** The direction of rotation for V3 light rotations. */
-export enum RotationDir {
+export enum RotationDirection {
     AUTOMATIC,
     CLOCKWISE,
     COUNTERCLOCKWISE,
