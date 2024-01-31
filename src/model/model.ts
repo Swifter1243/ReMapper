@@ -573,6 +573,8 @@ export class ModelScene {
         AnimationStart?,
         ForEvent?,
     ][], forObject?: (object: GroupObjectTypes) => void) {
+        this.flagInstantiation()
+
         const diff = getActiveDifficulty()
 
         // deno-lint-ignore no-this-alias
