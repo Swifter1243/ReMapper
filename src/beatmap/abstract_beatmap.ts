@@ -71,31 +71,72 @@ export interface RMDifficulty {
     fogEvents: FogEvent[]
 }
 
-type ClearProperty =
-    | 'Notes'
-    | 'Bombs'
-    | 'Arcs'
-    | 'Chains'
-    | 'Walls'
-    | 'Light Events'
-    | 'Laser Speed Events'
-    | 'Ring Zoom Events'
-    | 'Ring Spin Events'
-    | 'Rotation Events'
-    | 'Boost Events'
-    | 'Base Basic Events'
-    | 'AnimateComponent Events'
-    | 'AnimateTrack Events'
-    | 'AssignPathAnimation Events'
-    | 'AssignPlayerToTrack Events'
-    | 'AssignTrackParent Events'
-    | 'Point Definitions'
-    | 'Custom Data'
-    | 'Environment'
-    | 'Geometry'
-    | 'Geometry Materials'
-    | 'Fog Events'
-    | 'BPM Events'
+const clearPropertyMap = {
+    abstractCustomEvents: 'Abstract Custom Events',
+    animateComponents: 'Animate Components',
+    animateTracks: 'Animate Tracks',
+    arcs: 'Arcs',
+    assignPathAnimations: 'Assign Path Animations',
+    assignPlayerTracks: 'Assign Player Tracks',
+    assignTrackParents: 'Assign Track Parents',
+    baseBasicEvents: 'Base Basic Events',
+    bombs: 'Bombs',
+    boostEvents: 'Boost Events',
+    bpmEvents: 'BPM Events',
+    chains: 'Chains',
+    customData: 'Custom Data',
+    environment: 'Environment',
+    fogEvents: 'Fog Events',
+    geometry: 'Geometry',
+    geometryMaterials: 'Geometry Materials',
+    laserSpeedEvents: 'Laser Speed Events',
+    lightColorEventBoxGroups: 'Light Color Event Box Groups',
+    lightEvents: 'Light Events',
+    lightRotationEventBoxGroups: 'Light Rotation Event Box Groups',
+    lightTranslationEventBoxGroups: 'Light Translation Event Box Groups',
+    notes: 'Notes',
+    pointDefinitions: 'Point Definitions',
+    ringSpinEvents: 'Ring Spin Events',
+    ringZoomEvents: 'Ring Zoom Events',
+    rotationEvents: 'Rotation Events',
+    v3: undefined,
+    version: undefined,
+    walls: 'Walls',
+    waypoints: 'Waypoints',
+} as const satisfies {
+    [K in keyof RMDifficulty]: string | undefined
+}
+
+type ClearProperty = Exclude<
+    typeof clearPropertyMap[keyof typeof clearPropertyMap],
+    undefined
+>
+
+// type ClearProperty =
+//     | 'Notes'
+//     | 'Bombs'
+//     | 'Arcs'
+//     | 'Chains'
+//     | 'Walls'
+//     | 'Light Events'
+//     | 'Laser Speed Events'
+//     | 'Ring Zoom Events'
+//     | 'Ring Spin Events'
+//     | 'Rotation Events'
+//     | 'Boost Events'
+//     | 'Base Basic Events'
+//     | 'AnimateComponent Events'
+//     | 'AnimateTrack Events'
+//     | 'AssignPathAnimation Events'
+//     | 'AssignPlayerToTrack Events'
+//     | 'AssignTrackParent Events'
+//     | 'Point Definitions'
+//     | 'Custom Data'
+//     | 'Environment'
+//     | 'Geometry'
+//     | 'Geometry Materials'
+//     | 'Fog Events'
+//     | 'BPM Events'
 
 /**
  * @returns null if remove value
@@ -200,7 +241,8 @@ export abstract class AbstractDifficulty<
 
         this.lightColorEventBoxGroups = inner.lightColorEventBoxGroups
         this.lightRotationEventBoxGroups = inner.lightRotationEventBoxGroups
-        this.lightTranslationEventBoxGroups = inner.lightTranslationEventBoxGroups
+        this.lightTranslationEventBoxGroups =
+            inner.lightTranslationEventBoxGroups
 
         this.animateComponents = inner.animateComponents
         this.animateTracks = inner.animateTracks
@@ -348,33 +390,17 @@ export abstract class AbstractDifficulty<
         const excludeSet = new Set(exclude)
         const clear = (property: ClearProperty) => !excludeSet.has(property)
 
-        if (clear('Notes')) this.notes = []
-        if (clear('Bombs')) this.bombs = []
-        if (clear('Arcs')) this.arcs = []
-        if (clear('Chains')) this.chains = []
-        if (clear('Walls')) this.walls = []
-
-        if (clear('Light Events')) this.lightEvents = []
-        if (clear('Laser Speed Events')) this.laserSpeedEvents = []
-        if (clear('Ring Zoom Events')) this.ringZoomEvents = []
-        if (clear('Ring Spin Events')) this.ringSpinEvents = []
-        if (clear('Rotation Events')) this.rotationEvents = []
-        if (clear('Boost Events')) this.boostEvents = []
-        if (clear('Base Basic Events')) this.baseBasicEvents = []
-        if (clear('BPM Events')) this.bpmEvents = []
-
-        if (clear('AnimateComponent Events')) this.animateComponents = []
-        if (clear('AnimateTrack Events')) this.animateTracks = []
-        if (clear('AssignPathAnimation Events')) this.assignPathAnimations = []
-        if (clear('AssignPlayerToTrack Events')) this.assignPlayerTracks = []
-        if (clear('AssignTrackParent Events')) this.assignTrackParents = []
-
-        if (clear('Point Definitions')) this.pointDefinitions = {}
-        if (clear('Custom Data')) this.customData = {}
-        if (clear('Environment')) this.environment = []
-        if (clear('Geometry')) this.geometry = []
-        if (clear('Geometry Materials')) this.geometryMaterials = {}
-        if (clear('Fog Events')) this.fogEvents = []
+        Object.keys(clearPropertyMap).forEach((x) => {
+            const key = x as keyof typeof clearPropertyMap
+            const value = clearPropertyMap[key]
+            
+            if (
+                value !== undefined &&
+                clear(value)
+            ) {
+                ;(this as unknown as Record<string, unknown>)[key] = []
+            }
+        })
     }
 
     /**
