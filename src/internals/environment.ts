@@ -67,7 +67,6 @@ export abstract class BaseEnvironmentEnhancement<
             : new Track(fields.track)
 
         this.components = fields.components
-        this.group = fields.group
         this.lightID = fields.lightID
         this.lightType = fields.lightType
     }
@@ -92,9 +91,6 @@ export abstract class BaseEnvironmentEnhancement<
     track: Track = new Track()
 
     components?: TV3['components']
-
-    /** Group used with "animateEnvGroup". Not saved to the difficulty. */
-    group?: unknown
 
     lightID?: number
     lightType?: number

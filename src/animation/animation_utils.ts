@@ -222,63 +222,6 @@ function timeInKeyframes(time: number, animation: ComplexKeyframeValuesUnsafe) {
 }
 
 /**
- * Allows you to combine two animations together.
- * Atleast one of them must have only a single keyframe.
- * @param anim1 The first animation.
- * @param anim2 The second animation.
- * @param property The property that this animation came from.
- */
-export function combineAnimations(
-    anim1: RawKeyframesAny,
-    anim2: RawKeyframesAny,
-    property: AnimationKeys,
-) {
-    let simpleArr = copy(anim1)
-    let complexArr: ComplexKeyframeValuesUnsafe = []
-
-    if (areKeyframesSimple(anim1) && areKeyframesSimple(anim2)) {
-        complexArr = complexifyArray<[number] | Vec3 | Vec4>(anim2)
-    } else if (!areKeyframesSimple(anim1) && areKeyframesSimple(anim2)) {
-        simpleArr = copy(anim2)
-        complexArr = copy(anim1) as ComplexKeyframesAny
-    } else if (!areKeyframesSimple(anim1) && !areKeyframesSimple(anim2)) {
-        console.error(`[${anim1}] and [${anim2}] are unable to combine!`)
-    } else {
-        complexArr = copy(anim2) as ComplexKeyframesAny
-    }
-
-    const editElem = function (e: number, e2: number) {
-        if (
-            property === 'position' ||
-            property === 'localPosition' ||
-            property === 'definitePosition' ||
-            property === 'offsetPosition'
-        ) {
-            e += e2
-        }
-        if (
-            property === 'rotation' ||
-            property === 'localRotation' ||
-            property === 'offsetWorldRotation'
-        ) {
-            e = (e + e2) % 360
-        }
-        if (property === 'scale') e *= e2
-        return e
-    }
-
-    for (let j = 0; j < complexArr.length; j++) {
-        for (let i = 0; i < simpleArr.length; i++) {
-            complexArr[j][i] = editElem(
-                complexArr[j][i] as number,
-                simpleArr[i] as number,
-            )
-        }
-    }
-    return complexArr
-}
-
-/**
  * Generate keyframes from an animation.
  * Useful for doing things such as having objects rotate around points other than their anchor.
  * @param animation The keyframes for various transforms.
