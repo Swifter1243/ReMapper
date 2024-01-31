@@ -1,8 +1,7 @@
-// deno-lint-ignore-file no-extra-semi
+// deno-lint-ignore-file
 import {
     ComplexKeyframesAny,
     ComplexKeyframesVec3,
-    PointDefinitionVec3,
     RawKeyframesAny,
     RawKeyframesVec3,
 } from '../types/animation_types.ts'
@@ -26,6 +25,8 @@ import { ColorVec, Vec3 } from '../types/data_types.ts'
 import { copy } from '../utils/general.ts'
 import { getKeyframeTime, areKeyframesSimple } from '../animation/keyframe.ts'
 import { getActiveDifficulty } from '../mod.ts'
+import { DeepReadonly } from '../types/util_types.ts'
+import { arrayDivide, arrayMultiply, vec } from '../utils/mod.ts'
 
 let modelToWallCount = 0
 
@@ -38,25 +39,37 @@ let modelToWallCount = 0
  * @param animated Corrects for animated scale. If you are using this, plug [1,1,1] into static scale.
  */
 export function worldToWall(
-    pos: Vec3 = [0, 0, 0],
-    rot: Vec3 = [0, 0, 0],
-    scale: Vec3 = [1, 1, 1],
+    pos: DeepReadonly<Vec3> = [0, 0, 0],
+    rot: DeepReadonly<Vec3> = [0, 0, 0],
+    scale: DeepReadonly<Vec3> = [1, 1, 1],
     animated = false,
 ) {
-    scale = scale.map((x) => x / 0.6) as Vec3
+    // Turn units into noodle unit scale
+    const resizedScale = arrayDivide(scale as Vec3, 0.6)
+    let resizedPos = arrayDivide(pos as Vec3, 0.6)
 
-    pos = [pos[0] /= 0.6, pos[1] /= 0.6, pos[2] /= 0.6]
+    // Initialize offset to get to center
+    let offset = vec(0, -0.5, -0.5)
 
-    let offset = [0, -0.5, -0.5] as Vec3
-    offset = rotatePoint(offset.map((x, i) => x * scale[i]) as Vec3, rot)
-    pos = arrayAdd(pos, offset)
+    // Scale offset
+    offset = arrayMultiply(offset, resizedScale)
 
-    pos[1] += 0.2
-    pos[0] -= animated ? 0.5 : scale[0] / 2
+    // Rotate offset
+    offset = rotatePoint(offset, rot)
+
+    // Add position
+    resizedPos = arrayAdd(resizedPos, offset)
+
+    // Move walls up because they're down for some reason
+    resizedPos[1] += 0.2
+
+    // Move by half of the base width
+    // In the case of animated, this is implicitly 1
+    resizedPos[0] -= animated ? 0.5 : resizedScale[0] / 2
 
     return {
-        pos: pos,
-        scale: scale,
+        pos: resizedPos,
+        scale: resizedScale,
     }
 }
 
@@ -244,75 +257,4 @@ export async function modelToWall(
             o.push(false)
         })
     })
-}
-
-/**
- * Create a wall for debugging. Position, rotation, and scale are in world space and can be animations.
- * @param transform All of the transformations for the wall.
- * @param animStart When animation starts.
- * @param animDur How long animation lasts for.
- * @param animFreq Frequency of keyframes in animation.
- * @param animOptimizer Optimizer for the animation.
- */
-export function debugWall(
-    transform: {
-        pos?: RawKeyframesVec3
-        rot?: RawKeyframesVec3
-        scale?: RawKeyframesVec3
-    },
-    animStart?: number,
-    animDur?: number,
-    animFreq?: number,
-    animOptimizer = new OptimizeSettings(),
-) {
-    animStart ??= 0
-    animDur ??= 0
-    animFreq ??= 1 / 64
-
-    const pos = transform.pos ?? [0, 0, 0]
-    const rot = transform.rot ?? [0, 0, 0]
-    const scale = transform.scale ?? [1, 1, 1]
-
-    const w = wall()
-    w.life = animDur + 69420
-    w.lifeStart = 0
-    w.color = [0, 0, 0, 1]
-    w.coordinates = [0, 0]
-
-    if (
-        !areKeyframesSimple(pos) ||
-        !areKeyframesSimple(rot) ||
-        !areKeyframesSimple(scale)
-    ) {
-        transform = bakeAnimation(
-            transform,
-            (keyframe) => {
-                const wtw = worldToWall(
-                    keyframe.pos,
-                    keyframe.rot,
-                    keyframe.scale,
-                    true,
-                )
-                keyframe.pos = wtw.pos
-                keyframe.scale = wtw.scale
-                keyframe.time = keyframe.time * (animDur as number) +
-                    (animStart as number)
-            },
-            animFreq,
-            animOptimizer,
-        )
-
-        w.scale = [1, 1, 1]
-        w.animation.duration = w.life
-        w.animation.definitePosition = transform.pos as PointDefinitionVec3
-        w.animation.localRotation = transform.rot as PointDefinitionVec3
-        w.animation.scale = transform.scale as PointDefinitionVec3
-    } else {
-        const wtw = worldToWall(pos as Vec3, rot as Vec3, scale as Vec3)
-        w.animation.definitePosition = wtw.pos
-        w.scale = wtw.scale
-        w.localRotation = rot as Vec3
-    }
-
-    w.push()
 }
