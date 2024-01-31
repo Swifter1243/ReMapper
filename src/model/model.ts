@@ -1,4 +1,4 @@
-// deno-lint-ignore-file no-explicit-any no-extra-semi
+// deno-lint-ignore-file no-explicit-any
 import { RawKeyframesVec3 } from '../types/animation_types.ts'
 import { RawGeometryMaterial } from '../types/environment_types.ts'
 import { activeDiff, getActiveDifficulty } from '../data/beatmap_handler.ts'
@@ -60,6 +60,7 @@ export class ModelScene {
     trackID: number
     sceneObjectInfo = <Record<string, SceneObjectInfo>> {}
     initializePositions = true
+    private instantiated = false
 
     /**
      * Handler for representing object data as part of the environment.
@@ -264,11 +265,11 @@ export class ModelScene {
                         positionToV2(objPos as Vec3)
                     }
 
-                    ;(x.pos)[i] = [...(objPos as Vec3), (x.pos)[i][3]]
-                    ;(x.rot)[i] = [...(objRot as Vec3), (x.rot)[i][3]]
-                    ;(x.scale)[i] = [
+                    x.pos[i] = [...(objPos as Vec3), x.pos[i][3]]
+                    x.rot[i] = [...(objRot as Vec3), x.rot[i][3]]
+                    x.scale[i] = [
                         ...(objScale as Vec3),
-                        (x.scale)[i][3],
+                        x.scale[i][3],
                     ]
                 }
 
@@ -438,6 +439,13 @@ export class ModelScene {
         }
     }
 
+    private flagInstantiation() {
+        if (this.instantiated) {
+            throw "You can't instantiate a scene using the same ModelScene multiple times."
+        }
+        this.instantiated = true
+    }
+
     /**
      * Create a one-time environment from static data.
      * @param input Input for ModelObjects.
@@ -449,6 +457,8 @@ export class ModelScene {
         forObject?: (object: GroupObjectTypes) => void,
         forAssigned?: (event: CustomEventInternals.AnimateTrack) => void,
     ) {
+        this.flagInstantiation()
+
         const diff = getActiveDifficulty()
 
         // deno-lint-ignore no-this-alias
