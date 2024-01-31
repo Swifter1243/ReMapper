@@ -393,12 +393,17 @@ export abstract class AbstractDifficulty<
         Object.keys(clearPropertyMap).forEach((x) => {
             const key = x as keyof typeof clearPropertyMap
             const value = clearPropertyMap[key]
-            
+
             if (
                 value !== undefined &&
                 clear(value)
             ) {
-                ;(this as unknown as Record<string, unknown>)[key] = []
+                const arr = Array.isArray(
+                    (this as unknown as Record<string, unknown>)[key],
+                )
+                ;(this as unknown as Record<string, unknown>)[key] = arr
+                    ? []
+                    : {}
             }
         })
     }
