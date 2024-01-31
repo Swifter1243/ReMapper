@@ -1,3 +1,6 @@
+export const regex = (...params: ConstructorParameters<typeof Regex>) =>
+    new Regex(...params)
+
 export class Regex {
     string = ''
 
