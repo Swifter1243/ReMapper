@@ -128,6 +128,20 @@ export function random(start: number, end: number, roundResult?: number) {
     return roundResult ? round(result, roundResult) : result
 }
 
+// https://stackoverflow.com/questions/521295/seeding-the-random-number-generator-in-javascript
+/**
+ * Returns a unique random function per seed
+ */
+export function seededRandom(seed: number) {
+    return (min: number, max: number) => {
+        let t = seed += 0x6D2B79F5
+        t = Math.imul(t ^ t >>> 15, t | 1)
+        t ^= t + Math.imul(t ^ t >>> 7, t | 61)
+        const r = ((t ^ t >>> 14) >>> 0) / 4294967296
+        return lerp(min, max, r)
+    }
+}
+
 /**
  * A modulo operation that is always positive.
  * E.g. -0.3 % 1 = 0.7
@@ -393,10 +407,10 @@ export function lookAt(
  */
 export function applyMatrixToPoint(
     matrix: three.Matrix4,
-    point: Vec3
+    point: Vec3,
 ) {
     return combineTransforms({
-        pos: point
+        pos: point,
     }, getTransformFromMatrix(matrix)).pos
 }
 
@@ -405,12 +419,12 @@ export function applyMatrixToPoint(
  */
 export function combineRotations(
     target: Vec3,
-    rotation: Vec3
+    rotation: Vec3,
 ) {
     return combineTransforms({
-        rot: target
+        rot: target,
     }, {
-        rot: rotation
+        rot: rotation,
     }).rot
 }
 
