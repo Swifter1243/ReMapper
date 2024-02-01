@@ -44,26 +44,14 @@ export class Text implements TextInfo {
     /** The height of the text model. Generated from input. */
     modelHeight = 0
 
-    importPromise: Promise<void>
-
     /**
      * An interface to generate objects from text.
      * Each object forming a letter in your model should have a track for the letter it's assigned to.
-     * @param input The model data of the text. Can be either a path to a model or a collection of objects.
+     * @param input The model data of the text.
      */
-    constructor(input: string | TextObject[]) {
-        this.importPromise = this.import(input)
-    }
-
-    /**
-     * Import a model for the text.
-     * @param input The model data of the text. Can be either a path to a model or a collection of objects.
-     */
-    async import(input: string | TextObject[]) {
-        if (typeof input === 'string') {
-            this.model = await getModel(input) as ReadonlyText
-        } else this.model = input
-        const bounds = getBoxBounds(this.model as TextObject[])
+    constructor(input: ReadonlyText) {
+        this.model = input
+        const bounds = getBoxBounds(input as TextObject[])
         this.modelHeight = bounds.highBound[1]
     }
 
@@ -71,20 +59,7 @@ export class Text implements TextInfo {
      * Generate an array of objects containing model data for a string of text.
      * @param text The string of text to generate.
      */
-    async toObjects(text: string) {
-        const info: TextInfo = {
-            height: this.height,
-            horizontalAnchor: this.horizontalAnchor,
-            letterSpacing: this.letterSpacing,
-            position: copy(this.position),
-            rotation: copy(this.rotation),
-            scale: copy(this.scale),
-            verticalAnchor: this.verticalAnchor,
-            wordSpacing: this.wordSpacing,
-        }
-
-        await this.importPromise
-
+    toObjects(text: string) {
         const letters: Record<string, {
             model: ReadonlyText
             bounds: Bounds
@@ -109,13 +84,13 @@ export class Text implements TextInfo {
         }
 
         let length = 0
-        const letterWidth = this.modelHeight * info.letterSpacing
+        const letterWidth = this.modelHeight * this.letterSpacing
 
         for (let i = 0; i < text.length; i++) {
             const char = text[i]
 
             if (char === ' ') {
-                length += letterWidth * info.wordSpacing
+                length += letterWidth * this.wordSpacing
                 continue
             }
 
@@ -137,19 +112,19 @@ export class Text implements TextInfo {
             length += letterWidth
         }
 
-        const scalar = info.height / this.modelHeight
+        const scalar = this.height / this.modelHeight
         let transform: undefined | Transform = undefined
-        if (info.position || info.rotation || info.scale) {
+        if (this.position || this.rotation || this.scale) {
             transform = {
-                pos: info.position,
-                rot: info.rotation,
-                scale: info.scale,
+                pos: this.position,
+                rot: this.rotation,
+                scale: this.scale,
             }
         }
 
         model.forEach((x) => {
-            if (info.horizontalAnchor === 'Center') x.pos[0] -= length / 2
-            if (info.horizontalAnchor === 'Right') x.pos[0] -= length
+            if (this.horizontalAnchor === 'Center') x.pos[0] -= length / 2
+            if (this.horizontalAnchor === 'Right') x.pos[0] -= length
 
             x.pos = x.pos.map((y) => y * scalar) as Vec3
             x.scale = x.scale.map((y) => y * scalar) as Vec3
@@ -161,8 +136,8 @@ export class Text implements TextInfo {
                 x.scale = combined.scale
             }
 
-            if (info.verticalAnchor === 'Center') x.pos[1] -= info.height / 2
-            if (info.verticalAnchor === 'Top') x.pos[1] -= info.height
+            if (this.verticalAnchor === 'Center') x.pos[1] -= this.height / 2
+            if (this.verticalAnchor === 'Top') x.pos[1] -= this.height
         })
 
         return model as ReadonlyText
@@ -179,7 +154,7 @@ export class Text implements TextInfo {
      * @param animFreq The frequency for the animation baking (if using array of objects).
      * @param animOptimizer The optimizer for the animation baking (if using array of objects).
      */
-    async toWalls(
+    toWalls(
         text: string,
         start: number,
         end: number,
@@ -188,23 +163,24 @@ export class Text implements TextInfo {
         animFreq?: number,
         animOptimizer = new OptimizeSettings(),
     ) {
-        await getActiveDifficulty().runAsync(async () => {
-            const model = await this.toObjects(text)
-            modelToWall(
-                model,
-                start,
-                end,
-                wall,
-                distribution,
-                animFreq,
-                animOptimizer,
-            )
-        })
+        const model = this.toObjects(text)
+        modelToWall(
+            model,
+            start,
+            end,
+            wall,
+            distribution,
+            animFreq,
+            animOptimizer,
+        )
     }
 }
 
-export function text(
-    ...params: ConstructorParameters<typeof Text>
-): Text {
-    return new Text(...params)
+export async function text(
+    input: string | ReadonlyText,
+) {
+    return await getActiveDifficulty().runAsync(async () => {
+        const model = typeof input === 'string' ? await getModel(input) : input
+        return new Text(model as ReadonlyText)
+    })
 }
