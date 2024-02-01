@@ -107,6 +107,13 @@ export function lightEvent(
     })
 }
 
+/** Make a light event from any type */
+export function fromType(type: number, ...params: LightParameters) {
+    return new BasicEventInternals.LightEvent(
+        ...fixupParams(type, ...params),
+    )
+}
+
 /** Controls the back lasers. (Type 0) */
 export function backLasers(...params: LightParameters) {
     return new BasicEventInternals.LightEvent(
