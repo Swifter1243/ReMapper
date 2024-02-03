@@ -527,7 +527,7 @@ export function getBoxBounds(
  * Get the amount of seconds in the script.
  * @param decimals Amount of decimals in returned number.
  */
-export const getSeconds = (decimals = 2) =>
+export const getRuntimeSeconds = (decimals = 2) =>
     setDecimals(performance.now() / 1000, decimals)
 
 /**

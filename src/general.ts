@@ -1,4 +1,4 @@
-import { EPSILON, getSeconds } from './utils/math.ts'
+import { EPSILON, getRuntimeSeconds } from './utils/math.ts'
 import { fs, path } from './deps.ts'
 import { getActiveDifficulty } from './data/beatmap_handler.ts'
 import { OnlyNumbersOptional } from './types/util_types.ts'
@@ -217,7 +217,7 @@ export function eventsBetween(
  * @param message Message to log.
  */
 export const RMLog = (message: string) =>
-    console.log(`[ReMapper: ${getSeconds()}s] ` + message)
+    console.log(`[ReMapper: ${getRuntimeSeconds()}s] ` + message)
 
 /**
  * Parse a file path, allowing extension forcing and getting useful information.
