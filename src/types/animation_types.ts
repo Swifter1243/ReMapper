@@ -4,14 +4,18 @@ import { Vec3, Vec4 } from './data_types.ts'
 //     [P in K]: T[P] extends Function ? never : T[P]
 // }
 
-/** All runtime properties */
-export type RuntimeProperties =
+// All runtime properties
+export type RuntimePropertiesLinear = never
+
+export type RuntimePropertiesVec3 =
     | 'baseHeadLocalPosition'
     | 'baseHeadLocalRotation'
     | 'baseLeftHandLocalPosition'
     | 'baseRightHandLocalPosition'
     | 'baseLeftHandLocalRotation'
     | 'baseRightHandLocalRotation'
+
+export type RuntimePropertiesVec4 =
     | 'baseNote0Color'
     | 'baseNote1Color'
     | 'baseSaberAColor'
@@ -54,7 +58,7 @@ export type Interpolation = EASE | SPLINE
 export type PointModifier = `op${'None' | 'Add' | 'Sub' | 'Mul' | 'Div'}`
 
 /** Any flag that could be in a keyframe. E.g. easings, splines */
-export type KeyframeFlag = PointModifier | Interpolation | 'lerpHSV'
+export type KeyframeFlag = Interpolation | 'lerpHSV'
 
 /** Time value in a keyframe. */
 export type TimeValue = number
@@ -67,29 +71,84 @@ export type SingleKeyframeAbstract<T extends number[]> =
     | [...T, KeyframeFlag, KeyframeFlag]
     | [...T, KeyframeFlag, KeyframeFlag, KeyframeFlag]
 
+export type RuntimeSingleKeyframeAbstract<
+    T extends number[],
+    R extends string,
+> =
+    | [
+        R,
+        | [...T, PointModifier]
+        | [R, PointModifier]
+        | [
+            RuntimeSingleKeyframeAbstract<T, R>,
+            PointModifier,
+        ],
+    ]
+    | [
+        ...T,
+        | [...T, PointModifier]
+        | [R, PointModifier]
+        | [
+            RuntimeSingleKeyframeAbstract<T, R>,
+            PointModifier,
+        ],
+    ]
+    | T
+
 /** Helper type for complex keyframes. [[...], [...], [...]] */
 export type ComplexKeyframesAbstract<T extends number[]> =
     SingleKeyframeAbstract<[...T, TimeValue]>[]
 
-export type RuntimeComplexKeyframesAbstract<T extends number[]> =
-    (SingleKeyframeAbstract<[...T, TimeValue]> | RuntimeProperties)[]
+export type RuntimeComplexKeyframesAbstract<
+    T extends number[],
+    R extends string,
+> =
+    | [
+        ...RuntimeSingleKeyframeAbstract<T, R>,
+        TimeValue,
+    ][]
+    | [
+        ...RuntimeSingleKeyframeAbstract<T, R>,
+        TimeValue,
+        KeyframeFlag,
+    ][]
+    | [
+        ...RuntimeSingleKeyframeAbstract<T, R>,
+        TimeValue,
+        KeyframeFlag,
+        KeyframeFlag,
+    ][]
+    | [
+        ...RuntimeSingleKeyframeAbstract<T, R>,
+        TimeValue,
+        KeyframeFlag,
+        KeyframeFlag,
+        KeyframeFlag,
+    ][]
 
 /** Helper type for raw keyframes. [...] | [[...], [...], [...]] */
 export type RawKeyframesAbstract<T extends number[]> =
     | ComplexKeyframesAbstract<T>
     | SingleKeyframeAbstract<T>
 
-export type RuntimeRawKeyframesAbstract<T extends number[]> =
-    | RuntimeComplexKeyframesAbstract<T>
-    | SingleKeyframeAbstract<T>
+export type RuntimeRawKeyframesAbstract<
+    T extends number[],
+    R extends string,
+> =
+    | RuntimeComplexKeyframesAbstract<T, R>
+    | RuntimeSingleKeyframeAbstract<T, R>
+    | [R]
 
 /** Helper type for keyframe arrays. */
 export type PointDefinitionAbstract<T extends number[]> =
     | RawKeyframesAbstract<T>
     | string
 
-export type RuntimePointDefinitionAbstract<T extends number[]> =
-    | RuntimeRawKeyframesAbstract<T>
+export type RuntimePointDefinitionAbstract<
+    T extends number[],
+    R extends string,
+> =
+    | RuntimeRawKeyframesAbstract<T, R>
     | string
 
 //#endregion
@@ -98,20 +157,25 @@ export type RuntimePointDefinitionAbstract<T extends number[]> =
 /** Keyframe or array of keyframes with 1 value. [[x, time]...] or [x] */
 export type PointDefinitionLinear = PointDefinitionAbstract<[number]>
 export type RuntimePointDefinitionLinear = RuntimePointDefinitionAbstract<
-    [number]
+    [number],
+    RuntimePropertiesLinear
 >
 
 /** Array of keyframes with 1 value. [[x, time]...] */
 export type ComplexKeyframesLinear = ComplexKeyframesAbstract<[number]>
 export type RuntimeComplexKeyframesLinear = RuntimeComplexKeyframesAbstract<
-    [number]
+    [number],
+    RuntimePropertiesLinear
 >
 
 /** Keyframe or array of keyframes with 1 value.
  * [[x,time]...] or [x]
  */
 export type RawKeyframesLinear = RawKeyframesAbstract<[number]>
-export type RuntimeRawKeyframesLinear = RuntimeRawKeyframesAbstract<[number]>
+export type RuntimeRawKeyframesLinear = RuntimeRawKeyframesAbstract<
+    [number],
+    RuntimePropertiesLinear
+>
 //#endregion
 
 //#region Vec3
@@ -119,17 +183,26 @@ export type RuntimeRawKeyframesLinear = RuntimeRawKeyframesAbstract<[number]>
  * [[x,y,z,time]...] or [x,y,z]
  */
 export type PointDefinitionVec3 = PointDefinitionAbstract<Vec3>
-export type RuntimePointDefinitionVec3 = RuntimePointDefinitionAbstract<Vec3>
+export type RuntimePointDefinitionVec3 = RuntimePointDefinitionAbstract<
+    Vec3,
+    RuntimePropertiesVec3
+>
 
 /** Array of keyframes with 3 values. [[x,y,z,time]...] */
 export type ComplexKeyframesVec3 = ComplexKeyframesAbstract<Vec3>
-export type RuntimeComplexKeyframesVec3 = RuntimeComplexKeyframesAbstract<Vec3>
+export type RuntimeComplexKeyframesVec3 = RuntimeComplexKeyframesAbstract<
+    Vec3,
+    RuntimePropertiesVec3
+>
 
 /** Keyframe or array of keyframes with 3 values.
  * [[x,y,z,time]...] or [x,y,z]
  */
 export type RawKeyframesVec3 = RawKeyframesAbstract<Vec3>
-export type RuntimeRawKeyframesVec3 = RuntimeRawKeyframesAbstract<Vec3>
+export type RuntimeRawKeyframesVec3 = RuntimeRawKeyframesAbstract<
+    Vec3,
+    RuntimePropertiesVec3
+>
 //#endregion
 
 //#region Vec4
@@ -137,17 +210,26 @@ export type RuntimeRawKeyframesVec3 = RuntimeRawKeyframesAbstract<Vec3>
  * [[x,y,z,w,time]...] or [x,y,z,w]
  */
 export type PointDefinitionVec4 = PointDefinitionAbstract<Vec4>
-export type RuntimePointDefinitionVec4 = RuntimePointDefinitionAbstract<Vec4>
+export type RuntimePointDefinitionVec4 = RuntimePointDefinitionAbstract<
+    Vec4,
+    RuntimePropertiesVec4
+>
 
 /** Array of keyframes with 4 values. [[x,y,z,w,time]...] */
 export type ComplexKeyframesVec4 = ComplexKeyframesAbstract<Vec4>
-export type RuntimeComplexKeyframesVec4 = RuntimeComplexKeyframesAbstract<Vec4>
+export type RuntimeComplexKeyframesVec4 = RuntimeComplexKeyframesAbstract<
+    Vec4,
+    RuntimePropertiesVec4
+>
 
 /** Keyframe or array of keyframes with 4 values.
  * [[x,y,z,w,time]...] or [x,y,z,w]
  */
 export type RawKeyframesVec4 = RawKeyframesAbstract<Vec4>
-export type RuntimeRawKeyframesVec4 = RuntimeRawKeyframesAbstract<Vec4>
+export type RuntimeRawKeyframesVec4 = RuntimeRawKeyframesAbstract<
+    Vec4,
+    RuntimePropertiesVec4
+>
 //#endregion
 
 //#region Any

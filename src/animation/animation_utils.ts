@@ -408,7 +408,14 @@ export function mirrorAnimation<T extends NumberTuple>(
 }
 
 export function animationIsRuntime(
-    keyframes: DeepReadonly<RuntimeRawKeyframesAny>,
+    keyframes: RuntimeRawKeyframesAny,
 ) {
-    return keyframes.some((x) => typeof x === 'string')
+    if (keyframes.some((x) => typeof x === 'string')) return true
+
+    const json = JSON.stringify(keyframes)
+
+    // this is scuffed as fuck.
+    if (json.includes('op') || json.includes('base')) return true
+
+    return false
 }
