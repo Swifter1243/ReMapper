@@ -49,6 +49,7 @@ import {
     positionToV2,
     SceneObjectInfo,
 } from '../mod.ts'
+import { RuntimeRawKeyframesVec3 } from '../types/animation_types.ts'
 
 let modelSceneCount = 0
 let noYeet = true
@@ -529,9 +530,9 @@ export class ModelScene {
                 } // Creating event for assigned
                 else {
                     const event = animateTrack(0, track)
-                    event.animation.position = x.pos as RawKeyframesVec3
-                    event.animation.rotation = x.rot as RawKeyframesVec3
-                    event.animation.scale = x.scale as RawKeyframesVec3
+                    event.animation.position = x.pos as RuntimeRawKeyframesVec3
+                    event.animation.rotation = x.rot as RuntimeRawKeyframesVec3
+                    event.animation.scale = x.scale as RuntimeRawKeyframesVec3
                     if (forAssigned) forAssigned(event)
                     activeDiff.animateTracks.push(event)
                 }
@@ -722,9 +723,9 @@ export class ModelScene {
                         }
 
                         event.beat = time + start
-                        event.animation.position = x.pos as RawKeyframesVec3
-                        event.animation.rotation = x.rot as RawKeyframesVec3
-                        event.animation.scale = x.scale as RawKeyframesVec3
+                        event.animation.position = x.pos as RuntimeRawKeyframesVec3
+                        event.animation.rotation = x.rot as RuntimeRawKeyframesVec3
+                        event.animation.scale = x.scale as RuntimeRawKeyframesVec3
 
                         if (
                             typeof input === 'object' &&
