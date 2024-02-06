@@ -3,9 +3,7 @@ import { bsmap } from '../deps.ts'
 import {
     DIFFNAME,
     DIFFPATH,
-    PointDefinitionAny,
     RawGeometryMaterial,
-    RawKeyframesAbstract,
     REQUIRE_MODS,
     SUGGEST_MODS,
     TJson,
@@ -31,6 +29,10 @@ import * as LightingV3 from '../internals/lighting_v3.ts'
 import { EventInternals } from '../internals/mod.ts'
 import { FogEvent } from './fog.ts'
 import { getActiveCache } from '../rm_cache.ts'
+import { RuntimePointDefinitionAny } from '../types/animation_types.ts'
+import { RuntimeRawKeyframesAny } from '../types/animation_types.ts'
+import { RawKeyframesLinear } from '../types/animation_types.ts'
+import { animationIsRuntime } from '../animation/animation_utils.ts'
 
 export interface RMDifficulty {
     version: bsmap.v2.IDifficulty['_version'] | bsmap.v3.IDifficulty['version']
@@ -290,11 +292,14 @@ export abstract class AbstractDifficulty<
         ) => {
             Object.entries(animation).forEach(([key, keyframes]) => {
                 if (typeof keyframes === 'string') return
+                if (animationIsRuntime(keyframes as RuntimeRawKeyframesAny)) {
+                    return
+                }
 
                 animation[key] = optimizeKeyframes(
-                    keyframes as RawKeyframesAbstract<number[]>,
+                    keyframes as RawKeyframesLinear,
                     optimize,
-                ) as PointDefinitionAny
+                ) as RuntimePointDefinitionAny
             })
         }
 

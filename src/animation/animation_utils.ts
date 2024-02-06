@@ -34,6 +34,7 @@ import { DeepReadonly, NumberTuple } from '../types/util_types.ts'
 import { TransformKeyframe, Vec3, Vec4 } from '../types/data_types.ts'
 import { copy } from '../utils/general.ts'
 import {
+    areKeyframesSimple,
     getKeyframeEasing,
     getKeyframeFlagIndex,
     getKeyframeHSVLerp,
@@ -41,10 +42,10 @@ import {
     getKeyframeTime,
     getKeyframeTimeIndex,
     getKeyframeValues,
-    areKeyframesSimple,
     setKeyframeEasing,
 } from './keyframe.ts'
 import { lerpHSV } from '../data/color.ts'
+import { RuntimeRawKeyframesAny } from '../types/mod.ts'
 
 /**
  * Ensures that this value is in the format of an array of keyframes.
@@ -91,7 +92,9 @@ export function getValuesAtTime<K extends string = AnimationKeys>(
         throw 'Does not support point definitions!'
     }
 
-    if (areKeyframesSimple(animation)) return animation as unknown as SimpleKeyframesAny
+    if (areKeyframesSimple(animation)) {
+        return animation as unknown as SimpleKeyframesAny
+    }
 
     const complexAnimation = animation as ComplexKeyframesAny
 
@@ -402,4 +405,10 @@ export function mirrorAnimation<T extends NumberTuple>(
     })
 
     return output
+}
+
+export function animationIsRuntime(
+    keyframes: DeepReadonly<RuntimeRawKeyframesAny>,
+) {
+    return keyframes.some((x) => typeof x === 'string')
 }

@@ -2,42 +2,42 @@
 
 import { bsmap } from '../deps.ts'
 import {
-    PointDefinitionAny,
-    PointDefinitionLinear,
-    PointDefinitionVec3,
-    PointDefinitionVec4,
+    RuntimePointDefinitionAny,
+    RuntimePointDefinitionLinear,
+    RuntimePointDefinitionVec3,
+    RuntimePointDefinitionVec4,
 } from '../types/animation_types.ts'
 
 export type AnimationPropertiesV2 = {
-    _color?: PointDefinitionVec4
-    _position?: PointDefinitionVec3
-    _rotation?: PointDefinitionVec3
-    _localRotation?: PointDefinitionVec3
-    _scale?: PointDefinitionVec3
-    _dissolve?: PointDefinitionLinear
-    _dissolveArrow?: PointDefinitionLinear
-    _interactable?: PointDefinitionLinear
-    _definitePosition?: PointDefinitionVec3
-    _time?: PointDefinitionLinear
-    _localPosition?: PointDefinitionVec3
-    [key: string]: PointDefinitionAny | undefined
+    _color?: RuntimePointDefinitionVec4
+    _position?: RuntimePointDefinitionVec3
+    _rotation?: RuntimePointDefinitionVec3
+    _localRotation?: RuntimePointDefinitionVec3
+    _scale?: RuntimePointDefinitionVec3
+    _dissolve?: RuntimePointDefinitionLinear
+    _dissolveArrow?: RuntimePointDefinitionLinear
+    _interactable?: RuntimePointDefinitionLinear
+    _definitePosition?: RuntimePointDefinitionVec3
+    _time?: RuntimePointDefinitionLinear
+    _localPosition?: RuntimePointDefinitionVec3
+    [key: string]: RuntimePointDefinitionAny | undefined
 }
 
 export type AnimationPropertiesV3 = {
-    offsetPosition?: PointDefinitionVec3
-    offsetWorldRotation?: PointDefinitionVec3
-    localRotation?: PointDefinitionVec3
-    scale?: PointDefinitionVec3
-    dissolve?: PointDefinitionLinear
-    dissolveArrow?: PointDefinitionLinear
-    interactable?: PointDefinitionLinear
-    definitePosition?: PointDefinitionVec3
-    time?: PointDefinitionLinear
-    color?: PointDefinitionVec4
-    position?: PointDefinitionVec3
-    rotation?: PointDefinitionVec3
-    localPosition?: PointDefinitionVec3
-    [key: string]: PointDefinitionAny | undefined
+    offsetPosition?: RuntimePointDefinitionVec3
+    offsetWorldRotation?: RuntimePointDefinitionVec3
+    localRotation?: RuntimePointDefinitionVec3
+    scale?: RuntimePointDefinitionVec3
+    dissolve?: RuntimePointDefinitionLinear
+    dissolveArrow?: RuntimePointDefinitionLinear
+    interactable?: RuntimePointDefinitionLinear
+    definitePosition?: RuntimePointDefinitionVec3
+    time?: RuntimePointDefinitionLinear
+    color?: RuntimePointDefinitionVec4
+    position?: RuntimePointDefinitionVec3
+    rotation?: RuntimePointDefinitionVec3
+    localPosition?: RuntimePointDefinitionVec3
+    [key: string]: RuntimePointDefinitionAny | undefined
 }
 
 type AnimateV2Scuffed =
@@ -51,23 +51,23 @@ type AnimateV3Scuffed =
 type AnimationData = AnimationPropertiesV2 | AnimationPropertiesV3
 
 export interface ObjectAnimationData {
-    offsetPosition?: PointDefinitionVec3
-    definitePosition?: PointDefinitionVec3
-    offsetWorldRotation?: PointDefinitionVec3
-    localRotation?: PointDefinitionVec3
-    scale?: PointDefinitionVec3
-    dissolve?: PointDefinitionLinear
-    uninteractable?: PointDefinitionLinear
-    time?: PointDefinitionLinear
-    color?: PointDefinitionVec4
-    [key: string]: PointDefinitionAny | undefined
+    offsetPosition?: RuntimePointDefinitionVec3
+    definitePosition?: RuntimePointDefinitionVec3
+    offsetWorldRotation?: RuntimePointDefinitionVec3
+    localRotation?: RuntimePointDefinitionVec3
+    scale?: RuntimePointDefinitionVec3
+    dissolve?: RuntimePointDefinitionLinear
+    uninteractable?: RuntimePointDefinitionLinear
+    time?: RuntimePointDefinitionLinear
+    color?: RuntimePointDefinitionVec4
+    [key: string]: RuntimePointDefinitionAny | undefined
 }
 
 export interface NoteAnimationData extends ObjectAnimationData {
     /** Controls the dissolve shader on the arrow.
      * 0 means invisible, 1 means visible.
      */
-    dissolveArrow?: PointDefinitionLinear
+    dissolveArrow?: RuntimePointDefinitionLinear
 }
 
 export type GameplayObjectAnimationData =
@@ -76,15 +76,15 @@ export type GameplayObjectAnimationData =
 
 export interface EnvironmentAnimationData {
     /** The position of the object in world space. */
-    position?: PointDefinitionVec3
+    position?: RuntimePointDefinitionVec3
     /** The position of the object relative to it's parent. */
-    localPosition?: PointDefinitionVec3
+    localPosition?: RuntimePointDefinitionVec3
     /** The rotation of the object in world space. */
-    rotation?: PointDefinitionVec3
+    rotation?: RuntimePointDefinitionVec3
     /** The rotation of the object relative to it's parent. */
-    localRotation?: PointDefinitionVec3
+    localRotation?: RuntimePointDefinitionVec3
     /** The scale of the object. */
-    scale?: PointDefinitionVec3
+    scale?: RuntimePointDefinitionVec3
 }
 
 export function animationToJson(
