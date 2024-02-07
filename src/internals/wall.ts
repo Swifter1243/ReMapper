@@ -98,10 +98,10 @@ export class Wall
             const obj = json as bsmap.v3.IObstacle
 
             const params = {
-                duration: obj.d,
+                duration: obj.d ?? 0,
                 height: obj.h,
                 scale: getCDProp(obj, 'size'),
-                width: obj.w,
+                width: obj.w ?? 0,
             } as Params
 
             Object.assign(this, params)
@@ -110,9 +110,9 @@ export class Wall
             const obj = json as bsmap.v2.IObstacle
 
             const params = {
-                duration: obj._duration,
+                duration: obj._duration ?? 0,
                 scale: getCDProp(obj, '_scale'),
-                width: obj._width,
+                width: obj._width ?? 0,
                 fake: getCDProp(obj, '_fake'),
             } as Params
 

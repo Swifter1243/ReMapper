@@ -64,9 +64,9 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
             const obj = json as bsmap.v3.IColorNote
 
             const params = {
-                type: obj.c,
-                direction: obj.d,
-                angleOffset: obj.a,
+                type: obj.c ?? 0,
+                direction: obj.d ?? 0,
+                angleOffset: obj.a ?? 0,
             } as Params
 
             Object.assign(this, params)

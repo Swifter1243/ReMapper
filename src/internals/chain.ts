@@ -128,8 +128,8 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
                 getCDProp(obj, 'disableBadCutSaberType'),
             ),
             link: getCDProp(obj, 'link'),
-            links: obj.sc,
-            squish: obj.s,
+            links: obj.sc ?? 0,
+            squish: obj.s ?? 0,
         } as Params
 
         Object.assign(this, params)

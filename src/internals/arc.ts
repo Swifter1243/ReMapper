@@ -82,14 +82,14 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
         const obj = json as bsmap.v3.IArc
 
         const params = {
-            anchorMode: obj.m,
+            anchorMode: obj.m ?? 0,
             flip: getCDProp(obj, 'flip'),
-            headLength: obj.mu,
+            headLength: obj.mu ?? 0,
             noteGravity: importInvertedBoolean(
                 getCDProp(obj, 'disableNoteGravity'),
             ),
-            tailDirection: obj.tc,
-            tailLength: obj.tmu,
+            tailDirection: obj.tc ?? 0,
+            tailLength: obj.tmu ?? 0,
         } satisfies Params
 
         Object.assign(this, params)

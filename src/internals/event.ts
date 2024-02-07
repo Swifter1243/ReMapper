@@ -66,7 +66,7 @@ export class RotationEvent
 
             const params = {
                 early: obj.e === 1,
-                rotation: obj.r,
+                rotation: obj.r ?? 0,
             } as Params
 
             Object.assign(this, params)
@@ -78,7 +78,7 @@ export class RotationEvent
                 early: obj._type === EventGroup.EARLY_ROTATION,
                 rotation: getCDProp(obj, '_rotation') ??
                     InverseRotationAction[
-                        obj._value as keyof typeof InverseRotationAction
+                        (obj._value ?? 0) as keyof typeof InverseRotationAction
                     ],
             } as Params
 
@@ -255,7 +255,7 @@ export abstract class BPMEvent<
             const obj = json as TV3
 
             const params = {
-                beat: obj.b,
+                beat: obj.b ?? 0,
             } as Params
 
             Object.assign(this, params)
@@ -263,7 +263,7 @@ export abstract class BPMEvent<
             const obj = json as TV2
 
             const params = {
-                beat: obj._time,
+                beat: obj._time ?? 0,
             } as Params
 
             Object.assign(this, params)
@@ -312,7 +312,7 @@ export class OfficialBPMEvent extends BPMEvent<
             const obj = json as bsmap.v3.IBPMEvent
 
             const params = {
-                bpm: obj.m,
+                bpm: obj.m ?? 0,
             } as Params
 
             Object.assign(this, params)
@@ -321,7 +321,7 @@ export class OfficialBPMEvent extends BPMEvent<
             const obj = json as bsmap.v2.IEvent
 
             const params = {
-                bpm: obj._floatValue,
+                bpm: obj._floatValue ?? 0,
             } as Params
 
             Object.assign(this, params)
@@ -396,9 +396,9 @@ export class CommunityBPMEvent extends BPMEvent<
             const obj = json as bsmap.v3.IBPMChange
 
             const params = {
-                bpm: obj.m,
-                beatsPerBar: obj.p,
-                metronomeOffset: obj.o,
+                bpm: obj.m ?? 0,
+                beatsPerBar: obj.p ?? 0,
+                metronomeOffset: obj.o ?? 0,
                 mediocreMapper: false,
             } as Params
 

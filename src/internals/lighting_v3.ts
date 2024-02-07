@@ -69,7 +69,7 @@ export class LightColorEventBoxGroup
         >
 
         const params = {
-            groupID: json.g,
+            groupID: json.g ?? 0,
             boxes: json.e.map((x) => lightColorEventBox({}).fromJson(x, true)),
         } as Params
 
@@ -91,7 +91,7 @@ export class LightRotationEventBoxGroup
         >
 
         const params = {
-            groupID: json.g,
+            groupID: json.g ?? 0,
             boxes: json.e.map((x) =>
                 lightRotationEventBox({}).fromJson(x, true)
             ),
@@ -115,7 +115,7 @@ export class LightTranslationEventBoxGroup
         >
 
         const params = {
-            groupID: json.g,
+            groupID: json.g ?? 0,
             boxes: json.e.map((x) =>
                 lightTranslationEventBox({}).fromJson(x, true)
             ),
@@ -187,12 +187,12 @@ export class LightColorEventBox extends EventBox<bsmap.v3.ILightColorEventBox> {
         type Params = Fields<LightColorEventBox>
 
         const params = {
-            beatDistribution: json.w,
-            beatDistributionType: json.d,
-            brightnessDistribution: json.r,
+            beatDistribution: json.w ?? 0,
+            beatDistributionType: json.d ?? 0,
+            brightnessDistribution: json.r ?? 0,
             brightnessDistributionFirst: json.b === 1,
-            brightnessDistributionType: json.t,
-            distributionEasing: json.i,
+            brightnessDistributionType: json.t ?? 0,
+            distributionEasing: json.i ?? 0,
             customData: json.customData,
             events: json.e.map((x) => lightColorEvent({}).fromJson(x, true)),
             filter: json.f,
@@ -251,12 +251,12 @@ export class LightRotationEventBox
 
         const params = {
             filter: json.f,
-            beatDistribution: json.w,
+            beatDistribution: json.w ?? 0,
             beatDistributionType: json.d,
-            distributionEasing: json.i,
+            distributionEasing: json.i ?? 0,
             flipRotation: json.r === 1,
-            rotationAxis: json.a,
-            rotationDistribution: json.s,
+            rotationAxis: json.a ?? 0,
+            rotationDistribution: json.s ?? 0,
             rotationDistributionFirst: json.b === 1,
             rotationDistributionType: json.t,
             events: json.l.map((x) => lightRotationEvent({}).fromJson(x, true)),
@@ -319,12 +319,12 @@ export class LightTranslationEventBox
 
         const params = {
             filter: json.f,
-            beatDistribution: json.w,
+            beatDistribution: json.w ?? 0,
             beatDistributionType: json.d,
-            distributionEasing: json.i,
+            distributionEasing: json.i ?? 0,
             flipTranslation: json.r === 1,
-            translationAxis: json.a,
-            translationDistribution: json.s,
+            translationAxis: json.a ?? 0,
+            translationDistribution: json.s ?? 0,
             translationDistributionFirst: json.b === 1,
             translationDistributionType: json.t,
             events: json.l.map((x) =>
@@ -386,10 +386,10 @@ export class LightColorEvent
         >
 
         const params = {
-            blinkingFrequency: json.f,
-            brightness: json.s,
-            color: json.c,
-            transitionType: json.i,
+            blinkingFrequency: json.f ?? 0,
+            brightness: json.s ?? 0,
+            color: json.c ?? 0,
+            transitionType: json.i ?? 0,
         } as Params
 
         Object.assign(this, params)
@@ -442,10 +442,10 @@ export class LightRotationEvent
         >
 
         const params = {
-            easing: json.e,
-            loopCount: json.l,
-            rotationDegrees: json.r,
-            rotationDirection: json.o,
+            easing: json.e ?? 0,
+            loopCount: json.l ?? 0,
+            rotationDegrees: json.r ?? 0,
+            rotationDirection: json.o ?? 0,
             usePreviousEventRotation: json.p === 1,
         } as Params
 
@@ -496,9 +496,9 @@ export class LightTranslationEvent
         >
 
         const params = {
-            easing: json.e,
+            easing: json.e ?? 0,
             usePreviousEventTranslation: json.p === 1,
-            value: json.t,
+            value: json.t ?? 0,
         } as Params
 
         Object.assign(this, params)

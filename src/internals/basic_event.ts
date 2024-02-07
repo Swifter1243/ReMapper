@@ -54,9 +54,9 @@ export abstract class BaseEvent<
             const obj = json as TV3
 
             const params = {
-                type: obj.et,
-                floatValue: obj.f,
-                value: obj.i,
+                type: obj.et ?? 0,
+                floatValue: obj.f ?? 0,
+                value: obj.i ?? 0,
             } as Params
 
             Object.assign(this, params)
@@ -65,9 +65,9 @@ export abstract class BaseEvent<
             const obj = json as TV2
 
             const params = {
-                type: obj._type,
-                floatValue: obj._floatValue,
-                value: obj._value,
+                type: obj._type ?? 0,
+                floatValue: obj._floatValue ?? 0,
+                value: obj._value ?? 0,
             } as Params
 
             Object.assign(this, params)

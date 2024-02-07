@@ -61,7 +61,7 @@ export abstract class BaseCustomEvent<
             const obj = json as TV3
 
             const params = {
-                beat: obj.b,
+                beat: obj.b ?? 0,
                 data: obj.d as unknown as TJson,
             } as Params
 
@@ -70,7 +70,7 @@ export abstract class BaseCustomEvent<
             const obj = json as TV2
 
             const params = {
-                beat: obj._time,
+                beat: obj._time ?? 0,
                 data: obj._type as unknown as TJson,
             } as Params
 

@@ -120,7 +120,7 @@ export abstract class BaseObject<
             const obj = json as TV3
 
             const params = {
-                beat: obj.b,
+                beat: obj.b ?? 0,
                 customData: obj.customData,
             } as Params
 
@@ -129,7 +129,7 @@ export abstract class BaseObject<
             const obj = json as TV2
 
             const params = {
-                beat: obj._time,
+                beat: obj._time ?? 0,
                 customData: obj._customData,
             } as Params
 
@@ -283,8 +283,8 @@ export abstract class BaseGameplayObject<
             const obj = json as TV3
 
             const params = {
-                x: obj.x,
-                y: obj.y,
+                x: obj.x ?? 0,
+                y: obj.y ?? 0,
 
                 animation: getCDProp(obj, 'animation') as AnimationPropertiesV3,
                 color: getCDProp(obj, 'color') as ColorVec,
@@ -307,7 +307,7 @@ export abstract class BaseGameplayObject<
             const obj = json as TV2
 
             const params = {
-                x: obj._lineIndex,
+                x: obj._lineIndex ?? 0,
 
                 animation: jsonToAnimation(
                     getCDProp(obj, '_animation') as AnimationPropertiesV2 ?? {},
@@ -518,13 +518,13 @@ export abstract class BaseSliderObject<TV3 extends bsmap.v3.IBaseSlider>
         const obj = json as TV3
 
         const params = {
-            type: obj.c,
+            type: obj.c ?? 0,
 
-            headDirection: obj.d,
+            headDirection: obj.d ?? 0,
             tailCoordinates: getCDProp(obj, 'tailCoordinates'),
-            tailBeat: obj.tb,
-            tailX: obj.tx,
-            tailY: obj.ty,
+            tailBeat: obj.tb ?? 0,
+            tailX: obj.tx ?? 0,
+            tailY: obj.ty ?? 0,
         } satisfies Params
 
         Object.assign(this, params)
