@@ -8,7 +8,6 @@ import {
     KeyframeValuesUnsafe,
     RawKeyframesAbstract,
     RawKeyframesAny,
-    RawKeyframesVec3,
     SimpleKeyframesAny,
     SingleKeyframeValuesUnsafe,
 } from '../types/animation_types.ts'
@@ -46,6 +45,7 @@ import {
 } from './keyframe.ts'
 import { lerpHSV } from '../data/color.ts'
 import { RuntimeRawKeyframesAny } from '../types/mod.ts'
+import { ModelObject } from '../mod.ts'
 
 /**
  * Ensures that this value is in the format of an array of keyframes.
@@ -85,7 +85,7 @@ export function simplifyArray<T extends NumberTuple>(
  */
 export function getValuesAtTime<K extends string = AnimationKeys>(
     property: K,
-    animation: RawKeyframesAny,
+    animation: DeepReadonly<RawKeyframesAny>,
     time: number,
 ): SimpleKeyframesAny {
     if (typeof animation === 'string') {
@@ -233,22 +233,18 @@ function timeInKeyframes(time: number, animation: ComplexKeyframeValuesUnsafe) {
  * @param animOptimizer The optional optimizer for the keyframes.
  */
 export function bakeAnimation(
-    animation: {
-        pos?: DeepReadonly<RawKeyframesVec3>
-        rot?: DeepReadonly<RawKeyframesVec3>
-        scale?: DeepReadonly<RawKeyframesVec3>
-    },
+    animation: DeepReadonly<ModelObject>,
     forKeyframe?: (transform: TransformKeyframe) => void,
     animFreq?: number,
     animOptimizer?: OptimizeSettings,
 ) {
     animOptimizer ??= new OptimizeSettings()
     animFreq ??= 1 / 32
-    animation.pos ??= [0, 0, 0]
-    animation.rot ??= [0, 0, 0]
-    animation.scale ??= [1, 1, 1]
 
-    const dataAnim = copy(animation)
+    const pos = animation.pos ?? [0, 0, 0]
+    const rot = animation.rot ?? [0, 0, 0]
+    const scale = animation.scale ?? [1, 1, 1]
+
     const data = {
         pos: <ComplexKeyframesVec3> [],
         rot: <ComplexKeyframesVec3> [],
@@ -290,10 +286,11 @@ export function bakeAnimation(
     )
 
     for (let i = totalMin; i <= totalMax; i += animFreq) {
+
         const keyframe = {
-            pos: dataAnim.pos as Vec3,
-            rot: dataAnim.rot as Vec3,
-            scale: dataAnim.scale as Vec3,
+            pos: getValuesAtTime('position', pos, i) as Vec3,
+            rot: getValuesAtTime('rotation', rot, i) as Vec3,
+            scale: getValuesAtTime('scale', scale, i) as Vec3,
             time: i,
         } satisfies TransformKeyframe
 
@@ -304,14 +301,10 @@ export function bakeAnimation(
         data.scale.push([...keyframe.scale, keyframe.time])
     }
 
-    dataAnim.pos = optimizeKeyframes(data.pos, animOptimizer)
-    dataAnim.rot = optimizeKeyframes(data.rot, animOptimizer)
-    dataAnim.scale = optimizeKeyframes(data.scale, animOptimizer)
-
     return {
-        pos: dataAnim.pos as RawKeyframesVec3,
-        rot: dataAnim.rot as RawKeyframesVec3,
-        scale: dataAnim.scale as RawKeyframesVec3,
+        pos: optimizeKeyframes(data.pos, animOptimizer),
+        rot: optimizeKeyframes(data.rot, animOptimizer),
+        scale: optimizeKeyframes(data.scale, animOptimizer),
     }
 }
 
