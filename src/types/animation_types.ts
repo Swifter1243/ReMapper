@@ -103,29 +103,30 @@ export type RuntimeComplexKeyframesAbstract<
     T extends number[],
     R extends string,
 > =
-    | [
+    ([
         ...RuntimeSingleKeyframeAbstract<T, R>,
         TimeValue,
-    ][]
-    | [
-        ...RuntimeSingleKeyframeAbstract<T, R>,
-        TimeValue,
-        KeyframeFlag,
-    ][]
+    ]
     | [
         ...RuntimeSingleKeyframeAbstract<T, R>,
         TimeValue,
         KeyframeFlag,
-        KeyframeFlag,
-    ][]
+    ]
     | [
         ...RuntimeSingleKeyframeAbstract<T, R>,
         TimeValue,
         KeyframeFlag,
         KeyframeFlag,
+    ]
+    | [
+        ...RuntimeSingleKeyframeAbstract<T, R>,
+        TimeValue,
         KeyframeFlag,
-    ][]
-    | ComplexKeyframesAbstract<T>
+        KeyframeFlag,
+        KeyframeFlag,
+    ]
+    | SingleKeyframeAbstract<[...T, TimeValue]>
+    )[]
 
 /** Helper type for raw keyframes. [...] | [[...], [...], [...]] */
 export type RawKeyframesAbstract<T extends number[]> =
