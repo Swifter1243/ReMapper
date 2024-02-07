@@ -58,6 +58,13 @@ export function arrayAdd<T extends readonly [] | readonly number[]>(
     } else return arr.map((x, i) => x + value[i]) as unknown as T
 }
 
+/** Generate array from a function */
+export function generateArray<T>(size: number, element: () => T) {
+    const result = []
+    for (let i = 0; i < size; i++) result.push(element())
+    return result
+}
+
 /**
  * Subtract either a number or another array from an array.
  * @param arr Input array.
