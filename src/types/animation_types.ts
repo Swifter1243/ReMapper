@@ -125,6 +125,7 @@ export type RuntimeComplexKeyframesAbstract<
         KeyframeFlag,
         KeyframeFlag,
     ][]
+    | ComplexKeyframesAbstract<T>
 
 /** Helper type for raw keyframes. [...] | [[...], [...], [...]] */
 export type RawKeyframesAbstract<T extends number[]> =
