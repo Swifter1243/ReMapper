@@ -3,7 +3,7 @@ import {
     ComplexKeyframesAny,
     ComplexKeyframesVec3,
     RawKeyframesAny,
-    RawKeyframesVec3,
+    RuntimeRawKeyframesVec3,
 } from '../types/animation_types.ts'
 
 import { arrayAdd } from '../utils/array_utils.ts'
@@ -23,7 +23,7 @@ import { getModel } from './model.ts'
 import { ModelObject, ReadonlyModel } from '../types/model_types.ts'
 import { ColorVec, Vec3 } from '../types/data_types.ts'
 import { copy } from '../utils/general.ts'
-import { getKeyframeTime, areKeyframesSimple } from '../animation/keyframe.ts'
+import { areKeyframesSimple, getKeyframeTime } from '../animation/keyframe.ts'
 import { getActiveDifficulty } from '../mod.ts'
 import { DeepReadonly } from '../types/util_types.ts'
 import { arrayDivide, arrayMultiply, vec } from '../utils/mod.ts'
@@ -97,11 +97,11 @@ export async function modelToWall(
     return await diff.runAsync(async () => {
         animFreq ??= 1 / 64
         distribution ??= 1
-    
+
         const dur = end - start
-    
+
         modelToWallCount++
-    
+
         function isAnimated(obj: ModelObject) {
             return (
                 !areKeyframesSimple(obj.pos) ||
@@ -109,14 +109,14 @@ export async function modelToWall(
                 !areKeyframesSimple(obj.scale)
             )
         }
-    
+
         function getDistributeNums(index: number, length: number) {
             const fraction = index / (length - 1)
             const backwardOffset = (distribution as number) * fraction
             const newLife = dur + backwardOffset
             const animMul = dur / newLife
             const animAdd = 1 - animMul
-    
+
             return {
                 backwardOffset: backwardOffset,
                 newLife: newLife,
@@ -124,16 +124,20 @@ export async function modelToWall(
                 animAdd: animAdd,
             }
         }
-    
+
         function distributeWall(o: Wall, index: number, length: number) {
             if (distribution === undefined || length < 1) return
             const nums = getDistributeNums(index, length)
-    
+
             o.life = nums.newLife
             o.lifeStart = start - nums.backwardOffset
-            distributeAnim(o.animation.dissolve as RawKeyframesAny, index, length)
+            distributeAnim(
+                o.animation.dissolve as RawKeyframesAny,
+                index,
+                length,
+            )
         }
-    
+
         function distributeAnim(
             anim: RawKeyframesAny,
             index: number,
@@ -141,26 +145,26 @@ export async function modelToWall(
         ) {
             if (distribution === undefined || length < 1) return
             const nums = getDistributeNums(index, length)
-    
+
             if (areKeyframesSimple(anim)) {
                 return anim
             }
-    
+
             ;(anim as ComplexKeyframesAny).forEach((k) => {
                 const time = getKeyframeTime(k)
                 k[time] = ((k as number[])[time] * nums.animMul) + nums.animAdd
             })
         }
-    
+
         const w = wall()
         w.life = end - start
         w.lifeStart = start
         w.animation.dissolve = [[0, 0], [1, 0]]
         w.coordinates = [0, 0]
         w.interactable = false
-    
+
         let objects: ReadonlyModel
-    
+
         if (typeof input === 'string') {
             objects = await getModel(
                 input,
@@ -168,11 +172,11 @@ export async function modelToWall(
                 (o) => {
                     o.forEach((x, i) => {
                         const animated = isAnimated(x)
-    
+
                         const pos = complexifyArray(x.pos)
                         const rot = complexifyArray(x.rot)
                         const scale = complexifyArray(x.scale)
-    
+
                         const getVec3 = (
                             keyframes: ComplexKeyframesVec3,
                             index: number,
@@ -181,7 +185,7 @@ export async function modelToWall(
                             keyframes[index][1],
                             keyframes[index][2],
                         ] as Vec3
-    
+
                         for (let i = 0; i < pos.length; i++) {
                             const wtw = worldToWall(
                                 getVec3(pos, i),
@@ -192,11 +196,11 @@ export async function modelToWall(
                             pos[i] = [...wtw.pos, pos[i][3]]
                             scale[i] = [...wtw.scale, scale[i][3]]
                         }
-    
+
                         x.pos = optimizeKeyframes(pos, animOptimizer)
                         x.rot = optimizeKeyframes(rot, animOptimizer)
                         x.scale = optimizeKeyframes(scale, animOptimizer)
-    
+
                         distributeAnim(x.pos, i, o.length)
                         distributeAnim(x.rot, i, o.length)
                         distributeAnim(x.scale, i, o.length)
@@ -208,7 +212,7 @@ export async function modelToWall(
             objects = input.map((x, i) => {
                 const o = copy(x) as ModelObject
                 const animated = isAnimated(o)
-    
+
                 const anim = bakeAnimation(
                     {
                         pos: x.pos,
@@ -223,36 +227,40 @@ export async function modelToWall(
                     animFreq,
                     animOptimizer,
                 )
-    
+
                 o.pos = anim.pos
                 o.rot = anim.rot
                 o.scale = anim.scale
-    
+
                 distributeAnim(o.pos, i, input.length)
                 distributeAnim(o.rot, i, input.length)
                 distributeAnim(o.scale, i, input.length)
-    
+
                 return o
             })
         }
-    
+
         objects.forEach((x, i) => {
             const o = copy(w)
-    
-            o.animation.definitePosition = copy(x.pos) as RawKeyframesVec3
+
+            o.animation.definitePosition = copy(
+                x.pos,
+            ) as RuntimeRawKeyframesVec3
             if (x.color) o.color = copy(x.color) as ColorVec
-    
+
             if (areKeyframesSimple(x.rot)) o.localRotation = copy(x.rot) as Vec3
-            else o.animation.localRotation = copy(x.rot) as RawKeyframesVec3
-    
+            else {o.animation.localRotation = copy(
+                    x.rot,
+                ) as RuntimeRawKeyframesVec3}
+
             if (areKeyframesSimple(x.scale)) o.scale = copy(x.scale) as Vec3
             else {
                 o.scale = [1, 1, 1]
-                o.animation.scale = copy(x.scale) as RawKeyframesVec3
+                o.animation.scale = copy(x.scale) as RuntimeRawKeyframesVec3
             }
-    
+
             distributeWall(o, i, objects.length)
-    
+
             if (wallCall) wallCall(o)
             o.push(false)
         })

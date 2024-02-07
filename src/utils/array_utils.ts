@@ -4,8 +4,8 @@ import { Vec3 } from '../types/data_types.ts'
 import { EASE } from '../types/animation_types.ts'
 
 export function arraySplit<T>(
-    array: T[],
-    filter: (obj: T, index: number, array: T[]) => boolean,
+    array: readonly T[],
+    filter: (obj: T, index: number, array: readonly T[]) => boolean,
 ) {
     const passVal = 0
     const failVal = 1
@@ -18,8 +18,8 @@ export function arraySplit<T>(
     return [map[passVal] ?? [], map[failVal] ?? []]
 }
 export function arraySplit2<T, K extends string | number | symbol>(
-    array: T[],
-    filter: (obj: T, index: number, array: T[]) => K,
+    array: readonly T[],
+    filter: (obj: T, index: number, array: readonly T[]) => K,
 ): Record<K, T[]> {
     const map = {} as Record<K, T[]>
 
@@ -42,14 +42,14 @@ export function arraySplit2<T, K extends string | number | symbol>(
  * Get the last element in an array.
  * @param arr Input array.
  */
-export const arrayLastElement = <T>(arr: T[]) => arr[arr.length - 1]
+export const arrayLastElement = <T>(arr: readonly T[]) => arr[arr.length - 1]
 
 /**
  * Add either a number or another array to an array.
  * @param arr Input array.
  * @param value Can be a number or an array.
  */
-export function arrayAdd<T extends [] | number[]>(
+export function arrayAdd<T extends readonly [] | readonly number[]>(
     arr: T,
     value: { [K in keyof T]: number } | number,
 ) {
@@ -63,7 +63,7 @@ export function arrayAdd<T extends [] | number[]>(
  * @param arr Input array.
  * @param value Can be a number or an array.
  */
-export function arraySubtract<T extends [] | number[]>(
+export function arraySubtract<T extends readonly [] | readonly number[]>(
     arr: T,
     value: { [K in keyof T]: number } | number,
 ) {
@@ -77,7 +77,7 @@ export function arraySubtract<T extends [] | number[]>(
  * @param arr Input array.
  * @param value Can be a number or an array.
  */
-export function arrayMultiply<T extends [] | number[]>(
+export function arrayMultiply<T extends readonly [] | readonly number[]>(
     arr: T,
     value: { [K in keyof T]: number } | number,
 ) {
@@ -91,7 +91,7 @@ export function arrayMultiply<T extends [] | number[]>(
  * @param arr Input array.
  * @param value Can be a number or an array.
  */
-export function arrayDivide<T extends [] | number[]>(
+export function arrayDivide<T extends readonly [] | readonly number[]>(
     arr: T,
     value: { [K in keyof T]: number } | number,
 ) {
@@ -107,12 +107,12 @@ export function arrayDivide<T extends [] | number[]>(
  * @param fraction Value to find in between start and end.
  * @param easing Optional easing.
  */
-export const arrayLerp = <T extends [] | number[]>(
+export const arrayLerp = <T extends readonly [] | readonly number[]>(
     start: T,
     end: { [K in keyof T]: number },
     fraction: number,
     easing?: EASE,
-) => start.map((x, i) => lerp(x, end[i], fraction, easing)) as T
+) => start.map((x, i) => lerp(x, end[i], fraction, easing)) as unknown as T
 
 /**
  * Check if 2 arrays are equal to each other.
@@ -120,7 +120,7 @@ export const arrayLerp = <T extends [] | number[]>(
  * @param arr2 Second array.
  * @param lenience The maximum difference 2 numbers in an array can have before they're considered not equal.
  */
-export function areArraysEqual<T extends [] | number[]>(
+export function areArraysEqual<T extends readonly [] | readonly number[]>(
     arr1: T,
     arr2: { [K in keyof T]: number },
     lenience = 0,
@@ -166,15 +166,18 @@ export const vec = <T extends number[]>(...params: T) =>
  * @param arr Input array.
  * @param value Value to check for.
  */
-export const doesArrayHave = <T>(arr: T[], value: T) =>
-    arr.some((x) => x === value)
+export const doesArrayHave = <T>(
+    arr: readonly T[],
+    value: T,
+) => arr.some((x) => x === value)
 
 /**
  * Add values of one array to another.
  * @param arr Array to add values to.
  * @param arr2 Values to add.
  */
-export const appendArray = <T>(arr: T[], arr2: T[]) => arr.push(...arr2)
+export const appendArray = <T>(arr: T[], arr2: readonly T[]) =>
+    arr.push(...arr2)
 
 /**
  * Generate an array from a range of numbers.
