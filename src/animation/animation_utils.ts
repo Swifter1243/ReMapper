@@ -93,7 +93,7 @@ export function getValuesAtTime<K extends string = AnimationKeys>(
     }
 
     if (areKeyframesSimple(animation)) {
-        return animation as unknown as SimpleKeyframesAny
+        return animation as SimpleKeyframesAny
     }
 
     const complexAnimation = animation as ComplexKeyframesAny
