@@ -289,7 +289,7 @@ export function bakeAnimation(
         rot: <ComplexKeyframesVec3> [],
         scale: <ComplexKeyframesVec3> [],
     }
-
+    
     domain ??= getAnimationDomain(animation)
     const totalMin = floorTo(domain.min, animFreq)
     const totalMax = ceilTo(domain.max, animFreq)

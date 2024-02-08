@@ -586,7 +586,13 @@ export function emulateParent(
     }
 
     // looks like we bakin
-    const domain = getAnimationDomain(parentObj)
+    const childDomain = getAnimationDomain(childObj)
+    const parentDomain = getAnimationDomain(parentObj)
+
+    const domain = {
+        min: Math.min(childDomain.min, parentDomain.min),
+        max: Math.max(childDomain.max, parentDomain.max)
+    }
 
     return bakeAnimation(childObj, (k) => {
         const parentPos = getValuesAtTime(
