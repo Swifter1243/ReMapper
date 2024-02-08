@@ -158,8 +158,12 @@ export class ModelScene {
      * Should be used with caution as it creates a unique material per object.
      * @param group The group to enable unique materials on. Leave undefined to effect base group.
      */
-    enableModelColors = (group?: string) =>
+    enableModelColors(group?: string) {
+        const groupObj = this.groups[group as string]
+        if (!groupObj && !group) throw `There are no groups on this scene!`
+        if (!groupObj) throw `The group ${group} doesn't exist!`
         this.groups[group as string].defaultMaterial = undefined
+    }
 
     private async getObjects(input: AnimatedObjectInput) {
         // deno-lint-ignore no-this-alias
