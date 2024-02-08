@@ -10,9 +10,23 @@ import {
     arraySubtract,
     threeClassToArray,
 } from './array_utils.ts'
-import { Bounds, Transform, Vec3 } from '../types/data_types.ts'
+import {
+    AnimatedTransform,
+    Bounds,
+    Transform,
+    Vec3,
+} from '../types/data_types.ts'
 import { copy } from './general.ts'
 import { DeepReadonly } from '../types/util_types.ts'
+import { ModelObject } from '../mod.ts'
+import { areKeyframesSimple } from '../animation/keyframe.ts'
+import { bakeAnimation } from '../animation/animation_utils.ts'
+import { RawKeyframesVec3 } from '../types/mod.ts'
+import { areArraysEqual } from './array_utils.ts'
+import { iterateKeyframes, OptimizeSettings } from '../animation/mod.ts'
+import { getValuesAtTime } from '../animation/mod.ts'
+import { complexifyArray } from '../animation/animation_utils.ts'
+import { getAnimationDomain } from '../animation/animation_utils.ts'
 
 export const EPSILON = 1e-3
 
@@ -451,11 +465,160 @@ export function combineTransforms(
     targetM.premultiply(transformM)
     const finalTarget = getTransformFromMatrix(targetM)
 
+    const finalPos = arrayAdd(finalTarget.pos, anchor)
+
     return {
-        pos: finalTarget.pos as Vec3,
+        pos: finalPos,
         rot: finalTarget.rot as Vec3,
         scale: finalTarget.scale as Vec3,
     }
+}
+
+export function emulateParent(
+    child: DeepReadonly<AnimatedTransform>,
+    parent: DeepReadonly<AnimatedTransform>,
+    anchor: Vec3 = [0, 0, 0],
+    animFreq?: number,
+    animOptimizer?: OptimizeSettings,
+): DeepReadonly<ModelObject> {
+    animOptimizer ??= new OptimizeSettings()
+    animFreq ??= 1 / 32
+
+    enum Complexity {
+        DEFAULT,
+        SIMPLE,
+        ANIMATED,
+    }
+
+    function getKeyframeComplexity(
+        prop: DeepReadonly<RawKeyframesVec3>,
+        defaultVal: DeepReadonly<Vec3>,
+    ) {
+        if (!areKeyframesSimple(prop)) return Complexity.ANIMATED
+        const isDefault = areArraysEqual(prop as DeepReadonly<Vec3>, defaultVal)
+        return isDefault ? Complexity.DEFAULT : Complexity.SIMPLE
+    }
+
+    function getComplexity(
+        obj: DeepReadonly<ModelObject>,
+    ) {
+        return {
+            pos: getKeyframeComplexity(obj.pos, [0, 0, 0]),
+            rot: getKeyframeComplexity(obj.rot, [0, 0, 0]),
+            scale: getKeyframeComplexity(obj.scale, [1, 1, 1]),
+        }
+    }
+
+    function makeObj(obj: DeepReadonly<AnimatedTransform>) {
+        return {
+            pos: obj.pos ?? [0, 0, 0],
+            rot: obj.rot ?? [0, 0, 0],
+            scale: obj.scale ?? [1, 1, 1],
+        } as DeepReadonly<ModelObject>
+    }
+
+    const childObj = makeObj(child)
+    const parentObj = makeObj(parent)
+
+    const childComplexity = getComplexity(childObj)
+    const parentComplexity = getComplexity(parentObj)
+
+    // Both are completely static
+    if (
+        childComplexity.pos <= 1 &&
+        childComplexity.rot <= 1 &&
+        childComplexity.scale <= 1 &&
+        parentComplexity.pos <= 1 &&
+        parentComplexity.rot <= 1 &&
+        parentComplexity.scale <= 1
+    ) {
+        return combineTransforms(
+            child as Transform,
+            parent as Transform,
+            anchor,
+        )
+    }
+
+    // Child position is simple, parent is animated
+    if (
+        childComplexity.pos >= 1 &&
+        parentComplexity.pos <= 1 &&
+        parentComplexity.rot === Complexity.DEFAULT &&
+        parentComplexity.scale === Complexity.DEFAULT
+    ) {
+        const childPos = copy(childObj.pos) as RawKeyframesVec3
+        const parentPos = parentObj.pos as Vec3
+
+        iterateKeyframes(childPos, (x) => {
+            x[0] += parentPos[0]
+            x[1] += parentPos[1]
+            x[2] += parentPos[2]
+        })
+
+        return {
+            pos: childPos,
+            rot: childObj.rot,
+            scale: childObj.scale,
+        }
+    }
+
+    // Parent position is simple, child is animated
+    if (
+        childComplexity.pos <= 1 &&
+        parentComplexity.pos >= 1 &&
+        parentComplexity.rot === Complexity.DEFAULT &&
+        parentComplexity.scale === Complexity.DEFAULT
+    ) {
+        const childPos = childObj.pos as Vec3
+        const parentPos = copy(parentObj.pos) as RawKeyframesVec3
+
+        iterateKeyframes(parentPos, (x) => {
+            x[0] += childPos[0]
+            x[1] += childPos[1]
+            x[2] += childPos[2]
+        })
+
+        return {
+            pos: parentPos,
+            rot: childObj.rot,
+            scale: childObj.scale,
+        }
+    }
+
+    // looks like we bakin
+    const domain = getAnimationDomain(parentObj)
+
+    return bakeAnimation(childObj, (k) => {
+        const parentPos = getValuesAtTime(
+            'position',
+            parentObj.pos,
+            k.time,
+        ) as Vec3
+
+        const parentRot = getValuesAtTime(
+            'rotation',
+            parentObj.rot,
+            k.time,
+        ) as Vec3
+
+        const parentScale = getValuesAtTime(
+            'scale',
+            parentObj.scale,
+            k.time,
+        ) as Vec3
+
+        const t = combineTransforms({
+            pos: k.pos,
+            rot: k.rot,
+            scale: k.scale,
+        }, {
+            pos: parentPos,
+            rot: parentRot,
+            scale: parentScale,
+        }, anchor)
+
+        Object.assign(k, t)
+    }, animFreq, animOptimizer, domain)
 }
 
 /**

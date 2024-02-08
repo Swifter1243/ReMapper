@@ -1,3 +1,5 @@
+import { RawKeyframesVec3 } from '../mod.ts'
+
 /** An array with 2 numbers. */
 export type Vec2 = [x: number, y: number]
 
@@ -37,6 +39,12 @@ export type FullTransform = {
     scale: Vec3
 }
 
+export type AnimatedTransform = {
+    pos?: RawKeyframesVec3,
+    rot?: RawKeyframesVec3,
+    scale?: RawKeyframesVec3
+}
+
 export type Bounds = {
     lowBound: Vec3
     highBound: Vec3
@@ -48,5 +56,5 @@ export interface TransformKeyframe {
     pos: Vec3
     rot: Vec3
     scale: Vec3
-    time: number
+    readonly time: number
 }

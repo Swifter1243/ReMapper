@@ -224,33 +224,7 @@ function timeInKeyframes(time: number, animation: ComplexKeyframeValuesUnsafe) {
     }
 }
 
-/**
- * Generate keyframes from an animation.
- * Useful for doing things such as having objects rotate around points other than their anchor.
- * @param animation The keyframes for various transforms.
- * @param forKeyframe Runs for each generated keyframe.
- * @param animFreq The sampling rate of new keyframes.
- * @param animOptimizer The optional optimizer for the keyframes.
- */
-export function bakeAnimation(
-    animation: DeepReadonly<ModelObject>,
-    forKeyframe?: (transform: TransformKeyframe) => void,
-    animFreq?: number,
-    animOptimizer?: OptimizeSettings,
-) {
-    animOptimizer ??= new OptimizeSettings()
-    animFreq ??= 1 / 32
-
-    const pos = animation.pos ?? [0, 0, 0]
-    const rot = animation.rot ?? [0, 0, 0]
-    const scale = animation.scale ?? [1, 1, 1]
-
-    const data = {
-        pos: <ComplexKeyframesVec3> [],
-        rot: <ComplexKeyframesVec3> [],
-        scale: <ComplexKeyframesVec3> [],
-    }
-
+export function getAnimationDomain(animation: DeepReadonly<ModelObject>) {
     function getDomain(arr: DeepReadonly<RawKeyframesAny>) {
         const newArr = complexifyArray<[number] | Vec3 | Vec4>(arr)
 
@@ -270,23 +244,57 @@ export function bakeAnimation(
     const rotDomain = getDomain(animation.rot)
     const scaleDomain = getDomain(animation.scale)
 
-    const totalMin = floorTo(
-        getDomain([[0, posDomain.min], [0, rotDomain.min], [
-            0,
-            scaleDomain.min,
-        ]]).min,
-        animFreq,
-    )
-    const totalMax = ceilTo(
-        getDomain([[0, posDomain.max], [0, rotDomain.max], [
-            0,
-            scaleDomain.max,
-        ]]).max,
-        animFreq,
-    )
+    const totalMin = getDomain([
+        [0, posDomain.min],
+        [0, rotDomain.min],
+        [0, scaleDomain.min],
+    ]).min
+
+    const totalMax = getDomain([
+        [0, posDomain.max],
+        [0, rotDomain.max],
+        [0, scaleDomain.max],
+    ]).max
+
+    return {
+        min: totalMin,
+        max: totalMax,
+    }
+}
+
+/**
+ * Generate keyframes from an animation.
+ * Useful for doing things such as having objects rotate around points other than their anchor.
+ * @param animation The keyframes for various transforms.
+ * @param forKeyframe Runs for each generated keyframe.
+ * @param animFreq The sampling rate of new keyframes.
+ * @param animOptimizer The optional optimizer for the keyframes.
+ */
+export function bakeAnimation(
+    animation: DeepReadonly<ModelObject>,
+    forKeyframe?: (transform: TransformKeyframe) => void,
+    animFreq?: number,
+    animOptimizer?: OptimizeSettings,
+    domain?: { min: number, max: number }
+) {
+    animOptimizer ??= new OptimizeSettings()
+    animFreq ??= 1 / 32
+
+    const pos = animation.pos ?? [0, 0, 0]
+    const rot = animation.rot ?? [0, 0, 0]
+    const scale = animation.scale ?? [1, 1, 1]
+
+    const data = {
+        pos: <ComplexKeyframesVec3> [],
+        rot: <ComplexKeyframesVec3> [],
+        scale: <ComplexKeyframesVec3> [],
+    }
+
+    domain ??= getAnimationDomain(animation)
+    const totalMin = floorTo(domain.min, animFreq)
+    const totalMax = ceilTo(domain.max, animFreq)
 
     for (let i = totalMin; i <= totalMax; i += animFreq) {
-
         const keyframe = {
             pos: getValuesAtTime('position', pos, i) as Vec3,
             rot: getValuesAtTime('rotation', rot, i) as Vec3,
