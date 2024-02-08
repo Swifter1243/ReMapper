@@ -21,7 +21,7 @@ import { DeepReadonly } from '../types/util_types.ts'
 import { ModelObject } from '../mod.ts'
 import { areKeyframesSimple } from '../animation/keyframe.ts'
 import { bakeAnimation } from '../animation/animation_utils.ts'
-import { RawKeyframesVec3 } from '../types/mod.ts'
+import { FullAnimatedTransform, RawKeyframesVec3 } from '../types/mod.ts'
 import { areArraysEqual } from './array_utils.ts'
 import { iterateKeyframes, OptimizeSettings } from '../animation/mod.ts'
 import { getValuesAtTime } from '../animation/mod.ts'
@@ -480,7 +480,7 @@ export function emulateParent(
     anchor: Vec3 = [0, 0, 0],
     animFreq?: number,
     animOptimizer?: OptimizeSettings,
-): DeepReadonly<ModelObject> {
+): FullAnimatedTransform {
     animOptimizer ??= new OptimizeSettings()
     animFreq ??= 1 / 32
 
@@ -500,7 +500,7 @@ export function emulateParent(
     }
 
     function getComplexity(
-        obj: DeepReadonly<ModelObject>,
+        obj: DeepReadonly<FullAnimatedTransform>,
     ) {
         return {
             pos: getKeyframeComplexity(obj.pos, [0, 0, 0]),
@@ -514,7 +514,7 @@ export function emulateParent(
             pos: obj.pos ?? [0, 0, 0],
             rot: obj.rot ?? [0, 0, 0],
             scale: obj.scale ?? [1, 1, 1],
-        } as DeepReadonly<ModelObject>
+        } as DeepReadonly<FullAnimatedTransform>
     }
 
     const childObj = makeObj(child)
@@ -557,8 +557,8 @@ export function emulateParent(
 
         return {
             pos: childPos,
-            rot: childObj.rot,
-            scale: childObj.scale,
+            rot: copy(childObj.rot) as RawKeyframesVec3,
+            scale: copy(childObj.scale) as RawKeyframesVec3,
         }
     }
 
@@ -580,8 +580,8 @@ export function emulateParent(
 
         return {
             pos: parentPos,
-            rot: childObj.rot,
-            scale: childObj.scale,
+            rot: copy(childObj.rot) as RawKeyframesVec3,
+            scale: copy(childObj.scale) as RawKeyframesVec3,
         }
     }
 

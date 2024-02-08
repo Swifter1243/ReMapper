@@ -45,6 +45,12 @@ export type AnimatedTransform = {
     scale?: RawKeyframesVec3
 }
 
+export type FullAnimatedTransform = {
+    pos: RawKeyframesVec3,
+    rot: RawKeyframesVec3,
+    scale: RawKeyframesVec3
+}
+
 export type Bounds = {
     lowBound: Vec3
     highBound: Vec3
