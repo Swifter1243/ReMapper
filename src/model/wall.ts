@@ -3,6 +3,7 @@ import {
     ComplexKeyframesAny,
     ComplexKeyframesVec3,
     RawKeyframesAny,
+    RuntimeComplexKeyframesAny,
     RuntimeRawKeyframesVec3,
 } from '../types/animation_types.ts'
 
@@ -23,7 +24,11 @@ import { getModel } from './model.ts'
 import { ModelObject, ReadonlyModel } from '../types/model_types.ts'
 import { ColorVec, Vec3 } from '../types/data_types.ts'
 import { copy } from '../utils/general.ts'
-import { areKeyframesSimple, getKeyframeTime } from '../animation/keyframe.ts'
+import {
+    areKeyframesSimple,
+    getKeyframeTime,
+    getKeyframeTimeIndex,
+} from '../animation/keyframe.ts'
 import { getActiveDifficulty } from '../mod.ts'
 import { DeepReadonly } from '../types/util_types.ts'
 import { arrayDivide, arrayMultiply, vec } from '../utils/mod.ts'
@@ -96,9 +101,7 @@ export async function modelToWall(
     const diff = getActiveDifficulty()
     return await diff.runAsync(async () => {
         animFreq ??= 1 / 64
-        distribution ??= 1
-
-        const dur = end - start
+        distribution ??= 0.3
 
         modelToWallCount++
 
@@ -110,55 +113,8 @@ export async function modelToWall(
             )
         }
 
-        function getDistributeNums(index: number, length: number) {
-            const fraction = index / (length - 1)
-            const backwardOffset = (distribution as number) * fraction
-            const newLife = dur + backwardOffset
-            const animMul = dur / newLife
-            const animAdd = 1 - animMul
-
-            return {
-                backwardOffset: backwardOffset,
-                newLife: newLife,
-                animMul: animMul,
-                animAdd: animAdd,
-            }
-        }
-
-        function distributeWall(o: Wall, index: number, length: number) {
-            if (distribution === undefined || length < 1) return
-            const nums = getDistributeNums(index, length)
-
-            o.life = nums.newLife
-            o.lifeStart = start - nums.backwardOffset
-            distributeAnim(
-                o.animation.dissolve as RawKeyframesAny,
-                index,
-                length,
-            )
-        }
-
-        function distributeAnim(
-            anim: RawKeyframesAny,
-            index: number,
-            length: number,
-        ) {
-            if (distribution === undefined || length < 1) return
-            const nums = getDistributeNums(index, length)
-
-            if (areKeyframesSimple(anim)) {
-                return anim
-            }
-
-            ;(anim as ComplexKeyframesAny).forEach((k) => {
-                const time = getKeyframeTime(k)
-                k[time] = ((k as number[])[time] * nums.animMul) + nums.animAdd
-            })
-        }
-
+        const duration = end - start
         const w = wall()
-        w.life = end - start
-        w.lifeStart = start
         w.animation.dissolve = [[0, 0], [1, 0]]
         w.coordinates = [0, 0]
         w.interactable = false
@@ -200,10 +156,6 @@ export async function modelToWall(
                         x.pos = optimizeKeyframes(pos, animOptimizer)
                         x.rot = optimizeKeyframes(rot, animOptimizer)
                         x.scale = optimizeKeyframes(scale, animOptimizer)
-
-                        distributeAnim(x.pos, i, o.length)
-                        distributeAnim(x.rot, i, o.length)
-                        distributeAnim(x.scale, i, o.length)
                     })
                 },
                 [animOptimizer, distribution],
@@ -232,10 +184,6 @@ export async function modelToWall(
                 o.rot = anim.rot
                 o.scale = anim.scale
 
-                distributeAnim(o.pos, i, input.length)
-                distributeAnim(o.rot, i, input.length)
-                distributeAnim(o.scale, i, input.length)
-
                 return o
             })
         }
@@ -243,25 +191,62 @@ export async function modelToWall(
         objects.forEach((x, i) => {
             const o = copy(w)
 
+            // Copy position
             o.animation.definitePosition = copy(
                 x.pos,
             ) as RuntimeRawKeyframesVec3
             if (x.color) o.color = copy(x.color) as ColorVec
 
+            // Copy rotation
             if (areKeyframesSimple(x.rot)) o.localRotation = copy(x.rot) as Vec3
-            else {o.animation.localRotation = copy(
+            else {
+                o.animation.localRotation = copy(
                     x.rot,
-                ) as RuntimeRawKeyframesVec3}
+                ) as RuntimeRawKeyframesVec3
+            }
 
+            // Copy scale
             if (areKeyframesSimple(x.scale)) o.scale = copy(x.scale) as Vec3
             else {
                 o.scale = [1, 1, 1]
                 o.animation.scale = copy(x.scale) as RuntimeRawKeyframesVec3
             }
 
-            distributeWall(o, i, objects.length)
-
+            // Run callback
             if (wallCall) wallCall(o)
+
+            // Distribute walls
+            if (distribution! > 0 && objects.length > 1) {
+                const fraction = i / (objects.length - 1)
+                const beatOffset = fraction * distribution!
+                const squish = duration / (duration + beatOffset)
+                const animationOffset = 1 - squish
+    
+                for (const key in o.animation) {
+                    const anim = o.animation[key]!
+    
+                    if (typeof anim === 'string') continue
+    
+                    const complexAnim = (typeof anim[0] === 'object'
+                        ? anim
+                        : [anim]) as RuntimeComplexKeyframesAny
+    
+                    complexAnim.forEach((k) => {
+                        const timeIndex = getKeyframeTimeIndex(k as RawKeyframesAny)
+                        const time = (k[timeIndex] as number) * squish +
+                            animationOffset
+                        k[timeIndex] = time
+                    })
+                }
+    
+                o.life = duration + beatOffset
+                o.lifeStart = start - beatOffset
+            }
+            else {
+                o.life = duration
+                o.lifeStart = start
+            }
+
             o.push(false)
         })
     })
