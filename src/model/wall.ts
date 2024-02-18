@@ -29,7 +29,10 @@ import {
     getKeyframeTime,
     getKeyframeTimeIndex,
 } from '../animation/keyframe.ts'
-import { getActiveDifficulty } from '../mod.ts'
+import {
+    getActiveDifficulty,
+    ReadonlyRuntimeSingleKeyframeValuesUnsafe,
+} from '../mod.ts'
 import { DeepReadonly } from '../types/util_types.ts'
 import { arrayDivide, arrayMultiply, vec } from '../utils/mod.ts'
 
@@ -221,28 +224,29 @@ export async function modelToWall(
                 const beatOffset = fraction * distribution!
                 const squish = duration / (duration + beatOffset)
                 const animationOffset = 1 - squish
-    
+
                 for (const key in o.animation) {
                     const anim = o.animation[key]!
-    
+
                     if (typeof anim === 'string') continue
-    
+
                     const complexAnim = (typeof anim[0] === 'object'
                         ? anim
                         : [anim]) as RuntimeComplexKeyframesAny
-    
+
                     complexAnim.forEach((k) => {
-                        const timeIndex = getKeyframeTimeIndex(k as RawKeyframesAny)
+                        const timeIndex = getKeyframeTimeIndex(
+                            k as ReadonlyRuntimeSingleKeyframeValuesUnsafe,
+                        )
                         const time = (k[timeIndex] as number) * squish +
                             animationOffset
                         k[timeIndex] = time
                     })
                 }
-    
+
                 o.life = duration + beatOffset
                 o.lifeStart = start - beatOffset
-            }
-            else {
+            } else {
                 o.life = duration
                 o.lifeStart = start
             }

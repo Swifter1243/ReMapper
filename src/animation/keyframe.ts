@@ -1,15 +1,21 @@
 // deno-lint-ignore-file
 import {
-ComplexKeyframesAbstract,
+    ComplexKeyframesAbstract,
     EASE,
     KeyframeFlag,
     KeyframeValuesUnsafe,
     RawKeyframesAbstract,
+    SingleKeyframeAbstract,
+    SingleKeyframeValuesUnsafe,
     SPLINE,
-SingleKeyframeAbstract,
-SingleKeyframeValuesUnsafe,
 } from '../types/animation_types.ts'
-import type { DeepReadonly, NumberTuple } from "../types/mod.ts";
+import type {
+    DeepReadonly,
+    NumberTuple,
+    ReadonlyRuntimeComplexKeyframeValuesUnsafe,
+    ReadonlyRuntimeSingleKeyframeValuesUnsafe,
+    RuntimeSingleKeyframeValuesUnsafe,
+} from '../types/mod.ts'
 import { arrayRemove } from '../utils/array_utils.ts'
 
 /**
@@ -20,7 +26,9 @@ export const areKeyframesSimple = (array: DeepReadonly<KeyframeValuesUnsafe>) =>
     typeof array[0] !== 'object'
 
 /** Get the index of the time value of a keyframe. */
-export function getKeyframeTimeIndex(data: DeepReadonly<KeyframeValuesUnsafe>) {
+export function getKeyframeTimeIndex(
+    data: ReadonlyRuntimeSingleKeyframeValuesUnsafe,
+) {
     for (let i = data.length - 1; i >= 0; i--) {
         if (typeof data[i] !== 'string') return i
     }
@@ -28,51 +36,58 @@ export function getKeyframeTimeIndex(data: DeepReadonly<KeyframeValuesUnsafe>) {
 }
 
 /** Get the time value of a keyframe. */
-export const getKeyframeTime = (data: DeepReadonly<KeyframeValuesUnsafe>) =>
-    data[getKeyframeTimeIndex(data)] as number
+export const getKeyframeTime = (
+    data: ReadonlyRuntimeSingleKeyframeValuesUnsafe,
+) => data[getKeyframeTimeIndex(data)] as number
 
 /** Set the time value of a keyframe. */
-export const setKeyframeTime = (data: KeyframeValuesUnsafe, value: number) =>
-    data[getKeyframeTimeIndex(data)] = value
+export const setKeyframeTime = (
+    data: RuntimeSingleKeyframeValuesUnsafe,
+    value: number,
+) => data[getKeyframeTimeIndex(data)] = value
 
 /** Get the values in the keyframes.
  * For example [x,y,z,time] would have [x,y,z] as values.
  */
-export const getKeyframeValues = (data: DeepReadonly<KeyframeValuesUnsafe>) =>
-    data.slice(0, getKeyframeTimeIndex(data)) as number[]
+export const getKeyframeValues = (
+    data: ReadonlyRuntimeSingleKeyframeValuesUnsafe,
+) => data.slice(0, getKeyframeTimeIndex(data)) as number[]
 
 /** Set the values in the keyframes.
  * For example [x,y,z,time] would have [x,y,z] as values.
  */
-export function setKeyframeValues(data: KeyframeValuesUnsafe, value: number[]) {
+export function setKeyframeValues(
+    data: RuntimeSingleKeyframeValuesUnsafe,
+    value: number[],
+) {
     for (let i = 0; i < getKeyframeTimeIndex(data); i++) {
         data[i] = value[i]
     }
 }
 
 /** Get the easing in the keyframe. Returns undefined if not found. */
-export const getKeyframeEasing = (data: DeepReadonly<KeyframeValuesUnsafe>) =>
+export const getKeyframeEasing = (data: ReadonlyRuntimeSingleKeyframeValuesUnsafe) =>
     data[getKeyframeFlagIndex(data, 'ease', false)] as EASE
 
 /** Set easing in the keyframe. */
-export const setKeyframeEasing = (data: KeyframeValuesUnsafe, value: EASE) =>
+export const setKeyframeEasing = (data: RuntimeSingleKeyframeValuesUnsafe, value: EASE) =>
     setKeyframeFlag(data, value, 'ease')
 
 /** Get the spline in the keyframe. Returns undefined if not found. */
-export const getKeyframeSpline = (data: DeepReadonly<KeyframeValuesUnsafe>) =>
+export const getKeyframeSpline = (data: ReadonlyRuntimeSingleKeyframeValuesUnsafe) =>
     data[getKeyframeFlagIndex(data, 'spline', false)] as SPLINE
 
 /** Set the spline in the keyframe. */
-export const setKeyframeSpline = (data: KeyframeValuesUnsafe, value: SPLINE) =>
+export const setKeyframeSpline = (data: RuntimeSingleKeyframeValuesUnsafe, value: SPLINE) =>
     setKeyframeFlag(data, value, 'spline')
 
 /** Whether this keyframe has the "lerpHSV" flag. */
-export const getKeyframeHSVLerp = (data: DeepReadonly<KeyframeValuesUnsafe>) =>
+export const getKeyframeHSVLerp = (data: ReadonlyRuntimeSingleKeyframeValuesUnsafe) =>
     getKeyframeFlagIndex(data, 'lerpHSV') !== -1
 
 /** Set whether this keyframe has the "lerpHSV" flag. */
 export function setKeyframeHSVLerp(
-    data: KeyframeValuesUnsafe,
+    data: RuntimeSingleKeyframeValuesUnsafe,
     hasHSVLerp: boolean,
 ) {
     if (hasHSVLerp) setKeyframeFlag(data, 'lerpHSV')
@@ -88,7 +103,7 @@ export function setKeyframeHSVLerp(
  * @param old An existing flag containing this will be replaced by the value.
  */
 export function setKeyframeFlag(
-    data: KeyframeValuesUnsafe,
+    data: RuntimeSingleKeyframeValuesUnsafe,
     value: KeyframeFlag,
     old?: string,
 ) {
@@ -103,7 +118,7 @@ export function setKeyframeFlag(
  * @param exact Whether it should be an exact match, or just contain the flag argument.
  */
 export function getKeyframeFlagIndex(
-    data: DeepReadonly<KeyframeValuesUnsafe>,
+    data: ReadonlyRuntimeSingleKeyframeValuesUnsafe,
     flag: string,
     exact = true,
 ) {
@@ -162,10 +177,16 @@ export function keyframesMap<
     },
 ): K {
     if (areKeyframesSimple(keyframe)) {
-        const simpleKeyframe = [...keyframe,0] as unknown as Readonly<ComplexKeyframesAbstract<T>[0]>
+        const simpleKeyframe = [...keyframe, 0] as unknown as Readonly<
+            ComplexKeyframesAbstract<T>[0]
+        >
 
         // TODO: Redo
-        return fn(simpleKeyframe, findTimeIndex(simpleKeyframe), 0) as unknown as K
+        return fn(
+            simpleKeyframe,
+            findTimeIndex(simpleKeyframe),
+            0,
+        ) as unknown as K
     }
 
     const complexKeyframe = keyframe as ComplexKeyframesAbstract<T>
@@ -178,6 +199,8 @@ export function keyframesMap<
     return ret.filter((x) => x) as K
 }
 
-export function findTimeIndex(keyframe: Readonly<SingleKeyframeValuesUnsafe>): number {
+export function findTimeIndex(
+    keyframe: Readonly<SingleKeyframeValuesUnsafe>,
+): number {
     return keyframe.findLastIndex((x) => typeof x === 'number')
 }

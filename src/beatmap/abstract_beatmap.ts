@@ -30,7 +30,6 @@ import { EventInternals } from '../internals/mod.ts'
 import { FogEvent } from './fog.ts'
 import { getActiveCache } from '../rm_cache.ts'
 import { RuntimePointDefinitionAny } from '../types/animation_types.ts'
-import { RuntimeRawKeyframesAny } from '../types/animation_types.ts'
 import { RawKeyframesLinear } from '../types/animation_types.ts'
 import { animationIsRuntime } from '../animation/animation_utils.ts'
 
@@ -292,7 +291,7 @@ export abstract class AbstractDifficulty<
         ) => {
             Object.entries(animation).forEach(([key, keyframes]) => {
                 if (typeof keyframes === 'string') return
-                if (animationIsRuntime(keyframes as RuntimeRawKeyframesAny)) {
+                if (animationIsRuntime(keyframes!)) {
                     return
                 }
 

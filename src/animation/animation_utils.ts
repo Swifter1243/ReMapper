@@ -44,8 +44,8 @@ import {
     setKeyframeEasing,
 } from './keyframe.ts'
 import { lerpHSV } from '../data/color.ts'
-import { RuntimeRawKeyframesAny } from '../types/mod.ts'
 import { ModelObject } from '../mod.ts'
+import { ReadonlyRuntimePointDefinitionAny } from '../types/animation_types.ts'
 
 /**
  * Ensures that this value is in the format of an array of keyframes.
@@ -275,7 +275,7 @@ export function bakeAnimation(
     forKeyframe?: (transform: TransformKeyframe) => void,
     animFreq?: number,
     animOptimizer?: OptimizeSettings,
-    domain?: { min: number, max: number }
+    domain?: { min: number; max: number },
 ) {
     animOptimizer ??= new OptimizeSettings()
     animFreq ??= 1 / 32
@@ -289,7 +289,7 @@ export function bakeAnimation(
         rot: <ComplexKeyframesVec3> [],
         scale: <ComplexKeyframesVec3> [],
     }
-    
+
     domain ??= getAnimationDomain(animation)
     const totalMin = floorTo(domain.min, animFreq)
     const totalMax = ceilTo(domain.max, animFreq)
@@ -409,8 +409,10 @@ export function mirrorAnimation<T extends NumberTuple>(
 }
 
 export function animationIsRuntime(
-    keyframes: RuntimeRawKeyframesAny,
+    keyframes: ReadonlyRuntimePointDefinitionAny,
 ) {
+    if (typeof keyframes === 'string') return false
+
     if (keyframes.some((x) => typeof x === 'string')) return true
 
     const json = JSON.stringify(keyframes)
