@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        deno-version: [1.3.0]
+        deno-version: [1.34.0]
 
     env:
       DENO_DIR: ${GITHUB_WORKSPACE}/deno_cache
@@ -41,8 +41,8 @@ jobs:
       run: deno fmt --check
       continue-on-error: true
 
-    - name: Build Deno Module
-      run: deno run --allow-read --allow-write --reload src/mod.ts 
+    - name: Check Deno Module
+      run: deno check --allow-read --allow-write --reload src/mod.ts 
 
       # TODO: NPM create
 

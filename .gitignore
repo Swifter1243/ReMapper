@@ -1,6 +1,11 @@
 docs/
 dist/
 deno_cache/
+deno.lock
+
+# Madge
+madge/image.png
+madge/circular.png
 
 # Logs
 logs

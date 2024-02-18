@@ -1,0 +1,15 @@
+{
+    "lint": {
+        "exclude": [".git"]
+    },
+
+    "fmt": {
+        "exclude": [".git"],
+        "options": {
+            "indentWidth": 4,
+            "singleQuote": true,
+            "proseWrap": "preserve",
+            "semiColons": false
+        }
+    }
+}

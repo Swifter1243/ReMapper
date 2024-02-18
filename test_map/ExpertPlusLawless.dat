@@ -1,0 +1,159 @@
+{
+  "version" : "3.0.0",
+  "bpmEvents" : [
+  ],
+  "rotationEvents" : [
+  ],
+  "colorNotes" : [
+    {
+      "b" : 4,
+      "x" : 3,
+      "y" : 2,
+      "a" : 0,
+      "c" : 0,
+      "d" : 1
+    }
+  ],
+  "bombNotes" : [
+  ],
+  "obstacles" : [
+  ],
+  "sliders" : [
+    {
+      "b" : 1,
+      "c" : 0,
+      "x" : 1,
+      "y" : 1,
+      "d" : 0,
+      "tb" : 2,
+      "tx" : 1,
+      "ty" : 1,
+      "mu" : 1,
+      "tmu" : 1,
+      "tc" : 0,
+      "m" : 2
+    }
+  ],
+  "burstSliders" : [
+    {
+      "b" : 4,
+      "c" : 1,
+      "x" : 3,
+      "y" : 2,
+      "d" : 1,
+      "tb" : 8.25,
+      "tx" : 2,
+      "ty" : 0,
+      "sc" : 264,
+      "s" : 9.1
+    }
+  ],
+  "waypoints" : [
+  ],
+  "basicBeatmapEvents" : [
+    {
+      "b" : 1.25,
+      "et" : 3,
+      "i" : 5,
+      "f" : 1,
+      "customData" : {
+        "_color" : [
+          1,
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "b" : 1.25,
+      "et" : 2,
+      "i" : 5,
+      "f" : 1,
+      "customData" : {
+        "_color" : [
+          1,
+          1,
+          1,
+          1
+        ]
+      }
+    }
+  ],
+  "colorBoostBeatmapEvents" : [
+  ],
+  "lightColorEventBoxGroups" : [
+    {
+      "b" : 0,
+      "g" : 0,
+      "e" : [
+        {
+          "f" : {
+            "f" : 2,
+            "p" : 1,
+            "t" : 3,
+            "r" : 0
+          },
+          "w" : 1,
+          "d" : 1,
+          "r" : 1,
+          "t" : 1,
+          "b" : 1,
+          "e" : [
+            {
+              "b" : 1,
+              "i" : 0,
+              "c" : 2,
+              "s" : 1,
+              "f" : 0
+            },
+            {
+              "b" : 2,
+              "i" : 1,
+              "c" : 1,
+              "s" : 1,
+              "f" : 0
+            }
+          ]
+        },
+        {
+          "f" : {
+            "f" : 2,
+            "p" : 0,
+            "t" : 2,
+            "r" : 0
+          },
+          "w" : 1,
+          "d" : 1,
+          "r" : 1,
+          "t" : 1,
+          "b" : 1,
+          "e" : [
+            {
+              "b" : 3,
+              "i" : 0,
+              "c" : 2,
+              "s" : 1,
+              "f" : 0
+            },
+            {
+              "b" : 4,
+              "i" : 1,
+              "c" : 1,
+              "s" : 1,
+              "f" : 0
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "lightRotationEventBoxGroups" : [
+  ],
+  "basicEventTypesWithKeywords" : {
+  },
+  "useNormalEventsAsCompatibleEvents" : true,
+  "customData" : {
+    "_time" : 11.794
+  }
+}
