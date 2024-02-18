@@ -2,12 +2,17 @@ import { Track } from '../../animation/track.ts'
 import { getActiveDifficulty } from '../../data/beatmap_handler.ts'
 import { bsmap } from '../../deps.ts'
 import { EASE } from '../../types/animation_types.ts'
-import { Fields, SubclassExclusiveProps } from '../../types/util_types.ts'
 import { copy } from '../../utils/general.ts'
 import { jsonPrune } from '../../utils/json.ts'
 import { AnimationPropertiesV3, animationToJson } from '../animation.ts'
-import { ExcludedObjectFields, ObjectReplacements } from '../object.ts'
-import { BaseCustomEvent, CustomEventExclusions, getDataProp } from './base.ts'
+import { ExcludedObjectFields } from '../object.ts'
+import {
+    BaseCustomEvent,
+    CustomEventConstructor,
+    CustomEventExclusions,
+    CustomEventSubclassFields,
+    getDataProp,
+} from './base.ts'
 
 export class AssignPathAnimation extends BaseCustomEvent<
     bsmap.v2.ICustomEventAssignPathAnimation,
@@ -17,11 +22,7 @@ export class AssignPathAnimation extends BaseCustomEvent<
      * Animate objects on a track across their lifespan.
      */
     constructor(
-        params: ExcludedObjectFields<
-            AssignPathAnimation,
-            ObjectReplacements,
-            CustomEventExclusions
-        >,
+        params: CustomEventConstructor<AssignPathAnimation>,
     ) {
         super(params)
         this.type = 'AnimateTrack'
@@ -37,18 +38,17 @@ export class AssignPathAnimation extends BaseCustomEvent<
 
     /** The animation of this event. */
     animation: AnimationPropertiesV3
-
     duration: number
-
     track: Track = new Track('')
-
     easing?: EASE
 
     /** Push this event to the difficulty.
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        getActiveDifficulty().assignPathAnimations.push(clone ? copy(this) : this)
+        getActiveDifficulty().assignPathAnimations.push(
+            clone ? copy(this) : this,
+        )
         return this
     }
 
@@ -60,12 +60,7 @@ export class AssignPathAnimation extends BaseCustomEvent<
             | bsmap.v3.ICustomEventAssignPathAnimation,
         v3: boolean,
     ): this {
-        type Params = Fields<
-            SubclassExclusiveProps<
-                AssignPathAnimation,
-                BaseCustomEvent
-            >
-        >
+        type Params = CustomEventSubclassFields<AssignPathAnimation>
 
         if (v3) {
             const obj = json as bsmap.v3.ICustomEventAssignPathAnimation
@@ -144,11 +139,7 @@ export class AssignTrackParent extends BaseCustomEvent<
      * Assign tracks to a parent track.
      */
     constructor(
-        params: ExcludedObjectFields<
-            AssignTrackParent,
-            ObjectReplacements,
-            CustomEventExclusions
-        >,
+        params: CustomEventConstructor<AssignTrackParent>,
     ) {
         super(params)
         this.childrenTracks = params.childrenTracks ?? []
@@ -160,7 +151,6 @@ export class AssignTrackParent extends BaseCustomEvent<
     childrenTracks: string[]
     /** Name of the parent track. */
     parentTrack: string
-
     /** Modifies the transform of children objects to remain in the same place relative to world space. */
     worldPositionStays?: boolean
 
@@ -180,12 +170,7 @@ export class AssignTrackParent extends BaseCustomEvent<
             | bsmap.v3.ICustomEventAssignTrackParent,
         v3: boolean,
     ): this {
-        type Params = Fields<
-            SubclassExclusiveProps<
-                AssignTrackParent,
-                BaseCustomEvent
-            >
-        >
+        type Params = CustomEventSubclassFields<AssignTrackParent>
 
         if (v3) {
             const obj = json as bsmap.v3.ICustomEventAssignTrackParent
@@ -291,12 +276,7 @@ export class AssignPlayerToTrack extends BaseCustomEvent<
             | bsmap.v3.ICustomEventAssignPlayerToTrack,
         v3: boolean,
     ): this {
-        type Params = Fields<
-            SubclassExclusiveProps<
-                AssignPlayerToTrack,
-                BaseCustomEvent
-            >
-        >
+        type Params = CustomEventSubclassFields<AssignPlayerToTrack>
 
         if (v3) {
             const obj = json as bsmap.v3.ICustomEventAssignPlayerToTrack

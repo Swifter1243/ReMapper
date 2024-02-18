@@ -2,12 +2,15 @@ import { Track } from '../../animation/track.ts'
 import { getActiveDifficulty } from '../../data/beatmap_handler.ts'
 import { bsmap } from '../../deps.ts'
 import { EASE } from '../../types/animation_types.ts'
-import { Fields, SubclassExclusiveProps } from '../../types/util_types.ts'
 import { copy } from '../../utils/general.ts'
 import { jsonPrune } from '../../utils/json.ts'
 import { AnimationPropertiesV3, animationToJson } from '../animation.ts'
-import { ExcludedObjectFields, ObjectReplacements } from '../object.ts'
-import { BaseCustomEvent, CustomEventExclusions, getDataProp } from './base.ts'
+import {
+    BaseCustomEvent,
+    CustomEventConstructor,
+    CustomEventSubclassFields,
+    getDataProp,
+} from './base.ts'
 
 export class AnimateTrack extends BaseCustomEvent<
     bsmap.v2.ICustomEventAnimateTrack,
@@ -17,11 +20,7 @@ export class AnimateTrack extends BaseCustomEvent<
      * Animate a track.
      */
     constructor(
-        params: ExcludedObjectFields<
-            AnimateTrack,
-            ObjectReplacements,
-            CustomEventExclusions
-        >,
+        params: CustomEventConstructor<AnimateTrack>,
     ) {
         super(params)
         this.type = 'AnimateTrack'
@@ -38,13 +37,9 @@ export class AnimateTrack extends BaseCustomEvent<
 
     /** The animation of this event. */
     animation: AnimationPropertiesV3
-
     duration: number
-
     track: Track = new Track('')
-
     easing?: EASE
-
     /** The amount of times to repeat this event. */
     repeat?: number
 
@@ -64,12 +59,7 @@ export class AnimateTrack extends BaseCustomEvent<
             | bsmap.v3.ICustomEventAnimateTrack,
         v3: boolean,
     ): this {
-        type Params = Fields<
-            SubclassExclusiveProps<
-                AnimateTrack,
-                BaseCustomEvent
-            >
-        >
+        type Params = CustomEventSubclassFields<AnimateTrack>
 
         if (v3) {
             const obj = json as bsmap.v3.ICustomEventAnimateTrack

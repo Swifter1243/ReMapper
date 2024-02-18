@@ -2,12 +2,18 @@ import { Track } from '../../animation/track.ts'
 import { getActiveDifficulty } from '../../data/beatmap_handler.ts'
 import { bsmap } from '../../deps.ts'
 import { EASE, PointDefinitionLinear } from '../../types/animation_types.ts'
-import { ILightWithId, TubeBloomPrePassLight } from '../../types/environment_types.ts'
-import { Fields, SubclassExclusiveProps } from '../../types/util_types.ts'
+import {
+    ILightWithId,
+    TubeBloomPrePassLight,
+} from '../../types/environment_types.ts'
 import { copy } from '../../utils/general.ts'
 import { jsonPrune } from '../../utils/json.ts'
-import { ExcludedObjectFields, ObjectReplacements } from '../object.ts'
-import { BaseCustomEvent, CustomEventExclusions, getDataProp } from './base.ts'
+import {
+    BaseCustomEvent,
+    CustomEventConstructor,
+    CustomEventSubclassFields,
+    getDataProp,
+} from './base.ts'
 
 export class AnimateComponent
     extends BaseCustomEvent<never, bsmap.v3.ICustomEventAnimateComponent> {
@@ -19,11 +25,7 @@ export class AnimateComponent
      * @param easing The easing on the animation.
      */
     constructor(
-        params: ExcludedObjectFields<
-            AnimateComponent,
-            ObjectReplacements,
-            CustomEventExclusions
-        >,
+        params: CustomEventConstructor<AnimateComponent>,
     ) {
         super(params)
         this.type = 'AnimateComponent'
@@ -66,12 +68,7 @@ export class AnimateComponent
         json: never | bsmap.v3.ICustomEventAnimateComponent,
         v3: boolean,
     ): this {
-        type Params = Fields<
-            SubclassExclusiveProps<
-                AnimateComponent,
-                BaseCustomEvent
-            >
-        >
+        type Params = CustomEventSubclassFields<AnimateComponent>
 
         if (v3) {
             const obj = json as bsmap.v3.ICustomEventAnimateComponent
@@ -134,7 +131,9 @@ export class AbstractCustomEvent extends BaseCustomEvent<
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        getActiveDifficulty().abstractCustomEvents.push(clone ? copy(this) : this)
+        getActiveDifficulty().abstractCustomEvents.push(
+            clone ? copy(this) : this,
+        )
         return this
     }
 
@@ -144,12 +143,7 @@ export class AbstractCustomEvent extends BaseCustomEvent<
         json: bsmap.v2.ICustomEvent | bsmap.v3.ICustomEvent,
         v3: boolean,
     ): this {
-        type Params = Fields<
-            SubclassExclusiveProps<
-                AbstractCustomEvent,
-                BaseCustomEvent
-            >
-        >
+        type Params = CustomEventSubclassFields<AbstractCustomEvent>
 
         if (v3) {
             const obj = json as bsmap.v3.ICustomEvent

@@ -1,6 +1,12 @@
 import { bsmap } from '../../deps.ts'
+import { BeatmapInterfaces } from '../../mod.ts'
 import { JsonWrapper } from '../../types/beatmap_types.ts'
-import { Fields, TJson } from '../../types/util_types.ts'
+import {
+    Fields,
+    SubclassExclusiveProps,
+    TJson,
+} from '../../types/util_types.ts'
+import { ExcludedObjectFields, ObjectReplacements } from '../object.ts'
 
 export type CustomEventExclusions = {
     type: never
@@ -22,9 +28,36 @@ export function getDataProp<
     return undefined
 }
 
+type AllV3CustomEvents =
+    | bsmap.v3.ICustomEvent
+    | BeatmapInterfaces.AssignTrackPrefab
+    | BeatmapInterfaces.Blit
+    | BeatmapInterfaces.DeclareCullingTexture
+    | BeatmapInterfaces.DeclareRenderTexture
+    | BeatmapInterfaces.DestroyPrefab
+    | BeatmapInterfaces.InstantiatePrefab
+    | BeatmapInterfaces.SetAnimatorProperty
+    | BeatmapInterfaces.SetCameraProperty
+    | BeatmapInterfaces.SetGlobalProperty
+    | BeatmapInterfaces.SetMaterialProperty
+    | BeatmapInterfaces.SetRenderSetting
+
+export type CustomEventConstructor<T> = ExcludedObjectFields<
+    T,
+    ObjectReplacements,
+    CustomEventExclusions
+>
+
+export type CustomEventSubclassFields<T> = Fields<
+    SubclassExclusiveProps<
+        T,
+        BaseCustomEvent
+    >
+>
+
 export abstract class BaseCustomEvent<
     TV2 extends bsmap.v2.ICustomEvent = bsmap.v2.ICustomEvent,
-    TV3 extends bsmap.v3.ICustomEvent = bsmap.v3.ICustomEvent,
+    TV3 extends AllV3CustomEvents = AllV3CustomEvents,
 > implements JsonWrapper<TV2, TV3> {
     beat: number
     type: string
