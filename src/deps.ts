@@ -12,3 +12,5 @@ export * as three from "npm:three@^0.154";
 // Temporary measure
 export * as bsmap from 'https://raw.githubusercontent.com/Fernthedev/BeatSaber-Deno/593c942ee8f5eac21b8fa1fc70e03a0d2ea07036/types/beatmap/mod.ts'
 // export * as bsmap from "https://deno.land/x/bsmap@1.3.4/types/beatmap/mod.ts";
+
+export * as pngs from 'https://deno.land/x/pngs@0.1.1/mod.ts'
