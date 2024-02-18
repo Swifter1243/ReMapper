@@ -5,7 +5,6 @@ import {
     ComplexKeyframesVec3,
     ComplexKeyframeValuesUnsafe,
     EASE,
-    KeyframeValuesUnsafe,
     RawKeyframesAbstract,
     RawKeyframesAny,
     SimpleKeyframesAny,
@@ -68,7 +67,7 @@ export function simplifyArray<T extends NumberTuple>(
     array: RawKeyframesAbstract<T>,
 ): RawKeyframesAbstract<T> {
     if (array.length <= 1 && !areKeyframesSimple(array)) {
-        const keyframe = array[0] as KeyframeValuesUnsafe
+        const keyframe = array[0] as SingleKeyframeValuesUnsafe
         const keyframeTime = getKeyframeTime(keyframe)
         if (keyframeTime === 0) {
             return getKeyframeValues(keyframe) as RawKeyframesAbstract<T>
@@ -137,7 +136,7 @@ export function getValuesAtTime<K extends string = AnimationKeys>(
         ) as SimpleKeyframesAny
     }
     return getKeyframeValues(
-        timeInfo.l as KeyframeValuesUnsafe,
+        timeInfo.l!,
     ) as SimpleKeyframesAny
 }
 
