@@ -1,12 +1,37 @@
-import { bsmap } from '../deps.ts'
-import * as CustomEventInternals from '../internals/custom_event.ts'
+import * as CustomEventInternals from '../internals/custom_event/mod.ts'
 import { EASE, TrackValue } from '../types/animation_types.ts'
 import { TJson } from '../types/util_types.ts'
 
-export type CustomEvent = CustomEventInternals.BaseCustomEvent<
-    bsmap.v2.ICustomEvent,
-    bsmap.v3.ICustomEvent
->
+export type CustomEvent = CustomEventInternals.BaseCustomEvent
+
+export function abstractCustomEvent(
+    ...params:
+        | ConstructorParameters<typeof CustomEventInternals.AbstractCustomEvent>
+        | [
+            beat: number,
+            type: string,
+            data: TJson
+        ]
+) {
+    if (typeof params[0] === 'object') {
+        return new CustomEventInternals.AbstractCustomEvent(
+            ...params as ConstructorParameters<
+                typeof CustomEventInternals.AbstractCustomEvent
+            >,
+        )
+    }
+
+    const [beat, type, data] = params
+
+    return new CustomEventInternals.AbstractCustomEvent(
+        {
+            beat: beat as number,
+            type,
+            data
+        },
+    )
+}
+
 
 /**
  * Animate a track.
@@ -15,16 +40,6 @@ export type CustomEvent = CustomEventInternals.BaseCustomEvent<
  * @param animation The animation properties to replace.
  * @param easing The easing on this event's animation.
  */
-export function animateTrack(
-    beat: number,
-    track: TrackValue,
-    duration?: number,
-    animation?: CustomEventInternals.AnimateTrack['animation'],
-    easing?: EASE,
-): CustomEventInternals.AnimateTrack
-export function animateTrack(
-    ...params: ConstructorParameters<typeof CustomEventInternals.AnimateTrack>
-): CustomEventInternals.AnimateTrack
 export function animateTrack(
     ...params:
         | ConstructorParameters<typeof CustomEventInternals.AnimateTrack>
@@ -36,9 +51,7 @@ export function animateTrack(
             easing?: EASE,
         ]
 ) {
-    const [first] = params
-
-    if (typeof first === 'object') {
+    if (typeof params[0] === 'object') {
         return new CustomEventInternals.AnimateTrack(
             ...params as ConstructorParameters<
                 typeof CustomEventInternals.AnimateTrack
@@ -67,18 +80,6 @@ export function animateTrack(
  * @param easing The easing on this event's animation.
  */
 export function assignPathAnimation(
-    beat: number,
-    track: TrackValue,
-    duration?: number,
-    animation?: CustomEventInternals.AnimateTrack['animation'],
-    easing?: EASE,
-): CustomEventInternals.AssignPathAnimation
-export function assignPathAnimation(
-    ...params: ConstructorParameters<
-        typeof CustomEventInternals.AssignPathAnimation
-    >
-): CustomEventInternals.AssignPathAnimation
-export function assignPathAnimation(
     ...params:
         | ConstructorParameters<typeof CustomEventInternals.AssignPathAnimation>
         | [
@@ -89,9 +90,7 @@ export function assignPathAnimation(
             easing?: EASE,
         ]
 ) {
-    const [first] = params
-
-    if (typeof first === 'object') {
+    if (typeof params[0] === 'object') {
         return new CustomEventInternals.AssignPathAnimation(
             ...params as ConstructorParameters<
                 typeof CustomEventInternals.AssignPathAnimation
@@ -119,17 +118,6 @@ export function assignPathAnimation(
  * @param worldPositionStays Modifies the transform of children objects to remain in the same place relative to world space.
  */
 export function assignTrackParent(
-    beat: number,
-    childrenTracks: string[],
-    parentTrack: string,
-    worldPositionStays?: boolean,
-): CustomEventInternals.AssignTrackParent
-export function assignTrackParent(
-    ...params: ConstructorParameters<
-        typeof CustomEventInternals.AssignTrackParent
-    >
-): CustomEventInternals.AssignTrackParent
-export function assignTrackParent(
     ...params:
         | ConstructorParameters<typeof CustomEventInternals.AssignTrackParent>
         | [
@@ -139,9 +127,7 @@ export function assignTrackParent(
             worldPositionStays?: boolean,
         ]
 ) {
-    const [first] = params
-
-    if (typeof first === 'object') {
+    if (typeof params[0] === 'object') {
         return new CustomEventInternals.AssignTrackParent(
             ...params as ConstructorParameters<
                 typeof CustomEventInternals.AssignTrackParent
@@ -161,16 +147,6 @@ export function assignTrackParent(
     )
 }
 
-export function assignPlayerToTrack(
-    beat: number,
-    track?: string,
-): CustomEventInternals.AssignPlayerToTrack
-export function assignPlayerToTrack(
-    ...params: ConstructorParameters<
-        typeof CustomEventInternals.AssignPlayerToTrack
-    >
-): CustomEventInternals.AssignPlayerToTrack
-
 /**
  * Assigns the player to a track.
  * @param track Track the player will be assigned to.
@@ -183,9 +159,7 @@ export function assignPlayerToTrack(
             track?: string,
         ]
 ) {
-    const [first] = params
-
-    if (typeof first === 'object') {
+    if (typeof params[0] === 'object') {
         return new CustomEventInternals.AssignPlayerToTrack(
             ...params as ConstructorParameters<
                 typeof CustomEventInternals.AssignPlayerToTrack
@@ -210,17 +184,6 @@ export function assignPlayerToTrack(
  * @param easing The easing on the animation.
  */
 export function animateComponent(
-    beat: number,
-    track: TrackValue,
-    duration?: number,
-    easing?: EASE,
-): CustomEventInternals.AnimateComponent
-export function animateComponent(
-    ...params: ConstructorParameters<
-        typeof CustomEventInternals.AnimateComponent
-    >
-): CustomEventInternals.AnimateComponent
-export function animateComponent(
     ...params:
         | ConstructorParameters<typeof CustomEventInternals.AnimateComponent>
         | [
@@ -230,9 +193,7 @@ export function animateComponent(
             easing?: EASE,
         ]
 ) {
-    const [first] = params
-
-    if (typeof first === 'object') {
+    if (typeof params[0] === 'object') {
         return new CustomEventInternals.AnimateComponent(
             ...params as ConstructorParameters<
                 typeof CustomEventInternals.AnimateComponent
@@ -248,46 +209,6 @@ export function animateComponent(
             track,
             duration,
             easing,
-        },
-    )
-}
-
-export function abstractCustomEvent(
-    beat: number,
-    type: string,
-    data: TJson
-): CustomEventInternals.AbstractCustomEvent
-export function abstractCustomEvent(
-    ...params: ConstructorParameters<
-        typeof CustomEventInternals.AbstractCustomEvent
-    >
-): CustomEventInternals.AbstractCustomEvent
-export function abstractCustomEvent(
-    ...params:
-        | ConstructorParameters<typeof CustomEventInternals.AbstractCustomEvent>
-        | [
-            beat: number,
-            type: string,
-            data: TJson
-        ]
-) {
-    const [first] = params
-
-    if (typeof first === 'object') {
-        return new CustomEventInternals.AbstractCustomEvent(
-            ...params as ConstructorParameters<
-                typeof CustomEventInternals.AbstractCustomEvent
-            >,
-        )
-    }
-
-    const [beat, type, data] = params
-
-    return new CustomEventInternals.AbstractCustomEvent(
-        {
-            beat: beat as number,
-            type,
-            data
         },
     )
 }

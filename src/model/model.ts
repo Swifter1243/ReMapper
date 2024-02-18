@@ -21,7 +21,7 @@ import { combineTransforms, rotatePoint } from '../utils/math.ts'
 
 import { cacheData, parseFilePath } from '../general.ts'
 
-import * as CustomEventInternals from '../internals/custom_event.ts'
+import * as CustomEventInternals from '../internals/custom_event/mod.ts'
 
 import { animateTrack } from '../beatmap/custom_event.ts'
 import { backLasers } from '../beatmap/basic_event.ts'

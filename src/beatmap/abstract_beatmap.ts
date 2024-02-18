@@ -20,7 +20,7 @@ import { AnyNote, parseFilePath, RMLog } from '../general.ts'
 import { attachWorkingDirectory, settings } from '../data/beatmap_handler.ts' // TODO: Cyclic, fix
 
 import * as AnimationInternals from '../internals/animation.ts'
-import * as CustomEventInternals from '../internals/custom_event.ts'
+import * as CustomEventInternals from '../internals/custom_event/mod.ts'
 import * as EnvironmentInternals from '../internals/environment.ts'
 import * as NoteInternals from '../internals/note.ts'
 import * as WallInternals from '../internals/wall.ts'

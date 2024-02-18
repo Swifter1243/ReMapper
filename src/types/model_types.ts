@@ -2,7 +2,7 @@ import { RawKeyframesVec3 } from './animation_types.ts'
 import { RawGeometryMaterial } from './environment_types.ts'
 
 // TODO: Stink
-import type * as CustomEventInternals from '../internals/custom_event.ts'
+import type * as CustomEventInternals from '../internals/custom_event/mod.ts'
 import type * as EnvironmentInternals from '../internals/environment.ts'
 
 import { FILEPATH } from './beatmap_types.ts'
