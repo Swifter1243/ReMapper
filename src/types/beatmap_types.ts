@@ -7,6 +7,7 @@ export type SUGGEST_MODS =
 export type REQUIRE_MODS =
     | 'Chroma'
     | 'Noodle Extensions'
+    | 'Vivify'
 
 /** All environment names. */
 export type ENV_NAMES =
