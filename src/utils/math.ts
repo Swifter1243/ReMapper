@@ -148,12 +148,30 @@ export function random(start: number, end: number, roundResult?: number) {
  */
 export function seededRandom(seed: number) {
     return (min: number, max: number) => {
-        let t = seed += 0x6D2B79F5
-        t = Math.imul(t ^ t >>> 15, t | 1)
-        t ^= t + Math.imul(t ^ t >>> 7, t | 61)
-        const r = ((t ^ t >>> 14) >>> 0) / 4294967296
+        const r = hash1D(seed)
         return lerp(min, max, r)
     }
+}
+
+export function hash1D(seed: number) {
+    let t = seed += 0x6D2B79F5
+    t = Math.imul(t ^ t >>> 15, t | 1)
+    t ^= t + Math.imul(t ^ t >>> 7, t | 61)
+    const r = ((t ^ t >>> 14) >>> 0) / 4294967296
+    return r
+}
+
+export function hashString(str: string) {
+    let hash = 2166136261n // FNV offset basis
+    const prime = 16777619n // FNV prime
+
+    for (let i = 0; i < str.length; i++) {
+        hash ^= BigInt(str.charCodeAt(i)) // XOR the current byte into the hash
+        hash *= prime // Multiply by the prime
+    }
+
+    const scaledHash = Number(hash % 1000000n) / 1000000
+    return scaledHash
 }
 
 /**
@@ -591,40 +609,46 @@ export function emulateParent(
 
     const domain = {
         min: Math.min(childDomain.min, parentDomain.min),
-        max: Math.max(childDomain.max, parentDomain.max)
+        max: Math.max(childDomain.max, parentDomain.max),
     }
 
-    return bakeAnimation(childObj, (k) => {
-        const parentPos = getValuesAtTime(
-            'position',
-            parentObj.pos,
-            k.time,
-        ) as Vec3
+    return bakeAnimation(
+        childObj,
+        (k) => {
+            const parentPos = getValuesAtTime(
+                'position',
+                parentObj.pos,
+                k.time,
+            ) as Vec3
 
-        const parentRot = getValuesAtTime(
-            'rotation',
-            parentObj.rot,
-            k.time,
-        ) as Vec3
+            const parentRot = getValuesAtTime(
+                'rotation',
+                parentObj.rot,
+                k.time,
+            ) as Vec3
 
-        const parentScale = getValuesAtTime(
-            'scale',
-            parentObj.scale,
-            k.time,
-        ) as Vec3
+            const parentScale = getValuesAtTime(
+                'scale',
+                parentObj.scale,
+                k.time,
+            ) as Vec3
 
-        const t = combineTransforms({
-            pos: k.pos,
-            rot: k.rot,
-            scale: k.scale,
-        }, {
-            pos: parentPos,
-            rot: parentRot,
-            scale: parentScale,
-        }, anchor)
+            const t = combineTransforms({
+                pos: k.pos,
+                rot: k.rot,
+                scale: k.scale,
+            }, {
+                pos: parentPos,
+                rot: parentRot,
+                scale: parentScale,
+            }, anchor)
 
-        Object.assign(k, t)
-    }, animFreq, animOptimizer, domain)
+            Object.assign(k, t)
+        },
+        animFreq,
+        animOptimizer,
+        domain,
+    )
 }
 
 /**
