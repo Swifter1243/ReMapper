@@ -19,7 +19,6 @@ export interface SetGlobalProperty {
     b: number
     t: 'SetGlobalProperty'
     d: {
-        asset: string
         duration?: number
         easing?: EASE
         properties?: MaterialProperty[]
@@ -101,7 +100,7 @@ export interface SetAnimatorProperty {
     b: number
     t: 'SetAnimatorProperty'
     d: {
-        asset: string
+        id: string
         duration?: number
         easing?: string
         properties?: AnimatorProperty[]

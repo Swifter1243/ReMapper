@@ -113,13 +113,11 @@ export class SetGlobalProperty extends BaseCustomEvent<
     ) {
         super(params)
         this.type = 'SetGlobalProperty'
-        this.asset = params.asset ?? ''
         if (params.duration) this.duration = params.duration
         if (params.easing) this.easing = params.easing
         if (params.properties) this.properties = params.properties
     }
 
-    asset: string
     duration?: number
     easing?: EASE
     properties: MaterialProperty[] = []
@@ -149,7 +147,6 @@ export class SetGlobalProperty extends BaseCustomEvent<
         const obj = json as BeatmapInterfaces.SetGlobalProperty
 
         const params = {
-            asset: getDataProp(obj.d, 'asset'),
             duration: getDataProp(obj.d, 'duration'),
             easing: getDataProp(obj.d, 'easing'),
             properties: getDataProp(obj.d, 'properties'),
@@ -170,7 +167,6 @@ export class SetGlobalProperty extends BaseCustomEvent<
         const output = {
             b: this.beat,
             d: {
-                asset: this.asset,
                 duration: this.duration,
                 easing: this.easing,
                 ...this.data,
@@ -703,13 +699,13 @@ export class SetAnimatorProperty extends BaseCustomEvent<
     ) {
         super(params)
         this.type = 'SetAnimatorProperty'
-        this.asset = params.asset ?? ''
+        this.id = params.id ?? ''
         if (params.duration) this.duration = params.duration
         if (params.easing) this.easing = params.easing
         if (params.properties) this.properties = params.properties
     }
 
-    asset: string
+    id: string
     duration?: number
     easing?: EASE
     properties: AnimatorProperty[] = []
@@ -739,7 +735,7 @@ export class SetAnimatorProperty extends BaseCustomEvent<
         const obj = json as BeatmapInterfaces.SetAnimatorProperty
 
         const params = {
-            asset: getDataProp(obj.d, 'asset'),
+            id: getDataProp(obj.d, 'id'),
             duration: getDataProp(obj.d, 'duration'),
             easing: getDataProp(obj.d, 'easing'),
             properties: getDataProp(obj.d, 'properties'),
@@ -760,7 +756,7 @@ export class SetAnimatorProperty extends BaseCustomEvent<
         const output = {
             b: this.beat,
             d: {
-                asset: this.asset,
+                id: this.id,
                 duration: this.duration,
                 easing: this.easing,
                 ...this.data,
@@ -927,14 +923,14 @@ export class SetRenderSetting extends BaseCustomEvent<
     ) {
         super(params)
         this.type = 'SetRenderSetting'
+        this.settings = params.settings ?? {}
         if (params.duration) this.duration = params.duration
         if (params.easing) this.easing = params.easing
-        if (params.settings) this.settings = params.settings
     }
 
     duration?: number
     easing?: EASE
-    settings?: RENDER_SETTING
+    settings: Partial<RENDER_SETTING>
 
     /** Push this event to the difficulty.
      * @param clone Whether this object will be copied before being pushed.
@@ -966,7 +962,7 @@ export class SetRenderSetting extends BaseCustomEvent<
             settings: obj.d
         } as Params
 
-        this.data = {}
+        obj.d = {}
 
         Object.assign(this, params)
         return super.fromJson(obj, v3)
