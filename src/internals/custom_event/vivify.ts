@@ -962,6 +962,8 @@ export class SetRenderSetting extends BaseCustomEvent<
             settings: obj.d
         } as Params
 
+        obj.d = {}
+
         Object.assign(this, params)
         return super.fromJson(obj, v3)
     }
@@ -980,6 +982,7 @@ export class SetRenderSetting extends BaseCustomEvent<
                 duration: this.duration,
                 easing: this.easing,
                 ...this.settings,
+                ...this.data,
             },
             t: 'SetRenderSetting',
         } satisfies BeatmapInterfaces.SetRenderSetting
