@@ -400,11 +400,9 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
         const customEvents = (Object.values(
             this.customEvents,
         ) as CustomEventInternals.BaseCustomEvent[][])
-            .map((a) =>
-                a.map((e) => e.toJson(false))
-                    .sort(sortItems) as bsmap.v2.ICustomEvent[]
-            )
+            .map((a) => a.map((e) => e.toJson(false)))
             .flat()
+            .sort(sortItems) as bsmap.v2.ICustomEvent[]
 
         // Fog
         if (this.fogEvents.length > 0) {

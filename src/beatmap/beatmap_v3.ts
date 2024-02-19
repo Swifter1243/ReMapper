@@ -511,11 +511,9 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         const customEvents = (Object.values(
             this.customEvents,
         ) as CustomEventInternals.BaseCustomEvent[][])
-            .map((a) =>
-                a.map((e) => e.toJson(true))
-                    .sort(sortItems) as bsmap.v3.ICustomEvent[]
-            )
+            .map((a) => a.map((e) => e.toJson(true)))
             .flat()
+            .sort(sortItems) as bsmap.v3.ICustomEvent[]
 
         // Fog
         let fogEnvironment: bsmap.v3.IChromaEnvironment
