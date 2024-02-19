@@ -58,7 +58,9 @@ export class AnimateComponent
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        getActiveDifficulty().animateComponents.push(clone ? copy(this) : this)
+        getActiveDifficulty().customEvents.abstractCustomEvents.push(
+            clone ? copy(this) : this,
+        )
         return this
     }
 

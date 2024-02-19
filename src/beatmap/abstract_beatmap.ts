@@ -33,6 +33,29 @@ import { RuntimePointDefinitionAny } from '../types/animation_types.ts'
 import { RawKeyframesLinear } from '../types/animation_types.ts'
 import { animationIsRuntime } from '../animation/animation_utils.ts'
 
+export interface BeatmapCustomEvents {
+    animateComponentEvents: CustomEventInternals.AnimateComponent[]
+    animateTrackEvents: CustomEventInternals.AnimateTrack[]
+    assignPathAnimationEvents: CustomEventInternals.AssignPathAnimation[]
+    assignPlayerTrackEvents: CustomEventInternals.AssignPlayerToTrack[]
+    assignTrackParentEvents: CustomEventInternals.AssignTrackParent[]
+
+    setMaterialPropertyEvents: CustomEventInternals.SetMaterialProperty[]
+    setGlobalPropertyEvents: CustomEventInternals.SetGlobalProperty[]
+    blitEvents: CustomEventInternals.Blit[]
+    declareCullingTextureEvents: CustomEventInternals.DeclareCullingTexture[]
+    declareRenderTextureEvents: CustomEventInternals.DeclareRenderTexture[]
+    destroyTextureEvents: CustomEventInternals.DestroyTexture[]
+    instantiatePrefabEvents: CustomEventInternals.InstantiatePrefab[]
+    destroyPrefabEvents: CustomEventInternals.DestroyPrefab[]
+    setAnimatorPropertyEvents: CustomEventInternals.SetAnimatorProperty[]
+    setCameraPropertyEvents: CustomEventInternals.SetCameraProperty[]
+    assignTrackPrefabEvents: CustomEventInternals.AssignTrackPrefab[]
+    setRenderSettingEvents: CustomEventInternals.SetRenderSetting[]
+
+    abstractCustomEvents: CustomEventInternals.AbstractCustomEvent[]
+}
+
 export interface RMDifficulty {
     version: bsmap.v2.IDifficulty['_version'] | bsmap.v3.IDifficulty['version']
     v3: boolean
@@ -57,12 +80,7 @@ export interface RMDifficulty {
     lightRotationEventBoxGroups: LightingV3.LightRotationEventBoxGroup[]
     lightTranslationEventBoxGroups: LightingV3.LightTranslationEventBoxGroup[]
 
-    animateComponents: CustomEventInternals.AnimateComponent[]
-    animateTracks: CustomEventInternals.AnimateTrack[]
-    assignPathAnimations: CustomEventInternals.AssignPathAnimation[]
-    assignPlayerTracks: CustomEventInternals.AssignPlayerToTrack[]
-    assignTrackParents: CustomEventInternals.AssignTrackParent[]
-    abstractCustomEvents: CustomEventInternals.AbstractCustomEvent[]
+    customEvents: BeatmapCustomEvents
 
     pointDefinitions: Record<string, unknown>
     customData: Record<string, unknown>
@@ -73,13 +91,7 @@ export interface RMDifficulty {
 }
 
 const clearPropertyMap = {
-    abstractCustomEvents: 'Abstract Custom Events',
-    animateComponents: 'Animate Components',
-    animateTracks: 'Animate Tracks',
     arcs: 'Arcs',
-    assignPathAnimations: 'Assign Path Animations',
-    assignPlayerTracks: 'Assign Player Tracks',
-    assignTrackParents: 'Assign Track Parents',
     baseBasicEvents: 'Base Basic Events',
     bombs: 'Bombs',
     boostEvents: 'Boost Events',
@@ -104,6 +116,7 @@ const clearPropertyMap = {
     version: undefined,
     walls: 'Walls',
     waypoints: 'Waypoints',
+    customEvents: 'Custom Events',
 } as const satisfies {
     [K in keyof RMDifficulty]: string | undefined
 }
@@ -112,32 +125,6 @@ type ClearProperty = Exclude<
     typeof clearPropertyMap[keyof typeof clearPropertyMap],
     undefined
 >
-
-// type ClearProperty =
-//     | 'Notes'
-//     | 'Bombs'
-//     | 'Arcs'
-//     | 'Chains'
-//     | 'Walls'
-//     | 'Light Events'
-//     | 'Laser Speed Events'
-//     | 'Ring Zoom Events'
-//     | 'Ring Spin Events'
-//     | 'Rotation Events'
-//     | 'Boost Events'
-//     | 'Base Basic Events'
-//     | 'AnimateComponent Events'
-//     | 'AnimateTrack Events'
-//     | 'AssignPathAnimation Events'
-//     | 'AssignPlayerToTrack Events'
-//     | 'AssignTrackParent Events'
-//     | 'Point Definitions'
-//     | 'Custom Data'
-//     | 'Environment'
-//     | 'Geometry'
-//     | 'Geometry Materials'
-//     | 'Fog Events'
-//     | 'BPM Events'
 
 /**
  * @returns null if remove value
@@ -191,12 +178,7 @@ export abstract class AbstractDifficulty<
     lightRotationEventBoxGroups: LightingV3.LightRotationEventBoxGroup[]
     lightTranslationEventBoxGroups: LightingV3.LightTranslationEventBoxGroup[]
 
-    animateComponents: CustomEventInternals.AnimateComponent[]
-    animateTracks: CustomEventInternals.AnimateTrack[]
-    assignPathAnimations: CustomEventInternals.AssignPathAnimation[]
-    assignPlayerTracks: CustomEventInternals.AssignPlayerToTrack[]
-    assignTrackParents: CustomEventInternals.AssignTrackParent[]
-    abstractCustomEvents: CustomEventInternals.AbstractCustomEvent[]
+    customEvents: BeatmapCustomEvents
 
     pointDefinitions: Record<string, unknown>
     customData: Record<string, unknown>
@@ -245,12 +227,7 @@ export abstract class AbstractDifficulty<
         this.lightTranslationEventBoxGroups =
             inner.lightTranslationEventBoxGroups
 
-        this.animateComponents = inner.animateComponents
-        this.animateTracks = inner.animateTracks
-        this.assignPathAnimations = inner.assignPathAnimations
-        this.assignPlayerTracks = inner.assignPlayerTracks
-        this.assignTrackParents = inner.assignTrackParents
-        this.abstractCustomEvents = inner.abstractCustomEvents
+        this.customEvents = inner.customEvents
 
         this.pointDefinitions = inner.pointDefinitions
         this.customData = inner.customData
@@ -304,7 +281,7 @@ export abstract class AbstractDifficulty<
 
         this.notes.forEach((e) => optimizeAnimation(e.animation))
         this.walls.forEach((e) => optimizeAnimation(e.animation))
-        this.animateTracks.forEach((e) =>
+        this.customEvents.animateTrackEvents.forEach((e) =>
             optimizeAnimation(
                 (e as CustomEventInternals.AnimateTrack).animation,
             )
@@ -398,17 +375,30 @@ export abstract class AbstractDifficulty<
             const key = x as keyof typeof clearPropertyMap
             const value = clearPropertyMap[key]
 
-            if (
-                value !== undefined &&
-                clear(value)
-            ) {
-                const arr = Array.isArray(
-                    (this as unknown as Record<string, unknown>)[key],
-                )
-                ;(this as unknown as Record<string, unknown>)[key] = arr
-                    ? []
-                    : {}
+            if (value !== undefined && !clear(value)) return
+
+            if (key === 'customEvents') {
+                this.clearObject(this.customEvents)
+                return
             }
+
+            const arr = Array.isArray(
+                (this as unknown as Record<string, unknown>)[key],
+            )
+            ;(this as unknown as Record<string, unknown>)[key] = arr
+                ? []
+                : {}
+        })
+    }
+
+    private clearObject(object: object) {
+        Object.keys(object).forEach((x) => {
+            const arr = Array.isArray(
+                (this as unknown as Record<string, unknown>)[x],
+            )
+            ;(this as unknown as Record<string, unknown>)[x] = arr
+                ? []
+                : {}
         })
     }
 

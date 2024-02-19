@@ -1,5 +1,10 @@
 import { bsmap } from '../../deps.ts'
-import { BeatmapInterfaces, copy, getActiveDifficulty, jsonPrune } from '../../mod.ts'
+import {
+    BeatmapInterfaces,
+    copy,
+    getActiveDifficulty,
+    jsonPrune,
+} from '../../mod.ts'
 import { JsonWrapper } from '../../types/beatmap_types.ts'
 import {
     Fields,
@@ -43,11 +48,12 @@ type AllV3CustomEvents =
     | BeatmapInterfaces.SetMaterialProperty
     | BeatmapInterfaces.SetRenderSetting
 
-export type CustomEventConstructorTrack<T, R = ObjectReplacements> = ExcludedObjectFields<
-    T,
-    R,
-    CustomEventExclusions
->
+export type CustomEventConstructorTrack<T, R = ObjectReplacements> =
+    ExcludedObjectFields<
+        T,
+        R,
+        CustomEventExclusions
+    >
 
 export type CustomEventConstructor<T> = ExcludedObjectFields<
     T,
@@ -123,7 +129,7 @@ export class AbstractCustomEvent extends BaseCustomEvent<
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        getActiveDifficulty().abstractCustomEvents.push(
+        getActiveDifficulty().customEvents.abstractCustomEvents.push(
             clone ? copy(this) : this,
         )
         return this

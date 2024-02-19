@@ -47,7 +47,7 @@ export class SetMaterialProperty extends BaseCustomEvent<
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        getActiveDifficulty().assignPathAnimations.push(
+        getActiveDifficulty().customEvents.setMaterialPropertyEvents.push(
             clone ? copy(this) : this,
         )
         return this
@@ -126,7 +126,7 @@ export class SetGlobalProperty extends BaseCustomEvent<
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        getActiveDifficulty().assignPathAnimations.push(
+        getActiveDifficulty().customEvents.setGlobalPropertyEvents.push(
             clone ? copy(this) : this,
         )
         return this
@@ -209,7 +209,7 @@ export class Blit extends BaseCustomEvent<
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        getActiveDifficulty().assignPathAnimations.push(
+        getActiveDifficulty().customEvents.blitEvents.push(
             clone ? copy(this) : this,
         )
         return this
@@ -299,7 +299,7 @@ export class DeclareCullingTexture extends BaseCustomEvent<
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        getActiveDifficulty().assignPathAnimations.push(
+        getActiveDifficulty().customEvents.declareCullingTextureEvents.push(
             clone ? copy(this) : this,
         )
         return this
@@ -386,7 +386,7 @@ export class DeclareRenderTexture extends BaseCustomEvent<
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        getActiveDifficulty().assignPathAnimations.push(
+        getActiveDifficulty().customEvents.declareRenderTextureEvents.push(
             clone ? copy(this) : this,
         )
         return this
@@ -456,7 +456,7 @@ export class DestroyTexture extends BaseCustomEvent<
     constructor(
         params: CustomEventConstructorTrack<
             DestroyTexture,
-            { id: TrackValue | Track }
+            { id?: TrackValue | Track }
         >,
     ) {
         super(params)
@@ -470,7 +470,7 @@ export class DestroyTexture extends BaseCustomEvent<
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        getActiveDifficulty().assignPathAnimations.push(
+        getActiveDifficulty().customEvents.destroyTextureEvents.push(
             clone ? copy(this) : this,
         )
         return this
@@ -553,7 +553,7 @@ export class InstantiatePrefab extends BaseCustomEvent<
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        getActiveDifficulty().assignPathAnimations.push(
+        getActiveDifficulty().customEvents.instantiatePrefabEvents.push(
             clone ? copy(this) : this,
         )
         return this
@@ -625,7 +625,7 @@ export class DestroyPrefab extends BaseCustomEvent<
     constructor(
         params: CustomEventConstructorTrack<
             DestroyPrefab,
-            { id: TrackValue | Track }
+            { id?: TrackValue | Track }
         >,
     ) {
         super(params)
@@ -639,7 +639,7 @@ export class DestroyPrefab extends BaseCustomEvent<
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        getActiveDifficulty().assignPathAnimations.push(
+        getActiveDifficulty().customEvents.destroyPrefabEvents.push(
             clone ? copy(this) : this,
         )
         return this
@@ -714,7 +714,7 @@ export class SetAnimatorProperty extends BaseCustomEvent<
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        getActiveDifficulty().assignPathAnimations.push(
+        getActiveDifficulty().customEvents.setAnimatorPropertyEvents.push(
             clone ? copy(this) : this,
         )
         return this
@@ -789,7 +789,7 @@ export class SetCameraProperty extends BaseCustomEvent<
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        getActiveDifficulty().assignPathAnimations.push(
+        getActiveDifficulty().customEvents.setCameraPropertyEvents.push(
             clone ? copy(this) : this,
         )
         return this
@@ -810,7 +810,7 @@ export class SetCameraProperty extends BaseCustomEvent<
         const obj = json as BeatmapInterfaces.SetCameraProperty
 
         const params = {
-            depthTextureMode: getDataProp(obj.d, 'depthTextureMode')
+            depthTextureMode: getDataProp(obj.d, 'depthTextureMode'),
         } as Params
 
         Object.assign(this, params)
@@ -837,7 +837,6 @@ export class SetCameraProperty extends BaseCustomEvent<
     }
 }
 
-
 export class AssignTrackPrefab extends BaseCustomEvent<
     never,
     BeatmapInterfaces.AssignTrackPrefab
@@ -861,7 +860,7 @@ export class AssignTrackPrefab extends BaseCustomEvent<
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        getActiveDifficulty().assignPathAnimations.push(
+        getActiveDifficulty().customEvents.assignTrackPrefabEvents.push(
             clone ? copy(this) : this,
         )
         return this
@@ -883,7 +882,7 @@ export class AssignTrackPrefab extends BaseCustomEvent<
 
         const params = {
             note: getDataProp(obj.d, 'note'),
-            track: getDataProp(obj.d, 'track')
+            track: getDataProp(obj.d, 'track'),
         } as Params
 
         Object.assign(this, params)
@@ -936,7 +935,7 @@ export class SetRenderSetting extends BaseCustomEvent<
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        getActiveDifficulty().assignPathAnimations.push(
+        getActiveDifficulty().customEvents.setRenderSettingEvents.push(
             clone ? copy(this) : this,
         )
         return this
@@ -959,7 +958,7 @@ export class SetRenderSetting extends BaseCustomEvent<
         const params = {
             duration: getDataProp(obj.d, 'duration'),
             easing: getDataProp(obj.d, 'easing'),
-            settings: obj.d
+            settings: obj.d,
         } as Params
 
         obj.d = {}

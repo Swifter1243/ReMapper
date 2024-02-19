@@ -6,7 +6,7 @@ import { Arc, Bomb, Chain, Note } from '../internals/note.ts'
 import { EventGroup } from '../data/constants.ts'
 import { environment, geometry } from './environment.ts'
 import { shallowPrune } from '../utils/json.ts'
-import { arraySplit, RawGeometryMaterial, Track } from '../mod.ts'
+import { arraySplit, event, RawGeometryMaterial, Track } from '../mod.ts'
 import {
     abstractCustomEvent,
     animateComponent,
@@ -15,7 +15,6 @@ import {
     assignPlayerToTrack,
     assignTrackParent,
 } from './custom_event.ts'
-import { event } from './mod.ts'
 import { AnyFog, FogEvent } from './fog.ts'
 import { CommunityBPMEvent, OfficialBPMEvent } from '../internals/event.ts'
 import {
@@ -23,6 +22,22 @@ import {
     lightRotationEventBoxGroup,
     lightTranslationEventBoxGroup,
 } from './lighting_v3.ts'
+import { CustomEventInternals } from '../mod.ts'
+import {
+    assignTrackPrefab,
+    blit,
+    declareCullingTexture,
+    declareRenderTexture,
+    destroyPrefab,
+    destroyTexture,
+    instantiatePrefab,
+    setAnimatorProperty,
+    setCameraProperty,
+    setGlobalProperty,
+    setMaterialProperty,
+    setRenderSetting,
+} from './custom_event.ts'
+import { BeatmapCustomEvents } from './abstract_beatmap.ts'
 
 export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
     declare version: bsmap.v3.IDifficulty['version']
@@ -288,72 +303,57 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         let customEvents = json?.customData?.customEvents ?? []
         delete json.customData?.customEvents
 
-        const animateTracksFilter = arraySplit(
-            customEvents,
-            (x) => x.t === 'AnimateTrack',
-        )
+        const diffCustomEvents: Partial<BeatmapCustomEvents> = {}
 
-        const animateTracks = animateTracksFilter[0].map((x) =>
-            animateTrack({}).fromJson(
-                x as bsmap.v3.ICustomEventAnimateTrack,
-                true,
+        function extractCustomEvents<
+            T extends CustomEventInternals.BaseCustomEvent,
+            K extends keyof BeatmapCustomEvents,
+        >(
+            obj: (a: object) => T,
+            property: K,
+        ) {
+            const type = obj({}).type
+
+            const filter = arraySplit(
+                customEvents,
+                (x) => x.t === type,
             )
-        )
-        customEvents = animateTracksFilter[1]
 
-        const assignPathTracksFilter = arraySplit(
-            customEvents,
-            (x) => x.t === 'AssignPathAnimation',
-        )
-
-        const assignPathTracks = assignPathTracksFilter[0].map((x) =>
-            assignPathAnimation({}).fromJson(
-                x as bsmap.v3.ICustomEventAssignPathAnimation,
-                true,
+            const result = filter[0].map((x) =>
+                obj({}).fromJson(
+                    x as bsmap.v3.ICustomEventAnimateTrack,
+                    true,
+                )
             )
-        )
-        customEvents = assignPathTracksFilter[1]
+            customEvents = filter[1]
 
-        const assignParentFilter = arraySplit(
-            customEvents,
-            (x) => x.t === 'AssignTrackParent',
-        )
+            diffCustomEvents[property] =
+                result as unknown as BeatmapCustomEvents[K]
+        }
 
-        const assignParent = assignParentFilter[0].map((x) =>
-            assignTrackParent({}).fromJson(
-                x as bsmap.v3.ICustomEventAssignTrackParent,
-                true,
-            )
-        )
-        customEvents = assignParentFilter[1]
+        extractCustomEvents(animateComponent, 'animateComponentEvents')
+        extractCustomEvents(animateTrack, 'animateTrackEvents')
+        extractCustomEvents(assignPathAnimation, 'assignPathAnimationEvents')
+        extractCustomEvents(assignPlayerToTrack, 'assignPlayerTrackEvents')
+        extractCustomEvents(assignTrackParent, 'assignTrackParentEvents')
 
-        const assignPlayerFilter = arraySplit(
-            customEvents,
-            (x) => x.t === 'AssignPlayerToTrack',
+        extractCustomEvents(setMaterialProperty, 'setMaterialPropertyEvents')
+        extractCustomEvents(setGlobalProperty, 'setGlobalPropertyEvents')
+        extractCustomEvents(blit, 'blitEvents')
+        extractCustomEvents(
+            declareCullingTexture,
+            'declareCullingTextureEvents',
         )
+        extractCustomEvents(declareRenderTexture, 'declareRenderTextureEvents')
+        extractCustomEvents(destroyTexture, 'destroyTextureEvents')
+        extractCustomEvents(instantiatePrefab, 'instantiatePrefabEvents')
+        extractCustomEvents(destroyPrefab, 'destroyPrefabEvents')
+        extractCustomEvents(setAnimatorProperty, 'setAnimatorPropertyEvents')
+        extractCustomEvents(setCameraProperty, 'setCameraPropertyEvents')
+        extractCustomEvents(assignTrackPrefab, 'assignTrackParentEvents')
+        extractCustomEvents(setRenderSetting, 'setRenderSettingEvents')
 
-        const assignPlayer = assignPlayerFilter[0].map((x) =>
-            assignPlayerToTrack({}).fromJson(
-                x as bsmap.v3.ICustomEventAssignPlayerToTrack,
-                true,
-            )
-        )
-        customEvents = assignPlayerFilter[1]
-
-        const animateComponentsFilter = arraySplit(
-            customEvents,
-            (x) => x.t === 'AnimateComponent',
-        )
-
-        const animateComponents = animateComponentsFilter[0].map((x) =>
-            animateComponent({}).fromJson(
-                x as bsmap.v3.ICustomEventAnimateComponent,
-                true,
-            )
-        )
-        customEvents = animateComponentsFilter[1]
-
-        const abstractCustomEvents = customEvents.map((x) =>
+        diffCustomEvents.abstractCustomEvents = customEvents.map((x) =>
             abstractCustomEvent({}).fromJson(x, true)
         )
 
@@ -428,12 +428,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
                 lightRotationEventBoxGroups: lightRotationEventBoxGroups,
                 lightTranslationEventBoxGroups: lightTranslationEventBoxGroups,
 
-                animateComponents: animateComponents,
-                animateTracks: animateTracks,
-                assignPathAnimations: assignPathTracks,
-                assignPlayerTracks: assignPlayer,
-                assignTrackParents: assignParent,
-                abstractCustomEvents: abstractCustomEvents,
+                customEvents: diffCustomEvents as BeatmapCustomEvents,
 
                 pointDefinitions: json.customData?.pointDefinitions ?? {},
                 customData: json.customData ?? {},
@@ -513,15 +508,14 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
             .sort(sortItems)
 
         // Custom events
-        const customEvents = [
-            ...this.animateTracks,
-            ...this.assignPathAnimations,
-            ...this.assignTrackParents,
-            ...this.assignPlayerTracks,
-            ...this.animateComponents,
-            ...this.abstractCustomEvents,
-        ].map((x) => x.toJson(true))
-            .sort(sortItems)
+        const customEvents = (Object.values(
+            this.customEvents,
+        ) as CustomEventInternals.BaseCustomEvent[][])
+            .map((a) =>
+                a.map((e) => e.toJson(true))
+                    .sort(sortItems) as bsmap.v3.ICustomEvent[]
+            )
+            .flat()
 
         // Fog
         let fogEnvironment: bsmap.v3.IChromaEnvironment

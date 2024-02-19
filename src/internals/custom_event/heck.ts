@@ -47,7 +47,9 @@ export class AnimateTrack extends BaseCustomEvent<
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        getActiveDifficulty().animateTracks.push(clone ? copy(this) : this)
+        getActiveDifficulty().customEvents.animateTrackEvents.push(
+            clone ? copy(this) : this,
+        )
         return this
     }
 

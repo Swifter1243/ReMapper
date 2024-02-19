@@ -46,7 +46,7 @@ export class AssignPathAnimation extends BaseCustomEvent<
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        getActiveDifficulty().assignPathAnimations.push(
+        getActiveDifficulty().customEvents.assignPathAnimationEvents.push(
             clone ? copy(this) : this,
         )
         return this
@@ -158,7 +158,9 @@ export class AssignTrackParent extends BaseCustomEvent<
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        getActiveDifficulty().assignTrackParents.push(clone ? copy(this) : this)
+        getActiveDifficulty().customEvents.assignTrackParentEvents.push(
+            clone ? copy(this) : this,
+        )
         return this
     }
 
@@ -264,7 +266,9 @@ export class AssignPlayerToTrack extends BaseCustomEvent<
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {
-        getActiveDifficulty().assignPlayerTracks.push(clone ? copy(this) : this)
+        getActiveDifficulty().customEvents.assignPlayerTrackEvents.push(
+            clone ? copy(this) : this,
+        )
         return this
     }
 

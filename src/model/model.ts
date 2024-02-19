@@ -538,7 +538,7 @@ export class ModelScene {
                     event.animation.rotation = x.rot as RuntimeRawKeyframesVec3
                     event.animation.scale = x.scale as RuntimeRawKeyframesVec3
                     if (forAssigned) forAssigned(event)
-                    activeDiff.animateTracks.push(event)
+                    activeDiff.customEvents.animateTrackEvents.push(event)
                 }
             })
 
@@ -727,9 +727,12 @@ export class ModelScene {
                         }
 
                         event.beat = time + start
-                        event.animation.position = x.pos as RuntimeRawKeyframesVec3
-                        event.animation.rotation = x.rot as RuntimeRawKeyframesVec3
-                        event.animation.scale = x.scale as RuntimeRawKeyframesVec3
+                        event.animation.position = x
+                            .pos as RuntimeRawKeyframesVec3
+                        event.animation.rotation = x
+                            .rot as RuntimeRawKeyframesVec3
+                        event.animation.scale = x
+                            .scale as RuntimeRawKeyframesVec3
 
                         if (
                             typeof input === 'object' &&
@@ -860,7 +863,9 @@ export class ModelScene {
             })
 
             Object.keys(yeetEvents).forEach((x) => {
-                activeDiff.animateTracks.push(yeetEvents[parseInt(x)])
+                activeDiff.customEvents.animateTrackEvents.push(
+                    yeetEvents[parseInt(x)],
+                )
             })
         }
 

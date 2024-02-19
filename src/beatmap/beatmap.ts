@@ -237,11 +237,7 @@ export async function transferVisuals(
             workingDiff.boostEvents = currentDiff.boostEvents
             workingDiff.baseBasicEvents = currentDiff.baseBasicEvents
 
-            workingDiff.animateComponents = currentDiff.animateComponents
-            workingDiff.animateTracks = currentDiff.animateTracks
-            workingDiff.assignPathAnimations = currentDiff.assignPathAnimations
-            workingDiff.assignPlayerTracks = currentDiff.assignPlayerTracks
-            workingDiff.assignTrackParents = currentDiff.assignTrackParents
+            workingDiff.customEvents = currentDiff.customEvents
 
             workingDiff.pointDefinitions = currentDiff.pointDefinitions
             workingDiff.environment = currentDiff.environment
