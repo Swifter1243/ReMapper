@@ -1,4 +1,7 @@
 import { RawKeyframesVec4 } from './animation_types.ts'
+import { RuntimeRawKeyframesVec4 } from './animation_types.ts'
+import { RuntimeRawKeyframesAbstract } from './animation_types.ts'
+import { RuntimeRawKeyframesLinear } from './animation_types.ts'
 import { RawKeyframesLinear } from './animation_types.ts'
 import { FILEPATH } from './beatmap_types.ts'
 import { ColorVec } from './data_types.ts'
@@ -83,7 +86,7 @@ export type TEX_FILTER =
     | 'Bilinear'
     | 'Trilinear'
 
-export type DEPTH_TEX_MODE = 
+export type DEPTH_TEX_MODE =
     | 'Depth'
     | 'DepthNormals'
     | 'MotionVectors'
@@ -107,22 +110,25 @@ export enum FOG_MODE {
 }
 
 export type RENDER_SETTING = {
-    'ambientEquatorColor': ColorVec
-    'ambientGroundColor': ColorVec
-    'ambientIntensity': number
-    'ambientLight': ColorVec
-    'ambientMode': AMBIENT_MODE
-    'ambientSkyColor': ColorVec
-    'defaultReflectionMode': DEFAULT_REFLECTION_MODE
-    'flareFadeSpeed': number
-    'flareStrength': number
-    'fog': boolean
-    'fogColor': ColorVec
-    'fogDensity': number
-    'fogEndDistance': number
-    'fogMode': FOG_MODE
-    'haloStrength': number
-    'reflectionBounces': number
-    'reflectionIntensity': number
-    'subtractiveShadowColor': ColorVec
+    'ambientEquatorColor': RuntimeRawKeyframesVec4 | ColorVec
+    'ambientGroundColor': RuntimeRawKeyframesVec4 | ColorVec
+    'ambientIntensity': RuntimeRawKeyframesLinear
+    'ambientLight': RuntimeRawKeyframesVec4 | ColorVec
+    'ambientMode': RuntimeRawKeyframesAbstract<[AMBIENT_MODE], never>
+    'ambientSkyColor': RuntimeRawKeyframesVec4 | ColorVec
+    'defaultReflectionMode': RuntimeRawKeyframesAbstract<
+        [DEFAULT_REFLECTION_MODE],
+        never
+    >
+    'flareFadeSpeed': RuntimeRawKeyframesLinear
+    'flareStrength': RuntimeRawKeyframesLinear
+    'fog': boolean | RuntimeRawKeyframesLinear
+    'fogColor': RuntimeRawKeyframesVec4 | ColorVec
+    'fogDensity': RuntimeRawKeyframesLinear
+    'fogEndDistance': RuntimeRawKeyframesLinear
+    'fogMode': RuntimeRawKeyframesAbstract<[FOG_MODE], never>
+    'haloStrength': RuntimeRawKeyframesLinear
+    'reflectionBounces': RuntimeRawKeyframesLinear
+    'reflectionIntensity': RuntimeRawKeyframesLinear
+    'subtractiveShadowColor': RuntimeRawKeyframesVec4 | ColorVec
 }
