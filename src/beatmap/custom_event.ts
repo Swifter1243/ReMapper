@@ -605,7 +605,7 @@ export function setRenderSetting(
         | ConstructorParameters<typeof CustomEventInternals.SetRenderSetting>
         | [
             beat: number,
-            settings: RENDER_SETTING,
+            settings: Partial<RENDER_SETTING>,
             duration?: number,
             easing?: EASE,
         ]
