@@ -7,7 +7,7 @@ import { jsonPrune } from '../../utils/json.ts'
 import { AnimationPropertiesV3, animationToJson } from '../animation.ts'
 import {
     BaseCustomEvent,
-    CustomEventConstructor,
+    CustomEventConstructorTrack,
     CustomEventSubclassFields,
     getDataProp,
 } from './base.ts'
@@ -20,7 +20,7 @@ export class AnimateTrack extends BaseCustomEvent<
      * Animate a track.
      */
     constructor(
-        params: CustomEventConstructor<AnimateTrack>,
+        params: CustomEventConstructorTrack<AnimateTrack>,
     ) {
         super(params)
         this.type = 'AnimateTrack'

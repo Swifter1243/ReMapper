@@ -1,6 +1,6 @@
 import { AnimatorProperty } from '../../mod.ts'
 import { Vec3 } from '../../mod.ts'
-import { TrackValue } from '../animation_types.ts'
+import { EASE, TrackValue } from '../animation_types.ts'
 import { RENDER_TEX, TEX_FILTER } from '../mod.ts'
 import { DEPTH_TEX_MODE, MaterialProperty, RENDER_SETTING } from '../vivify_types.ts'
 
@@ -10,7 +10,7 @@ export interface SetMaterialProperty {
     d: {
         asset: string
         duration?: number
-        easing?: string
+        easing?: EASE
         properties?: MaterialProperty[]
     }
 }
@@ -21,7 +21,7 @@ export interface SetGlobalProperty {
     d: {
         asset: string
         duration?: number
-        easing?: string
+        easing?: EASE
         properties?: MaterialProperty[]
     }
 }
@@ -36,7 +36,7 @@ export interface Blit {
         source?: string
         destination?: string
         duration?: number
-        easing?: string
+        easing?: EASE
         properties?: MaterialProperty[]
     }
 }
@@ -130,6 +130,6 @@ export interface SetRenderSetting {
     t: 'SetRenderSetting'
     d: {
         duration?: number
-        easing?: string
-    } & RENDER_SETTING
+        easing?: EASE
+    } & Partial<RENDER_SETTING>
 }

@@ -1,5 +1,5 @@
 import { bsmap } from '../../deps.ts'
-import { BeatmapInterfaces } from '../../mod.ts'
+import { BeatmapInterfaces, copy, getActiveDifficulty, jsonPrune } from '../../mod.ts'
 import { JsonWrapper } from '../../types/beatmap_types.ts'
 import {
     Fields,
@@ -35,6 +35,7 @@ type AllV3CustomEvents =
     | BeatmapInterfaces.DeclareCullingTexture
     | BeatmapInterfaces.DeclareRenderTexture
     | BeatmapInterfaces.DestroyPrefab
+    | BeatmapInterfaces.DestroyTexture
     | BeatmapInterfaces.InstantiatePrefab
     | BeatmapInterfaces.SetAnimatorProperty
     | BeatmapInterfaces.SetCameraProperty
@@ -42,9 +43,16 @@ type AllV3CustomEvents =
     | BeatmapInterfaces.SetMaterialProperty
     | BeatmapInterfaces.SetRenderSetting
 
+export type CustomEventConstructorTrack<T, R = ObjectReplacements> = ExcludedObjectFields<
+    T,
+    R,
+    CustomEventExclusions
+>
+
 export type CustomEventConstructor<T> = ExcludedObjectFields<
     T,
-    ObjectReplacements,
+    // deno-lint-ignore ban-types
+    {},
     CustomEventExclusions
 >
 
@@ -105,4 +113,68 @@ export abstract class BaseCustomEvent<
     abstract toJson(v3: true, prune?: boolean): TV3
     abstract toJson(v3: false, prune?: boolean): TV2
     abstract toJson(v3: boolean, prune?: boolean): TV2 | TV3
+}
+
+export class AbstractCustomEvent extends BaseCustomEvent<
+    bsmap.v2.ICustomEvent,
+    bsmap.v3.ICustomEvent
+> {
+    /** Push this event to the difficulty.
+     * @param clone Whether this object will be copied before being pushed.
+     */
+    push(clone = true) {
+        getActiveDifficulty().abstractCustomEvents.push(
+            clone ? copy(this) : this,
+        )
+        return this
+    }
+
+    fromJson(json: bsmap.v3.ICustomEvent, v3: true): this
+    fromJson(json: bsmap.v2.ICustomEvent, v3: false): this
+    fromJson(
+        json: bsmap.v2.ICustomEvent | bsmap.v3.ICustomEvent,
+        v3: boolean,
+    ): this {
+        type Params = CustomEventSubclassFields<AbstractCustomEvent>
+
+        if (v3) {
+            const obj = json as bsmap.v3.ICustomEvent
+
+            const params = {
+                type: obj.t,
+            } as Params
+
+            Object.assign(this, params)
+        } else {
+            const obj = json as bsmap.v2.ICustomEvent
+
+            const params = {
+                type: obj._type,
+            } as Params
+
+            Object.assign(this, params)
+        }
+
+        return this
+    }
+
+    toJson(v3: true, prune?: boolean | undefined): bsmap.v3.ICustomEvent
+    toJson(v3: false, prune?: boolean | undefined): bsmap.v2.ICustomEvent
+    toJson(v3: boolean, prune?: boolean | undefined) {
+        if (v3) {
+            const result = {
+                b: this.beat,
+                t: this.type as bsmap.v3.ICustomEvent['t'],
+                d: this.data as unknown as bsmap.v3.ICustomEvent['d'],
+            } as bsmap.v3.ICustomEvent
+            return prune ? jsonPrune(result) : result
+        }
+
+        const result = {
+            _time: this.beat,
+            _type: this.type as bsmap.v2.ICustomEvent['_type'],
+            _data: this.data as unknown as bsmap.v2.ICustomEvent['_data'],
+        } as bsmap.v2.ICustomEvent
+        return prune ? jsonPrune(result) : result
+    }
 }

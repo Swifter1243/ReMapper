@@ -8,7 +8,7 @@ import { AnimationPropertiesV3, animationToJson } from '../animation.ts'
 import { ExcludedObjectFields } from '../object.ts'
 import {
     BaseCustomEvent,
-    CustomEventConstructor,
+    CustomEventConstructorTrack,
     CustomEventExclusions,
     CustomEventSubclassFields,
     getDataProp,
@@ -22,7 +22,7 @@ export class AssignPathAnimation extends BaseCustomEvent<
      * Animate objects on a track across their lifespan.
      */
     constructor(
-        params: CustomEventConstructor<AssignPathAnimation>,
+        params: CustomEventConstructorTrack<AssignPathAnimation>,
     ) {
         super(params)
         this.type = 'AnimateTrack'
@@ -139,7 +139,7 @@ export class AssignTrackParent extends BaseCustomEvent<
      * Assign tracks to a parent track.
      */
     constructor(
-        params: CustomEventConstructor<AssignTrackParent>,
+        params: CustomEventConstructorTrack<AssignTrackParent>,
     ) {
         super(params)
         this.childrenTracks = params.childrenTracks ?? []
