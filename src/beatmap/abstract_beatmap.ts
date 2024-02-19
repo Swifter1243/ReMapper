@@ -3,6 +3,8 @@ import { bsmap } from '../deps.ts'
 import {
     DIFFNAME,
     DIFFPATH,
+    IInfoSet,
+    IInfoSetDifficulty,
     RawGeometryMaterial,
     REQUIRE_MODS,
     SUGGEST_MODS,
@@ -145,11 +147,11 @@ export abstract class AbstractDifficulty<
     /** The Json of the difficulty set
      * (e.g. Standard) that this difficulty is contained in inside of the Info.dat.
      */
-    info: bsmap.v2.IInfoSetDifficulty
+    info: IInfoSetDifficulty
     /** The Json of the difficulty set map
      * (e.g. Hard) that this difficulty is contained in inside of the Info.dat.
      */
-    setInfo: bsmap.v2.IInfoSet
+    setInfo: IInfoSet
     private postProcesses = new Map<number, PostProcessFn[]>()
     awaitingCompletion = new Set<Promise<unknown>>()
     savePromise?: Promise<void>
@@ -195,8 +197,8 @@ export abstract class AbstractDifficulty<
      */
     constructor(
         json: TD,
-        info: bsmap.v2.IInfoSetDifficulty,
-        setInfo: bsmap.v2.IInfoSet,
+        info: IInfoSetDifficulty,
+        setInfo: IInfoSet,
         inner: RMDifficulty,
     ) {
         this.version = inner.version

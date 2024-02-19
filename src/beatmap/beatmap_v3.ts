@@ -6,7 +6,7 @@ import { Arc, Bomb, Chain, Note } from '../internals/note.ts'
 import { EventGroup } from '../data/constants.ts'
 import { environment, geometry } from './environment.ts'
 import { shallowPrune } from '../utils/json.ts'
-import { arraySplit, event, RawGeometryMaterial, Track } from '../mod.ts'
+import { arraySplit, event, IInfoSet, IInfoSetDifficulty, RawGeometryMaterial, Track } from '../mod.ts'
 import {
     abstractCustomEvent,
     animateComponent,
@@ -48,8 +48,8 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         bsmap.v3.IDifficulty['useNormalEventsAsCompatibleEvents']
 
     constructor(
-        info: bsmap.v2.IInfoSetDifficulty,
-        setInfo: bsmap.v2.IInfoSet,
+        info: IInfoSetDifficulty,
+        setInfo: IInfoSet,
         json: bsmap.v3.IDifficulty,
         process?: (keyof bsmap.v3.IDifficulty)[],
     ) {

@@ -1,3 +1,5 @@
+import { bsmap } from '../deps.ts'
+
 /** All mods to suggest. */
 export type SUGGEST_MODS =
     | 'Chroma'
@@ -83,4 +85,60 @@ export interface JsonWrapper<TV2 extends object, TV3 extends object> {
     toJson(v3: true, prune: boolean): TV3
     toJson(v3: false, prune: boolean): TV2
     toJson(v3: boolean, prune: boolean): TV2 | TV3
+}
+
+export enum ANISOTROPIC_FILTERING {
+    Disable,
+    Enable,
+    ForceEnable
+} 
+
+export enum SHADOW_MASK_MODE {
+    Shadowmask,
+    DistanceShadowmask
+}
+
+export enum SHADOW_PROJECTION {
+    CloseFit,
+    StableFit
+}
+
+export enum SHADOW_RESOLUTION {
+    Low,
+    Medium,
+    High,
+    VeryHigh
+}
+
+export enum SHADOWS {
+    Disable,
+    HardOnly,
+    All
+}
+
+export interface IInfoSetDifficulty extends bsmap.v2.IInfoSetDifficulty {
+    _customData?: {
+        _qualitySettings?: {
+            _anisotropicFiltering?: ANISOTROPIC_FILTERING,
+            _antiAliasing?: 0 | 2 | 4 | 8,
+            _pixelLightCount?: number,
+            _realtimeReflectionProbes?: boolean,
+            _shadowCascades?: 0 | 2 | 4,
+            _shadowDistance?: number,
+            _shadowMaskMode?: SHADOW_MASK_MODE,
+            _shadowNearPlaneOffset?: number,
+            _shadowProjection?: SHADOW_PROJECTION,
+            _shadowResolution?: SHADOW_RESOLUTION,
+            _shadows?: SHADOWS,
+            _softParticles?: boolean
+        }
+    } & bsmap.v2.IInfoSetDifficulty['_customData']
+}
+
+export interface IInfoSet extends bsmap.v2.IInfoSet {
+    _difficultyBeatmaps: IInfoSetDifficulty[]
+}
+
+export interface IInfo extends bsmap.v2.IInfo {
+    _difficultyBeatmapSets: IInfoSet[];
 }

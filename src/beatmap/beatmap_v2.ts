@@ -18,7 +18,7 @@ import {
 import { GeoShader, RawGeometryMaterial } from '../types/environment_types.ts'
 import { arraySplit } from '../utils/array_utils.ts'
 import { CommunityBPMEvent, OfficialBPMEvent } from '../internals/event.ts'
-import { AnyFog, CustomEventInternals, event, FogEvent, TJson } from '../mod.ts'
+import { AnyFog, CustomEventInternals, event, FogEvent, IInfoSet, IInfoSetDifficulty, TJson } from '../mod.ts'
 
 export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
     declare version: bsmap.v2.IDifficulty['_version']
@@ -27,8 +27,8 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
         bsmap.v2.IDifficulty['_specialEventsKeywordFilters']
 
     constructor(
-        info: bsmap.v2.IInfoSetDifficulty,
-        setInfo: bsmap.v2.IInfoSet,
+        info: IInfoSetDifficulty,
+        setInfo: IInfoSet,
         json: bsmap.v2.IDifficulty,
         process?: (keyof bsmap.v2.IDifficulty)[],
     ) {

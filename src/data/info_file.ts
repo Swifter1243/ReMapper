@@ -1,12 +1,14 @@
-import { bsmap, path } from '../deps.ts'
+import { path } from '../deps.ts'
 
 import {
     getWorkingDirectory,
 } from './beatmap_handler.ts'
 import { DIFFNAME } from '../mod.ts'
 import { RMLog } from '../general.ts'
+import { IInfo } from '../types/beatmap_types.ts'
+import { IInfoSetDifficulty } from '../types/beatmap_types.ts'
 
-let info: bsmap.v2.IInfo
+let info: IInfo
 
 export function getInfoPath() {
     return path.join(getWorkingDirectory(), 'Info.dat')
@@ -34,7 +36,7 @@ export function getInfoDat() {
 
 export function getInfoDifficultySets(difficultyName: DIFFNAME) {
     const info = getInfoDat()
-    let diffSet: bsmap.v2.IInfoSetDifficulty | undefined
+    let diffSet: IInfoSetDifficulty | undefined
 
     const diffSetMap = info._difficultyBeatmapSets.find((e) => {
         diffSet = e._difficultyBeatmaps.find((s) =>
