@@ -1,8 +1,6 @@
 import { path } from '../deps.ts'
 
-import {
-    getWorkingDirectory,
-} from './beatmap_handler.ts'
+import { getWorkingDirectory } from './beatmap_handler.ts'
 import { DIFFNAME } from '../mod.ts'
 import { RMLog } from '../general.ts'
 import { IInfo } from '../types/beatmap_types.ts'
@@ -22,10 +20,36 @@ function saveInfoDat() {
 export async function loadInfoDat() {
     if (info) return info
 
-    const json = await Deno.readTextFile(getInfoPath())
-    info = JSON.parse(json)
-    globalThis.addEventListener("unload", saveInfoDat)
+    const infoJson = Deno.readTextFile(getInfoPath())
+    const crc2019 = getBundleCRC('bundle_2019.manifest')
+    const crc2021 = getBundleCRC('bundle_2021.manifest')
+
+    info = JSON.parse(await infoJson)
+
+    if (await crc2019 || await crc2021) {
+        info._customData ??= {}
+        info._customData._assetBundle = {
+            '2019': await crc2019,
+            '2021': await crc2021,
+        }
+    }
+
+    globalThis.addEventListener('unload', saveInfoDat)
     return info
+}
+
+async function getBundleCRC(name: string) {
+    const file = path.join(getWorkingDirectory(), name)
+
+    try {
+        const content = await Deno.readTextFile(file)
+        const lines = content.split('\n')
+        const crcLine = lines.find((x) => x.includes('CRC:'))
+        const crcValue = crcLine?.split(':')[1].trim()
+        return crcValue ? parseInt(crcValue) : undefined
+    } catch {
+        return undefined
+    }
 }
 
 export function getInfoDat() {
