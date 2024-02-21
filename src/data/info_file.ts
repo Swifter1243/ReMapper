@@ -29,8 +29,8 @@ export async function loadInfoDat() {
     if (await crc2019 || await crc2021) {
         info._customData ??= {}
         info._customData._assetBundle = {
-            '2019': await crc2019,
-            '2021': await crc2021,
+            '_2019': await crc2019,
+            '_2021': await crc2021,
         }
     }
 
