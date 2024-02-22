@@ -82,8 +82,8 @@ export type ExcludedObjectFields<
 >
 
 export type ExcludeObjectFields = {
-    implicitNJS: never
-    implicitOffset: never
+    implicitNoteJumpSpeed: never
+    implicitNoteJumpOffset: never
     isModded: never
     isGameplayModded: never
     halfJumpDur: never
@@ -158,8 +158,8 @@ export abstract class BaseGameplayObject<
         this.coordinates = obj.coordinates
         this.worldRotation = obj.worldRotation
         this.localRotation = obj.localRotation
-        this.NJS = obj.NJS
-        this.offset = obj.offset
+        this.noteJumpSpeed = obj.noteJumpSpeed
+        this.noteJumpOffset = obj.noteJumpOffset
         this.interactable = obj.interactable ?? true
         this.track = obj.track instanceof Track
             ? obj.track
@@ -185,10 +185,10 @@ export abstract class BaseGameplayObject<
     localRotation?: Vec3
 
     /** The note jump speed of the object. */
-    NJS?: number
+    noteJumpSpeed?: number
 
     /** The spawn offset of the object. */
-    offset?: number
+    noteJumpOffset?: number
 
     /** Whether this object is interactable. */
     interactable?: boolean
@@ -205,13 +205,13 @@ export abstract class BaseGameplayObject<
     animation: ObjectAnimationData
 
     /** The note jump speed of the object. Refers to the difficulty if undefined. */
-    get implicitNJS() {
-        return this.NJS ?? getActiveDifficulty().NJS
+    get implicitNoteJumpSpeed() {
+        return this.noteJumpSpeed ?? getActiveDifficulty().noteJumpSpeed
     }
 
     /** The spawn offset of the object. Refers to the difficulty if undefined. */
-    get implicitOffset() {
-        return this.offset ?? getActiveDifficulty().offset
+    get implicitNoteJumpOffset() {
+        return this.noteJumpOffset ?? getActiveDifficulty().noteJumpOffset
     }
 
     /**
@@ -221,8 +221,8 @@ export abstract class BaseGameplayObject<
      */
     get halfJumpDur() {
         return getJumps(
-            this.implicitNJS,
-            this.implicitOffset,
+            this.implicitNoteJumpSpeed,
+            this.implicitNoteJumpOffset,
             getInfoDat()._beatsPerMinute,
         ).halfDur
     }
@@ -233,8 +233,8 @@ export abstract class BaseGameplayObject<
      */
     get jumpDist() {
         return getJumps(
-            this.implicitNJS,
-            this.implicitOffset,
+            this.implicitNoteJumpSpeed,
+            this.implicitNoteJumpOffset,
             getInfoDat()._beatsPerMinute,
         ).dist
     }
@@ -249,8 +249,8 @@ export abstract class BaseGameplayObject<
                 'Warning: The lifespan of a note has a minimum of 0.25 beats.',
             )
         }
-        const defaultJumps = getJumps(this.implicitNJS, 0, getInfoDat()._beatsPerMinute)
-        this.offset = (value - 2 * defaultJumps.halfDur) / 2
+        const defaultJumps = getJumps(this.implicitNoteJumpSpeed, 0, getInfoDat()._beatsPerMinute)
+        this.noteJumpOffset = (value - 2 * defaultJumps.halfDur) / 2
     }
 
     /** The time of the start of the object's lifespan. */
@@ -265,8 +265,8 @@ export abstract class BaseGameplayObject<
         if (this.coordinates) return true
         if (this.worldRotation) return true
         if (this.localRotation) return true
-        if (this.NJS !== undefined) return true
-        if (this.offset !== undefined) return true
+        if (this.noteJumpSpeed !== undefined) return true
+        if (this.noteJumpOffset !== undefined) return true
         if (this.interactable === false) return true
         return false
     }
@@ -297,8 +297,8 @@ export abstract class BaseGameplayObject<
                     ? [0, getCDProp(obj, 'worldRotation'), 0]
                     : getCDProp(obj, 'worldRotation'),
                 track: new Track(getCDProp(obj, 'track')),
-                NJS: getCDProp(obj, 'noteJumpMovementSpeed'),
-                offset: getCDProp(obj, 'noteJumpStartBeatOffset'),
+                noteJumpSpeed: getCDProp(obj, 'noteJumpMovementSpeed'),
+                noteJumpOffset: getCDProp(obj, 'noteJumpStartBeatOffset'),
             } as Params
 
             Object.assign(this, params)
@@ -320,8 +320,8 @@ export abstract class BaseGameplayObject<
                     ? [0, getCDProp(obj, '_rotation'), 0]
                     : getCDProp(obj, '_rotation'),
                 track: new Track(getCDProp(obj, '_track')),
-                NJS: getCDProp(obj, '_noteJumpMovementSpeed'),
-                offset: getCDProp(obj, '_noteJumpStartBeatOffset'),
+                noteJumpSpeed: getCDProp(obj, '_noteJumpMovementSpeed'),
+                noteJumpOffset: getCDProp(obj, '_noteJumpStartBeatOffset'),
             } as Params
 
             Object.assign(this, params)

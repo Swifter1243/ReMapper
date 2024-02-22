@@ -725,32 +725,32 @@ export const getRuntimeSeconds = (decimals = 2) =>
 
 /**
  * Get jump related info.
- * @param NJS Note jump speed.
- * @param offset Note offset.
- * @param BPM Song BPM.
+ * @param noteJumpSpeed Note jump speed.
+ * @param noteJumpOffset Note offset.
+ * @param beatsPerMinute Song BPM.
  * @returns Returns an object; {halfDur, dist}.
  * A "jump" is the period when the object "jumps" in (indicated by spawning light on notes) to when it's deleted.
  * Jump Duration is the time in beats that the object will be jumping for.
  * This function will output half of this, so it will end when the note is supposed to be hit.
  * Jump Distance is the Z distance from when the object starts it's jump to when it's deleted.
  */
-export function getJumps(NJS: number, offset: number, BPM: number) {
+export function getJumps(noteJumpSpeed: number, noteJumpOffset: number, beatsPerMinute: number) {
     const startHJD = 4
     const maxHJD = 18 - 0.001
-    const oneBeatDur = 60 / BPM
+    const oneBeatDur = 60 / beatsPerMinute
 
     let halfDur = startHJD
-    const num2 = NJS * oneBeatDur
+    const num2 = noteJumpSpeed * oneBeatDur
     let num3 = num2 * halfDur
     while (num3 > maxHJD) {
         halfDur /= 2
         num3 = num2 * halfDur
     }
-    halfDur += offset
+    halfDur += noteJumpOffset
     if (halfDur < 0.25) halfDur = 0.25
 
     const jumpDur = halfDur * 2 * oneBeatDur
-    const jumpDist = NJS * jumpDur
+    const jumpDist = noteJumpSpeed * jumpDur
 
     return { halfDur: halfDur, dist: jumpDist }
 }

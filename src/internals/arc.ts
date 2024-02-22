@@ -102,11 +102,11 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
         if (!v3) throw 'V2 is not supported for arcs'
 
         const diff = activeDiff
-        const NJS = this.NJS
-        let offset = this.offset
+        const NJS = this.noteJumpSpeed
+        let offset = this.noteJumpOffset
 
         if (diff && settings.forceJumpsForNoodle && this.isGameplayModded) {
-            offset ??= diff.offset
+            offset ??= diff.noteJumpOffset
         }
 
         const output = {

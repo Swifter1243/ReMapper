@@ -487,18 +487,18 @@ export abstract class AbstractDifficulty<
 
     // Info.dat
     /** The note jump speed for this difficulty. */
-    get NJS() {
+    get noteJumpSpeed() {
         return this.info._noteJumpMovementSpeed
     }
-    set NJS(value: number) {
+    set noteJumpSpeed(value: number) {
         this.info._noteJumpMovementSpeed = value
     }
 
     /** The note offset for this difficulty. */
-    get offset() {
+    get noteJumpOffset() {
         return this.info._noteJumpStartBeatOffset
     }
-    set offset(value: number) {
+    set noteJumpOffset(value: number) {
         this.info._noteJumpStartBeatOffset = value
     }
 
