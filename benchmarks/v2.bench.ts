@@ -72,7 +72,7 @@ Deno.bench('rm4.notePushObj', { group: 'notePush' }, () => {
         fake: random(0, 2) === 0,
         x: 3,
         y: 2,
-        direction: random(0, 8),
+        cutDirection: random(0, 8),
         type: NoteType.BLUE,
     }).push()
 })
@@ -81,7 +81,7 @@ Deno.bench('rm4.notePushArgs', { group: 'notePush' }, () => {
 
     n.x = 3
     n.y = 2
-    n.direction = random(0, 8)
+    n.cutDirection = random(0, 8)
     n.fake = random(0, 2) === 0
 
     n.push()

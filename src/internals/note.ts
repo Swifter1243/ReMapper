@@ -31,14 +31,14 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
     ) {
         super(fields)
         this.type = fields.type ?? 0
-        this.direction = fields.direction ?? 0
+        this.cutDirection = fields.cutDirection ?? 0
         this.angleOffset = fields.angleOffset ?? 0
     }
 
     /** The color of the note. */
     type: NoteType
     /** The direction the note will be cut. */
-    direction: NoteCut
+    cutDirection: NoteCut
     /** The angle added to the note's rotation. */
     angleOffset: number
 
@@ -65,7 +65,7 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
 
             const params = {
                 type: obj.c ?? 0,
-                direction: obj.d ?? 0,
+                cutDirection: obj.d ?? 0,
                 angleOffset: obj.a ?? 0,
             } as Params
 
@@ -76,7 +76,7 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
 
             const params = {
                 type: obj._type as NoteType,
-                direction: obj._cutDirection,
+                cutDirection: obj._cutDirection,
             } as Params
 
             Object.assign(this, params)
@@ -100,7 +100,7 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
                 a: Math.round(this.angleOffset),
                 b: this.beat,
                 c: this.type,
-                d: this.direction,
+                d: this.cutDirection,
                 x: this.x,
                 y: this.y,
                 customData: {
@@ -147,7 +147,7 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
         }
 
         const output = {
-            _cutDirection: this.direction,
+            _cutDirection: this.cutDirection,
             _lineIndex: this.x,
             _lineLayer: this.y,
             _time: this.beat,

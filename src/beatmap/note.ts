@@ -20,7 +20,7 @@ export function note(
     return new Note({
         beat: beat as number ?? 0,
         type: type ?? NoteType.BLUE,
-        direction: direction ?? NoteCut.DOWN,
+        cutDirection: direction ?? NoteCut.DOWN,
         x: x ?? 0,
         y: y ?? 0,
     })

@@ -119,7 +119,7 @@ export class BaseNoteRemapper<T extends AnyNote> {
 
         return this.addProcess((x) => {
             if (x instanceof NoteInternals.Note) {
-                x.track.add(getTrack(x.direction))
+                x.track.add(getTrack(x.cutDirection))
             } else if (x instanceof NoteInternals.Chain) {
                 x.track.add(getTrack(x.headDirection))
             }
