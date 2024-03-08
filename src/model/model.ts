@@ -174,8 +174,9 @@ export class ModelScene {
         let options = {} as AnimatedOptions
 
         if (typeof input === 'object' && !Array.isArray(input)) {
-            objectInput = input.input
-            options = input
+            const animatedOptions = input as AnimatedOptions
+            objectInput = animatedOptions.input
+            options = animatedOptions
         }
 
         function makeStatic(obj: ModelObject) {
@@ -318,14 +319,16 @@ export class ModelScene {
         }
 
         function objectProcess(
-            objectInput: ModelObject[],
-        ) {
+            objectInput: ReadonlyModel,
+        ): ReadonlyModel {
             const outputObjects: ModelObject[] = []
             if (options.objects) options.objects(objectInput)
 
             objectInput.forEach((x) => {
+                const o = copy(x) as ModelObject
+
                 if (options.static) {
-                    makeStatic(x)
+                    makeStatic(o)
                 }
 
                 // Getting relevant object transforms
@@ -380,13 +383,13 @@ export class ModelScene {
                         positionToV2(bakedCube.pos)
                     }
 
-                    x.pos = bakedCube.pos
-                    x.rot = bakedCube.rot
-                    x.scale = bakedCube.scale
+                    o.pos = bakedCube.pos
+                    o.rot = bakedCube.rot
+                    o.scale = bakedCube.scale
                 }
 
                 if (rotation) {
-                    iterateKeyframes(x.rot, (y) => {
+                    iterateKeyframes(o.rot, (y) => {
                         y[0] = (y[0] + (rotation!)[0]) % 360
                         y[1] = (y[1] + (rotation!)[1]) % 360
                         y[2] = (y[2] + (rotation!)[2]) % 360
@@ -394,7 +397,7 @@ export class ModelScene {
                 }
 
                 if (scale) {
-                    iterateKeyframes(x.scale, (y) => {
+                    iterateKeyframes(o.scale, (y) => {
                         y[0] *= (scale!)[0]
                         y[1] *= (scale!)[1]
                         y[2] *= (scale!)[2]
@@ -403,12 +406,12 @@ export class ModelScene {
 
                 // Loop animation
                 if (options.mirror) {
-                    x.pos = mirrorAnimation(x.pos)
-                    x.rot = mirrorAnimation(x.rot)
-                    x.scale = mirrorAnimation(x.scale)
+                    o.pos = mirrorAnimation(o.pos)
+                    o.rot = mirrorAnimation(o.rot)
+                    o.scale = mirrorAnimation(o.scale)
                 }
 
-                outputObjects.push(x)
+                outputObjects.push(o)
             })
 
             return outputObjects
@@ -737,12 +740,12 @@ export class ModelScene {
                         if (
                             typeof input === 'object' &&
                             !Array.isArray(input) &&
-                            input.loop !== undefined &&
-                            input.loop > 1 &&
+                            (input as AnimatedOptions).loop !== undefined &&
+                            (input as AnimatedOptions).loop! > 1 &&
                             !objectIsStatic
                         ) {
-                            event.repeat = input.loop - 1
-                            event.duration /= input.loop
+                            event.repeat = (input as AnimatedOptions).loop! - 1
+                            event.duration /= (input as AnimatedOptions).loop!
                         }
 
                         if (forEvent) {

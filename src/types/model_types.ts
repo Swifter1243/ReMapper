@@ -15,7 +15,7 @@ export type GroupObjectTypes =
     | EnvironmentInternals.Geometry
     
 /** Allowed options for providing data to a ModelScene. */
-export type ObjectInput = FILEPATH | ModelObject[]
+export type ObjectInput = FILEPATH | ReadonlyModel
 
 /** Input options for the "static" method in a ModelScene. */
 export type StaticOptions = {
