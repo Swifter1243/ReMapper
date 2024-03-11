@@ -562,7 +562,7 @@ export abstract class AbstractDifficulty<
             if (!diff.rawSettings) {
                 return undefined
             }
-            return jsonGet(diff as unknown as TJson, path)
+            return jsonGet(diff.rawSettings as TJson, path)
         },
 
         set(handler, property, value) {
@@ -576,7 +576,8 @@ export abstract class AbstractDifficulty<
                 value = (objValue as unknown as TJson[])[1][value]
             }
 
-            jsonSet(diff as unknown as TJson, path, value)
+            jsonSet(diff.rawSettings as TJson, path, value)
+
             return true
         },
     })

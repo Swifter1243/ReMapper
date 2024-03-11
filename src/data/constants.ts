@@ -104,7 +104,7 @@ export const PRESET = {
             _environmentEffectsFilterDefaultPreset: 'AllEffects',
         },
         _graphics: {
-            _mainEffectGraphicsSettings: true,
+            _mainEffectGraphicsSettings: 1,
             _maxShockwaveParticles: 0,
             _screenDisplacementEffectsEnabled: true,
         },
@@ -114,7 +114,6 @@ export const PRESET = {
             _forceZenModeWalls: true,
         },
         _modifiers: {
-            _noFailOn0Energy: true,
             _enabledObstacleType: 'All',
         },
     },
@@ -125,7 +124,7 @@ export const PRESET = {
             _environmentEffectsFilterDefaultPreset: 'AllEffects',
         },
         _graphics: {
-            _mainEffectGraphicsSettings: true,
+            _mainEffectGraphicsSettings: 1,
         },
         _chroma: {
             _disableEnvironmentEnhancements: false,
