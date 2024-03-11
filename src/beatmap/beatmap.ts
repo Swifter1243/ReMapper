@@ -68,7 +68,10 @@ export async function collectBeatmapFiles(
     ]
 
     if (includeBundle) {
-        unsanitizedFiles.push('bundle_2019', 'bundle_2021')
+        unsanitizedFiles.push(
+            'bundle_windows2019',
+            'bundle_windows2021',
+        )
     }
 
     for (let s = 0; s < exportInfo._difficultyBeatmapSets.length; s++) {
