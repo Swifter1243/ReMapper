@@ -255,7 +255,7 @@ export class AssignPlayerToTrack extends BaseCustomEvent<
     ) {
         super(params)
         this.track = params.track ?? ''
-        if (this.target) this.target = params.target
+        if (params.target) this.target = params.target
     }
 
     /** Track the player will be assigned to. */
