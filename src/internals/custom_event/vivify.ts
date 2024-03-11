@@ -191,6 +191,9 @@ export class Blit extends BaseCustomEvent<
         super(params)
         this.type = 'Blit'
         this.asset = params.asset ?? ''
+        if (params.pass) this.pass = params.pass
+        if (params.source) this.source = params.source
+        if (params.destination) this.destination = params.destination
         if (params.duration) this.duration = params.duration
         if (params.easing) this.easing = params.easing
         if (params.properties) this.properties = params.properties
@@ -288,6 +291,8 @@ export class DeclareCullingTexture extends BaseCustomEvent<
         this.track = params.track instanceof Track
             ? params.track
             : new Track(params.track)
+        if (params.whitelist) this.whitelist = params.whitelist
+        if (params.depthTexture) this.depthTexture = params.depthTexture
     }
 
     id: string
