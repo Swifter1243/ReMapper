@@ -4,15 +4,12 @@ import {
     setMaterialProperty,
 } from '../beatmap/custom_event.ts'
 import { CustomEventInternals } from '../internals/mod.ts'
-import { EASE, RawKeyframesVec4 } from '../types/animation_types.ts'
-import { RawKeyframesLinear } from '../types/animation_types.ts'
+import { EASE, RuntimePointDefinitionLinear } from '../types/animation_types.ts'
+import { RuntimePointDefinitionVec4 } from '../types/animation_types.ts'
 import { FILEPATH } from '../types/beatmap_types.ts'
 import { ColorVec, Vec4 } from '../types/data_types.ts'
 import { MaterialProperty } from '../types/mod.ts'
-import {
-    MATERIAL_PROP_TYPE,
-    MaterialPropertyValue,
-} from '../types/vivify_types.ts'
+import { MATERIAL_PROP_TYPE } from '../types/vivify_types.ts'
 
 type PrefabMap = Record<string, string>
 
@@ -44,18 +41,10 @@ type FixedMaterialMap<BaseMaterial extends MaterialMap[string]> = {
 }
 
 type MaterialPropertyMap = {
-    static: {
-        'Texture': FILEPATH
-        'Float': number
-        'Color': ColorVec
-        'Vector': Vec4
-    }
-    animated: {
-        'Texture': FILEPATH
-        'Float': RawKeyframesLinear | string
-        'Color': RawKeyframesVec4 | ColorVec | string
-        'Vector': RawKeyframesVec4 | string
-    }
+    'Texture': FILEPATH
+    'Float': number | RuntimePointDefinitionLinear
+    'Color': ColorVec | RuntimePointDefinitionVec4
+    'Vector': Vec4 | RuntimePointDefinitionVec4
 }
 
 export class Prefab {
@@ -108,51 +97,93 @@ export class Material<T extends MaterialProperties = MaterialProperties> {
         this.properties = properties
     }
 
+    set(
+        values: Partial<{ [K in keyof T]: MaterialPropertyMap[T[K]] }>,
+        beat?: number,
+        duration?: number,
+        easing?: EASE,
+        callback?: (
+            event: CustomEventInternals.SetMaterialProperty,
+        ) => void,
+    ): void
     set<K extends keyof T>(
         prop: K,
-        value: MaterialPropertyMap['static'][T[K]],
-        beat = 0,
-        callback?: (event: CustomEventInternals.SetMaterialProperty) => void,
+        value: MaterialPropertyMap[T[K]],
+        beat?: number,
+        duration?: number,
+        easing?: EASE,
+        callback?: (
+            event: CustomEventInternals.SetMaterialProperty,
+        ) => void,
+    ): void
+    set<K2 extends keyof T>(
+        ...params: [
+            values: Partial<{ [K in keyof T]: MaterialPropertyMap[T[K]] }>,
+            beat?: number,
+            duration?: number,
+            easing?: EASE,
+            callback?: (
+                event: CustomEventInternals.SetMaterialProperty,
+            ) => void,
+        ] | [
+            prop: K2,
+            value: MaterialPropertyMap[T[K2]],
+            beat?: number,
+            duration?: number,
+            easing?: EASE,
+            callback?: (
+                event: CustomEventInternals.SetMaterialProperty,
+            ) => void,
+        ]
     ) {
-        // LMFAO
-        const fixedValue =
-            (typeof value === 'number'
-                ? [value]
-                : (typeof value === 'object' && Array.isArray(value) &&
-                        typeof value[0] === 'number' && value.length === 3
-                    ? [...value, 0]
-                    : value)) as MaterialPropertyValue
+        if (typeof params[0] === 'object') {
+            this.doSet(...params as Parameters<typeof this.doSet>)
+            return
+        }
 
-        const e = setMaterialProperty(beat, this.path, [
-            {
-                id: prop as string,
-                type: this.properties[prop],
-                value: fixedValue,
-            },
-        ])
-        if (callback) callback(e)
-        e.push(false)
+        const [prop, value, beat, duration, easing, callback] = params
+
+        this.doSet(
+            { [prop]: value } as Partial<
+                { [K in keyof T]: MaterialPropertyMap[T[K]] }
+            >,
+            beat,
+            duration as number,
+            easing as EASE,
+            callback,
+        )
     }
 
-    animate<K extends keyof T>(
-        prop: K,
-        value: MaterialPropertyMap['animated'][T[K]],
-        beat = 0,
-        duration = 0,
+    private doSet(
+        values: Partial<{ [K in keyof T]: MaterialPropertyMap[T[K]] }>,
+        beat?: number,
+        duration?: number,
         easing?: EASE,
         callback?: (event: CustomEventInternals.SetMaterialProperty) => void,
     ) {
-        const e = setMaterialProperty(beat, this.path, [
-            {
-                id: prop as string,
-                type: this.properties[prop],
-                value: value as MaterialPropertyValue,
-            },
-        ])
-        e.duration = duration
-        if (easing) e.easing = easing
-        if (callback) callback(e)
-        e.push(false)
+        beat ??= 0
+
+        const fixedValues: MaterialProperty[] = []
+
+        Object.entries(values).forEach(([k, v]) => {
+            const fixedValue = typeof v === 'number' ? [v] : v
+
+            fixedValues.push({
+                id: k,
+                type: this.properties[k],
+                value: fixedValue,
+            })
+        })
+
+        const event = setMaterialProperty(
+            beat,
+            this.path,
+            fixedValues,
+            duration,
+            easing,
+        )
+        if (callback) callback(event)
+        event.push(false)
     }
 }
 
@@ -231,7 +262,7 @@ export function loadAssets<T extends AssetMap>(
     assetMap: T,
     initialize = true,
 ): {
-    materials: MaterialMapOutput<T['default']['materials']>,
+    materials: MaterialMapOutput<T['default']['materials']>
     prefabs: PrefabMapOutput<T['default']['prefabs']>
 } {
     const materials = makeMaterialMap(assetMap.default.materials)
@@ -247,11 +278,10 @@ export function loadAssets<T extends AssetMap>(
     }
 }
 
-export function destroyPrefabInstances(prefabs: PrefabInstance[], beat = 0)
-{
+export function destroyPrefabInstances(prefabs: PrefabInstance[], beat = 0) {
     const ids: string[] = []
 
-    prefabs.forEach(x => {
+    prefabs.forEach((x) => {
         if (x.destroyed) throw `Prefab ${x.id} is already destroyed.`
         ids.push(x.id)
         x.destroyed = true
