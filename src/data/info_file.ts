@@ -5,6 +5,7 @@ import { DIFFNAME } from '../mod.ts'
 import { RMLog } from '../general.ts'
 import { IInfo } from '../types/beatmap_types.ts'
 import { IInfoSetDifficulty } from '../types/beatmap_types.ts'
+import { BUNDLE_VERSIONS } from './constants.ts'
 
 let info: IInfo
 
@@ -21,16 +22,25 @@ export async function loadInfoDat() {
     if (info) return info
 
     const infoJson = Deno.readTextFile(getInfoPath())
-    const crc2019 = getBundleCRC('bundle_windows2019.manifest')
-    const crc2021 = getBundleCRC('bundle_windows2021.manifest')
+    const crc = BUNDLE_VERSIONS.map(async x => {
+        const fileName = `bundle${x}.manifest`
+        const crc = await getBundleCRC(fileName)
+
+        return {
+            crc: crc,
+            name: x,
+        }
+    })
 
     info = JSON.parse(await infoJson)
-
     info._customData ??= {}
-    info._customData._assetBundle = {
-        '_windows2019': await crc2019,
-        '_windows2021': await crc2021,
-    }
+    info._customData._assetBundle = {}
+
+    Promise.all(crc)
+    crc.map(async x => {
+        const y = await x
+        info._customData!._assetBundle[y.name] = y.crc
+    })
 
     globalThis.addEventListener('unload', saveInfoDat)
     return info

@@ -6,6 +6,13 @@ import { AbstractDifficulty } from '../beatmap/abstract_beatmap.ts'
 export const QUEST_WIP_PATH =
     '/sdcard/ModData/com.beatgames.beatsaber/Mods/SongLoader/CustomWIPLevels'
 
+export const BUNDLE_VERSIONS = [
+    '_windows2019',
+    '_windows2021',
+    '_android2019',
+    '_android2021'
+]
+
 /** Handler to alias settings. */
 export class settingsHandler {
     private diff: AbstractDifficulty;
