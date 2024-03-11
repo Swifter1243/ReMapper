@@ -350,7 +350,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         extractCustomEvents(destroyPrefab, 'destroyPrefabEvents')
         extractCustomEvents(setAnimatorProperty, 'setAnimatorPropertyEvents')
         extractCustomEvents(setCameraProperty, 'setCameraPropertyEvents')
-        extractCustomEvents(assignTrackPrefab, 'assignTrackParentEvents')
+        extractCustomEvents(assignTrackPrefab, 'assignTrackPrefabEvents')
         extractCustomEvents(setRenderSetting, 'setRenderSettingEvents')
 
         diffCustomEvents.abstractCustomEvents = customEvents.map((x) =>

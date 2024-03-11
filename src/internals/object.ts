@@ -286,7 +286,7 @@ export abstract class BaseGameplayObject<
                 x: obj.x ?? 0,
                 y: obj.y ?? 0,
 
-                animation: getCDProp(obj, 'animation') as AnimationPropertiesV3,
+                animation: getCDProp(obj, 'animation') as AnimationPropertiesV3 ?? {},
                 color: getCDProp(obj, 'color') as ColorVec,
                 coordinates: getCDProp(obj, 'coordinates'),
                 interactable: importInvertedBoolean(
