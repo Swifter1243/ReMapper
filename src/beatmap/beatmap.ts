@@ -19,6 +19,7 @@ import {
     setActiveDifficulty,
 } from '../mod.ts'
 import { getInfoDat } from '../data/mod.ts'
+import { BUNDLE_VERSIONS } from '../data/constants.ts'
 
 /**
  * Converts an array of Json objects to a class counterpart.
@@ -68,10 +69,7 @@ export async function collectBeatmapFiles(
     ]
 
     if (includeBundle) {
-        unsanitizedFiles.push(
-            'bundle_windows2019',
-            'bundle_windows2021',
-        )
+        unsanitizedFiles.push(...BUNDLE_VERSIONS.map((x) => `bundle${x}`))
     }
 
     for (let s = 0; s < exportInfo._difficultyBeatmapSets.length; s++) {
