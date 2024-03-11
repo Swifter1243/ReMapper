@@ -3,6 +3,7 @@ import {
     instantiatePrefab,
     setMaterialProperty,
 } from '../beatmap/custom_event.ts'
+import { assignTrackPrefab, blit } from '../beatmap/mod.ts'
 import { CustomEventInternals } from '../internals/mod.ts'
 import { EASE, RuntimePointDefinitionLinear } from '../types/animation_types.ts'
 import { RuntimePointDefinitionVec4 } from '../types/animation_types.ts'
@@ -68,6 +69,14 @@ export class Prefab {
         this.iteration++
         return new PrefabInstance(id)
     }
+
+    assignToTrack(track: string, beat = 0) {
+        assignTrackPrefab({
+            beat,
+            track,
+            note: this.path,
+        }).push()
+    }
 }
 
 export class PrefabInstance {
@@ -95,6 +104,38 @@ export class Material<T extends MaterialProperties = MaterialProperties> {
         this.path = path
         this.name = name
         this.properties = properties
+    }
+
+    blit(
+        ...params:
+            | [
+                beat?: number,
+                duration?: number,
+                properties?: MaterialProperty[],
+                easing?: EASE,
+            ]
+            | [
+                Omit<
+                    ConstructorParameters<typeof CustomEventInternals.Blit>[0],
+                    'asset'
+                >,
+            ]
+    ) {
+        if (typeof params[0] === 'object') {
+            blit({
+                ...params[0],
+                asset: this.path,
+            }).push()
+        }
+
+        const [beat, duration, properties, easing] = params
+
+        blit({
+            beat: beat as number,
+            duration,
+            properties,
+            easing,
+        }).push()
     }
 
     set(
