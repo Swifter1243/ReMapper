@@ -92,8 +92,8 @@ export class SetMaterialProperty extends BaseCustomEvent<
                 asset: this.asset,
                 duration: this.duration,
                 easing: this.easing,
+                properties: this.properties,
                 ...this.data,
-                ...this.properties,
             },
             t: 'SetMaterialProperty',
         } satisfies BeatmapInterfaces.SetMaterialProperty
@@ -764,8 +764,8 @@ export class SetAnimatorProperty extends BaseCustomEvent<
                 id: this.id,
                 duration: this.duration,
                 easing: this.easing,
+                properties: this.properties,
                 ...this.data,
-                ...this.properties,
             },
             t: 'SetAnimatorProperty',
         } satisfies BeatmapInterfaces.SetAnimatorProperty
