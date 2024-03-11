@@ -83,13 +83,17 @@ export class Prefab {
 
 export class PrefabInstance {
     id: string
+    destroyed = false
 
     constructor(id: string) {
         this.id = id
     }
 
     destroy(beat = 0) {
+        if (this.destroyed) throw `Prefab ${this.id} is already destroyed.`
+
         destroyPrefab(beat, this.id).push()
+        this.destroyed = true
     }
 }
 
@@ -241,4 +245,17 @@ export function loadAssets<T extends AssetMap>(
         materials: materials,
         prefabs: prefabs,
     }
+}
+
+export function destroyPrefabInstances(prefabs: PrefabInstance[], beat = 0)
+{
+    const ids: string[] = []
+
+    prefabs.forEach(x => {
+        if (x.destroyed) throw `Prefab ${x.id} is already destroyed.`
+        ids.push(x.id)
+        x.destroyed = true
+    })
+
+    destroyPrefab(beat, ids).push()
 }
