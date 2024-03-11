@@ -34,6 +34,8 @@ import { getActiveCache } from '../rm_cache.ts'
 import { RuntimePointDefinitionAny } from '../types/animation_types.ts'
 import { RawKeyframesLinear } from '../types/animation_types.ts'
 import { animationIsRuntime } from '../animation/animation_utils.ts'
+import { settingsHandler } from '../data/constants.ts'
+import { jsonGet, jsonSet } from '../utils/json.ts'
 
 export interface BeatmapCustomEvents {
     animateComponentEvents: CustomEventInternals.AnimateComponent[]
@@ -387,9 +389,7 @@ export abstract class AbstractDifficulty<
             const arr = Array.isArray(
                 (this as unknown as Record<string, unknown>)[key],
             )
-            ;(this as unknown as Record<string, unknown>)[key] = arr
-                ? []
-                : {}
+            ;(this as unknown as Record<string, unknown>)[key] = arr ? [] : {}
         })
     }
 
@@ -398,9 +398,7 @@ export abstract class AbstractDifficulty<
             const arr = Array.isArray(
                 (this as unknown as Record<string, unknown>)[x],
             )
-            ;(this as unknown as Record<string, unknown>)[x] = arr
-                ? []
-                : {}
+            ;(this as unknown as Record<string, unknown>)[x] = arr ? [] : {}
         })
     }
 
@@ -551,6 +549,37 @@ export abstract class AbstractDifficulty<
         this.info._customData ??= {}
         this.info._customData._suggestions = value
     }
+
+    /** The settings to be set for this difficulty. */
+    readonly settings = new Proxy(new settingsHandler(this), {
+        get(handler, property) {
+            const objValue = handler[property as keyof typeof handler]
+            const path = (
+                typeof objValue === 'object' ? objValue[0] : objValue
+            ) as string
+            const diff = handler['diff']
+
+            if (!diff.rawSettings) {
+                return undefined
+            }
+            return jsonGet(diff as unknown as TJson, path)
+        },
+
+        set(handler, property, value) {
+            const objValue = handler[property as keyof typeof handler]
+            const path = (
+                typeof objValue === 'object' ? objValue[0] : objValue
+            ) as string
+            const diff = handler['diff']
+
+            if (typeof objValue !== 'string') {
+                value = (objValue as unknown as TJson[])[1][value]
+            }
+
+            jsonSet(diff as unknown as TJson, path, value)
+            return true
+        },
+    })
 
     /** The unaliased settings object. */
     get rawSettings() {
