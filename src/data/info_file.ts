@@ -21,17 +21,15 @@ export async function loadInfoDat() {
     if (info) return info
 
     const infoJson = Deno.readTextFile(getInfoPath())
-    const crc2019 = getBundleCRC('bundle_2019.manifest')
-    const crc2021 = getBundleCRC('bundle_2021.manifest')
+    const crc2019 = getBundleCRC('bundle_windows2019.manifest')
+    const crc2021 = getBundleCRC('bundle_windows2021.manifest')
 
     info = JSON.parse(await infoJson)
 
-    if (await crc2019 || await crc2021) {
-        info._customData ??= {}
-        info._customData._assetBundle = {
-            '_2019': await crc2019,
-            '_2021': await crc2021,
-        }
+    info._customData ??= {}
+    info._customData._assetBundle = {
+        '_windows2019': await crc2019,
+        '_windows2021': await crc2021,
     }
 
     globalThis.addEventListener('unload', saveInfoDat)

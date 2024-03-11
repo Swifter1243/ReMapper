@@ -12,7 +12,12 @@ import { DIFFPATH, DIFFS, FILENAME } from '../types/beatmap_types.ts'
 import { copy } from '../utils/general.ts'
 import { environment } from './environment.ts'
 import { Environment } from '../internals/environment.ts'
-import { getWorkingDirectory, isEmptyObject, readDifficulty, setActiveDifficulty } from '../mod.ts'
+import {
+    getWorkingDirectory,
+    isEmptyObject,
+    readDifficulty,
+    setActiveDifficulty,
+} from '../mod.ts'
 import { getInfoDat } from '../data/mod.ts'
 
 /**
@@ -42,7 +47,8 @@ export function arrayJSONToClass<T>(
  */
 export async function collectBeatmapFiles(
     excludeDiffs: FILENAME<DIFFS>[] = [],
-    awaitSave = true
+    includeBundle = false,
+    awaitSave = true,
 ) {
     const info = getInfoDat()
 
@@ -60,6 +66,10 @@ export async function collectBeatmapFiles(
         'cinema-video.json',
         'BPMInfo.dat',
     ]
+
+    if (includeBundle) {
+        unsanitizedFiles.push('bundle_2019', 'bundle_2021')
+    }
 
     for (let s = 0; s < exportInfo._difficultyBeatmapSets.length; s++) {
         const set = exportInfo._difficultyBeatmapSets[s]
@@ -115,6 +125,7 @@ export async function collectBeatmapFiles(
 export async function exportZip(
     excludeDiffs: FILENAME<DIFFS>[] = [],
     zipName?: string,
+    includeBundle = false,
 ) {
     await currentTransfer
 
@@ -124,7 +135,7 @@ export async function exportZip(
     zipName = zipName.replaceAll(' ', '_')
     zipName = encodeURI(zipName)
 
-    const files = (await collectBeatmapFiles(excludeDiffs))
+    const files = (await collectBeatmapFiles(excludeDiffs, includeBundle))
         .map((v) => `"${v}"`) // surround with quotes for safety
 
     if (workingDir !== Deno.cwd()) {
@@ -135,8 +146,7 @@ export async function exportZip(
         await compress(files, tempZipName, { flags: [], overwrite: true })
         await fs.move(tempZipName, destination)
         await Deno.rename(destination, path.join(workingDir, zipName))
-    }
-    else {
+    } else {
         await compress(files, zipName, { flags: [], overwrite: true })
     }
 
