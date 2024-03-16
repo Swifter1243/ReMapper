@@ -396,9 +396,9 @@ export abstract class AbstractDifficulty<
     private clearObject(object: object) {
         Object.keys(object).forEach((x) => {
             const arr = Array.isArray(
-                (this as unknown as Record<string, unknown>)[x],
+                (object as unknown as Record<string, unknown>)[x],
             )
-            ;(this as unknown as Record<string, unknown>)[x] = arr ? [] : {}
+            ;(object as unknown as Record<string, unknown>)[x] = arr ? [] : {}
         })
     }
 
