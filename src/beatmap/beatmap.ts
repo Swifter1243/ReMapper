@@ -16,6 +16,7 @@ import {
     getWorkingDirectory,
     isEmptyObject,
     readDifficulty,
+    RMError,
     setActiveDifficulty,
 } from '../mod.ts'
 import { getInfoDat } from '../data/mod.ts'
@@ -139,6 +140,20 @@ export async function exportZip(
     const files = (await collectBeatmapFiles(excludeDiffs, includeBundle))
         .map((v) => `"${v}"`) // surround with quotes for safety
 
+    // Check file lock
+    if (files.some(async x => {
+        try {
+            await Deno.open(x, { read: true, write: false, create: false })
+            return false
+        }
+        catch (err) {
+            return err instanceof Deno.errors.PermissionDenied
+        }
+    })) {
+        RMError(`"${zipName}" could not be zipped. Some files are locked.`)
+        return
+    }
+
     if (workingDir !== Deno.cwd()) {
         // Compress function doesn't seem to have an option for destination..
         // So this is my cringe workaround
@@ -151,7 +166,7 @@ export async function exportZip(
         await compress(files, zipName, { flags: [], overwrite: true })
     }
 
-    RMLog(`${zipName} has been zipped!`)
+    RMLog(`"${zipName}" has been zipped!`)
 }
 
 /**

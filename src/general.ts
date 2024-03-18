@@ -3,7 +3,7 @@ import { fs, path } from './deps.ts'
 import { getActiveDifficulty } from './data/beatmap_handler.ts'
 import { OnlyNumbersOptional } from './types/util_types.ts'
 import { FILENAME, FILEPATH } from './types/beatmap_types.ts'
-import * as NoteInternals from "./internals/note.ts"
+import * as NoteInternals from './internals/note.ts'
 import { Wall } from './internals/wall.ts'
 import { LightEvent } from './internals/basic_event.ts'
 import { getActiveCache } from './rm_cache.ts'
@@ -107,7 +107,7 @@ function objectsBetween<T extends BeatmapObject>(
     array: T[],
     min: number,
     max: number,
-    forEach?: (obj: T) => void
+    forEach?: (obj: T) => void,
 ) {
     const filtered = filterObjects(array, min, max, 'beat')
     if (forEach) filtered.forEach(forEach)
@@ -123,9 +123,14 @@ function objectsBetween<T extends BeatmapObject>(
 export function allNotesBetween(
     min: number,
     max: number,
-    forEach?: (obj: AnyNote) => void
+    forEach?: (obj: AnyNote) => void,
 ) {
-    return objectsBetween(getActiveDifficulty().allNotes as AnyNote[], min, max, forEach)
+    return objectsBetween(
+        getActiveDifficulty().allNotes as AnyNote[],
+        min,
+        max,
+        forEach,
+    )
 }
 
 /**
@@ -137,7 +142,7 @@ export function allNotesBetween(
 export function colorNotesBetween(
     min: number,
     max: number,
-    forEach?: (obj: Note) => void
+    forEach?: (obj: Note) => void,
 ) {
     return objectsBetween(getActiveDifficulty().notes, min, max, forEach)
 }
@@ -151,7 +156,7 @@ export function colorNotesBetween(
 export function bombsBetween(
     min: number,
     max: number,
-    forEach?: (obj: Bomb) => void
+    forEach?: (obj: Bomb) => void,
 ) {
     return objectsBetween(getActiveDifficulty().bombs, min, max, forEach)
 }
@@ -165,7 +170,7 @@ export function bombsBetween(
 export function arcsBetween(
     min: number,
     max: number,
-    forEach?: (obj: Arc) => void
+    forEach?: (obj: Arc) => void,
 ) {
     return objectsBetween(getActiveDifficulty().arcs, min, max, forEach)
 }
@@ -179,7 +184,7 @@ export function arcsBetween(
 export function chainsBetween(
     min: number,
     max: number,
-    forEach?: (obj: Chain) => void
+    forEach?: (obj: Chain) => void,
 ) {
     return objectsBetween(getActiveDifficulty().chains, min, max, forEach)
 }
@@ -193,7 +198,7 @@ export function chainsBetween(
 export function wallsBetween(
     min: number,
     max: number,
-    forEach?: (obj: Wall) => void
+    forEach?: (obj: Wall) => void,
 ) {
     return objectsBetween(getActiveDifficulty().walls, min, max, forEach)
 }
@@ -207,7 +212,7 @@ export function wallsBetween(
 export function eventsBetween(
     min: number,
     max: number,
-    forEach?: (obj: LightEvent) => void
+    forEach?: (obj: LightEvent) => void,
 ) {
     return objectsBetween(getActiveDifficulty().lightEvents, min, max, forEach)
 }
@@ -218,6 +223,13 @@ export function eventsBetween(
  */
 export const RMLog = (message: string) =>
     console.log(`[ReMapper: ${getRuntimeSeconds()}s] ` + message)
+
+/**
+ * Log an error as ReMapper, displaying seconds.
+ * @param message Error to log.
+ */
+export const RMError = (message: string) =>
+    console.log('\x1b[31m%s\x1b[0m', `[ReMapper: ${getRuntimeSeconds()}s] ` + message)
 
 /**
  * Parse a file path, allowing extension forcing and getting useful information.
