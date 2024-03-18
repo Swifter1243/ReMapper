@@ -13,6 +13,9 @@ export function isEmptyObject(o: unknown, recursive = true): boolean {
     // If not an object, it's not empty
     if (typeof o !== 'object') return false
 
+    // If a key is null, it's not empty
+    if (o === null) return false
+
     // If object has nothing inside, it's empty
     if (Object.keys(o as TJson).length === 0) {
         return true
@@ -35,6 +38,8 @@ export function jsonPrune<T extends Record<string, any>>(obj: T) {
     if (typeof obj !== 'object') return obj
 
     Object.entries(obj).forEach(([k, v]) => {
+        if (v === null) return
+
         if (v === undefined) {
             delete obj[k]
             return
@@ -58,6 +63,8 @@ export function shallowPrune<T extends Record<string, any>>(obj: T) {
     if (typeof obj !== 'object') return obj
 
     Object.entries(obj).forEach(([k, v]) => {
+        if (v === null) return
+
         if (v === undefined) {
             delete obj[k]
             return
