@@ -25,7 +25,7 @@ export class AssignPathAnimation extends BaseCustomEvent<
         params: CustomEventConstructorTrack<AssignPathAnimation>,
     ) {
         super(params)
-        this.type = 'AnimateTrack'
+        this.type = 'AssignPathAnimation'
         this.animation = params.animation ?? {}
         this.duration = params.duration ?? 0
         if (params.track) {
@@ -142,6 +142,7 @@ export class AssignTrackParent extends BaseCustomEvent<
         params: CustomEventConstructorTrack<AssignTrackParent>,
     ) {
         super(params)
+        this.type = 'AssignTrackParent'
         this.childrenTracks = params.childrenTracks ?? []
         this.parentTrack = params.parentTrack ?? ''
         this.worldPositionStays = params.worldPositionStays
@@ -254,6 +255,7 @@ export class AssignPlayerToTrack extends BaseCustomEvent<
         >,
     ) {
         super(params)
+        this.type = 'AssignPlayerToTrack'
         this.track = params.track ?? ''
         if (params.target) this.target = params.target
     }
