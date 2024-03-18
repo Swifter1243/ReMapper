@@ -169,8 +169,8 @@ export class SetGlobalProperty extends BaseCustomEvent<
             d: {
                 duration: this.duration,
                 easing: this.easing,
+                properties: this.properties,
                 ...this.data,
-                ...this.properties,
             },
             t: 'SetGlobalProperty',
         } satisfies BeatmapInterfaces.SetGlobalProperty
@@ -266,8 +266,7 @@ export class Blit extends BaseCustomEvent<
                 priority: this.priority,
                 properties: this.properties,
                 source: this.source,
-                ...this.data,
-                ...this.properties,
+                ...this.data
             },
             t: 'Blit',
         } satisfies BeatmapInterfaces.Blit
