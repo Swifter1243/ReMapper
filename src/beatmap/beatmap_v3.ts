@@ -6,7 +6,14 @@ import { Arc, Bomb, Chain, Note } from '../internals/note.ts'
 import { EventGroup } from '../data/constants.ts'
 import { environment, geometry } from './environment.ts'
 import { shallowPrune } from '../utils/json.ts'
-import { arraySplit, event, IInfoSet, IInfoSetDifficulty, RawGeometryMaterial, Track } from '../mod.ts'
+import {
+    arraySplit,
+    event,
+    IInfoSet,
+    IInfoSetDifficulty,
+    RawGeometryMaterial,
+    Track,
+} from '../mod.ts'
 import {
     abstractCustomEvent,
     animateComponent,
@@ -58,6 +65,8 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
             key: K,
             callback: (v: bsmap.v3.IDifficulty[K]) => V,
         ) {
+            if (!json[key]) throw `"${key}" is not defined in the beatmap!`
+
             if (process && !process.some((s) => s === key)) return
 
             return callback(json[key])
@@ -127,6 +136,9 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         }
 
         // Events
+        if (!json.basicBeatmapEvents) {
+            throw `"basicBeatmapEvents" does not exist in the beatmap!`
+        }
         const lightEventsFilter = arraySplit(json.basicBeatmapEvents, (x) => {
             return x.et === EventGroup.BACK_LASERS ||
                 x.et === EventGroup.RING_LIGHTS ||
@@ -205,6 +217,9 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
             event.ringSpin({}).fromJson(o as bsmap.v3.IBasicEventRing, true)
         )
 
+        if (!json.rotationEvents) {
+            throw `"rotationEvents" does not exist in the beatmap!`
+        }
         const rotationEvents = [
             ...rotationEventsFilter[0].map((o) =>
                 event.lateRotation({}).fromBasicEvent(
@@ -216,6 +231,9 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
             ),
         ]
 
+        if (!json.colorBoostBeatmapEvents) {
+            throw `"colorBoostBeatmapEvents" does not exist in the beatmap!`
+        }
         const boostEvents = [
             ...boostEventsFilter[0].map((o) =>
                 event.boost({}).fromBasicEvent(
@@ -231,6 +249,9 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
             event.baseBasicEvent({}).fromJson(o, true)
         )
 
+        if (!json.bpmEvents) {
+            throw `"bpmEvents" does not exist in the beatmap!`
+        }
         const bpmEvents = [
             ...bpmEventsFilter[0].map((o) =>
                 event.officialBpmEvent({}).fromBasicEvent(o)

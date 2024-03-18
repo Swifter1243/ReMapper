@@ -37,6 +37,8 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
             key: K,
             callback: (v: bsmap.v2.IDifficulty[K]) => V,
         ) {
+            if (!json[key]) throw `"${key}" is not defined in the beatmap!`
+            
             if (process && !process.some((s) => s === key)) return
 
             return callback(json[key])
@@ -65,6 +67,9 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
         ) ?? []
 
         // Events
+        if (!json._events) {
+            throw `"_events" does not exist in the beatmap!`
+        }
         const lightEventsFilter = arraySplit(json._events, (x) => {
             return x._type === EventGroup.BACK_LASERS ||
                 x._type === EventGroup.RING_LIGHTS ||
