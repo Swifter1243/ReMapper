@@ -1,11 +1,12 @@
-import {
-    GeometryMaterial,
-    GeoType,
-    LookupMethod,
-} from '../types/mod.ts'
+import { GeometryMaterial, GeoType, LookupMethod } from '../types/mod.ts'
 
 import * as EnvironmentInternals from '../internals/environment.ts'
 
+/**
+ * Targets an existing object in the environment.
+ * @param id The object name to look up in the environment.
+ * @param lookupMethod The method of looking up the object name in the environment.
+ */
 export function environment(
     ...params:
         | ConstructorParameters<typeof EnvironmentInternals.Environment>
@@ -26,6 +27,12 @@ export function environment(
         lookupMethod: lookupMethod,
     })
 }
+
+/**
+ * Creates a new primitive object.
+ * @param type The geometry shape type.
+ * @param material The material on this geometry object.
+ */
 export function geometry(
     ...params: ConstructorParameters<typeof EnvironmentInternals.Geometry> | [
         type?: GeoType,

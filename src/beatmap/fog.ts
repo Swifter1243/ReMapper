@@ -11,12 +11,14 @@ export class FogEvent {
     beat?: number
     duration?: number
 
+    /** Abstracted fog event. */
     constructor(animation: AnyFog, beat?: number, duration?: number) {
         this.fog = animation
         if (beat) this.beat = beat
         if (duration) this.duration = duration
     }
 
+    /** Turns the internal fog component that can use single numbers for static keyframes and turns it into the version read by the beatmap, which only accepts point definitions or arrays. */
     complexifyFog(v3 = true) {
         const obj = {} as Record<string, unknown>
 
@@ -28,6 +30,10 @@ export class FogEvent {
         return obj as BloomFogEnvironment<ComplexKeyframesLinear | string>
     }
 
+    /** Export for V3.
+     * If static, returns an environment statement for the base environment.
+     * If animated, returns an AnimateComponent event.
+     */
     exportV3() {
         const isStatic = !(
             this.beat ||
@@ -56,6 +62,7 @@ export class FogEvent {
         } as bsmap.v3.ICustomEventAnimateComponent
     }
 
+    /** Export for V2 into an AnimateTrack event. */
     exportV2() {
         return {
             _time: this.beat ?? 0,
@@ -99,6 +106,7 @@ export function adjustFog(
     ...params: Overload3
 ): void
 
+/** Adjust fog, agnostic of version. */
 export function adjustFog(
     ...params:
         | Overload1

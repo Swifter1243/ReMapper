@@ -18,9 +18,6 @@ export class AssignPathAnimation extends BaseCustomEvent<
     bsmap.v2.ICustomEventAssignPathAnimation,
     bsmap.v3.ICustomEventAssignPathAnimation
 > {
-    /**
-     * Animate objects on a track across their lifespan.
-     */
     constructor(
         params: CustomEventConstructorTrack<AssignPathAnimation>,
     ) {
@@ -38,13 +35,15 @@ export class AssignPathAnimation extends BaseCustomEvent<
 
     /** The animation of this event. */
     animation: AnimationPropertiesV3
+    /** Duration of the animation. */
     duration: number
+    /** The track of this event.
+     * Uses a wrapper that simplifies single strings and arrays.
+     */
     track: Track = new Track('')
+    /** The easing on this event's animation. */
     easing?: EASE
 
-    /** Push this event to the difficulty.
-     * @param clone Whether this object will be copied before being pushed.
-     */
     push(clone = true) {
         getActiveDifficulty().customEvents.assignPathAnimationEvents.push(
             clone ? copy(this) : this,
@@ -155,9 +154,6 @@ export class AssignTrackParent extends BaseCustomEvent<
     /** Modifies the transform of children objects to remain in the same place relative to world space. */
     worldPositionStays?: boolean
 
-    /** Push this event to the difficulty.
-     * @param clone Whether this object will be copied before being pushed.
-     */
     push(clone = true) {
         getActiveDifficulty().customEvents.assignTrackParentEvents.push(
             clone ? copy(this) : this,
@@ -243,9 +239,6 @@ export class AssignPlayerToTrack extends BaseCustomEvent<
     bsmap.v2.ICustomEventAssignPlayerToTrack,
     bsmap.v3.ICustomEventAssignPlayerToTrack
 > {
-    /**
-     * Assigns the player to a track.
-     */
     constructor(
         params: ExcludedObjectFields<
             AssignPlayerToTrack,
@@ -262,11 +255,9 @@ export class AssignPlayerToTrack extends BaseCustomEvent<
 
     /** Track the player will be assigned to. */
     track: string
+    /** Which component of the player to target. */
     target?: bsmap.PlayerObject
 
-    /** Push this event to the difficulty.
-     * @param clone Whether this object will be copied before being pushed.
-     */
     push(clone = true) {
         getActiveDifficulty().customEvents.assignPlayerTrackEvents.push(
             clone ? copy(this) : this,

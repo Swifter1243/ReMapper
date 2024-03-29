@@ -3,96 +3,115 @@ import { Regex } from '../utils/regex.ts'
 import { Vec3 } from '../types/data_types.ts'
 import { AbstractDifficulty } from '../beatmap/abstract_beatmap.ts'
 
+/** Where custom levels are stored on quest. */
 export const QUEST_WIP_PATH =
     '/sdcard/ModData/com.beatgames.beatsaber/Mods/SongLoader/CustomWIPLevels'
 
+/** All vivify bundle versions. */
 export const BUNDLE_VERSIONS = [
     '_windows2019',
     '_windows2021',
     '_android2019',
-    '_android2021'
+    '_android2021',
 ]
 
 /** Handler to alias settings. */
 export class settingsHandler {
-    private diff: AbstractDifficulty;
-    constructor(diff: AbstractDifficulty) { this.diff = diff }
+    private diff: AbstractDifficulty
+    constructor(diff: AbstractDifficulty) {
+        this.diff = diff
+    }
 
     // playerOptions
-    leftHanded = "_playerOptions._leftHanded" as unknown as boolean;
-    playerHeight = "_playerOptions._playerHeight" as unknown as number;
-    automaticPlayerHeight = "_playerOptions._automaticPlayerHeight" as unknown as boolean;
-    sfxVolume = "_playerOptions._sfxVolume" as unknown as number;
-    reduceDebris = "_playerOptions._reduceDebris" as unknown as boolean;
-    noHud = "_playerOptions._noTextsAndHuds" as unknown as boolean;
-    hideMisses = "_playerOptions._noFailEffects" as unknown as boolean;
-    advancedHud = "_playerOptions._advancedHud" as unknown as boolean;
-    autoRestart = "_playerOptions._autoRestart" as unknown as boolean;
-    trailIntensity = "_playerOptions._saberTrailIntensity" as unknown as number;
-    JDtype = "_playerOptions._noteJumpDurationTypeSettings" as unknown as "Dynamic" | "Static";
-    hideSpawnEffect = "_playerOptions._hideNoteSpawnEffect" as unknown as boolean;
-    adaptiveSfx = "_playerOptions._adaptiveSfx" as unknown as boolean;
-    lights = ["_playerOptions._environmentEffectsFilterDefaultPreset", {
-        All: "AllEffects",
-        NoFlicker: "Strobefilter",
-        None: "NoEffects"
-    }] as unknown as "All" | "NoFlicker" | "None";
-    lightsExPlus = ["_playerOptions._environmentEffectsFilterExpertPlusPreset", {
-        All: "AllEffects",
-        NoFlicker: "Strobefilter",
-        None: "NoEffects"
-    }] as unknown as "All" | "NoFlicker" | "None";
+    leftHanded = '_playerOptions._leftHanded' as unknown as boolean
+    playerHeight = '_playerOptions._playerHeight' as unknown as number
+    automaticPlayerHeight =
+        '_playerOptions._automaticPlayerHeight' as unknown as boolean
+    sfxVolume = '_playerOptions._sfxVolume' as unknown as number
+    reduceDebris = '_playerOptions._reduceDebris' as unknown as boolean
+    noHud = '_playerOptions._noTextsAndHuds' as unknown as boolean
+    hideMisses = '_playerOptions._noFailEffects' as unknown as boolean
+    advancedHud = '_playerOptions._advancedHud' as unknown as boolean
+    autoRestart = '_playerOptions._autoRestart' as unknown as boolean
+    trailIntensity = '_playerOptions._saberTrailIntensity' as unknown as number
+    JDtype = '_playerOptions._noteJumpDurationTypeSettings' as unknown as
+        | 'Dynamic'
+        | 'Static'
+    hideSpawnEffect =
+        '_playerOptions._hideNoteSpawnEffect' as unknown as boolean
+    adaptiveSfx = '_playerOptions._adaptiveSfx' as unknown as boolean
+    lights = ['_playerOptions._environmentEffectsFilterDefaultPreset', {
+        All: 'AllEffects',
+        NoFlicker: 'Strobefilter',
+        None: 'NoEffects',
+    }] as unknown as 'All' | 'NoFlicker' | 'None'
+    lightsExPlus = [
+        '_playerOptions._environmentEffectsFilterExpertPlusPreset',
+        {
+            All: 'AllEffects',
+            NoFlicker: 'Strobefilter',
+            None: 'NoEffects',
+        },
+    ] as unknown as 'All' | 'NoFlicker' | 'None'
 
     // modifiers
-    energyType = "_modifiers._energyType" as unknown as "Bar" | "Battery";
-    noFail = "_modifiers._noFailOn0Energy" as unknown as boolean;
-    instaFail = "_modifiers._instaFail" as unknown as boolean;
-    saberClashFail = "_modifiers._failOnSaberClash" as unknown as boolean;
-    enabledObstacles = ["_modifiers._enabledObstacleType", {
-        All: "All",
-        FullOnly: "FullHeightOnly",
-        None: "NoObstacles"
-    }] as unknown as "All" | "FullOnly" | "None";
-    fastNotes = "_modifiers._fastNotes" as unknown as boolean;
-    strictAngles = "_modifiers._strictAngles" as unknown as boolean;
-    disappearingArrows = "_modifiers._disappearingArrows" as unknown as boolean;
-    ghostNotes = "_modifiers._ghostNotes" as unknown as boolean;
-    noBombs = "_modifiers._noBombs" as unknown as boolean;
-    songSpeed = "_modifiers._songSpeed" as unknown as "Slower" | "Normal" | "Faster" | "SuperFast";
-    noArrows = "_modifiers._noArrows" as unknown as boolean;
-    proMode = "_modifiers._proMode" as unknown as boolean;
-    zenMode = "_modifiers._proMode" as unknown as boolean;
-    smallCubes = "_modifiers._smallCubes" as unknown as boolean;
-    
+    energyType = '_modifiers._energyType' as unknown as 'Bar' | 'Battery'
+    noFail = '_modifiers._noFailOn0Energy' as unknown as boolean
+    instaFail = '_modifiers._instaFail' as unknown as boolean
+    saberClashFail = '_modifiers._failOnSaberClash' as unknown as boolean
+    enabledObstacles = ['_modifiers._enabledObstacleType', {
+        All: 'All',
+        FullOnly: 'FullHeightOnly',
+        None: 'NoObstacles',
+    }] as unknown as 'All' | 'FullOnly' | 'None'
+    fastNotes = '_modifiers._fastNotes' as unknown as boolean
+    strictAngles = '_modifiers._strictAngles' as unknown as boolean
+    disappearingArrows = '_modifiers._disappearingArrows' as unknown as boolean
+    ghostNotes = '_modifiers._ghostNotes' as unknown as boolean
+    noBombs = '_modifiers._noBombs' as unknown as boolean
+    songSpeed = '_modifiers._songSpeed' as unknown as
+        | 'Slower'
+        | 'Normal'
+        | 'Faster'
+        | 'SuperFast'
+    noArrows = '_modifiers._noArrows' as unknown as boolean
+    proMode = '_modifiers._proMode' as unknown as boolean
+    zenMode = '_modifiers._proMode' as unknown as boolean
+    smallCubes = '_modifiers._smallCubes' as unknown as boolean
+
     // environments
-    overrideEnvironments = "_environments._overrideEnvironments" as unknown as boolean;
-    
+    overrideEnvironments =
+        '_environments._overrideEnvironments' as unknown as boolean
+
     // colors
-    overrideColors = "_colors._overrideDefaultColors" as unknown as boolean;
+    overrideColors = '_colors._overrideDefaultColors' as unknown as boolean
 
     // graphics
-    mirrorQuality = ["_graphics._mirrorGraphicsSettings", {
+    mirrorQuality = ['_graphics._mirrorGraphicsSettings', {
         OFF: 0,
         LOW: 1,
         MEDIUM: 2,
-        HIGH: 3
-    }] as unknown as "OFF" | "LOW" | "MEDIUM" | "HIGH";
-    bloom = ["_graphics._mainEffectGraphicsSettings", {
+        HIGH: 3,
+    }] as unknown as 'OFF' | 'LOW' | 'MEDIUM' | 'HIGH'
+    bloom = ['_graphics._mainEffectGraphicsSettings', {
         false: 0,
-        true: 1
-    }] as unknown as boolean;
-    smoke = ["_graphics._smokeGraphicsSettings", {
+        true: 1,
+    }] as unknown as boolean
+    smoke = ['_graphics._smokeGraphicsSettings', {
         false: 0,
-        true: 1
-    }] as unknown as boolean;
-    burnMarks = "_graphics._burnMarkTrailsEnabled" as unknown as boolean;
-    screenDistortion = "_graphics._screenDisplacementEffectsEnabled" as unknown as boolean;
-    maxShockwaveParticles = "_graphics._maxShockwaveParticles" as unknown as number;
-    
+        true: 1,
+    }] as unknown as boolean
+    burnMarks = '_graphics._burnMarkTrailsEnabled' as unknown as boolean
+    screenDistortion =
+        '_graphics._screenDisplacementEffectsEnabled' as unknown as boolean
+    maxShockwaveParticles =
+        '_graphics._maxShockwaveParticles' as unknown as number
+
     // chroma
-    disableChroma = "_chroma._disableChromaEvents" as unknown as boolean;
-    disableEnvironmentEnhancements = "_chroma._disableEnvironmentEnhancements" as unknown as boolean;
-    zenModeWalls = "_chroma._forceZenModeWalls" as unknown as boolean;
+    disableChroma = '_chroma._disableChromaEvents' as unknown as boolean
+    disableEnvironmentEnhancements =
+        '_chroma._disableEnvironmentEnhancements' as unknown as boolean
+    zenModeWalls = '_chroma._forceZenModeWalls' as unknown as boolean
 }
 
 /** Setting presets. You would set these equal to the "rawSettings" property on a difficulty. */
@@ -187,11 +206,41 @@ export enum LightAxis {
 
 /** The easings for V3 light rotations. */
 export enum RotationEase {
-    NONE = -1,
-    LINEAR,
-    EASEINQUAD,
-    EASEOUTQUAD,
-    EASEINOUTQUAD,
+    None = -1,
+    Linear = 0,
+    InQuad = 1,
+    OutQuad = 2,
+    InOutQuad = 3,
+    InSine = 4,
+    OutSine = 5,
+    InOutSine = 6,
+    InCubic = 7,
+    OutCubic = 8,
+    InOutCubic = 9,
+    InQuart = 10,
+    OutQuart = 11,
+    InOutQuart = 12,
+    InQuint = 13,
+    OutQuint = 14,
+    InOutQuint = 15,
+    InExpo = 16,
+    OutExpo = 17,
+    InOutExpo = 18,
+    InCirc = 19,
+    OutCirc = 20,
+    InOutCirc = 21,
+    InBack = 22,
+    OutBack = 23,
+    InOutBack = 24,
+    InElastic = 25,
+    OutElastic = 26,
+    InOutElastic = 27,
+    InBounce = 28,
+    OutBounce = 29,
+    InOutBounce = 30,
+    BeatSaberInOutBack = 100,
+    BeatSaberInOutElastic = 101,
+    BeatSaberInOutBounce = 102,
 }
 
 /** The direction of rotation for V3 light rotations. */
@@ -280,6 +329,7 @@ export const RotationAction = {
     CW_60: 7,
 }
 
+/** Convert the value of a rotation event into it's corresponding angle. */
 export const InverseRotationAction = {
     0: -60,
     1: -45,

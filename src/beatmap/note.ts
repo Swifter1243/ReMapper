@@ -1,6 +1,7 @@
 import {NoteCut, NoteType} from '../data/constants.ts'
 import {Arc, Bomb, Chain, Note} from "../internals/note.ts";
 
+/** Create a standard color note. */
 export function note(
     ...params: ConstructorParameters<typeof Note> | [
         beat?: number,
@@ -26,6 +27,7 @@ export function note(
     })
 }
 
+/** Create a bomb. */
 export function bomb(
     ...params: ConstructorParameters<typeof Bomb> | [
         beat?: number,
@@ -47,6 +49,7 @@ export function bomb(
     })
 }
 
+/** Create a chain. */
 export function chain(
     ...params: ConstructorParameters<typeof Chain> | [
         beat?: number,
@@ -80,6 +83,7 @@ export function chain(
     })
 }
 
+/** Create an arc. */
 export function arc(
     ...params: ConstructorParameters<typeof Arc> | [
         beat?: number,

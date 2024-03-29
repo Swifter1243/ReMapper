@@ -12,21 +12,25 @@ import {
 import { ObjectFields, SubclassExclusiveProps } from '../types/util_types.ts'
 import { BaseObject, getCDProp } from './object.ts'
 
+abstract class ConvertableEvent<
+    TV2 extends bsmap.v2.IBaseObject,
+    TV3 extends bsmap.v3.IBaseObject,
+> extends BaseObject<TV2, TV3> {
+    /** V3 only. Import from the deprecated basic event form into the new proper events.  */
+    abstract fromBasicEvent(json: bsmap.v3.IBaseObject): void
+}
+
 export class RotationEvent
-    extends BaseObject<bsmap.v2.IEventLaneRotation, bsmap.v3.IRotationEvent> {
-    /**
-     * Event to spin the gameplay objects in the map.
-     * The new rotation events should be used instead.
-     * @param type Type of the event.
-     * @param rotation The rotation of the event.
-     */
+    extends ConvertableEvent<bsmap.v2.IEventLaneRotation, bsmap.v3.IRotationEvent> {
     constructor(obj: Partial<ObjectFields<RotationEvent>>) {
         super(obj)
         this.early = obj.early ?? true
         this.rotation = obj.rotation ?? 0
     }
 
+    /** Whether this event effects current objects or only future ones. */
     early: boolean
+    /** The rotation in degrees. V2 will only allow -60 to 60 in multiples of 15. */
     rotation: number
 
     push(
@@ -132,12 +136,13 @@ export class RotationEvent
 }
 
 export class BoostEvent
-    extends BaseObject<bsmap.v2.IEvent, bsmap.v3.IColorBoostEvent> {
+    extends ConvertableEvent<bsmap.v2.IEvent, bsmap.v3.IColorBoostEvent> {
     constructor(obj: Partial<ObjectFields<BoostEvent>>) {
         super(obj)
         this.boost = obj.boost ?? false
     }
 
+    /** Whether to use the boost color palette or not. */
     boost: boolean
 
     push(
@@ -237,6 +242,7 @@ export abstract class BPMEvent<
         this.beat = obj.beat ?? 0
     }
 
+    /** The beat the event will activate. */
     beat: number
 
     push(
@@ -277,7 +283,7 @@ export abstract class BPMEvent<
     abstract toJson(v3: true, prune?: boolean): TV2 | TV3
 }
 
-export class OfficialBPMEvent extends BPMEvent<
+export class OfficialBPMEvent extends ConvertableEvent<
     bsmap.v2.IEvent,
     bsmap.v3.IBPMEvent
 > {
@@ -286,6 +292,7 @@ export class OfficialBPMEvent extends BPMEvent<
         this.bpm = obj.bpm ?? 0
     }
 
+    /** What BPM this event changes the map to. */
     bpm: number
 
     fromBasicEvent(json: bsmap.v3.IBasicEvent) {
@@ -367,9 +374,13 @@ export class CommunityBPMEvent extends BPMEvent<
         this.metronomeOffset = obj.metronomeOffset ?? 0
     }
 
+    /** What BPM this event changes the map to. */
     bpm: number
+    /** Whether this event is in the mediocre mapper format. */
     mediocreMapper: boolean
+    /** ??? */
     beatsPerBar: number
+    /** ??? */
     metronomeOffset: number
 
     fromJson(json: bsmap.v3.IBPMChange, v3: true): this

@@ -20,6 +20,7 @@ import { arraySplit } from '../utils/array_utils.ts'
 import { CommunityBPMEvent, OfficialBPMEvent } from '../internals/event.ts'
 import { AnyFog, CustomEventInternals, event, FogEvent, IInfoSet, IInfoSetDifficulty, TJson } from '../mod.ts'
 
+/** Difficulty V2 beatmap. */
 export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
     declare version: bsmap.v2.IDifficulty['_version']
     declare waypoints: bsmap.v2.IWaypoint[]

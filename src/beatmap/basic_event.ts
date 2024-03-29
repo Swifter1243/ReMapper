@@ -4,7 +4,12 @@ import { EventGroup, InterscopeGroup } from '../data/constants.ts'
 
 import * as BasicEventInternals from '../internals/basic_event.ts'
 import { BaseEvent } from '../internals/basic_event.ts'
-import { BoostEvent, CommunityBPMEvent, OfficialBPMEvent, RotationEvent } from '../internals/event.ts'
+import {
+    BoostEvent,
+    CommunityBPMEvent,
+    OfficialBPMEvent,
+    RotationEvent,
+} from '../internals/event.ts'
 
 type LightParameters =
     | [
@@ -39,16 +44,7 @@ function fixupParams<TG extends BasicEventInternals.LightEvent['type']>(
     }] satisfies ConstructorParameters<typeof BasicEventInternals.LightEvent>
 }
 
-export function baseBasicEvent(
-    beat: number,
-    type?: number,
-    value?: number,
-    floatValue?: number,
-): BasicEventInternals.BaseBasicEvent
-export function baseBasicEvent(
-    ...obj: ConstructorParameters<typeof BasicEventInternals.BaseBasicEvent>
-): BasicEventInternals.BaseBasicEvent
-
+/** The bare minimum basic event. */
 export function baseBasicEvent(
     ...params: [
         beat: number,
@@ -73,16 +69,7 @@ export function baseBasicEvent(
     })
 }
 
-export function lightEvent(
-    beat: number,
-    type?: number,
-    value?: number,
-    floatValue?: number,
-): BasicEventInternals.LightEvent
-export function lightEvent(
-    ...obj: ConstructorParameters<typeof BasicEventInternals.LightEvent>
-): BasicEventInternals.LightEvent
-
+/** The bare minimum lighting event */
 export function lightEvent(
     ...params: [
         beat: number,
@@ -196,16 +183,6 @@ export function gagaRight(...params: LightParameters) {
  * @param value The group of cars to target.
  */
 export function moveCars(
-    ...params: Omit<
-        ConstructorParameters<typeof BasicEventInternals.RingSpinEvent>,
-        'type'
-    >
-): BasicEventInternals.RingSpinEvent
-export function moveCars(
-    beat: number,
-    value: InterscopeGroup,
-): BasicEventInternals.RingSpinEvent
-export function moveCars(
     ...params:
         | [beat: number, value: InterscopeGroup]
         | Omit<
@@ -242,19 +219,6 @@ export function raiseHydraulics(beat: number) {
         value: 0,
     })
 }
-
-export function ringSpin(
-    beat: number,
-    rotation?: number,
-    direction?: BasicEventInternals.RingSpinEvent['direction'],
-    step?: number,
-    speed?: number,
-    prop?: number,
-    nameFilter?: string,
-): BasicEventInternals.RingSpinEvent
-export function ringSpin(
-    ...obj: ConstructorParameters<typeof BasicEventInternals.RingSpinEvent>
-): BasicEventInternals.RingSpinEvent
 
 /**
  * Spin the rings of an environment.
@@ -295,14 +259,6 @@ export function ringSpin(
     })
 }
 
-export function ringZoom(
-    beat: number,
-    speed?: number,
-): BasicEventInternals.RingZoomEvent
-export function ringZoom(
-    ...obj: ConstructorParameters<typeof BasicEventInternals.RingZoomEvent>
-): BasicEventInternals.RingZoomEvent
-
 /**
  * Controls ring zoom.
  * @param step The position offset between each ring.
@@ -311,43 +267,22 @@ export function ringZoom(
 export function ringZoom(
     ...params: [
         beat: number,
-        rotation?: number,
-        direction?: BasicEventInternals.RingSpinEvent['direction'],
         step?: number,
         speed?: number,
-        prop?: number,
-        nameFilter?: string,
     ] | ConstructorParameters<typeof BasicEventInternals.RingZoomEvent>
 ): BasicEventInternals.RingZoomEvent {
     if (typeof params[0] === 'object') {
         const obj = params[0]
         return new BasicEventInternals.RingZoomEvent(obj)
     }
-    const [beat, speed] = params
+    const [beat, step, speed] = params
 
     return new BasicEventInternals.RingZoomEvent({
         beat,
-        value: speed ?? 0,
+        step,
         speed,
     })
 }
-
-export function leftLaserSpeed(
-    beat: number,
-    speed?: number,
-    direction?: BasicEventInternals.RingSpinEvent['direction'],
-    lockRotation?: boolean,
-): BasicEventInternals.LaserSpeedEvent
-export function leftLaserSpeed(
-    ...obj: [
-        Omit<
-            ConstructorParameters<
-                typeof BasicEventInternals.LaserSpeedEvent
-            >[0],
-            'type'
-        >,
-    ]
-): BasicEventInternals.LaserSpeedEvent
 
 /**
  * Controls left rotating laser speed.
@@ -389,23 +324,6 @@ export function leftLaserSpeed(
     })
 }
 
-export function rightLaserSpeed(
-    beat: number,
-    speed?: number,
-    direction?: BasicEventInternals.RingSpinEvent['direction'],
-    lockRotation?: boolean,
-): BasicEventInternals.LaserSpeedEvent
-export function rightLaserSpeed(
-    ...obj: [
-        Omit<
-            ConstructorParameters<
-                typeof BasicEventInternals.LaserSpeedEvent
-            >[0],
-            'type'
-        >,
-    ]
-): BasicEventInternals.LaserSpeedEvent
-
 /**
  * Controls right rotating laser speed.
  * @param speed Speed of the rotating lasers.
@@ -446,18 +364,9 @@ export function rightLaserSpeed(
     })
 }
 
-export function earlyRotation(
-    beat: number,
-    rotation?: number,
-): RotationEvent
-export function earlyRotation(
-    ...obj: ConstructorParameters<typeof RotationEvent>
-): RotationEvent
-
 /**
  * Used for 360 mode, rotates future objects and active objects.
  * @param rotation The rotation of the event.
- * Must be a multiple of 15 between -60 and 60.
  */
 export function earlyRotation(
     ...params: [
@@ -480,18 +389,9 @@ export function earlyRotation(
     })
 }
 
-export function lateRotation(
-    beat: number,
-    rotation?: number,
-): RotationEvent
-export function lateRotation(
-    ...obj: ConstructorParameters<typeof RotationEvent>
-): RotationEvent
-
 /**
  * Used for 360 mode, rotates future objects only.
  * @param rotation The rotation of the event.
- * Must be a multiple of 15 between -60 and 60.
  */
 export function lateRotation(
     ...params: [
@@ -514,14 +414,7 @@ export function lateRotation(
     })
 }
 
-export function boost(
-    beat: number,
-    boost: boolean,
-): BoostEvent
-export function boost(
-    ...obj: ConstructorParameters<typeof BoostEvent>
-): BoostEvent
-
+/** Switches the color palette in the lighting. */
 export function boost(
     ...params: [
         beat: number,
@@ -547,15 +440,9 @@ export type AbstractEvent = BaseEvent<
     bsmap.v3.IBasicEvent
 >
 
-
-export function officialBpmEvent(
-    beat: number,
-    bpm: number,
-): OfficialBPMEvent
-export function officialBpmEvent(
-    ...obj: ConstructorParameters<typeof OfficialBPMEvent>
-): OfficialBPMEvent
-
+/** Creates an official BPM event, which changes the actual time between object beats.
+ * As opposed to community BPM events which are only interpreted by the editor.
+ */
 export function officialBpmEvent(
     ...params: [
         beat: number,
@@ -576,18 +463,16 @@ export function officialBpmEvent(
     })
 }
 
-export function communityBpmEvent(
-    beat: number,
-    bpm: number,
-): CommunityBPMEvent
-export function communityBpmEvent(
-    ...obj: ConstructorParameters<typeof CommunityBPMEvent>
-): CommunityBPMEvent
-
+/** Creates a community BPM event, which is deprecated.
+ * It is only interpreted by the editor, and doesn't actually change the time between object beats.
+ */
 export function communityBpmEvent(
     ...params: [
         beat: number,
         bpm: number,
+        mediocreMapper?: boolean,
+        beatsPerBar?: number,
+        metronomeOffset?: number,
     ] | ConstructorParameters<typeof CommunityBPMEvent>
 ): CommunityBPMEvent {
     if (typeof params[0] === 'object') {
@@ -596,10 +481,13 @@ export function communityBpmEvent(
             ...obj,
         })
     }
-    const [beat, bpm] = params
+    const [beat, bpm, mediocreMapper, beatsPerBar, metronomeOffset] = params
 
     return new CommunityBPMEvent({
         beat,
         bpm,
+        mediocreMapper,
+        beatsPerBar,
+        metronomeOffset,
     })
 }

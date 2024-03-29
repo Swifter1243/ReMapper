@@ -26,8 +26,15 @@ export abstract class EventBoxGroup<T extends bsmap.v3.IEventBox>
         this.boxes = obj.boxes ?? []
     }
 
+    /** An integer value which represents what group of environment objects are affected. */
     groupID: number
+    /** The event boxes in this group.  */
     boxes: EventBox<T>[]
+
+    /** Add a box to this group's boxes. */
+    add(box: EventBox<T>) {
+        this.boxes.push(box)
+    }
 
     toJson(v3: true, prune?: boolean): bsmap.v3.IEventBoxGroup<T>
     toJson(v3: false, prune?: boolean): never
@@ -127,9 +134,11 @@ export class LightTranslationEventBoxGroup
 }
 
 //! Event Boxes
-export abstract class EventBox<T extends bsmap.v3.IEventBox>
-    implements JsonWrapper<never, T> {
-    constructor(obj: Partial<ObjectFields<EventBox<T>>>) {
+export abstract class EventBox<
+    T extends bsmap.v3.IEventBox,
+    E extends LightEvent = LightEvent,
+> implements JsonWrapper<never, T> {
+    constructor(obj: Partial<ObjectFields<EventBox<T, E>>>) {
         this.filter = obj.filter ?? {
             f: 1,
             c: 0,
@@ -144,15 +153,28 @@ export abstract class EventBox<T extends bsmap.v3.IEventBox>
         this.beatDistribution = obj.beatDistribution ?? 0
         this.beatDistributionType = obj.beatDistributionType ??
             DistributionType.STEP
-        this.distributionEasing = obj.distributionEasing ?? RotationEase.NONE
+        this.distributionEasing = obj.distributionEasing ?? RotationEase.None
         this.customData = obj.customData ?? {}
+        this.events = obj.events ?? []
     }
 
+    /** Allows you to filter specific environment objects within an event box and control how its effects are distributed. */
     filter: bsmap.v3.IIndexFilter
+    /** https://bsmg.wiki/mapping/map-format/lightshow.html#light-color-event-boxes-beat-distribution */
     beatDistribution: number
+    /** Determines how the effects will be processed over time, in relation to the starting beat. */
     beatDistributionType: DistributionType
+    /** An integer value which determines the interpolation of the distribution, or the behavior for how to traverse the sequence. */
     distributionEasing: RotationEase
+    /** Community data in the event box. */
     customData: T['customData']
+    /** The events in this event box. */
+    events: E[]
+
+    /** Add an event to this box's events. */
+    add(event: E) {
+        this.events.push(event)
+    }
 
     abstract fromJson(json: T, v3: true): this
     abstract fromJson(json: never, v3: false): this
@@ -163,7 +185,8 @@ export abstract class EventBox<T extends bsmap.v3.IEventBox>
     abstract toJson(v3: boolean, prune?: boolean): T
 }
 
-export class LightColorEventBox extends EventBox<bsmap.v3.ILightColorEventBox> {
+export class LightColorEventBox
+    extends EventBox<bsmap.v3.ILightColorEventBox, LightColorEvent> {
     constructor(obj: Partial<Fields<LightColorEventBox>>) {
         super(obj)
         this.brightnessDistribution = obj.brightnessDistribution ?? 1
@@ -171,13 +194,14 @@ export class LightColorEventBox extends EventBox<bsmap.v3.ILightColorEventBox> {
             DistributionType.STEP
         this.brightnessDistributionFirst = obj.brightnessDistributionFirst ??
             true
-        this.events = obj.events ?? []
     }
 
+    /** https://bsmg.wiki/mapping/map-format/lightshow.html#light-color-event-boxes-effect-distribution */
     brightnessDistribution: number
+    /** Determines how the brightness of all filtered objects should be adjusted when iterating through the sequence. */
     brightnessDistributionType: DistributionType
+    /** A binary integer value (0 or 1) which determines whether the distribution should affect the first event in the sequence. */
     brightnessDistributionFirst: boolean
-    events: LightColorEvent[]
 
     fromJson(json: bsmap.v3.ILightColorEventBox, v3: true): this
     fromJson(json: never, v3: false): this
@@ -223,7 +247,7 @@ export class LightColorEventBox extends EventBox<bsmap.v3.ILightColorEventBox> {
 }
 
 export class LightRotationEventBox
-    extends EventBox<bsmap.v3.ILightRotationEventBox> {
+    extends EventBox<bsmap.v3.ILightRotationEventBox, LightRotationEvent> {
     constructor(obj: Partial<Fields<LightRotationEventBox>>) {
         super(obj)
         this.rotationDistribution = obj.rotationDistribution ?? 0
@@ -232,15 +256,18 @@ export class LightRotationEventBox
         this.rotationAxis = obj.rotationAxis ?? LightAxis.X
         this.flipRotation = obj.flipRotation ?? false
         this.rotationDistributionFirst = obj.rotationDistributionFirst ?? true
-        this.events = obj.events ?? []
     }
 
+    /** https://bsmg.wiki/mapping/map-format/lightshow.html#light-rotation-event-boxes-effect-distribution */
     rotationDistribution: number
+    /** Determines how the rotation of all filtered objects should be adjusted when iterating through the sequence. */
     rotationDistributionType: DistributionType
+    /** An integer value which controls the axis of rotation. */
     rotationAxis: LightAxis
+    /** An integer value which determines whether the rotation should be mirrored. */
     flipRotation: boolean
+    /** A binary integer value (0 or 1) which determines whether the distribution should affect the first event in the sequence. */
     rotationDistributionFirst: boolean
-    events: LightRotationEvent[]
 
     fromJson(json: bsmap.v3.ILightRotationEventBox, v3: true): this
     fromJson(json: never, v3: false): this
@@ -290,7 +317,10 @@ export class LightRotationEventBox
 }
 
 export class LightTranslationEventBox
-    extends EventBox<bsmap.v3.ILightTranslationEventBox> {
+    extends EventBox<
+        bsmap.v3.ILightTranslationEventBox,
+        LightTranslationEvent
+    > {
     constructor(obj: Partial<Fields<LightTranslationEventBox>>) {
         super(obj)
         this.translationDistribution = obj.translationDistribution ?? 0
@@ -300,15 +330,18 @@ export class LightTranslationEventBox
         this.flipTranslation = obj.flipTranslation ?? false
         this.translationDistributionFirst = obj.translationDistributionFirst ??
             true
-        this.events = obj.events ?? []
     }
 
+    /** https://bsmg.wiki/mapping/map-format/lightshow.html#light-translation-event-boxes-effect-distribution */
     translationDistribution: number
+    /** Determines how the translation of all filtered objects should be adjusted when iterating through the sequence. */
     translationDistributionType: DistributionType
+    /** An integer value which controls the axis of translation. */
     translationAxis: LightAxis
+    /** An integer value which determines whether the translation should be mirrored. */
     flipTranslation: boolean
+    /** A binary integer value (0 or 1) which determines whether the distribution should affect the first event in the sequence. */
     translationDistributionFirst: boolean
-    events: LightTranslationEvent[]
 
     fromJson(json: bsmap.v3.ILightTranslationEventBox, v3: true): this
     fromJson(json: never, v3: false): this
@@ -360,8 +393,17 @@ export class LightTranslationEventBox
 }
 
 //! Events
-export class LightColorEvent
-    extends BaseObject<never, bsmap.v3.ILightColorBase> {
+type LightBase =
+    | bsmap.v3.ILightColorBase
+    | bsmap.v3.ILightRotationBase
+    | bsmap.v3.ILightTranslationBase
+
+abstract class LightEvent<T extends LightBase = LightBase>
+    extends BaseObject<never, T> {}
+
+// TODO: Continue docs from here
+
+export class LightColorEvent extends LightEvent<bsmap.v3.ILightColorBase> {
     constructor(obj: Partial<ObjectFields<LightColorEvent>>) {
         super(obj)
         this.transitionType = obj.transitionType ?? LightTransition.INSTANT
@@ -418,7 +460,7 @@ export class LightRotationEvent
     constructor(obj: Partial<ObjectFields<LightRotationEvent>>) {
         super(obj)
         this.usePreviousEventRotation = obj.usePreviousEventRotation ?? true
-        this.easing = obj.easing ?? RotationEase.NONE
+        this.easing = obj.easing ?? RotationEase.None
         this.loopCount = obj.loopCount ?? 1
         this.rotationDegrees = obj.rotationDegrees ?? 0
         this.rotationDirection = obj.rotationDirection ??
@@ -460,7 +502,7 @@ export class LightRotationEvent
 
         const output = {
             b: this.beat,
-            e: this.easing,
+            e: this.easing as bsmap.v3.ILightRotationBase['e'],
             l: this.loopCount,
             o: this.rotationDirection,
             p: this.usePreviousEventRotation ? 1 : 0,
@@ -477,7 +519,7 @@ export class LightTranslationEvent
         super(obj)
         this.usePreviousEventTranslation = obj.usePreviousEventTranslation ??
             false
-        this.easing = obj.easing ?? RotationEase.NONE
+        this.easing = obj.easing ?? RotationEase.None
         this.value = obj.value ?? 0
     }
 
@@ -512,7 +554,7 @@ export class LightTranslationEvent
 
         const output = {
             b: this.beat,
-            e: this.easing,
+            e: this.easing as bsmap.v3.ILightTranslationBase['e'],
             p: this.usePreviousEventTranslation ? 1 : 0,
             t: this.value,
             customData: this.customData,

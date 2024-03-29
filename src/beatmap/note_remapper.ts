@@ -1,6 +1,7 @@
 import { AnyNote } from '../general.ts'
 import { NoteRemapperInternals } from '../internals/mod.ts'
 
+/** Tool to chain processes and conditions on notes in the map. Uses a builder pattern. */
 export const noteRemapper = () => new AnyNoteRemapper()
 
 class AnyNoteRemapper

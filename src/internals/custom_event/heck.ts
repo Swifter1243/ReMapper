@@ -37,15 +37,17 @@ export class AnimateTrack extends BaseCustomEvent<
 
     /** The animation of this event. */
     animation: AnimationPropertiesV3
+    /** Duration of the animation. */
     duration: number
+    /** The track of this event.
+     * Uses a wrapper that simplifies single strings and arrays.
+     */
     track: Track = new Track('')
+    /** The easing on this event's animation. */
     easing?: EASE
     /** The amount of times to repeat this event. */
     repeat?: number
 
-    /** Push this event to the difficulty.
-     * @param clone Whether this object will be copied before being pushed.
-     */
     push(clone = true) {
         getActiveDifficulty().customEvents.animateTrackEvents.push(
             clone ? copy(this) : this,

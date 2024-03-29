@@ -6,24 +6,12 @@ import { animationToJson } from "./animation.ts";
 import { BaseNote, ExcludedObjectFields, defaultBoolean, exportInvertedBoolean } from "./object.ts";
 
 export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
-    /**
-     * Bomb object for ease of creation.
-     * @param beat The time this bomb will reach the player.
-     * @param x The lane of the note.
-     * @param y The vertical row of the note.
-     */
-    // time = 0, x = 0, y = 0
     constructor(
         fields: ExcludedObjectFields<Bomb>,
     ) {
         super(fields)
     }
 
-    /**
-     * Push this bomb to the difficulty.
-     * @param fake Whether this bomb will be pushed to the fakeBombs array.
-     * @param clone Whether this object will be copied before being pushed.
-     */
     push(clone = true) {
         getActiveDifficulty().bombs.push(clone ? copy(this) : this)
         return this

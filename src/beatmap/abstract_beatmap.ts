@@ -37,6 +37,7 @@ import { animationIsRuntime } from '../animation/animation_utils.ts'
 import { settingsHandler } from '../data/constants.ts'
 import { jsonGet, jsonSet } from '../utils/json.ts'
 
+/** Wrapper for custom event arrays in a beatmap. */
 export interface BeatmapCustomEvents {
     animateComponentEvents: CustomEventInternals.AnimateComponent[]
     animateTrackEvents: CustomEventInternals.AnimateTrack[]
@@ -60,6 +61,7 @@ export interface BeatmapCustomEvents {
     abstractCustomEvents: CustomEventInternals.AbstractCustomEvent[]
 }
 
+/** Everything that should be in a difficulty class */
 export interface RMDifficulty {
     version: bsmap.v2.IDifficulty['_version'] | bsmap.v3.IDifficulty['version']
     v3: boolean
@@ -139,6 +141,7 @@ export type PostProcessFn = (
     value: unknown,
 ) => unknown | null
 
+/** A remapper difficulty, version agnostic */
 export abstract class AbstractDifficulty<
     TD extends bsmap.v2.IDifficulty | bsmap.v3.IDifficulty =
         | bsmap.v2.IDifficulty
@@ -155,14 +158,20 @@ export abstract class AbstractDifficulty<
      */
     setInfo: IInfoSet
     private postProcesses = new Map<number, PostProcessFn[]>()
+    /** Tasks to complete before the difficulty is saved. */
     awaitingCompletion = new Set<Promise<unknown>>()
+    /** The current promise of the difficulty being saved. */
     savePromise?: Promise<void>
 
     // Initialized by constructor using Object.assign
+    /** Semver beatmap version. */
     version: bsmap.v2.IDifficulty['_version'] | bsmap.v3.IDifficulty['version']
+    /** Whether this difficulty is V3 or not. */
     v3: boolean
+    /** Nobody really knows what these do lol */
     waypoints: bsmap.v2.IWaypoint[] | bsmap.v3.IWaypoint[]
 
+    /** All standard color notes. */
     notes: NoteInternals.Note[]
     bombs: NoteInternals.Bomb[]
     arcs: NoteInternals.Arc[]
@@ -189,13 +198,12 @@ export abstract class AbstractDifficulty<
     environment: EnvironmentInternals.Environment[]
     geometry: EnvironmentInternals.Geometry[]
     geometryMaterials: Record<string, RawGeometryMaterial>
+    /** All of the fog related things that happen in this difficulty. */
     fogEvents: FogEvent[]
 
     /**
      * Creates a difficulty. Can be used to access various information and the map data.
      * Will set the active difficulty to this.
-     * @param input Filename for the input.
-     * @param input Filename for the output. If left blank, input will be used.
      */
     constructor(
         json: TD,
@@ -249,6 +257,7 @@ export abstract class AbstractDifficulty<
         this.addPostProcess(reduceDecimalsPostProcess, -10)
     }
 
+    /** Add a promise to the difficulty, that will be awaited for on save. */
     async runAsync<T>(callback: () => Promise<T>) {
         const promise = callback()
         this.awaitingCompletion.add(promise)
@@ -257,6 +266,9 @@ export abstract class AbstractDifficulty<
         return result
     }
 
+    /** Await all promises in this difficulty.
+     * Some examples of promises that would be awaited are things like ModelScene calls.
+     */
     async awaitAllAsync() {
         await Promise.all(this.awaitingCompletion)
     }
@@ -297,7 +309,7 @@ export abstract class AbstractDifficulty<
     /**
      * Allows you to add a function to be run on save of this difficulty.
      * @param process The function to be added.
-     * @param priority The priority, or default 0. Higher priority means first
+     * @param priority Default 0. Higher priority means first
      */
     addPostProcess(process: PostProcessFn, priority?: number) {
         priority ??= 0
@@ -311,6 +323,7 @@ export abstract class AbstractDifficulty<
         arr.push(process)
     }
 
+    /** Convert this difficulty to the JSON outputted into the .dat file. */
     abstract toJSON(): TD
 
     /**
@@ -371,6 +384,9 @@ export abstract class AbstractDifficulty<
         await this.savePromise
     }
 
+    /** Clear objects on this difficulty.
+     @param exclude Array of things to ignore during the clear.
+     */
     clear(exclude: ClearProperty[] = []) {
         const excludeSet = new Set(exclude)
         const clear = (property: ClearProperty) => !excludeSet.has(property)
@@ -446,6 +462,7 @@ export abstract class AbstractDifficulty<
         this.suggestions = suggestionsArr
     }
 
+    /** Iterator for both geometry and environment. */
     *environmentEnhancementsCombined(): IterableIterator<
         EnvironmentInternals.AbstractEnvironment
     > {
@@ -454,26 +471,30 @@ export abstract class AbstractDifficulty<
     }
 
     /**
+     * Iterator for all standard (non V3 lighting) events on the difficulty.
      * @brief Not sorted
      */
-    *allEvents(sorted = false): IterableIterator<
+    *allStandardEvents(sorted = false): IterableIterator<
         BasicEventInternals.BaseEvent
     > {
         if (sorted) {
             return [
                 ...this.lightEvents,
-                ...this.ringSpinEvents,
-                ...this.ringZoomEvents,
                 ...this.laserSpeedEvents,
+                ...this.ringZoomEvents,
+                ...this.ringSpinEvents,
+                ...this.baseBasicEvents,
             ].sort((a, b) => a.beat - b.beat)
         }
 
         yield* this.lightEvents
-        yield* this.ringSpinEvents
-        yield* this.ringZoomEvents
         yield* this.laserSpeedEvents
+        yield* this.ringZoomEvents
+        yield* this.ringSpinEvents
+        yield* this.baseBasicEvents
     }
 
+    /** Iterator for all notes. */
     get allNotes() {
         return [
             ...this.notes,
@@ -550,7 +571,7 @@ export abstract class AbstractDifficulty<
         this.info._customData._suggestions = value
     }
 
-    /** The settings to be set for this difficulty. */
+    /** An aliased settings object. This controls the heck settings setter. */
     readonly settings = new Proxy(new settingsHandler(this), {
         get(handler, property) {
             const objValue = handler[property as keyof typeof handler]
@@ -582,7 +603,7 @@ export abstract class AbstractDifficulty<
         },
     })
 
-    /** The unaliased settings object. */
+    /** The unaliased settings object. This controls the heck settings setter. */
     get rawSettings() {
         return this.info._customData?._settings
     }

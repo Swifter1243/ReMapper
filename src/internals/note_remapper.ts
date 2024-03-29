@@ -11,6 +11,7 @@ export type NoteTypeLookup = {
     'Arc': NoteInternals.Arc
     'Chain': NoteInternals.Chain
 }
+/** All note types. */
 export type NoteType = keyof NoteTypeLookup
 
 type CutName =

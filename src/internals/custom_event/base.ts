@@ -17,6 +17,9 @@ export type CustomEventExclusions = {
     type: never
 }
 
+/** Get a property from the "data" object in a CustomEvent.
+ * This deletes whatever's accessed, so that the values transferred into the class aren't left in the data object.
+ */
 export function getDataProp<
     T,
     K extends keyof T,
@@ -48,6 +51,9 @@ type AllV3CustomEvents =
     | BeatmapInterfaces.SetMaterialProperty
     | BeatmapInterfaces.SetRenderSetting
 
+/** Gives the input params object for the constructor of custom events using a track.
+ * Replaces the track property from a track class to a (string | string[])
+ */
 export type CustomEventConstructorTrack<T, R = ObjectReplacements> =
     ExcludedObjectFields<
         T,
@@ -55,6 +61,9 @@ export type CustomEventConstructorTrack<T, R = ObjectReplacements> =
         CustomEventExclusions
     >
 
+/**
+ * Gives the input params object for the constructor of custom events.
+ */
 export type CustomEventConstructor<T> = ExcludedObjectFields<
     T,
     // deno-lint-ignore ban-types
@@ -62,6 +71,9 @@ export type CustomEventConstructor<T> = ExcludedObjectFields<
     CustomEventExclusions
 >
 
+/** Gives the fields exclusive to the subclass of a custom event.
+ * Kind of just removes some biolerplate where I define BaseCustomEvent as the parent.
+ */
 export type CustomEventSubclassFields<T> = Fields<
     SubclassExclusiveProps<
         T,
@@ -73,8 +85,11 @@ export abstract class BaseCustomEvent<
     TV2 extends bsmap.v2.ICustomEvent = bsmap.v2.ICustomEvent,
     TV3 extends AllV3CustomEvents = AllV3CustomEvents,
 > implements JsonWrapper<TV2, TV3> {
+    /** This this event will activate. */
     beat: number
+    /** The type of CustomEvent. */
     type: string
+    /** The "data" object inside of the CustomEvent. */
     data: TJson
 
     constructor(fields: Partial<Fields<BaseCustomEvent<TV2, TV3>>>) {
@@ -125,9 +140,6 @@ export class AbstractCustomEvent extends BaseCustomEvent<
     bsmap.v2.ICustomEvent,
     bsmap.v3.ICustomEvent
 > {
-    /** Push this event to the difficulty.
-     * @param clone Whether this object will be copied before being pushed.
-     */
     push(clone = true) {
         getActiveDifficulty().customEvents.abstractCustomEvents.push(
             clone ? copy(this) : this,

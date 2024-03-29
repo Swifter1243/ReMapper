@@ -9,6 +9,7 @@ import { BUNDLE_VERSIONS } from './constants.ts'
 
 let info: IInfo
 
+/** Get the current directory of the Info.dat, based on the working directory. */
 export function getInfoPath() {
     return path.join(getWorkingDirectory(), 'Info.dat')
 }
@@ -18,6 +19,7 @@ function saveInfoDat() {
     RMLog('Info.dat successfully saved!')
 }
 
+/** Load the Info.dat. This will only be done once during runtime. */
 export async function loadInfoDat() {
     if (info) return info
 
@@ -60,12 +62,18 @@ async function getBundleCRC(name: string) {
     }
 }
 
+/** Get the current active info object.
+ * Use this to access the info object, not loadInfoDat().
+ */
 export function getInfoDat() {
     if (info) return info
 
     throw new Error('There is currently no loaded info.dat.')
 }
 
+/** The infoset of a given difficulty name.
+ * Contains difficulty, difficulty rank, among other information.
+ */
 export function getInfoDifficultySets(difficultyName: DIFFNAME) {
     const info = getInfoDat()
     let diffSet: IInfoSetDifficulty | undefined

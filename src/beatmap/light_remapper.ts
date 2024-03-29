@@ -4,6 +4,10 @@ import { doesArrayHave } from '../utils/array_utils.ts'
 import { LightID } from '../types/environment_types.ts'
 import { copy } from '../utils/general.ts'
 
+/*
+ * Class used to iterate through every event in the map.
+ * Has various tools to transform the events.
+ */
 export const lightRemapper = () => new LightRemapper()
 
 export class LightRemapper extends LightRemapperInternals.BaseLightRemapper {

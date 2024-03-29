@@ -24,9 +24,6 @@ export class SetMaterialProperty extends BaseCustomEvent<
     never,
     BeatmapInterfaces.SetMaterialProperty
 > {
-    /**
-     * Animate objects on a track across their lifespan.
-     */
     constructor(
         params: CustomEventConstructor<SetMaterialProperty>,
     ) {
@@ -38,14 +35,15 @@ export class SetMaterialProperty extends BaseCustomEvent<
         if (params.properties) this.properties = params.properties
     }
 
+    /** File path to the material. */
     asset: string
+    /** The duration of the animation. */
     duration?: number
+    /** An easing for the animation to follow. */
     easing?: EASE
+    /** Properties to set. */
     properties: MaterialProperty[] = []
 
-    /** Push this event to the difficulty.
-     * @param clone Whether this object will be copied before being pushed.
-     */
     push(clone = true) {
         getActiveDifficulty().customEvents.setMaterialPropertyEvents.push(
             clone ? copy(this) : this,
@@ -105,9 +103,6 @@ export class SetGlobalProperty extends BaseCustomEvent<
     never,
     BeatmapInterfaces.SetGlobalProperty
 > {
-    /**
-     * Animate objects on a track across their lifespan.
-     */
     constructor(
         params: CustomEventConstructor<SetGlobalProperty>,
     ) {
@@ -118,13 +113,13 @@ export class SetGlobalProperty extends BaseCustomEvent<
         if (params.properties) this.properties = params.properties
     }
 
+    /** The duration of the animation. */
     duration?: number
+    /** An easing for the animation to follow. */
     easing?: EASE
+    /** Properties to set. */
     properties: MaterialProperty[] = []
 
-    /** Push this event to the difficulty.
-     * @param clone Whether this object will be copied before being pushed.
-     */
     push(clone = true) {
         getActiveDifficulty().customEvents.setGlobalPropertyEvents.push(
             clone ? copy(this) : this,
@@ -182,9 +177,6 @@ export class Blit extends BaseCustomEvent<
     never,
     BeatmapInterfaces.Blit
 > {
-    /**
-     * Animate objects on a track across their lifespan.
-     */
     constructor(
         params: CustomEventConstructor<Blit>,
     ) {
@@ -199,18 +191,23 @@ export class Blit extends BaseCustomEvent<
         if (params.properties) this.properties = params.properties
     }
 
+    /** File path to the material. */
     asset?: string
+    /** Which order to run current active post processing effects. Higher priority will run first. Default = 0 */
     priority?: number
+    /** Which pass in the shader to use. Will use all passes if not defined. */
     pass?: number
+    /** Which texture to pass to the shader as "_MainTex". "_Main" is reserved for the camera. Default = "_Main" */
     source?: string
+    /** Which render texture to save to. Can be an array. "_Main" is reserved for the camera. Default = "_Main" */
     destination?: string
+    /** The duration of the animation. */
     duration?: number
+    /** An easing for the animation to follow. */
     easing?: EASE
+    /** Properties to set. */
     properties?: MaterialProperty[]
 
-    /** Push this event to the difficulty.
-     * @param clone Whether this object will be copied before being pushed.
-     */
     push(clone = true) {
         getActiveDifficulty().customEvents.blitEvents.push(
             clone ? copy(this) : this,
@@ -294,14 +291,15 @@ export class DeclareCullingTexture extends BaseCustomEvent<
         if (params.depthTexture) this.depthTexture = params.depthTexture
     }
 
+    /** Name of the culling mask, this is what you must name your sampler in your shader. */
     id: string
+    /** Name(s) of your track(s). Everything on the track(s) will be added to this mask. */
     track: Track
+    /** When true, will cull everything but the selected tracks. Default = false. */
     whitelist?: boolean
+    /** When true, write depth texture to "'name'_Depth". Default = false. */
     depthTexture?: boolean
 
-    /** Push this event to the difficulty.
-     * @param clone Whether this object will be copied before being pushed.
-     */
     push(clone = true) {
         getActiveDifficulty().customEvents.declareCullingTextureEvents.push(
             clone ? copy(this) : this,
@@ -378,17 +376,21 @@ export class DeclareRenderTexture extends BaseCustomEvent<
         if (params.filterMode) this.filterMode = params.filterMode
     }
 
+    /** Name of the texture */
     id: string
+    /** Number to divide width by, i.e. on a 1920x1080 screen, an xRatio of 2 will give you a 960x1080 texture. */
     xRatio?: number
+    /** Number to divide height by. */
     yRatio?: number
+    /** Exact width for the texture. */
     width?: number
+    /** Exact height for the texture. */
     height?: number
+    /** https://docs.unity3d.com/ScriptReference/RenderTextureFormat.html */
     colorFormat?: RENDER_TEX
+    /** https://docs.unity3d.com/ScriptReference/FilterMode.html */
     filterMode?: TEX_FILTER
 
-    /** Push this event to the difficulty.
-     * @param clone Whether this object will be copied before being pushed.
-     */
     push(clone = true) {
         getActiveDifficulty().customEvents.declareRenderTextureEvents.push(
             clone ? copy(this) : this,
@@ -454,9 +456,6 @@ export class DestroyTexture extends BaseCustomEvent<
     never,
     BeatmapInterfaces.DestroyTexture
 > {
-    /**
-     * Animate objects on a track across their lifespan.
-     */
     constructor(
         params: CustomEventConstructorTrack<
             DestroyTexture,
@@ -468,11 +467,9 @@ export class DestroyTexture extends BaseCustomEvent<
         this.id = params.id instanceof Track ? params.id : new Track(params.id)
     }
 
+    /** Names(s) of textures to destroy. */
     id: Track
 
-    /** Push this event to the difficulty.
-     * @param clone Whether this object will be copied before being pushed.
-     */
     push(clone = true) {
         getActiveDifficulty().customEvents.destroyTextureEvents.push(
             clone ? copy(this) : this,
@@ -526,9 +523,6 @@ export class InstantiatePrefab extends BaseCustomEvent<
     never,
     BeatmapInterfaces.InstantiatePrefab
 > {
-    /**
-     * Animate objects on a track across their lifespan.
-     */
     constructor(
         params: CustomEventConstructor<InstantiatePrefab>,
     ) {
@@ -544,18 +538,23 @@ export class InstantiatePrefab extends BaseCustomEvent<
         if (params.scale) this.scale = params.scale
     }
 
+    /** File path to the desired prefab. */
     asset: string
+    /** Unique id for referencing prefab later. Random id will be given by default. */
     id?: string
+    /** Track to animate prefab transform. */
     track?: string
+    /** Set position. */
     position?: Vec3
+    /** Set localPosition. */
     localPosition?: Vec3
+    /** Set rotation (in euler angles). */
     rotation?: Vec3
+    /** Set localRotation (in euler angles). */
     localRotation?: Vec3
+    /** Set scale. */
     scale?: Vec3
 
-    /** Push this event to the difficulty.
-     * @param clone Whether this object will be copied before being pushed.
-     */
     push(clone = true) {
         getActiveDifficulty().customEvents.instantiatePrefabEvents.push(
             clone ? copy(this) : this,
@@ -623,9 +622,6 @@ export class DestroyPrefab extends BaseCustomEvent<
     never,
     BeatmapInterfaces.DestroyPrefab
 > {
-    /**
-     * Animate objects on a track across their lifespan.
-     */
     constructor(
         params: CustomEventConstructorTrack<
             DestroyPrefab,
@@ -637,11 +633,9 @@ export class DestroyPrefab extends BaseCustomEvent<
         this.id = params.id instanceof Track ? params.id : new Track(params.id)
     }
 
+    /** Id(s) of prefab to destroy. */
     id: Track
 
-    /** Push this event to the difficulty.
-     * @param clone Whether this object will be copied before being pushed.
-     */
     push(clone = true) {
         getActiveDifficulty().customEvents.destroyPrefabEvents.push(
             clone ? copy(this) : this,
@@ -695,9 +689,6 @@ export class SetAnimatorProperty extends BaseCustomEvent<
     never,
     BeatmapInterfaces.SetAnimatorProperty
 > {
-    /**
-     * Animate objects on a track across their lifespan.
-     */
     constructor(
         params: CustomEventConstructor<SetAnimatorProperty>,
     ) {
@@ -709,14 +700,15 @@ export class SetAnimatorProperty extends BaseCustomEvent<
         if (params.properties) this.properties = params.properties
     }
 
+    /** Id assigned to prefab. */
     id: string
+    /** The length of the event in beats. Defaults to 0. */
     duration?: number
+    /** An easing for the animation to follow. Defaults to "easeLinear". */
     easing?: EASE
+    /** Properties to set. */
     properties: AnimatorProperty[] = []
 
-    /** Push this event to the difficulty.
-     * @param clone Whether this object will be copied before being pushed.
-     */
     push(clone = true) {
         getActiveDifficulty().customEvents.setAnimatorPropertyEvents.push(
             clone ? copy(this) : this,
@@ -776,9 +768,6 @@ export class SetCameraProperty extends BaseCustomEvent<
     never,
     BeatmapInterfaces.SetCameraProperty
 > {
-    /**
-     * Animate objects on a track across their lifespan.
-     */
     constructor(
         params: CustomEventConstructor<SetCameraProperty>,
     ) {
@@ -787,11 +776,9 @@ export class SetCameraProperty extends BaseCustomEvent<
         this.depthTextureMode = params.depthTextureMode ?? []
     }
 
+    /** Sets the depth texture mode on the camera. */
     depthTextureMode: DEPTH_TEX_MODE[]
 
-    /** Push this event to the difficulty.
-     * @param clone Whether this object will be copied before being pushed.
-     */
     push(clone = true) {
         getActiveDifficulty().customEvents.setCameraPropertyEvents.push(
             clone ? copy(this) : this,
@@ -845,9 +832,6 @@ export class AssignTrackPrefab extends BaseCustomEvent<
     never,
     BeatmapInterfaces.AssignTrackPrefab
 > {
-    /**
-     * Animate objects on a track across their lifespan.
-     */
     constructor(
         params: CustomEventConstructor<AssignTrackPrefab>,
     ) {
@@ -857,12 +841,11 @@ export class AssignTrackPrefab extends BaseCustomEvent<
         this.note = params.note ?? ''
     }
 
+    /** Only objects on this track will be affected. */
     track: string
+    /** File path to the desired prefab to replace notes. */
     note: string
 
-    /** Push this event to the difficulty.
-     * @param clone Whether this object will be copied before being pushed.
-     */
     push(clone = true) {
         getActiveDifficulty().customEvents.assignTrackPrefabEvents.push(
             clone ? copy(this) : this,
@@ -918,9 +901,6 @@ export class SetRenderSetting extends BaseCustomEvent<
     never,
     BeatmapInterfaces.SetRenderSetting
 > {
-    /**
-     * Animate objects on a track across their lifespan.
-     */
     constructor(
         params: CustomEventConstructor<SetRenderSetting>,
     ) {
@@ -931,13 +911,13 @@ export class SetRenderSetting extends BaseCustomEvent<
         if (params.easing) this.easing = params.easing
     }
 
+    /** The length of the event in beats. Defaults to 0. */
     duration?: number
+    /** An easing for the animation to follow. Defaults to "easeLinear". */
     easing?: EASE
+    /** The settings to set. */
     settings: Partial<RENDER_SETTING>
 
-    /** Push this event to the difficulty.
-     * @param clone Whether this object will be copied before being pushed.
-     */
     push(clone = true) {
         getActiveDifficulty().customEvents.setRenderSettingEvents.push(
             clone ? copy(this) : this,

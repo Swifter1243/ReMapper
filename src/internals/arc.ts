@@ -39,9 +39,6 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
         this.noteGravity = fields.noteGravity ?? true
     }
 
-    /**
-     * Push this arc to the difficulty
-     */
     push(clone = true) {
         getActiveDifficulty().arcs.push(clone ? copy(this) : this)
         return this
@@ -60,6 +57,7 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
     /** Whether note gravity (the effect where notes move to their vertical row from the bottom row) is enabled. */
     noteGravity?: boolean
 
+    /** Determines whether this note uses Noodle Extensions features. */
     get isGameplayModded() {
         if (super.isGameplayModded) return true
         if (this.flip) return true

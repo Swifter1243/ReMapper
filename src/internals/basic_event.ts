@@ -16,8 +16,6 @@ export abstract class BaseEvent<
     TV2 extends bsmap.v2.IEvent = bsmap.v2.IEvent,
     TV3 extends bsmap.v3.IBasicEvent = bsmap.v3.IBasicEvent,
 > extends BaseObject<TV2, TV3> {
-    /** The bare minimum event. */
-
     constructor(obj: BasicEventExcludedFields<BaseEvent<TV2, TV3>>) {
         super(obj)
         this.type = obj.type ?? 0
@@ -162,8 +160,6 @@ export class LightEvent<
 
     /**
      * Create an event that turns lights on.
-     * @param color Can be boolean to determine if the light is blue (true), or a color.
-     * @param lightID The lightIDs to target.
      */
     on = this.makeAction({
         Blue: EventAction.BLUE_ON,
@@ -173,8 +169,6 @@ export class LightEvent<
 
     /**
      * Create an event that flashes the lights.
-     * @param color Can be boolean to determine if the light is blue (true), or a color.
-     * @param lightID The lightIDs to target.
      */
     flash = this.makeAction({
         Blue: EventAction.BLUE_FLASH,
@@ -184,8 +178,6 @@ export class LightEvent<
 
     /**
      * Create an event that fades the lights out.
-     * @param color Can be boolean to determine if the light is blue (true), or a color.
-     * @param lightID The lightIDs to target.
      */
     fade = this.makeAction({
         Blue: EventAction.BLUE_FADE,
@@ -195,9 +187,6 @@ export class LightEvent<
 
     /**
      * Create an event that makes the lights fade in to this color from the previous.
-     * @param color Can be boolean to determine if the light is blue (true), or a color.
-     * @param lightID The lightIDs to target.
-     * @returns
      */
     transition = this.makeAction({
         Blue: EventAction.BLUE_TRANSITION,
@@ -304,14 +293,6 @@ export class LaserSpeedEvent<
     TV3 extends bsmap.v3.IBasicEventLaserRotation =
         bsmap.v3.IBasicEventLaserRotation,
 > extends BaseEvent<TV2, TV3> {
-    /**
-     * Controls rotating laser speed.
-     * @param json Json to import.
-     * @param type Type of the event.
-     * @param speed Speed of the rotating lasers.
-     * @param direction Direction of the rotating lasers.
-     * @param lockRotation Whether the existing rotation should be kept.
-     */
     constructor(obj: BasicEventExcludedFields<LaserSpeedEvent<TV2, TV3>>) {
         super(obj)
         this.lockRotation = obj.lockRotation,
@@ -411,12 +392,6 @@ export class LaserSpeedEvent<
 
 export class RingZoomEvent
     extends BaseEvent<bsmap.v2.IEventZoom, bsmap.v3.IBasicEventRing> {
-    /**
-     * Controls ring zoom.
-     * @param json Json to import.
-     * @param step The position offset between each ring.
-     * @param speed The speed of the zoom.
-     */
     constructor(obj: Partial<Omit<Fields<RingZoomEvent>, 'type'>>) {
         super({
             ...obj,
@@ -426,7 +401,9 @@ export class RingZoomEvent
         this.speed = obj.speed
     }
 
+    /** The position offset between each ring. */
     step?: number
+    /** The speed of the zoom. */
     speed?: number
 
     push(
@@ -510,17 +487,6 @@ export class RingZoomEvent
 
 export class RingSpinEvent
     extends BaseEvent<bsmap.v2.IEventRing, bsmap.v3.IBasicEventRing> {
-    /**
-     * Controls spinning the rings.
-     * @param json Json to import.
-     * @param rotation Degrees of the spin.
-     * @param direction Direction of the spin. 1 is clockwise, 0 is counterclockwise.
-     * @param step The angle between each ring.
-     * @param speed The speed multiplier of the spin.
-     * @param prop The rate at which physics propogate through the rings.
-     * High values will cause rings to move simultneously, low values gives them significant delay.
-     * @param nameFilter The ring object name to target.
-     */
     constructor(obj: Partial<Omit<Fields<RingSpinEvent>, 'type'>>) {
         super({
             ...obj,
@@ -535,10 +501,8 @@ export class RingSpinEvent
     }
 
     /** The speed multiplier of the spin. */
-
     speed?: number
     /** Direction of the spin. 1 is clockwise, 0 is counterclockwise. */
-
     direction?: 0 | 1
     /** The ring object name to target. */
     nameFilter?: string

@@ -141,18 +141,21 @@ export async function exportZip(
         .map((v) => `"${v}"`) // surround with quotes for safety
 
     // Check file lock
-    if (files.some(async x => {
-        try {
-            await Deno.open(x, { read: true, write: false, create: false })
-            return false
-        }
-        catch (err) {
-            return err instanceof Deno.errors.PermissionDenied
-        }
-    })) {
-        RMError(`"${zipName}" could not be zipped. Some files are locked.`)
-        return
-    }
+    // this is broken?
+    // if (files.some(async x => {
+    //     try {
+    //         console.log(x)
+    //         await Deno.open(x, { read: true, write: false, create: false })
+    //         return false
+    //     }
+    //     catch (err) {
+    //         console.log(err)
+    //         return err instanceof Deno.errors.PermissionDenied
+    //     }
+    // })) {
+    //     RMError(`"${zipName}" could not be zipped. Some files are locked.`)
+    //     return
+    // }
 
     if (workingDir !== Deno.cwd()) {
         // Compress function doesn't seem to have an option for destination..

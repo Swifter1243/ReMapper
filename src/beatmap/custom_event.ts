@@ -1,3 +1,4 @@
+import { bsmap } from '../deps.ts'
 import * as CustomEventInternals from '../internals/custom_event/mod.ts'
 import { EASE, TrackValue } from '../types/animation_types.ts'
 import { FILEPATH } from '../types/beatmap_types.ts'
@@ -11,6 +12,7 @@ import {
 
 export type CustomEvent = CustomEventInternals.BaseCustomEvent
 
+/** Make a custom event with no particular identity. */
 export function abstractCustomEvent(
     ...params:
         | ConstructorParameters<typeof CustomEventInternals.AbstractCustomEvent>
@@ -156,6 +158,7 @@ export function assignTrackParent(
 /**
  * Assigns the player to a track.
  * @param track Track the player will be assigned to.
+ * @param target Which component of the player to target.
  */
 export function assignPlayerToTrack(
     ...params:
@@ -163,6 +166,7 @@ export function assignPlayerToTrack(
         | [
             beat: number,
             track?: string,
+            target?: bsmap.PlayerObject
         ]
 ) {
     if (typeof params[0] === 'object') {
@@ -173,12 +177,13 @@ export function assignPlayerToTrack(
         )
     }
 
-    const [beat, track] = params
+    const [beat, track, target] = params
 
     return new CustomEventInternals.AssignPlayerToTrack(
         {
             beat: beat as number,
             track,
+            target
         },
     )
 }
@@ -336,7 +341,6 @@ export function blit(
 /**
  * Declares a culling mask where selected tracks are culled.
  * Vivify will automatically create a texture for you to sample from your shader
- * @param json Json to import.
  * @param id Name of the culling mask, this is what you must name your sampler in your shader.
  * @param track The track(s) to target for culling.
  * @param whitelist Culls everything but the selected tracks.
@@ -413,6 +417,10 @@ export function declareRenderTexture(
     )
 }
 
+/** 
+ * Destroys a texture. 
+ * It is important to destroy any textures created through DeclareCullingTexture because the scene will have to be rendered again for each active culling texture. This can also be used for textures created through DeclareRenderTexture to free up memory.
+ */
 export function destroyTexture(
     ...params:
         | ConstructorParameters<
@@ -479,6 +487,7 @@ export function instantiatePrefab(
     )
 }
 
+/** Destroys a prefab or multiple prefabs in the scene. */
 export function destroyPrefab(
     ...params:
         | ConstructorParameters<
@@ -546,6 +555,7 @@ export function setAnimatorProperty(
     )
 }
 
+/** Set properties on the camera. */
 export function setCameraProperty(
     ...params:
         | ConstructorParameters<typeof CustomEventInternals.SetCameraProperty>
@@ -572,6 +582,9 @@ export function setCameraProperty(
     )
 }
 
+/** Replaces all objects on the track with the assigned prefab.
+ * @note File path to the desired prefab to replace notes.
+ */
 export function assignTrackPrefab(
     ...params:
         | ConstructorParameters<typeof CustomEventInternals.AssignTrackPrefab>
@@ -600,6 +613,7 @@ export function assignTrackPrefab(
     )
 }
 
+/** Set settings for the rendering. */
 export function setRenderSetting(
     ...params:
         | ConstructorParameters<typeof CustomEventInternals.SetRenderSetting>

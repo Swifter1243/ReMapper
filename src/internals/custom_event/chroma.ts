@@ -17,13 +17,6 @@ import {
 
 export class AnimateComponent
     extends BaseCustomEvent<never, bsmap.v3.ICustomEventAnimateComponent> {
-    /**
-     * Animate components on a track.
-     * @param json Json to import.
-     * @param track Track(s) to effect.
-     * @param duration Duration of the animation.
-     * @param easing The easing on the animation.
-     */
     constructor(
         params: CustomEventConstructorTrack<AnimateComponent>,
     ) {
@@ -41,11 +34,12 @@ export class AnimateComponent
         this.lightMultiplier = params.lightMultiplier ?? {}
     }
 
-    /** The track class for this event.
-     * Please read the properties of this class to see how it works.
+    /** The track of this event.
+     * Uses a wrapper that simplifies single strings and arrays.
      */
     track = new Track('')
 
+    /** Duration of the animation. */
     duration?: number
     /** The easing on this event's animation. */
     easing?: EASE

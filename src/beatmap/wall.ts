@@ -10,7 +10,6 @@ import {Wall} from "../internals/wall.ts";
  * @param height The height of the wall.
  * @param width The width of the wall.
  */
-
 export function wall(
     ...params: ConstructorParameters<typeof Wall> | [
         beat?: number,

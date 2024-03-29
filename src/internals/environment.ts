@@ -15,22 +15,28 @@ import { Track } from '../animation/track.ts'
 
 import { getActiveDifficulty } from '../data/beatmap_handler.ts'
 import { copy } from '../utils/general.ts'
-import { jsonPrune } from "../utils/json.ts";
+import { jsonPrune } from '../utils/json.ts'
 
+/** Environment enhancement which can be either Geometry or a regular Environment statement. */
 export type AbstractEnvironment = BaseEnvironmentEnhancement<
     bsmap.v2.IChromaEnvironmentBase,
     bsmap.v3.IChromaEnvironmentBase
 >
 
-export type EnvironmentReplacements = {
+type EnvironmentReplacements = {
     track?: TrackValue | Track
 }
 
+/** Fields for environment enhancement constructor object. */
 export type ExcludedEnvironmentFields<
     Class,
     Replacement = EnvironmentReplacements,
-> = Replace<Partial<Fields<Class>>, Replacement>
+> = Replace<
+    Partial<Fields<Class>>,
+    Replacement
+>
 
+/** The base abstract Environment Enhancement class which is inherited by Environment and Geometry. */
 export abstract class BaseEnvironmentEnhancement<
     TV2 extends bsmap.v2.IChromaEnvironmentBase,
     TV3 extends bsmap.v3.IChromaEnvironmentBase,
@@ -40,14 +46,6 @@ export abstract class BaseEnvironmentEnhancement<
      */
     abstract push(clone: boolean): void
 
-    /**
-     * Note object for ease of creation.
-     * @param beat Time this note will be hit.
-     * @param type The color of the note.
-     * @param direction The direction the note will be cut.
-     * @param x The lane of the note.
-     * @param y The vertical row of the note.
-     */
     constructor(
         fields:
             & ExcludedEnvironmentFields<BaseEnvironmentEnhancement<TV2, TV3>>
@@ -89,10 +87,11 @@ export abstract class BaseEnvironmentEnhancement<
      * Please read the properties of this class to see how it works.
      */
     track: Track = new Track()
-
+    /** V3 only. Allows you to use heck's component system. See https://github.com/Aeroluna/Heck/wiki/Environment#components. */
     components?: TV3['components']
-
+    /** If defined, will fill out the ILightWithId component using this ID. In V2, this will just use the _lightID property. */
     lightID?: number
+    /** V3 only. If defined, will fill out the ILightWithId component using this type. */
     lightType?: number
 
     fromJson(json: TV3, v3: true): this
@@ -153,11 +152,6 @@ export class Environment extends BaseEnvironmentEnhancement<
         getActiveDifficulty().environment.push(clone ? copy(this) : this)
     }
 
-    /**
-     * Environment object for ease of creation and additional tools.
-     * @param id The object name to look up in the environment.
-     * @param lookupMethod The method of looking up the object name in the environment.
-     */
     constructor(
         fields: ExcludedEnvironmentFields<Environment>,
     ) {
@@ -211,7 +205,8 @@ export class Environment extends BaseEnvironmentEnhancement<
     toJson(v3: true, prune?: boolean): bsmap.v3.IChromaEnvironmentID
     toJson(v3: false, prune?: boolean): bsmap.v2.IChromaEnvironmentID
     toJson(
-        v3: boolean, prune = true
+        v3: boolean,
+        prune = true,
     ): bsmap.v2.IChromaEnvironmentID | bsmap.v3.IChromaEnvironmentID {
         if (v3) {
             const output = {
@@ -263,11 +258,6 @@ export class Geometry extends BaseEnvironmentEnhancement<
         getActiveDifficulty().geometry.push(clone ? copy(this) : this)
     }
 
-    /**
-     * Geometry object for ease of creation and additional tools.
-     * @param type The geometry shape type.
-     * @param material The material on this geometry object.
-     */
     constructor(
         fields: ExcludedEnvironmentFields<Geometry>,
     ) {
@@ -309,7 +299,7 @@ export class Geometry extends BaseEnvironmentEnhancement<
             const params = {
                 collision: obj.geometry.collision,
                 material: obj.geometry.material,
-                type: obj.geometry.type
+                type: obj.geometry.type,
             } as Params
 
             Object.assign(this, params)
@@ -320,7 +310,7 @@ export class Geometry extends BaseEnvironmentEnhancement<
             const params = {
                 collision: obj._geometry._collision,
                 material: obj._geometry._material,
-                type: obj._geometry._type
+                type: obj._geometry._type,
             } as Params
 
             Object.assign(this, params)
@@ -331,7 +321,8 @@ export class Geometry extends BaseEnvironmentEnhancement<
     toJson(v3: true, prune?: boolean): bsmap.v3.IChromaEnvironmentGeometry
     toJson(v3: false, prune?: boolean): bsmap.v2.IChromaEnvironmentGeometry
     toJson(
-        v3: boolean, prune = true
+        v3: boolean,
+        prune = true,
     ):
         | bsmap.v2.IChromaEnvironmentGeometry
         | bsmap.v3.IChromaEnvironmentGeometry {

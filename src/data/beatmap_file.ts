@@ -15,6 +15,7 @@ import {
 import { getInfoDifficultySets } from './info_file.ts'
 import { loadInfoDat } from '../mod.ts'
 
+/** Asynchronous function to read a difficulty. Not concerned with version. */
 export async function readDifficulty(
     input: DIFFPATH,
     output?: DIFFPATH,
@@ -90,6 +91,7 @@ export async function readDifficulty(
     return diff
 }
 
+/** Read a V2 beatmap. */
 export async function readDifficultyV2(
     ...params: Parameters<typeof readDifficulty>
 ) {
@@ -103,6 +105,8 @@ export async function readDifficultyV2(
 
     return diff
 }
+
+/** Read a V3 beatmap. */
 export async function readDifficultyV3(
     ...params: Parameters<typeof readDifficulty>
 ) {

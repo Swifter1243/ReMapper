@@ -15,18 +15,6 @@ import {
 } from './object.ts'
 
 export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
-    /**
-     * Chain object for ease of creation.
-     * @param beat The time this chain will be hit.
-     * @param tailBeat The time that the tail of the chain reaches the player.
-     * @param type The color of the chain.
-     * @param direction The cut direction of the chain.
-     * @param x The lane of the chain.
-     * @param y The vertical row of the chain.
-     * @param tailX The lane of the chain's tail.
-     * @param tailY The vertical row of the chain's tail.
-     * @param links The amount of links in the chain.
-     */
     constructor(
         fields: ExcludedObjectFields<Chain>,
     ) {
@@ -45,11 +33,6 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
         this.debris = fields.debris ?? true
     }
 
-    /**
-     * Push this chain to the difficulty.
-     * @param fake Whether this chain will be pushed to the fakeChains array.
-     * @param clone Whether this object will be copied before being pushed.
-     */
     push(clone = true) {
         getActiveDifficulty().chains.push(clone ? copy(this) : this)
         return this
