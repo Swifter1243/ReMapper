@@ -1,5 +1,7 @@
 import { bsmap } from '../deps.ts'
 
+// TODO: Continue docs from here
+
 /** All mods to suggest. */
 export type SUGGEST_MODS =
     | 'Chroma'

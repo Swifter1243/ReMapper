@@ -18,14 +18,6 @@ export { Arc } from './arc.ts'
 export { Chain } from './chain.ts'
 
 export class Note extends BaseNote<bsmap.v3.IColorNote> {
-    /**
-     * Note object for ease of creation.
-     * @param time Time this note will be hit.
-     * @param type The color of the note.
-     * @param direction The direction the note will be cut.
-     * @param x The lane of the note.
-     * @param y The vertical row of the note.
-     */
     constructor(
         fields: ExcludedObjectFields<Note>,
     ) {
@@ -42,11 +34,6 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
     /** The angle added to the note's rotation. */
     angleOffset: number
 
-    /**
-     * Push this note to the difficulty.
-     * @param fake Whether this note will be pushed to the fakeNotes array.
-     * @param clone Whether this object will be copied before being pushed.
-     */
     push(clone = true) {
         getActiveDifficulty().notes.push(clone ? copy(this) : this)
         return this

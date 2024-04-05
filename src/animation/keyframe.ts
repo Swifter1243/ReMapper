@@ -132,6 +132,7 @@ export function getKeyframeFlagIndex(
     )
 }
 
+// idrk what this does???
 export function keyframesMap<
     T extends NumberTuple,
     K extends RawKeyframesAbstract<T>,
@@ -184,23 +185,17 @@ export function keyframesMap<
         // TODO: Redo
         return fn(
             simpleKeyframe,
-            findTimeIndex(simpleKeyframe),
+            getKeyframeTime(simpleKeyframe),
             0,
         ) as unknown as K
     }
 
     const complexKeyframe = keyframe as ComplexKeyframesAbstract<T>
 
-    const ret = complexKeyframe.map((x, i) => fn(x, findTimeIndex(x), i))
+    const ret = complexKeyframe.map((x, i) => fn(x, getKeyframeTime(x), i))
 
     if (!options.filter) return ret as K
 
     // if evaluate to truthy
     return ret.filter((x) => x) as K
-}
-
-export function findTimeIndex(
-    keyframe: Readonly<SingleKeyframeValuesUnsafe>,
-): number {
-    return keyframe.findLastIndex((x) => typeof x === 'number')
 }

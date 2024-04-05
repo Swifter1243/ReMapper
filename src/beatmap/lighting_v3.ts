@@ -221,7 +221,7 @@ export function lightTranslationEvent(
 
     return new LightingV3Internals.LightTranslationEvent({
         beat,
-        value,
+        magnitude,
         easing,
         usePreviousEventTranslation,
     })

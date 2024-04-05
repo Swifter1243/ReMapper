@@ -64,7 +64,7 @@ export class BaseNoteRemapper<T extends AnyNote> {
     }
 
     /**
-     * Run the algorithm.
+     * Run the algorithm on notes in the active difficulty.
      * @param log Log the output JSON of each note.
      */
     run(log = false) {
@@ -77,36 +77,45 @@ export class BaseNoteRemapper<T extends AnyNote> {
         this.processNotes(notes, log)
     }
 
+    /** Get notes between the min and max time. */
     betweenTime(min: number, max: number) {
         return this.addCondition((x) => x.beat >= min && x.beat < max)
     }
 
+    /** Get notes between the min and max x position. */
     betweenXPositions(min: number, max: number) {
         return this.addCondition((x) => x.x >= min && x.x < max)
     }
 
+    /** Get notes between the min and max y position. */
     betweenYPositions(min: number, max: number) {
         return this.addCondition((x) => x.y >= min && x.y < max)
     }
 
+    /** Add a track to each filtered note. */
     addTrack(track: TrackValue) {
         return this.addProcess((x) => {
             x.track.add(track)
         })
     }
 
+    /** Generate tracks on each note with the x position of the note appended. */
     addTrackByXPosition(prefix = 'x_') {
         return this.addProcess((x) => {
             x.track.add(prefix + x.x)
         })
     }
 
+    /** Generate tracks on each note with the y position of the note appended. */
     addTrackByYPosition(prefix = 'y_') {
         return this.addProcess((x) => {
             x.track.add(prefix + x.y)
         })
     }
 
+    /** Generate tracks on each note with the cut direction of the note appended. Only works on color notes and chains.
+     * @param directionNames Determine what string each cut direction will map to.
+    */
     addTrackByDirection(
         prefix = 'cut_',
         directionNames?: Record<CutName, string>,
@@ -128,7 +137,7 @@ export class BaseNoteRemapper<T extends AnyNote> {
     }
 
     /**
-     * Process events through the algorithm.
+     * Process an array of provided notes through the algorithm.
      * @param notes Notes to process.
      * @param log Whether passing notes should be logged.
      */

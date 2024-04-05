@@ -401,8 +401,6 @@ type LightBase =
 abstract class LightEvent<T extends LightBase = LightBase>
     extends BaseObject<never, T> {}
 
-// TODO: Continue docs from here
-
 export class LightColorEvent extends LightEvent<bsmap.v3.ILightColorBase> {
     constructor(obj: Partial<ObjectFields<LightColorEvent>>) {
         super(obj)
@@ -412,9 +410,13 @@ export class LightColorEvent extends LightEvent<bsmap.v3.ILightColorBase> {
         this.blinkingFrequency = obj.blinkingFrequency ?? 0
     }
 
+    /** An integer value which determines the behavior of the effect, relative to the previous effect. */
     transitionType: LightTransition
+    /** The color of the effect. */
     color: LightColor
+    /** The brightness of the effect, as a percentage (0-1). */
     brightness: number
+    /** Blinking frequency in beat time of the event, 0 is static. */
     blinkingFrequency: number
 
     fromJson(json: bsmap.v3.ILightColorBase, v3: true): this
@@ -467,10 +469,15 @@ export class LightRotationEvent
             RotationDirection.AUTOMATIC
     }
 
+    /** If true, extend the state of the previous event. If not, transition from previous state to this state. */
     usePreviousEventRotation: boolean
+    /** The easing of the rotation. */
     easing: RotationEase
+    /** The amount of additional revolutions (full 360 degree turns) for the rotation.  */
     loopCount: number
+    /** The amount of degrees to rotate. */
     rotationDegrees: number
+    /** The direction to rotate. */
     rotationDirection: RotationDirection
 
     fromJson(json: bsmap.v3.ILightRotationBase, v3: true): this
@@ -520,12 +527,15 @@ export class LightTranslationEvent
         this.usePreviousEventTranslation = obj.usePreviousEventTranslation ??
             false
         this.easing = obj.easing ?? RotationEase.None
-        this.value = obj.value ?? 0
+        this.magnitude = obj.magnitude ?? 0
     }
 
+    /** If true, extend the state of the previous event. If not, transition from previous state to this state. */
     usePreviousEventTranslation: boolean
+    /** The easing of the translation. */
     easing: RotationEase
-    value: number
+    /** The magnitude of the translation. */
+    magnitude: number
 
     fromJson(json: bsmap.v3.ILightTranslationBase, v3: true): this
     fromJson(json: never, v3: false): this
@@ -540,7 +550,7 @@ export class LightTranslationEvent
         const params = {
             easing: json.e ?? 0,
             usePreviousEventTranslation: json.p === 1,
-            value: json.t ?? 0,
+            magnitude: json.t ?? 0,
         } as Params
 
         Object.assign(this, params)
@@ -556,7 +566,7 @@ export class LightTranslationEvent
             b: this.beat,
             e: this.easing as bsmap.v3.ILightTranslationBase['e'],
             p: this.usePreviousEventTranslation ? 1 : 0,
-            t: this.value,
+            t: this.magnitude,
             customData: this.customData,
         } satisfies bsmap.v3.ILightTranslationBase
         return prune ? jsonPrune(output) : output

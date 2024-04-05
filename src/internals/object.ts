@@ -27,10 +27,12 @@ import { TrackValue } from '../types/animation_types.ts'
 import { jsonPrune } from '../mod.ts'
 import { getInfoDat } from '../data/info_file.ts'
 
+/** An internal tool for inverting defined booleans, while ignoring undefined. */
 export function importInvertedBoolean(bool: boolean | undefined) {
     return bool !== undefined ? !bool : undefined
 }
 
+/** An internal tool for inverting defined booleans, and setting them to undefined if they're equal to their "default value". */
 export function exportInvertedBoolean(
     bool: boolean | undefined,
     defaultValue: boolean,
@@ -39,6 +41,7 @@ export function exportInvertedBoolean(
     return defaultBoolean(invert, defaultValue)
 }
 
+/** An internal tool to set a boolean to undefined if it's equal to a "default value". */
 export function defaultBoolean(
     bool: boolean | undefined,
     defaultValue: boolean,
@@ -46,6 +49,7 @@ export function defaultBoolean(
     return bool === defaultValue ? undefined : bool
 }
 
+/** Get a property from a customData object, while mutating the object to remove that property. */
 export function getCDProp<
     T extends Record<string, unknown>,
     K extends keyof T,
@@ -68,10 +72,12 @@ export function getCDProp<
     return undefined
 }
 
+/** Properties to replace on constructor objects for gameplay objects. */
 export type ObjectReplacements = {
     track?: TrackValue | Track
 }
 
+/** Get fields of a class, while replacing and excluding certain fields. */
 export type ExcludedObjectFields<
     Class,
     Replacement = ObjectReplacements,
@@ -81,6 +87,7 @@ export type ExcludedObjectFields<
     keyof Exclusion
 >
 
+/** Fields to exclude on the constructor object for gameplay objects. */
 export type ExcludeObjectFields = {
     implicitNoteJumpSpeed: never
     implicitNoteJumpOffset: never
@@ -174,42 +181,39 @@ export abstract class BaseGameplayObject<
         }
     }
 
+    /** The x position of this object on the grid. */
     x: number
+    /** The y position of this object on the grid. */
     y: number
-
+    /** Noodle Extensions offset coordinates for this object on the grid. */
     coordinates?: Vec2
-
     /** The rotation added to an object around the world origin. */
     worldRotation?: Vec3
     /** The rotation added to an object around it's anchor point. */
     localRotation?: Vec3
-
-    /** The note jump speed of the object. */
+    /** The speed of this object in units (meters) per second. */
     noteJumpSpeed?: number
-
-    /** The spawn offset of the object. */
+    /** The offset added to the position where this object "jumps" in. */
     noteJumpOffset?: number
-
     /** Whether this object is interactable. */
     interactable?: boolean
-
-    /** The track class for this event.
-     * @see Track
+    /** The track of this object.
+     * Uses a wrapper that simplifies single strings and arrays.
      */
     track: Track
-
     /** The chroma color of the object. */
     color?: ColorVec
-
     /** The animation json on the object. */
     animation: ObjectAnimationData
 
-    /** The note jump speed of the object. Refers to the difficulty if undefined. */
+    /** The speed of this object in units (meters) per second. 
+     * Refers to the difficulty if undefined. */
     get implicitNoteJumpSpeed() {
         return this.noteJumpSpeed ?? getActiveDifficulty().noteJumpSpeed
     }
 
-    /** The spawn offset of the object. Refers to the difficulty if undefined. */
+    /** The offset added to the position where this object "jumps" in.
+     * Refers to the difficulty if undefined. */
     get implicitNoteJumpOffset() {
         return this.noteJumpOffset ?? getActiveDifficulty().noteJumpOffset
     }
@@ -239,7 +243,9 @@ export abstract class BaseGameplayObject<
         ).dist
     }
 
-    /** The lifespan of the object. */
+    /** The total duration of the object in beats. 
+     * Calculated based on the beats per minute, and the note jump speed.
+     */
     get life() {
         return this.halfJumpDur * 2
     }
@@ -253,7 +259,9 @@ export abstract class BaseGameplayObject<
         this.noteJumpOffset = (value - 2 * defaultJumps.halfDur) / 2
     }
 
-    /** The time of the start of the object's lifespan. */
+    /** The time of the start of the object's lifespan. 
+     * Calculated based on the beats per minute, and the note jump speed.
+    */
     get lifeStart() {
         return this.beat - this.life / 2
     }
@@ -261,6 +269,7 @@ export abstract class BaseGameplayObject<
         this.beat = value + this.life / 2
     }
 
+    /** Determines whether this object uses Noodle Extensions features. */
     get isGameplayModded() {
         if (this.coordinates) return true
         if (this.worldRotation) return true
@@ -333,14 +342,6 @@ export abstract class BaseGameplayObject<
 export abstract class BaseNote<
     TV3 extends bsmap.v3.IColorNote | bsmap.v3.IBombNote,
 > extends BaseGameplayObject<bsmap.v2.INote, TV3> {
-    /**
-     * Note object for ease of creation.
-     * @param beat Time this note will be hit.
-     * @param type The color of the note.
-     * @param direction The direction the note will be cut.
-     * @param x The lane of the note.
-     * @param y The vertical row of the note.
-     */
     constructor(
         fields: ExcludedObjectFields<BaseNote<TV3>>,
     ) {
@@ -382,7 +383,6 @@ export abstract class BaseNote<
 
     /**
      * Push this note to the difficulty.
-     * @param fake Whether this note will be pushed to the fakeNotes array.
      * @param clone Whether this object will be copied before being pushed.
      */
     abstract push(clone: boolean): void
@@ -480,7 +480,6 @@ export abstract class BaseSliderObject<TV3 extends bsmap.v3.IBaseSlider>
     tailX: number
     /** The vertical row of the tail. */
     tailY: number
-
     /** The position of the tail. */
     tailCoordinates?: Vec2
 

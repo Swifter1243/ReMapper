@@ -223,33 +223,35 @@ function timeInKeyframes(time: number, animation: ComplexKeyframeValuesUnsafe) {
     }
 }
 
-export function getAnimationDomain(animation: DeepReadonly<ModelObject>) {
-    function getDomain(arr: DeepReadonly<RawKeyframesAny>) {
-        const newArr = complexifyArray<[number] | Vec3 | Vec4>(arr)
+/** Gets the minimum and maximum times of an animation. */
+export function getAnimationDomain(arr: DeepReadonly<RawKeyframesAny>) {
+    const newArr = complexifyArray<[number] | Vec3 | Vec4>(arr)
 
-        let min = 1
-        let max = 0
+    let min = 1
+    let max = 0
 
-        newArr.forEach((x) => {
-            const time = getKeyframeTime(x)
-            if (time < min) min = time
-            if (time > max) max = time
-        })
+    newArr.forEach((x) => {
+        const time = getKeyframeTime(x)
+        if (time < min) min = time
+        if (time > max) max = time
+    })
 
-        return { min: min, max: max }
-    }
+    return { min: min, max: max }
+}
 
-    const posDomain = getDomain(animation.pos)
-    const rotDomain = getDomain(animation.rot)
-    const scaleDomain = getDomain(animation.scale)
+/** Gets the minimum and maximum times of all animations on a model object. */
+export function getAnimatedObjectDomain(animation: DeepReadonly<ModelObject>) {
+    const posDomain = getAnimationDomain(animation.pos)
+    const rotDomain = getAnimationDomain(animation.rot)
+    const scaleDomain = getAnimationDomain(animation.scale)
 
-    const totalMin = getDomain([
+    const totalMin = getAnimationDomain([
         [0, posDomain.min],
         [0, rotDomain.min],
         [0, scaleDomain.min],
     ]).min
 
-    const totalMax = getDomain([
+    const totalMax = getAnimationDomain([
         [0, posDomain.max],
         [0, rotDomain.max],
         [0, scaleDomain.max],
@@ -268,6 +270,7 @@ export function getAnimationDomain(animation: DeepReadonly<ModelObject>) {
  * @param forKeyframe Runs for each generated keyframe.
  * @param animFreq The sampling rate of new keyframes.
  * @param animOptimizer The optional optimizer for the keyframes.
+ * @param domain Precalculated minimum and maximum times for the animation to be baked.
  */
 export function bakeAnimation(
     animation: DeepReadonly<ModelObject>,
@@ -289,7 +292,7 @@ export function bakeAnimation(
         scale: <ComplexKeyframesVec3> [],
     }
 
-    domain ??= getAnimationDomain(animation)
+    domain ??= getAnimatedObjectDomain(animation)
     const totalMin = floorTo(domain.min, animFreq)
     const totalMax = ceilTo(domain.max, animFreq)
 
@@ -407,6 +410,8 @@ export function mirrorAnimation<T extends NumberTuple>(
     return output
 }
 
+/** Determine if an animation is considered "runtime", 
+ * e.g. it contains properties such as "baseHeadLocalPosition" which are only evaluated at runtime. */
 export function animationIsRuntime(
     keyframes: ReadonlyRuntimePointDefinitionAny,
 ) {

@@ -176,6 +176,10 @@ export class Text implements TextInfo {
     }
 }
 
+/** Create a class to handle a single line of text, based on a model.
+ * The inputter data can either be object model data, or a path to the model.
+ * The "track" component on each object corresponds directly to what character it represents.
+ */
 export async function text(
     input: string | ReadonlyText,
 ) {

@@ -8,11 +8,15 @@ export class Track {
         this.value = value
     }
 
-    private expandArray(array: TrackValue) {
+    private expandArray(array?: TrackValue) {
+        if (!array) return []
+
         return typeof array === 'string' ? [array] : array
     }
 
-    private simplifyArray(array: TrackValue) {
+    private simplifyArray(array?: TrackValue) {
+        if (!array || array.length === 0) return undefined
+
         if (typeof array === 'string') return array
 
         return array.length === 1 ? array[0] : array
@@ -84,14 +88,14 @@ export class Track {
 
     /** Get the track value as an array. */
     array() {
-        return this.value && this.expandArray(this.value)
+        return this.expandArray(this.value)
     }
 
     /**
      * Check that each track passes a condition.
      * @param condition Function to run for each track, must return boolean
      */
-    check(condition: (track: string) => boolean) {
+    some(condition: (track: string) => boolean) {
         if (!this.value) return false
 
         return this.expandArray(this.value).some((x) => {

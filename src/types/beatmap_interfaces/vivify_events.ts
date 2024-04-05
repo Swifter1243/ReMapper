@@ -4,6 +4,7 @@ import { EASE, TrackValue } from '../animation_types.ts'
 import { RENDER_TEX, TEX_FILTER } from '../mod.ts'
 import { DEPTH_TEX_MODE, MaterialProperty, RENDER_SETTING } from '../vivify_types.ts'
 
+/** JSON data for SetMaterialProperty events */
 export interface SetMaterialProperty {
     b: number
     t: 'SetMaterialProperty'
@@ -15,6 +16,7 @@ export interface SetMaterialProperty {
     }
 }
 
+/** JSON data for SetGlobalProperty events */
 export interface SetGlobalProperty {
     b: number
     t: 'SetGlobalProperty'
@@ -25,6 +27,7 @@ export interface SetGlobalProperty {
     }
 }
 
+/** JSON data for Blit events */
 export interface Blit {
     b: number
     t: 'Blit'
@@ -40,6 +43,7 @@ export interface Blit {
     }
 }
 
+/** JSON data for DeclareCullingTexture events */
 export interface DeclareCullingTexture {
     b: number
     t: 'DeclareCullingTexture'
@@ -51,6 +55,7 @@ export interface DeclareCullingTexture {
     }
 }
 
+/** JSON data for DeclareRenderTexture events */
 export interface DeclareRenderTexture {
     b: number
     t: 'DeclareRenderTexture'
@@ -65,6 +70,7 @@ export interface DeclareRenderTexture {
     }
 }
 
+/** JSON data for DestroyTexture events */
 export interface DestroyTexture {
     b: number
     t: 'DestroyTexture'
@@ -73,6 +79,7 @@ export interface DestroyTexture {
     }
 }
 
+/** JSON data for InstantiatePrefab events */
 export interface InstantiatePrefab {
     b: number
     t: 'InstantiatePrefab'
@@ -88,6 +95,7 @@ export interface InstantiatePrefab {
     }
 }
 
+/** JSON data for DestroyPrefab events */
 export interface DestroyPrefab {
     b: number
     t: 'DestroyPrefab'
@@ -96,6 +104,7 @@ export interface DestroyPrefab {
     }
 }
 
+/** JSON data for SetAnimatorProperty events */
 export interface SetAnimatorProperty {
     b: number
     t: 'SetAnimatorProperty'
@@ -107,6 +116,7 @@ export interface SetAnimatorProperty {
     }
 }
 
+/** JSON data for SetCameraProperty events */
 export interface SetCameraProperty {
     b: number
     t: 'SetCameraProperty'
@@ -115,6 +125,7 @@ export interface SetCameraProperty {
     }
 }
 
+/** JSON data for AssignTrackPrefab events */
 export interface AssignTrackPrefab {
     b: number
     t: 'AssignTrackPrefab'
@@ -124,6 +135,7 @@ export interface AssignTrackPrefab {
     }
 }
 
+/** JSON data for SetRenderSetting events */
 export interface SetRenderSetting {
     b: number
     t: 'SetRenderSetting'

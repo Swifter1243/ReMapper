@@ -26,7 +26,7 @@ import { areArraysEqual } from './array_utils.ts'
 import { iterateKeyframes, OptimizeSettings } from '../animation/mod.ts'
 import { getValuesAtTime } from '../animation/mod.ts'
 import { complexifyArray } from '../animation/animation_utils.ts'
-import { getAnimationDomain } from '../animation/animation_utils.ts'
+import { getAnimatedObjectDomain } from '../animation/animation_utils.ts'
 
 export const EPSILON = 1e-3
 
@@ -604,8 +604,8 @@ export function emulateParent(
     }
 
     // looks like we bakin
-    const childDomain = getAnimationDomain(childObj)
-    const parentDomain = getAnimationDomain(parentObj)
+    const childDomain = getAnimatedObjectDomain(childObj)
+    const parentDomain = getAnimatedObjectDomain(parentObj)
 
     const domain = {
         min: Math.min(childDomain.min, parentDomain.min),

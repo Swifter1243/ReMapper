@@ -55,12 +55,29 @@ let modelSceneCount = 0
 let noYeet = true
 
 export class ModelScene {
+    /** All of the "groups" stored in this model.
+     * When the model data is passed, if any model objects have a track that match the name of this group, an animation event will be placed for them.
+     */
     groups = <Record<string, ModelGroup>> {}
+    /** Settings for the optimizer on each animation event.
+     * The animations will attempt to be optimized, removing visually redundant points.
+     * This controls various parameters about how harshly the algorithm will target changes.
+     */
     optimizer = new OptimizeSettings()
+    /** The frequency (as a percentage of the whole) of when keyframes on baked animations will be generated.
+     * A frequency of 0.5 will generate 3 keyframes total, one for every multiple of 0.5 between 0 and 1. */
     bakeAnimFreq = 1 / 32
-    trackID: number
+    /** The unique ID of this modelscene, used for tracks.
+     * If multiple model scenes are used, this ID is used so the track names don't conflict.
+     */
+    ID: number
+    /** The info outputted from instantiating object data from `static` or `animate`, for each group.
+     * @see this.groups
+     */
     sceneObjectInfo = <Record<string, SceneObjectInfo>> {}
+    /** If the scene is instantiated with `animate` and the first switch is not at a time of 0, `initializePositions` determines whether the first switch will be initialized at beat 0 and held in place until it is animated. */
     initializePositions = true
+    /** Whether this scene has been instantiated with `static` or `animate`. */
     private instantiated = false
 
     /**
@@ -77,7 +94,7 @@ export class ModelScene {
         rotation?: Vec3,
     ) {
         if (object) this.pushGroup(undefined, object, scale, anchor, rotation)
-        this.trackID = modelSceneCount
+        this.ID = modelSceneCount
         modelSceneCount++
     }
 
@@ -310,7 +327,7 @@ export class ModelScene {
 
             const model = getModel(
                 inputPath,
-                `modelScene${self.trackID}_${inputPath}`,
+                `modelScene${self.ID}_${inputPath}`,
                 processFileObjects,
                 processing,
             )
@@ -428,7 +445,7 @@ export class ModelScene {
         object: undefined | GroupObjectTypes,
         track: string,
         index: number,
-    ) => object ? `modelScene${this.trackID}_${track}_${index}` : track
+    ) => object ? `modelScene${this.ID}_${track}_${index}` : track
 
     private getFirstValues(keyframes: DeepReadonly<RawKeyframesVec3>) {
         const complexTransform = complexifyArray(copy(keyframes))[0]
@@ -514,7 +531,7 @@ export class ModelScene {
 
                     if (group.defaultMaterial) {
                         const materialName =
-                            `modelScene${self.trackID}_${groupKey}_material`
+                            `modelScene${self.ID}_${groupKey}_material`
                         activeDiff.geometryMaterials[materialName] =
                             group.defaultMaterial
                         ;(object as Geometry).material = materialName
@@ -567,11 +584,20 @@ export class ModelScene {
     /**
      * Create an animated environment from possibly multiple sources of data.
      * @param switches The different data switches in this environment. The format is as so:
+     * ```sex
      * [0] - Input for ModelObjects.
      * [1] - Time of the switch.
      * [2]? - Duration of the animation.
      * [3]? - Time to wait until animation starts.
      * [4]? - Function to run on each event moving the objects.
+     * ```
+     * example usage:
+     * ```ts
+     * scene.animate([
+     *    ["model", 3],
+     *    ["model_2", 5, 20] // animation starts at beat 5, lasts 20 beats
+     * ])
+     * ```
      * @param forObject Function to run on each spawned object.
      */
     async animate(switches: [
@@ -820,7 +846,7 @@ export class ModelScene {
                     let materialName: string | undefined = undefined
                     if (group.defaultMaterial) {
                         materialName =
-                            `modelScene${self.trackID}_${groupKey}_material`
+                            `modelScene${self.ID}_${groupKey}_material`
                         activeDiff.geometryMaterials[materialName] =
                             group.defaultMaterial
                     }
@@ -876,6 +902,13 @@ export class ModelScene {
     }
 }
 
+/**
+ * Handler for representing object data as part of the environment.
+ * @param object Object to spawn on model objects with no track.
+ * @param scale The scale multiplier for the spawned object previously mentioned.
+ * @param anchor The anchor offset for the spawned object previously mentioned.
+ * @param rotation The rotation offset for the spawned object previously mentioned.
+ */
 export function modelScene(
     ...params: ConstructorParameters<typeof ModelScene>
 ): ModelScene {
@@ -883,11 +916,11 @@ export function modelScene(
 }
 
 /**
- * Get the anchor offset for an object based on various transforms.
+ * Applies a local offset to an object based on it's transformation, and returns the resulting position.
  * @param objPos Position of the object.
  * @param objRot Rotation of the object.
  * @param objScale Scale of the object.
- * @param anchor Anchor vector to move the object.
+ * @param anchor Desired local offset for the object.
  */
 export function applyAnchor(
     objPos: Vec3,
