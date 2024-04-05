@@ -8,7 +8,7 @@ let workingDirectory: string
 /** This is the current difficulty ReMapper considers "active".
  * This gets set automatically whenever a difficulty class constructor is called.
  */
-export let activeDiff: AbstractDifficulty
+export let activeDifficulty: AbstractDifficulty
 
 /** Various settings to control ReMapper. */
 export const settings = {
@@ -23,12 +23,12 @@ export const settings = {
  * @param diff The difficulty to set to.
  */
 export function setActiveDifficulty(diff: AbstractDifficulty) {
-    activeDiff = diff
+    activeDifficulty = diff
 }
 
 /** Get the active difficulty, ensuring that it is indeed active. */
 export function getActiveDifficulty() {
-    if (activeDiff) return activeDiff
+    if (activeDifficulty) return activeDifficulty
 
     throw new Error('There is currently no loaded difficulty.')
 }

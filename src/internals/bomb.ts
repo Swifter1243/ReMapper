@@ -1,4 +1,4 @@
-import { activeDiff, getActiveDifficulty, settings } from "../data/beatmap_handler.ts";
+import { activeDifficulty, getActiveDifficulty, settings } from "../data/beatmap_handler.ts";
 import { bsmap } from "../deps.ts";
 import { copy } from "../utils/general.ts";
 import { jsonPrune } from "../utils/json.ts";
@@ -21,7 +21,7 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
     toJson(v3: true, prune?: boolean): bsmap.v3.IBombNote
     toJson(v3: false, prune?: boolean): bsmap.v2.INote
     toJson(v3 = true, prune = true): bsmap.v2.INote | bsmap.v3.IBombNote {
-        const diff = activeDiff
+        const diff = activeDifficulty
         const NJS = this.noteJumpSpeed
         let offset = this.noteJumpOffset
 

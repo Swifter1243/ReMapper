@@ -1,7 +1,7 @@
 // deno-lint-ignore-file no-explicit-any
 import { RawKeyframesVec3 } from '../types/animation_types.ts'
 import { RawGeometryMaterial } from '../types/environment_types.ts'
-import { activeDiff, getActiveDifficulty } from '../data/beatmap_handler.ts'
+import { getActiveDifficulty } from '../data/beatmap_handler.ts'
 import {
     AnimatedObjectInput,
     AnimatedOptions,
@@ -74,7 +74,7 @@ export class ModelScene {
      */
     sceneObjectInfo = <Record<string, SceneObjectInfo>> {}
     /** If the scene is instantiated with `animate` and the first switch is not at a time of 0, `initializePositions` determines whether the first switch will be initialized at beat 0 and held in place until it is animated. */
-    initializePositions = true
+    initializeObjects = true
     /** Whether this scene has been instantiated with `static` or `animate`. */
     private instantiated = false
 
@@ -530,7 +530,7 @@ export class ModelScene {
                     if (group.defaultMaterial) {
                         const materialName =
                             `modelScene${self.ID}_${groupKey}_material`
-                        activeDiff.geometryMaterials[materialName] =
+                        getActiveDifficulty().geometryMaterials[materialName] =
                             group.defaultMaterial
                         ;(object as Geometry).material = materialName
                     }
@@ -556,7 +556,9 @@ export class ModelScene {
                     event.animation.rotation = x.rot as RuntimeRawKeyframesVec3
                     event.animation.scale = x.scale as RuntimeRawKeyframesVec3
                     if (forAssigned) forAssigned(event)
-                    activeDiff.customEvents.animateTrackEvents.push(event)
+                    getActiveDifficulty().customEvents.animateTrackEvents.push(
+                        event,
+                    )
                 }
             })
 
@@ -591,11 +593,12 @@ export class ModelScene {
      * ```
      * @param forObject Function to run on each spawned object.
      */
-    async animate(switches: SceneSwitch[], forObject?: (object: GroupObjectTypes) => void) {
+    async animate(
+        switches: SceneSwitch[],
+        forObject?: (object: GroupObjectTypes) => void,
+    ) {
         this.flagInstantiation()
-
         const diff = getActiveDifficulty()
-
         // deno-lint-ignore no-this-alias
         const self = this
 
@@ -614,273 +617,303 @@ export class ModelScene {
                 if (!self.groups[x].object) self.sceneObjectInfo[x].max = 1
             })
 
-            const promises: Promise<unknown>[] = []
-
             // Object animation
-            switches.forEach((s, switchIndex) => {
-                s.animationDuration ??= 0
-                s.animationOffset ??= 0
-
-                const firstInitializing = self.initializePositions &&
-                    switchIndex === 0 &&
-                    s.beat !== 0
-
-                const delaying = !firstInitializing && s.animationOffset > 0
-
-                Object.keys(self.groups).forEach((g) => {
-                    self.sceneObjectInfo[g].perSwitch[s.beat] = 0
-                    if (firstInitializing) {
-                        self.sceneObjectInfo[g].initialPos = []
-                    }
-                })
-
-                const objectPromise = self.getObjects(s.model)
-                objectPromise.then((data) =>
-                    data.forEach((d, i) => {
-                        const objectIsStatic =
-                            complexifyArray(d.pos).length === 1 &&
-                            complexifyArray(d.rot).length === 1 &&
-                            complexifyArray(d.scale).length === 1
-
-                        // Getting info about group
-                        const key = d.track as string
-                        const group = self.groups[key]
-
-                        // Registering data about object amounts
-                        const objectInfo = self.sceneObjectInfo[key]
-                        if (!objectInfo) return
-                        objectInfo.perSwitch[s.beat]++
-                        if (objectInfo.perSwitch[s.beat] > objectInfo.max) {
-                            objectInfo.max = objectInfo.perSwitch[s.beat]
-                        }
-
-                        const track = self.getPieceTrack(
-                            group.object,
-                            key,
-                            objectInfo.perSwitch[s.beat] - 1,
-                        )
-
-                        // Set initializing data
-                        if (firstInitializing) {
-                            objectInfo.initialPos![i] = self
-                                .getFirstTransform(
-                                    d,
-                                )
-                        }
-
-                        // Initialize assigned object position
-                        if (!group.object && firstInitializing) {
-                            const event = animateTrack(0, track)
-                            const initalizePos = objectInfo.initialPos![i]
-
-                            event.animation.position = initalizePos
-                                .pos as Vec3
-                            event.animation.rotation = initalizePos
-                                .rot as Vec3
-                            event.animation.scale = initalizePos
-                                .scale as Vec3
-
-                            if (s.forEvent) {
-                                s.forEvent(event, objectInfo.perSwitch[s.beat])
-                            }
-
-                            event.push(false)
-                        }
-
-                        // Creating event
-                        if (
-                            group.object &&
-                            group.object instanceof Geometry &&
-                            !group.defaultMaterial &&
-                            typeof group.object.material !== 'string' &&
-                            !group.object.material.color &&
-                            d.color
-                        ) {
-                            const color = d.color as Vec4
-                            color[3] ??= 1
-                            animatedMaterials.push(track)
-
-                            if (firstInitializing) {
-                                objectInfo.initialPos![i].color = color
-                            } else {
-                                const event = animateTrack(
-                                    s.beat,
-                                    track + '_material',
-                                )
-                                event.animation.color = color
-                                event.push(false)
-                            }
-                        }
-
-                        if (
-                            objectIsStatic && firstInitializing &&
-                            group.object
-                        ) {
-                            return
-                        }
-
-                        const event = animateTrack(s.beat, track, s.animationDuration)
-
-                        if (delaying) {
-                            event.animation.position = self.getFirstValues(
-                                d.pos,
-                            )
-                            event.animation.rotation = self.getFirstValues(
-                                d.rot,
-                            )
-                            event.animation.scale = self.getFirstValues(
-                                d.scale,
-                            )
-                            if (s.forEvent) {
-                                s.forEvent(event, objectInfo.perSwitch[s.beat])
-                            }
-                            event.push()
-                        }
-
-                        event.beat = s.beat + s.animationOffset!
-                        event.animation.position = d
-                            .pos as RuntimeRawKeyframesVec3
-                        event.animation.rotation = d
-                            .rot as RuntimeRawKeyframesVec3
-                        event.animation.scale = d
-                            .scale as RuntimeRawKeyframesVec3
-
-                        if (
-                            typeof s.model === 'object' &&
-                            !Array.isArray(s.model) &&
-                            (s.model as AnimatedOptions).loop !== undefined &&
-                            (s.model as AnimatedOptions).loop! > 1 &&
-                            !objectIsStatic
-                        ) {
-                            event.repeat = (s.model as AnimatedOptions).loop! - 1
-                            event.duration /= (s.model as AnimatedOptions).loop!
-                        }
-
-                        if (s.forEvent) {
-                            s.forEvent(event, objectInfo.perSwitch[s.beat])
-                        }
-                        event.push(false)
-                    })
+            const promises = switches.map(async (s, switchIndex) =>
+                await self.processSwitch(
+                    s,
+                    switchIndex,
+                    animatedMaterials,
                 )
+            )
+            await Promise.all(promises)
 
-                promises.push()
-            })
-
+            // List of all tracks for each switch
+            // (possibly from different groups) to be "yeeted"
             const yeetEvents: Record<
                 number,
                 CustomEventInternals.AnimateTrack
             > = {}
 
-            await Promise.all(promises)
+            // Process groups
+            // (add yeet events, spawn objects)
+            Object.keys(self.groups).forEach((groupKey) =>
+                self.processGroup(
+                    groupKey,
+                    yeetEvents,
+                    animatedMaterials,
+                    forObject,
+                )
+            )
 
-            function yeet(
-                switchTime: string,
-                switchIndex: number,
-                group: ModelGroup,
-                groupKey: string,
-                objectInfo: SceneObjectInfo,
+            Object.values(yeetEvents).forEach((x) => x.push(false))
+        }
+
+        return await diff.runAsync(process)
+    }
+
+    private async processSwitch(
+        s: SceneSwitch,
+        switchIndex: number,
+        animatedMaterials: string[],
+    ) {
+        s.animationDuration ??= 0
+        s.animationOffset ??= 0
+
+        // This determines whether objects are initialized at beat 0, and this is the first switch.
+        // When this is true, assigned objects need to be set in place at beat 0
+        // It's wasteful to animate spawned objects into place since we can just set their transforms in the environment statement.
+        const firstInitializing = this.initializeObjects &&
+            switchIndex === 0 &&
+            s.beat !== 0
+
+        // If the animation has any sort of delay, we need to put the objects into place.
+        // Though if we're already initializing, we can ignore this.
+        const delaying = !firstInitializing && s.animationOffset > 0
+
+        // Initializing the switch data of each group.
+        Object.keys(this.groups).forEach((g) => {
+            this.sceneObjectInfo[g].perSwitch[s.beat] = 0
+            if (firstInitializing) {
+                this.sceneObjectInfo[g].initialPos = []
+            }
+        })
+
+        const objects = await this.getObjects(s.model)
+        objects.forEach((d, i) => {
+            const objectIsStatic = complexifyArray(d.pos).length === 1 &&
+                complexifyArray(d.rot).length === 1 &&
+                complexifyArray(d.scale).length === 1
+
+            // Getting info about group
+            const key = d.track as string
+            const group = this.groups[key]
+
+            // Registering data about object amounts
+            const objectInfo = this.sceneObjectInfo[key]
+            if (!objectInfo) return // continue if object isn't present
+            objectInfo.perSwitch[s.beat]++
+            if (objectInfo.perSwitch[s.beat] > objectInfo.max) {
+                // increment max if exceeded
+                objectInfo.max = objectInfo.perSwitch[s.beat]
+            }
+
+            const track = this.getPieceTrack(
+                group.object,
+                key,
+                objectInfo.perSwitch[s.beat] - 1,
+            )
+
+            // Set initializing positions
+            if (firstInitializing) {
+                objectInfo.initialPos![i] = this
+                    .getFirstTransform(
+                        d,
+                    )
+            }
+
+            // If assigned object and initializing, set their position at beat 0
+            if (!group.object && firstInitializing) {
+                const event = animateTrack(0, track)
+                const initalizePos = objectInfo.initialPos![i]
+
+                event.animation.position = initalizePos
+                    .pos as Vec3
+                event.animation.rotation = initalizePos
+                    .rot as Vec3
+                event.animation.scale = initalizePos
+                    .scale as Vec3
+
+                if (s.forEvent) {
+                    s.forEvent(event, objectInfo.perSwitch[s.beat])
+                }
+
+                event.push(false)
+            }
+
+            // Animate color if the object has unique colors
+            if (
+                group.object &&
+                group.object instanceof Geometry &&
+                !group.defaultMaterial &&
+                typeof group.object.material !== 'string' &&
+                !group.object.material.color &&
+                d.color
             ) {
-                const numSwitchTime = parseInt(switchTime)
-                const firstInitializing = self.initializePositions &&
-                    switchIndex === 0 && numSwitchTime !== 0
-                const eventTime = firstInitializing ? 0 : parseInt(switchTime)
-                const amount = objectInfo.perSwitch[numSwitchTime]
+                const color = d.color as Vec4
+                color[3] ??= 1
+                animatedMaterials.push(track)
 
-                if (group.disappearWhenAbsent || group.object) {
-                    for (let i = amount; i < objectInfo.max; i++) {
-                        if (!yeetEvents[numSwitchTime]) {
-                            const event = animateTrack(eventTime, [])
-                            event.animation.position = 'yeet'
-                            yeetEvents[numSwitchTime] = event
-                        }
-                        yeetEvents[numSwitchTime].track.add(
-                            self.getPieceTrack(
-                                group.object,
-                                groupKey,
-                                i,
-                            ),
-                        )
-                    }
+                if (firstInitializing) {
+                    objectInfo.initialPos![i].color = color
+                } else {
+                    const event = animateTrack(
+                        s.beat,
+                        track + '_material',
+                    )
+                    event.animation.color = color
+                    event.push(false)
                 }
             }
 
-            Object.keys(self.groups).forEach((groupKey) => {
-                const group = self.groups[groupKey]
-                const objectInfo = self.sceneObjectInfo[groupKey]
-                if (!objectInfo) return
+            // If a spawned object is static and initializing
+            // No point using the delay system
+            if (
+                objectIsStatic && firstInitializing &&
+                group.object
+            ) {
+                return
+            }
 
-                // Yeeting objects
-                Object.keys(objectInfo.perSwitch).forEach(
-                    (switchTime, switchIndex) =>
-                        yeet(
-                            switchTime,
-                            switchIndex,
-                            group,
-                            groupKey,
-                            objectInfo,
-                        ),
+            // If delaying, position objects at time of switch
+            const event = animateTrack(s.beat, track, s.animationDuration)
+
+            if (delaying) {
+                event.animation.position = this.getFirstValues(
+                    d.pos,
                 )
+                event.animation.rotation = this.getFirstValues(
+                    d.rot,
+                )
+                event.animation.scale = this.getFirstValues(
+                    d.scale,
+                )
+                if (s.forEvent) {
+                    s.forEvent(event, objectInfo.perSwitch[s.beat])
+                }
+                event.push()
+            }
 
-                const initializing = objectInfo.initialPos !== undefined
+            // Make animation event
+            event.beat = s.beat + s.animationOffset!
+            event.animation.position = d
+                .pos as RuntimeRawKeyframesVec3
+            event.animation.rotation = d
+                .rot as RuntimeRawKeyframesVec3
+            event.animation.scale = d
+                .scale as RuntimeRawKeyframesVec3
 
-                // Spawning objects
-                if (group.object) {
-                    let materialName: string | undefined = undefined
-                    if (group.defaultMaterial) {
-                        materialName =
-                            `modelScene${self.ID}_${groupKey}_material`
-                        activeDiff.geometryMaterials[materialName] =
-                            group.defaultMaterial
+            // Apply loops if necessary
+            if (
+                typeof s.model === 'object' &&
+                !Array.isArray(s.model) &&
+                (s.model as AnimatedOptions).loop !== undefined &&
+                (s.model as AnimatedOptions).loop! > 1 &&
+                !objectIsStatic
+            ) {
+                event.repeat = (s.model as AnimatedOptions).loop! - 1
+                event.duration /= (s.model as AnimatedOptions).loop!
+            }
+
+            // Run callback and then push event
+            if (s.forEvent) {
+                s.forEvent(event, objectInfo.perSwitch[s.beat])
+            }
+            event.push(false)
+        })
+    }
+
+    private processGroup(
+        groupKey: string,
+        yeetEvents: Record<number, CustomEventInternals.AnimateTrack>,
+        animatedMaterials: string[],
+        forObject?: (object: GroupObjectTypes) => void,
+    ) {
+        const group = this.groups[groupKey]
+        const objectInfo = this.sceneObjectInfo[groupKey]
+        if (!objectInfo) return // skip object if it's not present
+
+        // Yeeting objects
+        if (group.disappearWhenAbsent || group.object) {
+            Object.keys(objectInfo.perSwitch).forEach(
+                (x, switchIndex) => {
+                    const switchTime = parseInt(x)
+                    const firstInitializing = this.initializeObjects &&
+                        switchIndex === 0 &&
+                        switchTime !== 0
+                    const eventTime = firstInitializing ? 0 : switchTime
+                    const amount = objectInfo.perSwitch[switchTime]
+
+                    // Initialize the yeet event for this switch if not present
+                    if (!yeetEvents[switchTime]) {
+                        const event = animateTrack(eventTime, [])
+                        event.animation.position = 'yeet'
+                        yeetEvents[switchTime] = event
                     }
 
-                    for (let i = 0; i < objectInfo.max; i++) {
-                        const object = copy(group.object)
-                        object.track.value = self.getPieceTrack(
+                    // Add unused objects for this switch to the yeet event
+                    for (let i = amount; i < objectInfo.max; i++) {
+                        const track = this.getPieceTrack(
                             group.object,
                             groupKey,
                             i,
                         )
 
-                        if (initializing) {
-                            const initialPos = objectInfo.initialPos![i]
-                            object.position = initialPos.pos as Vec3
-                            object.rotation = initialPos.rot as Vec3
-                            object.scale = initialPos.scale as Vec3
-
-                            if (initialPos.color) {
-                                const material = (object as Geometry)
-                                    .material as RawGeometryMaterial
-                                material.color = initialPos.color
-                            }
-                        }
-
-                        if (materialName) {
-                            ;(object as Geometry).material = materialName
-                        }
-                        if (
-                            animatedMaterials.some((x) =>
-                                x === object.track.value
-                            )
-                        ) {
-                            const material = (object as Geometry)
-                                .material as RawGeometryMaterial
-                            material.track = object.track.value + '_material'
-                        }
-
-                        if (forObject) forObject(object)
-                        object.push(false)
+                        yeetEvents[switchTime].track.add(
+                            track,
+                        )
                     }
-                }
-            })
-
-            Object.keys(yeetEvents).forEach((x) => {
-                activeDiff.customEvents.animateTrackEvents.push(
-                    yeetEvents[parseInt(x)],
-                )
-            })
+                },
+            )
         }
 
-        return await diff.runAsync(process)
+        // Spawning objects
+        const initializing = objectInfo.initialPos !== undefined
+
+        if (group.object) { // Only spawn if group has object
+            let materialName: string | undefined = undefined
+
+            // Add default material to the beatmap if it is present
+            if (group.defaultMaterial) {
+                materialName = `modelScene${this.ID}_${groupKey}_material`
+                getActiveDifficulty().geometryMaterials[materialName] =
+                    group.defaultMaterial
+            }
+
+            for (let i = 0; i < objectInfo.max; i++) {
+                const object = copy(group.object)
+
+                // Apply track to the object
+                object.track.value = this.getPieceTrack(
+                    group.object,
+                    groupKey,
+                    i,
+                )
+
+                // Apply initializing position if necessary
+                if (initializing) {
+                    const initialPos = objectInfo.initialPos![i] ?? {
+                        pos: [0, -69420, 0],
+                    }
+                    object.position = initialPos.pos as Vec3
+                    object.rotation = initialPos.rot as Vec3
+                    object.scale = initialPos.scale as Vec3
+
+                    if (initialPos.color) {
+                        const material = (object as Geometry)
+                            .material as RawGeometryMaterial
+                        material.color = initialPos.color
+                    }
+                }
+
+                // If there is a default material, apply it to the object
+                if (group.defaultMaterial) {
+                    ;(object as Geometry).material = materialName!
+                }
+
+                // If object's material is supposed to be animated, add a track to it
+                if (
+                    animatedMaterials.some((x) => x === object.track.value)
+                ) {
+                    const material = (object as Geometry)
+                        .material as RawGeometryMaterial
+                    material.track = object.track.value + '_material'
+                }
+
+                // Run callback and push object
+                if (forObject) forObject(object)
+                object.push(false)
+            }
+        }
     }
 }
 
@@ -984,19 +1017,19 @@ export function debugObject(
         active: false,
     }).push()
 
-    activeDiff.geometryMaterials.debugCubeX = {
+    diff.geometryMaterials.debugCubeX = {
         shader: 'Standard',
         color: [1, 0, 0],
         shaderKeywords: [],
     }
 
-    activeDiff.geometryMaterials.debugCubeY = {
+    diff.geometryMaterials.debugCubeY = {
         shader: 'Standard',
         color: [0, 1, 0],
         shaderKeywords: [],
     }
 
-    activeDiff.geometryMaterials.debugCubeZ = {
+    diff.geometryMaterials.debugCubeZ = {
         shader: 'Standard',
         color: [0, 0, 1],
         shaderKeywords: [],

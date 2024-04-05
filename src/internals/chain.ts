@@ -1,4 +1,4 @@
-import { activeDiff, getActiveDifficulty, settings } from '../data/beatmap_handler.ts'
+import { activeDifficulty, getActiveDifficulty, settings } from '../data/beatmap_handler.ts'
 import { bsmap } from '../deps.ts'
 import { Vec2 } from '../types/data_types.ts'
 import { Fields, SubclassExclusiveProps } from '../types/util_types.ts'
@@ -124,7 +124,7 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
     toJson(v3 = true, prune = true): bsmap.v3.IChain {
         if (!v3) throw 'V2 is not supported for chains'
 
-        const diff = activeDiff
+        const diff = activeDifficulty
         const NJS = this.noteJumpSpeed
         let offset = this.noteJumpOffset
 

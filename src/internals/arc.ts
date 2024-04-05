@@ -1,4 +1,4 @@
-import { activeDiff, getActiveDifficulty, settings } from '../data/beatmap_handler.ts'
+import { activeDifficulty, getActiveDifficulty, settings } from '../data/beatmap_handler.ts'
 import { AnchorMode, NoteCut } from '../data/constants.ts'
 import { bsmap } from '../deps.ts'
 import { Vec2 } from '../types/data_types.ts'
@@ -99,7 +99,7 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
     toJson(v3 = true, prune = true): bsmap.v3.IArc {
         if (!v3) throw 'V2 is not supported for arcs'
 
-        const diff = activeDiff
+        const diff = activeDifficulty
         const NJS = this.noteJumpSpeed
         let offset = this.noteJumpOffset
 

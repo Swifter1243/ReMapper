@@ -1,6 +1,6 @@
 import { bsmap } from '../deps.ts'
 
-import { activeDiff, getActiveDifficulty, settings } from '../data/beatmap_handler.ts'
+import { activeDifficulty, getActiveDifficulty, settings } from '../data/beatmap_handler.ts'
 
 import {
     BaseGameplayObject,
@@ -124,7 +124,7 @@ export class Wall
     toJson(v3: true, prune?: boolean): bsmap.v3.IObstacle
     toJson(v3: false, prune?: boolean): bsmap.v2.IObstacle
     toJson(v3 = true, prune = true): bsmap.v2.IObstacle | bsmap.v3.IObstacle {
-        const diff = activeDiff
+        const diff = activeDifficulty
         const NJS = this.noteJumpSpeed
         let offset = this.noteJumpOffset
 
