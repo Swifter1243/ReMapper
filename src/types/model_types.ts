@@ -7,13 +7,13 @@ import type * as EnvironmentInternals from '../internals/environment.ts'
 
 import { FILEPATH } from './beatmap_types.ts'
 import { ColorVec, Transform, Vec3 } from './data_types.ts'
-import { DeepReadonly } from "./util_types.ts";
+import { DeepReadonly } from './util_types.ts'
 
 /** Objects that are allowed to be spawned with a ModelScene. */
 export type GroupObjectTypes =
     | EnvironmentInternals.Environment
     | EnvironmentInternals.Geometry
-    
+
 /** Allowed options for providing data to a ModelScene. */
 export type ObjectInput = FILEPATH | ReadonlyModel
 
@@ -53,16 +53,47 @@ export type StaticObjectInput = ObjectInput | StaticOptions
 /** Allowed inputs for the "animate" method in ModelScene. */
 export type AnimatedObjectInput = ObjectInput | AnimatedOptions
 
+/** A scene switch used in a ModelScene */
+export type SceneSwitch = {
+    /** Input for the model data. */
+    model: AnimatedObjectInput,
+    /** When the switch happens. */
+    beat: number,
+    /** How long the animation in the input objects happen. */
+    animationDuration?: number,
+    /** The offset added to `beat` which defines when the animation in the input objects happen. */
+    animationOffset?: number,
+    /** Runs on each event that moves objects in this switch. */
+    forEvent?: ((event: CustomEventInternals.AnimateTrack, objects: number) => void) 
+}
+
+
+/** A group in a ModelScene.
+ * When the model data is passed, if any model objects have a track that match the name of this group, an animation event will be placed for them.
+ */
 export type ModelGroup = {
+    /** What object to spawn for each object in this group.
+     * If undefined, an existing object with the same track is assumed to exist and will be animated.
+     */
     object?: GroupObjectTypes
+    /** What is considered to be the "center point" of the objects in this group. */
     anchor?: Vec3
+    /** How objects should be scaled in this group. */
     scale?: Vec3
+    /** The offset rotation for objects in this group. */
     rotation?: Vec3
+    /** Whether remaining pooled objects in a switch should be moved out of the way.
+     * For example, if switch `A` has 40 objects, and switch `B` has 20, should the remaining 20 be moved out of the way?
+     */
     disappearWhenAbsent?: boolean
+    /** The material that will be applied to objects in this group, if `object` is a geometry object.
+     * If undefined, each geometry object will have it's own material. This means each object will be colored from the `color` objects in the input model data.
+     * Though, beware of the fact each geometry object will create it's own draw call, which is bad for performance. If you want colored objects with lots of common colors, making multiple groups is advised.
+     */
     defaultMaterial?: RawGeometryMaterial
 }
 
-/** The data type used by ModelScene to define objects. */
+/** The data type used by ModelScene to define model objects. */
 export interface ModelObject {
     pos: RawKeyframesVec3
     rot: RawKeyframesVec3
@@ -71,6 +102,9 @@ export interface ModelObject {
     track?: string
 }
 
+/** The data type used by the Text class to define objects in the text model.
+ * Basically `ModelObject` except it can't be animated.
+ */
 export type TextObject = {
     pos: Vec3
     rot: Vec3
@@ -79,17 +113,19 @@ export type TextObject = {
     track?: string
 }
 
+/** 
+ * The data reported for a given group in `ModelScene` after the model is instantiated.
+ */
 export type SceneObjectInfo = {
+    /** The maximum number of objects in this group that showed up at once during a switch. */
     max: number
+    /** The number of objects that showed up in a given switch. */
     perSwitch: Record<number, number>
+    /** If defined, this is the very first transform for all objects in this group. */
     initialPos?: ModelObject[]
 }
 
+/** A readonly array of `ModelObject`s, representing an imported model which shouldn't be edited. */
 export type ReadonlyModel = DeepReadonly<ModelObject[]>
+/** A readonly array of `TextObject`s, representing an imported text model which shouldn't be edited. */
 export type ReadonlyText = DeepReadonly<TextObject[]>
-
-export type Duration = number | undefined
-export type AnimationStart = number | undefined
-export type ForEvent =
-    | ((event: CustomEventInternals.AnimateTrack, objects: number) => void)
-    | undefined

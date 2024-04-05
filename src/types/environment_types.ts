@@ -51,6 +51,7 @@ export type GeoShader =
     | 'Obstacle'
     | 'WaterfallMirror'
 
+/** LightID used on lights and other lighting events. `ID | [ID, ID, ID]` */
 export type LightID = number | number[]
 
 /** All properties allowed for a material used on a geometry object. */

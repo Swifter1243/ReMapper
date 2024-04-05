@@ -1,47 +1,15 @@
 import { bsmap } from '../deps.ts'
 
-// TODO: Continue docs from here
-
-/** All mods to suggest. */
+/** All mods that can be suggested. */
 export type SUGGEST_MODS =
     | 'Chroma'
     | 'Cinema'
 
-/** All mods to require. */
+/** All mods that can be required. */
 export type REQUIRE_MODS =
     | 'Chroma'
     | 'Noodle Extensions'
     | 'Vivify'
-
-/** All environment names. */
-export type ENV_NAMES =
-    | 'BTSEnvironment'
-    | 'BigMirrorEnvironment'
-    | 'BillieEnvironment'
-    | 'CrabRaveEnvironment'
-    | 'DefaultEnvironment'
-    | 'DragonsEnvironment'
-    | 'FitBeatEnvironment'
-    | 'GagaEnvironment'
-    | 'GreenDayEnvironment'
-    | 'GreenDayGrenadeEnvironment'
-    | 'InterscopeEnvironment'
-    | 'KDAEnvironment'
-    | 'KaleidoscopeEnvironment'
-    | 'LinkinParkEnvironment'
-    | 'MonstercatEnvironment'
-    | 'NiceEnvironment'
-    | 'OriginsEnvironment'
-    | 'PanicEnvironment'
-    | 'RocketEnvironment'
-    | 'SkrillexEnvironment'
-    | 'HalloweenEnvironment'
-    | 'TimbalandEnvironment'
-    | 'TriangleEnvironment'
-    | 'WeaveEnvironment'
-    | 'PyroEnvironment'
-    | 'TheSecondEnvironment'
-    | 'EDMEnvironment'
 
 /** Cached data saved in the ReMapper cache. */
 export type CachedData = {
@@ -51,7 +19,9 @@ export type CachedData = {
 }
 
 // TODO: If possible, try to figure out a way to default to a string with no extension or path
+/** File name. `file.json` */
 export type FILENAME<T extends string = string> = T | `${T}.${string}`
+/** File path, relative or absolute. `file.json` or `src/file.json` or `C:/file.json` */
 export type FILEPATH<T extends string = string> =
     | FILENAME<T>
     | `${string}/${FILENAME<T>}`
@@ -79,6 +49,7 @@ export type DIFFPATH = FILEPATH<DIFFS>
 export type DIFFNAME = FILENAME<DIFFS>
 
 // I literally don't know how to do this with Records
+/** Object that deserializes from beatmap data and serializes back. */
 export interface JsonWrapper<TV2 extends object, TV3 extends object> {
     /** Imports raw JSON into the fields of this class. */
     fromJson(json: TV3, v3: true): this
@@ -91,58 +62,66 @@ export interface JsonWrapper<TV2 extends object, TV3 extends object> {
     toJson(v3: boolean, prune: boolean): TV2 | TV3
 }
 
+/** https://docs.unity3d.com/ScriptReference/QualitySettings.html */
 export enum ANISOTROPIC_FILTERING {
     Disable,
     Enable,
-    ForceEnable
-} 
+    ForceEnable,
+}
 
+/** https://docs.unity3d.com/ScriptReference/QualitySettings.html */
 export enum SHADOW_MASK_MODE {
     Shadowmask,
-    DistanceShadowmask
+    DistanceShadowmask,
 }
 
+/** https://docs.unity3d.com/ScriptReference/QualitySettings.html */
 export enum SHADOW_PROJECTION {
     CloseFit,
-    StableFit
+    StableFit,
 }
 
+/** https://docs.unity3d.com/ScriptReference/QualitySettings.html */
 export enum SHADOW_RESOLUTION {
     Low,
     Medium,
     High,
-    VeryHigh
+    VeryHigh,
 }
 
+/** https://docs.unity3d.com/ScriptReference/QualitySettings.html */
 export enum SHADOWS {
     Disable,
     HardOnly,
-    All
+    All,
 }
 
+/** Substitute for `bsmap.v2.IInfoSetDifficulty` that includes Vivify `_qualitySettings` */
 export interface IInfoSetDifficulty extends bsmap.v2.IInfoSetDifficulty {
     _customData?: {
         _qualitySettings?: {
-            _anisotropicFiltering?: ANISOTROPIC_FILTERING,
-            _antiAliasing?: 0 | 2 | 4 | 8,
-            _pixelLightCount?: number,
-            _realtimeReflectionProbes?: boolean,
-            _shadowCascades?: 0 | 2 | 4,
-            _shadowDistance?: number,
-            _shadowMaskMode?: SHADOW_MASK_MODE,
-            _shadowNearPlaneOffset?: number,
-            _shadowProjection?: SHADOW_PROJECTION,
-            _shadowResolution?: SHADOW_RESOLUTION,
-            _shadows?: SHADOWS,
+            _anisotropicFiltering?: ANISOTROPIC_FILTERING
+            _antiAliasing?: 0 | 2 | 4 | 8
+            _pixelLightCount?: number
+            _realtimeReflectionProbes?: boolean
+            _shadowCascades?: 0 | 2 | 4
+            _shadowDistance?: number
+            _shadowMaskMode?: SHADOW_MASK_MODE
+            _shadowNearPlaneOffset?: number
+            _shadowProjection?: SHADOW_PROJECTION
+            _shadowResolution?: SHADOW_RESOLUTION
+            _shadows?: SHADOWS
             _softParticles?: boolean
         }
     } & bsmap.v2.IInfoSetDifficulty['_customData']
 }
 
+/** Substitute for `bsmap.v2.IInfoSet` that includes Vivify `_qualitySettings`  */
 export interface IInfoSet extends bsmap.v2.IInfoSet {
     _difficultyBeatmaps: IInfoSetDifficulty[]
 }
 
+/** Substitute for `bsmap.v2.IInfo` that includes Vivify `_qualitySettings`  */
 export interface IInfo extends bsmap.v2.IInfo {
-    _difficultyBeatmapSets: IInfoSet[];
+    _difficultyBeatmapSets: IInfoSet[]
 }

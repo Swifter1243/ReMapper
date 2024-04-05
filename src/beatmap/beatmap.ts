@@ -16,7 +16,6 @@ import {
     getWorkingDirectory,
     isEmptyObject,
     readDifficulty,
-    RMError,
     setActiveDifficulty,
 } from '../mod.ts'
 import { getInfoDat } from '../data/mod.ts'
