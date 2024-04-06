@@ -96,11 +96,17 @@ export function sortObjects<T extends Record<string, number>>(
     )
 }
 
+/** The internal note class. */
 export type Note = NoteInternals.Note
+/** The internal bomb class. */
 export type Bomb = NoteInternals.Bomb
+/** The internal arc class. */
 export type Arc = NoteInternals.Arc
+/** The internal chain class. */
 export type Chain = NoteInternals.Chain
+/** All internal note classes. */
 export type AnyNote = Note | Bomb | Arc | Chain
+/** All beatmap objects. */
 export type BeatmapObject = AnyNote | Wall | LightEvent
 
 function objectsBetween<T extends BeatmapObject>(

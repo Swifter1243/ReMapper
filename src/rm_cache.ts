@@ -2,10 +2,12 @@ import { getWorkingDirectory } from "./data/beatmap_handler.ts";
 import {fs, path} from "./deps.ts";
 import {CachedData} from "./types/beatmap_types.ts";
 
+/** Get the path of RM_Cache.json */
 export function getCacheLocation() {
     return path.join(getWorkingDirectory(), 'RM_Cache.json') 
 }
 
+/** Read the ReMapper cache. */
 export async function readRemapperCache(): Promise<ReMapperCache> {
     const json = new ReMapperCache()
 
@@ -53,10 +55,12 @@ class ReMapperCache {
 /** The ReMapper cache. */
 let activeCache: Promise<ReMapperCache>
 
+/** Start loading the ReMapper cache. This should only be done once. */
 export function loadCache() {
     activeCache = readRemapperCache()
 }
 
+/** Get the currently active ReMapper cache. */
 export async function getActiveCache() {
     if (activeCache) return await activeCache
 
