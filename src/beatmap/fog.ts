@@ -96,6 +96,7 @@ type Overload3 = [
     params: AnyFog,
 ]
 
+/** Adjust fog, agnostic of version. */
 export function adjustFog(
     ...params: Overload1
 ): void
@@ -106,7 +107,6 @@ export function adjustFog(
     ...params: Overload3
 ): void
 
-/** Adjust fog, agnostic of version. */
 export function adjustFog(
     ...params:
         | Overload1
