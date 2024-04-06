@@ -7,7 +7,6 @@ import { arrayRemove } from '../utils/array_utils.ts'
 
 import { parseFilePath, RMLog } from '../general.ts'
 
-import type { RMDifficulty } from './abstract_beatmap.ts'
 import { DIFFPATH, DIFFS, FILENAME } from '../types/beatmap_types.ts'
 import { copy } from '../utils/general.ts'
 import { environment } from './environment.ts'
@@ -20,6 +19,7 @@ import {
 } from '../mod.ts'
 import { getInfoDat } from '../data/mod.ts'
 import { BUNDLE_VERSIONS } from '../data/constants.ts'
+import { AbstractDifficulty } from './abstract_beatmap.ts'
 
 /**
  * Converts an array of Json objects to a class counterpart.
@@ -228,7 +228,7 @@ let currentTransfer: Promise<void>
  */
 export async function transferVisuals(
     diffs: DIFFPATH[] | DIFFPATH,
-    forDiff?: (diff: RMDifficulty) => void,
+    forDiff?: (diff: AbstractDifficulty) => void,
     walls = true,
     arcs = true,
     colorSchemes = true,
