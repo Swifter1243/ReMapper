@@ -48,9 +48,13 @@ type MaterialPropertyMap = {
     'Vector': Vec4 | RuntimePointDefinitionVec4
 }
 
+/** Used to load type safe prefabs. See `loadAssets` */
 export class Prefab {
+    /** Path to this prefab in the asset bundle. */
     path: string
+    /** Name of this prefab, it is also included in the track. */
     name: string
+    /** Keeps track of how many times this prefab has been instantiated. */
     private iteration = 0
 
     constructor(path: string, name: string) {
@@ -58,6 +62,7 @@ export class Prefab {
         this.name = name
     }
 
+    /** Instantiate this prefab. Returns the instance. */
     instantiate(
         beat = 0,
         event?: (event: CustomEventInternals.InstantiatePrefab) => void,
@@ -70,7 +75,8 @@ export class Prefab {
         return new PrefabInstance(id)
     }
 
-    assignToTrack(track: string, beat = 0) {
+    /** Create an event to assign this prefab to a note. */
+    assignToNote(track: string, beat = 0) {
         assignTrackPrefab({
             beat,
             track,
@@ -79,14 +85,18 @@ export class Prefab {
     }
 }
 
+/** An instance of a prefab. */
 export class PrefabInstance {
+    /** The id/track of this instance. */
     id: string
+    /** Whether this instance has been destroyed. */
     destroyed = false
 
     constructor(id: string) {
         this.id = id
     }
 
+    /** Destroy this instance. */
     destroy(beat = 0) {
         if (this.destroyed) throw `Prefab ${this.id} is already destroyed.`
 
@@ -95,9 +105,13 @@ export class PrefabInstance {
     }
 }
 
+/** Used to load type safe materials. See `loadAssets` */
 export class Material<T extends MaterialProperties = MaterialProperties> {
+    /** Path to this material in the asset bundle. */
     path: string
+    /** Name of this material. */
     name: string
+    /** Properties in this material. */
     properties: T
 
     constructor(path: string, name: string, properties: T) {
@@ -106,6 +120,7 @@ export class Material<T extends MaterialProperties = MaterialProperties> {
         this.properties = properties
     }
 
+    /** Apply this material to the post processing stack. */
     blit(
         ...params:
             | [
@@ -138,6 +153,7 @@ export class Material<T extends MaterialProperties = MaterialProperties> {
         }).push()
     }
 
+    /** Set a property on this material. Also allows for animations. */
     set(
         values: Partial<{ [K in keyof T]: MaterialPropertyMap[T[K]] }>,
         beat?: number,
@@ -230,6 +246,7 @@ export class Material<T extends MaterialProperties = MaterialProperties> {
 
 type PrefabMapOutput<T extends PrefabMap> = Record<keyof T, Prefab>
 
+/** Generate a typed list of prefabs from JSON. */
 export function makePrefabMap<T extends PrefabMap>(map: T) {
     const newMap: Record<string, Prefab> = {}
 
@@ -258,6 +275,7 @@ type MaterialMapOutput<T extends MaterialMap> = {
     [V in keyof T]: Material<FixedMaterialMap<T[V]>['properties']>
 }
 
+/** Generate a typed list of materials from JSON. */
 export function makeMaterialMap<T extends MaterialMap>(map: T) {
     const newMap: Record<string, Material> = {}
 
@@ -299,6 +317,9 @@ function initializeMaterials(assetMap: AssetMap) {
     )
 }
 
+/** Generate a typed list of assets from JSON.
+ * @param initialize Whether to set the default value of all materials at the start of the map. This is redundancy incase material values are externally altered.
+ */
 export function loadAssets<T extends AssetMap>(
     assetMap: T,
     initialize = true,
@@ -319,6 +340,7 @@ export function loadAssets<T extends AssetMap>(
     }
 }
 
+/** Destroy multiple prefab instances in one event. */
 export function destroyPrefabInstances(prefabs: PrefabInstance[], beat = 0) {
     const ids: string[] = []
 

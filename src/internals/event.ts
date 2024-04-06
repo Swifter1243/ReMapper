@@ -12,16 +12,14 @@ import {
 import { ObjectFields, SubclassExclusiveProps } from '../types/util_types.ts'
 import { BaseObject, getCDProp } from './object.ts'
 
-abstract class ConvertableEvent<
-    TV2 extends bsmap.v2.IBaseObject,
-    TV3 extends bsmap.v3.IBaseObject,
-> extends BaseObject<TV2, TV3> {
+interface ConvertableEvent {
     /** V3 only. Import from the deprecated basic event form into the new proper events.  */
-    abstract fromBasicEvent(json: bsmap.v3.IBaseObject): void
+    fromBasicEvent(json: bsmap.v3.IBaseObject): this
 }
 
 export class RotationEvent
-    extends ConvertableEvent<bsmap.v2.IEventLaneRotation, bsmap.v3.IRotationEvent> {
+    extends BaseObject<bsmap.v2.IEventLaneRotation, bsmap.v3.IRotationEvent>
+    implements ConvertableEvent {
     constructor(obj: Partial<ObjectFields<RotationEvent>>) {
         super(obj)
         this.early = obj.early ?? true
@@ -136,7 +134,8 @@ export class RotationEvent
 }
 
 export class BoostEvent
-    extends ConvertableEvent<bsmap.v2.IEvent, bsmap.v3.IColorBoostEvent> {
+    extends BaseObject<bsmap.v2.IEvent, bsmap.v3.IColorBoostEvent>
+    implements ConvertableEvent {
     constructor(obj: Partial<ObjectFields<BoostEvent>>) {
         super(obj)
         this.boost = obj.boost ?? false
@@ -283,10 +282,10 @@ export abstract class BPMEvent<
     abstract toJson(v3: true, prune?: boolean): TV2 | TV3
 }
 
-export class OfficialBPMEvent extends ConvertableEvent<
+export class OfficialBPMEvent extends BPMEvent<
     bsmap.v2.IEvent,
     bsmap.v3.IBPMEvent
-> {
+> implements ConvertableEvent {
     constructor(obj: Partial<Fields<OfficialBPMEvent>>) {
         super(obj)
         this.bpm = obj.bpm ?? 0

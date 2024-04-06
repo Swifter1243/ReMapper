@@ -18,7 +18,15 @@ import {
 import { GeoShader, RawGeometryMaterial } from '../types/environment_types.ts'
 import { arraySplit } from '../utils/array_utils.ts'
 import { CommunityBPMEvent, OfficialBPMEvent } from '../internals/event.ts'
-import { AnyFog, CustomEventInternals, event, FogEvent, IInfoSet, IInfoSetDifficulty, TJson } from '../mod.ts'
+import {
+    AnyFog,
+    CustomEventInternals,
+    event,
+    FogEvent,
+    IInfoSet,
+    IInfoSetDifficulty,
+    TJson,
+} from '../mod.ts'
 
 /** Difficulty V2 beatmap. */
 export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
@@ -39,7 +47,7 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
             callback: (v: bsmap.v2.IDifficulty[K]) => V,
         ) {
             if (!json[key]) throw `"${key}" is not defined in the beatmap!`
-            
+
             if (process && !process.some((s) => s === key)) return
 
             return callback(json[key])
@@ -84,7 +92,7 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
                 x._type === EventGroup.GAGA_LEFT ||
                 x._type === EventGroup.GAGA_RIGHT
         })
-        json._events = lightEventsFilter[1]
+        json._events = lightEventsFilter.fail
 
         const laserSpeedEventsFilter = arraySplit(
             json._events,
@@ -93,61 +101,61 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
                     x._type === EventGroup.RIGHT_ROTATING_LASERS
             },
         )
-        json._events = laserSpeedEventsFilter[1]
+        json._events = laserSpeedEventsFilter.fail
 
         const ringZoomEventsFilter = arraySplit(json._events, (x) => {
             return x._type === EventGroup.RING_ZOOM
         })
-        json._events = ringZoomEventsFilter[1]
+        json._events = ringZoomEventsFilter.fail
 
         const ringSpinEventsFilter = arraySplit(json._events, (x) => {
             return x._type === EventGroup.RING_SPIN
         })
-        json._events = ringSpinEventsFilter[1]
+        json._events = ringSpinEventsFilter.fail
 
         const rotationEventsFilter = arraySplit(json._events, (x) => {
             return x._type === EventGroup.EARLY_ROTATION ||
                 x._type === EventGroup.LATE_ROTATION
         })
-        json._events = rotationEventsFilter[1]
+        json._events = rotationEventsFilter.fail
 
         const boostEventsFilter = arraySplit(json._events, (x) => {
             return x._type === EventGroup.BOOST
         })
-        json._events = boostEventsFilter[1]
+        json._events = boostEventsFilter.fail
 
         const bpmEventsFilter = arraySplit(json._events, (x) => {
             return x._type === EventGroup.BPM
         })
-        json._events = bpmEventsFilter[1]
+        json._events = bpmEventsFilter.fail
 
-        const lightEvents = lightEventsFilter[0].map((o) =>
+        const lightEvents = lightEventsFilter.success.map((o) =>
             event.backLasers().fromJson(o as bsmap.v2.IEventLight, false)
         )
 
-        const laserSpeedEvents = laserSpeedEventsFilter[0].map((o) =>
+        const laserSpeedEvents = laserSpeedEventsFilter.success.map((o) =>
             event.leftLaserSpeed({}).fromJson(
                 o as bsmap.v2.IEventLaser,
                 false,
             )
         )
 
-        const ringZoomEvents = ringZoomEventsFilter[0].map((o) =>
+        const ringZoomEvents = ringZoomEventsFilter.success.map((o) =>
             event.ringZoom(0).fromJson(o as bsmap.v2.IEventZoom, false)
         )
 
-        const ringSpinEvents = ringSpinEventsFilter[0].map((o) =>
+        const ringSpinEvents = ringSpinEventsFilter.success.map((o) =>
             event.ringSpin({}).fromJson(o as bsmap.v2.IEventRing, false)
         )
 
-        const rotationEvents = rotationEventsFilter[0].map((o) =>
+        const rotationEvents = rotationEventsFilter.success.map((o) =>
             event.lateRotation({}).fromJson(
                 o as bsmap.v2.IEventLaneRotation,
                 false,
             )
         )
 
-        const boostEvents = boostEventsFilter[0].map((o) =>
+        const boostEvents = boostEventsFilter.success.map((o) =>
             event.boost({}).fromJson(o, false)
         )
 
@@ -156,7 +164,7 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
         )
 
         const bpmEvents = [
-            ...bpmEventsFilter[0].map((o) =>
+            ...bpmEventsFilter.success.map((o) =>
                 event.officialBpmEvent({}).fromJson(o, false)
             ),
             ...[
@@ -225,13 +233,13 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
                 (x) => x._type === type,
             )
 
-            const result = filter[0].map((x) =>
+            const result = filter.success.map((x) =>
                 obj({}).fromJson(
                     x as bsmap.v2.ICustomEventAnimateTrack,
                     false,
                 )
             )
-            customEvents = filter[1]
+            customEvents = filter.fail
 
             diffCustomEvents[property] =
                 result as unknown as BeatmapCustomEvents[K]
@@ -386,7 +394,7 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
         )
 
         const mediocreEventsFilter = arraySplit(
-            bpmEventsFilter[1] as CommunityBPMEvent[],
+            bpmEventsFilter.fail as CommunityBPMEvent[],
             (x) => x.mediocreMapper,
         )
 
@@ -398,9 +406,9 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
             ...this.rotationEvents,
             ...this.boostEvents,
             ...this.baseBasicEvents,
-            ...(bpmEventsFilter[0] as OfficialBPMEvent[]),
+            ...bpmEventsFilter.success,
         ].map((o) => o.toJson(false))
-            .sort(sortItems)
+            .sort(sortItems) as bsmap.v2.IEvent[]
 
         // Custom Events
         const customEvents = (Object.values(
@@ -438,10 +446,10 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
                 _pointDefinitions: pointDefinitions,
                 _customEvents: customEvents,
                 _materials: materials,
-                _bpmChanges: mediocreEventsFilter[0]
+                _bpmChanges: mediocreEventsFilter.success
                     .map((o) => o.toJson(false))
                     .sort(sortItems) as bsmap.v2.IBPMChangeOld[],
-                _BPMChanges: mediocreEventsFilter[1]
+                _BPMChanges: mediocreEventsFilter.fail
                     .map((o) => o.toJson(false))
                     .sort(sortItems) as bsmap.v2.IBPMChange[],
             }) satisfies bsmap.v2.ICustomDataDifficulty,

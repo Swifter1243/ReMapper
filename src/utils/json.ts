@@ -59,6 +59,10 @@ export function jsonPrune<T extends Record<string, any>>(obj: T) {
     return obj as T
 }
 
+/**
+ * Delete empty objects/arrays from an object.
+ * @param obj Object to prune.
+ */
 export function shallowPrune<T extends Record<string, any>>(obj: T) {
     if (typeof obj !== 'object') return obj
 
@@ -84,11 +88,9 @@ export function shallowPrune<T extends Record<string, any>>(obj: T) {
 }
 
 /**
+ * Delete empty objects/arrays from an object.
  * This should be faster than jsonPrune because it
  * explicitly goes into the fields WE know that should be pruned
- *
- * @param obj
- * @returns
  */
 export function fastJsonPruneV3<
     T extends {
@@ -134,11 +136,9 @@ export function fastJsonPruneV3<
 }
 
 /**
+ * Delete empty objects/arrays from an object.
  * This should be faster than jsonPrune because it
  * explicitly goes into the fields WE know that should be pruned
- *
- * @param obj
- * @returns
  */
 export function fastJsonPruneV2<
     T extends {

@@ -1,4 +1,4 @@
-import { lerp, lerpEasing, lerpWrap, positiveMod } from '../utils/math.ts'
+import { lerp, applyEasing, lerpWrap, positiveMod } from '../utils/math.ts'
 import { ColorVec, Vec3 } from '../types/data_types.ts'
 import { EASE } from '../types/animation_types.ts'
 import { arrayLerp } from '../utils/array_utils.ts'
@@ -143,7 +143,7 @@ export function lerpHSV(
     fraction: number,
     easing?: EASE,
 ) {
-    if (easing !== undefined) fraction = lerpEasing(easing, fraction)
+    if (easing !== undefined) fraction = applyEasing(easing, fraction)
 
     const output = [
         lerpWrap(start[0], end[0], fraction),

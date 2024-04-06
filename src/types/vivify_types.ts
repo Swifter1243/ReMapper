@@ -19,6 +19,7 @@ export type ANIMATOR_PROP_TYPE =
     | 'Float'
     | 'Trigger'
 
+/** Property type mostly used for Vivify custom events. */
 export type Property<T, V> = {
     /** Name of the property. */
     id: string
@@ -49,8 +50,8 @@ export type AnimatorProperty = Property<
     AnimatorPropertyValue
 >
 
-/** Color format types for render textures. */
-export type RENDER_TEX =
+/** Color format types for textures. */
+export type COLOR_FORMAT =
     | 'ARGB32'
     | 'Depth'
     | 'ARGBHalf'
@@ -81,16 +82,18 @@ export type RENDER_TEX =
     | 'R16'
 
 /** Filter modes for textures. */
-export type TEX_FILTER =
+export type TEX_FILTER_MODE =
     | 'Point'
     | 'Bilinear'
     | 'Trilinear'
 
+/** Depth texture output modes for the camera. */
 export type DEPTH_TEX_MODE =
     | 'Depth'
     | 'DepthNormals'
     | 'MotionVectors'
 
+/** https://docs.unity3d.com/ScriptReference/RenderSettings.html */
 export enum AMBIENT_MODE {
     Skybox = 0,
     Trilight = 1,
@@ -98,17 +101,22 @@ export enum AMBIENT_MODE {
     Custom = 4,
 }
 
+/** https://docs.unity3d.com/ScriptReference/RenderSettings.html */
 export enum DEFAULT_REFLECTION_MODE {
     Skybox,
     Custom,
 }
 
+/** How attenuation builds up in Beat Saber's fog. */
 export enum FOG_MODE {
     Linear = 1,
     Exponential,
     ExponentialSquared,
 }
 
+/** Changeable render settings with SetRenderSetting events. 
+ * https://docs.unity3d.com/ScriptReference/RenderSettings.html
+ */
 export type RENDER_SETTING = {
     'ambientEquatorColor': RuntimeRawKeyframesVec4 | ColorVec
     'ambientGroundColor': RuntimeRawKeyframesVec4 | ColorVec

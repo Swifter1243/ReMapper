@@ -3,6 +3,13 @@ import { lerp } from './math.ts'
 import { Vec3 } from '../types/data_types.ts'
 import { EASE } from '../types/animation_types.ts'
 
+/** Splits an array into a success array and failure array based on a filter.
+ * ```ts
+ * const arr = [1, 2, 3]
+ * const split = arraySplit(arr, x > 1)
+ * // { success: [2, 3], fail: [1] }
+ * ```
+ */
 export function arraySplit<T>(
     array: readonly T[],
     filter: (obj: T, index: number, array: readonly T[]) => boolean,
@@ -15,16 +22,27 @@ export function arraySplit<T>(
         (obj, index, array) => filter(obj, index, array) ? passVal : failVal,
     )
 
-    return [map[passVal] ?? [], map[failVal] ?? []]
+    return {
+        success: map[passVal] ?? [],
+        fail: map[failVal] ?? [],
+    }
 }
+
+/** Splits an array into keys in a dictionary based on a function.
+ * ```ts
+ * const arr = [1, 2, 3]
+ * const split = arraySplit2(arr, x => x * 2)
+ * // { 2: [1], 4: [2], 6: [3]}
+ * ```
+ */
 export function arraySplit2<T, K extends string | number | symbol>(
     array: readonly T[],
-    filter: (obj: T, index: number, array: readonly T[]) => K,
+    fn: (obj: T, index: number, array: readonly T[]) => K,
 ): Record<K, T[]> {
     const map = {} as Record<K, T[]>
 
     array.forEach((e, idx, arr) => {
-        const key = filter(e, idx, arr)
+        const key = fn(e, idx, arr)
         const mapArr = map[key]
         // existing array found
         if (mapArr) {
@@ -44,6 +62,13 @@ export function arraySplit2<T, K extends string | number | symbol>(
  */
 export const arrayLastElement = <T>(arr: readonly T[]) => arr[arr.length - 1]
 
+/** Generate array from a function */
+export function generateArray<T>(size: number, element: () => T) {
+    const result = []
+    for (let i = 0; i < size; i++) result.push(element())
+    return result
+}
+
 /**
  * Add either a number or another array to an array.
  * @param arr Input array.
@@ -51,18 +76,11 @@ export const arrayLastElement = <T>(arr: readonly T[]) => arr[arr.length - 1]
  */
 export function arrayAdd<T extends readonly [] | readonly number[]>(
     arr: T,
-    value: { [K in keyof T]: number } | number,
+    value: { readonly [K in keyof T]: number } | number,
 ) {
     if (typeof value === 'number') {
         return arr.map((x) => x + value) as unknown as T
     } else return arr.map((x, i) => x + value[i]) as unknown as T
-}
-
-/** Generate array from a function */
-export function generateArray<T>(size: number, element: () => T) {
-    const result = []
-    for (let i = 0; i < size; i++) result.push(element())
-    return result
 }
 
 /**
@@ -72,7 +90,7 @@ export function generateArray<T>(size: number, element: () => T) {
  */
 export function arraySubtract<T extends readonly [] | readonly number[]>(
     arr: T,
-    value: { [K in keyof T]: number } | number,
+    value: { readonly [K in keyof T]: number } | number,
 ) {
     if (typeof value === 'number') {
         return arr.map((x) => x - value) as unknown as T
@@ -86,7 +104,7 @@ export function arraySubtract<T extends readonly [] | readonly number[]>(
  */
 export function arrayMultiply<T extends readonly [] | readonly number[]>(
     arr: T,
-    value: { [K in keyof T]: number } | number,
+    value: { readonly [K in keyof T]: number } | number,
 ) {
     if (typeof value === 'number') {
         return arr.map((x) => x * value) as unknown as T
@@ -100,7 +118,7 @@ export function arrayMultiply<T extends readonly [] | readonly number[]>(
  */
 export function arrayDivide<T extends readonly [] | readonly number[]>(
     arr: T,
-    value: { [K in keyof T]: number } | number,
+    value: { readonly [K in keyof T]: number } | number,
 ) {
     if (typeof value === 'number') {
         return arr.map((x) => x / value) as unknown as T
@@ -116,7 +134,7 @@ export function arrayDivide<T extends readonly [] | readonly number[]>(
  */
 export const arrayLerp = <T extends readonly [] | readonly number[]>(
     start: T,
-    end: { [K in keyof T]: number },
+    end: { readonly [K in keyof T]: number },
     fraction: number,
     easing?: EASE,
 ) => start.map((x, i) => lerp(x, end[i], fraction, easing)) as unknown as T
@@ -129,7 +147,7 @@ export const arrayLerp = <T extends readonly [] | readonly number[]>(
  */
 export function areArraysEqual<T extends readonly [] | readonly number[]>(
     arr1: T,
-    arr2: { [K in keyof T]: number },
+    arr2: { readonly [K in keyof T]: number },
     lenience = 0,
 ) {
     let result = true
@@ -165,7 +183,7 @@ export function arrayRemove<T>(arr: T[], index: number) {
 /**
  * Prefer a tuple on a number array
  */
-export const vec = <T extends number[]>(...params: T) =>
+export const vec = <T extends readonly number[]>(...params: T) =>
     params as { [K in keyof T]: number }
 
 /**

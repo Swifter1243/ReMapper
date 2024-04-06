@@ -23,7 +23,7 @@ import {
     assignTrackParent,
 } from './custom_event.ts'
 import { AnyFog, FogEvent } from './fog.ts'
-import { CommunityBPMEvent, OfficialBPMEvent } from '../internals/event.ts'
+import { OfficialBPMEvent } from '../internals/event.ts'
 import {
     lightColorEventBoxGroup,
     lightRotationEventBoxGroup,
@@ -152,7 +152,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
                 x.et === EventGroup.GAGA_LEFT ||
                 x.et === EventGroup.GAGA_RIGHT
         })
-        json.basicBeatmapEvents = lightEventsFilter[1]
+        json.basicBeatmapEvents = lightEventsFilter.fail
 
         const laserSpeedEventsFilter = arraySplit(
             json.basicBeatmapEvents,
@@ -161,7 +161,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
                     x.et === EventGroup.RIGHT_ROTATING_LASERS
             },
         )
-        json.basicBeatmapEvents = laserSpeedEventsFilter[1]
+        json.basicBeatmapEvents = laserSpeedEventsFilter.fail
 
         const ringZoomEventsFilter = arraySplit(
             json.basicBeatmapEvents,
@@ -169,7 +169,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
                 return x.et === EventGroup.RING_ZOOM
             },
         )
-        json.basicBeatmapEvents = ringZoomEventsFilter[1]
+        json.basicBeatmapEvents = ringZoomEventsFilter.fail
 
         const ringSpinEventsFilter = arraySplit(
             json.basicBeatmapEvents,
@@ -177,7 +177,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
                 return x.et === EventGroup.RING_SPIN
             },
         )
-        json.basicBeatmapEvents = ringSpinEventsFilter[1]
+        json.basicBeatmapEvents = ringSpinEventsFilter.fail
 
         const rotationEventsFilter = arraySplit(
             json.basicBeatmapEvents,
@@ -186,34 +186,34 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
                     x.et === EventGroup.LATE_ROTATION
             },
         )
-        json.basicBeatmapEvents = rotationEventsFilter[1]
+        json.basicBeatmapEvents = rotationEventsFilter.fail
 
         const boostEventsFilter = arraySplit(json.basicBeatmapEvents, (x) => {
             return x.et === EventGroup.BOOST
         })
-        json.basicBeatmapEvents = boostEventsFilter[1]
+        json.basicBeatmapEvents = boostEventsFilter.fail
 
         const bpmEventsFilter = arraySplit(json.basicBeatmapEvents, (x) => {
             return x.et === EventGroup.BPM
         })
-        json.basicBeatmapEvents = bpmEventsFilter[1]
+        json.basicBeatmapEvents = bpmEventsFilter.fail
 
-        const lightEvents = lightEventsFilter[0].map((o) =>
+        const lightEvents = lightEventsFilter.success.map((o) =>
             event.backLasers().fromJson(o as bsmap.v3.IBasicEventLight, true)
         )
 
-        const laserSpeedEvents = laserSpeedEventsFilter[0].map((o) =>
+        const laserSpeedEvents = laserSpeedEventsFilter.success.map((o) =>
             event.leftLaserSpeed({}).fromJson(
                 o as bsmap.v3.IBasicEventLaserRotation,
                 true,
             )
         )
 
-        const ringZoomEvents = ringZoomEventsFilter[0].map((o) =>
+        const ringZoomEvents = ringZoomEventsFilter.success.map((o) =>
             event.ringZoom({}).fromJson(o as bsmap.v3.IBasicEventRing, true)
         )
 
-        const ringSpinEvents = ringSpinEventsFilter[0].map((o) =>
+        const ringSpinEvents = ringSpinEventsFilter.success.map((o) =>
             event.ringSpin({}).fromJson(o as bsmap.v3.IBasicEventRing, true)
         )
 
@@ -221,7 +221,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
             throw `"rotationEvents" does not exist in the beatmap!`
         }
         const rotationEvents = [
-            ...rotationEventsFilter[0].map((o) =>
+            ...rotationEventsFilter.success.map((o) =>
                 event.lateRotation({}).fromBasicEvent(
                     o as bsmap.v3.IBasicEventLaneRotation,
                 )
@@ -235,7 +235,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
             throw `"colorBoostBeatmapEvents" does not exist in the beatmap!`
         }
         const boostEvents = [
-            ...boostEventsFilter[0].map((o) =>
+            ...boostEventsFilter.success.map((o) =>
                 event.boost({}).fromBasicEvent(
                     o as bsmap.v3.IBasicEventBoost,
                 )
@@ -253,7 +253,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
             throw `"bpmEvents" does not exist in the beatmap!`
         }
         const bpmEvents = [
-            ...bpmEventsFilter[0].map((o) =>
+            ...bpmEventsFilter.success.map((o) =>
                 event.officialBpmEvent({}).fromBasicEvent(o)
             ),
             ...(json.customData?.BPMChanges ?? []).map((o) =>
@@ -340,13 +340,13 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
                 (x) => x.t === type,
             )
 
-            const result = filter[0].map((x) =>
+            const result = filter.success.map((x) =>
                 obj({}).fromJson(
                     x as bsmap.v3.ICustomEventAnimateTrack,
                     true,
                 )
             )
-            customEvents = filter[1]
+            customEvents = filter.fail
 
             diffCustomEvents[property] =
                 result as unknown as BeatmapCustomEvents[K]
@@ -520,13 +520,13 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
             (x) => x instanceof OfficialBPMEvent,
         )
 
-        const officialBPMEvents = (bpmEventsFilter[0] as OfficialBPMEvent[])
+        const officialBPMEvents = bpmEventsFilter.success
             .map((x) => x.toJson(true))
-            .sort(sortItems)
+            .sort(sortItems) as bsmap.v3.IBPMEvent[]
 
-        const communityBPMEvents = (bpmEventsFilter[1] as CommunityBPMEvent[])
+        const communityBPMEvents = bpmEventsFilter.fail
             .map((x) => x.toJson(true))
-            .sort(sortItems)
+            .sort(sortItems) as bsmap.v3.IBPMChange[]
 
         // Custom events
         const customEvents = (Object.values(

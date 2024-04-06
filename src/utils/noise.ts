@@ -4,7 +4,7 @@ import { dotProduct } from './math.ts'
 import { lerp } from './math.ts'
 import { getDistance, hashString } from './math.ts'
 
-function getVoronoiPoint<T extends number[]>(point: T, seed: number) {
+function getVoronoiPoint<T extends number[]>(point: Readonly<T>, seed: number) {
     const hash = hashString(seed + `${point}`)
     return point.map((x, i) => x + hashString(`${hash + i}`)) as T
 }
@@ -27,6 +27,7 @@ function getVoronoiOffsets<T extends number>(dimensions: T) {
     return offsets
 }
 
+/** Create a voronoi function for any dimension given a seed. */
 export function voronoi<T extends number>(dimensions: T, seed: number) {
     type Vec = number[] & { length: T }
 
@@ -48,15 +49,19 @@ export function voronoi<T extends number>(dimensions: T, seed: number) {
     }
 }
 
+/** Create a 1D voronoi function given a seed. */
 export const voronoi1D = (seed: number) => voronoi(1, seed)
+/** Create a 2D voronoi function given a seed. */
 export const voronoi2D = (seed: number) => voronoi(2, seed)
+/** Create a 3D voronoi function given a seed. */
 export const voronoi3D = (seed: number) => voronoi(3, seed)
 
-function getGradientVector<T extends number[]>(point: T, seed: number) {
+function getGradientVector<T extends number[]>(point: Readonly<T>, seed: number) {
     const hash = hashString(seed + `${point}`)
     return point.map((_x, i) => hashString(`${hash + i}`) * 2 - 1) as T
 }
 
+/** Create a gradient noise function for any dimension given a seed. */
 export function gradientNoise<T extends number>(dimensions: T, seed: number) {
     type Vec = number[] & { length: T }
 
@@ -98,6 +103,9 @@ export function gradientNoise<T extends number>(dimensions: T, seed: number) {
     }
 }
 
+/** Create a 1D gradient noise function given a seed. */
 export const gradientNoise1D = (seed: number) => gradientNoise(1, seed)
+/** Create a 2D gradient noise function given a seed. */
 export const gradientNoise2D = (seed: number) => gradientNoise(2, seed)
+/** Create a 3D gradient noise function given a seed. */
 export const gradientNoise3D = (seed: number) => gradientNoise(3, seed)

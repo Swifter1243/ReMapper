@@ -1,7 +1,7 @@
 import { AnimatorProperty } from '../../mod.ts'
 import { Vec3 } from '../../mod.ts'
 import { EASE, TrackValue } from '../animation_types.ts'
-import { RENDER_TEX, TEX_FILTER } from '../mod.ts'
+import { COLOR_FORMAT, TEX_FILTER_MODE } from '../mod.ts'
 import { DEPTH_TEX_MODE, MaterialProperty, RENDER_SETTING } from '../vivify_types.ts'
 
 /** JSON data for SetMaterialProperty events */
@@ -65,8 +65,8 @@ export interface DeclareRenderTexture {
         yRatio?: number
         width?: number
         height?: number
-        colorFormat?: RENDER_TEX
-        filterMode?: TEX_FILTER
+        colorFormat?: COLOR_FORMAT
+        filterMode?: TEX_FILTER_MODE
     }
 }
 

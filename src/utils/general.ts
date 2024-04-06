@@ -17,7 +17,7 @@ export function copyWith<T extends Record<string | number | symbol, never>>(
 }
 
 /**
- * Copies an object
+ * Copies an object recursively.
  * @param obj Object to copy
  * @returns The copy
  */

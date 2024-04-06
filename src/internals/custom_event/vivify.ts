@@ -4,8 +4,8 @@ import { EASE, TrackValue } from '../../types/animation_types.ts'
 import {
     BeatmapInterfaces,
     DEPTH_TEX_MODE,
-    RENDER_TEX,
-    TEX_FILTER,
+    COLOR_FORMAT,
+    TEX_FILTER_MODE,
     Vec3,
 } from '../../types/mod.ts'
 import { MaterialProperty, RENDER_SETTING } from '../../types/vivify_types.ts'
@@ -387,9 +387,9 @@ export class DeclareRenderTexture extends BaseCustomEvent<
     /** Exact height for the texture. */
     height?: number
     /** https://docs.unity3d.com/ScriptReference/RenderTextureFormat.html */
-    colorFormat?: RENDER_TEX
+    colorFormat?: COLOR_FORMAT
     /** https://docs.unity3d.com/ScriptReference/FilterMode.html */
-    filterMode?: TEX_FILTER
+    filterMode?: TEX_FILTER_MODE
 
     push(clone = true) {
         getActiveDifficulty().customEvents.declareRenderTextureEvents.push(

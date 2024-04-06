@@ -44,7 +44,7 @@ import {
     DeepReadonly,
     environment,
     geometry,
-    positionToV2,
+    positionUnityToNoodle,
     SceneObjectInfo,
 } from '../mod.ts'
 import { RuntimeRawKeyframesVec3 } from '../types/animation_types.ts'
@@ -283,7 +283,7 @@ export class ModelScene {
                     }
 
                     if (!v3) {
-                        positionToV2(objPos as Vec3)
+                        positionUnityToNoodle(objPos as Vec3)
                     }
 
                     x.pos[i] = [...(objPos as Vec3), x.pos[i][3]]
@@ -395,7 +395,7 @@ export class ModelScene {
                     )
 
                     if (!v3) {
-                        positionToV2(bakedCube.pos)
+                        positionUnityToNoodle(bakedCube.pos)
                     }
 
                     o.pos = bakedCube.pos

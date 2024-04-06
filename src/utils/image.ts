@@ -3,8 +3,11 @@ import { Vec4 } from '../types/data_types.ts'
 import { ColorVec } from '../types/data_types.ts'
 
 export class Image {
+    /** Width of the image in pixels. */
     width: number
+    /** Height of the image in pixels. */
     height: number
+    /** RGBA array of image pixels. */
     data: number[]
 
     constructor(width: number, height: number) {
@@ -38,6 +41,7 @@ export class Image {
         }
     }
 
+    /** Set a pixel at given coordinates to a color. */
     setPixel(x: number, y: number, color: ColorVec) {
         const uIntColor = color.map((e) => (e ?? 1) * 255) as Vec4
         const index = this.coordToIndex(x, y)
@@ -47,6 +51,7 @@ export class Image {
         }
     }
 
+    /** Get a pixel color at the given coordinates. */
     getPixel(x: number, y: number) {
         const index = this.coordToIndex(x, y)
         const output = [0, 0, 0, 0].map((_x, i) =>
@@ -55,6 +60,7 @@ export class Image {
         return output
     }
 
+    /** Save the image to a file. */
     async save(file: string) {
         const data = new Uint8Array(this.data)
         const png = pngs.encode(data, this.width, this.height)
@@ -62,6 +68,7 @@ export class Image {
     }
 }
 
+/** Simple image wrapper for debugging. */
 export function image(
     ...params: ConstructorParameters<typeof Image>
 ): Image {

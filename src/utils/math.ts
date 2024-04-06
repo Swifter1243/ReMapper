@@ -27,6 +27,8 @@ import { iterateKeyframes, OptimizeSettings } from '../animation/mod.ts'
 import { getValuesAtTime } from '../animation/mod.ts'
 import { complexifyArray } from '../animation/animation_utils.ts'
 import { getAnimatedObjectDomain } from '../animation/animation_utils.ts'
+import { Mutable } from '../types/util_types.ts'
+import { DeepMutable } from '../types/util_types.ts'
 
 export const EPSILON = 1e-3
 
@@ -43,7 +45,7 @@ export function lerp(
     fraction: number,
     easing?: EASE,
 ) {
-    if (easing !== undefined) fraction = lerpEasing(easing, fraction)
+    if (easing !== undefined) fraction = applyEasing(easing, fraction)
     return start + (end - start) * fraction
 }
 
@@ -60,7 +62,7 @@ export function lerpWrap(
     fraction: number,
     easing?: EASE,
 ) {
-    if (easing !== undefined) fraction = lerpEasing(easing, fraction)
+    if (easing !== undefined) fraction = applyEasing(easing, fraction)
     const distance = Math.abs(end - start)
 
     if (distance <= 0.5) return lerp(start, end, fraction)
@@ -86,7 +88,7 @@ export function lerpRotation(
     fraction: number,
     easing?: EASE,
 ): Vec3 {
-    if (easing !== undefined) fraction = lerpEasing(easing, fraction)
+    if (easing !== undefined) fraction = applyEasing(easing, fraction)
     const q1 = new three.Quaternion().setFromEuler(
         new three.Euler(...toRadians(start), 'YXZ'),
     )
@@ -114,7 +116,7 @@ export function eulerFromQuaternion(q: three.Quaternion) {
  * @param easing Name of easing.
  * @param value Progress of easing (0-1).
  */
-export function lerpEasing(easing: EASE, value: number) {
+export function applyEasing(easing: EASE, value: number) {
     if (easing === 'easeLinear' || easing === undefined) return value
     if (easing === 'easeStep') return value === 1 ? 1 : 0
     return easings[easing](value)
@@ -153,6 +155,9 @@ export function seededRandom(seed: number) {
     }
 }
 
+/**
+ * Returns a random number given an input seed number.
+ */
 export function hash1D(seed: number) {
     let t = seed += 0x6D2B79F5
     t = Math.imul(t ^ t >>> 15, t | 1)
@@ -161,6 +166,7 @@ export function hash1D(seed: number) {
     return r
 }
 
+/** Returns a random number given an input seed string. */
 export function hashString(str: string) {
     let hash = 2166136261n // FNV offset basis
     const prime = 16777619n // FNV prime
@@ -176,7 +182,10 @@ export function hashString(str: string) {
 
 /**
  * A modulo operation that is always positive.
- * E.g. -0.3 % 1 = 0.7
+ * ```ts
+ * const a = -0.3 % 1 // -0.3, negative result
+ * const b = positiveMod(-0.3, 1) // 0.7, positive result
+ * ```
  */
 export function positiveMod(a: number, b: number) {
     return (a % b + b) % b
@@ -185,26 +194,26 @@ export function positiveMod(a: number, b: number) {
 /**
  * Rounds a number to the nearest multiple of another number.
  * @param input Number to round.
- * @param number Number to round to.
+ * @param step Number to round to.
  */
-export const round = (input: number, number: number) =>
-    Math.round(input / number) * number
+export const round = (input: number, step: number) =>
+    Math.round(input / step) * step
 
 /**
  * Floors a number to the nearest multiple of another number.
  * @param input Number to floor.
- * @param number Number to floor to.
+ * @param step Number to floor to.
  */
-export const floorTo = (input: number, number: number) =>
-    Math.floor(input / number) * number
+export const floorTo = (input: number, step: number) =>
+    Math.floor(input / step) * step
 
 /**
  * Ceils a number to the nearest multiple of another number.
  * @param input Number to ceil.
- * @param number Number to ceil to.
+ * @param step Number to ceil to.
  */
-export const ceilTo = (input: number, number: number) =>
-    Math.ceil(input / number) * number
+export const ceilTo = (input: number, step: number) =>
+    Math.ceil(input / step) * step
 
 /**
  * Makes a number fit between a min and max value.
@@ -233,9 +242,9 @@ export function setDecimals(input: number, decimals: number) {
  * @param A First point.
  * @param B Second point.
  */
-export function getDistance<T extends [] | number[]>(
+export function getDistance<T extends readonly [] | readonly number[]>(
     A: T,
-    B: { [K in keyof T]: number },
+    B: { readonly [K in keyof T]: number },
 ) {
     return magnitude(arraySubtract(A, B))
 }
@@ -243,7 +252,7 @@ export function getDistance<T extends [] | number[]>(
 /**
  * Gets the magnitude/length of a vector.
  */
-export function magnitude(vector: number[]) {
+export function magnitude(vector: readonly number[]) {
     let sum = 0
     vector.forEach((x) => sum += x * x)
     return Math.sqrt(sum)
@@ -252,12 +261,12 @@ export function magnitude(vector: number[]) {
 /**
  * Gets the dot product between 2 vectors of the same length.
  */
-export function dotProduct<T extends [] | number[]>(
-    array1: T,
-    array2: { [K in keyof T]: number },
+export function dotProduct<T extends readonly [] | readonly number[]>(
+    A: T,
+    B: { readonly [K in keyof T]: number },
 ) {
     let sum = 0
-    array1.forEach((x, i) => sum += x * array2[i])
+    A.forEach((x, i) => sum += x * B[i])
     return sum
 }
 
@@ -265,11 +274,11 @@ export function dotProduct<T extends [] | number[]>(
  * Gets a cross product between two Vec3s.
  */
 export function crossProduct(
-    array1: Vec3,
-    array2: Vec3,
+    A: Readonly<Vec3>,
+    B: Readonly<Vec3>,
 ) {
-    const [a, b, c] = array1
-    const [d, e, f] = array2
+    const [a, b, c] = A
+    const [d, e, f] = B
     return [
         (b * f) - (c * e),
         (c * d) - (a * f),
@@ -280,7 +289,7 @@ export function crossProduct(
 /**
  * Normalize a vector, making it's magnitude 1.
  */
-export function normalize<T extends number[]>(vector: T) {
+export function normalize<T extends readonly number[]>(vector: T) {
     return arrayDivide(vector, magnitude(vector))
 }
 
@@ -317,11 +326,15 @@ export function rotateVector(rotation: Readonly<Vec3>, length: number) {
  * Convert an array of numbers from degrees to radians.
  * @param values Input array of numbers.
  */
-export function toRadians<T extends number | [] | number[]>(values: T) {
+export function toRadians(values: number): number
+export function toRadians<T extends [] | number[]>(values: Readonly<T>): T
+export function toRadians<T extends [] | number[]>(
+    values: Readonly<T> | number,
+) {
     const toRadNum = (x: number) => x * (Math.PI / 180)
 
     if (typeof values === 'number') {
-        return toRadNum(values) as T
+        return toRadNum(values) as number
     }
 
     return values.map(toRadNum) as T
@@ -331,11 +344,15 @@ export function toRadians<T extends number | [] | number[]>(values: T) {
  * Convert an array of numbers from radians to degrees.
  * @param values Input array of numbers.
  */
-export function toDegrees<T extends number | [] | number[]>(values: T) {
+export function toDegrees(values: number): number
+export function toDegrees<T extends [] | number[]>(values: Readonly<T>): T
+export function toDegrees<T extends [] | number[]>(
+    values: Readonly<T> | number,
+) {
     const toDegreesNum = (x: number) => x * (180 / Math.PI)
 
     if (typeof values === 'number') {
-        return toDegreesNum(values) as T
+        return toDegreesNum(values) as number
     }
 
     return values.map(toDegreesNum) as T
@@ -362,7 +379,7 @@ export const toThreeQuaternion = (v: Readonly<Vec3>) =>
     new three.Quaternion().setFromEuler(toThreeEuler(v))
 
 /**
- * Takes a transformation and converts it to matrix.
+ * Takes a transformation and converts it to a matrix.
  * @param transform Transform to convert.
  */
 export function getMatrixFromTransform(transform: DeepReadonly<Transform>) {
@@ -378,27 +395,15 @@ export function getMatrixFromTransform(transform: DeepReadonly<Transform>) {
  * Get a Matrix4x4 from 3D basis vectors.
  */
 export function matrixFromBasisVectors(
-    basisX: Vec3,
-    basisY: Vec3,
-    basisZ: Vec3,
+    basisX: Readonly<Vec3>,
+    basisY: Readonly<Vec3>,
+    basisZ: Readonly<Vec3>,
 ) {
     return new three.Matrix4().set(
-        basisX[0],
-        basisY[0],
-        basisZ[0],
-        0,
-        basisX[1],
-        basisY[1],
-        basisZ[1],
-        0,
-        basisX[2],
-        basisY[2],
-        basisZ[2],
-        0,
-        0,
-        0,
-        0,
-        1,
+        ...[basisX[0], basisY[0], basisZ[0], 0],
+        ...[basisX[1], basisY[1], basisZ[1], 0],
+        ...[basisX[2], basisY[2], basisZ[2], 0],
+        ...[0, 0, 0, 1],
     )
 }
 
@@ -423,8 +428,8 @@ export function getTransformFromMatrix(matrix: three.Matrix4) {
  * Find the rotation from an eye location to a target.
  */
 export function lookAt(
-    eye: Vec3,
-    target: Vec3,
+    eye: Readonly<Vec3>,
+    target: Readonly<Vec3>,
 ) {
     const forward = normalize(arraySubtract(target, eye))
     let up = [0, 1, 0] as Vec3
@@ -439,7 +444,7 @@ export function lookAt(
  */
 export function applyMatrixToPoint(
     matrix: three.Matrix4,
-    point: Vec3,
+    point: Readonly<Vec3>,
 ) {
     return combineTransforms({
         pos: point,
@@ -450,8 +455,8 @@ export function applyMatrixToPoint(
  * Combine 2 rotations. Not commutative.
  */
 export function combineRotations(
-    target: Vec3,
-    rotation: Vec3,
+    target: Readonly<Vec3>,
+    rotation: Readonly<Vec3>,
 ) {
     return combineTransforms({
         rot: target,
@@ -470,7 +475,7 @@ export function combineRotations(
 export function combineTransforms(
     target: DeepReadonly<Transform>,
     transform: DeepReadonly<Transform>,
-    anchor: Vec3 = [0, 0, 0],
+    anchor: Readonly<Vec3> = [0, 0, 0],
 ) {
     const newTarget = copy(target) as Transform
     const newTransform = copy(transform) as Transform
@@ -495,7 +500,7 @@ export function combineTransforms(
 export function emulateParent(
     child: DeepReadonly<AnimatedTransform>,
     parent: DeepReadonly<AnimatedTransform>,
-    anchor: Vec3 = [0, 0, 0],
+    anchor: Readonly<Vec3> = [0, 0, 0],
     animFreq?: number,
     animOptimizer?: OptimizeSettings,
 ): FullAnimatedTransform {
@@ -734,7 +739,11 @@ export const getRuntimeSeconds = (decimals = 2) =>
  * This function will output half of this, so it will end when the note is supposed to be hit.
  * Jump Distance is the Z distance from when the object starts it's jump to when it's deleted.
  */
-export function getJumps(noteJumpSpeed: number, noteJumpOffset: number, beatsPerMinute: number) {
+export function getJumps(
+    noteJumpSpeed: number,
+    noteJumpOffset: number,
+    beatsPerMinute: number,
+) {
     const startHJD = 4
     const maxHJD = 18 - 0.001
     const oneBeatDur = 60 / beatsPerMinute

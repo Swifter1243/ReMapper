@@ -23,7 +23,7 @@ import {
     ceilTo,
     findFraction,
     floorTo,
-    lerpEasing,
+    applyEasing,
     lerpRotation,
 } from '../utils/math.ts'
 import { optimizeKeyframes, OptimizeSettings } from './anim_optimizer.ts'
@@ -211,7 +211,7 @@ function timeInKeyframes(time: number, animation: ComplexKeyframeValuesUnsafe) {
     const rEasing = getKeyframeEasing(r)
 
     normalTime = findFraction(lTime, rTime - lTime, time)
-    if (rEasing) normalTime = lerpEasing(rEasing, normalTime)
+    if (rEasing) normalTime = applyEasing(rEasing, normalTime)
 
     return {
         interpolate: true,
