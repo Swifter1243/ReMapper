@@ -3,8 +3,8 @@ import { getActiveDifficulty } from '../../data/beatmap_handler.ts'
 import { EASE, TrackValue } from '../../types/animation_types.ts'
 import {
     BeatmapInterfaces,
-    DEPTH_TEX_MODE,
     COLOR_FORMAT,
+    DEPTH_TEX_MODE,
     TEX_FILTER_MODE,
     Vec3,
 } from '../../types/mod.ts'
@@ -84,6 +84,13 @@ export class SetMaterialProperty extends BaseCustomEvent<
     ) {
         if (!v3) throw 'SetMaterialProperty is only supported in V3!'
 
+        if (!this.asset) {
+            throw 'asset is undefined, which is required for SetMaterialProperty!'
+        }
+        if (Object.keys(this.properties).length === 0) {
+            throw 'properties is empty, which is redundant for SetMaterialProperty!'
+        }
+
         const output = {
             b: this.beat,
             d: {
@@ -158,6 +165,9 @@ export class SetGlobalProperty extends BaseCustomEvent<
         prune = true,
     ) {
         if (!v3) throw 'SetGlobalProperty is only supported in V3!'
+        if (Object.keys(this.properties).length === 0) {
+            throw 'properties is empty, which is redundant for SetGlobalProperty!'
+        }
 
         const output = {
             b: this.beat,
@@ -192,7 +202,7 @@ export class Blit extends BaseCustomEvent<
     }
 
     /** File path to the material. */
-    asset?: string
+    asset: string
     /** Which order to run current active post processing effects. Higher priority will run first. Default = 0 */
     priority?: number
     /** Which pass in the shader to use. Will use all passes if not defined. */
@@ -252,6 +262,8 @@ export class Blit extends BaseCustomEvent<
     ) {
         if (!v3) throw 'Blit is only supported in V3!'
 
+        if (!this.asset) throw 'asset is undefined, which is required for Blit!'
+
         const output = {
             b: this.beat,
             d: {
@@ -263,7 +275,7 @@ export class Blit extends BaseCustomEvent<
                 priority: this.priority,
                 properties: this.properties,
                 source: this.source,
-                ...this.data
+                ...this.data,
             },
             t: 'Blit',
         } satisfies BeatmapInterfaces.Blit
@@ -340,11 +352,18 @@ export class DeclareCullingTexture extends BaseCustomEvent<
     ) {
         if (!v3) throw 'DeclareCullingTexture is only supported in V3!'
 
+        if (!this.id) {
+            throw 'id is undefined, which is required for DeclareCullingTexture!'
+        }
+        if (!this.track.value) {
+            throw 'track is undefined, which is required for DeclareCullingTexture!'
+        }
+
         const output = {
             b: this.beat,
             d: {
                 id: this.id,
-                track: this.track.value ?? '',
+                track: this.track.value,
                 depthTexture: this.depthTexture,
                 whitelist: this.whitelist,
                 ...this.data,
@@ -434,6 +453,10 @@ export class DeclareRenderTexture extends BaseCustomEvent<
     ) {
         if (!v3) throw 'DeclareRenderTexture is only supported in V3!'
 
+        if (!this.id) {
+            throw 'id is undefined, which is required for DeclareRenderTexture!'
+        }
+
         const output = {
             b: this.beat,
             d: {
@@ -506,6 +529,10 @@ export class DestroyTexture extends BaseCustomEvent<
         prune = true,
     ) {
         if (!v3) throw 'DestroyTexture is only supported in V3!'
+
+        if (!this.id) {
+            throw 'id is undefined, which is required for DestroyTexture!'
+        }
 
         const output = {
             b: this.beat,
@@ -599,6 +626,10 @@ export class InstantiatePrefab extends BaseCustomEvent<
     ) {
         if (!v3) throw 'InstantiatePrefab is only supported in V3!'
 
+        if (!this.asset) {
+            throw 'asset is undefined, which is required for InstantiatePrefab!'
+        }
+
         const output = {
             b: this.beat,
             d: {
@@ -672,6 +703,10 @@ export class DestroyPrefab extends BaseCustomEvent<
         prune = true,
     ) {
         if (!v3) throw 'DestroyPrefab is only supported in V3!'
+
+        if (!this.id) {
+            throw 'id is undefined, which is required for DestroyPrefab!'
+        }
 
         const output = {
             b: this.beat,
@@ -749,6 +784,13 @@ export class SetAnimatorProperty extends BaseCustomEvent<
     ) {
         if (!v3) throw 'SetAnimatorProperty is only supported in V3!'
 
+        if (!this.id) {
+            throw 'id is undefined, which is required for SetAnimatorProperty!'
+        }
+        if (Object.keys(this.properties).length === 0) {
+            throw 'properties is empty, which is redundant for SetAnimatorProperty!'
+        }
+
         const output = {
             b: this.beat,
             d: {
@@ -816,6 +858,10 @@ export class SetCameraProperty extends BaseCustomEvent<
     ) {
         if (!v3) throw 'SetCameraProperty is only supported in V3!'
 
+        if (this.depthTextureMode.length === 0) {
+            throw 'depthTextureMode is empty, which is redundant for SetCameraProperty!'
+        }
+
         const output = {
             b: this.beat,
             d: {
@@ -838,13 +884,13 @@ export class AssignTrackPrefab extends BaseCustomEvent<
         super(params)
         this.type = 'AssignTrackPrefab'
         this.track = params.track ?? ''
-        this.note = params.note ?? ''
+        this.note = params.note
     }
 
     /** Only objects on this track will be affected. */
     track: string
     /** File path to the desired prefab to replace notes. */
-    note: string
+    note?: string
 
     push(clone = true) {
         getActiveDifficulty().customEvents.assignTrackPrefabEvents.push(
@@ -884,10 +930,14 @@ export class AssignTrackPrefab extends BaseCustomEvent<
     ) {
         if (!v3) throw 'AssignTrackPrefab is only supported in V3!'
 
+        if (!this.track) {
+            throw 'track is undefined, which is required for AssignTrackPrefab!'
+        }
+
         const output = {
             b: this.beat,
             d: {
-                note: this.note,
+                note: this.note ?? '',
                 track: this.track,
                 ...this.data,
             },
@@ -958,6 +1008,10 @@ export class SetRenderSetting extends BaseCustomEvent<
         prune = true,
     ) {
         if (!v3) throw 'SetRenderSetting is only supported in V3!'
+
+        if (Object.keys(this.settings).length === 0) {
+            throw 'settings is empty, which is redundant for SetRenderSetting!'
+        }
 
         const output = {
             b: this.beat,

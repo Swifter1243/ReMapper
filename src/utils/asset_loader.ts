@@ -150,6 +150,7 @@ export class Material<T extends MaterialProperties = MaterialProperties> {
             duration,
             properties,
             easing,
+            asset: this.path
         }).push()
     }
 
@@ -295,6 +296,8 @@ function initializeMaterials(assetMap: AssetMap) {
             const properties = value.properties
 
             const setProperties: MaterialProperty[] = []
+
+            if (Object.keys(properties).length === 0) return
 
             Object.entries(properties).forEach(([propName, typeHolder]) => {
                 const propType = Object.keys(
