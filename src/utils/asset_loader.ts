@@ -9,7 +9,7 @@ import { EASE, RuntimePointDefinitionLinear } from '../types/animation_types.ts'
 import { RuntimePointDefinitionVec4 } from '../types/animation_types.ts'
 import { FILEPATH } from '../types/beatmap_types.ts'
 import { ColorVec, Vec4 } from '../types/data_types.ts'
-import { MaterialProperty } from '../types/mod.ts'
+import { DeepReadonly, MaterialProperty } from '../types/mod.ts'
 import { MATERIAL_PROP_TYPE } from '../types/vivify_types.ts'
 
 type PrefabMap = Record<string, string>
@@ -51,9 +51,9 @@ type MaterialPropertyMap = {
 /** Used to load type safe prefabs. See `loadAssets` */
 export class Prefab {
     /** Path to this prefab in the asset bundle. */
-    path: string
+    readonly path: string
     /** Name of this prefab, it is also included in the track. */
-    name: string
+    readonly name: string
     /** Keeps track of how many times this prefab has been instantiated. */
     private iteration = 0
 
@@ -88,11 +88,15 @@ export class Prefab {
 /** An instance of a prefab. */
 export class PrefabInstance {
     /** The id/track of this instance. */
-    id: string
+    readonly id: string
+    /** The track of this instance. Equivalent to id. */
+    get track() {
+        return this.id
+    }
     /** Whether this instance has been destroyed. */
     destroyed = false
     /** The event used to push this instance. */
-    event: CustomEventInternals.InstantiatePrefab
+    readonly event: CustomEventInternals.InstantiatePrefab
 
     constructor(id: string, event: CustomEventInternals.InstantiatePrefab) {
         this.id = id
@@ -111,11 +115,11 @@ export class PrefabInstance {
 /** Used to load type safe materials. See `loadAssets` */
 export class Material<T extends MaterialProperties = MaterialProperties> {
     /** Path to this material in the asset bundle. */
-    path: string
+    readonly path: string
     /** Name of this material. */
-    name: string
+    readonly name: string
     /** Properties in this material. */
-    properties: T
+    properties: DeepReadonly<T>
 
     constructor(path: string, name: string, properties: T) {
         this.path = path
@@ -231,7 +235,7 @@ export class Material<T extends MaterialProperties = MaterialProperties> {
 
             fixedValues.push({
                 id: k,
-                type: this.properties[k],
+                type: this.properties[k] as MATERIAL_PROP_TYPE,
                 value: fixedValue,
             })
         })
