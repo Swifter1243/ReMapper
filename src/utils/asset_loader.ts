@@ -70,9 +70,9 @@ export class Prefab {
         const id = `${this.name}_${this.iteration}`
         const instantiation = instantiatePrefab(beat, this.path, id, id)
         if (event) event(instantiation)
-        instantiation.push()
+        instantiation.push(false)
         this.iteration++
-        return new PrefabInstance(id)
+        return new PrefabInstance(id, instantiation)
     }
 
     /** Create an event to assign this prefab to a note. */
@@ -91,9 +91,12 @@ export class PrefabInstance {
     id: string
     /** Whether this instance has been destroyed. */
     destroyed = false
+    /** The event used to push this instance. */
+    event: CustomEventInternals.InstantiatePrefab
 
-    constructor(id: string) {
+    constructor(id: string, event: CustomEventInternals.InstantiatePrefab) {
         this.id = id
+        this.event = event
     }
 
     /** Destroy this instance. */
@@ -150,7 +153,7 @@ export class Material<T extends MaterialProperties = MaterialProperties> {
             duration,
             properties,
             easing,
-            asset: this.path
+            asset: this.path,
         }).push()
     }
 
