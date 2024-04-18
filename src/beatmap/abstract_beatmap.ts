@@ -462,36 +462,29 @@ export abstract class AbstractDifficulty<
         this.suggestions = suggestionsArr
     }
 
-    /** Iterator for both geometry and environment. */
-    *environmentEnhancementsCombined(): IterableIterator<
-        EnvironmentInternals.AbstractEnvironment
-    > {
-        yield* this.geometry
-        yield* this.environment
+    /** Array opf both geometry and environment. */
+    rawEnvironment() {
+        return [
+            ...this.environment,
+            ...this.geometry,
+        ] as EnvironmentInternals.AbstractEnvironment[]
     }
 
     /**
-     * Iterator for all standard (non V3 lighting) events on the difficulty.
+     * Iterator for all basic (non V3 lighting) events on the difficulty.
      * @brief Not sorted
      */
-    *allStandardEvents(sorted = false): IterableIterator<
-        BasicEventInternals.BaseEvent
-    > {
-        if (sorted) {
-            return [
-                ...this.lightEvents,
-                ...this.laserSpeedEvents,
-                ...this.ringZoomEvents,
-                ...this.ringSpinEvents,
-                ...this.baseBasicEvents,
-            ].sort((a, b) => a.beat - b.beat)
-        }
+    allBasicEvents(sorted = false): BasicEventInternals.BaseEvent[] {
+        const arr = [
+            ...this.lightEvents,
+            ...this.laserSpeedEvents,
+            ...this.ringZoomEvents,
+            ...this.ringSpinEvents,
+            ...this.baseBasicEvents,
+        ]
 
-        yield* this.lightEvents
-        yield* this.laserSpeedEvents
-        yield* this.ringZoomEvents
-        yield* this.ringSpinEvents
-        yield* this.baseBasicEvents
+        if (sorted) return arr.sort((a, b) => a.beat - b.beat)
+        return arr
     }
 
     /** Iterator for all notes. */
