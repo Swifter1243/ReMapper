@@ -70,7 +70,7 @@ export type TimeValue = number
 
 //#region Helpers
 /** Helper type for single keyframes. `[...]` */
-export type SingleKeyframeAbstract<T extends number[]> =
+export type SingleKeyframeAbstract<T extends unknown[]> =
     | [...T]
     | [...T, KeyframeFlag]
     | [...T, KeyframeFlag, KeyframeFlag]
@@ -141,29 +141,12 @@ export type RuntimeComplexKeyframesAbstract<
     T extends number[],
     R extends string,
 > = (
-    | [
+    | SingleKeyframeAbstract<[
         ...RuntimeSingleKeyframeAbstract<T, R>,
         TimeValue,
-    ]
-    | [
-        ...RuntimeSingleKeyframeAbstract<T, R>,
-        TimeValue,
-        KeyframeFlag,
-    ]
-    | [
-        ...RuntimeSingleKeyframeAbstract<T, R>,
-        TimeValue,
-        KeyframeFlag,
-        KeyframeFlag,
-    ]
-    | [
-        ...RuntimeSingleKeyframeAbstract<T, R>,
-        TimeValue,
-        KeyframeFlag,
-        KeyframeFlag,
-        KeyframeFlag,
-    ]
+    ]>
     | SingleKeyframeAbstract<[...T, TimeValue]>
+    | SingleKeyframeAbstract<[R, TimeValue]>
 )[]
 
 /** Helper type for complex keyframes. `[[...], [...], [...]]`.
@@ -173,29 +156,12 @@ export type ReadonlyRuntimeComplexKeyframesAbstract<
     T extends readonly number[],
     R extends string,
 > = (
-    | readonly [
+    | Readonly<SingleKeyframeAbstract<[
         ...ReadonlyRuntimeSingleKeyframeAbstract<T, R>,
         TimeValue,
-    ]
-    | readonly [
-        ...ReadonlyRuntimeSingleKeyframeAbstract<T, R>,
-        TimeValue,
-        KeyframeFlag,
-    ]
-    | readonly [
-        ...ReadonlyRuntimeSingleKeyframeAbstract<T, R>,
-        TimeValue,
-        KeyframeFlag,
-        KeyframeFlag,
-    ]
-    | readonly [
-        ...ReadonlyRuntimeSingleKeyframeAbstract<T, R>,
-        TimeValue,
-        KeyframeFlag,
-        KeyframeFlag,
-        KeyframeFlag,
-    ]
+    ]>>
     | DeepReadonly<SingleKeyframeAbstract<[...T, TimeValue]>>
+    | DeepReadonly<SingleKeyframeAbstract<[R, TimeValue]>>
 )[]
 
 /** Helper type for raw keyframes. `[...] | [[...], [...], [...]]` */
