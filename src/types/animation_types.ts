@@ -76,21 +76,11 @@ export type SingleKeyframeAbstract<T extends unknown[]> =
     | [...T, KeyframeFlag, KeyframeFlag]
     | [...T, KeyframeFlag, KeyframeFlag, KeyframeFlag]
 
-/** Values for complex runtime keyframes.
+/** Values for runtime keyframes.
  * [[...], [...], [...]] where [...] is [...x, time]
+ * This type represents the "x".
  */
-export type RuntimeComplexKeyframeValues<
-    T extends number[],
-    R extends string,
-> =
-    | [RuntimeValues<T, R>]
-    | [R]
-    | T
-
-/** Values for a single runtime keyframe.
- * [...x]
- */
-export type RuntimeSingleKeyframeValues<
+export type RuntimeKeyframeValues<
     T extends number[],
     R extends string,
 > =
@@ -128,28 +118,17 @@ export type RuntimeValues<
         ],
     ]
 
-/** Values for complex runtime keyframes.
+/** Values for runtime keyframes.
  * [[...], [...], [...]] where [...] is [...x, time]
+ * This type represents the "x".
  * Readonly.
  */
-export type ReadonlyRuntimeComplexKeyframeValues<
-    T extends readonly number[],
-    R extends string,
-> =
-    | [ReadonlyRuntimeValues<T, R>]
-    | readonly [R]
-    | T
-
-/** Values for a single runtime keyframe.
- * [...x]
- * Readonly.
- */
-export type ReadonlyRuntimeSingleKeyframeValues<
+export type ReadonlyRuntimeKeyframeValues<
     T extends readonly number[],
     R extends string,
 > =
     | ReadonlyRuntimeValues<T, R>
-    | readonly [R]
+    | [R]
     | T
 
 /** A term to be evaluated in a runtime expression.
@@ -194,7 +173,7 @@ export type RuntimeComplexKeyframesAbstract<
     T extends number[],
     R extends string,
 > = SingleKeyframeAbstract<[
-    ...RuntimeComplexKeyframeValues<T, R>,
+    ...RuntimeKeyframeValues<T, R>,
     TimeValue,
 ]>[]
 
@@ -206,7 +185,7 @@ export type ReadonlyRuntimeComplexKeyframesAbstract<
     R extends string,
 > = Readonly<
     SingleKeyframeAbstract<[
-        ...ReadonlyRuntimeComplexKeyframeValues<T, R>,
+        ...ReadonlyRuntimeKeyframeValues<T, R>,
         TimeValue,
     ]>
 >[]
@@ -224,7 +203,7 @@ export type RuntimeRawKeyframesAbstract<
     R extends string,
 > =
     | RuntimeComplexKeyframesAbstract<T, R>
-    | RuntimeSingleKeyframeValues<T, R>
+    | RuntimeKeyframeValues<T, R>
 
 /** Helper type for raw keyframes. `[...] | [[...], [...], [...]]`.
  * Includes runtime properties. Readonly.
@@ -234,7 +213,7 @@ export type ReadonlyRuntimeRawKeyframesAbstract<
     R extends string,
 > =
     | ReadonlyRuntimeComplexKeyframesAbstract<T, R>
-    | ReadonlyRuntimeSingleKeyframeValues<T, R>
+    | ReadonlyRuntimeKeyframeValues<T, R>
 
 /** Helper type for keyframe arrays. */
 export type PointDefinitionAbstract<T extends number[]> =
@@ -610,7 +589,7 @@ export type RuntimeComplexKeyframeValuesUnsafe =
  * Includes runtime properties.
  */
 export type RuntimeSingleKeyframeValuesUnsafe =
-    | RuntimeSingleKeyframeValues<
+    | RuntimeKeyframeValues<
         number[],
         RuntimeProperties
     >
@@ -640,7 +619,7 @@ export type ReadonlyRuntimeComplexKeyframeValuesUnsafe =
  * Includes runtime properties. Readonly.
  */
 export type ReadonlyRuntimeSingleKeyframeValuesUnsafe =
-    | ReadonlyRuntimeSingleKeyframeValues<
+    | ReadonlyRuntimeKeyframeValues<
         readonly number[],
         RuntimeProperties
     >
