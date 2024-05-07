@@ -88,35 +88,69 @@ export type RuntimeKeyframeValues<
     | [R]
     | T
 
+/*
+| [
+    ...(T | [R]),
+    PointModifier,
+]
+| [
+    ...(T | [R]),
+    RuntimeValues<T, R>,
+    PointModifier,
+],
+*/
+type RuntimeRecurse<
+    A extends unknown[],
+    G extends unknown,
+> =
+    | [
+        ...A,
+        PointModifier,
+    ]
+    | [
+        ...A,
+        G,
+        PointModifier,
+    ]
+
+type ReadonlyRuntimeRecurse<
+    A extends readonly unknown[],
+    G extends unknown,
+> =
+    | [
+        ...A,
+        PointModifier,
+    ]
+    | [
+        ...A,
+        G,
+        PointModifier,
+    ]
+
 /** A term to be evaluated in a runtime expression.
- * e.g. [x, [x, Operation]].
  */
 export type RuntimeValues<
     T extends number[],
     R extends string,
-> =
-    | [
-        ...(T | [R]),
-        | [
-            ...(T | [R]),
-            PointModifier,
-        ]
-        | [
-            RuntimeValues<T, R>,
-            PointModifier,
-        ],
-    ]
-    | [
-        RuntimeValues<T, R>,
-        | [
-            ...(T | [R]),
-            PointModifier,
-        ]
-        | [
-            RuntimeValues<T, R>,
-            PointModifier,
-        ],
-    ]
+> = [
+    ...T | [R],
+    RuntimeRecurse<
+        T | [R],
+        RuntimeRecurse<
+            T | [R],
+            RuntimeRecurse<
+                T | [R],
+                RuntimeRecurse<
+                    T | [R],
+                    [
+                        ...T | [R],
+                        PointModifier,
+                    ]
+                >
+            >
+        >
+    >,
+]
 
 /** Values for runtime keyframes.
  * [[...], [...], [...]] where [...] is [...x, time]
@@ -138,29 +172,25 @@ export type ReadonlyRuntimeKeyframeValues<
 export type ReadonlyRuntimeValues<
     T extends readonly number[],
     R extends string,
-> =
-    | readonly [
-        ...(T | [R]),
-        | readonly [
-            ...(T | [R]),
-            PointModifier,
-        ]
-        | readonly [
-            ReadonlyRuntimeValues<T, R>,
-            PointModifier,
-        ],
-    ]
-    | readonly [
-        ReadonlyRuntimeValues<T, R>,
-        | readonly [
-            ...(T | [R]),
-            PointModifier,
-        ]
-        | readonly [
-            ReadonlyRuntimeValues<T, R>,
-            PointModifier,
-        ],
-    ]
+> = readonly [
+    ...T | [R],
+    ReadonlyRuntimeRecurse<
+        T | [R],
+        ReadonlyRuntimeRecurse<
+            T | [R],
+            ReadonlyRuntimeRecurse<
+                T | [R],
+                ReadonlyRuntimeRecurse<
+                    T | [R],
+                    readonly [
+                        ...T | [R],
+                        PointModifier,
+                    ]
+                >
+            >
+        >
+    >,
+]
 
 /** Helper type for complex keyframes. `[[...], [...], [...]]` */
 export type ComplexKeyframesAbstract<T extends number[]> =
