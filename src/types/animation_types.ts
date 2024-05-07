@@ -166,7 +166,6 @@ export type ReadonlyRuntimeKeyframeValues<
     | T
 
 /** A term to be evaluated in a runtime expression.
- * e.g. [x, [x, Operation]].
  * Readonly.
  */
 export type ReadonlyRuntimeValues<
