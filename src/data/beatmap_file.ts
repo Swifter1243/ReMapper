@@ -34,7 +34,7 @@ export async function readDifficulty(
     output = attachWorkingDirectory(output ?? input) as DIFFPATH
 
     const parsedInput = await parseFilePath(input, '.dat')
-    const parsedOutput = await parseFilePath(output, '.dat')
+    const parsedOutput = await parseFilePath(output, '.dat', false)
 
     if (parsedInput.dir && !workingDirectoryExists()) {
         const workingDirectory = path.isAbsolute(parsedInput.path)
