@@ -144,7 +144,7 @@ export class Material<T extends MaterialProperties = MaterialProperties> {
             ]
     ) {
         if (typeof params[0] === 'object') {
-            blit({
+            return blit({
                 ...params[0],
                 asset: this.path,
             }).push()
@@ -152,7 +152,7 @@ export class Material<T extends MaterialProperties = MaterialProperties> {
 
         const [beat, duration, properties, easing] = params
 
-        blit({
+        return blit({
             beat: beat as number,
             duration,
             properties,
