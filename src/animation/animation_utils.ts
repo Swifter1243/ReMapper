@@ -7,6 +7,7 @@ import {
     EASE,
     RawKeyframesAbstract,
     RawKeyframesAny,
+    RuntimePointDefinitionAny,
     SimpleKeyframesAny,
     SingleKeyframeValuesUnsafe,
 } from '../types/animation_types.ts'
@@ -44,7 +45,6 @@ import {
 } from './keyframe.ts'
 import { lerpHSV } from '../data/color.ts'
 import { ModelObject } from '../mod.ts'
-import { ReadonlyRuntimePointDefinitionAny } from '../types/animation_types.ts'
 
 /**
  * Ensures that this value is in the format of an array of keyframes.
@@ -413,7 +413,7 @@ export function mirrorAnimation<T extends NumberTuple>(
 /** Determine if an animation is considered "runtime", 
  * e.g. it contains properties such as "baseHeadLocalPosition" which are only evaluated at runtime. */
 export function animationIsRuntime(
-    keyframes: ReadonlyRuntimePointDefinitionAny,
+    keyframes: DeepReadonly<RuntimePointDefinitionAny>,
 ) {
     if (typeof keyframes === 'string') return false
 

@@ -1,5 +1,4 @@
 import { Vec3, Vec4 } from './data_types.ts'
-import { DeepReadonly } from './util_types.ts'
 
 /** Properties that will be evaluated at runtime, used in linear (e.g. `dissolve`) animations. */
 export type RuntimePropertiesLinear = never
@@ -113,20 +112,6 @@ type RuntimeRecurse<
         PointModifier,
     ]
 
-type ReadonlyRuntimeRecurse<
-    A extends readonly unknown[],
-    G extends unknown,
-> =
-    | [
-        ...A,
-        PointModifier,
-    ]
-    | [
-        ...A,
-        G,
-        PointModifier,
-    ]
-
 /** A term to be evaluated in a runtime expression.
  */
 export type RuntimeValues<
@@ -152,45 +137,6 @@ export type RuntimeValues<
     >,
 ]
 
-/** Values for runtime keyframes.
- * [[...], [...], [...]] where [...] is [...x, time]
- * This type represents the "x".
- * Readonly.
- */
-export type ReadonlyRuntimeKeyframeValues<
-    T extends readonly number[],
-    R extends string,
-> =
-    | ReadonlyRuntimeValues<T, R>
-    | [R]
-    | T
-
-/** A term to be evaluated in a runtime expression.
- * Readonly.
- */
-export type ReadonlyRuntimeValues<
-    T extends readonly number[],
-    R extends string,
-> = readonly [
-    ...T | [R],
-    ReadonlyRuntimeRecurse<
-        T | [R],
-        ReadonlyRuntimeRecurse<
-            T | [R],
-            ReadonlyRuntimeRecurse<
-                T | [R],
-                ReadonlyRuntimeRecurse<
-                    T | [R],
-                    readonly [
-                        ...T | [R],
-                        PointModifier,
-                    ]
-                >
-            >
-        >
-    >,
-]
-
 /** Helper type for complex keyframes. `[[...], [...], [...]]` */
 export type ComplexKeyframesAbstract<T extends number[]> =
     SingleKeyframeAbstract<[...T, TimeValue]>[]
@@ -205,19 +151,6 @@ export type RuntimeComplexKeyframesAbstract<
     ...RuntimeKeyframeValues<T, R>,
     TimeValue,
 ]>[]
-
-/** Helper type for complex keyframes. `[[...], [...], [...]]`.
- * Includes runtime properties. Readonly.
- */
-export type ReadonlyRuntimeComplexKeyframesAbstract<
-    T extends readonly number[],
-    R extends string,
-> = Readonly<
-    SingleKeyframeAbstract<[
-        ...ReadonlyRuntimeKeyframeValues<T, R>,
-        TimeValue,
-    ]>
->[]
 
 /** Helper type for raw keyframes. `[...] | [[...], [...], [...]]` */
 export type RawKeyframesAbstract<T extends number[]> =
@@ -234,16 +167,6 @@ export type RuntimeRawKeyframesAbstract<
     | RuntimeComplexKeyframesAbstract<T, R>
     | RuntimeKeyframeValues<T, R>
 
-/** Helper type for raw keyframes. `[...] | [[...], [...], [...]]`.
- * Includes runtime properties. Readonly.
- */
-export type ReadonlyRuntimeRawKeyframesAbstract<
-    T extends readonly number[],
-    R extends string,
-> =
-    | ReadonlyRuntimeComplexKeyframesAbstract<T, R>
-    | ReadonlyRuntimeKeyframeValues<T, R>
-
 /** Helper type for keyframe arrays. */
 export type PointDefinitionAbstract<T extends number[]> =
     | RawKeyframesAbstract<T>
@@ -257,16 +180,6 @@ export type RuntimePointDefinitionAbstract<
     R extends string,
 > =
     | RuntimeRawKeyframesAbstract<T, R>
-    | string
-
-/** Helper type for keyframe arrays.
- * Includes runtime properties. Readonly.
- */
-export type ReadonlyRuntimePointDefinitionAbstract<
-    T extends readonly number[],
-    R extends string,
-> =
-    | ReadonlyRuntimeRawKeyframesAbstract<T, R>
     | string
 
 //#endregion
@@ -286,16 +199,6 @@ export type RuntimePointDefinitionLinear = RuntimePointDefinitionAbstract<
     RuntimePropertiesLinear
 >
 
-/** Keyframe or array of keyframes with 1 value. Allows point definitions.
- * `[[x, time]...]` or `[x]` or `string`.
- * Includes runtime properties. Readonly.
- */
-export type ReadonlyRuntimePointDefinitionLinear =
-    ReadonlyRuntimePointDefinitionAbstract<
-        readonly [number],
-        RuntimePropertiesLinear
-    >
-
 /** Array of keyframes with 1 value. `[[x, time]...]` */
 export type ComplexKeyframesLinear = ComplexKeyframesAbstract<[number]>
 
@@ -306,15 +209,6 @@ export type RuntimeComplexKeyframesLinear = RuntimeComplexKeyframesAbstract<
     [number],
     RuntimePropertiesLinear
 >
-
-/** Array of keyframes with 1 value. `[[x, time]...]`.
- * Includes runtime properties. Readonly.
- */
-export type ReadonlyRuntimeComplexKeyframesLinear =
-    ReadonlyRuntimeComplexKeyframesAbstract<
-        readonly [number],
-        RuntimePropertiesLinear
-    >
 
 /** Keyframe or array of keyframes with 1 value.
  * `[[x,time]...]` or `[x]`
@@ -329,16 +223,6 @@ export type RuntimeRawKeyframesLinear = RuntimeRawKeyframesAbstract<
     [number],
     RuntimePropertiesLinear
 >
-
-/** Keyframe or array of keyframes with 1 value.
- * `[[x,time]...]` or `[x]`.
- * Includes runtime properties. Readonly.
- */
-export type ReadonlyRuntimeRawKeyframesLinear =
-    ReadonlyRuntimeRawKeyframesAbstract<
-        readonly [number],
-        RuntimePropertiesLinear
-    >
 //#endregion
 
 //#region Vec3
@@ -356,16 +240,6 @@ export type RuntimePointDefinitionVec3 = RuntimePointDefinitionAbstract<
     RuntimePropertiesVec3
 >
 
-/** Keyframe or array of keyframes with 3 values. Allows point definitions.
- * `[[x,y,z,time]...]` or `[x,y,z]` or `string`.
- * Includes runtime properties. Readonly.
- */
-export type ReadonlyRuntimePointDefinitionVec3 =
-    ReadonlyRuntimePointDefinitionAbstract<
-        Readonly<Vec3>,
-        RuntimePropertiesVec3
-    >
-
 /** Array of keyframes with 3 values. `[[x,y,z,time]...]` */
 export type ComplexKeyframesVec3 = ComplexKeyframesAbstract<Vec3>
 
@@ -376,15 +250,6 @@ export type RuntimeComplexKeyframesVec3 = RuntimeComplexKeyframesAbstract<
     Vec3,
     RuntimePropertiesVec3
 >
-
-/** Array of keyframes with 3 values. `[[x,y,z,time]...]`.
- * Includes runtime properties. Readonly.
- */
-export type ReadonlyRuntimeComplexKeyframesVec3 =
-    ReadonlyRuntimeComplexKeyframesAbstract<
-        Readonly<Vec3>,
-        RuntimePropertiesVec3
-    >
 
 /** Keyframe or array of keyframes with 3 values.
  * `[[x,y,z,time]...]` or `[x,y,z]`
@@ -399,16 +264,6 @@ export type RuntimeRawKeyframesVec3 = RuntimeRawKeyframesAbstract<
     Vec3,
     RuntimePropertiesVec3
 >
-
-/** Keyframe or array of keyframes with 3 values.
- * `[[x,y,z,time]...]` or `[x,y,z]`
- * Includes runtime properties. Readonly.
- */
-export type ReadonlyRuntimeRawKeyframesVec3 =
-    ReadonlyRuntimeRawKeyframesAbstract<
-        Readonly<Vec3>,
-        RuntimePropertiesVec3
-    >
 //#endregion
 
 //#region Vec4
@@ -426,16 +281,6 @@ export type RuntimePointDefinitionVec4 = RuntimePointDefinitionAbstract<
     RuntimePropertiesVec4
 >
 
-/** Keyframe or array of keyframes with 4 values. Allows point definitions.
- * `[[x,y,z,w,time]...]` or `[x,y,z,w]`.
- * Includes runtime properties. Readonly.
- */
-export type ReadonlyRuntimePointDefinitionVec4 =
-    ReadonlyRuntimePointDefinitionAbstract<
-        Readonly<Vec4>,
-        RuntimePropertiesVec4
-    >
-
 /** Array of keyframes with 4 values. `[[x,y,z,w,time]...]` */
 export type ComplexKeyframesVec4 = ComplexKeyframesAbstract<Vec4>
 
@@ -446,15 +291,6 @@ export type RuntimeComplexKeyframesVec4 = RuntimeComplexKeyframesAbstract<
     Vec4,
     RuntimePropertiesVec4
 >
-
-/** Array of keyframes with 4 values. `[[x,y,z,w,time]...]`.
- * Includes runtime properties. Runtime.
- */
-export type ReadonlyRuntimeComplexKeyframesVec4 =
-    ReadonlyRuntimeComplexKeyframesAbstract<
-        Readonly<Vec4>,
-        RuntimePropertiesVec4
-    >
 
 /** Keyframe or array of keyframes with 4 values.
  * `[[x,y,z,w,time]...]` or `[x,y,z,w]`
@@ -469,16 +305,6 @@ export type RuntimeRawKeyframesVec4 = RuntimeRawKeyframesAbstract<
     Vec4,
     RuntimePropertiesVec4
 >
-
-/** Keyframe or array of keyframes with 4 values.
- * [[x,y,z,w,time]...] or [x,y,z,w].
- * Includes runtime properties. Readonly.
- */
-export type ReadonlyRuntimeRawKeyframesVec4 =
-    ReadonlyRuntimeRawKeyframesAbstract<
-        Readonly<Vec4>,
-        RuntimePropertiesVec4
-    >
 //#endregion
 
 //#region Any
@@ -508,15 +334,6 @@ export type RuntimeComplexKeyframesAny =
     | RuntimeComplexKeyframesVec3
     | RuntimeComplexKeyframesVec4
 
-/** Array of keyframes which have any amount of values.
- * `[[..., 0, 'easeInOutExpo']]`.
- * Includes runtime properties. Readonly.
- */
-export type ReadonlyRuntimeComplexKeyframesAny =
-    | ReadonlyRuntimeComplexKeyframesLinear
-    | ReadonlyRuntimeComplexKeyframesVec3
-    | ReadonlyRuntimeComplexKeyframesVec4
-
 /** Keyframe or array of keyframes with any amount of values.
  * `[...] | [[..., 0, 'easeInOutExpo']]`
  */
@@ -534,15 +351,6 @@ export type RuntimeRawKeyframesAny =
     | RuntimeRawKeyframesVec3
     | RuntimeRawKeyframesVec4
 
-/** Keyframe or array of keyframes with any amount of values.
- * `[...] | [[..., 0, 'easeInOutExpo']]`
- * Includes runtime properties. Readonly.
- */
-export type ReadonlyRuntimeRawKeyframesAny =
-    | ReadonlyRuntimeRawKeyframesLinear
-    | ReadonlyRuntimeRawKeyframesVec3
-    | ReadonlyRuntimeRawKeyframesVec4
-
 /** Keyframe or array of keyframes with any amount of values. Allows point definitions.
  * `[...] | [[..., 0, 'easeInOutExpo']] | string`
  */
@@ -559,15 +367,6 @@ export type RuntimePointDefinitionAny =
     | RuntimePointDefinitionLinear
     | RuntimePointDefinitionVec3
     | RuntimePointDefinitionVec4
-
-/** Keyframe or array of keyframes with any amount of values. Allows point definitions.
- * `[...] | [[..., 0, 'easeInOutExpo']] | string`.
- * Includes runtime properties. Readonly.
- */
-export type ReadonlyRuntimePointDefinitionAny =
-    | ReadonlyRuntimePointDefinitionLinear
-    | ReadonlyRuntimePointDefinitionVec3
-    | ReadonlyRuntimePointDefinitionVec4
 
 //#endregion
 
@@ -623,36 +422,6 @@ export type RuntimeSingleKeyframeValuesUnsafe =
         RuntimeProperties
     >
     | SingleKeyframeValuesUnsafe
-
-// Runtime Readonly.
-/** Keyframes or array of keyframes.
- * `[...] | [[...], [...]]`.
- * Does not ensure that keyframe flags (e.g. `easeLinear`) are at the end, or that each keyframe has the same size.
- * Includes runtime properties. Readonly.
- */
-export type ReadonlyRuntimeKeyframeValuesUnsafe =
-    | ReadonlyRuntimeComplexKeyframeValuesUnsafe
-    | ReadonlyRuntimeSingleKeyframeValuesUnsafe
-
-/** Array of keyframes.
- * `[[...], [...]]`.
- * Does not ensure that keyframe flags (e.g. `easeLinear`) are at the end, or that each keyframe has the same size.
- * Includes runtime properties. Readonly.
- */
-export type ReadonlyRuntimeComplexKeyframeValuesUnsafe =
-    ReadonlyRuntimeSingleKeyframeValuesUnsafe[]
-
-/** A single keyframe.
- * `[...]`. (e.g. `[0,0,0,'easeLinear']`).
- * Does not ensure that keyframe flags (e.g. `easeLinear`) are at the end.
- * Includes runtime properties. Readonly.
- */
-export type ReadonlyRuntimeSingleKeyframeValuesUnsafe =
-    | ReadonlyRuntimeKeyframeValues<
-        readonly number[],
-        RuntimeProperties
-    >
-    | DeepReadonly<SingleKeyframeValuesUnsafe>
 //#endregion
 
 /** A track or multiple tracks. */
