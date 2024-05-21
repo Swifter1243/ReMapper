@@ -30,7 +30,7 @@ import {
 } from '../animation/anim_optimizer.ts'
 import {
     bakeAnimation,
-    complexifyArray,
+    complexifyKeyframes,
     iterateKeyframes,
     mirrorAnimation,
 } from '../animation/animation_utils.ts'
@@ -227,9 +227,9 @@ export class ModelScene {
                 }
 
                 // Making keyframes a consistent array format
-                x.pos = complexifyArray(x.pos)
-                x.rot = complexifyArray(x.rot)
-                x.scale = complexifyArray(x.scale)
+                x.pos = complexifyKeyframes(x.pos)
+                x.rot = complexifyKeyframes(x.rot)
+                x.scale = complexifyKeyframes(x.scale)
 
                 // Applying transformation to each keyframe
                 for (let i = 0; i < x.pos.length; i++) {
@@ -446,7 +446,7 @@ export class ModelScene {
     ) => object ? `modelScene${this.ID}_${track}_${index}` : track
 
     private getFirstValues(keyframes: DeepReadonly<RawKeyframesVec3>) {
-        const complexTransform = complexifyArray(copy(keyframes))[0]
+        const complexTransform = complexifyKeyframes(copy(keyframes))[0]
         return [
             complexTransform[0],
             complexTransform[1],
@@ -680,9 +680,9 @@ export class ModelScene {
 
         const objects = await this.getObjects(s.model)
         objects.forEach((d, i) => {
-            const objectIsStatic = complexifyArray(d.pos).length === 1 &&
-                complexifyArray(d.rot).length === 1 &&
-                complexifyArray(d.scale).length === 1
+            const objectIsStatic = complexifyKeyframes(d.pos).length === 1 &&
+                complexifyKeyframes(d.rot).length === 1 &&
+                complexifyKeyframes(d.scale).length === 1
 
             // Getting info about group
             const key = d.track as string

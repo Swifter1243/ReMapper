@@ -15,7 +15,7 @@ import {
     OptimizeSettings,
 } from '../animation/anim_optimizer.ts'
 
-import { bakeAnimation, complexifyArray } from '../animation/animation_utils.ts'
+import { bakeAnimation, complexifyKeyframes } from '../animation/animation_utils.ts'
 
 import { wall } from '../beatmap/wall.ts'
 import { Wall } from '../internals/wall.ts'
@@ -132,9 +132,9 @@ export async function modelToWall(
                     o.forEach((x, i) => {
                         const animated = isAnimated(x)
 
-                        const pos = complexifyArray(x.pos)
-                        const rot = complexifyArray(x.rot)
-                        const scale = complexifyArray(x.scale)
+                        const pos = complexifyKeyframes(x.pos)
+                        const rot = complexifyKeyframes(x.rot)
+                        const scale = complexifyKeyframes(x.scale)
 
                         const getVec3 = (
                             keyframes: ComplexKeyframesVec3,

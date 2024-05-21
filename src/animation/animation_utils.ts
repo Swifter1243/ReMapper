@@ -51,7 +51,7 @@ import { ReadonlyRuntimePointDefinitionAny } from '../types/animation_types.ts'
  * For example if you input [x,y,z], it would be converted to [[x,y,z,0]].
  * @param array The keyframe or array of keyframes.
  */
-export function complexifyArray<T extends NumberTuple>(
+export function complexifyKeyframes<T extends NumberTuple>(
     array: DeepReadonly<RawKeyframesAbstract<T>> | RawKeyframesAbstract<T>,
 ): ComplexKeyframesAbstract<T> {
     if (!areKeyframesSimple(array)) return array as ComplexKeyframesAbstract<T>
@@ -63,7 +63,7 @@ export function complexifyArray<T extends NumberTuple>(
  * For example if you input [[x,y,z,0]], it would be converted to [x,y,z].
  * @param array The array of keyframes.
  */
-export function simplifyArray<T extends NumberTuple>(
+export function simplifyKeyframes<T extends NumberTuple>(
     array: RawKeyframesAbstract<T>,
 ): RawKeyframesAbstract<T> {
     if (array.length <= 1 && !areKeyframesSimple(array)) {
@@ -225,7 +225,7 @@ function timeInKeyframes(time: number, animation: ComplexKeyframeValuesUnsafe) {
 
 /** Gets the minimum and maximum times of an animation. */
 export function getAnimationDomain(arr: DeepReadonly<RawKeyframesAny>) {
-    const newArr = complexifyArray<[number] | Vec3 | Vec4>(arr)
+    const newArr = complexifyKeyframes<[number] | Vec3 | Vec4>(arr)
 
     let min = 1
     let max = 0
@@ -374,9 +374,9 @@ export function iterateKeyframes<T extends NumberTuple>(
     // TODO: Lookup point def
     if (typeof keyframes === 'string') return
 
-    const newKeyframes = complexifyArray<T>(keyframes)
+    const newKeyframes = complexifyKeyframes<T>(keyframes)
     newKeyframes.forEach((x, i) => fn(x, i))
-    const newSimpleKeyframes = simplifyArray(newKeyframes)
+    const newSimpleKeyframes = simplifyKeyframes(newKeyframes)
     newSimpleKeyframes.forEach((x, i) => (keyframes[i] = x))
     keyframes.length = newSimpleKeyframes.length
 }
@@ -388,7 +388,7 @@ export function iterateKeyframes<T extends NumberTuple>(
 export function mirrorAnimation<T extends NumberTuple>(
     animation: RawKeyframesAbstract<T>,
 ) {
-    if (complexifyArray(animation).length === 1) return animation
+    if (complexifyKeyframes(animation).length === 1) return animation
 
     const reversedAnim = reverseAnimation(animation)
     const output: ComplexKeyframesAbstract<T> = []

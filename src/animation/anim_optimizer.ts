@@ -3,7 +3,7 @@ ComplexKeyframeValuesUnsafe,
     KeyframeValuesUnsafe,
     RawKeyframesAbstract,
 } from '../types/animation_types.ts'
-import { complexifyArray, simplifyArray } from './animation_utils.ts'
+import { complexifyKeyframes, simplifyKeyframes } from './animation_utils.ts'
 import { NumberTuple } from '../types/util_types.ts'
 import {
     getKeyframeEasing,
@@ -540,14 +540,14 @@ export function optimizeKeyframes<T extends NumberTuple>(
     animation: RawKeyframesAbstract<T>,
     settings: OptimizeSettings,
 ): RawKeyframesAbstract<T> {
-    const keyframes = complexifyArray<T>(animation)
+    const keyframes = complexifyKeyframes<T>(animation)
 
     // not enough points to optimize
     if (keyframes.length <= 2) {
-        return simplifyArray(keyframes)
+        return simplifyKeyframes(keyframes)
     }
 
-    return simplifyArray<T>(
+    return simplifyKeyframes<T>(
         optimizeKeyframesInternal(keyframes, settings) as RawKeyframesAbstract<
             T
         >,
