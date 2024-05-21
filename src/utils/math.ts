@@ -24,7 +24,7 @@ import { bakeAnimation } from '../animation/animation_utils.ts'
 import { FullAnimatedTransform, RawKeyframesVec3 } from '../types/mod.ts'
 import { areArraysEqual } from './array_utils.ts'
 import { iterateKeyframes, OptimizeSettings } from '../animation/mod.ts'
-import { getValuesAtTime } from '../animation/mod.ts'
+import { getKeyframeValuesAtTime } from '../animation/mod.ts'
 import { complexifyKeyframes } from '../animation/animation_utils.ts'
 import { getAnimatedObjectDomain } from '../animation/animation_utils.ts'
 import { Mutable } from '../types/util_types.ts'
@@ -620,19 +620,19 @@ export function emulateParent(
     return bakeAnimation(
         childObj,
         (k) => {
-            const parentPos = getValuesAtTime(
+            const parentPos = getKeyframeValuesAtTime(
                 'position',
                 parentObj.pos,
                 k.time,
             )
 
-            const parentRot = getValuesAtTime(
+            const parentRot = getKeyframeValuesAtTime(
                 'rotation',
                 parentObj.rot,
                 k.time,
             )
 
-            const parentScale = getValuesAtTime(
+            const parentScale = getKeyframeValuesAtTime(
                 'scale',
                 parentObj.scale,
                 k.time,

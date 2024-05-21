@@ -81,7 +81,7 @@ export function simplifyKeyframes<T extends NumberTuple>(
  * @param animation The keyframes.
  * @param time The time to get the value at.
  */
-export function getValuesAtTime<
+export function getKeyframeValuesAtTime<
     T extends number[],
     K extends string = AnimationKeys
 >(
@@ -296,9 +296,9 @@ export function bakeAnimation(
 
     for (let i = totalMin; i <= totalMax; i += animFreq) {
         const keyframe = {
-            pos: getValuesAtTime('position', pos, i),
-            rot: getValuesAtTime('rotation', rot, i),
-            scale: getValuesAtTime('scale', scale, i),
+            pos: getKeyframeValuesAtTime('position', pos, i),
+            rot: getKeyframeValuesAtTime('rotation', rot, i),
+            scale: getKeyframeValuesAtTime('scale', scale, i),
             time: i,
         } satisfies TransformKeyframe
 
