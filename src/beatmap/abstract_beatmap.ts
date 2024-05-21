@@ -33,7 +33,7 @@ import { FogEvent } from './fog.ts'
 import { getActiveCache } from '../rm_cache.ts'
 import { RuntimePointDefinitionAny, RuntimeRawKeyframesAny } from '../types/animation_types.ts'
 import { RawKeyframesLinear } from '../types/animation_types.ts'
-import { animationIsRuntime } from '../animation/animation_utils.ts'
+import { areKeyframesRuntime } from '../animation/animation_utils.ts'
 import { settingsHandler } from '../data/constants.ts'
 import { jsonGet, jsonSet } from '../utils/json.ts'
 
@@ -284,7 +284,7 @@ export abstract class AbstractDifficulty<
         ) => {
             Object.entries(animation).forEach(([key, keyframes]) => {
                 if (typeof keyframes === 'string') return
-                if (animationIsRuntime(keyframes!)) {
+                if (areKeyframesRuntime(keyframes!)) {
                     return
                 }
 

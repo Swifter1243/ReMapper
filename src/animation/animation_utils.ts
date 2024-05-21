@@ -408,9 +408,9 @@ export function mirrorAnimation<T extends NumberTuple>(
     return output
 }
 
-/** Determine if an animation is considered "runtime", 
+/** Determine if keyframes are considered "runtime", 
  * e.g. it contains properties such as "baseHeadLocalPosition" which are only evaluated at runtime. */
-export function animationIsRuntime(
+export function areKeyframesRuntime(
     keyframes: DeepReadonly<RuntimePointDefinitionAny>,
 ) {
     if (typeof keyframes === 'string') return false
