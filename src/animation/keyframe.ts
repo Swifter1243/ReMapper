@@ -72,7 +72,7 @@ export const getKeyframeEasing = (
 /** Set easing in the keyframe. */
 export const setKeyframeEasing = (
     data: RuntimeSingleKeyframeValuesUnsafe,
-    value?: EASE,
+    value: EASE | undefined,
 ) => setKeyframeFlag(data, value, 'ease')
 
 /** Get the spline in the keyframe. Returns undefined if not found. */
@@ -83,7 +83,7 @@ export const getKeyframeSpline = (
 /** Set the spline in the keyframe. */
 export const setKeyframeSpline = (
     data: RuntimeSingleKeyframeValuesUnsafe,
-    value?: SPLINE,
+    value: SPLINE | undefined,
 ) => setKeyframeFlag(data, value, 'spline')
 
 /** Whether this keyframe has the "lerpHSV" flag. */
