@@ -32,6 +32,13 @@ import { DeepMutable } from '../types/util_types.ts'
 
 export const EPSILON = 1e-3
 
+/** Determines if a number is `-0` (yes that can happen) */
+export function isNegativeZero(n: number) {
+    const isZero = n === 0;
+    const isNegative = 1 / n === -Infinity;
+    return isNegative && isZero;
+}
+
 /**
  * Interpolates between a start and end value to get a value in between.
  * @param start Start value.
@@ -107,6 +114,7 @@ export function eulerFromQuaternion(q: three.Quaternion) {
     let euler = new three.Euler(0, 0, 0, 'YXZ').setFromQuaternion(q)
         .toArray() as number[]
     euler.pop()
+    euler = euler.map(x => isNegativeZero(x) ? 0 : x)
     euler = toDegrees(euler)
     return euler as Vec3
 }
