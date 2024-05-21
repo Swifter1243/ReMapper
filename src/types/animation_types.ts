@@ -69,7 +69,7 @@ export type TimeValue = number
 
 //#region Helpers
 /** Helper type for single keyframes. `[...]` */
-export type SingleKeyframeAbstract<T extends unknown[]> =
+export type InnerKeyframeAbstract<T extends unknown[]> =
     | [...T]
     | [...T, KeyframeFlag]
     | [...T, KeyframeFlag, KeyframeFlag]
@@ -139,7 +139,7 @@ export type RuntimeValues<
 
 /** Helper type for complex keyframes. `[[...], [...], [...]]` */
 export type ComplexKeyframesAbstract<T extends number[]> =
-    SingleKeyframeAbstract<[...T, TimeValue]>[]
+    InnerKeyframeAbstract<[...T, TimeValue]>[]
 
 /** Helper type for complex keyframes. `[[...], [...], [...]]`.
  * Includes runtime properties.
@@ -147,7 +147,7 @@ export type ComplexKeyframesAbstract<T extends number[]> =
 export type RuntimeComplexKeyframesAbstract<
     T extends number[],
     R extends string,
-> = SingleKeyframeAbstract<[
+> = InnerKeyframeAbstract<[
     ...RuntimeKeyframeValues<T, R>,
     TimeValue,
 ]>[]
@@ -210,6 +210,14 @@ export type RuntimeComplexKeyframesLinear = RuntimeComplexKeyframesAbstract<
     RuntimePropertiesLinear
 >
 
+/** Single keyframe with 1 value. `[x, time]` */
+export type InnerKeyframeLinear = ComplexKeyframesLinear[0]
+
+/** Single keyframe with 1 value. `[x, time]` 
+ * Includes runtime properties.
+ */
+export type RuntimeInnerKeyframeLinear = RuntimeComplexKeyframesLinear[0]
+
 /** Keyframe or array of keyframes with 1 value.
  * `[[x,time]...]` or `[x]`
  */
@@ -250,6 +258,14 @@ export type RuntimeComplexKeyframesVec3 = RuntimeComplexKeyframesAbstract<
     Vec3,
     RuntimePropertiesVec3
 >
+
+/** Single keyframe with 3 values. `[x,y,z,time]` */
+export type InnerKeyframeVec3 = ComplexKeyframesVec3[0]
+
+/** Single keyframe with 3 values. `[x,y,z,time]` 
+ * Includes runtime properties.
+*/
+export type RuntimeInnerKeyframeVec3 = RuntimeComplexKeyframesVec3[0]
 
 /** Keyframe or array of keyframes with 3 values.
  * `[[x,y,z,time]...]` or `[x,y,z]`
@@ -292,6 +308,14 @@ export type RuntimeComplexKeyframesVec4 = RuntimeComplexKeyframesAbstract<
     RuntimePropertiesVec4
 >
 
+/** Single keyframe with 4 values. `[x,y,z,w,time]` */
+export type InnerKeyframeVec4 = ComplexKeyframesVec4[0]
+
+/** Single keyframe with 4 values. `[x,y,z,w,time]` 
+ * Includes runtime properties.
+*/
+export type RuntimeInnerKeyframeVec4 = RuntimeComplexKeyframesVec4[0]
+
 /** Keyframe or array of keyframes with 4 values.
  * `[[x,y,z,w,time]...]` or `[x,y,z,w]`
  */
@@ -312,10 +336,19 @@ export type RuntimeRawKeyframesVec4 = RuntimeRawKeyframesAbstract<
 /** A single keyframe from an array of keyframes.
  * `[..., 0, 'easeInOutExpo']`
  */
-export type SimpleKeyframesAny =
-    | SingleKeyframeAbstract<[number]>
-    | SingleKeyframeAbstract<Vec3>
-    | SingleKeyframeAbstract<Vec4>
+export type InnerKeyframeAny =
+    | InnerKeyframeLinear
+    | InnerKeyframeVec3
+    | InnerKeyframeVec4
+
+/** A single keyframe from an array of keyframes.
+ * `[..., 0, 'easeInOutExpo']`
+ * Includes runtime properties.
+ */
+export type RuntimeInnerKeyframeAny =
+    | RuntimeInnerKeyframeLinear
+    | RuntimeInnerKeyframeVec3
+    | RuntimeInnerKeyframeVec4
 
 /** Array of keyframes which have any amount of values.
  * `[[..., 0, 'easeInOutExpo']]`
@@ -379,19 +412,19 @@ export type RuntimePointDefinitionAny =
  */
 export type KeyframeValuesUnsafe =
     | ComplexKeyframeValuesUnsafe
-    | SingleKeyframeValuesUnsafe
+    | InnerKeyframeValuesUnsafe
 
 /** Array of keyframes.
  * `[[...], [...]]`.
  * Does not ensure that keyframe flags (e.g. `easeLinear`) are at the end, or that each keyframe has the same size.
  */
-export type ComplexKeyframeValuesUnsafe = SingleKeyframeValuesUnsafe[]
+export type ComplexKeyframeValuesUnsafe = InnerKeyframeValuesUnsafe[]
 
 /** A single keyframe.
  * `[...]`. (e.g. `[0,0,0,'easeLinear']`).
  * Does not ensure that keyframe flags (e.g. `easeLinear`) are at the end.
  */
-export type SingleKeyframeValuesUnsafe = number[] | (number | KeyframeFlag)[]
+export type InnerKeyframeValuesUnsafe = number[] | (number | KeyframeFlag)[]
 
 // Runtime
 /** Keyframes or array of keyframes.
@@ -421,7 +454,7 @@ export type RuntimeSingleKeyframeValuesUnsafe =
         number[],
         RuntimeProperties
     >
-    | SingleKeyframeValuesUnsafe
+    | InnerKeyframeValuesUnsafe
 //#endregion
 
 /** A track or multiple tracks. */

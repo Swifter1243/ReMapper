@@ -624,19 +624,19 @@ export function emulateParent(
                 'position',
                 parentObj.pos,
                 k.time,
-            ) as Vec3
+            )
 
             const parentRot = getValuesAtTime(
                 'rotation',
                 parentObj.rot,
                 k.time,
-            ) as Vec3
+            )
 
             const parentScale = getValuesAtTime(
                 'scale',
                 parentObj.scale,
                 k.time,
-            ) as Vec3
+            )
 
             const t = combineTransforms({
                 pos: k.pos,

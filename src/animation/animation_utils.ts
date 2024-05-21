@@ -8,8 +8,7 @@ import {
     RawKeyframesAbstract,
     RawKeyframesAny,
     RuntimePointDefinitionAny,
-    SimpleKeyframesAny,
-    SingleKeyframeValuesUnsafe,
+    InnerKeyframeValuesUnsafe,
 } from '../types/animation_types.ts'
 
 import {
@@ -67,7 +66,7 @@ export function simplifyKeyframes<T extends NumberTuple>(
     array: RawKeyframesAbstract<T>,
 ): RawKeyframesAbstract<T> {
     if (array.length <= 1 && !areKeyframesSimple(array)) {
-        const keyframe = array[0] as SingleKeyframeValuesUnsafe
+        const keyframe = array[0] as InnerKeyframeValuesUnsafe
         const keyframeTime = getKeyframeTime(keyframe)
         if (keyframeTime === 0) {
             return getKeyframeValues(keyframe) as RawKeyframesAbstract<T>
@@ -82,17 +81,16 @@ export function simplifyKeyframes<T extends NumberTuple>(
  * @param animation The keyframes.
  * @param time The time to get the value at.
  */
-export function getValuesAtTime<K extends string = AnimationKeys>(
+export function getValuesAtTime<
+    T extends number[],
+    K extends string = AnimationKeys
+>(
     property: K,
-    animation: DeepReadonly<RawKeyframesAny>,
+    animation: DeepReadonly<RawKeyframesAbstract<T>>,
     time: number,
-): SimpleKeyframesAny {
-    if (typeof animation === 'string') {
-        throw 'Does not support point definitions!'
-    }
-
+): T {
     if (areKeyframesSimple(animation)) {
-        return animation as SimpleKeyframesAny
+        return animation as T
     }
 
     const complexAnimation = animation as ComplexKeyframesAny
@@ -113,31 +111,31 @@ export function getValuesAtTime<K extends string = AnimationKeys>(
                 lValues as Vec3,
                 rValues as Vec3,
                 timeInfo.normalTime,
-            )
+            ) as unknown as T
         }
         if (property === 'color' && rHSVLerp) {
             return lerpHSV(
                 lValues as Vec4,
                 rValues as Vec4,
                 timeInfo.normalTime,
-            )
+            ) as unknown as T
         }
         if (rSpline === 'splineCatmullRom') {
             return splineCatmullRomLerp(
                 timeInfo,
                 complexAnimation,
-            ) as SimpleKeyframesAny
+            ) as T
         }
 
         return arrayLerp(
             lValues,
             rValues,
             timeInfo.normalTime,
-        ) as SimpleKeyframesAny
+        ) as T
     }
     return getKeyframeValues(
         timeInfo.l!,
-    ) as SimpleKeyframesAny
+    ) as T
 }
 
 export function splineCatmullRomLerp(
@@ -172,7 +170,7 @@ export function splineCatmullRomLerp(
 }
 
 function timeInKeyframes(time: number, animation: ComplexKeyframeValuesUnsafe) {
-    let l: SingleKeyframeValuesUnsafe
+    let l: InnerKeyframeValuesUnsafe
     let normalTime = 0
 
     if (animation.length === 0) return { interpolate: false }
@@ -298,9 +296,9 @@ export function bakeAnimation(
 
     for (let i = totalMin; i <= totalMax; i += animFreq) {
         const keyframe = {
-            pos: getValuesAtTime('position', pos, i) as Vec3,
-            rot: getValuesAtTime('rotation', rot, i) as Vec3,
-            scale: getValuesAtTime('scale', scale, i) as Vec3,
+            pos: getValuesAtTime('position', pos, i),
+            rot: getValuesAtTime('rotation', rot, i),
+            scale: getValuesAtTime('scale', scale, i),
             time: i,
         } satisfies TransformKeyframe
 

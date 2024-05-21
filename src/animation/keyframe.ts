@@ -5,8 +5,8 @@ import {
     KeyframeFlag,
     KeyframeValuesUnsafe,
     RawKeyframesAbstract,
-    SingleKeyframeAbstract,
-    SingleKeyframeValuesUnsafe,
+    InnerKeyframeAbstract,
+    InnerKeyframeValuesUnsafe,
     SPLINE,
 } from '../types/animation_types.ts'
 import type {

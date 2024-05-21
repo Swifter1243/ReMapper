@@ -11,7 +11,7 @@ import {
     getKeyframeTime,
     getKeyframeValues,
 } from './keyframe.ts'
-import { SingleKeyframeValuesUnsafe } from '../types/animation_types.ts'
+import { InnerKeyframeValuesUnsafe } from '../types/animation_types.ts'
 
 function areArrayElementsIdentical<T>(
     enumerable1: T[],
@@ -61,8 +61,8 @@ function areFloatsSimilar(
 }
 
 function arePointSimilar(
-    a: SingleKeyframeValuesUnsafe,
-    b: SingleKeyframeValuesUnsafe,
+    a: InnerKeyframeValuesUnsafe,
+    b: InnerKeyframeValuesUnsafe,
     differenceThreshold: number,
     timeDifferenceThreshold: number,
 ) {
@@ -91,9 +91,9 @@ function arePointSimilar(
 /// <param name="skip"></param>
 /// <returns>true if similar</returns>
 function ComparePointsSlope(
-    startPoint: SingleKeyframeValuesUnsafe,
-    middlePoint: SingleKeyframeValuesUnsafe,
-    endPoint: SingleKeyframeValuesUnsafe,
+    startPoint: InnerKeyframeValuesUnsafe,
+    middlePoint: InnerKeyframeValuesUnsafe,
+    endPoint: InnerKeyframeValuesUnsafe,
     // pass in array to reuse and avoid allocations
     middleSlope: number[],
     endSlope: number[],
@@ -185,7 +185,7 @@ function ComparePointsSlope(
 }
 
 function GetYIntercept(
-    pointData: SingleKeyframeValuesUnsafe,
+    pointData: InnerKeyframeValuesUnsafe,
     slopeArray: number[],
     yIntercepts: number[],
 ) {
@@ -206,8 +206,8 @@ function GetYIntercept(
 }
 
 function SlopeOfPoint(
-    a: SingleKeyframeValuesUnsafe,
-    b: SingleKeyframeValuesUnsafe,
+    a: InnerKeyframeValuesUnsafe,
+    b: InnerKeyframeValuesUnsafe,
     slopes: number[],
 ) {
     const aValues = getKeyframeValues(a)
@@ -233,17 +233,17 @@ function SlopeOfPoint(
  * Function for an Optimizer.
  */
 export type OptimizeFunction = (
-    pointA: SingleKeyframeValuesUnsafe,
-    pointB: SingleKeyframeValuesUnsafe,
-    pointC: SingleKeyframeValuesUnsafe | undefined,
-) => SingleKeyframeValuesUnsafe | undefined
+    pointA: InnerKeyframeValuesUnsafe,
+    pointB: InnerKeyframeValuesUnsafe,
+    pointC: InnerKeyframeValuesUnsafe | undefined,
+) => InnerKeyframeValuesUnsafe | undefined
 
 // https://github.com/ErisApps/OhHeck/blob/ae8d02bf6bf2ec8545c2a07546c6844185b97f1c/OhHeck.Core/Analyzer/Lints/Animation/DuplicatePointData.cs
 function optimizeDuplicates(
-    pointA: SingleKeyframeValuesUnsafe,
-    pointB: SingleKeyframeValuesUnsafe,
-    pointC: SingleKeyframeValuesUnsafe | undefined,
-): SingleKeyframeValuesUnsafe | undefined {
+    pointA: InnerKeyframeValuesUnsafe,
+    pointB: InnerKeyframeValuesUnsafe,
+    pointC: InnerKeyframeValuesUnsafe | undefined,
+): InnerKeyframeValuesUnsafe | undefined {
     const aValues = getKeyframeValues(pointA)
     const bValues = getKeyframeValues(pointB)
 
@@ -267,11 +267,11 @@ function optimizeDuplicates(
 // TODO: Configure threshold
 // https://github.com/ErisApps/OhHeck/blob/ae8d02bf6bf2ec8545c2a07546c6844185b97f1c/OhHeck.Core/Analyzer/Lints/Animation/SimilarPointData.cs
 function optimizeSimilarPoints(
-    pointA: SingleKeyframeValuesUnsafe,
-    pointB: SingleKeyframeValuesUnsafe,
-    pointC: SingleKeyframeValuesUnsafe | undefined,
+    pointA: InnerKeyframeValuesUnsafe,
+    pointB: InnerKeyframeValuesUnsafe,
+    pointC: InnerKeyframeValuesUnsafe | undefined,
     settings: OptimizeSimilarPointsSettings,
-): SingleKeyframeValuesUnsafe | undefined {
+): InnerKeyframeValuesUnsafe | undefined {
     // The minimum difference for considering not similar
     const differenceThreshold = settings.differenceThreshold
     const timeDifferenceThreshold = settings.timeDifferenceThreshold
@@ -330,11 +330,11 @@ function optimizeSimilarPoints(
 // TODO: Configure threshold
 // https://github.com/ErisApps/OhHeck/blob/ae8d02bf6bf2ec8545c2a07546c6844185b97f1c/OhHeck.Core/Analyzer/Lints/Animation/SimilarPointDataSlope.cs
 function optimizeSimilarPointsSlope(
-    pointA: SingleKeyframeValuesUnsafe,
-    pointB: SingleKeyframeValuesUnsafe,
-    pointC: SingleKeyframeValuesUnsafe | undefined,
+    pointA: InnerKeyframeValuesUnsafe,
+    pointB: InnerKeyframeValuesUnsafe,
+    pointC: InnerKeyframeValuesUnsafe | undefined,
     settings: OptimizeSimilarPointsSlopeSettings,
-): SingleKeyframeValuesUnsafe | undefined {
+): InnerKeyframeValuesUnsafe | undefined {
     if (pointC === undefined) {
         // array is size 2
         return undefined
