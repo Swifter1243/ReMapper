@@ -117,7 +117,7 @@ export function setKeyframeFlag(
     value: KeyframeFlag | undefined,
     old?: string,
 ): void {
-    if (old && !value) {
+    if (!old && !value) {
         throw 'Old value cannot be inferenced when both "old" and "value" are undefined.'
     }
 
