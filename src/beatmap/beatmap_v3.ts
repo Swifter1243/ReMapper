@@ -45,6 +45,7 @@ import {
     setRenderSetting,
 } from './custom_event.ts'
 import { BeatmapCustomEvents } from './abstract_beatmap.ts'
+import { RMDifficulty } from './abstract_beatmap.ts'
 
 export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
     declare version: bsmap.v3.IDifficulty['version']
@@ -451,7 +452,9 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
 
                 customEvents: diffCustomEvents as BeatmapCustomEvents,
 
-                pointDefinitions: json.customData?.pointDefinitions ?? {},
+                pointDefinitions: json.customData
+                    ?.pointDefinitions as RMDifficulty['pointDefinitions'] ??
+                    {},
                 customData: json.customData ?? {},
                 environment: environmentArr,
                 geometry: geometryArr,

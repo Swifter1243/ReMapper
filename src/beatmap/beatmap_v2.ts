@@ -25,8 +25,9 @@ import {
     FogEvent,
     IInfoSet,
     IInfoSetDifficulty,
-    TJson,
+    RuntimeRawKeyframesAny,
 } from '../mod.ts'
+import { RMDifficulty } from './abstract_beatmap.ts'
 
 /** Difficulty V2 beatmap. */
 export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
@@ -278,10 +279,10 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
         delete json._customData?._environment
 
         // Point definitions
-        const pointDefinitions: TJson = {}
+        const pointDefinitions: RMDifficulty['pointDefinitions'] = {}
 
         json._customData?._pointDefinitions?.forEach((x) => {
-            pointDefinitions[x._name] = x._points
+            pointDefinitions[x._name] = x._points as RuntimeRawKeyframesAny
         })
         delete json._customData?._pointDefinitions
 

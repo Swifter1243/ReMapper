@@ -31,7 +31,7 @@ import * as LightingV3 from '../internals/lighting_v3.ts'
 import { EventInternals } from '../internals/mod.ts'
 import { FogEvent } from './fog.ts'
 import { getActiveCache } from '../rm_cache.ts'
-import { RuntimePointDefinitionAny } from '../types/animation_types.ts'
+import { RuntimePointDefinitionAny, RuntimeRawKeyframesAny } from '../types/animation_types.ts'
 import { RawKeyframesLinear } from '../types/animation_types.ts'
 import { animationIsRuntime } from '../animation/animation_utils.ts'
 import { settingsHandler } from '../data/constants.ts'
@@ -88,7 +88,7 @@ export interface RMDifficulty {
 
     customEvents: BeatmapCustomEvents
 
-    pointDefinitions: Record<string, unknown>
+    pointDefinitions: Record<string, RuntimeRawKeyframesAny>
     customData: Record<string, unknown>
     environment: EnvironmentInternals.Environment[]
     geometry: EnvironmentInternals.Geometry[]
@@ -193,7 +193,7 @@ export abstract class AbstractDifficulty<
 
     customEvents: BeatmapCustomEvents
 
-    pointDefinitions: Record<string, unknown>
+    pointDefinitions: Record<string, RuntimeRawKeyframesAny>
     customData: Record<string, unknown>
     environment: EnvironmentInternals.Environment[]
     geometry: EnvironmentInternals.Geometry[]
