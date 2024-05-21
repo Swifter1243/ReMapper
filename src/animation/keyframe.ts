@@ -1,12 +1,13 @@
 // deno-lint-ignore-file
+import { hashString } from '../mod.ts'
 import {
     ComplexKeyframesAbstract,
     EASE,
+    InnerKeyframeAbstract,
+    InnerKeyframeValuesUnsafe,
     KeyframeFlag,
     KeyframeValuesUnsafe,
     RawKeyframesAbstract,
-    InnerKeyframeAbstract,
-    InnerKeyframeValuesUnsafe,
     SPLINE,
 } from '../types/animation_types.ts'
 import type {
@@ -64,36 +65,37 @@ export function setKeyframeValues(
 }
 
 /** Get the easing in the keyframe. Returns undefined if not found. */
-export const getKeyframeEasing = (data: DeepReadonly<RuntimeSingleKeyframeValuesUnsafe>) =>
-    data[getKeyframeFlagIndex(data, 'ease', false)] as EASE
+export const getKeyframeEasing = (
+    data: DeepReadonly<RuntimeSingleKeyframeValuesUnsafe>,
+) => data[getKeyframeFlagIndex(data, 'ease', false)] as EASE
 
 /** Set easing in the keyframe. */
-export const setKeyframeEasing = (data: RuntimeSingleKeyframeValuesUnsafe, value: EASE) =>
-    setKeyframeFlag(data, value, 'ease')
+export const setKeyframeEasing = (
+    data: RuntimeSingleKeyframeValuesUnsafe,
+    value?: EASE,
+) => setKeyframeFlag(data, value, 'ease')
 
 /** Get the spline in the keyframe. Returns undefined if not found. */
-export const getKeyframeSpline = (data: DeepReadonly<RuntimeSingleKeyframeValuesUnsafe>) =>
-    data[getKeyframeFlagIndex(data, 'spline', false)] as SPLINE
+export const getKeyframeSpline = (
+    data: DeepReadonly<RuntimeSingleKeyframeValuesUnsafe>,
+) => data[getKeyframeFlagIndex(data, 'spline', false)] as SPLINE
 
 /** Set the spline in the keyframe. */
-export const setKeyframeSpline = (data: RuntimeSingleKeyframeValuesUnsafe, value: SPLINE) =>
-    setKeyframeFlag(data, value, 'spline')
+export const setKeyframeSpline = (
+    data: RuntimeSingleKeyframeValuesUnsafe,
+    value?: SPLINE,
+) => setKeyframeFlag(data, value, 'spline')
 
 /** Whether this keyframe has the "lerpHSV" flag. */
-export const getKeyframeHSVLerp = (data: DeepReadonly<RuntimeSingleKeyframeValuesUnsafe>) =>
-    getKeyframeFlagIndex(data, 'lerpHSV') !== -1
+export const getKeyframeHSVLerp = (
+    data: DeepReadonly<RuntimeSingleKeyframeValuesUnsafe>,
+) => getKeyframeFlagIndex(data, 'lerpHSV') !== -1
 
 /** Set whether this keyframe has the "lerpHSV" flag. */
-export function setKeyframeHSVLerp(
+export const setKeyframeHSVLerp = (
     data: RuntimeSingleKeyframeValuesUnsafe,
     hasHSVLerp: boolean,
-) {
-    if (hasHSVLerp) setKeyframeFlag(data, 'lerpHSV')
-    else {
-        const flagIndex = getKeyframeFlagIndex(data, 'lerpHSV')
-        if (flagIndex !== -1) arrayRemove(data as number[], flagIndex)
-    }
-}
+) => setKeyframeFlag(data, hasHSVLerp ? 'lerpHSV' : undefined, 'lerpHSV')
 
 /**
  * Set a flag in a keyframe.
@@ -103,11 +105,31 @@ export function setKeyframeHSVLerp(
 export function setKeyframeFlag(
     data: RuntimeSingleKeyframeValuesUnsafe,
     value: KeyframeFlag,
+    old?: undefined,
+): void
+export function setKeyframeFlag(
+    data: RuntimeSingleKeyframeValuesUnsafe,
+    value: KeyframeFlag | undefined,
+    old: string,
+): void
+export function setKeyframeFlag(
+    data: RuntimeSingleKeyframeValuesUnsafe,
+    value: KeyframeFlag | undefined,
     old?: string,
-) {
-    let index = getKeyframeFlagIndex(data, old ? old : value, old === undefined)
+): void {
+    if (old && !value) {
+        throw 'Old value cannot be inferenced when both "old" and "value" are undefined.'
+    }
+
+    let index = getKeyframeFlagIndex(
+        data,
+        old ? old : value!,
+        old === undefined,
+    )
     if (index === -1) index = data.length
-    data[index] = value
+
+    if (!value) arrayRemove(data, index)
+    else data[index] = value
 }
 
 /**
