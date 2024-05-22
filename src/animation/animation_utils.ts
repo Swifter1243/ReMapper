@@ -2,13 +2,13 @@ import {
     AnimationKeys,
     ComplexKeyframesAbstract,
     ComplexKeyframesAny,
+    ComplexKeyframesBoundless,
     ComplexKeyframesVec3,
-    ComplexKeyframeValuesUnsafe,
     EASE,
+    InnerKeyframeBoundless,
     RawKeyframesAbstract,
     RawKeyframesAny,
     RuntimePointDefinitionAny,
-    InnerKeyframeValuesUnsafe,
 } from '../types/animation_types.ts'
 
 import {
@@ -20,10 +20,10 @@ import {
 } from '../utils/array_utils.ts'
 
 import {
+    applyEasing,
     ceilTo,
     findFraction,
     floorTo,
-    applyEasing,
     lerpRotation,
 } from '../utils/math.ts'
 import { optimizeKeyframes, OptimizeSettings } from './anim_optimizer.ts'
@@ -53,7 +53,9 @@ import { ModelObject } from '../mod.ts'
 export function complexifyKeyframes<T extends NumberTuple>(
     array: DeepReadonly<RawKeyframesAbstract<T>> | RawKeyframesAbstract<T>,
 ): ComplexKeyframesAbstract<T> {
-    if (!areKeyframesSimple(array)) return array as ComplexKeyframesAbstract<T>
+    if (!areKeyframesSimple(array as RawKeyframesAbstract<T>)) {
+        return array as ComplexKeyframesAbstract<T>
+    }
     return [[...array, 0]] as ComplexKeyframesAbstract<T>
 }
 
@@ -66,7 +68,7 @@ export function simplifyKeyframes<T extends NumberTuple>(
     array: RawKeyframesAbstract<T>,
 ): RawKeyframesAbstract<T> {
     if (array.length <= 1 && !areKeyframesSimple(array)) {
-        const keyframe = array[0] as InnerKeyframeValuesUnsafe
+        const keyframe = array[0] as InnerKeyframeBoundless
         const keyframeTime = getKeyframeTime(keyframe)
         if (keyframeTime === 0) {
             return getKeyframeValues(keyframe) as RawKeyframesAbstract<T>
@@ -83,13 +85,13 @@ export function simplifyKeyframes<T extends NumberTuple>(
  */
 export function getKeyframeValuesAtTime<
     T extends number[],
-    K extends string = AnimationKeys
+    K extends string = AnimationKeys,
 >(
     property: K,
     animation: DeepReadonly<RawKeyframesAbstract<T>>,
     time: number,
 ): T {
-    if (areKeyframesSimple(animation)) {
+    if (areKeyframesSimple(animation as RawKeyframesAbstract<T>)) {
         return animation as T
     }
 
@@ -169,8 +171,8 @@ export function splineCatmullRomLerp(
     return arrayMultiply(arrayAdd(arrayAdd(o0, o1), arrayAdd(o2, o3)), 0.5)
 }
 
-function timeInKeyframes(time: number, animation: ComplexKeyframeValuesUnsafe) {
-    let l: InnerKeyframeValuesUnsafe
+function timeInKeyframes(time: number, animation: ComplexKeyframesBoundless) {
+    let l: InnerKeyframeBoundless
     let normalTime = 0
 
     if (animation.length === 0) return { interpolate: false }
@@ -408,7 +410,7 @@ export function mirrorAnimation<T extends NumberTuple>(
     return output
 }
 
-/** Determine if keyframes are considered "runtime", 
+/** Determine if keyframes are considered "runtime",
  * e.g. it contains properties such as "baseHeadLocalPosition" which are only evaluated at runtime. */
 export function areKeyframesRuntime(
     keyframes: DeepReadonly<RuntimePointDefinitionAny>,

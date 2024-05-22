@@ -31,7 +31,6 @@ import {
 } from '../animation/keyframe.ts'
 import {
     getActiveDifficulty,
-    ReadonlyRuntimeSingleKeyframeValuesUnsafe,
 } from '../mod.ts'
 import { DeepReadonly } from '../types/util_types.ts'
 import { arrayDivide, arrayMultiply, vec } from '../utils/mod.ts'
@@ -235,9 +234,7 @@ export async function modelToWall(
                         : [anim]) as RuntimeComplexKeyframesAny
 
                     complexAnim.forEach((k) => {
-                        const timeIndex = getKeyframeTimeIndex(
-                            k as ReadonlyRuntimeSingleKeyframeValuesUnsafe,
-                        )
+                        const timeIndex = getKeyframeTimeIndex(k)
                         const time = (k[timeIndex] as number) * squish +
                             animationOffset
                         k[timeIndex] = time

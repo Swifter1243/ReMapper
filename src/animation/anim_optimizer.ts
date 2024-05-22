@@ -1,6 +1,4 @@
 import {
-ComplexKeyframeValuesUnsafe,
-    KeyframeValuesUnsafe,
     RawKeyframesAbstract,
 } from '../types/animation_types.ts'
 import { complexifyKeyframes, simplifyKeyframes } from './animation_utils.ts'
@@ -11,7 +9,8 @@ import {
     getKeyframeTime,
     getKeyframeValues,
 } from './keyframe.ts'
-import { InnerKeyframeValuesUnsafe } from '../types/animation_types.ts'
+import { InnerKeyframeBoundless } from '../types/animation_types.ts'
+import { ComplexKeyframesBoundless } from '../types/animation_types.ts'
 
 function areArrayElementsIdentical<T>(
     enumerable1: T[],
@@ -61,8 +60,8 @@ function areFloatsSimilar(
 }
 
 function arePointSimilar(
-    a: InnerKeyframeValuesUnsafe,
-    b: InnerKeyframeValuesUnsafe,
+    a: InnerKeyframeBoundless,
+    b: InnerKeyframeBoundless,
     differenceThreshold: number,
     timeDifferenceThreshold: number,
 ) {
@@ -91,9 +90,9 @@ function arePointSimilar(
 /// <param name="skip"></param>
 /// <returns>true if similar</returns>
 function ComparePointsSlope(
-    startPoint: InnerKeyframeValuesUnsafe,
-    middlePoint: InnerKeyframeValuesUnsafe,
-    endPoint: InnerKeyframeValuesUnsafe,
+    startPoint: InnerKeyframeBoundless,
+    middlePoint: InnerKeyframeBoundless,
+    endPoint: InnerKeyframeBoundless,
     // pass in array to reuse and avoid allocations
     middleSlope: number[],
     endSlope: number[],
@@ -185,7 +184,7 @@ function ComparePointsSlope(
 }
 
 function GetYIntercept(
-    pointData: InnerKeyframeValuesUnsafe,
+    pointData: InnerKeyframeBoundless,
     slopeArray: number[],
     yIntercepts: number[],
 ) {
@@ -206,8 +205,8 @@ function GetYIntercept(
 }
 
 function SlopeOfPoint(
-    a: InnerKeyframeValuesUnsafe,
-    b: InnerKeyframeValuesUnsafe,
+    a: InnerKeyframeBoundless,
+    b: InnerKeyframeBoundless,
     slopes: number[],
 ) {
     const aValues = getKeyframeValues(a)
@@ -233,17 +232,17 @@ function SlopeOfPoint(
  * Function for an Optimizer.
  */
 export type OptimizeFunction = (
-    pointA: InnerKeyframeValuesUnsafe,
-    pointB: InnerKeyframeValuesUnsafe,
-    pointC: InnerKeyframeValuesUnsafe | undefined,
-) => InnerKeyframeValuesUnsafe | undefined
+    pointA: InnerKeyframeBoundless,
+    pointB: InnerKeyframeBoundless,
+    pointC: InnerKeyframeBoundless | undefined,
+) => InnerKeyframeBoundless | undefined
 
 // https://github.com/ErisApps/OhHeck/blob/ae8d02bf6bf2ec8545c2a07546c6844185b97f1c/OhHeck.Core/Analyzer/Lints/Animation/DuplicatePointData.cs
 function optimizeDuplicates(
-    pointA: InnerKeyframeValuesUnsafe,
-    pointB: InnerKeyframeValuesUnsafe,
-    pointC: InnerKeyframeValuesUnsafe | undefined,
-): InnerKeyframeValuesUnsafe | undefined {
+    pointA: InnerKeyframeBoundless,
+    pointB: InnerKeyframeBoundless,
+    pointC: InnerKeyframeBoundless | undefined,
+): InnerKeyframeBoundless | undefined {
     const aValues = getKeyframeValues(pointA)
     const bValues = getKeyframeValues(pointB)
 
@@ -267,11 +266,11 @@ function optimizeDuplicates(
 // TODO: Configure threshold
 // https://github.com/ErisApps/OhHeck/blob/ae8d02bf6bf2ec8545c2a07546c6844185b97f1c/OhHeck.Core/Analyzer/Lints/Animation/SimilarPointData.cs
 function optimizeSimilarPoints(
-    pointA: InnerKeyframeValuesUnsafe,
-    pointB: InnerKeyframeValuesUnsafe,
-    pointC: InnerKeyframeValuesUnsafe | undefined,
+    pointA: InnerKeyframeBoundless,
+    pointB: InnerKeyframeBoundless,
+    pointC: InnerKeyframeBoundless | undefined,
     settings: OptimizeSimilarPointsSettings,
-): InnerKeyframeValuesUnsafe | undefined {
+): InnerKeyframeBoundless | undefined {
     // The minimum difference for considering not similar
     const differenceThreshold = settings.differenceThreshold
     const timeDifferenceThreshold = settings.timeDifferenceThreshold
@@ -280,8 +279,8 @@ function optimizeSimilarPoints(
     const aSpline = getKeyframeSpline(pointA)
     const bEasing = getKeyframeEasing(pointB)
     const bSpline = getKeyframeSpline(pointB)
-    const cEasing = getKeyframeEasing(pointC ?? [])
-    const cSpline = getKeyframeSpline(pointC ?? [])
+    const cEasing = getKeyframeEasing(pointC ?? [0])
+    const cSpline = getKeyframeSpline(pointC ?? [0])
 
     // ignore points who have different easing or smoothness since those can
     // be considered not similar even with small time differences
@@ -330,11 +329,11 @@ function optimizeSimilarPoints(
 // TODO: Configure threshold
 // https://github.com/ErisApps/OhHeck/blob/ae8d02bf6bf2ec8545c2a07546c6844185b97f1c/OhHeck.Core/Analyzer/Lints/Animation/SimilarPointDataSlope.cs
 function optimizeSimilarPointsSlope(
-    pointA: InnerKeyframeValuesUnsafe,
-    pointB: InnerKeyframeValuesUnsafe,
-    pointC: InnerKeyframeValuesUnsafe | undefined,
+    pointA: InnerKeyframeBoundless,
+    pointB: InnerKeyframeBoundless,
+    pointC: InnerKeyframeBoundless | undefined,
     settings: OptimizeSimilarPointsSlopeSettings,
-): InnerKeyframeValuesUnsafe | undefined {
+): InnerKeyframeBoundless | undefined {
     if (pointC === undefined) {
         // array is size 2
         return undefined
@@ -431,9 +430,9 @@ export class OptimizeSettings {
 }
 
 function optimizeKeyframesInternal(
-    keyframes: ComplexKeyframeValuesUnsafe,
+    keyframes: ComplexKeyframesBoundless,
     optimizeSettings: OptimizeSettings,
-): ComplexKeyframeValuesUnsafe {
+): ComplexKeyframesBoundless {
     if (!optimizeSettings.active) return keyframes
 
     const sortedKeyframes = keyframes.sort((a, b) =>
@@ -475,7 +474,7 @@ function optimizeKeyframesInternal(
     let optimizedKeyframes = [...sortedKeyframes]
 
     for (let pass = 0; pass < optimizeSettings.passes; pass++) {
-        const toRemove: (KeyframeValuesUnsafe | undefined)[] = []
+        const toRemove: (InnerKeyframeBoundless | undefined)[] = []
 
         if (optimizedKeyframes.length === 2) {
             toRemove.push(
@@ -502,7 +501,7 @@ function optimizeKeyframesInternal(
         }
 
         // get unique redundant points and none undefined
-        const toRemoveUnique: KeyframeValuesUnsafe[] = []
+        const toRemoveUnique: InnerKeyframeBoundless[] = []
         toRemove.forEach((e) => {
             // only add items that are not undefined and not in the array already
             if (

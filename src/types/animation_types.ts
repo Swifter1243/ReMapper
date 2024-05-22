@@ -26,6 +26,12 @@ export type RuntimePropertiesVec4 =
     | 'baseEnvironmentColorWBoost'
     | 'baseObstaclesColor'
 
+// type RuntimePropertyMap<T extends number[]> = T extends [number]
+//     ? RuntimePropertiesLinear
+//     : T extends Vec3 ? RuntimePropertiesVec3
+//     : T extends Vec4 ? RuntimePropertiesVec4
+//     : never
+
 /** Properties that will be evaluated at runtime in animations. */
 export type RuntimeProperties =
     | RuntimePropertiesLinear
@@ -213,7 +219,7 @@ export type RuntimeComplexKeyframesLinear = RuntimeComplexKeyframesAbstract<
 /** Single keyframe with 1 value. `[x, time]` */
 export type InnerKeyframeLinear = ComplexKeyframesLinear[0]
 
-/** Single keyframe with 1 value. `[x, time]` 
+/** Single keyframe with 1 value. `[x, time]`
  * Includes runtime properties.
  */
 export type RuntimeInnerKeyframeLinear = RuntimeComplexKeyframesLinear[0]
@@ -262,9 +268,9 @@ export type RuntimeComplexKeyframesVec3 = RuntimeComplexKeyframesAbstract<
 /** Single keyframe with 3 values. `[x,y,z,time]` */
 export type InnerKeyframeVec3 = ComplexKeyframesVec3[0]
 
-/** Single keyframe with 3 values. `[x,y,z,time]` 
+/** Single keyframe with 3 values. `[x,y,z,time]`
  * Includes runtime properties.
-*/
+ */
 export type RuntimeInnerKeyframeVec3 = RuntimeComplexKeyframesVec3[0]
 
 /** Keyframe or array of keyframes with 3 values.
@@ -311,9 +317,9 @@ export type RuntimeComplexKeyframesVec4 = RuntimeComplexKeyframesAbstract<
 /** Single keyframe with 4 values. `[x,y,z,w,time]` */
 export type InnerKeyframeVec4 = ComplexKeyframesVec4[0]
 
-/** Single keyframe with 4 values. `[x,y,z,w,time]` 
+/** Single keyframe with 4 values. `[x,y,z,w,time]`
  * Includes runtime properties.
-*/
+ */
 export type RuntimeInnerKeyframeVec4 = RuntimeComplexKeyframesVec4[0]
 
 /** Keyframe or array of keyframes with 4 values.
@@ -403,58 +409,50 @@ export type RuntimePointDefinitionAny =
 
 //#endregion
 
-//#region Unsafe
-
-// Regular
-/** Keyframes or array of keyframes.
- * `[...] | [[...], [...]]`.
- * Does not ensure that keyframe flags (e.g. `easeLinear`) are at the end, or that each keyframe has the same size.
+//#region Boundless
+/** Keyframe or array of keyframes with any number of values. Allows point definitions.
+ * `[[..., time]...]` or `[...]`
  */
-export type KeyframeValuesUnsafe =
-    | ComplexKeyframeValuesUnsafe
-    | InnerKeyframeValuesUnsafe
+export type PointDefinitionBoundless = PointDefinitionAbstract<number[]>
 
-/** Array of keyframes.
- * `[[...], [...]]`.
- * Does not ensure that keyframe flags (e.g. `easeLinear`) are at the end, or that each keyframe has the same size.
- */
-export type ComplexKeyframeValuesUnsafe = InnerKeyframeValuesUnsafe[]
-
-/** A single keyframe.
- * `[...]`. (e.g. `[0,0,0,'easeLinear']`).
- * Does not ensure that keyframe flags (e.g. `easeLinear`) are at the end.
- */
-export type InnerKeyframeValuesUnsafe = number[] | (number | KeyframeFlag)[]
-
-// Runtime
-/** Keyframes or array of keyframes.
- * `[...] | [[...], [...]]`.
- * Does not ensure that keyframe flags (e.g. `easeLinear`) are at the end, or that each keyframe has the same size.
+/** Keyframe or array of keyframes with any number of values. Allows point definitions.
+ * `[[..., time]...]` or `[...]`.
  * Includes runtime properties.
  */
-export type RuntimeKeyframeValuesUnsafe =
-    | RuntimeComplexKeyframeValuesUnsafe
-    | RuntimeSingleKeyframeValuesUnsafe
+export type RuntimePointDefinitionBoundless =
+    | RuntimePointDefinitionAny
+    | RuntimePointDefinitionAbstract<number[], string>
 
-/** Array of keyframes.
- * `[[...], [...]]`.
- * Does not ensure that keyframe flags (e.g. `easeLinear`) are at the end, or that each keyframe has the same size.
+/** Array of keyframes with any number of values. `[[... ,time]...]` */
+export type ComplexKeyframesBoundless = ComplexKeyframesAbstract<number[]>
+
+/** Array of keyframes with any number of values. `[[... ,time]...]`.
  * Includes runtime properties.
  */
-export type RuntimeComplexKeyframeValuesUnsafe =
-    RuntimeSingleKeyframeValuesUnsafe[]
+export type RuntimeComplexKeyframesBoundless =
+    | RuntimeComplexKeyframesAny
+    | RuntimeComplexKeyframesAbstract<number[], string>
 
-/** A single keyframe.
- * `[...]`. (e.g. `[0,0,0,'easeLinear']`).
- * Does not ensure that keyframe flags (e.g. `easeLinear`) are at the end.
+/** Single keyframe with any number of values. `[..., time]` */
+export type InnerKeyframeBoundless = ComplexKeyframesBoundless[0]
+
+/** Single keyframe with any number of values. `[..., time]`
  * Includes runtime properties.
  */
-export type RuntimeSingleKeyframeValuesUnsafe =
-    | RuntimeKeyframeValues<
-        number[],
-        RuntimeProperties
-    >
-    | InnerKeyframeValuesUnsafe
+export type RuntimeInnerKeyframeBoundless = RuntimeComplexKeyframesBoundless[0]
+
+/** Keyframe or array of keyframes with any number of values.
+ * `[[..., time]...]` or `[...]`
+ */
+export type RawKeyframesBoundless = RawKeyframesAbstract<number[]>
+
+/** Keyframe or array of keyframes with any number of values.
+ * `[[..., time]...]` or `[...]`.
+ * Includes runtime properties.
+ */
+export type RuntimeRawKeyframesBoundless =
+    | RuntimeRawKeyframesAny
+    | RuntimeRawKeyframesAbstract<number[], string>
 //#endregion
 
 /** A track or multiple tracks. */
