@@ -421,7 +421,7 @@ export type PointDefinitionBoundless = PointDefinitionAbstract<number[]>
  */
 export type RuntimePointDefinitionBoundless =
     | RuntimePointDefinitionAny
-    | RuntimePointDefinitionAbstract<number[], string>
+    | RuntimePointDefinitionAbstract<number[], RuntimeProperties>
 
 /** Array of keyframes with any number of values. `[[... ,time]...]` */
 export type ComplexKeyframesBoundless = ComplexKeyframesAbstract<number[]>
@@ -431,7 +431,7 @@ export type ComplexKeyframesBoundless = ComplexKeyframesAbstract<number[]>
  */
 export type RuntimeComplexKeyframesBoundless =
     | RuntimeComplexKeyframesAny
-    | RuntimeComplexKeyframesAbstract<number[], string>
+    | RuntimeComplexKeyframesAbstract<number[], RuntimeProperties>
 
 /** Single keyframe with any number of values. `[..., time]` */
 export type InnerKeyframeBoundless = ComplexKeyframesBoundless[0]
@@ -452,7 +452,7 @@ export type RawKeyframesBoundless = RawKeyframesAbstract<number[]>
  */
 export type RuntimeRawKeyframesBoundless =
     | RuntimeRawKeyframesAny
-    | RuntimeRawKeyframesAbstract<number[], string>
+    | RuntimeRawKeyframesAbstract<number[], RuntimeProperties>
 //#endregion
 
 /** A track or multiple tracks. */
