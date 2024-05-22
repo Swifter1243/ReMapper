@@ -95,28 +95,31 @@ export const getKeyframeHSVLerp = (
 export const setKeyframeHSVLerp = (
     data: RuntimeSingleKeyframeValuesUnsafe,
     hasHSVLerp: boolean,
-) => setKeyframeFlag(data, hasHSVLerp ? 'lerpHSV' : undefined, 'lerpHSV')
+) => setKeyframeFlag(data, hasHSVLerp ? 'lerpHSV' : undefined, 'lerpHSV', true)
 
 /**
  * Set a flag in a keyframe.
- * @param value The flag to be set.
- * @param old An existing flag containing this will be replaced by the value.
  */
 export function setKeyframeFlag(
     data: RuntimeSingleKeyframeValuesUnsafe,
     value: KeyframeFlag,
     old?: undefined,
+    exact?: boolean,
 ): void
 export function setKeyframeFlag(
     data: RuntimeSingleKeyframeValuesUnsafe,
     value: KeyframeFlag | undefined,
     old: string,
+    exact?: boolean,
 ): void
 export function setKeyframeFlag(
     data: RuntimeSingleKeyframeValuesUnsafe,
     value: KeyframeFlag | undefined,
     old?: string,
+    exact?: boolean,
 ): void {
+    exact ??= old === undefined
+
     if (!old && !value) {
         throw 'Old value cannot be inferenced when both "old" and "value" are undefined.'
     }
@@ -124,7 +127,7 @@ export function setKeyframeFlag(
     let index = getKeyframeFlagIndex(
         data,
         old ? old : value!,
-        old === undefined,
+        exact,
     )
     if (index === -1) index = data.length
 
