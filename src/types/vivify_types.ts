@@ -128,6 +128,7 @@ export type RENDER_SETTING = {
         [DEFAULT_REFLECTION_MODE],
         never
     >
+    'defaultReflectionResolution': RuntimeRawKeyframesLinear
     'flareFadeSpeed': RuntimeRawKeyframesLinear
     'flareStrength': RuntimeRawKeyframesLinear
     'fog': boolean | RuntimeRawKeyframesLinear
