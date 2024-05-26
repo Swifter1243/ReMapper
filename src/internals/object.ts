@@ -1,6 +1,6 @@
 import { bsmap } from '../deps.ts'
 
-import { NoteCut, NoteType } from '../data/constants.ts'
+import { NoteCut, NoteColor } from '../data/constants.ts'
 import { getActiveDifficulty } from '../data/beatmap_handler.ts'
 
 import { getJumps } from '../utils/math.ts'
@@ -471,7 +471,7 @@ export abstract class BaseNote<
 export abstract class BaseSliderObject<TV3 extends bsmap.v3.IBaseSlider>
     extends BaseGameplayObject<never, TV3> {
     /** The color of the object. */
-    type: NoteType
+    type: NoteColor
     /** The cut direction of the head. */
     headDirection: NoteCut
     /** The time the tail arrives at the player. */
@@ -487,7 +487,7 @@ export abstract class BaseSliderObject<TV3 extends bsmap.v3.IBaseSlider>
         obj: ExcludedObjectFields<BaseSliderObject<TV3>>,
     ) {
         super(obj)
-        this.type = obj.type ?? NoteType.RED
+        this.type = obj.type ?? NoteColor.RED
         this.headDirection = obj.headDirection ?? 0
         this.tailBeat = obj.tailBeat ?? 0
         this.tailX = obj.tailX ?? 0

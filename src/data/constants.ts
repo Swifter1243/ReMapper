@@ -152,8 +152,8 @@ export const PRESET = {
     },
 }
 
-/** The type for a note. */
-export enum NoteType {
+/** The color for a note. */
+export enum NoteColor {
     RED = 0,
     BLUE = 1,
 }

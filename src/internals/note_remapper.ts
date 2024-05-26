@@ -6,7 +6,7 @@ export type Condition<T extends AnyNote> = (event: T) => boolean
 export type Process<T extends AnyNote> = (event: T) => void
 
 export type NoteTypeLookup = {
-    'Note': NoteInternals.Note
+    'ColorNote': NoteInternals.ColorNote
     'Bomb': NoteInternals.Bomb
     'Arc': NoteInternals.Arc
     'Chain': NoteInternals.Chain
@@ -43,7 +43,7 @@ export class BaseNoteRemapper<T extends AnyNote> {
     /** Function to run on each note. */
     processes: Process<T>[] = []
     /** The note types to run on. */
-    typeFilter = new Set<NoteType>(['Note', 'Bomb', 'Arc', 'Chain'])
+    typeFilter = new Set<NoteType>(['ColorNote', 'Bomb', 'Arc', 'Chain'])
 
     /**
      * Add a condition that notes must pass.
@@ -70,7 +70,7 @@ export class BaseNoteRemapper<T extends AnyNote> {
     run(log = false) {
         const notes: T[] = []
         const diff = getActiveDifficulty()
-        if (this.typeFilter.has('Note')) notes.push(...diff.notes as T[])
+        if (this.typeFilter.has('ColorNote')) notes.push(...diff.colorNotes as T[])
         if (this.typeFilter.has('Bomb')) notes.push(...diff.bombs as T[])
         if (this.typeFilter.has('Chain')) notes.push(...diff.chains as T[])
         if (this.typeFilter.has('Arc')) notes.push(...diff.arcs as T[])
@@ -128,7 +128,7 @@ export class BaseNoteRemapper<T extends AnyNote> {
         }
 
         return this.addProcess((x) => {
-            if (x instanceof NoteInternals.Note) {
+            if (x instanceof NoteInternals.ColorNote) {
                 x.track.add(getTrack(x.cutDirection))
             } else if (x instanceof NoteInternals.Chain) {
                 x.track.add(getTrack(x.headDirection))

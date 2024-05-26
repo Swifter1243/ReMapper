@@ -1,8 +1,8 @@
-import { arc, bomb, chain, note } from './note.ts'
+import { arc, bomb, chain, colorNote } from './note.ts'
 import { wall } from './wall.ts'
 import { bsmap } from '../deps.ts'
 import { AbstractDifficulty } from './abstract_beatmap.ts'
-import { Arc, Bomb, Chain, Note } from '../internals/note.ts'
+import { Arc, Bomb, Chain, ColorNote } from '../internals/note.ts'
 import { EventGroup } from '../data/constants.ts'
 import { environment, geometry } from './environment.ts'
 import { shallowPrune } from '../utils/json.ts'
@@ -74,9 +74,9 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         }
 
         // Notes
-        const notes: Note[] = runProcess(
+        const colorNotes: ColorNote[] = runProcess(
             'colorNotes',
-            (notes) => notes.map((o) => note().fromJson(o, true)),
+            (notes) => notes.map((o) => colorNote().fromJson(o, true)),
         ) ?? []
 
         const bombs: Bomb[] = runProcess(
@@ -101,9 +101,9 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
 
         // Fake stuff
         if (json.customData?.fakeColorNotes) {
-            notes.push(
+            colorNotes.push(
                 ...json.customData.fakeColorNotes.map((o) =>
-                    note({ fake: true }).fromJson(o, true)
+                    colorNote({ fake: true }).fromJson(o, true)
                 ),
             )
             delete json.customData.fakeColorNotes
@@ -431,7 +431,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
                 v3: true,
                 waypoints: json.waypoints,
 
-                notes,
+                colorNotes,
                 bombs,
                 arcs: arcs,
                 chains: chains,
@@ -473,7 +473,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         const sortItems = (a: { b: number }, b: { b: number }) => a.b - b.b
 
         // Notes
-        const colorNotes = this.notes.filter((e) => !e.fake)
+        const colorNotes = this.colorNotes.filter((e) => !e.fake)
             .map((e) => (e.toJson(true)))
             .sort(sortItems)
 
@@ -597,7 +597,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
             waypoints: this.waypoints,
             customData: shallowPrune({
                 ...this.customData,
-                fakeColorNotes: this.notes.filter((e) => e.fake)
+                fakeColorNotes: this.colorNotes.filter((e) => e.fake)
                     .map((e) => e.toJson(true))
                     .sort(sortItems),
                 fakeBombNotes: this.bombs.filter((e) => e.fake)

@@ -67,7 +67,7 @@ export interface RMDifficulty {
     v3: boolean
     waypoints: bsmap.v2.IWaypoint[] | bsmap.v3.IWaypoint[]
 
-    notes: NoteInternals.Note[]
+    colorNotes: NoteInternals.ColorNote[]
     bombs: NoteInternals.Bomb[]
     arcs: NoteInternals.Arc[]
     chains: NoteInternals.Chain[]
@@ -113,7 +113,7 @@ const clearPropertyMap = {
     lightEvents: 'Light Events',
     lightRotationEventBoxGroups: 'Light Rotation Event Box Groups',
     lightTranslationEventBoxGroups: 'Light Translation Event Box Groups',
-    notes: 'Notes',
+    colorNotes: 'Notes',
     pointDefinitions: 'Point Definitions',
     ringSpinEvents: 'Ring Spin Events',
     ringZoomEvents: 'Ring Zoom Events',
@@ -172,7 +172,7 @@ export abstract class AbstractDifficulty<
     waypoints: bsmap.v2.IWaypoint[] | bsmap.v3.IWaypoint[]
 
     /** All standard color notes. */
-    notes: NoteInternals.Note[]
+    colorNotes: NoteInternals.ColorNote[]
     bombs: NoteInternals.Bomb[]
     arcs: NoteInternals.Arc[]
     chains: NoteInternals.Chain[]
@@ -219,7 +219,7 @@ export abstract class AbstractDifficulty<
         this.info = info
         this.setInfo = setInfo
 
-        this.notes = inner.notes
+        this.colorNotes = inner.colorNotes
         this.bombs = inner.bombs
         this.arcs = inner.arcs
         this.chains = inner.chains
@@ -295,7 +295,7 @@ export abstract class AbstractDifficulty<
             })
         }
 
-        this.notes.forEach((e) => optimizeAnimation(e.animation))
+        this.colorNotes.forEach((e) => optimizeAnimation(e.animation))
         this.walls.forEach((e) => optimizeAnimation(e.animation))
         this.customEvents.animateTrackEvents.forEach((e) =>
             optimizeAnimation(
@@ -490,7 +490,7 @@ export abstract class AbstractDifficulty<
     /** Iterator for all notes. */
     get allNotes() {
         return [
-            ...this.notes,
+            ...this.colorNotes,
             ...this.bombs,
             ...this.arcs,
             ...this.chains,

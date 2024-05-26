@@ -241,9 +241,9 @@ export async function transferVisuals(
         async function process(x: DIFFPATH) {
             const workingDiff = await readDifficulty(x)
 
-            workingDiff.notes = workingDiff.notes
+            workingDiff.colorNotes = workingDiff.colorNotes
                 .filter((x) => !(x.fake ?? false))
-                .concat(currentDiff.notes.filter((x) => (x.fake ?? false)))
+                .concat(currentDiff.colorNotes.filter((x) => (x.fake ?? false)))
 
             workingDiff.bombs = workingDiff.bombs
                 .filter((x) => !(x.fake ?? false))

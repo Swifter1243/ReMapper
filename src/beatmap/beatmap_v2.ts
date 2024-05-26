@@ -1,8 +1,8 @@
-import { bomb, note } from './note.ts'
+import { bomb, colorNote } from './note.ts'
 import { wall } from './wall.ts'
 import { bsmap } from '../deps.ts'
 import { AbstractDifficulty, BeatmapCustomEvents } from './abstract_beatmap.ts'
-import { Bomb, Note } from '../internals/note.ts'
+import { Bomb, ColorNote } from '../internals/note.ts'
 import { ColorVec } from '../types/data_types.ts'
 import { EventGroup } from '../data/constants.ts'
 import { jsonPrune, shallowPrune } from '../utils/json.ts'
@@ -55,11 +55,11 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
         }
 
         // Notes
-        const notes: Note[] = runProcess(
+        const colorNotes: ColorNote[] = runProcess(
             '_notes',
             (notes) =>
                 notes.filter((n) => n._type !== 3).map((o) =>
-                    note().fromJson(o, false)
+                    colorNote().fromJson(o, false)
                 ),
         ) ?? []
         const bombs: Bomb[] = runProcess(
@@ -310,7 +310,7 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
                 v3: false,
                 waypoints: json._waypoints,
 
-                notes,
+                colorNotes,
                 bombs,
                 arcs: [],
                 chains: [],
@@ -349,7 +349,7 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
             a._time - b._time
 
         // Notes
-        const notes = [...this.notes, ...this.bombs]
+        const notes = [...this.colorNotes, ...this.bombs]
             .map((e) => jsonPrune(e.toJson(false)))
             .sort(sortItems)
 

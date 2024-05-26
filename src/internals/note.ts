@@ -1,6 +1,6 @@
 import { bsmap } from '../deps.ts'
 
-import { NoteCut, NoteType } from '../data/constants.ts'
+import { NoteCut, NoteColor } from '../data/constants.ts'
 import { activeDifficulty, getActiveDifficulty } from '../data/beatmap_handler.ts'
 
 import {
@@ -17,9 +17,9 @@ export { Bomb } from './bomb.ts'
 export { Arc } from './arc.ts'
 export { Chain } from './chain.ts'
 
-export class Note extends BaseNote<bsmap.v3.IColorNote> {
+export class ColorNote extends BaseNote<bsmap.v3.IColorNote> {
     constructor(
-        fields: ExcludedObjectFields<Note>,
+        fields: ExcludedObjectFields<ColorNote>,
     ) {
         super(fields)
         this.type = fields.type ?? 0
@@ -28,14 +28,14 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
     }
 
     /** The color of the note. */
-    type: NoteType
+    type: NoteColor
     /** The direction the note will be cut. */
     cutDirection: NoteCut
     /** The angle added to the note's rotation. */
     angleOffset: number
 
     push(clone = true) {
-        getActiveDifficulty().notes.push(clone ? copy(this) : this)
+        getActiveDifficulty().colorNotes.push(clone ? copy(this) : this)
         return this
     }
 
@@ -43,7 +43,7 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
     fromJson(json: bsmap.v2.INote, v3: false): this
     fromJson(json: bsmap.v3.IColorNote | bsmap.v2.INote, v3: boolean): this {
         type Params = SubclassExclusiveProps<
-            Note,
+            ColorNote,
             BaseNote<bsmap.v3.IColorNote | bsmap.v3.IBombNote>
         >
 
@@ -62,7 +62,7 @@ export class Note extends BaseNote<bsmap.v3.IColorNote> {
             const obj = json as bsmap.v2.INote
 
             const params = {
-                type: obj._type as NoteType,
+                type: obj._type as NoteColor,
                 cutDirection: obj._cutDirection,
             } as Params
 

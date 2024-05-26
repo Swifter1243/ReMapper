@@ -97,7 +97,7 @@ export function sortObjects<T extends Record<string, number>>(
 }
 
 /** The internal note class. */
-export type Note = NoteInternals.Note
+export type ColorNote = NoteInternals.ColorNote
 /** The internal bomb class. */
 export type Bomb = NoteInternals.Bomb
 /** The internal arc class. */
@@ -105,7 +105,7 @@ export type Arc = NoteInternals.Arc
 /** The internal chain class. */
 export type Chain = NoteInternals.Chain
 /** All internal note classes. */
-export type AnyNote = Note | Bomb | Arc | Chain
+export type AnyNote = ColorNote | Bomb | Arc | Chain
 /** All beatmap objects. */
 export type BeatmapObject = AnyNote | Wall | LightEvent
 
@@ -148,9 +148,9 @@ export function allNotesBetween(
 export function colorNotesBetween(
     min: number,
     max: number,
-    forEach?: (obj: Note) => void,
+    forEach?: (obj: ColorNote) => void,
 ) {
-    return objectsBetween(getActiveDifficulty().notes, min, max, forEach)
+    return objectsBetween(getActiveDifficulty().colorNotes, min, max, forEach)
 }
 
 /**

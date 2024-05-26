@@ -3,8 +3,8 @@ import {
     setActiveDifficulty,
     bsmap,
     copy,
-    note,
-    NoteType,
+    colorNote,
+    NoteColor,
     random,
     V2Difficulty,
 } from '../src/mod.ts'
@@ -67,17 +67,17 @@ Deno.bench('rm2.save', { group: 'save' }, () => {
 resetToEmptyDiff()
 
 Deno.bench('rm4.notePushObj', { group: 'notePush' }, () => {
-    note({
+    colorNote({
         beat: random(0, 1000),
         fake: random(0, 2) === 0,
         x: 3,
         y: 2,
         cutDirection: random(0, 8),
-        type: NoteType.BLUE,
+        type: NoteColor.BLUE,
     }).push()
 })
 Deno.bench('rm4.notePushArgs', { group: 'notePush' }, () => {
-    const n = note(random(0, 1000), NoteType.BLUE)
+    const n = colorNote(random(0, 1000), NoteColor.BLUE)
 
     n.x = 3
     n.y = 2

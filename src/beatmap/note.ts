@@ -1,26 +1,26 @@
-import {NoteCut, NoteType} from '../data/constants.ts'
-import {Arc, Bomb, Chain, Note} from "../internals/note.ts";
+import {NoteCut, NoteColor} from '../data/constants.ts'
+import {Arc, Bomb, Chain, ColorNote} from "../internals/note.ts";
 
 /** Create a standard color note. */
-export function note(
-    ...params: ConstructorParameters<typeof Note> | [
+export function colorNote(
+    ...params: ConstructorParameters<typeof ColorNote> | [
         beat?: number,
-        type?: NoteType,
+        type?: NoteColor,
         direction?: NoteCut,
         x?: number,
         y?: number,
     ]
-): Note {
+): ColorNote {
     const [first] = params
     if (typeof first === 'object') {
-        return new Note(first)
+        return new ColorNote(first)
     }
 
     const [beat, type, direction, x, y] = params
 
-    return new Note({
+    return new ColorNote({
         beat: beat as number ?? 0,
-        type: type ?? NoteType.BLUE,
+        type: type ?? NoteColor.BLUE,
         cutDirection: direction ?? NoteCut.DOWN,
         x: x ?? 0,
         y: y ?? 0,
@@ -54,7 +54,7 @@ export function chain(
     ...params: ConstructorParameters<typeof Chain> | [
         beat?: number,
         tailBeat?: number,
-        type?: NoteType,
+        type?: NoteColor,
         headDirection?: NoteCut,
         tailDirection?: NoteCut,
         x?: number,
@@ -73,7 +73,7 @@ export function chain(
     return new Chain({
         beat: beat as number ?? 0,
         tailBeat: tailBeat ?? 0,
-        type: type ?? NoteType.BLUE,
+        type: type ?? NoteColor.BLUE,
         headDirection: direction ?? NoteCut.DOWN,
         x: x ?? 0,
         y: y ?? 0,
@@ -88,7 +88,7 @@ export function arc(
     ...params: ConstructorParameters<typeof Arc> | [
         beat?: number,
         tailTime?: number,
-        type?: NoteType,
+        type?: NoteColor,
         headDirection?: NoteCut,
         tailDirection?: NoteCut,
         x?: number,
@@ -116,7 +116,7 @@ export function arc(
 
     return new Arc({
         beat: beat as number ?? 0,
-        type: type ?? NoteType.BLUE,
+        type: type ?? NoteColor.BLUE,
         tailBeat: tailBeat ?? 0,
         headDirection: headDirection ?? NoteCut.DOWN,
         tailDirection: tailDirection ?? NoteCut.DOWN,

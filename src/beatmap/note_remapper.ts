@@ -24,7 +24,7 @@ class AnyNoteRemapper
         return newClass
     }
 
-    onlyColorNotes = () => this.setTypeFilter(['Note'])
+    onlyColorNotes = () => this.setTypeFilter(['ColorNote'])
     onlyBombs = () => this.setTypeFilter(['Bomb'])
     onlyChains = () => this.setTypeFilter(['Chain'])
     onlyArcs = () => this.setTypeFilter(['Arc'])
