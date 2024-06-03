@@ -119,7 +119,7 @@ export async function modelToWall(
         const w = wall()
         w.animation.dissolve = [[0, 0], [1, 0]]
         w.coordinates = [0, 0]
-        w.interactable = false
+        w.uninteractable = false
 
         let objects: ReadonlyModel
 

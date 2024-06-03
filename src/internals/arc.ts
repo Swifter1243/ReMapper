@@ -6,12 +6,11 @@ import { Fields, SubclassExclusiveProps } from '../types/util_types.ts'
 import { copy } from '../utils/general.ts'
 import { jsonPrune } from '../utils/json.ts'
 import { animationToJson } from './animation.ts'
+import { defaultBoolean } from './object.ts'
 import {
     BaseSliderObject,
     ExcludedObjectFields,
-    exportInvertedBoolean,
     getCDProp,
-    importInvertedBoolean,
 } from './object.ts'
 
 export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
@@ -36,7 +35,7 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
         this.tailLength = fields.tailLength ?? 0
         this.anchorMode = fields.anchorMode ?? AnchorMode.STRAIGHT
         this.flip = fields.flip
-        this.noteGravity = fields.noteGravity ?? true
+        this.disableNoteGravity = fields.disableNoteGravity
     }
 
     push(clone = true) {
@@ -54,14 +53,14 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
     anchorMode: AnchorMode
     /** Specifies an initial position the arc will spawn at before going to it's unmodified position.  */
     flip?: Vec2
-    /** Whether note gravity (the effect where notes move to their vertical row from the bottom row) is enabled. */
-    noteGravity?: boolean
+    /** Whether note gravity (the effect where notes move to their vertical row from the bottom row) is disabled. */
+    disableNoteGravity?: boolean
 
     /** Determines whether this note uses Noodle Extensions features. */
     get isGameplayModded() {
         if (super.isGameplayModded) return true
         if (this.flip) return true
-        if (this.noteGravity === false) return true
+        if (this.disableNoteGravity === false) return true
         return false
     }
 
@@ -83,9 +82,7 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
             anchorMode: obj.m ?? 0,
             flip: getCDProp(obj, 'flip'),
             headLength: obj.mu ?? 0,
-            noteGravity: importInvertedBoolean(
-                getCDProp(obj, 'disableNoteGravity'),
-            ),
+            disableNoteGravity: getCDProp(obj, 'disableNoteGravity'),
             tailDirection: obj.tc ?? 0,
             tailLength: obj.tmu ?? 0,
         } satisfies Params
@@ -130,12 +127,9 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
                 flip: this.flip,
                 noteJumpMovementSpeed: NJS,
                 noteJumpStartBeatOffset: offset,
-                uninteractable: exportInvertedBoolean(this.interactable, false),
+                uninteractable: defaultBoolean(this.uninteractable, false),
                 localRotation: this.localRotation,
-                disableNoteGravity: exportInvertedBoolean(
-                    this.noteGravity,
-                    false,
-                ),
+                disableNoteGravity: defaultBoolean(this.disableNoteGravity, false),
                 track: this.track.value,
                 worldRotation: this.worldRotation,
                 ...this.customData,

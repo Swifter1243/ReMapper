@@ -167,7 +167,7 @@ export abstract class BaseGameplayObject<
         this.localRotation = obj.localRotation
         this.noteJumpSpeed = obj.noteJumpSpeed
         this.noteJumpOffset = obj.noteJumpOffset
-        this.interactable = obj.interactable ?? true
+        this.uninteractable = obj.uninteractable ?? true
         this.track = obj.track instanceof Track
             ? obj.track
             : new Track(obj.track)
@@ -195,8 +195,8 @@ export abstract class BaseGameplayObject<
     noteJumpSpeed?: number
     /** The offset added to the position where this object "jumps" in. */
     noteJumpOffset?: number
-    /** Whether this object is interactable. */
-    interactable?: boolean
+    /** Whether this object is uninteractable with the player. */
+    uninteractable?: boolean
     /** The track of this object.
      * Uses a wrapper that simplifies single strings and arrays.
      */
@@ -276,7 +276,7 @@ export abstract class BaseGameplayObject<
         if (this.localRotation) return true
         if (this.noteJumpSpeed !== undefined) return true
         if (this.noteJumpOffset !== undefined) return true
-        if (this.interactable === false) return true
+        if (this.uninteractable) return true
         return false
     }
 
@@ -298,9 +298,7 @@ export abstract class BaseGameplayObject<
                 animation: getCDProp(obj, 'animation') as AnimationPropertiesV3 ?? {},
                 color: getCDProp(obj, 'color') as ColorVec,
                 coordinates: getCDProp(obj, 'coordinates'),
-                interactable: importInvertedBoolean(
-                    getCDProp(obj, 'uninteractable'),
-                ),
+                uninteractable: getCDProp(obj, 'uninteractable'),
                 localRotation: getCDProp(obj, 'localRotation'),
                 worldRotation: typeof obj.customData?.worldRotation === 'number'
                     ? [0, getCDProp(obj, 'worldRotation'), 0]
@@ -323,7 +321,9 @@ export abstract class BaseGameplayObject<
                 ),
                 color: getCDProp(obj, '_color') as ColorVec,
                 coordinates: getCDProp(obj, '_position'),
-                interactable: getCDProp(obj, '_interactable'),
+                uninteractable: importInvertedBoolean(
+                    getCDProp(obj, '_interactable')
+                ),
                 localRotation: getCDProp(obj, '_localRotation'),
                 worldRotation: typeof obj._customData?._rotation === 'number'
                     ? [0, getCDProp(obj, '_rotation'), 0]
@@ -346,16 +346,16 @@ export abstract class BaseNote<
         fields: ExcludedObjectFields<BaseNote<TV3>>,
     ) {
         super(fields as ExcludedObjectFields<BaseNote<TV3>>)
-        this.fake = fields.fake ?? false
+        this.fake = fields.fake
         this.flip = fields.flip
-        this.noteGravity = fields.noteGravity ?? true
-        this.noteLook = fields.noteLook ?? true
-        this.spawnEffect = fields.spawnEffect ?? true
+        this.disableNoteGravity = fields.disableNoteGravity
+        this.disableNoteLook = fields.disableNoteLook
+        this.disableSpawnEffect = fields.disableSpawnEffect
         this.link = fields.link
-        this.directionBadCut = fields.directionBadCut ?? true
-        this.speedBadCut = fields.speedBadCut ?? true
-        this.saberTypeBadCut = fields.saberTypeBadCut ?? true
-        this.debris = fields.debris ?? true
+        this.disableBadCutDirection = fields.disableBadCutDirection
+        this.disableBadCutSpeed = fields.disableBadCutSpeed
+        this.disableBadCutSaberType = fields.disableBadCutSaberType
+        this.disableDebris = fields.disableDebris
     }
 
     declare animation: NoteAnimationData
@@ -364,22 +364,22 @@ export abstract class BaseNote<
     fake?: boolean
     /** Specifies an initial position the note will spawn at before going to it's unmodified position.  */
     flip?: Vec2
-    /** Whether note gravity (the effect where notes move to their vertical row from the bottom row) is enabled. */
-    noteGravity?: boolean
-    /** Whether this note will look at the player. */
-    noteLook?: boolean
-    /** Whether this note will have a spawn effect. */
-    spawnEffect?: boolean
+    /** Whether note gravity (the effect where notes move to their vertical row from the bottom row) is disabled. */
+    disableNoteGravity?: boolean
+    /** Whether this note looking at the player will be disabled. */
+    disableNoteLook?: boolean
+    /** Whether this note will have it's spawn effect hidden. */
+    disableSpawnEffect?: boolean
     /** When cut, all notes with the same link string will also be cut. */
     link?: string
-    /** The ability to bad cut this note based on direction. */
-    directionBadCut?: boolean
-    /** The ability to bad cut this note based on speed. */
-    speedBadCut?: boolean
-    /** The ability to bad cut this note based on saber type. */
-    saberTypeBadCut?: boolean
-    /** Whether debris shows when this note is hit. */
-    debris?: boolean
+    /** Disable directional bad cuts on this note. */
+    disableBadCutDirection?: boolean
+    /** Disable bad cuts based on speed on this note. */
+    disableBadCutSpeed?: boolean
+    /** Disable bad cuts for using the wrong saber color on this note. */
+    disableBadCutSaberType?: boolean
+    /** Whether debris from this note should be disabled. */
+    disableDebris?: boolean
 
     /**
      * Push this note to the difficulty.
@@ -391,13 +391,13 @@ export abstract class BaseNote<
         if (super.isGameplayModded) return true
         if (this.fake) return true
         if (this.flip) return true
-        if (this.noteGravity === false) return true
-        if (this.noteLook === false) return true
+        if (this.disableNoteGravity) return true
+        if (this.disableNoteLook) return true
         if (this.link) return true
-        if (this.directionBadCut === false) return true
-        if (this.speedBadCut === false) return true
-        if (this.saberTypeBadCut === false) return true
-        if (this.debris === false) return true
+        if (this.disableBadCutDirection) return true
+        if (this.disableBadCutSpeed) return true
+        if (this.disableBadCutSaberType) return true
+        if (this.disableDebris) return true
         return false
     }
 
@@ -417,25 +417,16 @@ export abstract class BaseNote<
             const params = {
                 flip: getCDProp(obj, 'flip'),
 
-                noteLook: importInvertedBoolean(
-                    getCDProp(obj, 'disableNoteLook'),
+                disableNoteLook: getCDProp(obj, 'disableNoteLook'),
+                disableNoteGravity: getCDProp(obj, 'disableNoteGravity'),
+                disableSpawnEffect: importInvertedBoolean(
+                        getCDProp(obj, 'spawnEffect')
                 ),
-                noteGravity: importInvertedBoolean(
-                    getCDProp(obj, 'disableNoteGravity'),
-                ),
-                spawnEffect: getCDProp(obj, 'spawnEffect'),
-
-                debris: importInvertedBoolean(getCDProp(obj, 'disableDebris')),
+                disableDebris: getCDProp(obj, 'disableDebris'),
                 // TODO: Badcut on bombs is incorrect.
-                speedBadCut: importInvertedBoolean(
-                    getCDProp(obj, 'disableBadCutSpeed'),
-                ),
-                directionBadCut: importInvertedBoolean(
-                    getCDProp(obj, 'disableBadCutDirection'),
-                ),
-                saberTypeBadCut: importInvertedBoolean(
-                    getCDProp(obj, 'disableBadCutSaberType'),
-                ),
+                disableBadCutSpeed: getCDProp(obj, 'disableBadCutSpeed'),
+                disableBadCutDirection: getCDProp(obj, 'disableBadCutDirection'),
+                disableBadCutSaberType: getCDProp(obj, 'disableBadCutSaberType'),
                 link: getCDProp(obj, 'link'),
             } as Params
 
@@ -447,15 +438,9 @@ export abstract class BaseNote<
             const params = {
                 flip: getCDProp(obj, '_flip'),
 
-                noteLook: importInvertedBoolean(
-                    getCDProp(obj, '_disableNoteLook'),
-                ),
-                noteGravity: importInvertedBoolean(
-                    getCDProp(obj, '_disableNoteGravity'),
-                ),
-                spawnEffect: importInvertedBoolean(
-                    getCDProp(obj, '_disableSpawnEffect'),
-                ),
+                disableNoteLook: getCDProp(obj, '_disableNoteLook'),
+                disableNoteGravity: getCDProp(obj, '_disableNoteGravity'),
+                disableSpawnEffect: getCDProp(obj, '_disableSpawnEffect'),
                 fake: getCDProp(obj, '_fake'),
             } as Params
 

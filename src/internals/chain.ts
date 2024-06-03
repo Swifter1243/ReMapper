@@ -7,7 +7,6 @@ import { jsonPrune } from "../utils/json.ts";
 import { animationToJson } from './animation.ts'
 import {
     BaseSliderObject,
-    defaultBoolean,
     ExcludedObjectFields,
     exportInvertedBoolean,
     getCDProp,
@@ -23,14 +22,14 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
         this.links = fields.links ?? 4
         this.squish = fields.squish ?? 0
         this.flip = fields.flip
-        this.noteGravity = fields.noteGravity ?? true
-        this.noteLook = fields.noteLook ?? true
-        this.spawnEffect = fields.spawnEffect ?? true
+        this.disableNoteGravity = fields.disableNoteGravity ?? true
+        this.disableNoteLook = fields.disableNoteLook ?? true
+        this.disableSpawnEffect = fields.disableSpawnEffect ?? true
         this.link = fields.link
-        this.directionBadCut = fields.directionBadCut ?? true
-        this.speedBadCut = fields.speedBadCut ?? true
-        this.saberTypeBadCut = fields.saberTypeBadCut ?? true
-        this.debris = fields.debris ?? true
+        this.disableBadCutDirection = fields.disableBadCutDirection ?? true
+        this.disableBadCutSpeed = fields.disableBadCutSpeed ?? true
+        this.disableBadCutSaberType = fields.disableBadCutSaberType ?? true
+        this.disableDebris = fields.disableDebris ?? true
     }
 
     push(clone = true) {
@@ -46,34 +45,34 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
     squish: number
     /** Specifies an initial position the chain will spawn at before going to it's unmodified position.  */
     flip?: Vec2
-    /** Whether note gravity (the effect where notes move to their vertical row from the bottom row) is enabled. */
-    noteGravity?: boolean
-    /** Whether this chain will look at the player. */
-    noteLook?: boolean
-    /** Whether this note will have a spawn effect. */
-    spawnEffect?: boolean
+    /** Whether note gravity (the effect where notes move to their vertical row from the bottom row) is disabled. */
+    disableNoteGravity?: boolean
+    /** Whether this note looking at the player will be disabled. */
+    disableNoteLook?: boolean
+    /** Whether this note will have it's spawn effect hidden. */
+    disableSpawnEffect?: boolean
     /** When cut, all notes with the same link string will also be cut. */
     link?: string
-    /** The ability to bad cut this note based on direction. */
-    directionBadCut?: boolean
-    /** The ability to bad cut this note based on speed. */
-    speedBadCut?: boolean
-    /** The ability to bad cut this note based on saber type. */
-    saberTypeBadCut?: boolean
-    /** Whether debris shows when this note is hit. */
-    debris?: boolean
+    /** Disable directional bad cuts on this note. */
+    disableBadCutDirection?: boolean
+    /** Disable bad cuts based on speed on this note. */
+    disableBadCutSpeed?: boolean
+    /** Disable bad cuts for using the wrong saber color on this note. */
+    disableBadCutSaberType?: boolean
+    /** Whether debris from this note should be disabled. */
+    disableDebris?: boolean
 
     get isGameplayModded() {
         if (super.isGameplayModded) return true
         if (this.fake) return true
         if (this.flip) return true
-        if (this.noteGravity === false) return true
-        if (this.noteLook === false) return true
+        if (this.disableNoteGravity) return true
+        if (this.disableNoteLook) return true
         if (this.link) return true
-        if (this.directionBadCut === false) return true
-        if (this.speedBadCut === false) return true
-        if (this.saberTypeBadCut === false) return true
-        if (this.debris === false) return true
+        if (this.disableBadCutDirection) return true
+        if (this.disableBadCutSpeed) return true
+        if (this.disableBadCutSaberType) return true
+        if (this.disableDebris) return true
         return false
     }
 
@@ -92,24 +91,17 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
         const obj = json as bsmap.v3.IChain
 
         const params = {
+            // fake is defined when object is built
             flip: obj.customData?.flip,
-
-            noteLook: importInvertedBoolean(getCDProp(obj, 'disableNoteLook')),
-            noteGravity: importInvertedBoolean(
-                getCDProp(obj, 'disableNoteGravity'),
+            disableNoteLook: getCDProp(obj, 'disableNoteLook'),
+            disableNoteGravity: getCDProp(obj, 'disableNoteGravity'),
+            disableSpawnEffect: importInvertedBoolean(
+                    getCDProp(obj, 'spawnEffect')
             ),
-            spawnEffect: getCDProp(obj, 'spawnEffect'),
-
-            debris: importInvertedBoolean(getCDProp(obj, 'disableDebris')),
-            speedBadCut: importInvertedBoolean(
-                getCDProp(obj, 'disableBadCutSpeed'),
-            ),
-            directionBadCut: importInvertedBoolean(
-                getCDProp(obj, 'disableBadCutDirection'),
-            ),
-            saberTypeBadCut: importInvertedBoolean(
-                getCDProp(obj, 'disableBadCutSaberType'),
-            ),
+            disableDebris: getCDProp(obj, 'disableDebris'),
+            disableBadCutSpeed: getCDProp(obj, 'disableBadCutSpeed'),
+            disableBadCutDirection: getCDProp(obj, 'disableBadCutDirection'),
+            disableBadCutSaberType: getCDProp(obj, 'disableBadCutSaberType'),
             link: getCDProp(obj, 'link'),
             links: obj.sc ?? 0,
             squish: obj.s ?? 0,
@@ -151,30 +143,18 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
                 flip: this.flip,
                 noteJumpMovementSpeed: NJS,
                 noteJumpStartBeatOffset: offset,
-                uninteractable: exportInvertedBoolean(this.interactable, false),
+                uninteractable: this.uninteractable,
                 localRotation: this.localRotation,
-                disableNoteGravity: exportInvertedBoolean(
-                    this.noteGravity,
-                    false,
-                ),
-                disableNoteLook: exportInvertedBoolean(this.noteLook, false),
+                disableNoteGravity: this.disableNoteGravity,
+                disableNoteLook: this.disableNoteLook,
+                spawnEffect: exportInvertedBoolean(this.disableSpawnEffect, false),
                 track: this.track.value,
                 worldRotation: this.worldRotation,
-                spawnEffect: defaultBoolean(this.spawnEffect, true),
                 link: this.link,
-                disableBadCutDirection: exportInvertedBoolean(
-                    this.directionBadCut,
-                    false,
-                ),
-                disableBadCutSpeed: exportInvertedBoolean(
-                    this.speedBadCut,
-                    false,
-                ),
-                disableBadCutSaberType: exportInvertedBoolean(
-                    this.saberTypeBadCut,
-                    false,
-                ),
-                disableDebris: exportInvertedBoolean(this.debris, false),
+                disableBadCutDirection: this.disableBadCutDirection,
+                disableBadCutSpeed: this.disableBadCutSpeed,
+                disableBadCutSaberType: this.disableBadCutSaberType,
+                disableDebris: this.disableDebris,
                 ...this.customData,
             },
         } as bsmap.v3.IChain

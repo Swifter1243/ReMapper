@@ -93,40 +93,22 @@ export class ColorNote extends BaseNote<bsmap.v3.IColorNote> {
                 customData: {
                     animation: animationToJson(this.animation, v3),
                     flip: this.flip,
-                    disableNoteGravity: exportInvertedBoolean(
-                        this.noteGravity,
-                        false,
-                    ),
-                    disableNoteLook: exportInvertedBoolean(
-                        this.noteLook,
-                        false,
-                    ),
-                    spawnEffect: defaultBoolean(this.spawnEffect, true),
+                    disableNoteGravity: this.disableNoteGravity,
+                    disableNoteLook: this.disableNoteLook,
+                    spawnEffect: exportInvertedBoolean(this.disableSpawnEffect, false),
                     color: this.color,
                     coordinates: this.coordinates,
                     localRotation: this.localRotation,
                     noteJumpMovementSpeed: NJS,
                     noteJumpStartBeatOffset: offset,
                     track: this.track.value,
-                    uninteractable: exportInvertedBoolean(
-                        this.interactable,
-                        false,
-                    ),
+                    uninteractable: this.uninteractable,
                     worldRotation: this.worldRotation,
                     link: this.link,
-                    disableBadCutDirection: exportInvertedBoolean(
-                        this.directionBadCut,
-                        false,
-                    ),
-                    disableBadCutSpeed: exportInvertedBoolean(
-                        this.speedBadCut,
-                        false,
-                    ),
-                    disableBadCutSaberType: exportInvertedBoolean(
-                        this.saberTypeBadCut,
-                        false,
-                    ),
-                    disableDebris: exportInvertedBoolean(this.debris, false),
+                    disableBadCutDirection: this.disableBadCutDirection,
+                    disableBadCutSpeed: this.disableBadCutSpeed,
+                    disableBadCutSaberType: this.disableBadCutSaberType,
+                    disableDebris: this.disableDebris,
                     ...this.customData,
                 },
             } satisfies bsmap.v3.IColorNote
@@ -142,25 +124,16 @@ export class ColorNote extends BaseNote<bsmap.v3.IColorNote> {
             _customData: {
                 _animation: animationToJson(this.animation, v3),
                 _flip: this.flip,
-                _disableNoteGravity: exportInvertedBoolean(
-                    this.noteGravity,
-                    false,
-                ),
-                _disableNoteLook: exportInvertedBoolean(
-                    this.noteLook,
-                    false,
-                ),
-                _disableSpawnEffect: exportInvertedBoolean(
-                    this.spawnEffect,
-                    false,
-                ),
+                _disableNoteGravity: this.disableNoteGravity,
+                _disableNoteLook: this.disableNoteLook,
+                _disableSpawnEffect: this.disableSpawnEffect,
                 _color: this.color,
                 _position: this.coordinates,
                 _localRotation: this.localRotation,
                 _noteJumpMovementSpeed: NJS,
                 _noteJumpStartBeatOffset: offset,
                 _track: this.track.value,
-                _interactable: defaultBoolean(this.interactable, true),
+                _interactable: exportInvertedBoolean(this.uninteractable, true),
                 _rotation: this.worldRotation,
                 _fake: defaultBoolean(this.fake, false),
                 _cutDirection: this.angleOffset !== 0
