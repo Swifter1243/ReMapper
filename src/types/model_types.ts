@@ -95,22 +95,22 @@ export type ModelGroup = {
 
 /** The data type used by ModelScene to define model objects. */
 export interface ModelObject {
-    pos: RawKeyframesVec3
-    rot: RawKeyframesVec3
+    position: RawKeyframesVec3
+    rotation: RawKeyframesVec3
     scale: RawKeyframesVec3
     color?: ColorVec
-    track?: string
+    group?: string
 }
 
 /** The data type used by the Text class to define objects in the text model.
  * Basically `ModelObject` except it can't be animated.
  */
 export type TextObject = {
-    pos: Vec3
-    rot: Vec3
+    position: Vec3
+    rotation: Vec3
     scale: Vec3
     color?: ColorVec
-    track?: string
+    group?: string
 }
 
 /** 

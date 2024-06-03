@@ -200,8 +200,8 @@ export class ModelScene {
                     ? [k[0][0], k[0][1], k[0][2]] as Vec3
                     : k as Vec3
 
-            obj.pos = doStatic(obj.pos)
-            obj.rot = doStatic(obj.rot)
+            obj.position = doStatic(obj.position)
+            obj.rotation = doStatic(obj.rotation)
             obj.scale = doStatic(obj.scale)
         }
 
@@ -219,7 +219,7 @@ export class ModelScene {
                 let anchor: Vec3 | undefined
                 let rotation: Vec3 | undefined
 
-                const group = self.groups[x.track as string]
+                const group = self.groups[x.group as string]
                 if (group) {
                     if (group.scale) scale = group.scale
                     if (group.anchor) anchor = group.anchor
@@ -227,17 +227,17 @@ export class ModelScene {
                 }
 
                 // Making keyframes a consistent array format
-                x.pos = complexifyKeyframes(x.pos)
-                x.rot = complexifyKeyframes(x.rot)
+                x.position = complexifyKeyframes(x.position)
+                x.rotation = complexifyKeyframes(x.rotation)
                 x.scale = complexifyKeyframes(x.scale)
 
                 // Applying transformation to each keyframe
-                for (let i = 0; i < x.pos.length; i++) {
+                for (let i = 0; i < x.position.length; i++) {
                     let objPos = copy(
-                        x.pos[i],
+                        x.position[i],
                     ) as number[]
                     let objRot = copy(
-                        x.rot[i],
+                        x.rotation[i],
                     ) as number[]
                     let objScale = copy(
                         x.scale[i],
@@ -249,15 +249,15 @@ export class ModelScene {
                     if (options.transform) {
                         const combined = combineTransforms(
                             {
-                                pos: objPos as Vec3,
-                                rot: objRot as Vec3,
+                                position: objPos as Vec3,
+                                rotation: objRot as Vec3,
                                 scale: objScale as Vec3,
                             },
                             options.transform,
                             options.transform.anchor,
                         )
-                        objPos = combined.pos
-                        objRot = combined.rot
+                        objPos = combined.position
+                        objRot = combined.rotation
                         objScale = combined.scale
                     }
 
@@ -286,8 +286,8 @@ export class ModelScene {
                         positionUnityToNoodle(objPos as Vec3)
                     }
 
-                    x.pos[i] = [...(objPos as Vec3), x.pos[i][3]]
-                    x.rot[i] = [...(objRot as Vec3), x.rot[i][3]]
+                    x.position[i] = [...(objPos as Vec3), x.position[i][3]]
+                    x.rotation[i] = [...(objRot as Vec3), x.rotation[i][3]]
                     x.scale[i] = [
                         ...(objScale as Vec3),
                         x.scale[i][3],
@@ -295,14 +295,14 @@ export class ModelScene {
                 }
 
                 // Optimizing object
-                x.pos = optimizeKeyframes(x.pos, self.optimizer)
-                x.rot = optimizeKeyframes(x.rot, self.optimizer)
+                x.position = optimizeKeyframes(x.position, self.optimizer)
+                x.rotation = optimizeKeyframes(x.rotation, self.optimizer)
                 x.scale = optimizeKeyframes(x.scale, self.optimizer)
 
                 // Loop animation
                 if (options.mirror) {
-                    x.pos = mirrorAnimation(x.pos)
-                    x.rot = mirrorAnimation(x.rot)
+                    x.position = mirrorAnimation(x.position)
+                    x.rotation = mirrorAnimation(x.rotation)
                     x.scale = mirrorAnimation(x.scale)
                 }
             })
@@ -351,7 +351,7 @@ export class ModelScene {
                 let anchor: Vec3 | undefined
                 let rotation: Vec3 | undefined
 
-                const group = self.groups[x.track as string]
+                const group = self.groups[x.group as string]
                 if (group) {
                     if (group.scale) scale = group.scale
                     if (group.anchor) anchor = group.anchor
@@ -362,21 +362,21 @@ export class ModelScene {
                     if (options.transform) {
                         const combined = combineTransforms(
                             {
-                                pos: transform.pos,
-                                rot: transform.rot,
+                                position: transform.position,
+                                rotation: transform.rotation,
                                 scale: transform.scale,
                             },
                             options.transform,
                             options.transform.anchor,
                         )
-                        transform.pos = combined.pos
-                        transform.rot = combined.rot
+                        transform.position = combined.position
+                        transform.rotation = combined.rotation
                         transform.scale = combined.scale
                     }
 
-                    transform.pos = applyAnchor(
-                        transform.pos,
-                        transform.rot,
+                    transform.position = applyAnchor(
+                        transform.position,
+                        transform.rotation,
                         transform.scale,
                         anchor ?? [0, 0, 0] as Vec3,
                     )
@@ -388,23 +388,23 @@ export class ModelScene {
                 ) {
                     // Baking animation
                     const bakedCube: ModelObject = bakeAnimation(
-                        { pos: x.pos, rot: x.rot, scale: x.scale },
+                        { position: x.position, rotation: x.rotation, scale: x.scale },
                         getBakedTransform,
                         self.bakeAnimFreq,
                         self.optimizer,
                     )
 
                     if (!v3) {
-                        positionUnityToNoodle(bakedCube.pos)
+                        positionUnityToNoodle(bakedCube.position)
                     }
 
-                    o.pos = bakedCube.pos
-                    o.rot = bakedCube.rot
+                    o.position = bakedCube.position
+                    o.rotation = bakedCube.rotation
                     o.scale = bakedCube.scale
                 }
 
                 if (rotation) {
-                    iterateKeyframes(o.rot, (y) => {
+                    iterateKeyframes(o.rotation, (y) => {
                         y[0] = (y[0] + (rotation!)[0]) % 360
                         y[1] = (y[1] + (rotation!)[1]) % 360
                         y[2] = (y[2] + (rotation!)[2]) % 360
@@ -421,8 +421,8 @@ export class ModelScene {
 
                 // Loop animation
                 if (options.mirror) {
-                    o.pos = mirrorAnimation(o.pos)
-                    o.rot = mirrorAnimation(o.rot)
+                    o.position = mirrorAnimation(o.position)
+                    o.rotation = mirrorAnimation(o.rotation)
                     o.scale = mirrorAnimation(o.scale)
                 }
 
@@ -456,8 +456,8 @@ export class ModelScene {
 
     private getFirstTransform(obj: DeepReadonly<ModelObject>) {
         return {
-            pos: this.getFirstValues(obj.pos),
-            rot: this.getFirstValues(obj.rot),
+            position: this.getFirstValues(obj.position),
+            rotation: this.getFirstValues(obj.rotation),
             scale: this.getFirstValues(obj.scale),
         }
     }
@@ -501,7 +501,7 @@ export class ModelScene {
             const data = await self.getObjects(input)
             data.forEach((x) => {
                 // Getting info about group
-                const groupKey = x.track as string
+                const groupKey = x.group as string
                 const group = self.groups[groupKey]
 
                 // Registering data about object amounts
@@ -519,8 +519,8 @@ export class ModelScene {
                 )
 
                 // Get transforms
-                const pos = self.getFirstValues(x.pos)
-                const rot = self.getFirstValues(x.rot)
+                const pos = self.getFirstValues(x.position)
+                const rot = self.getFirstValues(x.rotation)
                 const scale = self.getFirstValues(x.scale)
 
                 // Creating objects
@@ -552,8 +552,8 @@ export class ModelScene {
                 } // Creating event for assigned
                 else {
                     const event = animateTrack(0, track)
-                    event.animation.position = x.pos as RuntimeRawKeyframesVec3
-                    event.animation.rotation = x.rot as RuntimeRawKeyframesVec3
+                    event.animation.position = x.position as RuntimeRawKeyframesVec3
+                    event.animation.rotation = x.rotation as RuntimeRawKeyframesVec3
                     event.animation.scale = x.scale as RuntimeRawKeyframesVec3
                     if (forAssigned) forAssigned(event)
                     getActiveDifficulty().customEvents.animateTrackEvents.push(
@@ -680,12 +680,12 @@ export class ModelScene {
 
         const objects = await this.getObjects(s.model)
         objects.forEach((d, i) => {
-            const objectIsStatic = complexifyKeyframes(d.pos).length === 1 &&
-                complexifyKeyframes(d.rot).length === 1 &&
+            const objectIsStatic = complexifyKeyframes(d.position).length === 1 &&
+                complexifyKeyframes(d.rotation).length === 1 &&
                 complexifyKeyframes(d.scale).length === 1
 
             // Getting info about group
-            const key = d.track as string
+            const key = d.group as string
             const group = this.groups[key]
 
             // Registering data about object amounts
@@ -717,9 +717,9 @@ export class ModelScene {
                 const initalizePos = objectInfo.initialPos![i]
 
                 event.animation.position = initalizePos
-                    .pos as Vec3
+                    .position as Vec3
                 event.animation.rotation = initalizePos
-                    .rot as Vec3
+                    .rotation as Vec3
                 event.animation.scale = initalizePos
                     .scale as Vec3
 
@@ -769,10 +769,10 @@ export class ModelScene {
 
             if (delaying) {
                 event.animation.position = this.getFirstValues(
-                    d.pos,
+                    d.position,
                 )
                 event.animation.rotation = this.getFirstValues(
-                    d.rot,
+                    d.rotation,
                 )
                 event.animation.scale = this.getFirstValues(
                     d.scale,
@@ -786,9 +786,9 @@ export class ModelScene {
             // Make animation event
             event.beat = s.beat + s.animationOffset!
             event.animation.position = d
-                .pos as RuntimeRawKeyframesVec3
+                .position as RuntimeRawKeyframesVec3
             event.animation.rotation = d
-                .rot as RuntimeRawKeyframesVec3
+                .rotation as RuntimeRawKeyframesVec3
             event.animation.scale = d
                 .scale as RuntimeRawKeyframesVec3
 
@@ -882,10 +882,10 @@ export class ModelScene {
                 // Apply initializing position if necessary
                 if (initializing) {
                     const initialPos = objectInfo.initialPos![i] ?? {
-                        pos: [0, -69420, 0],
+                        position: [0, -69420, 0],
                     }
-                    object.position = initialPos.pos as Vec3
-                    object.rotation = initialPos.rot as Vec3
+                    object.position = initialPos.position as Vec3
+                    object.rotation = initialPos.rotation as Vec3
                     object.scale = initialPos.scale as Vec3
 
                     if (initialPos.color) {
@@ -978,10 +978,34 @@ export async function getModel(
 
     name ??= parsedPath.name
 
+    type OldModelObject = ModelObject & {
+        track?: string
+        pos?: RawKeyframesVec3,
+        rot?: RawKeyframesVec3,
+    }
+
     return cacheData(name, async () => {
         const data = JSON.parse(await Deno.readTextFile(inputPath))
-        process?.(data.objects)
-        return data.objects as ReadonlyModel
+        const objects = data.objects
+        const version = data.version ?? 1
+
+        if (version < 2) {
+            const oldObjects = objects as OldModelObject[]
+
+            oldObjects.forEach(x => {
+                if (x.track) {
+                    x.group = x.track
+                    x.position = x.pos!
+                    x.rotation = x.rot!
+                    delete x.track
+                    delete x.pos
+                    delete x.rot
+                }
+            })
+        }
+
+        if (process) process(objects)
+        return objects as ReadonlyModel
     }, processing)
 }
 
@@ -1040,13 +1064,13 @@ export function debugObject(
     function addCubes(transforms: [Vec3, Vec3?, string?][], track?: string) {
         transforms.forEach((transform) => {
             const data: ModelObject = {
-                pos: arrayAdd(transform[0], [0, 10, 0]) as Vec3,
-                rot: [0, 0, 0],
+                position: arrayAdd(transform[0], [0, 10, 0]) as Vec3,
+                rotation: [0, 0, 0],
                 scale: transform[1] ?? [1, 1, 1],
             }
 
-            if (track) data.track = track
-            if (transform[2]) data.track = transform[2]
+            if (track) data.group = track
+            if (transform[2]) data.group = transform[2]
 
             modelData.push(data)
         })

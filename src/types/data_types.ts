@@ -29,16 +29,16 @@ export type Color = ColorTypes[ColorFormat]
 
 /** Describes a transformation. Full information of the transformation is required. */
 export type FullTransform = {
-    pos: Vec3
-    rot: Vec3
+    position: Vec3
+    rotation: Vec3
     scale: Vec3
 }
 
 /** Describes a transformation.
  * Intended defaults:
  * ```
- * pos: [0,0,0],
- * rot: [0,0,0],
+ * position: [0,0,0],
+ * rotation: [0,0,0],
  * scale: [1,1,1]
  * ```
  */
@@ -46,16 +46,16 @@ export type Transform = Partial<FullTransform>
 
 /** Describes a transformation, animated. Full information of the transformation is required. */
 export type FullAnimatedTransform = {
-    pos: RawKeyframesVec3
-    rot: RawKeyframesVec3
+    position: RawKeyframesVec3
+    rotation: RawKeyframesVec3
     scale: RawKeyframesVec3
 }
 
 /** Describes a transformation, animated.
  * Intended defaults:
  * ```
- * pos: [0,0,0],
- * rot: [0,0,0],
+ * position: [0,0,0],
+ * rotation: [0,0,0],
  * scale: [1,1,1]
  * ```
  */
@@ -79,8 +79,8 @@ export type Bounds = {
 
 /** A keyframe of an object animation, used by functions like `bakeAnimation`. */
 export interface TransformKeyframe {
-    pos: Vec3
-    rot: Vec3
+    position: Vec3
+    rotation: Vec3
     scale: Vec3
     readonly time: number
 }

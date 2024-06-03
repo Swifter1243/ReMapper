@@ -66,14 +66,14 @@ export class Text implements TextInfo {
         }> = {}
 
         const model: {
-            pos: Vec3
-            rot: Readonly<Vec3>
+            position: Vec3
+            rotation: Readonly<Vec3>
             scale: Readonly<Vec3>
         }[] = []
 
         function getLetter(char: string, self: Text) {
             if (letters[char]) return letters[char]
-            const letterModel = self.model.filter((x) => x.track === char)
+            const letterModel = self.model.filter((x) => x.group === char)
             if (letterModel.length === 0) return undefined
 
             letters[char] = {
@@ -99,14 +99,14 @@ export class Text implements TextInfo {
 
             letter.model.forEach((x) => {
                 const letterModel = {
-                    pos: copy(x.pos) as Vec3,
-                    rot: x.rot,
+                    position: copy(x.position) as Vec3,
+                    rotation: x.rotation,
                     scale: x.scale,
                 }
-                letterModel.pos[0] -= letter.bounds.lowBound[0]
-                letterModel.pos[2] -= letter.bounds.lowBound[2]
-                letterModel.pos[0] += length
-                letterModel.pos[0] += (letterWidth - letter.bounds.scale[0]) / 2
+                letterModel.position[0] -= letter.bounds.lowBound[0]
+                letterModel.position[2] -= letter.bounds.lowBound[2]
+                letterModel.position[0] += length
+                letterModel.position[0] += (letterWidth - letter.bounds.scale[0]) / 2
                 model.push(letterModel)
             })
             length += letterWidth
@@ -116,28 +116,28 @@ export class Text implements TextInfo {
         let transform: undefined | Transform = undefined
         if (this.position || this.rotation || this.scale) {
             transform = {
-                pos: this.position,
-                rot: this.rotation,
+                position: this.position,
+                rotation: this.rotation,
                 scale: this.scale,
             }
         }
 
         model.forEach((x) => {
-            if (this.horizontalAnchor === 'Center') x.pos[0] -= length / 2
-            if (this.horizontalAnchor === 'Right') x.pos[0] -= length
+            if (this.horizontalAnchor === 'Center') x.position[0] -= length / 2
+            if (this.horizontalAnchor === 'Right') x.position[0] -= length
 
-            x.pos = x.pos.map((y) => y * scalar) as Vec3
+            x.position = x.position.map((y) => y * scalar) as Vec3
             x.scale = x.scale.map((y) => y * scalar) as Vec3
 
             if (transform) {
                 const combined = combineTransforms(x, transform)
-                x.pos = combined.pos
-                x.rot = combined.rot
+                x.position = combined.position
+                x.rotation = combined.rotation
                 x.scale = combined.scale
             }
 
-            if (this.verticalAnchor === 'Center') x.pos[1] -= this.height / 2
-            if (this.verticalAnchor === 'Top') x.pos[1] -= this.height
+            if (this.verticalAnchor === 'Center') x.position[1] -= this.height / 2
+            if (this.verticalAnchor === 'Top') x.position[1] -= this.height
         })
 
         return model as ReadonlyText

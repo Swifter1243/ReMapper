@@ -241,8 +241,8 @@ export function getAnimationDomain(arr: DeepReadonly<RawKeyframesAny>) {
 
 /** Gets the minimum and maximum times of all animations on a model object. */
 export function getAnimatedObjectDomain(animation: DeepReadonly<ModelObject>) {
-    const posDomain = getAnimationDomain(animation.pos)
-    const rotDomain = getAnimationDomain(animation.rot)
+    const posDomain = getAnimationDomain(animation.position)
+    const rotDomain = getAnimationDomain(animation.rotation)
     const scaleDomain = getAnimationDomain(animation.scale)
 
     const totalMin = getAnimationDomain([
@@ -278,17 +278,17 @@ export function bakeAnimation(
     animFreq?: number,
     animOptimizer?: OptimizeSettings,
     domain?: { min: number; max: number },
-) {
+): ModelObject {
     animOptimizer ??= new OptimizeSettings()
     animFreq ??= 1 / 32
 
-    const pos = animation.pos ?? [0, 0, 0]
-    const rot = animation.rot ?? [0, 0, 0]
+    const pos = animation.position ?? [0, 0, 0]
+    const rot = animation.rotation ?? [0, 0, 0]
     const scale = animation.scale ?? [1, 1, 1]
 
     const data = {
-        pos: <ComplexKeyframesVec3> [],
-        rot: <ComplexKeyframesVec3> [],
+        position: <ComplexKeyframesVec3> [],
+        rotation: <ComplexKeyframesVec3> [],
         scale: <ComplexKeyframesVec3> [],
     }
 
@@ -298,22 +298,22 @@ export function bakeAnimation(
 
     for (let i = totalMin; i <= totalMax; i += animFreq) {
         const keyframe = {
-            pos: getKeyframeValuesAtTime('position', pos, i),
-            rot: getKeyframeValuesAtTime('rotation', rot, i),
+            position: getKeyframeValuesAtTime('position', pos, i),
+            rotation: getKeyframeValuesAtTime('rotation', rot, i),
             scale: getKeyframeValuesAtTime('scale', scale, i),
             time: i,
         } satisfies TransformKeyframe
 
         if (forKeyframe) forKeyframe(keyframe)
 
-        data.pos.push([...keyframe.pos, keyframe.time])
-        data.rot.push([...keyframe.rot, keyframe.time])
+        data.position.push([...keyframe.position, keyframe.time])
+        data.rotation.push([...keyframe.rotation, keyframe.time])
         data.scale.push([...keyframe.scale, keyframe.time])
     }
 
     return {
-        pos: optimizeKeyframes(data.pos, animOptimizer),
-        rot: optimizeKeyframes(data.rot, animOptimizer),
+        position: optimizeKeyframes(data.position, animOptimizer),
+        rotation: optimizeKeyframes(data.rotation, animOptimizer),
         scale: optimizeKeyframes(data.scale, animOptimizer),
     }
 }

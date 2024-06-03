@@ -109,8 +109,8 @@ export async function modelToWall(
 
         function isAnimated(obj: ModelObject) {
             return (
-                !areKeyframesSimple(obj.pos) ||
-                !areKeyframesSimple(obj.rot) ||
+                !areKeyframesSimple(obj.position) ||
+                !areKeyframesSimple(obj.rotation) ||
                 !areKeyframesSimple(obj.scale)
             )
         }
@@ -131,8 +131,8 @@ export async function modelToWall(
                     o.forEach((x, i) => {
                         const animated = isAnimated(x)
 
-                        const pos = complexifyKeyframes(x.pos)
-                        const rot = complexifyKeyframes(x.rot)
+                        const pos = complexifyKeyframes(x.position)
+                        const rot = complexifyKeyframes(x.rotation)
                         const scale = complexifyKeyframes(x.scale)
 
                         const getVec3 = (
@@ -155,8 +155,8 @@ export async function modelToWall(
                             scale[i] = [...wtw.scale, scale[i][3]]
                         }
 
-                        x.pos = optimizeKeyframes(pos, animOptimizer)
-                        x.rot = optimizeKeyframes(rot, animOptimizer)
+                        x.position = optimizeKeyframes(pos, animOptimizer)
+                        x.rotation = optimizeKeyframes(rot, animOptimizer)
                         x.scale = optimizeKeyframes(scale, animOptimizer)
                     })
                 },
@@ -169,21 +169,21 @@ export async function modelToWall(
 
                 const anim = bakeAnimation(
                     {
-                        pos: x.pos,
-                        rot: x.rot,
+                        position: x.position,
+                        rotation: x.rotation,
                         scale: x.scale,
                     },
                     (k) => {
-                        const wtw = worldToWall(k.pos, k.rot, k.scale, animated)
-                        k.pos = wtw.pos
+                        const wtw = worldToWall(k.position, k.rotation, k.scale, animated)
+                        k.position = wtw.pos
                         k.scale = wtw.scale
                     },
                     animFreq,
                     animOptimizer,
                 )
 
-                o.pos = anim.pos
-                o.rot = anim.rot
+                o.position = anim.position
+                o.rotation = anim.rotation
                 o.scale = anim.scale
 
                 return o
@@ -195,15 +195,15 @@ export async function modelToWall(
 
             // Copy position
             o.animation.definitePosition = copy(
-                x.pos,
+                x.position,
             ) as RuntimeRawKeyframesVec3
             if (x.color) o.color = copy(x.color) as ColorVec
 
             // Copy rotation
-            if (areKeyframesSimple(x.rot)) o.localRotation = copy(x.rot) as Vec3
+            if (areKeyframesSimple(x.rotation)) o.localRotation = copy(x.rotation) as Vec3
             else {
                 o.animation.localRotation = copy(
-                    x.rot,
+                    x.rotation,
                 ) as RuntimeRawKeyframesVec3
             }
 

@@ -392,8 +392,8 @@ export const toThreeQuaternion = (v: Readonly<Vec3>) =>
  */
 export function getMatrixFromTransform(transform: DeepReadonly<Transform>) {
     const m = new three.Matrix4()
-    const pos = transform.pos ?? [0, 0, 0]
-    const rot = transform.rot ?? [0, 0, 0]
+    const pos = transform.position ?? [0, 0, 0]
+    const rot = transform.rotation ?? [0, 0, 0]
     const scale = transform.scale ?? [1, 1, 1]
     m.compose(toThreeVec3(pos), toThreeQuaternion(rot), toThreeVec3(scale))
     return m
@@ -455,8 +455,8 @@ export function applyMatrixToPoint(
     point: Readonly<Vec3>,
 ) {
     return combineTransforms({
-        pos: point,
-    }, getTransformFromMatrix(matrix)).pos
+        position: point,
+    }, getTransformFromMatrix(matrix)).position
 }
 
 /**
@@ -467,10 +467,10 @@ export function combineRotations(
     rotation: Readonly<Vec3>,
 ) {
     return combineTransforms({
-        rot: target,
+        rotation: target,
     }, {
-        rot: rotation,
-    }).rot
+        rotation: rotation,
+    }).rotation
 }
 
 /**
@@ -488,8 +488,8 @@ export function combineTransforms(
     const newTarget = copy(target) as Transform
     const newTransform = copy(transform) as Transform
 
-    newTarget.pos ??= [0, 0, 0]
-    newTarget.pos = arraySubtract(newTarget.pos, anchor)
+    newTarget.position ??= [0, 0, 0]
+    newTarget.position = arraySubtract(newTarget.position, anchor)
 
     const targetM = getMatrixFromTransform(newTarget)
     const transformM = getMatrixFromTransform(newTransform)
@@ -499,8 +499,8 @@ export function combineTransforms(
     const finalPos = arrayAdd(finalTarget.pos, anchor)
 
     return {
-        pos: finalPos,
-        rot: finalTarget.rot as Vec3,
+        position: finalPos,
+        rotation: finalTarget.rot as Vec3,
         scale: finalTarget.scale as Vec3,
     }
 }
@@ -534,16 +534,16 @@ export function emulateParent(
         obj: DeepReadonly<FullAnimatedTransform>,
     ) {
         return {
-            pos: getKeyframeComplexity(obj.pos, [0, 0, 0]),
-            rot: getKeyframeComplexity(obj.rot, [0, 0, 0]),
+            position: getKeyframeComplexity(obj.position, [0, 0, 0]),
+            rotation: getKeyframeComplexity(obj.rotation, [0, 0, 0]),
             scale: getKeyframeComplexity(obj.scale, [1, 1, 1]),
         }
     }
 
     function makeObj(obj: DeepReadonly<AnimatedTransform>) {
         return {
-            pos: obj.pos ?? [0, 0, 0],
-            rot: obj.rot ?? [0, 0, 0],
+            position: obj.position ?? [0, 0, 0],
+            rotation: obj.rotation ?? [0, 0, 0],
             scale: obj.scale ?? [1, 1, 1],
         } as DeepReadonly<FullAnimatedTransform>
     }
@@ -556,11 +556,11 @@ export function emulateParent(
 
     // Both are completely static
     if (
-        childComplexity.pos <= 1 &&
-        childComplexity.rot <= 1 &&
+        childComplexity.position <= 1 &&
+        childComplexity.rotation <= 1 &&
         childComplexity.scale <= 1 &&
-        parentComplexity.pos <= 1 &&
-        parentComplexity.rot <= 1 &&
+        parentComplexity.position <= 1 &&
+        parentComplexity.rotation <= 1 &&
         parentComplexity.scale <= 1
     ) {
         return combineTransforms(
@@ -572,13 +572,13 @@ export function emulateParent(
 
     // Child position is simple, parent is animated
     if (
-        childComplexity.pos >= 1 &&
-        parentComplexity.pos <= 1 &&
-        parentComplexity.rot === Complexity.DEFAULT &&
+        childComplexity.position >= 1 &&
+        parentComplexity.position <= 1 &&
+        parentComplexity.rotation === Complexity.DEFAULT &&
         parentComplexity.scale === Complexity.DEFAULT
     ) {
-        const childPos = copy(childObj.pos) as RawKeyframesVec3
-        const parentPos = parentObj.pos as Vec3
+        const childPos = copy(childObj.position) as RawKeyframesVec3
+        const parentPos = parentObj.position as Vec3
 
         iterateKeyframes(childPos, (x) => {
             x[0] += parentPos[0]
@@ -587,21 +587,21 @@ export function emulateParent(
         })
 
         return {
-            pos: childPos,
-            rot: copy(childObj.rot) as RawKeyframesVec3,
+            position: childPos,
+            rotation: copy(childObj.rotation) as RawKeyframesVec3,
             scale: copy(childObj.scale) as RawKeyframesVec3,
         }
     }
 
     // Parent position is simple, child is animated
     if (
-        childComplexity.pos <= 1 &&
-        parentComplexity.pos >= 1 &&
-        parentComplexity.rot === Complexity.DEFAULT &&
+        childComplexity.position <= 1 &&
+        parentComplexity.position >= 1 &&
+        parentComplexity.rotation === Complexity.DEFAULT &&
         parentComplexity.scale === Complexity.DEFAULT
     ) {
-        const childPos = childObj.pos as Vec3
-        const parentPos = copy(parentObj.pos) as RawKeyframesVec3
+        const childPos = childObj.position as Vec3
+        const parentPos = copy(parentObj.position) as RawKeyframesVec3
 
         iterateKeyframes(parentPos, (x) => {
             x[0] += childPos[0]
@@ -610,8 +610,8 @@ export function emulateParent(
         })
 
         return {
-            pos: parentPos,
-            rot: copy(childObj.rot) as RawKeyframesVec3,
+            position: parentPos,
+            rotation: copy(childObj.rotation) as RawKeyframesVec3,
             scale: copy(childObj.scale) as RawKeyframesVec3,
         }
     }
@@ -630,13 +630,13 @@ export function emulateParent(
         (k) => {
             const parentPos = getKeyframeValuesAtTime(
                 'position',
-                parentObj.pos,
+                parentObj.position,
                 k.time,
             )
 
             const parentRot = getKeyframeValuesAtTime(
                 'rotation',
-                parentObj.rot,
+                parentObj.rotation,
                 k.time,
             )
 
@@ -647,12 +647,12 @@ export function emulateParent(
             )
 
             const t = combineTransforms({
-                pos: k.pos,
-                rot: k.rot,
+                position: k.position,
+                rotation: k.rotation,
                 scale: k.scale,
             }, {
-                pos: parentPos,
-                rot: parentRot,
+                position: parentPos,
+                rotation: parentRot,
                 scale: parentScale,
             }, anchor)
 
@@ -677,8 +677,8 @@ export function getBoxBounds(
     const boxArr = Array.isArray(boxes) ? boxes : [boxes]
 
     boxArr.forEach((b) => {
-        const pos = b.pos ?? [0, 0, 0]
-        const rot = b.rot ?? [0, 0, 0]
+        const pos = b.position ?? [0, 0, 0]
+        const rot = b.rotation ?? [0, 0, 0]
         const scale = b.scale ?? [1, 1, 1]
 
         const corners: Vec3[] = [
