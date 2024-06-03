@@ -61,7 +61,10 @@ export function lightTranslationEventBoxGroup(
 }
 
 //! Event Boxes
-type BoxParameters<T extends bsmap.v3.IEventBox> = [
+type BoxParameters<
+    T extends bsmap.v3.IEventBox,
+    E extends LightingV3Internals.BaseLightEvent,
+> = [
     beatDistributionType?: DistributionType,
     beatDistribution?: number,
     filter?: bsmap.v3.IIndexFilter,
@@ -69,15 +72,18 @@ type BoxParameters<T extends bsmap.v3.IEventBox> = [
 ] | [
     ...obj: [
         ConstructorParameters<
-            typeof LightingV3Internals.EventBox<T>
+            typeof LightingV3Internals.EventBox<T, E>
         >[0],
     ],
 ]
 
-function createBox<T extends bsmap.v3.IEventBox>(
-    ...params: BoxParameters<T>
+function createBox<
+    T extends bsmap.v3.IEventBox,
+    E extends LightingV3Internals.BaseLightEvent,
+>(
+    ...params: BoxParameters<T, E>
 ): ConstructorParameters<
-    typeof LightingV3Internals.EventBox<T>
+    typeof LightingV3Internals.EventBox<T, E>
 > {
     if (typeof params[0] === 'object') {
         const obj = params[0]
@@ -88,17 +94,20 @@ function createBox<T extends bsmap.v3.IEventBox>(
         params
 
     return [{
-        beatDistributionType: beatDistributionType,
-        beatDistribution: beatDistribution,
-        filter: filter,
-        distributionEasing: distributionEasing,
+        beatDistributionType,
+        beatDistribution,
+        filter,
+        distributionEasing,
     }] as ConstructorParameters<
-        typeof LightingV3Internals.EventBox<T>
+        typeof LightingV3Internals.EventBox<T, E>
     >
 }
 
 export function lightColorEventBox(
-    ...params: BoxParameters<bsmap.v3.ILightColorEventBox>
+    ...params: BoxParameters<
+        bsmap.v3.ILightColorEventBox,
+        LightingV3Internals.LightColorEvent
+    >
 ) {
     return new LightingV3Internals.LightColorEventBox(
         ...createBox(...params),
@@ -106,7 +115,10 @@ export function lightColorEventBox(
 }
 
 export function lightRotationEventBox(
-    ...params: BoxParameters<bsmap.v3.ILightRotationEventBox>
+    ...params: BoxParameters<
+        bsmap.v3.ILightRotationEventBox,
+        LightingV3Internals.LightRotationEvent
+    >
 ) {
     return new LightingV3Internals.LightRotationEventBox(
         ...createBox(...params),
@@ -114,7 +126,10 @@ export function lightRotationEventBox(
 }
 
 export function lightTranslationEventBox(
-    ...params: BoxParameters<bsmap.v3.ILightTranslationEventBox>
+    ...params: BoxParameters<
+        bsmap.v3.ILightTranslationEventBox,
+        LightingV3Internals.LightTranslationEvent
+    >
 ) {
     return new LightingV3Internals.LightTranslationEventBox(
         ...createBox(...params),
@@ -196,7 +211,7 @@ export function lightRotationEvent(
 export function lightTranslationEvent(
     ...params: [
         beat?: number,
-        value?: number,
+        magnitude?: number,
         easing?: RotationEase,
         usePreviousEventTranslation?: boolean,
     ] | [
@@ -214,7 +229,7 @@ export function lightTranslationEvent(
 
     const [
         beat,
-        value,
+        magnitude,
         easing,
         usePreviousEventTranslation,
     ] = params

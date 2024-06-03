@@ -136,7 +136,7 @@ export class LightTranslationEventBoxGroup
 //! Event Boxes
 export abstract class EventBox<
     T extends bsmap.v3.IEventBox,
-    E extends LightEvent = LightEvent,
+    E extends BaseLightEvent = BaseLightEvent,
 > implements JsonWrapper<never, T> {
     constructor(obj: Partial<ObjectFields<EventBox<T, E>>>) {
         this.filter = obj.filter ?? {
@@ -397,11 +397,10 @@ type LightBase =
     | bsmap.v3.ILightColorBase
     | bsmap.v3.ILightRotationBase
     | bsmap.v3.ILightTranslationBase
-
-abstract class LightEvent<T extends LightBase = LightBase>
+export abstract class BaseLightEvent<T extends LightBase = LightBase>
     extends BaseObject<never, T> {}
 
-export class LightColorEvent extends LightEvent<bsmap.v3.ILightColorBase> {
+export class LightColorEvent extends BaseLightEvent<bsmap.v3.ILightColorBase> {
     constructor(obj: Partial<ObjectFields<LightColorEvent>>) {
         super(obj)
         this.transitionType = obj.transitionType ?? LightTransition.INSTANT
