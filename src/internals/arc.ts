@@ -60,7 +60,7 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
     get isGameplayModded() {
         if (super.isGameplayModded) return true
         if (this.flip) return true
-        if (this.disableNoteGravity === false) return true
+        if (this.disableNoteGravity) return true
         return false
     }
 

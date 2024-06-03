@@ -167,7 +167,7 @@ export abstract class BaseGameplayObject<
         this.localRotation = obj.localRotation
         this.noteJumpSpeed = obj.noteJumpSpeed
         this.noteJumpOffset = obj.noteJumpOffset
-        this.uninteractable = obj.uninteractable ?? true
+        this.uninteractable = obj.uninteractable
         this.track = obj.track instanceof Track
             ? obj.track
             : new Track(obj.track)

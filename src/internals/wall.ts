@@ -174,7 +174,7 @@ export class Wall
                 _rotation: this.worldRotation,
                 _track: this.track.value,
                 _color: this.color,
-                _interactable: exportInvertedBoolean(this.uninteractable, false),
+                _interactable: exportInvertedBoolean(this.uninteractable, true),
                 _fake: defaultBoolean(this.fake, false),
                 ...this.customData,
             },
