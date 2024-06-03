@@ -1,4 +1,4 @@
-import { RawKeyframesVec4 } from './animation_types.ts'
+import { RawKeyframesVec4, RuntimePointDefinitionLinear, RuntimePointDefinitionVec4 } from './animation_types.ts'
 import { RuntimeRawKeyframesVec4 } from './animation_types.ts'
 import { RuntimeRawKeyframesAbstract } from './animation_types.ts'
 import { RuntimeRawKeyframesLinear } from './animation_types.ts'
@@ -32,11 +32,11 @@ export type Property<T, V> = {
 /** A valid value for material properties. */
 export type MaterialPropertyValue =
     | FILEPATH
-    | RawKeyframesLinear
-    | RawKeyframesVec4
+    | RuntimePointDefinitionLinear
+    | RuntimePointDefinitionVec4
 
 /** A valid value for animator properties. */
-export type AnimatorPropertyValue = boolean | RawKeyframesLinear | number
+export type AnimatorPropertyValue = boolean | RuntimePointDefinitionLinear | number
 
 /** A property for a material. */
 export type MaterialProperty = Property<

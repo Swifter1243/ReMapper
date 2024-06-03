@@ -1,8 +1,4 @@
-import {
-    destroyPrefab,
-    instantiatePrefab,
-    setMaterialProperty,
-} from '../beatmap/custom_event.ts'
+import { destroyPrefab, instantiatePrefab, setMaterialProperty } from '../beatmap/custom_event.ts'
 import { assignTrackPrefab, blit } from '../beatmap/mod.ts'
 import { CustomEventInternals } from '../internals/mod.ts'
 import { EASE, RuntimePointDefinitionLinear } from '../types/animation_types.ts'
@@ -10,7 +6,7 @@ import { RuntimePointDefinitionVec4 } from '../types/animation_types.ts'
 import { FILEPATH } from '../types/beatmap_types.ts'
 import { ColorVec, Vec4 } from '../types/data_types.ts'
 import { DeepReadonly, MaterialProperty } from '../types/mod.ts'
-import { MATERIAL_PROP_TYPE } from '../types/vivify_types.ts'
+import { MATERIAL_PROP_TYPE, MaterialPropertyValue } from '../types/vivify_types.ts'
 
 type PrefabMap = Record<string, string>
 
@@ -32,8 +28,7 @@ type FixedMaterialMap<BaseMaterial extends MaterialMap[string]> = {
     path: string
     properties: {
         [MaterialProperty in keyof BaseMaterial['properties']]:
-            BaseMaterial['properties'][MaterialProperty] extends
-                Record<string, unknown> ? Extract<
+            BaseMaterial['properties'][MaterialProperty] extends Record<string, unknown> ? Extract<
                     keyof BaseMaterial['properties'][MaterialProperty],
                     MATERIAL_PROP_TYPE
                 >
@@ -47,6 +42,8 @@ type MaterialPropertyMap = {
     'Color': ColorVec | RuntimePointDefinitionVec4
     'Vector': Vec4 | RuntimePointDefinitionVec4
 }
+
+type MaterialPropertyValueExtended = MaterialPropertyValue | number | ColorVec | Vec4
 
 /** Used to load type safe prefabs. See `loadAssets` */
 export class Prefab {
@@ -112,6 +109,37 @@ export class PrefabInstance {
     }
 }
 
+type MaterialSetParameters0<
+    T extends MaterialProperties,
+> = [
+    values: Partial<{ [K in keyof T]: MaterialPropertyMap[T[K]] }>,
+    beat?: number,
+    duration?: number,
+    easing?: EASE,
+    callback?: (
+        event: CustomEventInternals.SetMaterialProperty,
+    ) => void,
+]
+
+type MaterialSetParameters1<
+    T extends MaterialProperties,
+    K extends keyof T,
+> = [
+    prop: K,
+    value: MaterialPropertyMap[T[K]],
+    beat?: number,
+    duration?: number,
+    easing?: EASE,
+    callback?: (
+        event: CustomEventInternals.SetMaterialProperty,
+    ) => void,
+]
+
+type MaterialSetParameters<
+    T extends MaterialProperties,
+    K2 extends keyof T,
+> = MaterialSetParameters0<T> | MaterialSetParameters1<T, K2>
+
 /** Used to load type safe materials. See `loadAssets` */
 export class Material<T extends MaterialProperties = MaterialProperties> {
     /** Path to this material in the asset bundle. */
@@ -163,43 +191,13 @@ export class Material<T extends MaterialProperties = MaterialProperties> {
 
     /** Set a property on this material. Also allows for animations. */
     set(
-        values: Partial<{ [K in keyof T]: MaterialPropertyMap[T[K]] }>,
-        beat?: number,
-        duration?: number,
-        easing?: EASE,
-        callback?: (
-            event: CustomEventInternals.SetMaterialProperty,
-        ) => void,
+        ...params: MaterialSetParameters0<T>
     ): void
     set<K extends keyof T>(
-        prop: K,
-        value: MaterialPropertyMap[T[K]],
-        beat?: number,
-        duration?: number,
-        easing?: EASE,
-        callback?: (
-            event: CustomEventInternals.SetMaterialProperty,
-        ) => void,
+        ...params: MaterialSetParameters1<T, K>
     ): void
-    set<K2 extends keyof T>(
-        ...params: [
-            values: Partial<{ [K in keyof T]: MaterialPropertyMap[T[K]] }>,
-            beat?: number,
-            duration?: number,
-            easing?: EASE,
-            callback?: (
-                event: CustomEventInternals.SetMaterialProperty,
-            ) => void,
-        ] | [
-            prop: K2,
-            value: MaterialPropertyMap[T[K2]],
-            beat?: number,
-            duration?: number,
-            easing?: EASE,
-            callback?: (
-                event: CustomEventInternals.SetMaterialProperty,
-            ) => void,
-        ]
+    set<K extends keyof T>(
+        ...params: MaterialSetParameters<T, K>
     ) {
         if (typeof params[0] === 'object') {
             this.doSet(...params as Parameters<typeof this.doSet>)
@@ -209,9 +207,7 @@ export class Material<T extends MaterialProperties = MaterialProperties> {
         const [prop, value, beat, duration, easing, callback] = params
 
         this.doSet(
-            { [prop]: value } as Partial<
-                { [K in keyof T]: MaterialPropertyMap[T[K]] }
-            >,
+            { [prop]: value } as MaterialProperties,
             beat,
             duration as number,
             easing as EASE,
@@ -220,7 +216,7 @@ export class Material<T extends MaterialProperties = MaterialProperties> {
     }
 
     private doSet(
-        values: Partial<{ [K in keyof T]: MaterialPropertyMap[T[K]] }>,
+        values: MaterialProperties,
         beat?: number,
         duration?: number,
         easing?: EASE,
@@ -272,8 +268,9 @@ function fixMaterial<T extends MaterialMap['properties']>(map: T) {
     } as FixedMaterialMap<T>
 
     Object.entries(map.properties).forEach(([prop, type]) => {
-        ;(newMap.properties as unknown as Record<string, unknown>)[prop] =
-            Object.keys(type)[0] as MATERIAL_PROP_TYPE
+        ;(newMap.properties as unknown as Record<string, unknown>)[prop] = Object.keys(
+            type,
+        )[0] as MATERIAL_PROP_TYPE
     })
 
     return newMap
