@@ -1,7 +1,5 @@
 import { combineTransforms, getBoxBounds } from '../utils/math.ts'
 
-import { OptimizeSettings } from '../animation/anim_optimizer.ts'
-
 import { Wall } from '../internals/wall.ts'
 import { modelToWall } from './wall.ts'
 import { getModel } from './model.ts'
@@ -9,6 +7,7 @@ import { Bounds, Transform, Vec3 } from '../types/data_types.ts'
 import { ReadonlyText, TextObject } from '../types/model_types.ts'
 import { copy } from '../utils/general.ts'
 import { getActiveDifficulty } from '../mod.ts'
+import { AnimationSettings } from '../animation/mod.ts'
 
 interface TextInfo {
     /** How the text will be anchored horizontally. */
@@ -160,8 +159,7 @@ export class Text implements TextInfo {
         end: number,
         wall?: (wall: Wall) => void,
         distribution = 1,
-        animFreq?: number,
-        animOptimizer = new OptimizeSettings(),
+        animationSettings = new AnimationSettings()
     ) {
         const model = this.toObjects(text)
         modelToWall(
@@ -170,8 +168,7 @@ export class Text implements TextInfo {
             end,
             wall,
             distribution,
-            animFreq,
-            animOptimizer,
+            animationSettings
         )
     }
 }

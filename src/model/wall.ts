@@ -35,6 +35,7 @@ import {
 import { getActiveDifficulty } from '../mod.ts'
 import { DeepReadonly } from '../types/util_types.ts'
 import { arrayDivide, arrayMultiply, vec } from '../utils/mod.ts'
+import { AnimationSettings } from '../animation/anim_optimizer.ts'
 
 let modelToWallCount = 0
 
@@ -88,8 +89,6 @@ export function worldToWall(
  * @param wallCall A callback for each wall being spawned.
  * @param distribution Beats to spread spawning of walls out.
  * Animations are adjusted, but keep in mind path animation events for these walls might be messed up.
- * @param animFreq The frequency for the animation baking (if using array of objects).
- * @param animOptimizer The optimizer for the animation baking (if using array of objects).
  */
 export async function modelToWall(
     input: string | ReadonlyModel,
@@ -97,14 +96,13 @@ export async function modelToWall(
     end: number,
     wallCall?: (wall: Wall) => void,
     distribution?: number,
-    animFreq?: number,
-    animOptimizer = new OptimizeSettings(),
+    animationSettings?: AnimationSettings,
 ) {
+    animationSettings ??= new AnimationSettings()
+    distribution ??= 0.3
+
     const diff = getActiveDifficulty()
     return await diff.runAsync(async () => {
-        animFreq ??= 1 / 64
-        distribution ??= 0.3
-
         modelToWallCount++
 
         function isAnimated(obj: ModelObject) {
@@ -160,12 +158,21 @@ export async function modelToWall(
                             scale[i] = [...wtw.scale, scale[i][3]]
                         }
 
-                        x.position = optimizeKeyframes(pos, animOptimizer)
-                        x.rotation = optimizeKeyframes(rot, animOptimizer)
-                        x.scale = optimizeKeyframes(scale, animOptimizer)
+                        x.position = optimizeKeyframes(
+                            pos,
+                            animationSettings!.optimizeSettings,
+                        )
+                        x.rotation = optimizeKeyframes(
+                            rot,
+                            animationSettings!.optimizeSettings,
+                        )
+                        x.scale = optimizeKeyframes(
+                            scale,
+                            animationSettings!.optimizeSettings,
+                        )
                     })
                 },
-                [animOptimizer, distribution],
+                [animationSettings!.toData(), distribution],
             )
         } else {
             objects = input.map((x, i) => {
@@ -183,8 +190,6 @@ export async function modelToWall(
                         k.position = wtw.position
                         k.scale = wtw.scale
                     },
-                    animFreq,
-                    animOptimizer,
                 )
 
                 o.position = anim.position

@@ -26,7 +26,7 @@ import {
     floorTo,
     lerpRotation,
 } from '../utils/math.ts'
-import { optimizeKeyframes, OptimizeSettings } from './anim_optimizer.ts'
+import { optimizeKeyframes } from './anim_optimizer.ts'
 
 import { DeepReadonly, NumberTuple } from '../types/util_types.ts'
 import { TransformKeyframe, Vec3, Vec4 } from '../types/data_types.ts'
@@ -44,6 +44,7 @@ import {
 } from './keyframe.ts'
 import { lerpHSV } from '../data/color.ts'
 import { ModelObject } from '../mod.ts'
+import { AnimationSettings } from './anim_optimizer.ts'
 
 /**
  * Ensures that this value is in the format of an array of keyframes.
@@ -275,12 +276,10 @@ export function getAnimatedObjectDomain(animation: DeepReadonly<ModelObject>) {
 export function bakeAnimation(
     animation: DeepReadonly<ModelObject>,
     forKeyframe?: (transform: TransformKeyframe) => void,
-    animFreq?: number,
-    animOptimizer?: OptimizeSettings,
+    animationSettings?: AnimationSettings,
     domain?: { min: number; max: number },
 ): ModelObject {
-    animOptimizer ??= new OptimizeSettings()
-    animFreq ??= 1 / 32
+    animationSettings ??= new AnimationSettings()
 
     const pos = animation.position ?? [0, 0, 0]
     const rot = animation.rotation ?? [0, 0, 0]
@@ -293,10 +292,14 @@ export function bakeAnimation(
     }
 
     domain ??= getAnimatedObjectDomain(animation)
-    const totalMin = floorTo(domain.min, animFreq)
-    const totalMax = ceilTo(domain.max, animFreq)
+    const totalMin = floorTo(domain.min, animationSettings.bakeFrequency)
+    const totalMax = ceilTo(domain.max, animationSettings.bakeFrequency)
 
-    for (let i = totalMin; i <= totalMax; i += animFreq) {
+    for (
+        let i = totalMin;
+        i <= totalMax;
+        i += animationSettings.bakeFrequency
+    ) {
         const keyframe = {
             position: getKeyframeValuesAtTime('position', pos, i),
             rotation: getKeyframeValuesAtTime('rotation', rot, i),
@@ -312,9 +315,18 @@ export function bakeAnimation(
     }
 
     return {
-        position: optimizeKeyframes(data.position, animOptimizer),
-        rotation: optimizeKeyframes(data.rotation, animOptimizer),
-        scale: optimizeKeyframes(data.scale, animOptimizer),
+        position: optimizeKeyframes(
+            data.position,
+            animationSettings.optimizeSettings,
+        ),
+        rotation: optimizeKeyframes(
+            data.rotation,
+            animationSettings.optimizeSettings,
+        ),
+        scale: optimizeKeyframes(
+            data.scale,
+            animationSettings.optimizeSettings,
+        ),
     }
 }
 

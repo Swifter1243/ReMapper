@@ -24,10 +24,7 @@ import * as CustomEventInternals from '../internals/custom_event/mod.ts'
 import { animateTrack } from '../beatmap/custom_event.ts'
 import { backLasers } from '../beatmap/basic_event.ts'
 
-import {
-    optimizeKeyframes,
-    OptimizeSettings,
-} from '../animation/anim_optimizer.ts'
+import { optimizeKeyframes } from '../animation/anim_optimizer.ts'
 import {
     bakeAnimation,
     complexifyKeyframes,
@@ -48,6 +45,7 @@ import {
     SceneObjectInfo,
 } from '../mod.ts'
 import { RuntimeRawKeyframesVec3 } from '../types/animation_types.ts'
+import { AnimationSettings } from '../animation/anim_optimizer.ts'
 
 let modelSceneCount = 0
 let noYeet = true
@@ -61,10 +59,7 @@ export class ModelScene {
      * The animations will attempt to be optimized, removing visually redundant points.
      * This controls various parameters about how harshly the algorithm will target changes.
      */
-    optimizer = new OptimizeSettings()
-    /** The frequency (as a percentage of the whole) of when keyframes on baked animations will be generated.
-     * A frequency of 0.5 will generate 3 keyframes total, one for every multiple of 0.5 between 0 and 1. */
-    bakeAnimFreq = 1 / 32
+    animationSettings = new AnimationSettings()
     /** The unique ID of this modelscene, used for tracks.
      * If multiple model scenes are used, this ID is used so the track names don't conflict.
      */
@@ -295,9 +290,18 @@ export class ModelScene {
                 }
 
                 // Optimizing object
-                x.position = optimizeKeyframes(x.position, self.optimizer)
-                x.rotation = optimizeKeyframes(x.rotation, self.optimizer)
-                x.scale = optimizeKeyframes(x.scale, self.optimizer)
+                x.position = optimizeKeyframes(
+                    x.position,
+                    self.animationSettings.optimizeSettings,
+                )
+                x.rotation = optimizeKeyframes(
+                    x.rotation,
+                    self.animationSettings.optimizeSettings,
+                )
+                x.scale = optimizeKeyframes(
+                    x.scale,
+                    self.animationSettings.optimizeSettings,
+                )
 
                 // Loop animation
                 if (options.mirror) {
@@ -319,7 +323,7 @@ export class ModelScene {
                 options,
                 onCache,
                 self.groups,
-                self.optimizer,
+                self.animationSettings.toData(),
                 v3,
             ]
 
@@ -388,10 +392,13 @@ export class ModelScene {
                 ) {
                     // Baking animation
                     const bakedCube: ModelObject = bakeAnimation(
-                        { position: x.position, rotation: x.rotation, scale: x.scale },
+                        {
+                            position: x.position,
+                            rotation: x.rotation,
+                            scale: x.scale,
+                        },
                         getBakedTransform,
-                        self.bakeAnimFreq,
-                        self.optimizer,
+                        self.animationSettings,
                     )
 
                     if (!v3) {
@@ -552,8 +559,10 @@ export class ModelScene {
                 } // Creating event for assigned
                 else {
                     const event = animateTrack(0, track)
-                    event.animation.position = x.position as RuntimeRawKeyframesVec3
-                    event.animation.rotation = x.rotation as RuntimeRawKeyframesVec3
+                    event.animation.position = x
+                        .position as RuntimeRawKeyframesVec3
+                    event.animation.rotation = x
+                        .rotation as RuntimeRawKeyframesVec3
                     event.animation.scale = x.scale as RuntimeRawKeyframesVec3
                     if (forAssigned) forAssigned(event)
                     getActiveDifficulty().customEvents.animateTrackEvents.push(
@@ -680,7 +689,8 @@ export class ModelScene {
 
         const objects = await this.getObjects(s.model)
         objects.forEach((d, i) => {
-            const objectIsStatic = complexifyKeyframes(d.position).length === 1 &&
+            const objectIsStatic =
+                complexifyKeyframes(d.position).length === 1 &&
                 complexifyKeyframes(d.rotation).length === 1 &&
                 complexifyKeyframes(d.scale).length === 1
 
@@ -980,8 +990,8 @@ export async function getModel(
 
     type OldModelObject = ModelObject & {
         track?: string
-        pos?: RawKeyframesVec3,
-        rot?: RawKeyframesVec3,
+        pos?: RawKeyframesVec3
+        rot?: RawKeyframesVec3
     }
 
     return cacheData(name, async () => {
@@ -992,7 +1002,7 @@ export async function getModel(
         if (version < 2) {
             const oldObjects = objects as OldModelObject[]
 
-            oldObjects.forEach(x => {
+            oldObjects.forEach((x) => {
                 if (x.track) {
                     x.group = x.track
                     x.position = x.pos!

@@ -1,6 +1,4 @@
-import {
-    RawKeyframesAbstract,
-} from '../types/animation_types.ts'
+import { RawKeyframesAbstract } from '../types/animation_types.ts'
 import { complexifyKeyframes, simplifyKeyframes } from './animation_utils.ts'
 import { NumberTuple } from '../types/util_types.ts'
 import {
@@ -398,6 +396,14 @@ export class OptimizeSimilarPointsSettings {
     active = true
     differenceThreshold = 1
     timeDifferenceThreshold = 0.001
+
+    toData() {
+        return [
+            this.active,
+            this.differenceThreshold,
+            this.timeDifferenceThreshold,
+        ]
+    }
 }
 
 /**
@@ -411,37 +417,75 @@ export class OptimizeSimilarPointsSlopeSettings {
     differenceThreshold = 0.03
     timeDifferenceThreshold = 0.025
     yInterceptDifferenceThreshold = 0.5
+
+    toData() {
+        return [
+            this.active,
+            this.differenceThreshold,
+            this.timeDifferenceThreshold,
+            this.yInterceptDifferenceThreshold,
+        ]
+    }
+}
+
+/** Describes settings for functions to handle animations that need to be baked/optimized. */
+export class AnimationSettings {
+    bakeFrequency = 1 / 32
+    optimizeSettings = new OptimizeSettings()
+
+    toData() {
+        return [
+            this.bakeFrequency,
+            this.optimizeSettings.toData(),
+        ]
+    }
 }
 
 /**
  * Settings for the animation optimizer, starts at default values.
  */
 export class OptimizeSettings {
-    // false or undefined to disable these settings
-    active = true
+    /** Whether to disable optimization altogether. */
+    disabled = false
+    /** How many times to run all of the optimizers on everything. */
     passes = 5
-    performance_log = false
-    optimizeDuplicates = true // false or undefined to disable
+    /** Whether to log the effectiveness of each optimizer. */
+    performanceLog = false
+    /** Whether to remove points with the same data. */
+    optimizeDuplicates = true
+    /** Remove points that are similar within a given threshold. */
     optimizeSimilarPoints: OptimizeSimilarPointsSettings =
         new OptimizeSimilarPointsSettings()
+    /** Remove points that don't change the curve/slope of the animation. */
     optimizeSimilarPointsSlope: OptimizeSimilarPointsSlopeSettings =
         new OptimizeSimilarPointsSlopeSettings()
-    additionalOptimizers: OptimizeFunction[] | undefined = undefined
+    /** Any additional optimization functions to run. */
+    additionalOptimizers: OptimizeFunction[] = []
+
+    toData() {
+        return [
+            this.disabled,
+            this.passes,
+            this.performanceLog,
+            this.optimizeDuplicates,
+            this.optimizeSimilarPoints.toData(),
+            this.optimizeSimilarPointsSlope.toData(),
+            this.additionalOptimizers,
+        ]
+    }
 }
 
 function optimizeKeyframesInternal(
     keyframes: ComplexKeyframesBoundless,
     optimizeSettings: OptimizeSettings,
 ): ComplexKeyframesBoundless {
-    if (!optimizeSettings.active) return keyframes
+    if (optimizeSettings.disabled) return keyframes
 
     const sortedKeyframes = keyframes.sort((a, b) =>
         getKeyframeTime(a) - getKeyframeTime(b)
     )
 
-    const optimizers: OptimizeFunction[] = [
-        ...optimizeSettings.additionalOptimizers ?? [],
-    ]
+    const optimizers: OptimizeFunction[] = optimizeSettings.additionalOptimizers
 
     if (optimizeSettings.optimizeDuplicates) optimizers.push(optimizeDuplicates)
     if (optimizeSettings.optimizeSimilarPoints.active) {
@@ -465,7 +509,7 @@ function optimizeKeyframesInternal(
         )
     }
 
-    if (optimizeSettings.performance_log) {
+    if (optimizeSettings.performanceLog) {
         console.log(`Optimizing ${keyframes.length} points`)
     }
 
@@ -518,7 +562,7 @@ function optimizeKeyframesInternal(
         )
     }
 
-    if (optimizeSettings.performance_log) {
+    if (optimizeSettings.performanceLog) {
         console.log(
             `Optimized to ${optimizedKeyframes.length} (${
                 optimizedKeyframes.length / keyframes.length * 100

@@ -29,6 +29,7 @@ import { complexifyKeyframes } from '../animation/animation_utils.ts'
 import { getAnimatedObjectDomain } from '../animation/animation_utils.ts'
 import { Mutable } from '../types/util_types.ts'
 import { DeepMutable } from '../types/util_types.ts'
+import { AnimationSettings } from '../animation/anim_optimizer.ts'
 
 export const EPSILON = 1e-3
 
@@ -505,15 +506,17 @@ export function combineTransforms(
     }
 }
 
+/**
+ * Emulate the behavior of a parent track by applying a parent transform to a child transform.
+ * The result is the transform of the child.
+ */
 export function emulateParent(
     child: DeepReadonly<AnimatedTransform>,
     parent: DeepReadonly<AnimatedTransform>,
     anchor: Readonly<Vec3> = [0, 0, 0],
-    animFreq?: number,
-    animOptimizer?: OptimizeSettings,
+    animationSettings?: AnimationSettings
 ): FullAnimatedTransform {
-    animOptimizer ??= new OptimizeSettings()
-    animFreq ??= 1 / 32
+    animationSettings ??= new AnimationSettings()
 
     enum Complexity {
         DEFAULT,
@@ -658,8 +661,7 @@ export function emulateParent(
 
             Object.assign(k, t)
         },
-        animFreq,
-        animOptimizer,
+        animationSettings,
         domain,
     )
 }
