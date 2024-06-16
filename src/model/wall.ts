@@ -15,23 +15,24 @@ import {
     OptimizeSettings,
 } from '../animation/anim_optimizer.ts'
 
-import { bakeAnimation, complexifyKeyframes } from '../animation/animation_utils.ts'
+import {
+    bakeAnimation,
+    complexifyKeyframes,
+} from '../animation/animation_utils.ts'
 
 import { wall } from '../beatmap/wall.ts'
 import { Wall } from '../internals/wall.ts'
 
 import { getModel } from './model.ts'
 import { ModelObject, ReadonlyModel } from '../types/model_types.ts'
-import { ColorVec, Vec3 } from '../types/data_types.ts'
+import { ColorVec, Transform, Vec3 } from '../types/data_types.ts'
 import { copy } from '../utils/general.ts'
 import {
     areKeyframesSimple,
     getKeyframeTime,
     getKeyframeTimeIndex,
 } from '../animation/keyframe.ts'
-import {
-    getActiveDifficulty,
-} from '../mod.ts'
+import { getActiveDifficulty } from '../mod.ts'
 import { DeepReadonly } from '../types/util_types.ts'
 import { arrayDivide, arrayMultiply, vec } from '../utils/mod.ts'
 
@@ -40,20 +41,19 @@ let modelToWallCount = 0
 /**
  * Calculate the correct position for a wall to line up with a position in the world.
  * Assumes that position is set to [0,0].
- * @param pos Position of the wall in world space.
- * @param rot Rotation of the wall in world space.
- * @param scale Scale of the wall in world space.
  * @param animated Corrects for animated scale. If you are using this, plug [1,1,1] into static scale.
  */
 export function worldToWall(
-    pos: DeepReadonly<Vec3> = [0, 0, 0],
-    rot: DeepReadonly<Vec3> = [0, 0, 0],
-    scale: DeepReadonly<Vec3> = [1, 1, 1],
+    transform: DeepReadonly<Transform>,
     animated = false,
 ) {
+    const position = transform.position ?? [0, 0, 0]
+    const rotation = transform.rotation ?? [0, 0, 0]
+    const scale = transform.scale ?? [1, 1, 1]
+
     // Turn units into noodle unit scale
     const resizedScale = arrayDivide(scale as Vec3, 0.6)
-    let resizedPos = arrayDivide(pos as Vec3, 0.6)
+    let resizedPos = arrayDivide(position as Vec3, 0.6)
 
     // Initialize offset to get to center
     let offset = vec(0, -0.5, -0.5)
@@ -62,7 +62,7 @@ export function worldToWall(
     offset = arrayMultiply(offset, resizedScale)
 
     // Rotate offset
-    offset = rotatePoint(offset, rot)
+    offset = rotatePoint(offset, rotation)
 
     // Add position
     resizedPos = arrayAdd(resizedPos, offset)
@@ -145,12 +145,17 @@ export async function modelToWall(
                         ] as Vec3
 
                         for (let i = 0; i < pos.length; i++) {
+                            const transform: Transform = {
+                                position: getVec3(pos, i),
+                                rotation: getVec3(rot, i),
+                                scale: getVec3(scale, i),
+                            }
+
                             const wtw = worldToWall(
-                                getVec3(pos, i),
-                                getVec3(rot, i),
-                                getVec3(scale, i),
+                                transform,
                                 animated,
                             )
+
                             pos[i] = [...wtw.position, pos[i][3]]
                             scale[i] = [...wtw.scale, scale[i][3]]
                         }
@@ -174,7 +179,7 @@ export async function modelToWall(
                         scale: x.scale,
                     },
                     (k) => {
-                        const wtw = worldToWall(k.position, k.rotation, k.scale, animated)
+                        const wtw = worldToWall(k, animated)
                         k.position = wtw.position
                         k.scale = wtw.scale
                     },
@@ -200,8 +205,9 @@ export async function modelToWall(
             if (x.color) o.color = copy(x.color) as ColorVec
 
             // Copy rotation
-            if (areKeyframesSimple(x.rotation)) o.localRotation = copy(x.rotation) as Vec3
-            else {
+            if (areKeyframesSimple(x.rotation)) {
+                o.localRotation = copy(x.rotation) as Vec3
+            } else {
                 o.animation.localRotation = copy(
                     x.rotation,
                 ) as RuntimeRawKeyframesVec3
