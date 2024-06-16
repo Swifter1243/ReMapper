@@ -54,8 +54,8 @@ export async function cacheData<T>(
 
 /**
  * Allows you to filter through an array of objects with a min and max property.
- * @param min Minimum allowed value of the property.
- * @param max Maximum allowed value of the property.
+ * @param min Minimum (inclusive) allowed value of the property.
+ * @param max Maximum (exclusive) allowed value of the property.
  * @param objects Array of objects to check.
  * @param property What property to check for.
  */
@@ -121,7 +121,7 @@ function objectsBetween<T extends BeatmapObject>(
 }
 
 /**
- * Gets all note types (note, bomb, arc, chain) between a min and max time.
+ * Gets all note types (note, bomb, arc, chain) between a min (inclusive) and max (exclusive) time.
  * @param min Minimum time of the notes.
  * @param max Maximum time of the notes.
  * @param forEach Function for each note.
@@ -140,7 +140,7 @@ export function allNotesBetween(
 }
 
 /**
- * Gets notes between a min and max time.
+ * Gets notes between a min (inclusive) and max (exclusive) time.
  * @param min Minimum time of the notes.
  * @param max Maximum time of the notes.
  * @param forEach Function for each note.
@@ -154,7 +154,7 @@ export function colorNotesBetween(
 }
 
 /**
- * Gets bombs between a min and max time.
+ * Gets bombs between a min (inclusive) and max (exclusive) time.
  * @param min Minimum time of the bombs.
  * @param max Maximum time of the bombs.
  * @param forEach Function for each bomb.
@@ -168,7 +168,7 @@ export function bombsBetween(
 }
 
 /**
- * Gets arcs between a min and max time..
+ * Gets arcs between a min (inclusive) and max (exclusive) time.
  * @param min Minimum time of the arcs.
  * @param max Maximum time of the arcs.
  * @param forEach Function for each arc.
@@ -182,7 +182,7 @@ export function arcsBetween(
 }
 
 /**
- * Gets chains between a min and max time.
+ * Gets chains between a min (inclusive) and max (exclusive) time.
  * @param min Minimum time of the chains.
  * @param max Maximum time of the chains.
  * @param forEach Function for each chain.
@@ -196,7 +196,7 @@ export function chainsBetween(
 }
 
 /**
- * Gets walls between a min and max time.
+ * Gets walls between a min (inclusive) and max (exclusive) time.
  * @param min Minimum time of the walls.
  * @param max Maximum time of the walls.
  * @param forEach Function for each wall.
@@ -210,7 +210,7 @@ export function wallsBetween(
 }
 
 /**
- * Gets events between a min and max time.
+ * Gets events between a min (inclusive) and max (exclusive) time.
  * @param min Minimum of the events.
  * @param max Maximum time of the events.
  * @param forEach Function for each event.

@@ -77,17 +77,17 @@ export class BaseNoteRemapper<T extends AnyNote> {
         this.processNotes(notes, log)
     }
 
-    /** Get notes between the min and max time. */
+    /** Get notes between the min (inclusive) and max (exclusive) time. */
     betweenTime(min: number, max: number) {
         return this.addCondition((x) => x.beat >= min && x.beat < max)
     }
 
-    /** Get notes between the min and max x position. */
+    /** Get notes between the min (inclusive) and max (exclusive) x position. */
     betweenXPositions(min: number, max: number) {
         return this.addCondition((x) => x.x >= min && x.x < max)
     }
 
-    /** Get notes between the min and max y position. */
+    /** Get notes between the min (inclusive) and max (exclusive) y position. */
     betweenYPositions(min: number, max: number) {
         return this.addCondition((x) => x.y >= min && x.y < max)
     }
