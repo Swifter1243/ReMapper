@@ -24,9 +24,12 @@ import { arrayRemove } from '../utils/array_utils.ts'
  * Checks if value is an array of keyframes.
  * @param array The keyframe or array of keyframes.
  */
-export const areKeyframesSimple = (
+export function areKeyframesSimple(
     array: DeepReadonly<RuntimePointDefinitionBoundless>,
-) => typeof array[0] !== 'object'
+) {
+    if (array.length === 0) return false // empty complex array
+    return typeof array[0] !== 'object'
+}
 
 /** Get the index of the time value of a keyframe. */
 export function getKeyframeTimeIndex(
