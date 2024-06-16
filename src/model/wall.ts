@@ -75,7 +75,7 @@ export function worldToWall(
     resizedPos[0] -= animated ? 0.5 : resizedScale[0] / 2
 
     return {
-        pos: resizedPos,
+        position: resizedPos,
         scale: resizedScale,
     }
 }
@@ -151,7 +151,7 @@ export async function modelToWall(
                                 getVec3(scale, i),
                                 animated,
                             )
-                            pos[i] = [...wtw.pos, pos[i][3]]
+                            pos[i] = [...wtw.position, pos[i][3]]
                             scale[i] = [...wtw.scale, scale[i][3]]
                         }
 
@@ -175,7 +175,7 @@ export async function modelToWall(
                     },
                     (k) => {
                         const wtw = worldToWall(k.position, k.rotation, k.scale, animated)
-                        k.position = wtw.pos
+                        k.position = wtw.position
                         k.scale = wtw.scale
                     },
                     animFreq,
