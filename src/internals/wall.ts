@@ -25,7 +25,7 @@ export class Wall
         this.duration = fields.duration ?? 0
         this.height = fields.height ?? 1
         this.width = fields.width ?? 1
-        this.scale = fields.scale
+        this.size = fields.size
         this.fake = fields.fake ?? false
 
         if (fields.life !== undefined) {
@@ -73,13 +73,13 @@ export class Wall
     /** The width of the wall. */
     width: number
     /** The scale of the wall. */
-    scale?: Vec3
+    size?: Vec3
     /** Moves the note to the separate fake note array on save. */
     fake?: boolean
 
     get isGameplayModded() {
         if (super.isGameplayModded) return true
-        if (this.scale) return true
+        if (this.size) return true
         if (this.fake) return true
         return false
     }
@@ -100,7 +100,7 @@ export class Wall
             const params = {
                 duration: obj.d ?? 0,
                 height: obj.h,
-                scale: getCDProp(obj, 'size'),
+                size: getCDProp(obj, 'size'),
                 width: obj.w ?? 0,
             } as Params
 
@@ -111,7 +111,7 @@ export class Wall
 
             const params = {
                 duration: obj._duration ?? 0,
-                scale: getCDProp(obj, '_scale'),
+                size: getCDProp(obj, '_scale'),
                 width: obj._width ?? 0,
                 fake: getCDProp(obj, '_fake'),
             } as Params
@@ -142,7 +142,7 @@ export class Wall
                 y: this.y,
                 customData: {
                     animation: animationToJson(this.animation, v3),
-                    size: this.scale,
+                    size: this.size,
                     noteJumpMovementSpeed: NJS,
                     noteJumpStartBeatOffset: offset,
                     localRotation: this.localRotation,
@@ -166,7 +166,7 @@ export class Wall
             _width: this.width,
             _customData: {
                 _animation: animationToJson(this.animation, v3),
-                _scale: this.scale,
+                _scale: this.size,
                 _noteJumpMovementSpeed: NJS,
                 _noteJumpStartBeatOffset: offset,
                 _localRotation: this.localRotation,

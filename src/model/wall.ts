@@ -214,9 +214,9 @@ export async function modelToWall(
             }
 
             // Copy scale
-            if (areKeyframesSimple(x.scale)) o.scale = copy(x.scale) as Vec3
+            if (areKeyframesSimple(x.scale)) o.size = copy(x.scale) as Vec3
             else {
-                o.scale = [1, 1, 1]
+                o.size = [1, 1, 1]
                 o.animation.scale = copy(x.scale) as RuntimeRawKeyframesVec3
             }
 
