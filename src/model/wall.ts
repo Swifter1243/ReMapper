@@ -36,6 +36,7 @@ import { getActiveDifficulty } from '../mod.ts'
 import { DeepReadonly } from '../types/util_types.ts'
 import { arrayDivide, arrayMultiply, vec } from '../utils/mod.ts'
 import { AnimationSettings } from '../animation/anim_optimizer.ts'
+import { AnimatedTransform } from '../types/mod.ts'
 
 let modelToWallCount = 0
 
@@ -86,7 +87,7 @@ export function worldToWall(
  * @param input Can be a path to a model or an array of objects.
  * @param start Wall's lifespan start.
  * @param end Wall's lifespan end.
- * @param wallCall A callback for each wall being spawned.
+ * @param forWall A callback for each wall being spawned.
  * @param distribution Beats to spread spawning of walls out.
  * Animations are adjusted, but keep in mind path animation events for these walls might be messed up.
  */
@@ -94,7 +95,7 @@ export async function modelToWall(
     input: string | ReadonlyModel,
     start: number,
     end: number,
-    wallCall?: (wall: Wall) => void,
+    forWall?: (wall: Wall) => void,
     distribution?: number,
     animationSettings?: AnimationSettings,
 ) {
@@ -226,7 +227,7 @@ export async function modelToWall(
             }
 
             // Run callback
-            if (wallCall) wallCall(o)
+            if (forWall) forWall(o)
 
             // Distribute walls
             if (distribution! > 0 && objects.length > 1) {
@@ -262,4 +263,53 @@ export async function modelToWall(
             o.push(false)
         })
     })
+}
+
+/** Transform a wall given a transform. If animated, it will be baked. */
+export function setWallWorldTransform(
+    wall: Wall,
+    transform: DeepReadonly<AnimatedTransform>,
+    animationSettings = new AnimationSettings(),
+) {
+    const animatedScale = !areKeyframesSimple(transform.scale ?? [1, 1, 1])
+    const animatedRotation = !areKeyframesSimple(transform.position ?? [0, 0, 0])
+    const animatedPosition = !areKeyframesSimple(transform.position ?? [0, 0, 0])
+    const needsBake = animatedRotation || animatedPosition || animatedScale
+
+    if (needsBake) {
+        bakeWallWorldTransform(wall, transform, animationSettings)
+    } else {
+        const wtw = worldToWall(transform as Transform, false)
+
+        wall.size = wtw.scale
+        wall.localRotation = copy(transform.rotation) as Vec3
+        wall.animation.definitePosition = wtw.position
+        wall.coordinates = [0, 0]
+        wall.animation.scale = undefined
+        wall.animation.localRotation = undefined
+    }
+}
+
+/** Bake an animated transform into a wall. */
+export function bakeWallWorldTransform(
+    wall: Wall,
+    transform: DeepReadonly<AnimatedTransform>,
+    animationSettings = new AnimationSettings(),
+) {
+    wall.coordinates = [0, 0]
+    wall.size = [1, 1, 1]
+
+    const anim = bakeAnimation(
+        transform,
+        (k) => {
+            const wtw = worldToWall(k, true)
+            k.position = wtw.position
+            k.scale = wtw.scale
+        },
+        animationSettings,
+    )
+
+    wall.animation.definitePosition = anim.position
+    wall.animation.localRotation = anim.rotation
+    wall.animation.scale = anim.scale
 }

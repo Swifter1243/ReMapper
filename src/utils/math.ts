@@ -507,7 +507,7 @@ export function combineTransforms(
 }
 
 /**
- * Emulate the behavior of a parent track by applying a parent transform to a child transform.
+ * Emulate the behavior of a parent track by applying a parent transform to a child
  * The result is the transform of the child.
  */
 export function emulateParent(

@@ -45,6 +45,7 @@ import {
 import { lerpHSV } from '../data/color.ts'
 import { ModelObject } from '../mod.ts'
 import { AnimationSettings } from './anim_optimizer.ts'
+import { AnimatedTransform } from '../types/data_types.ts'
 
 /**
  * Ensures that this value is in the format of an array of keyframes.
@@ -241,10 +242,12 @@ export function getAnimationDomain(arr: DeepReadonly<RawKeyframesAny>) {
 }
 
 /** Gets the minimum and maximum times of all animations on a model object. */
-export function getAnimatedObjectDomain(animation: DeepReadonly<ModelObject>) {
-    const posDomain = getAnimationDomain(animation.position)
-    const rotDomain = getAnimationDomain(animation.rotation)
-    const scaleDomain = getAnimationDomain(animation.scale)
+export function getAnimatedObjectDomain(
+    animation: DeepReadonly<AnimatedTransform>,
+) {
+    const posDomain = getAnimationDomain(animation.position ?? [0, 0, 0])
+    const rotDomain = getAnimationDomain(animation.rotation ?? [0, 0, 0])
+    const scaleDomain = getAnimationDomain(animation.scale ?? [1, 1, 1])
 
     const totalMin = getAnimationDomain([
         [0, posDomain.min],
@@ -274,7 +277,7 @@ export function getAnimatedObjectDomain(animation: DeepReadonly<ModelObject>) {
  * @param domain Precalculated minimum and maximum times for the animation to be baked.
  */
 export function bakeAnimation(
-    animation: DeepReadonly<ModelObject>,
+    animation: DeepReadonly<AnimatedTransform>,
     forKeyframe?: (transform: TransformKeyframe) => void,
     animationSettings?: AnimationSettings,
     domain?: { min: number; max: number },

@@ -1,6 +1,10 @@
 import { bsmap } from '../deps.ts'
 
-import { activeDifficulty, getActiveDifficulty, settings } from '../data/beatmap_handler.ts'
+import {
+    activeDifficulty,
+    getActiveDifficulty,
+    settings,
+} from '../data/beatmap_handler.ts'
 
 import {
     BaseGameplayObject,
@@ -13,7 +17,10 @@ import { Vec3 } from '../types/data_types.ts'
 import { copy } from '../utils/general.ts'
 import { animationToJson } from './animation.ts'
 import { Fields, SubclassExclusiveProps } from '../types/util_types.ts'
-import { jsonPrune } from "../utils/json.ts";
+import { jsonPrune } from '../utils/json.ts'
+import { setWallWorldTransform } from '../model/mod.ts'
+import { AnimatedTransform } from '../types/data_types.ts'
+import { AnimationSettings } from '../animation/mod.ts'
 
 export class Wall
     extends BaseGameplayObject<bsmap.v2.IObstacle, bsmap.v3.IObstacle> {
@@ -43,6 +50,14 @@ export class Wall
     push(clone = true) {
         getActiveDifficulty().walls.push(clone ? copy(this) : this)
         return this
+    }
+
+    /** Set the transform of this wall in world space. */
+    setWorldTransform(
+        transform: AnimatedTransform,
+        animationSettings = new AnimationSettings(),
+    ) {
+        setWallWorldTransform(this, transform, animationSettings)
     }
 
     get life() {
