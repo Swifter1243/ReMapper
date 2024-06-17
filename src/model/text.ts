@@ -150,8 +150,6 @@ export class Text implements TextInfo {
      * @param wall A callback for each wall being spawned.
      * @param distribution Beats to spread spawning of walls out.
      * Animations are adjusted, but keep in mind path animation events for these walls might be messed up.
-     * @param animFreq The frequency for the animation baking (if using array of objects).
-     * @param animOptimizer The optimizer for the animation baking (if using array of objects).
      */
     toWalls(
         text: string,

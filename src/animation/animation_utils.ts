@@ -293,15 +293,16 @@ export function bakeAnimation(
         rotation: <ComplexKeyframesVec3> [],
         scale: <ComplexKeyframesVec3> [],
     }
+    const invBakeFreq = 1 / animationSettings.bakeFrequency
 
     domain ??= getAnimatedObjectDomain(animation)
-    const totalMin = floorTo(domain.min, animationSettings.bakeFrequency)
-    const totalMax = ceilTo(domain.max, animationSettings.bakeFrequency)
+    const totalMin = floorTo(domain.min, invBakeFreq)
+    const totalMax = ceilTo(domain.max, invBakeFreq)
 
     for (
         let i = totalMin;
         i <= totalMax;
-        i += animationSettings.bakeFrequency
+        i += invBakeFreq
     ) {
         const keyframe = {
             position: getKeyframeValuesAtTime('position', pos, i),
