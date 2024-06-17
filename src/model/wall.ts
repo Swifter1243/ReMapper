@@ -272,8 +272,12 @@ export function setWallWorldTransform(
     animationSettings = new AnimationSettings(),
 ) {
     const animatedScale = !areKeyframesSimple(transform.scale ?? [1, 1, 1])
-    const animatedRotation = !areKeyframesSimple(transform.position ?? [0, 0, 0])
-    const animatedPosition = !areKeyframesSimple(transform.position ?? [0, 0, 0])
+    const animatedRotation = !areKeyframesSimple(
+        transform.position ?? [0, 0, 0],
+    )
+    const animatedPosition = !areKeyframesSimple(
+        transform.position ?? [0, 0, 0],
+    )
     const needsBake = animatedRotation || animatedPosition || animatedScale
 
     if (needsBake) {
@@ -298,6 +302,7 @@ export function bakeWallWorldTransform(
 ) {
     wall.coordinates = [0, 0]
     wall.size = [1, 1, 1]
+    wall.localRotation = [0, 0, 0]
 
     const anim = bakeAnimation(
         transform,
