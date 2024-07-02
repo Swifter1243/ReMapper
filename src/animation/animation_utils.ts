@@ -117,25 +117,26 @@ export function getKeyframeValuesAtTime<
                 timeInfo.normalTime,
             ) as unknown as T
         }
-        if (property === 'color' && rHSVLerp) {
+        else if (property === 'color' && rHSVLerp) {
             return lerpHSV(
                 lValues as Vec4,
                 rValues as Vec4,
                 timeInfo.normalTime,
             ) as unknown as T
         }
-        if (rSpline === 'splineCatmullRom') {
+        else if (rSpline === 'splineCatmullRom') {
             return splineCatmullRomLerp(
                 timeInfo,
                 complexAnimation,
             ) as T
         }
-
-        return arrayLerp(
-            lValues,
-            rValues,
-            timeInfo.normalTime,
-        ) as T
+        else {
+            return arrayLerp(
+                lValues,
+                rValues,
+                timeInfo.normalTime,
+            ) as T
+        }
     }
     return getKeyframeValues(
         timeInfo.l!,
