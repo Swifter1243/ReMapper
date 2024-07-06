@@ -61,7 +61,7 @@ export class Wall
     }
 
     get life() {
-        return this.halfJumpDur * 2 + this.duration
+        return this.halfJumpDuration * 2 + this.duration
     }
     set life(value: number) {
         const life = value - this.duration
@@ -75,10 +75,10 @@ export class Wall
     }
 
     get lifeStart() {
-        return this.beat - this.halfJumpDur
+        return this.beat - this.halfJumpDuration
     }
     set lifeStart(value: number) {
-        this.beat = value + this.halfJumpDur
+        this.beat = value + this.halfJumpDuration
     }
 
     /** The duration of the wall. */

@@ -1,6 +1,6 @@
 import { bsmap } from '../deps.ts'
 
-import { NoteCut, NoteColor } from '../data/constants.ts'
+import { NoteColor, NoteCut } from '../data/constants.ts'
 import { getActiveDifficulty } from '../data/beatmap_handler.ts'
 
 import { getJumps } from '../utils/math.ts'
@@ -26,6 +26,10 @@ import {
 import { TrackValue } from '../types/animation_types.ts'
 import { jsonPrune } from '../mod.ts'
 import { getInfoDat } from '../data/info_file.ts'
+import { getOffsetFromHalfJumpDuration } from '../utils/math.ts'
+import { getOffsetFromJumpDistance } from '../utils/math.ts'
+import { getReactionTime } from '../utils/math.ts'
+import { getOffsetFromReactionTime } from '../utils/math.ts'
 
 /** An internal tool for inverting defined booleans, while ignoring undefined. */
 export function importInvertedBoolean(bool: boolean | undefined) {
@@ -93,8 +97,6 @@ export type ExcludeObjectFields = {
     implicitNoteJumpOffset: never
     isModded: never
     isGameplayModded: never
-    halfJumpDur: never
-    jumpDist: never
 }
 
 export abstract class BaseObject<
@@ -168,9 +170,7 @@ export abstract class BaseGameplayObject<
         this.noteJumpSpeed = obj.noteJumpSpeed
         this.noteJumpOffset = obj.noteJumpOffset
         this.uninteractable = obj.uninteractable
-        this.track = obj.track instanceof Track
-            ? obj.track
-            : new Track(obj.track)
+        this.track = obj.track instanceof Track ? obj.track : new Track(obj.track)
         this.color = obj.color
 
         if (obj.life !== undefined) {
@@ -178,6 +178,15 @@ export abstract class BaseGameplayObject<
         }
         if (obj.lifeStart !== undefined) {
             this.lifeStart = obj.lifeStart
+        }
+        if (obj.reactionTime !== undefined) {
+            this.reactionTime = obj.reactionTime
+        }
+        if (obj.jumpDistance !== undefined) {
+            this.jumpDistance = obj.jumpDistance
+        }
+        if (obj.halfJumpDuration !== undefined) {
+            this.halfJumpDuration = obj.halfJumpDuration
         }
     }
 
@@ -206,7 +215,7 @@ export abstract class BaseGameplayObject<
     /** The animation json on the object. */
     animation: ObjectAnimationData
 
-    /** The speed of this object in units (meters) per second. 
+    /** The speed of this object in units (meters) per second.
      * Refers to the difficulty if undefined. */
     get implicitNoteJumpSpeed() {
         return this.noteJumpSpeed ?? getActiveDifficulty().noteJumpSpeed
@@ -223,31 +232,75 @@ export abstract class BaseGameplayObject<
      * Jump Duration is the time in beats that the object will be jumping for.
      * This function will output half of this, so it will end when the note is supposed to be hit.
      */
-    get halfJumpDur() {
+    get halfJumpDuration() {
         return getJumps(
             this.implicitNoteJumpSpeed,
             this.implicitNoteJumpOffset,
             getInfoDat()._beatsPerMinute,
-        ).halfDur
+        ).halfDuration
+    }
+    set halfJumpDuration(value: number) {
+        this.noteJumpOffset = getOffsetFromHalfJumpDuration(
+            value,
+            this.implicitNoteJumpSpeed,
+            getInfoDat()._beatsPerMinute,
+        )
     }
 
     /**
      * A "jump" is the period when the object "jumps" in (indicated by spawning light on notes) to when it's deleted.
      * Jump Distance is the Z distance from when the object starts it's jump to when it's deleted.
      */
-    get jumpDist() {
+    get jumpDistance() {
         return getJumps(
             this.implicitNoteJumpSpeed,
             this.implicitNoteJumpOffset,
             getInfoDat()._beatsPerMinute,
-        ).dist
+        ).jumpDistance
+    }
+    set jumpDistance(value: number) {
+        this.noteJumpOffset = getOffsetFromJumpDistance(
+            value,
+            this.implicitNoteJumpSpeed,
+            getInfoDat()._beatsPerMinute,
+        )
     }
 
-    /** The total duration of the object in beats. 
+    /** This is the amount of time in milliseconds the player has to react from the object spawning. */
+    get reactionTime() {
+        return getReactionTime(
+            this.implicitNoteJumpSpeed,
+            this.implicitNoteJumpOffset,
+            getInfoDat()._beatsPerMinute,
+        )
+    }
+    set reactionTime(value: number) {
+        this.noteJumpOffset = getOffsetFromReactionTime(
+            value,
+            this.implicitNoteJumpSpeed,
+            getInfoDat()._beatsPerMinute,
+        )
+    }
+
+    /** This is the position the note will spawn in, e.g. when it's "jump" starts.
+     * This is equal to `jumpDistance / 2`
+     */
+    get spawnPositionZ() {
+        return this.jumpDistance / 2
+    }
+
+    /** This is the position the note will despawn, e.g. when it's "jump" ends.
+     * This is equal to `-jumpDistance / 2`
+     */
+    get despawnPositionZ() {
+        return -this.jumpDistance / 2
+    }
+
+    /** The total duration of the object in beats.
      * Calculated based on the beats per minute, and the note jump speed.
      */
     get life() {
-        return this.halfJumpDur * 2
+        return this.halfJumpDuration * 2
     }
     set life(value: number) {
         if (value < 0.25) {
@@ -255,13 +308,16 @@ export abstract class BaseGameplayObject<
                 'Warning: The lifespan of a note has a minimum of 0.25 beats.',
             )
         }
-        const defaultJumps = getJumps(this.implicitNoteJumpSpeed, 0, getInfoDat()._beatsPerMinute)
-        this.noteJumpOffset = (value - 2 * defaultJumps.halfDur) / 2
+        this.noteJumpOffset = getOffsetFromHalfJumpDuration(
+            value / 2,
+            this.implicitNoteJumpSpeed,
+            getInfoDat()._beatsPerMinute
+        )
     }
 
-    /** The time of the start of the object's lifespan. 
+    /** The time of the start of the object's lifespan.
      * Calculated based on the beats per minute, and the note jump speed.
-    */
+     */
     get lifeStart() {
         return this.beat - this.life / 2
     }
@@ -322,7 +378,7 @@ export abstract class BaseGameplayObject<
                 color: getCDProp(obj, '_color') as ColorVec,
                 coordinates: getCDProp(obj, '_position'),
                 uninteractable: importInvertedBoolean(
-                    getCDProp(obj, '_interactable')
+                    getCDProp(obj, '_interactable'),
                 ),
                 localRotation: getCDProp(obj, '_localRotation'),
                 worldRotation: typeof obj._customData?._rotation === 'number'
@@ -420,7 +476,7 @@ export abstract class BaseNote<
                 disableNoteLook: getCDProp(obj, 'disableNoteLook'),
                 disableNoteGravity: getCDProp(obj, 'disableNoteGravity'),
                 disableSpawnEffect: importInvertedBoolean(
-                        getCDProp(obj, 'spawnEffect')
+                    getCDProp(obj, 'spawnEffect'),
                 ),
                 disableDebris: getCDProp(obj, 'disableDebris'),
                 // TODO: Badcut on bombs is incorrect.

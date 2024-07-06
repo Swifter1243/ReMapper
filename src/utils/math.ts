@@ -10,12 +10,7 @@ import {
     arraySubtract,
     threeClassToArray,
 } from './array_utils.ts'
-import {
-    AnimatedTransform,
-    Bounds,
-    Transform,
-    Vec3,
-} from '../types/data_types.ts'
+import { AnimatedTransform, Bounds, Transform, Vec3 } from '../types/data_types.ts'
 import { copy } from './general.ts'
 import { DeepReadonly } from '../types/util_types.ts'
 import { ModelObject } from '../mod.ts'
@@ -35,9 +30,9 @@ export const EPSILON = 1e-3
 
 /** Determines if a number is `-0` (yes that can happen) */
 export function isNegativeZero(n: number) {
-    const isZero = n === 0;
-    const isNegative = 1 / n === -Infinity;
-    return isNegative && isZero;
+    const isZero = n === 0
+    const isNegative = 1 / n === -Infinity
+    return isNegative && isZero
 }
 
 /**
@@ -115,7 +110,7 @@ export function eulerFromQuaternion(q: three.Quaternion) {
     let euler = new three.Euler(0, 0, 0, 'YXZ').setFromQuaternion(q)
         .toArray() as number[]
     euler.pop()
-    euler = euler.map(x => isNegativeZero(x) ? 0 : x)
+    euler = euler.map((x) => isNegativeZero(x) ? 0 : x)
     euler = toDegrees(euler)
     return euler as Vec3
 }
@@ -205,24 +200,21 @@ export function positiveMod(a: number, b: number) {
  * @param input Number to round.
  * @param step Number to round to.
  */
-export const round = (input: number, step: number) =>
-    Math.round(input / step) * step
+export const round = (input: number, step: number) => Math.round(input / step) * step
 
 /**
  * Floors a number to the nearest multiple of another number.
  * @param input Number to floor.
  * @param step Number to floor to.
  */
-export const floorTo = (input: number, step: number) =>
-    Math.floor(input / step) * step
+export const floorTo = (input: number, step: number) => Math.floor(input / step) * step
 
 /**
  * Ceils a number to the nearest multiple of another number.
  * @param input Number to ceil.
  * @param step Number to ceil to.
  */
-export const ceilTo = (input: number, step: number) =>
-    Math.ceil(input / step) * step
+export const ceilTo = (input: number, step: number) => Math.ceil(input / step) * step
 
 /**
  * Makes a number fit between a min and max value.
@@ -377,8 +369,7 @@ export const toThreeVec3 = (v: Readonly<Vec3>) => new three.Vector3(...v)
  * Converts a three number array to three Euler.
  * @param v Array to convert.
  */
-export const toThreeEuler = (v: Readonly<Vec3>) =>
-    new three.Euler(...toRadians(v as Vec3), 'YXZ')
+export const toThreeEuler = (v: Readonly<Vec3>) => new three.Euler(...toRadians(v as Vec3), 'YXZ')
 
 /**
  * Converts a three number array to three Quaternion.
@@ -514,7 +505,7 @@ export function emulateParent(
     child: DeepReadonly<AnimatedTransform>,
     parent: DeepReadonly<AnimatedTransform>,
     anchor: Readonly<Vec3> = [0, 0, 0],
-    animationSettings?: AnimationSettings
+    animationSettings?: AnimationSettings,
 ): FullAnimatedTransform {
     animationSettings ??= new AnimationSettings()
 
@@ -716,12 +707,8 @@ export function getBoxBounds(
         })
     })
 
-    const scale = (lowBound as Vec3).map((x, i) =>
-        Math.abs(x - (highBound as Vec3)[i])
-    ) as Vec3
-    const midPoint = (lowBound as Vec3).map((x, i) =>
-        lerp(x, (highBound as Vec3)[i], 0.5)
-    ) as Vec3
+    const scale = (lowBound as Vec3).map((x, i) => Math.abs(x - (highBound as Vec3)[i])) as Vec3
+    const midPoint = (lowBound as Vec3).map((x, i) => lerp(x, (highBound as Vec3)[i], 0.5)) as Vec3
 
     return {
         lowBound: lowBound as Vec3,
@@ -735,8 +722,7 @@ export function getBoxBounds(
  * Get the amount of seconds in the script.
  * @param decimals Amount of decimals in returned number.
  */
-export const getRuntimeSeconds = (decimals = 2) =>
-    setDecimals(performance.now() / 1000, decimals)
+export const getRuntimeSeconds = (decimals = 2) => setDecimals(performance.now() / 1000, decimals)
 
 /**
  * Get jump related info.
@@ -758,18 +744,81 @@ export function getJumps(
     const maxHJD = 18 - 0.001
     const oneBeatDur = 60 / beatsPerMinute
 
-    let halfDur = startHJD
+    let halfDuration = startHJD
     const num2 = noteJumpSpeed * oneBeatDur
-    let num3 = num2 * halfDur
+    let num3 = num2 * halfDuration
     while (num3 > maxHJD) {
-        halfDur /= 2
-        num3 = num2 * halfDur
+        halfDuration /= 2
+        num3 = num2 * halfDuration
     }
-    halfDur += noteJumpOffset
-    if (halfDur < 0.25) halfDur = 0.25
+    halfDuration += noteJumpOffset
+    if (halfDuration < 0.25) halfDuration = 0.25
 
-    const jumpDur = halfDur * 2 * oneBeatDur
-    const jumpDist = noteJumpSpeed * jumpDur
+    const jumpDuration = halfDuration * 2 * oneBeatDur
+    const jumpDistance = noteJumpSpeed * jumpDuration
 
-    return { halfDur: halfDur, dist: jumpDist }
+    return { halfDuration, jumpDistance }
+}
+
+/** Get the reaction time in milliseconds the player will have for an object from it's spawn. */
+export function getReactionTime(
+    noteJumpSpeed: number,
+    noteJumpOffset: number,
+    beatsPerMinute: number,
+) {
+    const halfJumpDuration = getJumps(noteJumpSpeed, noteJumpOffset, beatsPerMinute).halfDuration
+    const beatms = 60000 / beatsPerMinute
+    const reactionTime = beatms * halfJumpDuration
+    return reactionTime;
+}
+
+/** Convert seconds to beats given a bpm. Doesn't account for bpm changes. */
+export function rawSecondsToBeats(seconds: number, bpm: number) {
+    return seconds * (bpm / 60)
+}
+
+/** Convert beats to seconds given a bpm. Doesn't account for bpm changes. */
+export function rawBeatsToSeconds(beats: number, bpm: number) {
+    return beats * (60 / bpm)
+}
+
+/** Get the offset required to generate a given reaction time in milliseconds. */
+export function getOffsetFromReactionTime(
+    reactionTime: number,
+    noteJumpSpeed: number,
+    beatsPerMinute: number,
+) {
+    const hjdAfterOffset = Math.max(0.25, reactionTime / (60000 / beatsPerMinute))
+    return songBeatOffset(hjdAfterOffset, noteJumpSpeed, beatsPerMinute)
+}
+
+/** Get the offset required to generate a given jump distance. */
+export function getOffsetFromJumpDistance(
+    jumpDistance: number,
+    noteJumpSpeed: number,
+    beatsPerMinute: number,
+) {
+    const seconds = rawBeatsToSeconds(noteJumpSpeed * 2, beatsPerMinute)
+    const hjdAfterOffset = Math.max(0.25, jumpDistance / seconds)
+    return songBeatOffset(hjdAfterOffset, noteJumpSpeed, beatsPerMinute)
+}
+
+/** Get the offset required to get a given half jump duration. */
+export function getOffsetFromHalfJumpDuration(
+    halfJumpDuration: number,
+    noteJumpSpeed: number,
+    beatsPerMinute: number,
+) {
+    const hjdAfterOffset = Math.max(0.25, halfJumpDuration)
+    return songBeatOffset(hjdAfterOffset, noteJumpSpeed, beatsPerMinute)
+}
+
+// idk what this does??? https://github.com/Caeden117/ChroMapper/blob/5167402385181379629dd4a516aaea914cbe7a93/Assets/__Scripts/UI/SongEditMenu/DifficultyInfo.cs#L79-L87
+function songBeatOffset(
+    hjdAfterOffset: number,
+    noteJumpSpeed: number,
+    beatsPerMinute: number,
+) {
+    const hjdBeforeOffset = getJumps(noteJumpSpeed, 0, beatsPerMinute).halfDuration
+    return hjdAfterOffset - hjdBeforeOffset
 }

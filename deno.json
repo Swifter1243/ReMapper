@@ -8,6 +8,7 @@
         "options": {
             "indentWidth": 4,
             "singleQuote": true,
+            "lineWidth": 100,
             "proseWrap": "preserve",
             "semiColons": false
         }
