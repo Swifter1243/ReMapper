@@ -1,7 +1,6 @@
 {
     "compilerOptions": {
         "strict": true,
-        "allowImportingTsExtensions": true,
         "sourceMap": true,
         "resolveJsonModule": true
     }
