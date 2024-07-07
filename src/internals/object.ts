@@ -282,18 +282,14 @@ export abstract class BaseGameplayObject<
         )
     }
 
-    /** This is the position the note will spawn in, e.g. when it's "jump" starts.
-     * This is equal to `jumpDistance / 2`
-     */
+    /** This is the position the note will spawn in, e.g. when it's "jump" starts. */
     get spawnPositionZ() {
-        return this.jumpDistance / 2
+        return this.jumpDistance / 2 + 1
     }
 
-    /** This is the position the note will despawn, e.g. when it's "jump" ends.
-     * This is equal to `-jumpDistance / 2`
-     */
+    /** This is the position the note will despawn, e.g. when it's "jump" ends. */
     get despawnPositionZ() {
-        return -this.jumpDistance / 2
+        return this.jumpDistance * -0.25 + 1
     }
 
     /** The total duration of the object in beats.
@@ -311,7 +307,7 @@ export abstract class BaseGameplayObject<
         this.noteJumpOffset = getOffsetFromHalfJumpDuration(
             value / 2,
             this.implicitNoteJumpSpeed,
-            getInfoDat()._beatsPerMinute
+            getInfoDat()._beatsPerMinute,
         )
     }
 
