@@ -41,7 +41,10 @@ export class Text implements TextInfo {
     /** The model data of the text. */
     model: ReadonlyText = []
     /** The height of the text model. Generated from input. */
-    modelHeight = 0
+    get modelHeight() {
+        return this._modelHeight
+    }
+    private _modelHeight = 0
 
     /**
      * An interface to generate objects from text.
@@ -51,7 +54,7 @@ export class Text implements TextInfo {
     constructor(input: ReadonlyText) {
         this.model = input
         const bounds = getBoxBounds(input as TextObject[])
-        this.modelHeight = bounds.highBound[1]
+        this._modelHeight = bounds.highBound[1]
     }
 
     /**
