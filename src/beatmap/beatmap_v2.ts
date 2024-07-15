@@ -149,12 +149,19 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
             event.ringSpin({}).fromJson(o as bsmap.v2.IEventRing, false)
         )
 
-        const rotationEvents = rotationEventsFilter.success.map((o) =>
-            event.lateRotation({}).fromJson(
-                o as bsmap.v2.IEventLaneRotation,
-                false,
-            )
-        )
+        const rotationEvents = rotationEventsFilter.success.map((o) => {
+            if (o._type === EventGroup.EARLY_ROTATION) {
+                return event.earlyRotation({}).fromJson(
+                    o as bsmap.v2.IEventLaneRotation,
+                    false,
+                )
+            } else {
+                return event.lateRotation({}).fromJson(
+                    o as bsmap.v2.IEventLaneRotation,
+                    false,
+                )
+            }
+        })
 
         const boostEvents = boostEventsFilter.success.map((o) =>
             event.boost({}).fromJson(o, false)
