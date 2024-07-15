@@ -222,11 +222,17 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
             throw `"rotationEvents" does not exist in the beatmap!`
         }
         const rotationEvents = [
-            ...rotationEventsFilter.success.map((o) =>
-                event.lateRotation({}).fromBasicEvent(
-                    o as bsmap.v3.IBasicEventLaneRotation,
-                )
-            ),
+            ...rotationEventsFilter.success.map((o) => {
+                if (o.et === EventGroup.EARLY_ROTATION) {
+                    return event.earlyRotation({}).fromBasicEvent(
+                        o as bsmap.v3.IBasicEventLaneRotation,
+                    )
+                } else {
+                    return event.lateRotation({}).fromBasicEvent(
+                        o as bsmap.v3.IBasicEventLaneRotation,
+                    )
+                }
+            }),
             ...json.rotationEvents.map((o) =>
                 event.lateRotation({}).fromJson(o, true)
             ),
