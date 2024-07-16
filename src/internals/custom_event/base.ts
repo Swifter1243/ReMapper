@@ -113,7 +113,7 @@ export abstract class BaseCustomEvent<
 
             const params = {
                 beat: obj.b ?? 0,
-                data: obj.d as unknown as TJson,
+                data: obj.d,
             } as Params
 
             Object.assign(this, params)
@@ -122,7 +122,7 @@ export abstract class BaseCustomEvent<
 
             const params = {
                 beat: obj._time ?? 0,
-                data: obj._type as unknown as TJson,
+                data: obj._data as unknown as TJson,
             } as Params
 
             Object.assign(this, params)
