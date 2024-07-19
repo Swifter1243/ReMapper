@@ -31,7 +31,7 @@ import {
 } from './lighting_v3.ts'
 import { CustomEventInternals } from '../mod.ts'
 import {
-    assignTrackPrefab,
+    assignTrackNote,
     blit,
     declareCullingTexture,
     declareRenderTexture,
@@ -378,7 +378,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         extractCustomEvents(destroyPrefab, 'destroyPrefabEvents')
         extractCustomEvents(setAnimatorProperty, 'setAnimatorPropertyEvents')
         extractCustomEvents(setCameraProperty, 'setCameraPropertyEvents')
-        extractCustomEvents(assignTrackPrefab, 'assignTrackPrefabEvents')
+        extractCustomEvents(assignTrackNote, 'assignTrackPrefabEvents')
         extractCustomEvents(setRenderSetting, 'setRenderSettingEvents')
 
         diffCustomEvents.abstractCustomEvents = customEvents.map((x) =>

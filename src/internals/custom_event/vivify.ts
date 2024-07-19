@@ -885,12 +885,15 @@ export class AssignTrackPrefab extends BaseCustomEvent<
         this.type = 'AssignTrackPrefab'
         this.track = params.track ?? ''
         this.note = params.note
+        this.debris = params.debris
     }
 
     /** Only objects on this track will be affected. */
     track: string
     /** File path to the desired prefab to replace notes. */
     note?: string
+    /** File path to the desired prefab to replace debris. */
+    debris?: string
 
     push(clone = true) {
         getActiveDifficulty().customEvents.assignTrackPrefabEvents.push(
@@ -915,6 +918,7 @@ export class AssignTrackPrefab extends BaseCustomEvent<
 
         const params = {
             note: getDataProp(obj.d, 'note'),
+            debris: getDataProp(obj.d, 'debris'),
             track: getDataProp(obj.d, 'track'),
         } as Params
 
@@ -937,7 +941,8 @@ export class AssignTrackPrefab extends BaseCustomEvent<
         const output = {
             b: this.beat,
             d: {
-                note: this.note ?? '',
+                note: this.note,
+                debris: this.debris,
                 track: this.track,
                 ...this.data,
             },

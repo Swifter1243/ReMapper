@@ -1,5 +1,6 @@
+import { assignTrackDebris } from '../beatmap/custom_event.ts'
 import { destroyPrefab, instantiatePrefab, setMaterialProperty } from '../beatmap/custom_event.ts'
-import { assignTrackPrefab, blit } from '../beatmap/mod.ts'
+import { assignTrackNote, blit } from '../beatmap/mod.ts'
 import { CustomEventInternals } from '../internals/mod.ts'
 import { EASE, RuntimePointDefinitionLinear } from '../types/animation_types.ts'
 import { RuntimePointDefinitionVec4 } from '../types/animation_types.ts'
@@ -27,12 +28,12 @@ type AssetMap = {
 type FixedMaterialMap<BaseMaterial extends MaterialMap[string]> = {
     path: string
     properties: {
-        [MaterialProperty in keyof BaseMaterial['properties']]:
-            BaseMaterial['properties'][MaterialProperty] extends Record<string, unknown> ? Extract<
-                    keyof BaseMaterial['properties'][MaterialProperty],
-                    MATERIAL_PROP_TYPE
-                >
-                : never
+        [MaterialProperty in keyof BaseMaterial['properties']]: BaseMaterial['properties'][MaterialProperty] extends
+            Record<string, unknown> ? Extract<
+                keyof BaseMaterial['properties'][MaterialProperty],
+                MATERIAL_PROP_TYPE
+            >
+            : never
     }
 }
 
@@ -72,12 +73,21 @@ export class Prefab {
         return new PrefabInstance(id, instantiation)
     }
 
-    /** Create an event to assign this prefab to a note. */
+    /** Create an event to assign this prefab to notes. */
     assignToNote(track: string, beat = 0) {
-        assignTrackPrefab({
+        assignTrackNote({
             beat,
             track,
             note: this.path,
+        }).push()
+    }
+
+    /** Create an event to assign this prefab to debris. */
+    assignToDebris(track: string, beat = 0) {
+        assignTrackDebris({
+            beat,
+            track,
+            debris: this.path,
         }).push()
     }
 }

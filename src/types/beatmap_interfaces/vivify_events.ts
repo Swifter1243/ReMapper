@@ -125,14 +125,18 @@ export interface SetCameraProperty {
     }
 }
 
+export type AssignTrackPrefabOptions = {
+    note?: string,
+    debris?: string
+}
+
 /** JSON data for AssignTrackPrefab events */
 export interface AssignTrackPrefab {
     b: number
     t: 'AssignTrackPrefab'
     d: {
         track: string
-        note: string
-    }
+    } & AssignTrackPrefabOptions
 }
 
 /** JSON data for SetRenderSetting events */

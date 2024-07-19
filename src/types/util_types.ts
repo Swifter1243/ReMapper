@@ -40,12 +40,9 @@ export type FilterTypes<T, U> = Pick<
  * @typeparam T - The input type.
  * @typeparam U - The type to exclude.
  */
-export type ExcludeTypes<T, U> = Pick<
-    T,
-    {
-        [K in keyof T]: T[K] extends U ? never : K
-    }[keyof T]
->
+export type ExcludeTypes<T, U> = {
+    [K in keyof T as K extends keyof U ? never : K]: T[K];
+};
 
 // deno-lint-ignore ban-types
 type ExcludeFunctionPropertyNames<T> = ExcludeTypes<T, Function>
