@@ -1,9 +1,7 @@
 import { bsmap } from '../deps.ts'
 import * as CustomEventInternals from '../internals/custom_event/mod.ts'
 import { EASE, TrackValue } from '../types/animation_types.ts'
-import { AssignTrackPrefabOptions } from '../types/beatmap_interfaces/vivify_events.ts'
 import { FILEPATH } from '../types/beatmap_types.ts'
-import { ExcludeTypes } from '../types/mod.ts'
 import { TJson } from '../types/util_types.ts'
 import { AnimatorProperty, DEPTH_TEX_MODE, MaterialProperty, RENDER_SETTING } from '../types/vivify_types.ts'
 
@@ -586,75 +584,6 @@ export function assignTrackPrefab(...params: ConstructorParameters<typeof Custom
         ...params as ConstructorParameters<
             typeof CustomEventInternals.AssignTrackPrefab
         >,
-    )
-}
-
-type AssignTrackPrefabConstructor<T extends keyof AssignTrackPrefabOptions> = [
-    ExcludeTypes<
-        ConstructorParameters<typeof CustomEventInternals.AssignTrackPrefab>[0],
-        Omit<AssignTrackPrefabOptions, T>
-    >,
-]
-
-/** Replaces all objects on the track with the assigned prefab.
- * @note File path to the desired prefab to replace notes.
- */
-export function assignTrackNote(
-    ...params:
-        | AssignTrackPrefabConstructor<'note'>
-        | [
-            beat: number,
-            track: string,
-            note: string,
-        ]
-) {
-    if (typeof params[0] === 'object') {
-        return new CustomEventInternals.AssignTrackPrefab(
-            ...params as ConstructorParameters<
-                typeof CustomEventInternals.AssignTrackPrefab
-            >,
-        )
-    }
-
-    const [beat, track, note] = params
-
-    return new CustomEventInternals.AssignTrackPrefab(
-        {
-            beat,
-            track,
-            note,
-        },
-    )
-}
-
-/** Replaces all objects on the track with the assigned prefab.
- * @debris File path to the desired prefab to replace debris.
- */
-export function assignTrackDebris(
-    ...params:
-        | AssignTrackPrefabConstructor<'debris'>
-        | [
-            beat: number,
-            track: string,
-            debris: string,
-        ]
-) {
-    if (typeof params[0] === 'object') {
-        return new CustomEventInternals.AssignTrackPrefab(
-            ...params as ConstructorParameters<
-                typeof CustomEventInternals.AssignTrackPrefab
-            >,
-        )
-    }
-
-    const [beat, track, debris] = params
-
-    return new CustomEventInternals.AssignTrackPrefab(
-        {
-            beat,
-            track,
-            debris,
-        },
     )
 }
 

@@ -884,16 +884,31 @@ export class AssignTrackPrefab extends BaseCustomEvent<
         super(params)
         this.type = 'AssignTrackPrefab'
         this.track = params.track ?? ''
-        this.note = params.note
-        this.debris = params.debris
+        this.colorNotes = params.colorNotes
+        this.bombNotes = params.bombNotes
+        this.chainHeads = params.chainHeads
+        this.chainLinks = params.chainLinks
+        this.colorNoteDebris = params.colorNoteDebris
+        this.chainHeadDebris = params.chainHeadDebris
+        this.chainLinkDebris = params.chainLinkDebris
     }
 
     /** Only objects on this track will be affected. */
     track: string
-    /** File path to the desired prefab to replace notes. */
-    note?: string
-    /** File path to the desired prefab to replace debris. */
-    debris?: string
+    /** File path to the desired prefab to replace color notes. */
+    colorNotes?: string
+    /** File path to the desired prefab to replace bombs. */
+    bombNotes?: string
+    /** File path to the desired prefab to replace chain heads. */
+    chainHeads?: string
+    /** File path to the desired prefab to replace chain links. */
+    chainLinks?: string
+    /** File path to the desired prefab to replace color note debris. */
+    colorNoteDebris?: string
+    /** File path to the desired prefab to replace chain head debris. */
+    chainHeadDebris?: string
+    /** File path to the desired prefab to replace chain link debris. */
+    chainLinkDebris?: string
 
     push(clone = true) {
         getActiveDifficulty().customEvents.assignTrackPrefabEvents.push(
@@ -917,9 +932,14 @@ export class AssignTrackPrefab extends BaseCustomEvent<
         const obj = json as BeatmapInterfaces.AssignTrackPrefab
 
         const params = {
-            note: getDataProp(obj.d, 'note'),
-            debris: getDataProp(obj.d, 'debris'),
             track: getDataProp(obj.d, 'track'),
+            colorNotes: getDataProp(obj.d, 'colorNotes'),
+            colorNoteDebris: getDataProp(obj.d, 'colorNoteDebris'),
+            chainHeadDebris: getDataProp(obj.d, 'burstSliderDebris'),
+            chainLinkDebris: getDataProp(obj.d, 'burstSliderElementDebris'),
+            chainLinks: getDataProp(obj.d, 'burstSliderElements'),
+            chainHeads: getDataProp(obj.d, 'burstSliders'),
+            bombNotes: getDataProp(obj.d, 'bombNotes')
         } as Params
 
         Object.assign(this, params)
@@ -941,9 +961,14 @@ export class AssignTrackPrefab extends BaseCustomEvent<
         const output = {
             b: this.beat,
             d: {
-                note: this.note,
-                debris: this.debris,
                 track: this.track,
+                colorNoteDebris: this.colorNoteDebris,
+                colorNotes: this.colorNotes,
+                burstSliderDebris: this.chainHeadDebris,
+                burstSliders: this.chainHeads,
+                burstSliderElements: this.chainLinks,
+                burstSliderElementDebris: this.chainLinkDebris,
+                bombNotes: this.bombNotes,
                 ...this.data,
             },
             t: 'AssignTrackPrefab',
