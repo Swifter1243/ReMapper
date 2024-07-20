@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-explicit-any
 import { bsmap } from '../deps.ts'
-import { TJson } from '../types/util_types.ts'
+import { TJson } from '../types/util.ts'
 
 /**
  * Checks if an object is empty.

@@ -1,7 +1,7 @@
-import { three } from '../deps.ts'
-import { lerp } from './math.ts'
-import { Vec3 } from '../types/data_types.ts'
-import { EASE } from '../types/animation_types.ts'
+import {three} from '../deps.ts'
+import {lerp} from './math.ts'
+import {Vec3} from '../types/data.ts'
+import {EASE} from '../types/animation.ts'
 
 /** Splits an array into a success array and failure array based on a filter.
  * ```ts
@@ -218,3 +218,14 @@ export const fillArrayWithValues = (start: number, end: number) =>
  */
 export const threeClassToArray = (v: three.Vector3 | three.Euler) =>
     [v.x, v.y, v.z] as Vec3
+
+export function findIndexLastFirst<T extends unknown>(
+    arr: readonly T[],
+    predicate: (obj: T) => boolean,
+) {
+    for (let i = arr.length - 1; i >= 0; i--) {
+        if (predicate(arr[i])) return i
+    }
+
+    return -1
+}

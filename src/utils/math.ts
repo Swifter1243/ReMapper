@@ -1,7 +1,7 @@
 // deno-lint-ignore-file
 import { three } from '../deps.ts'
 import * as easings from '../data/easings.ts'
-import { EASE } from '../types/animation_types.ts'
+import { EASE } from '../types/animation.ts'
 
 import {
     arrayAdd,
@@ -10,9 +10,9 @@ import {
     arraySubtract,
     threeClassToArray,
 } from './array_utils.ts'
-import { AnimatedTransform, Bounds, Transform, Vec3 } from '../types/data_types.ts'
+import { AnimatedTransform, Bounds, Transform, Vec3 } from '../types/data.ts'
 import { copy } from './general.ts'
-import { DeepReadonly } from '../types/util_types.ts'
+import { DeepReadonly } from '../types/util.ts'
 import { ModelObject } from '../mod.ts'
 import { areKeyframesSimple } from '../animation/keyframe.ts'
 import { bakeAnimation } from '../animation/animation_utils.ts'
@@ -22,8 +22,8 @@ import { iterateKeyframes, OptimizeSettings } from '../animation/mod.ts'
 import { getKeyframeValuesAtTime } from '../animation/mod.ts'
 import { complexifyKeyframes } from '../animation/animation_utils.ts'
 import { getAnimatedObjectDomain } from '../animation/animation_utils.ts'
-import { Mutable } from '../types/util_types.ts'
-import { DeepMutable } from '../types/util_types.ts'
+import { Mutable } from '../types/util.ts'
+import { DeepMutable } from '../types/util.ts'
 import { AnimationSettings } from '../animation/anim_optimizer.ts'
 
 export const EPSILON = 1e-3

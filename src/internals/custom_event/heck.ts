@@ -1,10 +1,10 @@
 import { Track } from '../../animation/track.ts'
 import { getActiveDifficulty } from '../../data/beatmap_handler.ts'
 import { bsmap } from '../../deps.ts'
-import { EASE } from '../../types/animation_types.ts'
+import { EASE } from '../../types/animation.ts'
 import { copy } from '../../utils/general.ts'
 import { jsonPrune } from '../../utils/json.ts'
-import { AnimationPropertiesV3, animationToJson } from '../animation.ts'
+import { AnimationPropertiesV3, animationToJson } from '../../data/animation.ts'
 import {
     BaseCustomEvent,
     CustomEventConstructorTrack,

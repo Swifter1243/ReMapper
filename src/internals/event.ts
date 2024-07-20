@@ -9,7 +9,7 @@ import {
     JsonWrapper,
     RotationAction,
 } from '../mod.ts'
-import { ObjectFields, SubclassExclusiveProps } from '../types/util_types.ts'
+import { ObjectFields, SubclassExclusiveProps } from '../types/util.ts'
 import { BaseObject, getCDProp } from './object.ts'
 
 interface ConvertableEvent {

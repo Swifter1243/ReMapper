@@ -1,6 +1,6 @@
 import { Track } from '../../animation/track.ts'
 import { getActiveDifficulty } from '../../data/beatmap_handler.ts'
-import { EASE, TrackValue } from '../../types/animation_types.ts'
+import { EASE, TrackValue } from '../../types/animation.ts'
 import {
     BeatmapInterfaces,
     COLOR_FORMAT,
@@ -8,7 +8,7 @@ import {
     TEX_FILTER_MODE,
     Vec3,
 } from '../../types/mod.ts'
-import { MaterialProperty, RENDER_SETTING } from '../../types/vivify_types.ts'
+import { MaterialProperty, RENDER_SETTING } from '../../types/vivify.ts'
 import { copy } from '../../utils/general.ts'
 import { jsonPrune } from '../../utils/json.ts'
 import {

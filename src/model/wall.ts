@@ -5,7 +5,7 @@ import {
     RawKeyframesAny,
     RuntimeComplexKeyframesAny,
     RuntimeRawKeyframesVec3,
-} from '../types/animation_types.ts'
+} from '../types/animation.ts'
 
 import { arrayAdd } from '../utils/array_utils.ts'
 import { rotatePoint } from '../utils/math.ts'
@@ -20,23 +20,23 @@ import {
     complexifyKeyframes,
 } from '../animation/animation_utils.ts'
 
-import { wall } from '../beatmap/wall.ts'
-import { Wall } from '../internals/wall.ts'
+import { wall } from '../builder_functions/gameplay_object/wall.ts'
+import { Wall } from '../internals/gameplay_object/wall.ts'
 
 import { getModel } from './model.ts'
-import { ModelObject, ReadonlyModel } from '../types/model_types.ts'
-import { ColorVec, Transform, Vec3 } from '../types/data_types.ts'
+import { ModelObject, ReadonlyModel } from '../types/model.ts'
+import { ColorVec, Transform, Vec3 } from '../types/data.ts'
 import { copy } from '../utils/general.ts'
 import {
     areKeyframesSimple,
-    getKeyframeTime,
-    getKeyframeTimeIndex,
+
 } from '../animation/keyframe.ts'
 import { getActiveDifficulty } from '../mod.ts'
-import { DeepReadonly } from '../types/util_types.ts'
+import { DeepReadonly } from '../types/util.ts'
 import { arrayDivide, arrayMultiply, vec } from '../utils/mod.ts'
 import { AnimationSettings } from '../animation/anim_optimizer.ts'
 import { AnimatedTransform } from '../types/mod.ts'
+import {getKeyframeTime, getKeyframeTimeIndex} from "../animation/keyframe_get.ts";
 
 let modelToWallCount = 0
 

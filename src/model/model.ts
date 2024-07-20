@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-explicit-any
-import { RawKeyframesVec3 } from '../types/animation_types.ts'
-import { RawGeometryMaterial } from '../types/environment_types.ts'
+import { RawKeyframesVec3 } from '../types/animation.ts'
+import { RawGeometryMaterial } from '../types/environment.ts'
 import { getActiveDifficulty } from '../data/beatmap_handler.ts'
 import {
     AnimatedObjectInput,
@@ -12,7 +12,7 @@ import {
     ReadonlyModel,
     SceneSwitch,
     StaticObjectInput,
-} from '../types/model_types.ts'
+} from '../types/model.ts'
 
 import { arrayAdd } from '../utils/array_utils.ts'
 import { combineTransforms, rotatePoint } from '../utils/math.ts'
@@ -21,9 +21,6 @@ import { cacheData, parseFilePath } from '../general.ts'
 
 import * as CustomEventInternals from '../internals/custom_event/mod.ts'
 
-import { animateTrack } from '../beatmap/custom_event.ts'
-import { backLasers } from '../beatmap/basic_event.ts'
-
 import { optimizeKeyframes } from '../animation/anim_optimizer.ts'
 import {
     bakeAnimation,
@@ -31,21 +28,24 @@ import {
     iterateKeyframes,
     mirrorAnimation,
 } from '../animation/animation_utils.ts'
-import { FILEPATH } from '../types/beatmap_types.ts'
-import { ColorVec, TransformKeyframe, Vec3, Vec4 } from '../types/data_types.ts'
+import { FILEPATH } from '../types/beatmap.ts'
+import { ColorVec, TransformKeyframe, Vec3, Vec4 } from '../types/data.ts'
 import { copy } from '../utils/general.ts'
-import { Environment, Geometry } from '../internals/environment.ts'
+import { Environment } from '../internals/environment/environment.ts'
 import {
-    adjustFog,
     attachWorkingDirectory,
     DeepReadonly,
-    environment,
-    geometry,
     positionUnityToNoodle,
     SceneObjectInfo,
 } from '../mod.ts'
-import { RuntimeRawKeyframesVec3 } from '../types/animation_types.ts'
+import { RuntimeRawKeyframesVec3 } from '../types/animation.ts'
 import { AnimationSettings } from '../animation/anim_optimizer.ts'
+import {animateTrack} from "../builder_functions/custom_event/heck.ts";
+import {Geometry} from "../internals/environment/geometry.ts";
+import {backLasers} from "../builder_functions/basic_event/light_event.ts";
+import {adjustFog} from "../builder_functions/environment/fog.ts";
+import {environment} from "../builder_functions/environment/environment.ts";
+import {geometry} from "../builder_functions/environment/geometry.ts";
 
 let modelSceneCount = 0
 let noYeet = true

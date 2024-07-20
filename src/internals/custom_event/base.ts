@@ -5,12 +5,12 @@ import {
     getActiveDifficulty,
     jsonPrune,
 } from '../../mod.ts'
-import { JsonWrapper } from '../../types/beatmap_types.ts'
+import { JsonWrapper } from '../../types/beatmap.ts'
 import {
     Fields,
     SubclassExclusiveProps,
     TJson,
-} from '../../types/util_types.ts'
+} from '../../types/util.ts'
 import { ExcludedObjectFields, ObjectReplacements } from '../object.ts'
 
 export type CustomEventExclusions = {

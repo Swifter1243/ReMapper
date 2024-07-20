@@ -9,7 +9,7 @@ import {
     RawKeyframesAbstract,
     RawKeyframesAny,
     RuntimePointDefinitionAny,
-} from '../types/animation_types.ts'
+} from '../types/animation.ts'
 
 import {
     arrayAdd,
@@ -28,24 +28,26 @@ import {
 } from '../utils/math.ts'
 import { optimizeKeyframes } from './anim_optimizer.ts'
 
-import { DeepReadonly, NumberTuple } from '../types/util_types.ts'
-import { TransformKeyframe, Vec3, Vec4 } from '../types/data_types.ts'
+import { DeepReadonly, NumberTuple } from '../types/util.ts'
+import { TransformKeyframe, Vec3, Vec4 } from '../types/data.ts'
 import { copy } from '../utils/general.ts'
 import {
     areKeyframesSimple,
-    getKeyframeEasing,
-    getKeyframeFlagIndex,
-    getKeyframeHSVLerp,
-    getKeyframeSpline,
-    getKeyframeTime,
-    getKeyframeTimeIndex,
-    getKeyframeValues,
-    setKeyframeEasing,
+
 } from './keyframe.ts'
 import { lerpHSV } from '../data/color.ts'
 import { ModelObject } from '../mod.ts'
 import { AnimationSettings } from './anim_optimizer.ts'
-import { AnimatedTransform } from '../types/data_types.ts'
+import { AnimatedTransform } from '../types/data.ts'
+import {
+    getKeyframeEasing,
+    getKeyframeFlagIndex,
+    getKeyframeHSVLerp, getKeyframeSpline,
+    getKeyframeTime,
+    getKeyframeTimeIndex,
+    getKeyframeValues
+} from "./keyframe_get.ts";
+import {setKeyframeEasing} from "./keyframe_set.ts";
 
 /**
  * Ensures that this value is in the format of an array of keyframes.

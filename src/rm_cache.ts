@@ -1,6 +1,6 @@
 import { getWorkingDirectory } from "./data/beatmap_handler.ts";
 import {fs, path} from "./deps.ts";
-import {CachedData} from "./types/beatmap_types.ts";
+import {CachedData} from "./types/beatmap.ts";
 
 /** Get the path of RM_Cache.json */
 export function getCacheLocation() {

@@ -1,4 +1,4 @@
-import { TrackValue } from '../types/animation_types.ts'
+import { TrackValue } from '../types/animation.ts'
 
 export class Track {
     /** The value of the track. */

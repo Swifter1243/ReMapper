@@ -1,6 +1,6 @@
 import { lerp, applyEasing, lerpWrap, positiveMod } from '../utils/math.ts'
-import { ColorVec, Vec3 } from '../types/data_types.ts'
-import { EASE } from '../types/animation_types.ts'
+import { ColorVec, Vec3 } from '../types/data.ts'
+import { EASE } from '../types/animation.ts'
 import { arrayLerp } from '../utils/array_utils.ts'
 
 /** Converts color from integer space (0-255 with whole numbers) to linear space (0-1 with decimals) */

@@ -1,11 +1,11 @@
 import { asserts, bsmap, path, semver } from '../deps.ts'
 
-import { DIFFNAME, DIFFPATH } from '../types/beatmap_types.ts'
+import { DIFFNAME, DIFFPATH } from '../types/beatmap.ts'
 
 import { parseFilePath } from '../general.ts'
-import { AbstractDifficulty } from '../beatmap/abstract_beatmap.ts'
-import { V3Difficulty } from '../beatmap/beatmap_v3.ts'
-import { V2Difficulty } from '../beatmap/beatmap_v2.ts'
+import { AbstractDifficulty } from '../internals/beatmap/abstract_beatmap.ts'
+import { V3Difficulty } from '../internals/beatmap/beatmap_v3.ts'
+import { V2Difficulty } from '../internals/beatmap/beatmap_v2.ts'
 import {
     attachWorkingDirectory,
     setActiveDifficulty,

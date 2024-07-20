@@ -1,6 +1,6 @@
 import {path} from '../deps.ts'
 
-import type {AbstractDifficulty} from '../beatmap/abstract_beatmap.ts'
+import type {AbstractDifficulty} from '../internals/beatmap/abstract_beatmap.ts'
 import { loadCache } from "../rm_cache.ts";
 
 let workingDirectory: string

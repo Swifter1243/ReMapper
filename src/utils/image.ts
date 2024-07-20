@@ -1,6 +1,6 @@
 import { pngs } from '../deps.ts'
-import { Vec4 } from '../types/data_types.ts'
-import { ColorVec } from '../types/data_types.ts'
+import { Vec4 } from '../types/data.ts'
+import { ColorVec } from '../types/data.ts'
 
 export class Image {
     /** Width of the image in pixels. */

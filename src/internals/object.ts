@@ -13,17 +13,17 @@ import {
     Replace,
     SubclassExclusiveProps,
     TJson,
-} from '../types/util_types.ts'
-import { ColorVec, Vec2, Vec3 } from '../types/data_types.ts'
-import { JsonWrapper } from '../types/beatmap_types.ts'
+} from '../types/util.ts'
+import { ColorVec, Vec2, Vec3 } from '../types/data.ts'
+import { JsonWrapper } from '../types/beatmap.ts'
 import {
     AnimationPropertiesV2,
     AnimationPropertiesV3,
     jsonToAnimation,
     NoteAnimationData,
     ObjectAnimationData,
-} from './animation.ts'
-import { TrackValue } from '../types/animation_types.ts'
+} from '../data/animation.ts'
+import { TrackValue } from '../types/animation.ts'
 import { jsonPrune } from '../mod.ts'
 import { getInfoDat } from '../data/info_file.ts'
 import { getOffsetFromHalfJumpDuration } from '../utils/math.ts'

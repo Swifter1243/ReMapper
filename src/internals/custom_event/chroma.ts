@@ -1,11 +1,11 @@
 import { Track } from '../../animation/track.ts'
 import { getActiveDifficulty } from '../../data/beatmap_handler.ts'
 import { bsmap } from '../../deps.ts'
-import { EASE, PointDefinitionLinear } from '../../types/animation_types.ts'
+import { EASE, PointDefinitionLinear } from '../../types/animation.ts'
 import {
     ILightWithId,
     TubeBloomPrePassLight,
-} from '../../types/environment_types.ts'
+} from '../../types/environment.ts'
 import { copy } from '../../utils/general.ts'
 import { jsonPrune } from '../../utils/json.ts'
 import {

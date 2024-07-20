@@ -1,12 +1,17 @@
-import {assignTrackPrefab, destroyPrefab, instantiatePrefab, setMaterialProperty} from '../beatmap/custom_event.ts'
-import {  blit } from '../beatmap/mod.ts'
 import { CustomEventInternals } from '../internals/mod.ts'
-import { EASE, RuntimePointDefinitionLinear } from '../types/animation_types.ts'
-import { RuntimePointDefinitionVec4 } from '../types/animation_types.ts'
-import { FILEPATH } from '../types/beatmap_types.ts'
-import { ColorVec, Vec4 } from '../types/data_types.ts'
+import { EASE, RuntimePointDefinitionLinear } from '../types/animation.ts'
+import { RuntimePointDefinitionVec4 } from '../types/animation.ts'
+import { FILEPATH } from '../types/beatmap.ts'
+import { ColorVec, Vec4 } from '../types/data.ts'
 import { DeepReadonly, MaterialProperty } from '../types/mod.ts'
-import { MATERIAL_PROP_TYPE, MaterialPropertyValue } from '../types/vivify_types.ts'
+import { MATERIAL_PROP_TYPE, MaterialPropertyValue } from '../types/vivify.ts'
+import {
+    assignTrackPrefab,
+    destroyPrefab,
+    instantiatePrefab,
+    setMaterialProperty,
+    blit
+} from "../builder_functions/custom_event/vivify.ts";
 
 type PrefabMap = Record<string, string>
 

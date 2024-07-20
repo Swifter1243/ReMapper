@@ -1,10 +1,10 @@
 import { combineTransforms, getBoxBounds } from '../utils/math.ts'
 
-import { Wall } from '../internals/wall.ts'
+import { Wall } from '../internals/gameplay_object/wall.ts'
 import { modelToWall } from './wall.ts'
 import { getModel } from './model.ts'
-import { Bounds, Transform, Vec3 } from '../types/data_types.ts'
-import { ReadonlyText, TextObject } from '../types/model_types.ts'
+import { Bounds, Transform, Vec3 } from '../types/data.ts'
+import { ReadonlyText, TextObject } from '../types/model.ts'
 import { copy } from '../utils/general.ts'
 import { getActiveDifficulty } from '../mod.ts'
 import { AnimationSettings } from '../animation/mod.ts'

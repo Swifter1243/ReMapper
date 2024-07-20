@@ -3,8 +3,8 @@ import { path } from '../deps.ts'
 import { getWorkingDirectory } from './beatmap_handler.ts'
 import { DIFFNAME } from '../mod.ts'
 import { RMLog } from '../general.ts'
-import { IInfo } from '../types/beatmap_types.ts'
-import { IInfoSetDifficulty } from '../types/beatmap_types.ts'
+import { IInfo } from '../types/beatmap.ts'
+import { IInfoSetDifficulty } from '../types/beatmap.ts'
 import { BUNDLE_VERSIONS } from './constants.ts'
 
 let info: IInfo

@@ -1,7 +1,7 @@
 import { Regex } from '../utils/regex.ts'
 
-import { Vec3 } from '../types/data_types.ts'
-import { AbstractDifficulty } from '../beatmap/abstract_beatmap.ts'
+import { Vec3 } from '../types/data.ts'
+import { AbstractDifficulty } from '../internals/beatmap/abstract_beatmap.ts'
 
 /** Where custom levels are stored on quest. */
 export const QUEST_WIP_PATH =
@@ -288,7 +288,7 @@ export enum EventGroup {
     BPM = 100,
 }
 
-/** Basic lighting event actions. */
+/** Basic lighting_v3 event actions. */
 export enum EventAction {
     OFF,
     BLUE_ON,

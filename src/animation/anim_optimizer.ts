@@ -1,14 +1,9 @@
-import { RawKeyframesAbstract } from '../types/animation_types.ts'
+import { RawKeyframesAbstract } from '../types/animation.ts'
 import { complexifyKeyframes, simplifyKeyframes } from './animation_utils.ts'
-import { NumberTuple } from '../types/util_types.ts'
-import {
-    getKeyframeEasing,
-    getKeyframeSpline,
-    getKeyframeTime,
-    getKeyframeValues,
-} from './keyframe.ts'
-import { InnerKeyframeBoundless } from '../types/animation_types.ts'
-import { ComplexKeyframesBoundless } from '../types/animation_types.ts'
+import { NumberTuple } from '../types/util.ts'
+import { InnerKeyframeBoundless } from '../types/animation.ts'
+import { ComplexKeyframesBoundless } from '../types/animation.ts'
+import {getKeyframeEasing, getKeyframeSpline, getKeyframeTime, getKeyframeValues} from "./keyframe_get.ts";
 
 function areArrayElementsIdentical<T>(
     enumerable1: T[],

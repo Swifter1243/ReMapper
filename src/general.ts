@@ -1,11 +1,11 @@
 import { EPSILON, getRuntimeSeconds } from './utils/math.ts'
 import { fs, path } from './deps.ts'
 import { getActiveDifficulty } from './data/beatmap_handler.ts'
-import { OnlyNumbersOptional } from './types/util_types.ts'
-import { FILENAME, FILEPATH } from './types/beatmap_types.ts'
-import * as NoteInternals from './internals/note.ts'
-import { Wall } from './internals/wall.ts'
-import { LightEvent } from './internals/basic_event.ts'
+import { OnlyNumbersOptional } from './types/util.ts'
+import { FILENAME, FILEPATH } from './types/beatmap.ts'
+import * as NoteInternals from './internals/gameplay_object/color_note.ts'
+import { Wall } from './internals/gameplay_object/wall.ts'
+import { LightEvent } from './internals/lighting/basic_event.ts'
 import { getActiveCache } from './rm_cache.ts'
 
 /**

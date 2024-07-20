@@ -1,7 +1,7 @@
 import { iterateKeyframes } from "../animation/animation_utils.ts";
-import { environment } from '../beatmap/environment.ts'
-import { RawKeyframesVec3 } from "../types/animation_types.ts";
-import { LookupMethod } from '../types/environment_types.ts'
+import { RawKeyframesVec3 } from "../types/animation.ts";
+import { LookupMethod } from '../types/environment.ts'
+import {environment} from "../builder_functions/environment/environment.ts";
 
 let nextID = 0
 
