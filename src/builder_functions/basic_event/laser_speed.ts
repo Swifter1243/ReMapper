@@ -1,5 +1,6 @@
 import * as BasicEventInternals from '../../internals/lighting/basic_event.ts'
-import { EventGroup } from '../../data/constants.ts'
+
+import {EventGroup} from "../../data/constants/basic_event.ts";
 
 /**
  * Controls left rotating laser speed.

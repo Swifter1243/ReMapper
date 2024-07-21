@@ -1,5 +1,3 @@
-import { Track } from '../../animation/track.ts'
-import { getActiveDifficulty } from '../../data/beatmap_handler.ts'
 import { EASE, TrackValue } from '../../types/animation.ts'
 import {
     BeatmapInterfaces,
@@ -9,8 +7,6 @@ import {
     Vec3,
 } from '../../types/mod.ts'
 import { MaterialProperty, RENDER_SETTING } from '../../types/vivify.ts'
-import { copy } from '../../utils/general.ts'
-import { jsonPrune } from '../../utils/json.ts'
 import {
     BaseCustomEvent,
     CustomEventConstructor,
@@ -19,6 +15,10 @@ import {
     getDataProp,
 } from './base.ts'
 import { AnimatorProperty } from '../../types/mod.ts'
+import {copy} from "../../utils/object/copy.ts";
+import {objectPrune} from "../../utils/object/prune.ts";
+import {Track} from "../../utils/animation/track.ts";
+import {getActiveDifficulty} from "../../data/active_difficulty.ts";
 
 export class SetMaterialProperty extends BaseCustomEvent<
     never,
@@ -102,7 +102,7 @@ export class SetMaterialProperty extends BaseCustomEvent<
             },
             t: 'SetMaterialProperty',
         } satisfies BeatmapInterfaces.SetMaterialProperty
-        return prune ? jsonPrune(output) : output
+        return prune ? objectPrune(output) : output
     }
 }
 
@@ -179,7 +179,7 @@ export class SetGlobalProperty extends BaseCustomEvent<
             },
             t: 'SetGlobalProperty',
         } satisfies BeatmapInterfaces.SetGlobalProperty
-        return prune ? jsonPrune(output) : output
+        return prune ? objectPrune(output) : output
     }
 }
 
@@ -279,7 +279,7 @@ export class Blit extends BaseCustomEvent<
             },
             t: 'Blit',
         } satisfies BeatmapInterfaces.Blit
-        return prune ? jsonPrune(output) : output
+        return prune ? objectPrune(output) : output
     }
 }
 
@@ -370,7 +370,7 @@ export class DeclareCullingTexture extends BaseCustomEvent<
             },
             t: 'DeclareCullingTexture',
         } satisfies BeatmapInterfaces.DeclareCullingTexture
-        return prune ? jsonPrune(output) : output
+        return prune ? objectPrune(output) : output
     }
 }
 
@@ -471,7 +471,7 @@ export class DeclareRenderTexture extends BaseCustomEvent<
             },
             t: 'DeclareRenderTexture',
         } satisfies BeatmapInterfaces.DeclareRenderTexture
-        return prune ? jsonPrune(output) : output
+        return prune ? objectPrune(output) : output
     }
 }
 
@@ -542,7 +542,7 @@ export class DestroyTexture extends BaseCustomEvent<
             },
             t: 'DestroyTexture',
         } satisfies BeatmapInterfaces.DestroyTexture
-        return prune ? jsonPrune(output) : output
+        return prune ? objectPrune(output) : output
     }
 }
 
@@ -645,7 +645,7 @@ export class InstantiatePrefab extends BaseCustomEvent<
             },
             t: 'InstantiatePrefab',
         } satisfies BeatmapInterfaces.InstantiatePrefab
-        return prune ? jsonPrune(output) : output
+        return prune ? objectPrune(output) : output
     }
 }
 
@@ -716,7 +716,7 @@ export class DestroyPrefab extends BaseCustomEvent<
             },
             t: 'DestroyPrefab',
         } satisfies BeatmapInterfaces.DestroyPrefab
-        return prune ? jsonPrune(output) : output
+        return prune ? objectPrune(output) : output
     }
 }
 
@@ -802,7 +802,7 @@ export class SetAnimatorProperty extends BaseCustomEvent<
             },
             t: 'SetAnimatorProperty',
         } satisfies BeatmapInterfaces.SetAnimatorProperty
-        return prune ? jsonPrune(output) : output
+        return prune ? objectPrune(output) : output
     }
 }
 
@@ -870,7 +870,7 @@ export class SetCameraProperty extends BaseCustomEvent<
             },
             t: 'SetCameraProperty',
         } satisfies BeatmapInterfaces.SetCameraProperty
-        return prune ? jsonPrune(output) : output
+        return prune ? objectPrune(output) : output
     }
 }
 
@@ -973,7 +973,7 @@ export class AssignTrackPrefab extends BaseCustomEvent<
             },
             t: 'AssignTrackPrefab',
         } satisfies BeatmapInterfaces.AssignTrackPrefab
-        return prune ? jsonPrune(output) : output
+        return prune ? objectPrune(output) : output
     }
 }
 
@@ -1053,6 +1053,6 @@ export class SetRenderSetting extends BaseCustomEvent<
             },
             t: 'SetRenderSetting',
         } satisfies BeatmapInterfaces.SetRenderSetting
-        return prune ? jsonPrune(output) : output
+        return prune ? objectPrune(output) : output
     }
 }

@@ -1,9 +1,9 @@
 import {PointDefinitionLinear, TrackValue} from './animation.ts'
 import {ColorVec} from './data.ts'
 import {BaseEnvironmentEnhancement} from "../internals/environment/base_environment.ts";
-import {Track} from "../animation/track.ts";
 import {Fields, Replace} from "./util.ts";
 import { bsmap } from '../deps.ts'
+import {Track} from "../utils/animation/track.ts";
 
 /** The "BloomFogEnvironment" environment component.
  * Allows both animated and non animated variants. */

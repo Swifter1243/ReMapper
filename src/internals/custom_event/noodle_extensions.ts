@@ -1,10 +1,5 @@
-import { Track } from '../../animation/track.ts'
-import { getActiveDifficulty } from '../../data/beatmap_handler.ts'
 import { bsmap } from '../../deps.ts'
-import { EASE } from '../../types/animation.ts'
-import { copy } from '../../utils/general.ts'
-import { jsonPrune } from '../../utils/json.ts'
-import { AnimationPropertiesV3, animationToJson } from '../../data/animation.ts'
+import {AnimationPropertiesV3, EASE} from '../../types/animation.ts'
 import { ExcludedObjectFields } from '../object.ts'
 import {
     BaseCustomEvent,
@@ -13,6 +8,11 @@ import {
     CustomEventSubclassFields,
     getDataProp,
 } from './base.ts'
+import {copy} from "../../utils/object/copy.ts";
+import {objectPrune} from "../../utils/object/prune.ts";
+import {Track} from "../../utils/animation/track.ts";
+import {getActiveDifficulty} from "../../data/active_difficulty.ts";
+import {animationToJson} from "../../utils/animation/json.ts";
 
 export class AssignPathAnimation extends BaseCustomEvent<
     bsmap.v2.ICustomEventAssignPathAnimation,
@@ -111,7 +111,7 @@ export class AssignPathAnimation extends BaseCustomEvent<
                 },
                 t: 'AssignPathAnimation',
             } satisfies bsmap.v3.ICustomEventAssignPathAnimation
-            return prune ? jsonPrune(output) : output
+            return prune ? objectPrune(output) : output
         }
 
         const output = {
@@ -126,7 +126,7 @@ export class AssignPathAnimation extends BaseCustomEvent<
             },
             _type: 'AssignPathAnimation',
         } satisfies bsmap.v2.ICustomEventAssignPathAnimation
-        return prune ? jsonPrune(output) : output
+        return prune ? objectPrune(output) : output
     }
 }
 
@@ -218,7 +218,7 @@ export class AssignTrackParent extends BaseCustomEvent<
                 },
                 t: 'AssignTrackParent',
             } satisfies bsmap.v3.ICustomEventAssignTrackParent
-            return prune ? jsonPrune(output) : output
+            return prune ? objectPrune(output) : output
         }
 
         const output = {
@@ -231,7 +231,7 @@ export class AssignTrackParent extends BaseCustomEvent<
             _time: this.beat,
             _type: 'AssignTrackParent',
         } satisfies bsmap.v2.ICustomEventAssignTrackParent
-        return prune ? jsonPrune(output) : output
+        return prune ? objectPrune(output) : output
     }
 }
 
@@ -315,7 +315,7 @@ export class AssignPlayerToTrack extends BaseCustomEvent<
                 },
                 t: 'AssignPlayerToTrack',
             } satisfies bsmap.v3.ICustomEventAssignPlayerToTrack
-            return prune ? jsonPrune(output) : output
+            return prune ? objectPrune(output) : output
         }
 
         if (this.target) {
@@ -332,6 +332,6 @@ export class AssignPlayerToTrack extends BaseCustomEvent<
             _time: this.beat,
             _type: 'AssignPlayerToTrack',
         } satisfies bsmap.v2.ICustomEventAssignPlayerToTrack
-        return prune ? jsonPrune(output) : output
+        return prune ? objectPrune(output) : output
     }
 }

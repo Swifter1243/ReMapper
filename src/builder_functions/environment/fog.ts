@@ -1,5 +1,5 @@
-import { getActiveDifficulty } from '../../data/beatmap_handler.ts'
 import { AnyFog, FogEvent } from '../../internals/environment/fog.ts'
+import {getActiveDifficulty} from "../../data/active_difficulty.ts";
 
 type Overload1 = [
     AnyFog & {

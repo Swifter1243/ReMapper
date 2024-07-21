@@ -1,5 +1,6 @@
 import { ColorNote } from '../../internals/gameplay_object/color_note.ts'
-import { NoteColor, NoteCut } from '../../data/constants.ts'
+
+import {NoteColor, NoteCut} from "../../data/constants/note.ts";
 
 /** Create a standard color note. */
 export function colorNote(

@@ -1,7 +1,6 @@
 // deno-lint-ignore-file no-explicit-any
 import { RawKeyframesVec3 } from '../types/animation.ts'
 import { RawGeometryMaterial } from '../types/environment.ts'
-import { getActiveDifficulty } from '../data/beatmap_handler.ts'
 import {
     AnimatedObjectInput,
     AnimatedOptions,
@@ -14,38 +13,36 @@ import {
     StaticObjectInput,
 } from '../types/model.ts'
 
-import { arrayAdd } from '../utils/array_utils.ts'
-import { combineTransforms, rotatePoint } from '../utils/math.ts'
-
-import { cacheData, parseFilePath } from '../general.ts'
+import { cacheData } from '../general.ts'
 
 import * as CustomEventInternals from '../internals/custom_event/mod.ts'
 
-import { optimizeKeyframes } from '../animation/anim_optimizer.ts'
-import {
-    bakeAnimation,
-    complexifyKeyframes,
-    iterateKeyframes,
-    mirrorAnimation,
-} from '../animation/animation_utils.ts'
+import { optimizeKeyframes } from '../utils/animation/optimizer.ts'
 import { FILEPATH } from '../types/beatmap.ts'
 import { ColorVec, TransformKeyframe, Vec3, Vec4 } from '../types/data.ts'
-import { copy } from '../utils/general.ts'
 import { Environment } from '../internals/environment/environment.ts'
 import {
-    attachWorkingDirectory,
+    attachWorkingDirectory, complexifyKeyframes, copy,
     DeepReadonly,
     positionUnityToNoodle,
     SceneObjectInfo,
 } from '../mod.ts'
 import { RuntimeRawKeyframesVec3 } from '../types/animation.ts'
-import { AnimationSettings } from '../animation/anim_optimizer.ts'
+import { AnimationSettings } from '../utils/animation/optimizer.ts'
 import {animateTrack} from "../builder_functions/custom_event/heck.ts";
 import {Geometry} from "../internals/environment/geometry.ts";
 import {backLasers} from "../builder_functions/basic_event/light_event.ts";
 import {adjustFog} from "../builder_functions/environment/fog.ts";
 import {environment} from "../builder_functions/environment/environment.ts";
 import {geometry} from "../builder_functions/environment/geometry.ts";
+import {bakeAnimation} from "../utils/animation/bake.ts";
+import {mirrorAnimation} from "../utils/animation/time_warp.ts";
+import {iterateKeyframes} from "../utils/animation/keyframe/iterate.ts";
+import {arrayAdd} from "../utils/array/operation.ts";
+import {getActiveDifficulty} from "../data/active_difficulty.ts";
+import {rotatePoint} from "../utils/math/vector.ts";
+import {combineTransforms} from "../utils/math/transform.ts";
+import {parseFilePath} from "../utils/file.ts";
 
 let modelSceneCount = 0
 let noYeet = true

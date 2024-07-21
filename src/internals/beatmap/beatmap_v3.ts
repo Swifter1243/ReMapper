@@ -1,9 +1,7 @@
 import {wall} from '../../builder_functions/gameplay_object/wall.ts'
 import {bsmap} from '../../deps.ts'
-import {AbstractDifficulty, BeatmapCustomEvents, RMDifficulty} from './abstract_beatmap.ts'
+import {AbstractDifficulty} from './abstract_beatmap.ts'
 import {Arc, Bomb, Chain, ColorNote} from '../gameplay_object/color_note.ts'
-import {EventGroup} from '../../data/constants.ts'
-import {shallowPrune} from '../../utils/json.ts'
 import {
     arraySplit,
     CustomEventInternals,
@@ -39,14 +37,14 @@ import {
     lightColorEventBoxGroup,
     lightRotationEventBoxGroup,
     lightTranslationEventBoxGroup
-} from "../../builder_functions/lighting_v3/box_group.ts";
-import {communityBpmEvent, officialBpmEvent} from "../../builder_functions/basic_event/bpm.ts";
-import {earlyRotation, lateRotation} from "../../builder_functions/basic_event/rotation.ts";
+} from "../../builder_functions/v3_event/lighting/light_event_box_group.ts";
+import {communityBpmEvent} from "../../builder_functions/basic_event/bpm.ts";
+import {earlyRotation, lateRotation} from "../../builder_functions/v3_event/rotation.ts";
 import {leftLaserSpeed} from "../../builder_functions/basic_event/laser_speed.ts";
 import {ringSpin, ringZoom} from "../../builder_functions/basic_event/ring.ts";
 import {baseBasicEvent} from "../../builder_functions/basic_event/base.ts";
 import {backLasers} from "../../builder_functions/basic_event/light_event.ts";
-import {boost} from "../../builder_functions/basic_event/boost.ts";
+import {boost} from "../../builder_functions/v3_event/lighting/boost.ts";
 import {environment} from "../../builder_functions/environment/environment.ts";
 import {geometry} from "../../builder_functions/environment/geometry.ts";
 import {colorNote} from "../../builder_functions/gameplay_object/color_note.ts";
@@ -54,6 +52,10 @@ import {bomb} from "../../builder_functions/gameplay_object/bomb.ts";
 import {chain} from "../../builder_functions/gameplay_object/chain.ts";
 import {arc} from "../../builder_functions/gameplay_object/arc.ts";
 import {abstractCustomEvent} from "../../builder_functions/custom_event/base.ts";
+import {shallowPrune} from "../../utils/object/prune.ts";
+import {EventGroup} from "../../data/constants/basic_event.ts";
+import {officialBpmEvent} from "../../builder_functions/v3_event/bpm.ts";
+import {BeatmapCustomEvents, RMDifficulty} from "../../types/beatmap_interfaces/difficulty.ts";
 
 export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
     declare version: bsmap.v3.IDifficulty['version']

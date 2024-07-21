@@ -1,5 +1,5 @@
-import { EventGroup, InterscopeGroup } from '../../data/constants.ts'
 import * as BasicEventInternals from '../../internals/lighting/basic_event.ts'
+import {EventGroup, InterscopeGroup} from "../../data/constants/basic_event.ts";
 
 /**
  * Move cars in the interscope environment.

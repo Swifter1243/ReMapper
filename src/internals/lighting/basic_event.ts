@@ -1,13 +1,13 @@
-import { EventAction, EventGroup } from '../../data/constants.ts'
 import { bsmap } from '../../deps.ts'
 import { EASE } from '../../types/animation.ts'
 import { BaseObject, ExcludedObjectFields, getCDProp } from '../object.ts'
-import { getActiveDifficulty } from '../../data/beatmap_handler.ts'
 import { Fields, SubclassExclusiveProps } from '../../types/util.ts'
 import { LightID } from '../../types/environment.ts'
 import { ColorVec } from '../../types/data.ts'
-import { copy } from '../../utils/general.ts'
-import { jsonPrune } from '../../utils/json.ts'
+import {copy} from "../../utils/object/copy.ts";
+import {objectPrune} from "../../utils/object/prune.ts";
+import {getActiveDifficulty} from "../../data/active_difficulty.ts";
+import {EventAction, EventGroup} from "../../data/constants/basic_event.ts";
 
 // deno-lint-ignore ban-types
 type BasicEventExcludedFields<Class> = ExcludedObjectFields<Class, {}>
@@ -93,7 +93,7 @@ export class BaseBasicEvent extends BaseEvent {
                 i: this.value,
                 customData: this.customData,
             } satisfies bsmap.v3.IBasicEvent
-            return prune ? jsonPrune(output) : output
+            return prune ? objectPrune(output) : output
         } else {
             const output = {
                 _floatValue: this.floatValue,
@@ -102,7 +102,7 @@ export class BaseBasicEvent extends BaseEvent {
                 _value: this.value,
                 _customData: this.customData,
             } satisfies bsmap.v2.IEvent
-            return prune ? jsonPrune(output) : output
+            return prune ? objectPrune(output) : output
         }
     }
 }
@@ -258,7 +258,7 @@ export class LightEvent<
                     ...this.customData,
                 },
             } satisfies bsmap.v3.IBasicEventLight
-            return prune ? jsonPrune(output) : output
+            return prune ? objectPrune(output) : output
         } else {
             const output = {
                 _floatValue: this.floatValue,
@@ -273,7 +273,7 @@ export class LightEvent<
                     ...this.customData,
                 },
             } satisfies bsmap.v2.IEventLight
-            return prune ? jsonPrune(output) : output
+            return prune ? objectPrune(output) : output
         }
     }
 }
@@ -370,7 +370,7 @@ export class LaserSpeedEvent<
                     ...this.customData,
                 },
             } satisfies bsmap.v3.IBasicEventLaserRotation
-            return prune ? jsonPrune(output) : output
+            return prune ? objectPrune(output) : output
         } else {
             const output = {
                 _floatValue: this.floatValue,
@@ -385,7 +385,7 @@ export class LaserSpeedEvent<
                     ...this.customData,
                 },
             } satisfies bsmap.v2.IEventLaser
-            return prune ? jsonPrune(output) : output
+            return prune ? objectPrune(output) : output
         }
     }
 }
@@ -467,7 +467,7 @@ export class RingZoomEvent
                     ...this.customData,
                 },
             } satisfies bsmap.v3.IBasicEventRing
-            return prune ? jsonPrune(output) : output
+            return prune ? objectPrune(output) : output
         }
         const output = {
             _floatValue: this.floatValue,
@@ -481,7 +481,7 @@ export class RingZoomEvent
                 ...this.customData,
             },
         } satisfies bsmap.v2.IEventZoom
-        return prune ? jsonPrune(output) : output
+        return prune ? objectPrune(output) : output
     }
 }
 
@@ -587,7 +587,7 @@ export class RingSpinEvent
                     step: this.step,
                 },
             } satisfies bsmap.v3.IBasicEventRing
-            return prune ? jsonPrune(output) : output
+            return prune ? objectPrune(output) : output
         }
 
         const output = {
@@ -605,7 +605,7 @@ export class RingSpinEvent
                 ...this.customData,
             },
         } satisfies bsmap.v2.IEventRing
-        return prune ? jsonPrune(output) : output
+        return prune ? objectPrune(output) : output
     }
 }
 

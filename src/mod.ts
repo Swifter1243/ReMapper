@@ -12,3 +12,6 @@ export * from './model/mod.ts'
 export * from './rm_cache.ts'
 
 export * from './deps.ts'
+export {RMError} from "./utils/rm_log.ts";
+export {RMLog} from "./utils/rm_log.ts";
+export {parseFilePath} from "./utils/file.ts";

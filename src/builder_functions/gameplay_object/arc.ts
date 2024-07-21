@@ -1,5 +1,6 @@
 import { Arc } from '../../internals/gameplay_object/arc.ts'
-import { NoteColor, NoteCut } from '../../data/constants.ts'
+
+import {NoteColor, NoteCut} from "../../data/constants/note.ts";
 
 /** Create an arc. */
 export function arc(

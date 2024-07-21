@@ -1,16 +1,16 @@
-import { EventGroup } from '../data/constants.ts'
 import { bsmap } from '../deps.ts'
 import {
     copy,
     Fields,
     getActiveDifficulty,
     InverseRotationAction,
-    jsonPrune,
+    objectPrune,
     JsonWrapper,
     RotationAction,
 } from '../mod.ts'
 import { ObjectFields, SubclassExclusiveProps } from '../types/util.ts'
 import { BaseObject, getCDProp } from './object.ts'
+import {EventGroup} from "../data/constants/basic_event.ts";
 
 interface ConvertableEvent {
     /** V3 only. Import from the deprecated basic event form into the new proper events.  */
@@ -102,7 +102,7 @@ export class RotationEvent
                 r: this.rotation,
                 customData: this.customData,
             } satisfies bsmap.v3.IRotationEvent
-            return prune ? jsonPrune(output) : output
+            return prune ? objectPrune(output) : output
         }
 
         let vanillaRotation
@@ -205,7 +205,7 @@ export class BoostEvent
                 o: this.boost,
                 customData: this.customData,
             } satisfies bsmap.v3.IColorBoostEvent
-            return prune ? jsonPrune(output) : output
+            return prune ? objectPrune(output) : output
         }
 
         const output = {
@@ -215,7 +215,7 @@ export class BoostEvent
             _value: this.boost ? 1 : 0,
             _customData: this.customData,
         } satisfies bsmap.v2.IEvent
-        return prune ? jsonPrune(output) : output
+        return prune ? objectPrune(output) : output
     }
 }
 
@@ -347,7 +347,7 @@ export class OfficialBPMEvent extends BPMEvent<
                 m: this.bpm,
                 customData: undefined,
             } satisfies bsmap.v3.IBPMEvent
-            return prune ? jsonPrune(output) : output
+            return prune ? objectPrune(output) : output
         }
 
         const output = {
@@ -357,7 +357,7 @@ export class OfficialBPMEvent extends BPMEvent<
             _value: 0,
             _customData: undefined,
         } satisfies bsmap.v2.IEvent
-        return prune ? jsonPrune(output) : output
+        return prune ? objectPrune(output) : output
     }
 }
 
@@ -447,7 +447,7 @@ export class CommunityBPMEvent extends BPMEvent<
                 o: this.metronomeOffset,
                 p: this.beatsPerBar,
             } satisfies bsmap.v3.IBPMChange
-            return prune ? jsonPrune(output) : output
+            return prune ? objectPrune(output) : output
         }
 
         if (this.mediocreMapper) {
@@ -458,7 +458,7 @@ export class CommunityBPMEvent extends BPMEvent<
                 _beatsPerBar: this.beatsPerBar,
                 _metronomeOffset: this.metronomeOffset,
             } satisfies bsmap.v2.IBPMChangeOld
-            return prune ? jsonPrune(output) : output
+            return prune ? objectPrune(output) : output
         }
 
         const output = {
@@ -467,6 +467,6 @@ export class CommunityBPMEvent extends BPMEvent<
             _beatsPerBar: this.beatsPerBar,
             _metronomeOffset: this.metronomeOffset,
         } satisfies bsmap.v2.IBPMChange
-        return prune ? jsonPrune(output) : output
+        return prune ? objectPrune(output) : output
     }
 }

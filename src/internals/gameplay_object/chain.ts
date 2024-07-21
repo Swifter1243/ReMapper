@@ -1,10 +1,7 @@
-import { activeDifficulty, getActiveDifficulty, settings } from '../../data/beatmap_handler.ts'
+import { settings } from '../../data/settings.ts'
 import { bsmap } from '../../deps.ts'
 import { Vec2 } from '../../types/data.ts'
 import { Fields, SubclassExclusiveProps } from '../../types/util.ts'
-import { copy } from '../../utils/general.ts'
-import { jsonPrune } from "../../utils/json.ts";
-import { animationToJson } from '../../data/animation.ts'
 import {
     BaseSliderObject,
     ExcludedObjectFields,
@@ -13,6 +10,10 @@ import {
     getCDProp,
     importInvertedBoolean,
 } from '../object.ts'
+import {copy} from "../../utils/object/copy.ts";
+import {objectPrune} from "../../utils/object/prune.ts";
+import {activeDifficulty, getActiveDifficulty} from "../../data/active_difficulty.ts";
+import {animationToJson} from "../../utils/animation/json.ts";
 
 export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
     constructor(
@@ -159,6 +160,6 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
                 ...this.customData,
             },
         } as bsmap.v3.IChain
-        return prune ? jsonPrune(output) : output
+        return prune ? objectPrune(output) : output
     }
 }

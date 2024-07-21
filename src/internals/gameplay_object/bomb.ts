@@ -1,9 +1,10 @@
-import { activeDifficulty, getActiveDifficulty, settings } from "../../data/beatmap_handler.ts";
+import { settings } from "../../data/settings.ts";
 import { bsmap } from "../../deps.ts";
-import { copy } from "../../utils/general.ts";
-import { jsonPrune } from "../../utils/json.ts";
-import { animationToJson } from "../../data/animation.ts";
 import { BaseNote, ExcludedObjectFields, defaultBoolean, exportInvertedBoolean } from "../object.ts";
+import {copy} from "../../utils/object/copy.ts";
+import {objectPrune} from "../../utils/object/prune.ts";
+import {activeDifficulty, getActiveDifficulty} from "../../data/active_difficulty.ts";
+import {animationToJson} from "../../utils/animation/json.ts";
 
 export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
     constructor(
@@ -56,7 +57,7 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
                     ...this.customData,
                 },
             } as bsmap.v3.IBombNote
-            return prune ? jsonPrune(output) : output
+            return prune ? objectPrune(output) : output
         }
 
         const output = {
@@ -83,6 +84,6 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
                 ...this.customData,
             },
         } as bsmap.v2.INote
-        return prune ? jsonPrune(output) : output
+        return prune ? objectPrune(output) : output
     }
 }

@@ -2,6 +2,7 @@ import {bsmap} from '../../deps.ts'
 
 import {
     AbstractEnvironment,
+    AnimationPropertiesV3,
     DIFFNAME,
     DIFFPATH,
     IInfoSet,
@@ -11,14 +12,9 @@ import {
     SUGGEST_MODS,
     TJson,
 } from '../../types/mod.ts'
-
-import {setDecimals} from '../../utils/math.ts'
-
-import {optimizeKeyframes, OptimizeSettings,} from '../../animation/anim_optimizer.ts'
-import {AnyNote, parseFilePath, RMLog} from '../../general.ts'
-
-import {attachWorkingDirectory, settings} from '../../data/beatmap_handler.ts' // TODO: Cyclic, fix
-import * as AnimationInternals from '../../data/animation.ts'
+import {optimizeKeyframes, OptimizeSettings} from '../../utils/animation/optimizer.ts'
+import {AnyNote} from '../../general.ts'
+import {settings} from '../../data/settings.ts' // TODO: Cyclic, fix
 import * as CustomEventInternals from '../custom_event/mod.ts'
 import * as EnvironmentInternals from '../environment/environment.ts'
 import * as NoteInternals from '../gameplay_object/color_note.ts'
@@ -28,70 +24,16 @@ import * as LightingV3 from '../lighting/lighting_v3.ts'
 import {EventInternals} from '../mod.ts'
 import {FogEvent} from '../environment/fog.ts'
 import {getActiveCache} from '../../rm_cache.ts'
-import {RawKeyframesLinear, RuntimePointDefinitionAny, RuntimeRawKeyframesAny} from '../../types/animation.ts'
-import {areKeyframesRuntime} from '../../animation/animation_utils.ts'
-import {settingsHandler} from '../../data/constants.ts'
-import {jsonGet, jsonSet} from '../../utils/json.ts'
-import {Geometry} from "../environment/geometry.ts";
-
-/** Wrapper for custom event arrays in a beatmap. */
-export interface BeatmapCustomEvents {
-    animateComponentEvents: CustomEventInternals.AnimateComponent[]
-    animateTrackEvents: CustomEventInternals.AnimateTrack[]
-    assignPathAnimationEvents: CustomEventInternals.AssignPathAnimation[]
-    assignPlayerTrackEvents: CustomEventInternals.AssignPlayerToTrack[]
-    assignTrackParentEvents: CustomEventInternals.AssignTrackParent[]
-
-    setMaterialPropertyEvents: CustomEventInternals.SetMaterialProperty[]
-    setGlobalPropertyEvents: CustomEventInternals.SetGlobalProperty[]
-    blitEvents: CustomEventInternals.Blit[]
-    declareCullingTextureEvents: CustomEventInternals.DeclareCullingTexture[]
-    declareRenderTextureEvents: CustomEventInternals.DeclareRenderTexture[]
-    destroyTextureEvents: CustomEventInternals.DestroyTexture[]
-    instantiatePrefabEvents: CustomEventInternals.InstantiatePrefab[]
-    destroyPrefabEvents: CustomEventInternals.DestroyPrefab[]
-    setAnimatorPropertyEvents: CustomEventInternals.SetAnimatorProperty[]
-    setCameraPropertyEvents: CustomEventInternals.SetCameraProperty[]
-    assignTrackPrefabEvents: CustomEventInternals.AssignTrackPrefab[]
-    setRenderSettingEvents: CustomEventInternals.SetRenderSetting[]
-
-    abstractCustomEvents: CustomEventInternals.AbstractCustomEvent[]
-}
-
-/** Everything that should be in a difficulty class */
-export interface RMDifficulty {
-    version: bsmap.v2.IDifficulty['_version'] | bsmap.v3.IDifficulty['version']
-    v3: boolean
-    waypoints: bsmap.v2.IWaypoint[] | bsmap.v3.IWaypoint[]
-
-    colorNotes: NoteInternals.ColorNote[]
-    bombs: NoteInternals.Bomb[]
-    arcs: NoteInternals.Arc[]
-    chains: NoteInternals.Chain[]
-    walls: WallInternals.Wall[]
-
-    lightEvents: BasicEventInternals.LightEvent[]
-    laserSpeedEvents: BasicEventInternals.LaserSpeedEvent[]
-    ringZoomEvents: BasicEventInternals.RingZoomEvent[]
-    ringSpinEvents: BasicEventInternals.RingSpinEvent[]
-    rotationEvents: EventInternals.RotationEvent[]
-    boostEvents: EventInternals.BoostEvent[]
-    baseBasicEvents: BasicEventInternals.BaseEvent[]
-    bpmEvents: EventInternals.BPMEvent[]
-
-    lightColorEventBoxGroups: LightingV3.LightColorEventBoxGroup[]
-    lightRotationEventBoxGroups: LightingV3.LightRotationEventBoxGroup[]
-    lightTranslationEventBoxGroups: LightingV3.LightTranslationEventBoxGroup[]
-
-    customEvents: BeatmapCustomEvents
-
-    pointDefinitions: Record<string, RuntimeRawKeyframesAny>
-    customData: Record<string, unknown>
-    environment: EnvironmentInternals.Environment[]
-    geometry: Geometry[]
-    geometryMaterials: Record<string, RawGeometryMaterial>
-    fogEvents: FogEvent[]
-}
+import {RawKeyframesLinear, RuntimePointDefinitionAny, RuntimeRawKeyframesAny,} from '../../types/animation.ts'
+import {objectSafeGet, objectSafeSet} from '../../utils/object/safe.ts'
+import {Geometry} from '../environment/geometry.ts'
+import {areKeyframesRuntime} from '../../utils/animation/keyframe/runtime.ts'
+import {attachWorkingDirectory} from '../../data/working_directory.ts'
+import {settingsHandler} from './settings_handler.ts'
+import {BeatmapCustomEvents, RMDifficulty} from "../../types/beatmap_interfaces/difficulty.ts";
+import {setDecimals} from "../../utils/math/rounding.ts";
+import {RMLog} from "../../utils/rm_log.ts";
+import {parseFilePath} from "../../utils/file.ts";
 
 const clearPropertyMap = {
     arcs: 'Arcs',
@@ -233,8 +175,7 @@ export abstract class AbstractDifficulty<
 
         this.lightColorEventBoxGroups = inner.lightColorEventBoxGroups
         this.lightRotationEventBoxGroups = inner.lightRotationEventBoxGroups
-        this.lightTranslationEventBoxGroups =
-            inner.lightTranslationEventBoxGroups
+        this.lightTranslationEventBoxGroups = inner.lightTranslationEventBoxGroups
 
         this.customEvents = inner.customEvents
 
@@ -277,7 +218,7 @@ export abstract class AbstractDifficulty<
      */
     optimize(optimize: OptimizeSettings = new OptimizeSettings()) {
         const optimizeAnimation = (
-            animation: AnimationInternals.AnimationPropertiesV3,
+            animation: AnimationPropertiesV3,
         ) => {
             Object.entries(animation).forEach(([key, keyframes]) => {
                 if (typeof keyframes === 'string') return
@@ -573,7 +514,7 @@ export abstract class AbstractDifficulty<
             if (!diff.rawSettings) {
                 return undefined
             }
-            return jsonGet(diff.rawSettings as TJson, path)
+            return objectSafeGet(diff.rawSettings as TJson, path)
         },
 
         set(handler, property, value) {
@@ -587,7 +528,7 @@ export abstract class AbstractDifficulty<
                 value = (objValue as unknown as TJson[])[1][value]
             }
 
-            jsonSet(diff.rawSettings as TJson, path, value)
+            objectSafeSet(diff.rawSettings as TJson, path, value)
 
             return true
         },

@@ -1,17 +1,15 @@
 import { bsmap } from '../../deps.ts'
 
-import { NoteCut, NoteColor } from '../../data/constants.ts'
-import { activeDifficulty, getActiveDifficulty } from '../../data/beatmap_handler.ts'
-
 import {
     BaseNote,
     defaultBoolean,
     ExcludedObjectFields,
     exportInvertedBoolean,
 } from '../object.ts'
-import { copy } from '../../utils/general.ts'
-import { animationToJson } from '../../data/animation.ts'
-import { jsonPrune, settings, SubclassExclusiveProps } from '../../mod.ts'
+import {copy, objectPrune, settings, SubclassExclusiveProps} from '../../mod.ts'
+import {activeDifficulty, getActiveDifficulty} from "../../data/active_difficulty.ts";
+import {animationToJson} from "../../utils/animation/json.ts";
+import {NoteColor, NoteCut} from "../../data/constants/note.ts";
 
 export { Bomb } from './bomb.ts'
 export { Arc } from './arc.ts'
@@ -112,7 +110,7 @@ export class ColorNote extends BaseNote<bsmap.v3.IColorNote> {
                     ...this.customData,
                 },
             } satisfies bsmap.v3.IColorNote
-            return prune ? jsonPrune(output) : output
+            return prune ? objectPrune(output) : output
         }
 
         const output = {
@@ -142,6 +140,6 @@ export class ColorNote extends BaseNote<bsmap.v3.IColorNote> {
                 ...this.customData,
             },
         } satisfies bsmap.v2.INote
-        return prune ? jsonPrune(output) : output
+        return prune ? objectPrune(output) : output
     }
 }

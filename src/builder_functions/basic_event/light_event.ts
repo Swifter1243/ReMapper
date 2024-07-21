@@ -1,6 +1,7 @@
 import * as BasicEventInternals from "../../internals/lighting/basic_event.ts";
-import {LightParameters} from "./rotation.ts";
-import {EventGroup} from "../../data/constants.ts";
+import {LightParameters} from "../v3_event/rotation.ts";
+
+import {EventGroup} from "../../data/constants/basic_event.ts";
 
 function fixupParams<TG extends BasicEventInternals.LightEvent['type']>(
     group: TG,

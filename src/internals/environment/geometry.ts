@@ -1,10 +1,10 @@
 import {BaseEnvironmentEnhancement} from './base_environment.ts'
-import { getActiveDifficulty } from '../../data/beatmap_handler.ts'
-import { copy } from '../../utils/general.ts'
 import {ExcludedEnvironmentFields, GeometryMaterial, GeoType} from '../../types/environment.ts'
 import { SubclassExclusiveProps } from '../../types/util.ts'
-import { jsonPrune } from '../../utils/json.ts'
 import { bsmap } from '../../deps.ts'
+import {copy} from "../../utils/object/copy.ts";
+import {objectPrune} from "../../utils/object/prune.ts";
+import {getActiveDifficulty} from "../../data/active_difficulty.ts";
 
 export class Geometry extends BaseEnvironmentEnhancement<
     bsmap.v2.IChromaEnvironmentGeometry,
@@ -105,7 +105,7 @@ export class Geometry extends BaseEnvironmentEnhancement<
                 scale: this.scale,
                 track: this.track?.value as string,
             } satisfies bsmap.v3.IChromaEnvironmentGeometry
-            return prune ? jsonPrune(output) : output
+            return prune ? objectPrune(output) : output
         }
 
         const output = {
@@ -128,6 +128,6 @@ export class Geometry extends BaseEnvironmentEnhancement<
             _scale: this.scale,
             _track: this.track?.value as string,
         } satisfies bsmap.v2.IChromaEnvironmentGeometry
-        return prune ? jsonPrune(output) : output
+        return prune ? objectPrune(output) : output
     }
 }

@@ -1,13 +1,12 @@
-import { combineTransforms, getBoxBounds } from '../utils/math.ts'
-
 import { Wall } from '../internals/gameplay_object/wall.ts'
 import { modelToWall } from './wall.ts'
 import { getModel } from './model.ts'
 import { Bounds, Transform, Vec3 } from '../types/data.ts'
 import { ReadonlyText, TextObject } from '../types/model.ts'
-import { copy } from '../utils/general.ts'
-import { getActiveDifficulty } from '../mod.ts'
+import {copy, getActiveDifficulty} from '../mod.ts'
 import { AnimationSettings } from '../animation/mod.ts'
+import {getBoxBounds} from "../utils/math/box.ts";
+import {combineTransforms} from "../utils/math/transform.ts";
 
 interface TextInfo {
     /** How the text will be anchored horizontally. */

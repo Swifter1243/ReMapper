@@ -1,9 +1,9 @@
 import { JsonWrapper } from '../../types/beatmap.ts'
-import { Track } from '../../animation/track.ts'
 import { Vec3 } from '../../types/data.ts'
 import { Fields } from '../../types/util.ts'
 import { bsmap } from '../../deps.ts'
 import { ExcludedEnvironmentFields } from '../../types/environment.ts'
+import {Track} from "../../utils/animation/track.ts";
 
 /** The base abstract Environment Enhancement class which is inherited by Environment and Geometry. */
 export abstract class BaseEnvironmentEnhancement<

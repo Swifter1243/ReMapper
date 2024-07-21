@@ -1,10 +1,8 @@
 import { bsmap } from '../../deps.ts'
 
 import {
-    activeDifficulty,
-    getActiveDifficulty,
     settings,
-} from '../../data/beatmap_handler.ts'
+} from '../../data/settings.ts'
 
 import {
     BaseGameplayObject,
@@ -14,13 +12,14 @@ import {
     getCDProp,
 } from '../object.ts'
 import { Vec3 } from '../../types/data.ts'
-import { copy } from '../../utils/general.ts'
-import { animationToJson } from '../../data/animation.ts'
 import { Fields, SubclassExclusiveProps } from '../../types/util.ts'
-import { jsonPrune } from '../../utils/json.ts'
 import { setWallWorldTransform } from '../../model/mod.ts'
 import { AnimatedTransform } from '../../types/data.ts'
 import { AnimationSettings } from '../../animation/mod.ts'
+import {copy} from "../../utils/object/copy.ts";
+import {objectPrune} from "../../utils/object/prune.ts";
+import {activeDifficulty, getActiveDifficulty} from "../../data/active_difficulty.ts";
+import {animationToJson} from "../../utils/animation/json.ts";
 
 export class Wall
     extends BaseGameplayObject<bsmap.v2.IObstacle, bsmap.v3.IObstacle> {
@@ -170,7 +169,7 @@ export class Wall
                     ...this.customData,
                 },
             } satisfies bsmap.v3.IObstacle
-            return prune ? jsonPrune(output) : output
+            return prune ? objectPrune(output) : output
         }
 
         const output = {
@@ -194,6 +193,6 @@ export class Wall
                 ...this.customData,
             },
         } satisfies bsmap.v2.IObstacle
-        return prune ? jsonPrune(output) : output
+        return prune ? objectPrune(output) : output
     }
 }

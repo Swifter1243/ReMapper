@@ -3,7 +3,7 @@ import {
     BeatmapInterfaces,
     copy,
     getActiveDifficulty,
-    jsonPrune,
+    objectPrune,
 } from '../../mod.ts'
 import { JsonWrapper } from '../../types/beatmap.ts'
 import {
@@ -185,7 +185,7 @@ export class AbstractCustomEvent extends BaseCustomEvent<
                 t: this.type as bsmap.v3.ICustomEvent['t'],
                 d: this.data as unknown as bsmap.v3.ICustomEvent['d'],
             } as bsmap.v3.ICustomEvent
-            return prune ? jsonPrune(result) : result
+            return prune ? objectPrune(result) : result
         }
 
         const result = {
@@ -193,6 +193,6 @@ export class AbstractCustomEvent extends BaseCustomEvent<
             _type: this.type as bsmap.v2.ICustomEvent['_type'],
             _data: this.data as unknown as bsmap.v2.ICustomEvent['_data'],
         } as bsmap.v2.ICustomEvent
-        return prune ? jsonPrune(result) : result
+        return prune ? objectPrune(result) : result
     }
 }

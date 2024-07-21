@@ -1,5 +1,5 @@
 import { bsmap } from '../../deps.ts'
-import { Fields, jsonPrune, SubclassExclusiveProps } from '../../mod.ts'
+import { Fields, objectPrune, SubclassExclusiveProps } from '../../mod.ts'
 import { ObjectFields } from '../../types/util.ts'
 import { BaseObject } from '../object.ts'
 import { JsonWrapper } from '../../mod.ts'
@@ -12,8 +12,8 @@ import {
     lightColorEventBox,
     lightRotationEventBox,
     lightTranslationEventBox
-} from "../../builder_functions/lighting_v3/box.ts";
-import {lightColorEvent, lightRotationEvent, lightTranslationEvent} from "../../builder_functions/lighting_v3/event.ts";
+} from "../../builder_functions/v3_event/lighting/light_event_box.ts";
+import {lightColorEvent, lightRotationEvent, lightTranslationEvent} from "../../builder_functions/v3_event/lighting/light_event.ts";
 
 //! Event Box Groups
 export abstract class EventBoxGroup<T extends bsmap.v3.IEventBox>
@@ -45,7 +45,7 @@ export abstract class EventBoxGroup<T extends bsmap.v3.IEventBox>
             g: this.groupID,
             customData: this.customData,
         } satisfies bsmap.v3.IEventBoxGroup<T>
-        return prune ? jsonPrune(output) : output
+        return prune ? objectPrune(output) : output
     }
 }
 
@@ -240,7 +240,7 @@ export class LightColorEventBox
             w: this.beatDistribution,
             customData: this.customData,
         } satisfies bsmap.v3.ILightColorEventBox
-        return prune ? jsonPrune(output) : output
+        return prune ? objectPrune(output) : output
     }
 }
 
@@ -310,7 +310,7 @@ export class LightRotationEventBox
             w: this.beatDistribution,
             customData: this.customData,
         } satisfies bsmap.v3.ILightRotationEventBox
-        return prune ? jsonPrune(output) : output
+        return prune ? objectPrune(output) : output
     }
 }
 
@@ -386,7 +386,7 @@ export class LightTranslationEventBox
             t: this.translationDistributionType,
             customData: this.customData,
         } satisfies bsmap.v3.ILightTranslationEventBox
-        return prune ? jsonPrune(output) : output
+        return prune ? objectPrune(output) : output
     }
 }
 
@@ -450,7 +450,7 @@ export class LightColorEvent extends BaseLightEvent<bsmap.v3.ILightColorBase> {
             s: this.brightness,
             customData: this.customData,
         } satisfies bsmap.v3.ILightColorBase
-        return prune ? jsonPrune(output) : output
+        return prune ? objectPrune(output) : output
     }
 }
 
@@ -513,7 +513,7 @@ export class LightRotationEvent
             r: this.rotationDegrees,
             customData: this.customData,
         } satisfies bsmap.v3.ILightRotationBase
-        return prune ? jsonPrune(output) : output
+        return prune ? objectPrune(output) : output
     }
 }
 
@@ -566,6 +566,6 @@ export class LightTranslationEvent
             t: this.magnitude,
             customData: this.customData,
         } satisfies bsmap.v3.ILightTranslationBase
-        return prune ? jsonPrune(output) : output
+        return prune ? objectPrune(output) : output
     }
 }

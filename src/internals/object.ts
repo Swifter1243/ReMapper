@@ -1,12 +1,5 @@
 import { bsmap } from '../deps.ts'
 
-import { NoteColor, NoteCut } from '../data/constants.ts'
-import { getActiveDifficulty } from '../data/beatmap_handler.ts'
-
-import { getJumps } from '../utils/math.ts'
-import { isEmptyObject } from '../utils/json.ts'
-
-import { Track } from '../animation/track.ts'
 import {
     Fields,
     ObjectFields,
@@ -19,17 +12,23 @@ import { JsonWrapper } from '../types/beatmap.ts'
 import {
     AnimationPropertiesV2,
     AnimationPropertiesV3,
-    jsonToAnimation,
     NoteAnimationData,
     ObjectAnimationData,
-} from '../data/animation.ts'
-import { TrackValue } from '../types/animation.ts'
-import { jsonPrune } from '../mod.ts'
-import { getInfoDat } from '../data/info_file.ts'
-import { getOffsetFromHalfJumpDuration } from '../utils/math.ts'
-import { getOffsetFromJumpDistance } from '../utils/math.ts'
-import { getReactionTime } from '../utils/math.ts'
-import { getOffsetFromReactionTime } from '../utils/math.ts'
+    TrackValue
+} from '../types/animation.ts'
+import { objectPrune } from '../mod.ts'
+import { getInfoDat } from '../data/info.ts'
+import {isEmptyObject} from "../utils/object/check.ts";
+import {Track} from "../utils/animation/track.ts";
+import {getActiveDifficulty} from "../data/active_difficulty.ts";
+import {jsonToAnimation} from "../utils/animation/json.ts";
+import {
+    getJumps,
+    getOffsetFromHalfJumpDuration,
+    getOffsetFromJumpDistance,
+    getOffsetFromReactionTime, getReactionTime
+} from "../utils/math/beatmap.ts";
+import {NoteColor, NoteCut} from "../data/constants/note.ts";
 
 /** An internal tool for inverting defined booleans, while ignoring undefined. */
 export function importInvertedBoolean(bool: boolean | undefined) {
@@ -117,7 +116,7 @@ export abstract class BaseObject<
 
     /** Checks if the object has modded properties. */
     get isModded() {
-        return !isEmptyObject(jsonPrune(this.toJson(true).customData as TJson))
+        return !isEmptyObject(objectPrune(this.toJson(true).customData as TJson))
     }
 
     fromJson(json: TV3, v3: true): this

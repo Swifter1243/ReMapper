@@ -1,19 +1,19 @@
-import { Track } from '../../animation/track.ts'
-import { getActiveDifficulty } from '../../data/beatmap_handler.ts'
 import { bsmap } from '../../deps.ts'
 import { EASE, PointDefinitionLinear } from '../../types/animation.ts'
 import {
     ILightWithId,
     TubeBloomPrePassLight,
 } from '../../types/environment.ts'
-import { copy } from '../../utils/general.ts'
-import { jsonPrune } from '../../utils/json.ts'
 import {
     BaseCustomEvent,
     CustomEventConstructorTrack,
     CustomEventSubclassFields,
     getDataProp,
 } from './base.ts'
+import {copy} from "../../utils/object/copy.ts";
+import {objectPrune} from "../../utils/object/prune.ts";
+import {Track} from "../../utils/animation/track.ts";
+import {getActiveDifficulty} from "../../data/active_difficulty.ts";
 
 export class AnimateComponent
     extends BaseCustomEvent<never, bsmap.v3.ICustomEventAnimateComponent> {
@@ -115,6 +115,6 @@ export class AnimateComponent
                 ...this.data,
             },
         } satisfies bsmap.v3.ICustomEventAnimateComponent
-        return prune ? jsonPrune(output) : output
+        return prune ? objectPrune(output) : output
     }
 }

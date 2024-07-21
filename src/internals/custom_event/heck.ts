@@ -1,16 +1,16 @@
-import { Track } from '../../animation/track.ts'
-import { getActiveDifficulty } from '../../data/beatmap_handler.ts'
 import { bsmap } from '../../deps.ts'
-import { EASE } from '../../types/animation.ts'
-import { copy } from '../../utils/general.ts'
-import { jsonPrune } from '../../utils/json.ts'
-import { AnimationPropertiesV3, animationToJson } from '../../data/animation.ts'
+import {AnimationPropertiesV3, EASE} from '../../types/animation.ts'
 import {
     BaseCustomEvent,
     CustomEventConstructorTrack,
     CustomEventSubclassFields,
     getDataProp,
 } from './base.ts'
+import {copy} from "../../utils/object/copy.ts";
+import {objectPrune} from "../../utils/object/prune.ts";
+import {Track} from "../../utils/animation/track.ts";
+import {getActiveDifficulty} from "../../data/active_difficulty.ts";
+import {animationToJson} from "../../utils/animation/json.ts";
 
 export class AnimateTrack extends BaseCustomEvent<
     bsmap.v2.ICustomEventAnimateTrack,
@@ -112,7 +112,7 @@ export class AnimateTrack extends BaseCustomEvent<
                 },
                 t: 'AnimateTrack',
             } satisfies bsmap.v3.ICustomEventAnimateTrack
-            return prune ? jsonPrune(output) : output
+            return prune ? objectPrune(output) : output
         }
 
         if (this.repeat) {
@@ -132,6 +132,6 @@ export class AnimateTrack extends BaseCustomEvent<
             },
             _type: 'AnimateTrack',
         } satisfies bsmap.v2.ICustomEventAnimateTrack
-        return prune ? jsonPrune(output) : output
+        return prune ? objectPrune(output) : output
     }
 }

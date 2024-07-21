@@ -1,12 +1,11 @@
-import { EPSILON, getRuntimeSeconds } from './utils/math.ts'
-import { fs, path } from './deps.ts'
-import { getActiveDifficulty } from './data/beatmap_handler.ts'
-import { OnlyNumbersOptional } from './types/util.ts'
-import { FILENAME, FILEPATH } from './types/beatmap.ts'
+import {OnlyNumbersOptional} from './types/util.ts'
 import * as NoteInternals from './internals/gameplay_object/color_note.ts'
-import { Wall } from './internals/gameplay_object/wall.ts'
-import { LightEvent } from './internals/lighting/basic_event.ts'
-import { getActiveCache } from './rm_cache.ts'
+import {Wall} from './internals/gameplay_object/wall.ts'
+import {LightEvent} from './internals/lighting/basic_event.ts'
+import {getActiveCache} from './rm_cache.ts'
+import {getActiveDifficulty} from "./data/active_difficulty.ts";
+import {EPSILON} from "./data/constants/math.ts";
+import {RMLog} from "./utils/rm_log.ts";
 
 /**
  * Store data in the ReMapper cache.
@@ -223,44 +222,3 @@ export function eventsBetween(
     return objectsBetween(getActiveDifficulty().lightEvents, min, max, forEach)
 }
 
-/**
- * Log a message as ReMapper, displaying seconds.
- * @param message Message to log.
- */
-export const RMLog = (message: string) =>
-    console.log(`[ReMapper: ${getRuntimeSeconds()}s] ` + message)
-
-/**
- * Log an error as ReMapper, displaying seconds.
- * @param message Error to log.
- */
-export const RMError = (message: string) =>
-    console.log('\x1b[31m%s\x1b[0m', `[ReMapper: ${getRuntimeSeconds()}s] ` + message)
-
-/**
- * Parse a file path, allowing extension forcing and getting useful information.
- * @param input Input path. Can be relative or absolute.
- * @param ext Force extension on the file.
- * @param error Throw an error if the file doesn't exist.
- */
-export async function parseFilePath(
-    input: FILEPATH,
-    ext?: `.${string}`,
-    error = true,
-) {
-    if (ext && !path.extname(input)) input += ext
-
-    if (error && !await fs.exists(input)) {
-        throw new Error(`The file "${input}" does not exist`)
-    }
-
-    const output: { name: FILENAME; path: FILEPATH; dir?: string } = {
-        name: path.basename(input),
-        path: input,
-    }
-
-    const dir = path.dirname(input)
-    if (dir !== '.') output.dir = dir
-
-    return output
-}
