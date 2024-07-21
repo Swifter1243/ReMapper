@@ -1,5 +1,5 @@
 import { LookupMethod } from '../../types/environment.ts'
-import { environment } from '../../builder_functions/environment/environment.ts'
+import { environment } from '../../builder_functions/beatmap/object/environment/environment.ts'
 
 /** Remove a list of IDs from the environment */
 export function environmentRemoval(

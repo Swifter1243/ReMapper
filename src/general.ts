@@ -1,11 +1,11 @@
 import {OnlyNumbersOptional} from './types/util.ts'
-import * as NoteInternals from './internals/gameplay_object/color_note.ts'
-import {Wall} from './internals/gameplay_object/wall.ts'
-import {LightEvent} from './internals/lighting/basic_event.ts'
+import * as NoteInternals from './internals/beatmap/object/gameplay_object/color_note.ts'
+import {Wall} from './internals/beatmap/object/gameplay_object/wall.ts'
 import {getActiveCache} from './rm_cache.ts'
 import {getActiveDifficulty} from "./data/active_difficulty.ts";
 import {EPSILON} from "./data/constants/math.ts";
 import {RMLog} from "./utils/rm_log.ts";
+import {LightEvent} from "./internals/beatmap/object/basic_event/light_event.ts";
 
 /**
  * Store data in the ReMapper cache.
@@ -212,7 +212,7 @@ export function wallsBetween(
  * Gets events between a min (inclusive) and max (exclusive) time.
  * @param min Minimum of the events.
  * @param max Maximum time of the events.
- * @param forEach Function for each event.
+ * @param forEach Function for each light_event.
  */
 export function eventsBetween(
     min: number,

@@ -15,12 +15,12 @@ import {
 
 import { cacheData } from '../general.ts'
 
-import * as CustomEventInternals from '../internals/custom_event/mod.ts'
+import * as CustomEventInternals from '../internals/beatmap/object/custom_event/mod.ts'
 
 import { optimizeKeyframes } from '../utils/animation/optimizer.ts'
 import { FILEPATH } from '../types/beatmap.ts'
 import { ColorVec, TransformKeyframe, Vec3, Vec4 } from '../types/data.ts'
-import { Environment } from '../internals/environment/environment.ts'
+import { Environment } from '../internals/beatmap/object/environment/environment.ts'
 import {
     attachWorkingDirectory, complexifyKeyframes, copy,
     DeepReadonly,
@@ -29,12 +29,12 @@ import {
 } from '../mod.ts'
 import { RuntimeRawKeyframesVec3 } from '../types/animation.ts'
 import { AnimationSettings } from '../utils/animation/optimizer.ts'
-import {animateTrack} from "../builder_functions/custom_event/heck.ts";
-import {Geometry} from "../internals/environment/geometry.ts";
-import {backLasers} from "../builder_functions/basic_event/light_event.ts";
-import {adjustFog} from "../builder_functions/environment/fog.ts";
-import {environment} from "../builder_functions/environment/environment.ts";
-import {geometry} from "../builder_functions/environment/geometry.ts";
+import {animateTrack} from "../builder_functions/beatmap/object/custom_event/heck.ts";
+import {Geometry} from "../internals/beatmap/object/environment/geometry.ts";
+import {backLasers} from "../builder_functions/beatmap/object/basic_event/light_event.ts";
+import {adjustFog} from "../builder_functions/beatmap/object/environment/fog.ts";
+import {environment} from "../builder_functions/beatmap/object/environment/environment.ts";
+import {geometry} from "../builder_functions/beatmap/object/environment/geometry.ts";
 import {bakeAnimation} from "../utils/animation/bake.ts";
 import {mirrorAnimation} from "../utils/animation/time_warp.ts";
 import {iterateKeyframes} from "../utils/animation/keyframe/iterate.ts";
@@ -49,10 +49,10 @@ let noYeet = true
 
 export class ModelScene {
     /** All of the "groups" stored in this model.
-     * When the model data is passed, if any model objects have a track that match the name of this group, an animation event will be placed for them.
+     * When the model data is passed, if any model objects have a track that match the name of this group, an animation light_event will be placed for them.
      */
     groups = <Record<string, ModelGroup>> {}
-    /** Settings for the optimizer on each animation event.
+    /** Settings for the optimizer on each animation light_event.
      * The animations will attempt to be optimized, removing visually redundant points.
      * This controls various parameters about how harshly the algorithm will target changes.
      */
@@ -553,7 +553,7 @@ export class ModelScene {
                     object.scale = scale
                     if (forObject) forObject(object)
                     object.push(false)
-                } // Creating event for assigned
+                } // Creating light_event for assigned
                 else {
                     const event = animateTrack(0, track)
                     event.animation.position = x
@@ -790,7 +790,7 @@ export class ModelScene {
                 event.push()
             }
 
-            // Make animation event
+            // Make animation light_event
             event.beat = s.beat + s.animationOffset!
             event.animation.position = d
                 .position as RuntimeRawKeyframesVec3
@@ -811,7 +811,7 @@ export class ModelScene {
                 event.duration /= (s.model as AnimatedOptions).loop!
             }
 
-            // Run callback and then push event
+            // Run callback and then push light_event
             if (s.forEvent) {
                 s.forEvent(event, objectInfo.perSwitch[s.beat])
             }
@@ -840,14 +840,14 @@ export class ModelScene {
                     const eventTime = firstInitializing ? 0 : switchTime
                     const amount = objectInfo.perSwitch[switchTime]
 
-                    // Initialize the yeet event for this switch if not present
+                    // Initialize the yeet light_event for this switch if not present
                     if (!yeetEvents[switchTime]) {
                         const event = animateTrack(eventTime, [])
                         event.animation.position = 'yeet'
                         yeetEvents[switchTime] = event
                     }
 
-                    // Add unused objects for this switch to the yeet event
+                    // Add unused objects for this switch to the yeet light_event
                     for (let i = amount; i < objectInfo.max; i++) {
                         const track = this.getPieceTrack(
                             group.object,

@@ -15,18 +15,16 @@ import {
 import {optimizeKeyframes, OptimizeSettings} from '../../utils/animation/optimizer.ts'
 import {AnyNote} from '../../general.ts'
 import {settings} from '../../data/settings.ts' // TODO: Cyclic, fix
-import * as CustomEventInternals from '../custom_event/mod.ts'
-import * as EnvironmentInternals from '../environment/environment.ts'
-import * as NoteInternals from '../gameplay_object/color_note.ts'
-import * as WallInternals from '../gameplay_object/wall.ts'
-import * as BasicEventInternals from '../lighting/basic_event.ts'
-import * as LightingV3 from '../lighting/lighting_v3.ts'
-import {EventInternals} from '../mod.ts'
-import {FogEvent} from '../environment/fog.ts'
+import * as CustomEventInternals from './object/custom_event/mod.ts'
+import * as EnvironmentInternals from './object/environment/environment.ts'
+import * as NoteInternals from './object/gameplay_object/color_note.ts'
+import * as WallInternals from './object/gameplay_object/wall.ts'
+import * as BasicEventInternals from './object/basic_event/basic_event.ts'
+import {FogEvent} from './object/environment/fog.ts'
 import {getActiveCache} from '../../rm_cache.ts'
 import {RawKeyframesLinear, RuntimePointDefinitionAny, RuntimeRawKeyframesAny,} from '../../types/animation.ts'
 import {objectSafeGet, objectSafeSet} from '../../utils/object/safe.ts'
-import {Geometry} from '../environment/geometry.ts'
+import {Geometry} from './object/environment/geometry.ts'
 import {areKeyframesRuntime} from '../../utils/animation/keyframe/runtime.ts'
 import {attachWorkingDirectory} from '../../data/working_directory.ts'
 import {settingsHandler} from './settings_handler.ts'
@@ -34,10 +32,21 @@ import {BeatmapCustomEvents, RMDifficulty} from "../../types/beatmap_interfaces/
 import {setDecimals} from "../../utils/math/rounding.ts";
 import {RMLog} from "../../utils/rm_log.ts";
 import {parseFilePath} from "../../utils/file.ts";
+import {AbstractBasicEvent} from "./object/basic_event/abstract.ts";
+import {LightEvent} from "./object/basic_event/light_event.ts";
+import {LaserSpeedEvent} from "./object/basic_event/laser_speed.ts";
+import {RingZoomEvent} from "./object/basic_event/ring_zoom.ts";
+import {RingSpinEvent} from "./object/basic_event/ring_spin.ts";
+import {RotationEvent} from "../v3_event/rotation.ts";
+import {BoostEvent} from "../v3_event/lighting/boost.ts";
+import {BPMEvent} from "../v3_event/bpm.ts";
+import {LightColorEventBoxGroup} from "../v3_event/lighting/light_event_box_group/color.ts";
+import {LightRotationEventBoxGroup} from "../v3_event/lighting/light_event_box_group/rotation.ts";
+import {LightTranslationEventBoxGroup} from "../v3_event/lighting/light_event_box_group/translation.ts";
 
 const clearPropertyMap = {
     arcs: 'Arcs',
-    baseBasicEvents: 'Base Basic Events',
+    abstractBasicEvents: 'Base Basic Events',
     bombs: 'Bombs',
     boostEvents: 'Boost Events',
     bpmEvents: 'BPM Events',
@@ -117,18 +126,18 @@ export abstract class AbstractDifficulty<
     chains: NoteInternals.Chain[]
     walls: WallInternals.Wall[]
 
-    lightEvents: BasicEventInternals.LightEvent[]
-    laserSpeedEvents: BasicEventInternals.LaserSpeedEvent[]
-    ringZoomEvents: BasicEventInternals.RingZoomEvent[]
-    ringSpinEvents: BasicEventInternals.RingSpinEvent[]
-    rotationEvents: EventInternals.RotationEvent[]
-    boostEvents: EventInternals.BoostEvent[]
-    baseBasicEvents: BasicEventInternals.BaseEvent[]
-    bpmEvents: EventInternals.BPMEvent[]
+    lightEvents: LightEvent[]
+    laserSpeedEvents: LaserSpeedEvent[]
+    ringZoomEvents: RingZoomEvent[]
+    ringSpinEvents: RingSpinEvent[]
+    rotationEvents: RotationEvent[]
+    boostEvents: BoostEvent[]
+    abstractBasicEvents: AbstractBasicEvent[]
+    bpmEvents: BPMEvent[]
 
-    lightColorEventBoxGroups: LightingV3.LightColorEventBoxGroup[]
-    lightRotationEventBoxGroups: LightingV3.LightRotationEventBoxGroup[]
-    lightTranslationEventBoxGroups: LightingV3.LightTranslationEventBoxGroup[]
+    lightColorEventBoxGroups: LightColorEventBoxGroup[]
+    lightRotationEventBoxGroups: LightRotationEventBoxGroup[]
+    lightTranslationEventBoxGroups: LightTranslationEventBoxGroup[]
 
     customEvents: BeatmapCustomEvents
 
@@ -170,7 +179,7 @@ export abstract class AbstractDifficulty<
         this.ringSpinEvents = inner.ringSpinEvents
         this.rotationEvents = inner.rotationEvents
         this.boostEvents = inner.boostEvents
-        this.baseBasicEvents = inner.baseBasicEvents
+        this.abstractBasicEvents = inner.abstractBasicEvents
         this.bpmEvents = inner.bpmEvents
 
         this.lightColorEventBoxGroups = inner.lightColorEventBoxGroups
@@ -412,13 +421,13 @@ export abstract class AbstractDifficulty<
      * Iterator for all basic (non V3 lighting_v3) events on the difficulty.
      * @brief Not sorted
      */
-    allBasicEvents(sorted = false): BasicEventInternals.BaseEvent[] {
+    allBasicEvents(sorted = false): BasicEventInternals.BasicEvent[] {
         const arr = [
             ...this.lightEvents,
             ...this.laserSpeedEvents,
             ...this.ringZoomEvents,
             ...this.ringSpinEvents,
-            ...this.baseBasicEvents,
+            ...this.abstractBasicEvents,
         ]
 
         if (sorted) return arr.sort((a, b) => a.beat - b.beat)

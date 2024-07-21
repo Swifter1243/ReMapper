@@ -1,8 +1,8 @@
 import {DeepReadonly} from '../../types/util.ts'
 import {MATERIAL_PROP_TYPE, MaterialProperty} from '../../types/vivify.ts'
 import {EASE} from '../../types/animation.ts'
-import {blit, setMaterialProperty} from '../../builder_functions/custom_event/vivify.ts'
-import {Blit, SetMaterialProperty} from "../../internals/custom_event/vivify.ts";
+import {blit, setMaterialProperty} from '../../builder_functions/beatmap/object/custom_event/vivify.ts'
+import {Blit, SetMaterialProperty} from "../../internals/beatmap/object/custom_event/vivify.ts";
 import {MaterialProperties, MaterialPropertyMap} from "../../types/asset.ts";
 
 type MaterialSetParameters0<

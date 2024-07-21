@@ -2,13 +2,13 @@ import {RawKeyframesVec3} from './animation.ts'
 import {RawGeometryMaterial} from './environment.ts'
 
 // TODO: Stink
-import type * as CustomEventInternals from '../internals/custom_event/mod.ts'
-import type * as EnvironmentInternals from '../internals/environment/environment.ts'
+import type * as CustomEventInternals from '../internals/beatmap/object/custom_event/mod.ts'
+import type * as EnvironmentInternals from '../internals/beatmap/object/environment/environment.ts'
 
 import {FILEPATH} from './beatmap.ts'
 import {ColorVec, Transform, Vec3} from './data.ts'
 import {DeepReadonly} from './util.ts'
-import {Geometry} from "../internals/environment/geometry.ts";
+import {Geometry} from "../internals/beatmap/object/environment/geometry.ts";
 
 /** Objects that are allowed to be spawned with a ModelScene. */
 export type GroupObjectTypes =
@@ -64,13 +64,13 @@ export type SceneSwitch = {
     animationDuration?: number,
     /** The offset added to `beat` which defines when the animation in the input objects happen. */
     animationOffset?: number,
-    /** Runs on each event that moves objects in this switch. */
+    /** Runs on each light_event that moves objects in this switch. */
     forEvent?: ((event: CustomEventInternals.AnimateTrack, objects: number) => void) 
 }
 
 
 /** A group in a ModelScene.
- * When the model data is passed, if any model objects have a track that match the name of this group, an animation event will be placed for them.
+ * When the model data is passed, if any model objects have a track that match the name of this group, an animation light_event will be placed for them.
  */
 export type ModelGroup = {
     /** What object to spawn for each object in this group.

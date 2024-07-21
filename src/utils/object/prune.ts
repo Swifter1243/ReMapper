@@ -7,24 +7,24 @@ import {isEmptyObject} from "./check.ts";
  * Delete empty objects/arrays from an object recursively.
  * @param obj Object to prune.
  */
-export function objectPrune<T extends TJson>(obj: T) {
+export function objectPrune<T extends object>(obj: T) {
     if (typeof obj !== 'object') return obj
 
     Object.entries(obj).forEach(([k, v]) => {
         if (v === null) return
 
         if (v === undefined) {
-            delete obj[k]
+            delete (obj as Record<string, unknown>)[k]
             return
         }
 
         if (typeof v === 'object') {
             objectPrune(v as TJson)
             if (!Array.isArray(v) && isEmptyObject(v)) {
-                delete obj[k]
+                delete (obj as Record<string, unknown>)[k]
             }
         } else if (typeof v === 'string' && v.length === 0) {
-            delete obj[k]
+            delete (obj as Record<string, unknown>)[k]
         }
     })
 

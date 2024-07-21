@@ -1,3 +1,4 @@
+import { path } from '../deps.ts'
 import { loadCache } from '../rm_cache.ts'
 
 let workingDirectory: string

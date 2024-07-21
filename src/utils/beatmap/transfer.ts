@@ -54,7 +54,7 @@ export async function transferVisuals(
             workingDiff.ringSpinEvents = currentDiff.ringSpinEvents
             workingDiff.rotationEvents = currentDiff.rotationEvents
             workingDiff.boostEvents = currentDiff.boostEvents
-            workingDiff.baseBasicEvents = currentDiff.baseBasicEvents
+            workingDiff.abstractBasicEvents = currentDiff.abstractBasicEvents
 
             workingDiff.customEvents = currentDiff.customEvents
 

@@ -1,4 +1,4 @@
-import { Wall } from '../internals/gameplay_object/wall.ts'
+import { Wall } from '../internals/beatmap/object/gameplay_object/wall.ts'
 import { modelToWall } from './wall.ts'
 import { getModel } from './model.ts'
 import { Bounds, Transform, Vec3 } from '../types/data.ts'

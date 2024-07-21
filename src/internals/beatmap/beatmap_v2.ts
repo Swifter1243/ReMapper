@@ -1,41 +1,42 @@
-import {wall} from '../../builder_functions/gameplay_object/wall.ts'
+import {wall} from '../../builder_functions/beatmap/object/gameplay_object/wall.ts'
 import {bsmap} from '../../deps.ts'
 import {AbstractDifficulty} from './abstract_beatmap.ts'
-import {Bomb, ColorNote} from '../gameplay_object/color_note.ts'
+import {Bomb, ColorNote} from './object/gameplay_object/color_note.ts'
 import {ColorVec} from '../../types/data.ts'
-import {Wall} from '../gameplay_object/wall.ts'
+import {Wall} from './object/gameplay_object/wall.ts'
 import {GeoShader, RawGeometryMaterial} from '../../types/environment.ts'
-import {CommunityBPMEvent, OfficialBPMEvent} from '../event.ts'
 import {
-    CustomEventInternals,
     IInfoSet,
     IInfoSetDifficulty,
     RuntimeRawKeyframesAny,
 } from '../../mod.ts'
-import {animateTrack} from "../../builder_functions/custom_event/heck.ts";
+import {animateTrack} from "../../builder_functions/beatmap/object/custom_event/heck.ts";
 import {
     assignPathAnimation,
     assignPlayerToTrack,
     assignTrackParent
-} from "../../builder_functions/custom_event/noodle_extensions.ts";
-import {communityBpmEvent} from "../../builder_functions/basic_event/bpm.ts";
-import {earlyRotation, lateRotation} from "../../builder_functions/v3_event/rotation.ts";
-import {leftLaserSpeed} from "../../builder_functions/basic_event/laser_speed.ts";
-import {ringSpin, ringZoom} from "../../builder_functions/basic_event/ring.ts";
-import {baseBasicEvent} from "../../builder_functions/basic_event/base.ts";
-import {backLasers} from "../../builder_functions/basic_event/light_event.ts";
-import {boost} from "../../builder_functions/v3_event/lighting/boost.ts";
-import {environment} from "../../builder_functions/environment/environment.ts";
-import {geometry} from "../../builder_functions/environment/geometry.ts";
-import {colorNote} from "../../builder_functions/gameplay_object/color_note.ts";
-import {bomb} from "../../builder_functions/gameplay_object/bomb.ts";
-import {AnyFog, FogEvent} from "../environment/fog.ts";
-import { abstractCustomEvent } from '../../builder_functions/custom_event/base.ts'
+} from "../../builder_functions/beatmap/object/custom_event/noodle_extensions.ts";
+import {communityBpmEvent} from "../../builder_functions/beatmap/object/basic_event/bpm.ts";
+import {earlyRotation, lateRotation} from "../../builder_functions/beatmap/object/v3_event/rotation.ts";
+import {leftLaserSpeed} from "../../builder_functions/beatmap/object/basic_event/laser_speed.ts";
+import {ringSpin, ringZoom} from "../../builder_functions/beatmap/object/basic_event/ring.ts";
+import {abstractBasicEvent} from "../../builder_functions/beatmap/object/basic_event/abstract.ts";
+import {backLasers} from "../../builder_functions/beatmap/object/basic_event/light_event.ts";
+import {boost} from "../../builder_functions/beatmap/object/v3_event/lighting/boost.ts";
+import {environment} from "../../builder_functions/beatmap/object/environment/environment.ts";
+import {geometry} from "../../builder_functions/beatmap/object/environment/geometry.ts";
+import {colorNote} from "../../builder_functions/beatmap/object/gameplay_object/color_note.ts";
+import {bomb} from "../../builder_functions/beatmap/object/gameplay_object/bomb.ts";
+import {AnyFog, FogEvent} from "./object/environment/fog.ts";
+import { abstractCustomEvent } from '../../builder_functions/beatmap/object/custom_event/base.ts'
 import {arraySplit} from "../../utils/array/split.ts";
 import {objectPrune, shallowPrune} from "../../utils/object/prune.ts";
 import {EventGroup} from "../../data/constants/basic_event.ts";
-import {officialBpmEvent} from "../../builder_functions/v3_event/bpm.ts";
+import {officialBpmEvent} from "../../builder_functions/beatmap/object/v3_event/bpm.ts";
 import {BeatmapCustomEvents, RMDifficulty} from "../../types/beatmap_interfaces/difficulty.ts";
+import {OfficialBPMEvent} from "./object/v3_event/official_bpm.ts";
+import {CommunityBPMEvent} from "./object/v3_event/community_bpm.ts";
+import {BaseCustomEvent} from "./object/custom_event/base.ts";
 
 /** Difficulty V2 beatmap. */
 export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
@@ -176,7 +177,7 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
         )
 
         const baseBasicEvents = json._events.map((o) =>
-            baseBasicEvent({}).fromJson(o, false)
+            abstractBasicEvent({}).fromJson(o, false)
         )
 
         const bpmEvents = [
@@ -236,7 +237,7 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
         const diffCustomEvents: Partial<BeatmapCustomEvents> = {}
 
         function extractCustomEvents<
-            T extends CustomEventInternals.BaseCustomEvent,
+            T extends BaseCustomEvent,
             K extends keyof BeatmapCustomEvents,
         >(
             obj: (a: object) => T,
@@ -337,7 +338,7 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
                 ringZoomEvents: ringZoomEvents,
                 rotationEvents: rotationEvents,
                 boostEvents: boostEvents,
-                baseBasicEvents: baseBasicEvents,
+                abstractBasicEvents: baseBasicEvents,
                 bpmEvents: bpmEvents,
 
                 lightColorEventBoxGroups: [],
@@ -421,7 +422,7 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
             ...this.ringSpinEvents,
             ...this.rotationEvents,
             ...this.boostEvents,
-            ...this.baseBasicEvents,
+            ...this.abstractBasicEvents,
             ...bpmEventsFilter.success,
         ].map((o) => o.toJson(false))
             .sort(sortItems) as bsmap.v2.IEvent[]
@@ -429,7 +430,7 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
         // Custom Events
         const customEvents = (Object.values(
             this.customEvents,
-        ) as CustomEventInternals.BaseCustomEvent[][])
+        ) as BaseCustomEvent[][])
             .map((a) => a.map((e) => e.toJson(false)))
             .flat()
             .sort(sortItems) as bsmap.v2.ICustomEvent[]

@@ -1,17 +1,13 @@
-import {wall} from '../../builder_functions/gameplay_object/wall.ts'
+import {wall} from '../../builder_functions/beatmap/object/gameplay_object/wall.ts'
 import {bsmap} from '../../deps.ts'
 import {AbstractDifficulty} from './abstract_beatmap.ts'
-import {Arc, Bomb, Chain, ColorNote} from '../gameplay_object/color_note.ts'
+import {Arc, Bomb, Chain, ColorNote} from './object/gameplay_object/color_note.ts'
 import {
-    arraySplit,
-    CustomEventInternals,
     IInfoSet,
     IInfoSetDifficulty,
     RawGeometryMaterial,
-    Track,
 } from '../../mod.ts'
-import {AnyFog, FogEvent} from '../environment/fog.ts'
-import {OfficialBPMEvent} from '../event.ts'
+import {AnyFog, FogEvent} from './object/environment/fog.ts'
 import {
     assignTrackPrefab,
     blit,
@@ -25,37 +21,41 @@ import {
     setGlobalProperty,
     setMaterialProperty,
     setRenderSetting
-} from "../../builder_functions/custom_event/vivify.ts";
-import {animateTrack} from "../../builder_functions/custom_event/heck.ts";
+} from "../../builder_functions/beatmap/object/custom_event/vivify.ts";
+import {animateTrack} from "../../builder_functions/beatmap/object/custom_event/heck.ts";
 import {
     assignPathAnimation,
     assignPlayerToTrack,
     assignTrackParent
-} from "../../builder_functions/custom_event/noodle_extensions.ts";
-import {animateComponent} from "../../builder_functions/custom_event/chroma.ts";
+} from "../../builder_functions/beatmap/object/custom_event/noodle_extensions.ts";
+import {animateComponent} from "../../builder_functions/beatmap/object/custom_event/chroma.ts";
 import {
     lightColorEventBoxGroup,
     lightRotationEventBoxGroup,
     lightTranslationEventBoxGroup
-} from "../../builder_functions/v3_event/lighting/light_event_box_group.ts";
-import {communityBpmEvent} from "../../builder_functions/basic_event/bpm.ts";
-import {earlyRotation, lateRotation} from "../../builder_functions/v3_event/rotation.ts";
-import {leftLaserSpeed} from "../../builder_functions/basic_event/laser_speed.ts";
-import {ringSpin, ringZoom} from "../../builder_functions/basic_event/ring.ts";
-import {baseBasicEvent} from "../../builder_functions/basic_event/base.ts";
-import {backLasers} from "../../builder_functions/basic_event/light_event.ts";
-import {boost} from "../../builder_functions/v3_event/lighting/boost.ts";
-import {environment} from "../../builder_functions/environment/environment.ts";
-import {geometry} from "../../builder_functions/environment/geometry.ts";
-import {colorNote} from "../../builder_functions/gameplay_object/color_note.ts";
-import {bomb} from "../../builder_functions/gameplay_object/bomb.ts";
-import {chain} from "../../builder_functions/gameplay_object/chain.ts";
-import {arc} from "../../builder_functions/gameplay_object/arc.ts";
-import {abstractCustomEvent} from "../../builder_functions/custom_event/base.ts";
+} from "../../builder_functions/beatmap/object/v3_event/lighting/light_event_box_group.ts";
+import {communityBpmEvent} from "../../builder_functions/beatmap/object/basic_event/bpm.ts";
+import {earlyRotation, lateRotation} from "../../builder_functions/beatmap/object/v3_event/rotation.ts";
+import {leftLaserSpeed} from "../../builder_functions/beatmap/object/basic_event/laser_speed.ts";
+import {ringSpin, ringZoom} from "../../builder_functions/beatmap/object/basic_event/ring.ts";
+import {abstractBasicEvent} from "../../builder_functions/beatmap/object/basic_event/abstract.ts";
+import {backLasers} from "../../builder_functions/beatmap/object/basic_event/light_event.ts";
+import {boost} from "../../builder_functions/beatmap/object/v3_event/lighting/boost.ts";
+import {environment} from "../../builder_functions/beatmap/object/environment/environment.ts";
+import {geometry} from "../../builder_functions/beatmap/object/environment/geometry.ts";
+import {colorNote} from "../../builder_functions/beatmap/object/gameplay_object/color_note.ts";
+import {bomb} from "../../builder_functions/beatmap/object/gameplay_object/bomb.ts";
+import {chain} from "../../builder_functions/beatmap/object/gameplay_object/chain.ts";
+import {arc} from "../../builder_functions/beatmap/object/gameplay_object/arc.ts";
+import {abstractCustomEvent} from "../../builder_functions/beatmap/object/custom_event/base.ts";
 import {shallowPrune} from "../../utils/object/prune.ts";
 import {EventGroup} from "../../data/constants/basic_event.ts";
-import {officialBpmEvent} from "../../builder_functions/v3_event/bpm.ts";
+import {officialBpmEvent} from "../../builder_functions/beatmap/object/v3_event/bpm.ts";
 import {BeatmapCustomEvents, RMDifficulty} from "../../types/beatmap_interfaces/difficulty.ts";
+import { arraySplit } from '../../utils/array/split.ts'
+import { Track } from '../../utils/animation/track.ts'
+import { BaseCustomEvent } from './object/custom_event/base.ts'
+import {OfficialBPMEvent} from "./object/v3_event/official_bpm.ts";
 
 export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
     declare version: bsmap.v3.IDifficulty['version']
@@ -263,7 +263,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         ]
 
         const baseBasicEvents = json.basicBeatmapEvents.map((o) =>
-            baseBasicEvent({}).fromJson(o, true)
+            abstractBasicEvent({}).fromJson(o, true)
         )
 
         if (!json.bpmEvents) {
@@ -344,7 +344,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         const diffCustomEvents: Partial<BeatmapCustomEvents> = {}
 
         function extractCustomEvents<
-            T extends CustomEventInternals.BaseCustomEvent,
+            T extends BaseCustomEvent,
             K extends keyof BeatmapCustomEvents,
         >(
             obj: (a: object) => T,
@@ -459,7 +459,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
                 ringZoomEvents: ringZoomEvents,
                 rotationEvents: rotationEvents,
                 boostEvents: boostEvents,
-                baseBasicEvents: baseBasicEvents,
+                abstractBasicEvents: baseBasicEvents,
                 bpmEvents: bpmEvents,
 
                 lightColorEventBoxGroups: lightColorEventBoxGroups,
@@ -522,7 +522,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
             ...this.laserSpeedEvents,
             ...this.ringZoomEvents,
             ...this.ringSpinEvents,
-            ...this.baseBasicEvents,
+            ...this.abstractBasicEvents,
         ].map((o) => o.toJson(true))
             .sort(sortItems)
 
@@ -550,7 +550,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         // Custom events
         const customEvents = (Object.values(
             this.customEvents,
-        ) as CustomEventInternals.BaseCustomEvent[][])
+        ) as BaseCustomEvent[][])
             .map((a) => a.map((e) => e.toJson(true)))
             .flat()
             .sort(sortItems) as bsmap.v3.ICustomEvent[]

@@ -12,8 +12,8 @@ import {
     OptimizeSettings,
 } from '../utils/animation/optimizer.ts'
 
-import { wall } from '../builder_functions/gameplay_object/wall.ts'
-import { Wall } from '../internals/gameplay_object/wall.ts'
+import { wall } from '../builder_functions/beatmap/object/gameplay_object/wall.ts'
+import { Wall } from '../internals/beatmap/object/gameplay_object/wall.ts'
 
 import { getModel } from './model.ts'
 import { ModelObject, ReadonlyModel } from '../types/model.ts'
