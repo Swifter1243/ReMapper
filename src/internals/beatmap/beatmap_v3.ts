@@ -599,6 +599,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
             ).sort(sortItems)
 
         return {
+            version: '3.2.0',
             colorNotes: colorNotes,
             bombNotes: bombNotes,
             basicBeatmapEvents: basicEvents,
@@ -611,7 +612,6 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
             rotationEvents: rotationEvents,
             obstacles: obstacles,
             sliders: arcs,
-            version: '3.2.0',
             waypoints: this.waypoints,
             customData: shallowPrune({
                 ...this.customData,

@@ -450,11 +450,11 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
         })
 
         return {
+            _version: '2.6.0',
             _notes: notes,
             _events: basicEvents,
             _obstacles: obstacles,
             _sliders: [],
-            _version: '2.6.0',
             _waypoints: this.waypoints,
             _customData: shallowPrune({
                 ...this.customData,
