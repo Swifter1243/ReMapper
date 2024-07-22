@@ -76,7 +76,7 @@ export function lerpRotation(
 /**
  * Find value between 0 and 1 from a beginning, length, and a point in time between.
  * @param beginning Start value.
- * @param length Length between start and end value.
+ * @param end End value.
  * @param time Value between start and end.
  */
 export function inverseLerp(beginning: number, end: number, time: number) {
