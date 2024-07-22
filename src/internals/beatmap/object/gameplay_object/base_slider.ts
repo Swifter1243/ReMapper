@@ -12,7 +12,7 @@ export abstract class BaseSliderObject<TV3 extends bsmap.v3.IBaseSlider>
     /** The color of the object. */
     type: NoteColor
     /** The cut direction of the head. */
-    headDirection: NoteCut
+    cutDirection: NoteCut
     /** The time the tail arrives at the player. */
     tailBeat: number
     /** The lane of the tail. */
@@ -27,7 +27,7 @@ export abstract class BaseSliderObject<TV3 extends bsmap.v3.IBaseSlider>
     ) {
         super(obj)
         this.type = obj.type ?? NoteColor.RED
-        this.headDirection = obj.headDirection ?? 0
+        this.cutDirection = obj.cutDirection ?? 0
         this.tailBeat = obj.tailBeat ?? 0
         this.tailX = obj.tailX ?? 0
         this.tailY = obj.tailY ?? 0
@@ -58,8 +58,7 @@ export abstract class BaseSliderObject<TV3 extends bsmap.v3.IBaseSlider>
 
         const params = {
             type: obj.c ?? 0,
-
-            headDirection: obj.d ?? 0,
+            cutDirection: obj.d ?? 0,
             tailCoordinates: getCDProp(obj, 'tailCoordinates'),
             tailBeat: obj.tb ?? 0,
             tailX: obj.tx ?? 0,

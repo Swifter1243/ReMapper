@@ -98,7 +98,7 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
         const output = {
             b: this.beat,
             c: this.type,
-            d: this.headDirection,
+            d: this.cutDirection,
 
             m: this.anchorMode,
             mu: this.headLength,

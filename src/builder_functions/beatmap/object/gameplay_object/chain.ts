@@ -27,7 +27,7 @@ export function chain(
         beat: beat as number ?? 0,
         tailBeat: tailBeat ?? 0,
         type: type ?? NoteColor.BLUE,
-        headDirection: direction ?? NoteCut.DOWN,
+        cutDirection: direction ?? NoteCut.DOWN,
         x: x ?? 0,
         y: y ?? 0,
         tailX: tailX ?? 0,

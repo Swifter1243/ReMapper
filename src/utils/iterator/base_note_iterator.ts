@@ -110,7 +110,7 @@ export class BaseNoteIterator<T extends AnyNote> {
             if (x instanceof ColorNote) {
                 x.track.add(getTrack(x.cutDirection))
             } else if (x instanceof Chain) {
-                x.track.add(getTrack(x.headDirection))
+                x.track.add(getTrack(x.cutDirection))
             }
         })
     }

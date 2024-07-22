@@ -130,7 +130,7 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
         const output = {
             b: this.beat,
             c: this.type,
-            d: this.headDirection,
+            d: this.cutDirection,
             sc: this.links,
             s: this.squish,
             tb: this.tailBeat,

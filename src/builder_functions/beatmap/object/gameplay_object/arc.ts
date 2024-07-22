@@ -37,7 +37,7 @@ export function arc(
         beat: beat as number ?? 0,
         type: type ?? NoteColor.BLUE,
         tailBeat: tailBeat ?? 0,
-        headDirection: headDirection ?? NoteCut.DOWN,
+        cutDirection: headDirection ?? NoteCut.DOWN,
         tailDirection: tailDirection ?? NoteCut.DOWN,
         x: x ?? 0,
         y: y ?? 0,
