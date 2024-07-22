@@ -1,9 +1,11 @@
-import {JsonWrapper} from '../../types/beatmap.ts'
-import {Fields, ObjectFields} from '../../types/object.ts'
-import {BaseObject} from '../beatmap/object/object.ts'
-import {V2BPM, V3BPM} from "../../types/v3_event.ts";
-import { getActiveDifficulty } from '../../properties/active_difficulty.ts'
-import { copy } from '../../utils/object/copy.ts'
+import {V2BPM, V3BPM} from "../../../../types/beatmap/object/v3_event.ts";
+import {JsonWrapper} from "../../../../types/beatmap/json_wrapper.ts";
+import {Fields} from "../../../../types/util/class.ts";
+import {getActiveDifficulty} from "../../../../data/active_difficulty.ts";
+import {copy} from "../../../../utils/object/copy.ts";
+import {ObjectFields} from "../../../../types/util/json.ts";
+import {BeatmapObject} from "../object.ts";
+
 
 export abstract class BPMEvent<
     TV2 extends V2BPM = V2BPM,
@@ -26,7 +28,7 @@ export abstract class BPMEvent<
     fromJson(json: TV3, v3: true): this
     fromJson(json: TV2, v3: false): this
     fromJson(json: TV2 | TV3, v3: boolean): this {
-        type Params = ObjectFields<BaseObject<TV2, TV3>>
+        type Params = ObjectFields<BeatmapObject<TV2, TV3>>
 
         if (v3) {
             const obj = json as TV3
