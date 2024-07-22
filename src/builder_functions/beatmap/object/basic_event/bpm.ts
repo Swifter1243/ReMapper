@@ -15,7 +15,9 @@ export function communityBpmEvent(
     beatsPerBar?: number,
     metronomeOffset?: number,
 ): CommunityBPMEvent
-export function communityBpmEvent(...params: ConstructorParameters<typeof CommunityBPMEvent>): CommunityBPMEvent
+export function communityBpmEvent(
+    ...params: ConstructorParameters<typeof CommunityBPMEvent>
+): CommunityBPMEvent
 export function communityBpmEvent(
     ...params: [
         beat: number,

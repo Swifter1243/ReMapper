@@ -1,4 +1,4 @@
-import {AbstractBasicEvent} from "../../../../internals/beatmap/object/basic_event/abstract.ts";
+import { AbstractBasicEvent } from '../../../../internals/beatmap/object/basic_event/abstract.ts'
 
 /** The bare minimum basic light event. */
 export function abstract(

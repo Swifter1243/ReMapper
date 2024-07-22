@@ -15,7 +15,7 @@ export function leftLaserSpeed(
     beat: number,
     speed?: number,
     direction?: RingSpinEvent['direction'],
-    lockRotation?: boolean
+    lockRotation?: boolean,
 ): LaserSpeedEvent
 export function leftLaserSpeed(...params: LeftLaserSpeedParams): LaserSpeedEvent
 export function leftLaserSpeed(
@@ -58,7 +58,7 @@ export function rightLaserSpeed(
     beat: number,
     speed?: number,
     direction?: RingSpinEvent['direction'],
-    lockRotation?: boolean
+    lockRotation?: boolean,
 ): LaserSpeedEvent
 export function rightLaserSpeed(...params: RightLaserSpeedParams): LaserSpeedEvent
 export function rightLaserSpeed(

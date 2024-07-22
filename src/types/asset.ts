@@ -1,11 +1,11 @@
-import {Material} from '../utils/asset/material.ts'
-import {Prefab} from '../utils/asset/prefab.ts'
+import { Material } from '../utils/asset/material.ts'
+import { Prefab } from '../utils/asset/prefab.ts'
 
-import {ColorVec, Vec4} from "./math/vector.ts";
-import {RuntimePointDefinitionLinear} from "./animation/keyframe/runtime/linear.ts";
-import {RuntimePointDefinitionVec4} from "./animation/keyframe/runtime/vec4.ts";
-import {FILEPATH} from "./beatmap/file.ts";
-import {MATERIAL_PROP_TYPE} from "./vivify/material.ts";
+import { ColorVec, Vec4 } from './math/vector.ts'
+import { RuntimePointDefinitionLinear } from './animation/keyframe/runtime/linear.ts'
+import { RuntimePointDefinitionVec4 } from './animation/keyframe/runtime/vec4.ts'
+import { FILEPATH } from './beatmap/file.ts'
+import { MATERIAL_PROP_TYPE } from './vivify/material.ts'
 
 /** A list of prefab names and their paths. Typically input from `asset_info.json` */
 export type PrefabInfo = Record<string, string>
@@ -33,10 +33,8 @@ export type FixedMaterialInfo<BaseMaterial extends MaterialInfo[string]> = {
     path: string
     properties: {
         [MaterialProperty in keyof BaseMaterial['properties']]:
-            BaseMaterial['properties'][MaterialProperty] extends Record<string, unknown> ? Extract<
-                    keyof BaseMaterial['properties'][MaterialProperty],
-                    MATERIAL_PROP_TYPE
-                >
+            BaseMaterial['properties'][MaterialProperty] extends Record<string, unknown>
+                ? Extract<keyof BaseMaterial['properties'][MaterialProperty], MATERIAL_PROP_TYPE>
                 : never
     }
 }
