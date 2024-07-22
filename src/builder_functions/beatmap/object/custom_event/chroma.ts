@@ -5,9 +5,6 @@ import {TrackValue} from "../../../../types/animation/track.ts";
 
 /**
  * Animate components on a track.
- * @param track Track(s) to effect.
- * @param duration Duration of the animation.
- * @param easing The easing on the animation.
  */
 export function animateComponent(
     ...params:

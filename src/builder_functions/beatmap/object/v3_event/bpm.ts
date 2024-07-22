@@ -1,4 +1,5 @@
-import {OfficialBPMEvent} from "../../internals/v3_event/official_bpm.ts";
+import {OfficialBPMEvent} from "../../../../internals/beatmap/object/v3_event/official_bpm.ts";
+
 
 /** Creates an official BPM light_event, which changes the actual time between object beats.
  * As opposed to community BPM events which are only interpreted by the editor.

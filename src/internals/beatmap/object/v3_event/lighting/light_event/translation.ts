@@ -1,10 +1,12 @@
-import {bsmap} from '../../../../deps.ts'
-import {ObjectFields, SubclassExclusiveProps} from '../../../../types/object.ts'
-import {BaseObject} from '../../../beatmap/object/object.ts'
-import {RotationEase} from "../../../../properties/constants/v3_event.ts";
-import {objectPrune} from "../../../../utils/object/prune.ts";
+import {BeatmapObject} from "../../../object.ts";
+import {ObjectFields} from "../../../../../../types/util/json.ts";
+import {RotationEase} from "../../../../../../data/constants/v3_event.ts";
+import {SubclassExclusiveProps} from "../../../../../../types/util/class.ts";
+import { bsmap } from '../../../../../../deps.ts'
+import { objectPrune } from '../../../../../../utils/object/prune.ts'
 
-export class LightTranslationEvent extends BaseObject<never, bsmap.v3.ILightTranslationBase> {
+
+export class LightTranslationEvent extends BeatmapObject<never, bsmap.v3.ILightTranslationBase> {
     constructor(obj: Partial<ObjectFields<LightTranslationEvent>>) {
         super(obj)
         this.usePreviousEventTranslation = obj.usePreviousEventTranslation ??
@@ -27,7 +29,7 @@ export class LightTranslationEvent extends BaseObject<never, bsmap.v3.ILightTran
 
         type Params = SubclassExclusiveProps<
             LightTranslationEvent,
-            BaseObject<never, bsmap.v3.ILightTranslationBase>
+            BeatmapObject<never, bsmap.v3.ILightTranslationBase>
         >
 
         const params = {

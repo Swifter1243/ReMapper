@@ -3,14 +3,25 @@ import {RingSpinEvent} from "../../../../internals/beatmap/object/basic_event/ri
 
 /**
  * Spin the rings of an environment.
+ * @param beat The beat of the event spin.
  * @param rotation Degrees of the spin.
  * @param direction Direction of the spin. 1 is clockwise, 0 is counterclockwise.
  * @param step The angle between each ring.
  * @param speed The speed multiplier of the spin.
- * @param prop The rate at which physics propogate through the rings.
- * High values will cause rings to move simultneously, low values gives them significant delay.
+ * @param prop The rate at which physics propagate through the rings.
+ * High values will cause rings to move simultaneously, low values gives them significant delay.
  * @param nameFilter The ring object name to target.
  */
+export function ringSpin(
+    beat: number,
+    rotation?: number,
+    direction?: RingSpinEvent['direction'],
+    step?: number,
+    speed?: number,
+    prop?: number,
+    nameFilter?: string,
+): RingSpinEvent
+export function ringSpin(...params: ConstructorParameters<typeof RingSpinEvent>): RingSpinEvent
 export function ringSpin(
     ...params: [
         beat: number,
@@ -42,9 +53,18 @@ export function ringSpin(
 
 /**
  * Controls ring zoom.
+ * @param beat The beat of the event.
  * @param step The position offset between each ring.
  * @param speed The speed of the zoom.
  */
+export function ringZoom(
+    beat: number,
+    step?: number,
+    speed?: number,
+): RingZoomEvent
+export function ringZoom(
+    ...params: ConstructorParameters<typeof RingZoomEvent>
+): RingZoomEvent
 export function ringZoom(
     ...params: [
         beat: number,

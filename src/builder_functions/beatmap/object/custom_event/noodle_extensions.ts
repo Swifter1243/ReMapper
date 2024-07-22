@@ -6,10 +6,6 @@ import {TrackValue} from "../../../../types/animation/track.ts";
 
 /**
  * Animate objects on a track across their lifespan.
- * @param track Track(s) to effect.
- * @param duration The time to transition from a previous path to this one.
- * @param animation The animation properties to replace.
- * @param easing The easing on this light_event's animation.
  */
 export function assignPathAnimation(
     ...params:
@@ -45,9 +41,6 @@ export function assignPathAnimation(
 
 /**
  * Assign tracks to a parent track.
- * @param childrenTracks Children tracks to assign.
- * @param parentTrack Name of the parent track.
- * @param worldPositionStays Modifies the transform of children objects to remain in the same place relative to world space.
  */
 export function assignTrackParent(
     ...params:
@@ -81,8 +74,6 @@ export function assignTrackParent(
 
 /**
  * Assigns the player to a track.
- * @param track Track the player will be assigned to.
- * @param target Which component of the player to target.
  */
 export function assignPlayerToTrack(
     ...params:

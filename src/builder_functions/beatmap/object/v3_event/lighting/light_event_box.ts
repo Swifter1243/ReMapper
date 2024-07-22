@@ -1,14 +1,19 @@
-//! Event Boxes
-import * as LightingV3Internals from '../../../internals/v3_event/lighting/light_event/translation.ts'
 import {bsmap} from '../../../../../deps.ts'
+import {BaseLightEvent} from "../../../../../internals/beatmap/object/v3_event/lighting/light_event/base.ts";
 import {DistributionType, RotationEase} from "../../../../../data/constants/v3_event.ts";
-import {LightEventBox} from "../../../internals/v3_event/lighting/light_event_box/base.ts";
-import {LightColorEventBox} from "../../../internals/v3_event/lighting/light_event_box/color.ts";
-import {LightRotationEventBox} from "../../../internals/v3_event/lighting/light_event_box/rotation.ts";
-import {LightTranslationEventBox} from "../../../internals/v3_event/lighting/light_event_box/translation.ts";
-import {BaseLightEvent} from "../../../internals/v3_event/lighting/light_event/base.ts";
-import {LightColorEvent} from "../../../internals/v3_event/lighting/light_event/color.ts";
-import {LightRotationEvent} from "../../../internals/v3_event/lighting/light_event/rotation.ts";
+import {LightEventBox} from "../../../../../internals/beatmap/object/v3_event/lighting/light_event_box/base.ts";
+import {LightColorEvent} from "../../../../../internals/beatmap/object/v3_event/lighting/light_event/color.ts";
+import {LightColorEventBox} from "../../../../../internals/beatmap/object/v3_event/lighting/light_event_box/color.ts";
+import {LightRotationEvent} from "../../../../../internals/beatmap/object/v3_event/lighting/light_event/rotation.ts";
+import {
+    LightRotationEventBox
+} from "../../../../../internals/beatmap/object/v3_event/lighting/light_event_box/rotation.ts";
+import {
+    LightTranslationEvent
+} from "../../../../../internals/beatmap/object/v3_event/lighting/light_event/translation.ts";
+import {
+    LightTranslationEventBox
+} from "../../../../../internals/beatmap/object/v3_event/lighting/light_event_box/translation.ts";
 
 type BoxParameters<
     T extends bsmap.v3.IEventBox,
@@ -51,6 +56,7 @@ function createBox<
     >
 }
 
+/** Create an event box of `LightColorEvent`s */
 export function lightColorEventBox(
     ...params: BoxParameters<
         bsmap.v3.ILightColorEventBox,
@@ -62,6 +68,7 @@ export function lightColorEventBox(
     )
 }
 
+/** Create an event box of `LightRotationEvent`s */
 export function lightRotationEventBox(
     ...params: BoxParameters<
         bsmap.v3.ILightRotationEventBox,
@@ -73,10 +80,11 @@ export function lightRotationEventBox(
     )
 }
 
+/** Create an event box of `LightTranslationEvent`s */
 export function lightTranslationEventBox(
     ...params: BoxParameters<
         bsmap.v3.ILightTranslationEventBox,
-        LightingV3Internals.LightTranslationEvent
+        LightTranslationEvent
     >
 ) {
     return new LightTranslationEventBox(

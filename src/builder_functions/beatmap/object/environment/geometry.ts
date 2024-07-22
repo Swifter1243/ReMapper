@@ -7,6 +7,13 @@ import { GeometryMaterial, GeoType } from '../../../../types/beatmap/object/envi
  * @param material The material on this geometry object.
  */
 export function geometry(
+    type?: GeoType,
+    material?: GeometryMaterial | string,
+): Geometry
+export function geometry(
+    ...params: ConstructorParameters<typeof Geometry>
+): Geometry
+export function geometry(
     ...params: ConstructorParameters<typeof Geometry> | [
         type?: GeoType,
         material?: GeometryMaterial | string,

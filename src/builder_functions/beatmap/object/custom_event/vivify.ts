@@ -12,10 +12,6 @@ import {AnimatorProperty} from "../../../../types/vivify/animator.ts";
 
 /**
  * Set properties on a material.
- * @param asset File path to the material.
- * @param properties Properties to set.
- * @param duration The duration of the animation.
- * @param easing An easing for the animation to follow.
  */
 export function setMaterialProperty(
     ...params:
@@ -51,9 +47,6 @@ export function setMaterialProperty(
 
 /**
  * Allows setting global properties that persist even after the map ends.
- * @param properties Properties to set.
- * @param duration The duration of the animation.
- * @param easing An easing for the animation to follow.
  */
 export function setGlobalProperty(
     ...params:
@@ -87,10 +80,6 @@ export function setGlobalProperty(
 
 /**
  * Assigns a material to the camera and allows you to call a SetMaterialProperty from within.
- * @param asset File path to the material.
- * @param duration The duration of the animation.
- * @param properties Properties to set.
- * @param easing An easing for the animation to follow.
  */
 export function blit(
     ...params:
@@ -127,9 +116,6 @@ export function blit(
 /**
  * Declares a culling mask where selected tracks are culled.
  * Vivify will automatically create a texture for you to sample from your shader
- * @param id Name of the culling mask, this is what you must name your sampler in your shader.
- * @param track The track(s) to target for culling.
- * @param whitelist Culls everything but the selected tracks.
  */
 export function declareCullingTexture(
     ...params:
@@ -167,9 +153,6 @@ export function declareCullingTexture(
  * Declare a RenderTexture to be used anywhere.
  * They are set as a global variable and can be accessed by declaring a sampler named what you put in "name".
  * Depth texture can be obtained by adding the suffix "_Depth" to your sampler.
- * @param id Name of the depth texture.
- * @param width Exact width for the texture.
- * @param height Exact height for the texture.
  */
 export function declareRenderTexture(
     ...params:
@@ -237,9 +220,6 @@ export function destroyTexture(
 
 /**
  * Instantiate a chosen prefab into the scene.
- * @param asset File path to the desired prefab.
- * @param id Unique id for referencing prefab later. Random id will be given by default.
- * @param track The track for the prefab.
  */
 export function instantiatePrefab(
     ...params:
@@ -304,10 +284,6 @@ export function destroyPrefab(
 
 /**
  * Searches a prefab for animator components and sets properties.
- * @param id ID assigned to the prefab.
- * @param properties Properties to set.
- * @param duration The duration of the animation.
- * @param easing An easing for the animation to follow.
  */
 export function setAnimatorProperty(
     ...params:

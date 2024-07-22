@@ -7,6 +7,13 @@ import { LookupMethod } from '../../../../types/beatmap/object/environment.ts'
  * @param lookupMethod The method of looking up the object name in the environment.
  */
 export function environment(
+    id?: string,
+    lookupMethod?: LookupMethod,
+): EnvironmentInternals.Environment
+export function environment(
+    ...params: ConstructorParameters<typeof EnvironmentInternals.Environment>
+): EnvironmentInternals.Environment
+export function environment(
     ...params:
         | ConstructorParameters<typeof EnvironmentInternals.Environment>
         | [

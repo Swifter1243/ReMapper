@@ -1,14 +1,8 @@
 import {wall} from '../../builder_functions/beatmap/object/gameplay_object/wall.ts'
 import {bsmap} from '../../deps.ts'
 import {AbstractDifficulty} from './abstract_beatmap.ts'
-import {Bomb, ColorNote} from './object/gameplay_object/color_note.ts'
 import {Wall} from './object/gameplay_object/wall.ts'
 import {GeoShader, RawGeometryMaterial} from '../../types/beatmap/object/environment.ts'
-import {
-    IInfoSet,
-    IInfoSetDifficulty,
-    RuntimeRawKeyframesAny,
-} from '../../mod.ts'
 import {animateTrack} from "../../builder_functions/beatmap/object/custom_event/heck.ts";
 import {
     assignPathAnimation,
@@ -19,7 +13,7 @@ import {communityBpmEvent} from "../../builder_functions/beatmap/object/basic_ev
 import {earlyRotation, lateRotation} from "../../builder_functions/beatmap/object/v3_event/rotation.ts";
 import {leftLaserSpeed} from "../../builder_functions/beatmap/object/basic_event/laser_speed.ts";
 import {ringSpin, ringZoom} from "../../builder_functions/beatmap/object/basic_event/ring.ts";
-import {abstractBasicEvent} from "../../builder_functions/beatmap/object/basic_event/abstract.ts";
+import {abstract} from "../../builder_functions/beatmap/object/basic_event/abstract.ts";
 import {backLasers} from "../../builder_functions/beatmap/object/basic_event/light_event.ts";
 import {boost} from "../../builder_functions/beatmap/object/v3_event/lighting/boost.ts";
 import {environment} from "../../builder_functions/beatmap/object/environment/environment.ts";
@@ -38,6 +32,10 @@ import {CommunityBPMEvent} from "./object/v3_event/community_bpm.ts";
 import {BaseCustomEvent} from "./object/custom_event/base.ts";
 import {ColorVec} from "../../types/math/vector.ts";
 import {BeatmapCustomEvents} from "../../types/beatmap/object/custom_event.ts";
+import { IInfoSet, IInfoSetDifficulty } from '../../types/beatmap/info.ts'
+import { ColorNote } from './object/gameplay_object/color_note.ts'
+import {Bomb} from "./object/gameplay_object/bomb.ts";
+import { RuntimeRawKeyframesAny } from '../../types/animation/keyframe/runtime/any.ts'
 
 /** Difficulty V2 beatmap. */
 export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
@@ -178,7 +176,7 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
         )
 
         const baseBasicEvents = json._events.map((o) =>
-            abstractBasicEvent({}).fromJson(o, false)
+            abstract({}).fromJson(o, false)
         )
 
         const bpmEvents = [

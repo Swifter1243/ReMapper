@@ -1,10 +1,18 @@
 //! Event Box Groups
 import {bsmap} from '../../../../../deps.ts'
-import {LightEventBoxGroup} from "../../../internals/v3_event/lighting/light_event_box_group/base.ts";
-import {LightColorEventBoxGroup} from "../../../internals/v3_event/lighting/light_event_box_group/color.ts";
-import {LightRotationEventBoxGroup} from "../../../internals/v3_event/lighting/light_event_box_group/rotation.ts";
-import {LightTranslationEventBoxGroup} from "../../../internals/v3_event/lighting/light_event_box_group/translation.ts";
-import {LightEventBox} from "../../../internals/v3_event/lighting/light_event_box/base.ts";
+import {LightEventBox} from "../../../../../internals/beatmap/object/v3_event/lighting/light_event_box/base.ts";
+import {
+    LightEventBoxGroup
+} from "../../../../../internals/beatmap/object/v3_event/lighting/light_event_box_group/base.ts";
+import {
+    LightColorEventBoxGroup
+} from "../../../../../internals/beatmap/object/v3_event/lighting/light_event_box_group/color.ts";
+import {
+    LightRotationEventBoxGroup
+} from "../../../../../internals/beatmap/object/v3_event/lighting/light_event_box_group/rotation.ts";
+import {
+    LightTranslationEventBoxGroup
+} from "../../../../../internals/beatmap/object/v3_event/lighting/light_event_box_group/translation.ts";
 
 type BoxGroupParameters<T extends bsmap.v3.IEventBox> = [
     beat?: number,
@@ -37,6 +45,7 @@ function createBoxGroup<T extends bsmap.v3.IEventBox>(
     }]
 }
 
+/** Create a group of `LightColorEventBox`s */
 export function lightColorEventBoxGroup(
     ...params: BoxGroupParameters<bsmap.v3.ILightColorEventBox>
 ) {
@@ -45,6 +54,7 @@ export function lightColorEventBoxGroup(
     )
 }
 
+/** Create a group of `LightRotationEventBox`s */
 export function lightRotationEventBoxGroup(
     ...params: BoxGroupParameters<bsmap.v3.ILightRotationEventBox>
 ) {
@@ -53,6 +63,7 @@ export function lightRotationEventBoxGroup(
     )
 }
 
+/** Create a group of `LightTranslationEventBox`s */
 export function lightTranslationEventBoxGroup(
     ...params: BoxGroupParameters<bsmap.v3.ILightTranslationEventBox>
 ) {

@@ -1,6 +1,7 @@
-import {BoostEvent} from "../../../internals/v3_event/lighting/boost.ts";
+import {BoostEvent} from "../../../../../internals/beatmap/object/v3_event/lighting/boost.ts";
 
-/** Switches the color palette in the lighting_v3. */
+
+/** Switches the color palette in the lighting. */
 export function boost(
     ...params: [
         beat: number,

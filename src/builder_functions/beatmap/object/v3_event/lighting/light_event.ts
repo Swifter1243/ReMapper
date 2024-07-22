@@ -1,9 +1,11 @@
-//! Events
-import * as LightingV3Internals from '../../../internals/v3_event/lighting/light_event/translation.ts'
 import {LightColor, LightTransition, RotationDirection, RotationEase} from "../../../../../data/constants/v3_event.ts";
-import {LightColorEvent} from "../../../internals/v3_event/lighting/light_event/color.ts";
-import {LightRotationEvent} from "../../../internals/v3_event/lighting/light_event/rotation.ts";
+import {LightColorEvent} from "../../../../../internals/beatmap/object/v3_event/lighting/light_event/color.ts";
+import {LightRotationEvent} from "../../../../../internals/beatmap/object/v3_event/lighting/light_event/rotation.ts";
+import {
+    LightTranslationEvent
+} from "../../../../../internals/beatmap/object/v3_event/lighting/light_event/translation.ts";
 
+/** Make a light color event that goes into a LightColorEventBox */
 export function lightColorEvent(
     ...params: [
         beat?: number,
@@ -35,6 +37,7 @@ export function lightColorEvent(
     })
 }
 
+/** Make a light rotation event that goes into a LightRotationEventBox */
 export function lightRotationEvent(
     ...params: [
         beat?: number,
@@ -75,6 +78,7 @@ export function lightRotationEvent(
     })
 }
 
+/** Make a light translation event that goes into a LightTranslationEventBox */
 export function lightTranslationEvent(
     ...params: [
         beat?: number,
@@ -84,14 +88,14 @@ export function lightTranslationEvent(
     ] | [
         ...obj: [
             ConstructorParameters<
-                typeof LightingV3Internals.LightTranslationEvent
+                typeof LightTranslationEvent
             >[0],
         ],
     ]
-): LightingV3Internals.LightTranslationEvent {
+): LightTranslationEvent {
     if (typeof params[0] === 'object') {
         const obj = params[0]
-        return new LightingV3Internals.LightTranslationEvent(obj)
+        return new LightTranslationEvent(obj)
     }
 
     const [
@@ -101,7 +105,7 @@ export function lightTranslationEvent(
         usePreviousEventTranslation,
     ] = params
 
-    return new LightingV3Internals.LightTranslationEvent({
+    return new LightTranslationEvent({
         beat,
         magnitude,
         easing,

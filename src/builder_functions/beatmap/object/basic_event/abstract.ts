@@ -1,7 +1,7 @@
 import {AbstractBasicEvent} from "../../../../internals/beatmap/object/basic_event/abstract.ts";
 
-/** The bare minimum basic light_event. */
-export function abstractBasicEvent(
+/** The bare minimum basic light event. */
+export function abstract(
     ...params: [
         beat: number,
         type?: number,

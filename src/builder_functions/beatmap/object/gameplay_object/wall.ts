@@ -11,6 +11,17 @@ import {Wall} from "../../../../internals/beatmap/object/gameplay_object/wall.ts
  * @param width The width of the wall.
  */
 export function wall(
+    beat?: number,
+    duration?: number,
+    x?: number,
+    y?: number,
+    height?: number,
+    width?: number,
+): Wall
+export function wall(
+    ...params: ConstructorParameters<typeof Wall>
+): Wall
+export function wall(
     ...params: ConstructorParameters<typeof Wall> | [
         beat?: number,
         duration?: number,

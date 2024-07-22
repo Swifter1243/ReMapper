@@ -1,7 +1,6 @@
-import {LightParameters} from "../v3_event/rotation.ts";
-
 import {EventGroup} from "../../../../data/constants/basic_event.ts";
 import {LightEvent} from "../../../../internals/beatmap/object/basic_event/light_event.ts";
+import {LightParameters} from "../../../../types/beatmap/object/basic_event.ts";
 
 function fixupParams<TG extends LightEvent['type']>(
     group: TG,
@@ -23,7 +22,7 @@ function fixupParams<TG extends LightEvent['type']>(
     }] satisfies ConstructorParameters<typeof LightEvent>
 }
 
-/** The bare minimum lighting_v3 light_event */
+/** The bare minimum light event */
 export function lightEvent(
     ...params: [
         beat: number,
@@ -48,7 +47,7 @@ export function lightEvent(
     })
 }
 
-/** Make a light light_event from any type */
+/** Make a light event from any type */
 export function fromType(type: number, ...params: LightParameters) {
     return new LightEvent(
         ...fixupParams(type, ...params),

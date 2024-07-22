@@ -1,2 +1,2 @@
-export * from '../../utils/iterator/light_iterator.ts'
-export * from '../../utils/iterator/note_iterator.ts'
+export * from './light_iterator.ts'
+export * from './note_iterator.ts'

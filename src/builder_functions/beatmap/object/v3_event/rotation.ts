@@ -1,23 +1,17 @@
-import {LightEvent} from "../../../../internals/beatmap/object/basic_event/light_event.ts";
 import {RotationEvent} from "../../../../internals/beatmap/object/v3_event/rotation.ts";
-
-export type LightParameters =
-    | [
-        beat?: LightEvent['beat'],
-        value?: LightEvent['value'],
-        floatValue?: LightEvent['floatValue'],
-    ]
-    | [
-        data: Omit<
-            ConstructorParameters<typeof LightEvent>[0],
-            'type'
-        >,
-    ]
 
 /**
  * Used for 360 mode, rotates future objects and active objects.
+ * @param beat The beat of the event.
  * @param rotation The rotation of the light_event.
  */
+export function earlyRotation(
+    beat: number,
+    rotation?: number,
+): RotationEvent
+export function earlyRotation(
+    ...params: ConstructorParameters<typeof RotationEvent>
+): RotationEvent
 export function earlyRotation(
     ...params: [
         beat: number,
@@ -41,8 +35,16 @@ export function earlyRotation(
 
 /**
  * Used for 360 mode, rotates future objects only.
+ * @param beat The beat of the event.
  * @param rotation The rotation of the light_event.
  */
+export function lateRotation(
+    beat: number,
+    rotation?: number,
+): RotationEvent
+export function lateRotation(
+    ...params: ConstructorParameters<typeof RotationEvent>
+): RotationEvent
 export function lateRotation(
     ...params: [
         beat: number,

@@ -3,18 +3,20 @@ import {LightEvent} from "../../../../internals/beatmap/object/basic_event/light
 
 import {RingSpinEvent} from "../../../../internals/beatmap/object/basic_event/ring_spin.ts";
 
+type MoveCarsParams = Omit<ConstructorParameters<typeof RingSpinEvent>, 'type'>
+
 /**
  * Move cars in the interscope environment.
+ * @param beat The beat of the event.
  * @param value The group of cars to target.
  */
+export function moveCars(beat: number, value: InterscopeGroup): RingSpinEvent
+export function moveCars(...params: MoveCarsParams): RingSpinEvent
 export function moveCars(
     ...params:
         | [beat: number, value: InterscopeGroup]
-        | Omit<
-            ConstructorParameters<typeof RingSpinEvent>,
-            'type'
-        >
-) {
+        | MoveCarsParams
+): RingSpinEvent {
     if (typeof params[0] === 'object') {
         return new RingSpinEvent(params[0])
     }

@@ -5,10 +5,6 @@ import {TrackValue} from "../../../../types/animation/track.ts";
 
 /**
  * Animate a track.
- * @param track Track(s) to effect.
- * @param duration The duration of the animation.
- * @param animation The animation properties to replace.
- * @param easing The easing on this light_event's animation.
  */
 export function animateTrack(
     ...params:

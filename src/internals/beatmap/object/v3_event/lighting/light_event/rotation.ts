@@ -1,10 +1,12 @@
-import { BaseObject } from '../../../beatmap/object/object.ts'
-import { ObjectFields, SubclassExclusiveProps } from '../../../../types/object.ts'
-import { RotationDirection, RotationEase } from '../../../../properties/constants/v3_event.ts'
-import { objectPrune } from '../../../../utils/object/prune.ts'
-import { bsmap } from '../../../../deps.ts'
+import {BeatmapObject} from "../../../object.ts";
+import {ObjectFields} from "../../../../../../types/util/json.ts";
+import {RotationDirection, RotationEase} from "../../../../../../data/constants/v3_event.ts";
+import {SubclassExclusiveProps} from "../../../../../../types/util/class.ts";
+import { bsmap } from '../../../../../../deps.ts'
+import { objectPrune } from '../../../../../../utils/object/prune.ts'
 
-export class LightRotationEvent extends BaseObject<never, bsmap.v3.ILightRotationBase> {
+
+export class LightRotationEvent extends BeatmapObject<never, bsmap.v3.ILightRotationBase> {
     constructor(obj: Partial<ObjectFields<LightRotationEvent>>) {
         super(obj)
         this.usePreviousEventRotation = obj.usePreviousEventRotation ?? true
@@ -33,7 +35,7 @@ export class LightRotationEvent extends BaseObject<never, bsmap.v3.ILightRotatio
 
         type Params = SubclassExclusiveProps<
             LightRotationEvent,
-            BaseObject<never, bsmap.v3.ILightRotationBase>
+            BeatmapObject<never, bsmap.v3.ILightRotationBase>
         >
 
         const params = {

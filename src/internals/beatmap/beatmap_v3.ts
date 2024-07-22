@@ -1,12 +1,6 @@
 import {wall} from '../../builder_functions/beatmap/object/gameplay_object/wall.ts'
 import {bsmap} from '../../deps.ts'
 import {AbstractDifficulty} from './abstract_beatmap.ts'
-import {Arc, Bomb, Chain, ColorNote} from './object/gameplay_object/color_note.ts'
-import {
-    IInfoSet,
-    IInfoSetDifficulty,
-    RawGeometryMaterial,
-} from '../../mod.ts'
 import {AnyFog, FogEvent} from './object/environment/fog.ts'
 import {
     assignTrackPrefab,
@@ -38,7 +32,7 @@ import {communityBpmEvent} from "../../builder_functions/beatmap/object/basic_ev
 import {earlyRotation, lateRotation} from "../../builder_functions/beatmap/object/v3_event/rotation.ts";
 import {leftLaserSpeed} from "../../builder_functions/beatmap/object/basic_event/laser_speed.ts";
 import {ringSpin, ringZoom} from "../../builder_functions/beatmap/object/basic_event/ring.ts";
-import {abstractBasicEvent} from "../../builder_functions/beatmap/object/basic_event/abstract.ts";
+import {abstract} from "../../builder_functions/beatmap/object/basic_event/abstract.ts";
 import {backLasers} from "../../builder_functions/beatmap/object/basic_event/light_event.ts";
 import {boost} from "../../builder_functions/beatmap/object/v3_event/lighting/boost.ts";
 import {environment} from "../../builder_functions/beatmap/object/environment/environment.ts";
@@ -58,6 +52,12 @@ import { BaseCustomEvent } from './object/custom_event/base.ts'
 import {OfficialBPMEvent} from "./object/v3_event/official_bpm.ts";
 
 import {BeatmapCustomEvents} from "../../types/beatmap/object/custom_event.ts";
+import { IInfoSet, IInfoSetDifficulty } from '../../types/beatmap/info.ts'
+import { ColorNote } from './object/gameplay_object/color_note.ts'
+import {Bomb} from "./object/gameplay_object/bomb.ts";
+import {Arc} from "./object/gameplay_object/arc.ts";
+import {Chain} from "./object/gameplay_object/chain.ts";
+import { RawGeometryMaterial } from '../../types/beatmap/object/environment.ts'
 
 export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
     declare version: bsmap.v3.IDifficulty['version']
@@ -265,7 +265,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         ]
 
         const baseBasicEvents = json.basicBeatmapEvents.map((o) =>
-            abstractBasicEvent({}).fromJson(o, true)
+            abstract({}).fromJson(o, true)
         )
 
         if (!json.bpmEvents) {

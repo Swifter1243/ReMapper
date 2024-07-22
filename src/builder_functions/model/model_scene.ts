@@ -1,4 +1,6 @@
 import {ModelScene} from "../../utils/model/model_scene.ts";
+import {GroupObjectTypes} from "../../types/model/model_scene/group.ts";
+import {Vec3} from "../../types/math/vector.ts";
 
 /**
  * Handler for representing object properties as part of the environment.
@@ -8,7 +10,10 @@ import {ModelScene} from "../../utils/model/model_scene.ts";
  * @param rotation The rotation offset for the spawned object previously mentioned.
  */
 export function modelScene(
-    ...params: ConstructorParameters<typeof ModelScene>
+    object?: GroupObjectTypes,
+    scale?: Vec3,
+    anchor?: Vec3,
+    rotation?: Vec3,
 ): ModelScene {
-    return new ModelScene(...params)
+    return new ModelScene(object, scale, anchor, rotation);
 }
