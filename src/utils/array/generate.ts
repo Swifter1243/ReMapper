@@ -8,7 +8,7 @@ export function generateArray<T>(size: number, element: () => T) {
 /**
  * Generate an array from a range of numbers.
  * @param start Starting number.
- * @param start Ending number.
+ * @param end Ending number.
  */
 export const fillArrayWithValues = (start: number, end: number) =>
     Array.from({ length: end - start + 1 }, (_, i) => i + start)

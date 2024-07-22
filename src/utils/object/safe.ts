@@ -1,5 +1,3 @@
-// deno-lint-ignore-file no-explicit-any
-
 import {TJson} from "../../types/util/json.ts";
 
 /**

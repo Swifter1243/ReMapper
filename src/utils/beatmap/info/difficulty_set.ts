@@ -2,7 +2,7 @@ import { getActiveInfo } from '../../../data/active_info.ts'
 import {DIFFICULTY_FILENAME} from "../../../types/beatmap/file.ts";
 import {IInfoSetDifficulty} from "../../../types/beatmap/info.ts";
 
-/** The infoset of a given difficulty name.
+/** The info set of a given difficulty name.
  * Contains difficulty, difficulty rank, among other information.
  */
 export function getInfoDifficultySets(difficultyName: DIFFICULTY_FILENAME) {

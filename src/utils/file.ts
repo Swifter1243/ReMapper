@@ -30,6 +30,7 @@ export async function parseFilePath(
     return output
 }
 
+/** Tries to get the CRC value of a given bundle file name. */
 export async function getBundleCRC(name: string) {
     const file = path.join(getWorkingDirectory(), name)
 

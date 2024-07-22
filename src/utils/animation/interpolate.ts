@@ -80,7 +80,7 @@ export function getKeyframeValuesAtTime<
     ) as T
 }
 
-export function splineCatmullRomLerp(
+function splineCatmullRomLerp(
     timeInfo: Required<ReturnType<typeof timeInKeyframes>>,
     animation: ComplexKeyframesAny,
 ) {

@@ -14,8 +14,7 @@ import {DeepReadonly} from "../../types/util/mutability.ts";
  * Useful for doing things such as having objects rotate around points other than their anchor.
  * @param animation The keyframes for various transforms.
  * @param forKeyframe Runs for each generated keyframe.
- * @param animFreq The sampling rate of new keyframes.
- * @param animOptimizer The optional optimizer for the keyframes.
+ * @param animationSettings Settings to process the animation.
  * @param domain Precalculated minimum and maximum times for the animation to be baked.
  */
 export function bakeAnimation(

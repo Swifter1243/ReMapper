@@ -7,7 +7,8 @@ import {vec} from "../../../array/tuple.ts";
 
 /**
  * Calculate the correct position for a wall to line up with a position in the world.
- * Assumes that position is set to [0,0].
+ * Assumes that `coordinates` are set to [0,0].
+ * @param transform The desired transformation.
  * @param animated Corrects for animated scale. If you are using this, plug [1,1,1] into static scale.
  */
 export function worldToWall(

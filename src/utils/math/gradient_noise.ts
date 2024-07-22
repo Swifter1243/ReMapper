@@ -12,7 +12,7 @@ function getGradientVector<T extends number[]>(point: Readonly<T>, seed: number)
 export function gradientNoise<T extends number>(dimensions: T, seed: number) {
     type Vec = number[] & { length: T }
 
-    function billinearGradient(
+    function bilinearGradient(
         point: Vec,
         gridPoint: Vec,
         index: number,
@@ -31,8 +31,8 @@ export function gradientNoise<T extends number>(dimensions: T, seed: number) {
 
         const newGridPoint = [...gridPoint] as Vec
         newGridPoint[index]++
-        const a = billinearGradient(point, gridPoint, index + 1)
-        const b = billinearGradient(point, newGridPoint, index + 1)
+        const a = bilinearGradient(point, gridPoint, index + 1)
+        const b = bilinearGradient(point, newGridPoint, index + 1)
         let f = point[index] % 1
         // quintic interpolant https://www.shadertoy.com/view/Xsl3Dl
         f = f * f * f * (f * (f * 6.0 - 15.0) + 10.0)
@@ -42,7 +42,7 @@ export function gradientNoise<T extends number>(dimensions: T, seed: number) {
     return function (...coordinates: Vec) {
         const origin = coordinates.map((x) => Math.floor(x)) as Vec
 
-        return billinearGradient(
+        return bilinearGradient(
             coordinates,
             origin,
             0,

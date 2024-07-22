@@ -1,5 +1,5 @@
 import { getWorkingDirectory } from '../../data/working_directory.ts'
-import { path } from '../../mod.ts'
+import { path } from '../../deps.ts'
 
 /** Get the path of RM_Cache.object */
 export function getCacheLocation() {

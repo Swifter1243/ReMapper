@@ -1,3 +1,5 @@
+export * from './info/mod.ts'
+export * from './object/mod.ts'
 export * from './export.ts'
 export * from './json.ts'
 export * from './transfer.ts'

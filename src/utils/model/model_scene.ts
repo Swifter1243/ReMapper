@@ -1,34 +1,34 @@
-import {
-    SceneObjectInfo,
-
-
-} from '../../types/model/model_scene/scene_object_info.ts'
-import {AnimationSettings, optimizeKeyframes} from '../animation/optimizer.ts'
-import {Environment} from '../../internals/beatmap/object/environment/environment.ts'
-import {Geometry} from '../../internals/beatmap/object/environment/geometry.ts'
-import {getActiveDifficulty} from '../../data/active_difficulty.ts'
-import {
-    animateTrack,
-    DeepReadonly,
-    getModel,
-    parseFilePath,
-    RawGeometryMaterial, RawKeyframesVec3, RuntimeRawKeyframesVec3,
-} from '../../mod.ts'
-import {applyAnchor, combineTransforms} from '../math/transform.ts'
-import {mirrorAnimation} from '../animation/time_warp.ts'
-import {bakeAnimation} from '../animation/bake.ts'
-import {iterateKeyframes} from '../animation/keyframe/iterate.ts'
+import { SceneObjectInfo } from '../../types/model/model_scene/scene_object_info.ts'
+import { AnimationSettings, optimizeKeyframes } from '../animation/optimizer.ts'
+import { Environment } from '../../internals/beatmap/object/environment/environment.ts'
+import { Geometry } from '../../internals/beatmap/object/environment/geometry.ts'
+import { getActiveDifficulty } from '../../data/active_difficulty.ts'
+import { applyAnchor, combineTransforms } from '../math/transform.ts'
+import { mirrorAnimation } from '../animation/time_warp.ts'
+import { bakeAnimation } from '../animation/bake.ts'
+import { iterateKeyframes } from '../animation/keyframe/iterate.ts'
 import * as CustomEventInternals from '../../internals/beatmap/object/custom_event/mod.ts'
-import {complexifyKeyframes} from "../animation/keyframe/complexity.ts";
-import {copy} from "../object/copy.ts";
-import {positionUnityToNoodle} from "../beatmap/object/environment/unit_conversion.ts";
-import {ColorVec, Vec3, Vec4} from "../../types/math/vector.ts";
-import {TransformKeyframe} from "../../types/animation/bake.ts";
-import {ModelObject, ReadonlyModel} from "../../types/model/object.ts";
-import {AnimatedOptions} from "../../types/model/model_scene/option.ts";
-import {AnimatedObjectInput, ObjectInput, StaticObjectInput} from "../../types/model/model_scene/input.ts";
-import {SceneSwitch} from "../../types/model/model_scene/scene_switch.ts";
-import {GroupObjectTypes, ModelGroup} from "../../types/model/model_scene/group.ts";
+import { complexifyKeyframes } from '../animation/keyframe/complexity.ts'
+import { copy } from '../object/copy.ts'
+import { positionUnityToNoodle } from '../beatmap/object/environment/unit_conversion.ts'
+import { ColorVec, Vec3, Vec4 } from '../../types/math/vector.ts'
+import { TransformKeyframe } from '../../types/animation/bake.ts'
+import { ModelObject, ReadonlyModel } from '../../types/model/object.ts'
+import { AnimatedOptions } from '../../types/model/model_scene/option.ts'
+import {
+    AnimatedObjectInput,
+    ObjectInput,
+    StaticObjectInput,
+} from '../../types/model/model_scene/input.ts'
+import { SceneSwitch } from '../../types/model/model_scene/scene_switch.ts'
+import { GroupObjectTypes, ModelGroup } from '../../types/model/model_scene/group.ts'
+import { RawKeyframesVec3 } from '../../types/animation/keyframe/vec3.ts'
+import { parseFilePath } from '../file.ts'
+import {getModel} from "./file.ts";
+import {DeepReadonly} from "../../types/util/mutability.ts";
+import { RuntimeRawKeyframesVec3 } from '../../types/animation/keyframe/runtime/vec3.ts'
+import {animateTrack} from "../../builder_functions/beatmap/object/custom_event/heck.ts";
+import { RawGeometryMaterial } from '../../types/beatmap/object/environment.ts'
 
 let modelSceneCount = 0
 let noYeet = true
@@ -41,7 +41,7 @@ function createYeetDef() {
 }
 
 export class ModelScene {
-    /** All of the "groups" stored in this model.
+    /** All the "groups" stored in this model.
      * When the model properties is passed, if any model objects have a track that match the name of this group, an animation event will be placed for them.
      */
     groups = <Record<string, ModelGroup>> {}
@@ -50,7 +50,7 @@ export class ModelScene {
      * This controls various parameters about how harshly the algorithm will target changes.
      */
     animationSettings = new AnimationSettings()
-    /** The unique ID of this modelscene, used for tracks.
+    /** The unique ID of this model scene, used for tracks.
      * If multiple model scenes are used, this ID is used so the track names don't conflict.
      */
     ID: number
@@ -300,7 +300,7 @@ export class ModelScene {
         async function stringProcess(objectInput: string) {
             const inputPath = (await parseFilePath(objectInput, '.rmmodel')).path
             const onCache = options.onCache ? options.onCache.toString() : undefined
-            const processing: any[] = [
+            const processing: unknown[] = [
                 options,
                 onCache,
                 self.groups,

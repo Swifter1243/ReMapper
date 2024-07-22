@@ -4,6 +4,7 @@ import {TJson} from "../../types/util/json.ts";
 /**
  * Checks if an object is empty.
  * @param o Object to check.
+ * @param recursive Whether to check for empty children recursively, versus only considering the top level.
  */
 export function isEmptyObject(o: unknown, recursive = true): boolean {
     // If undefined, it is empty
@@ -37,6 +38,5 @@ export function isEmptyObject(o: unknown, recursive = true): boolean {
  */
 export function objectCheckExists(obj: TJson, prop: string) {
     const value = objectSafeGet(obj, prop)
-    if (value != null) return true
-    return false
+    return value != null;
 }

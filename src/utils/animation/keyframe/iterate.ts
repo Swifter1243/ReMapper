@@ -12,9 +12,6 @@ export function iterateKeyframes<T extends NumberTuple>(
     keyframes: RawKeyframesAbstract<T>,
     fn: (values: ComplexKeyframesAbstract<T>[0], index: number) => void,
 ) {
-    // TODO: Lookup point def
-    if (typeof keyframes === 'string') return
-
     const newKeyframes = complexifyKeyframes<T>(keyframes)
     newKeyframes.forEach((x, i) => fn(x, i))
     const newSimpleKeyframes = simplifyKeyframes(newKeyframes)

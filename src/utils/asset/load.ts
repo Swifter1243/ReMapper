@@ -3,8 +3,8 @@ import {makeMaterialMap, makePrefabMap} from './map.ts'
 import {AssetInfo, MaterialMap, PrefabMap} from "../../types/asset.ts";
 import {MaterialProperty} from "../../types/vivify/material.ts";
 
-function initializeMaterials(assetMap: AssetInfo) {
-    Object.values(assetMap.default.materials).forEach(
+function initializeMaterials(assetInfo: AssetInfo) {
+    Object.values(assetInfo.default.materials).forEach(
         (value) => {
             const path = value.path
             const properties = value.properties
@@ -35,21 +35,21 @@ function initializeMaterials(assetMap: AssetInfo) {
 }
 
 /** Generate a typed list of assets from JSON.
- * @param assetMap The `asset_info.json` to import.
+ * @param assetInfo The `asset_info.json` to import.
  * @param initialize Whether to set the default value of all materials at the start of the map. This is redundancy in case material values are externally altered.
  */
 export function loadAssets<T extends AssetInfo>(
-    assetMap: T,
+    assetInfo: T,
     initialize = true,
 ): {
     materials: MaterialMap<T['default']['materials']>
     prefabs: PrefabMap<T['default']['prefabs']>
 } {
-    const materials = makeMaterialMap(assetMap.default.materials)
-    const prefabs = makePrefabMap(assetMap.default.prefabs)
+    const materials = makeMaterialMap(assetInfo.default.materials)
+    const prefabs = makePrefabMap(assetInfo.default.prefabs)
 
     if (initialize) {
-        initializeMaterials(assetMap)
+        initializeMaterials(assetInfo)
     }
 
     return {

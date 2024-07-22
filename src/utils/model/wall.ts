@@ -10,8 +10,8 @@ import {areKeyframesSimple, complexifyKeyframes,} from '../animation/keyframe/co
 import {getKeyframeTimeIndex} from "../animation/keyframe/get.ts";
 import {bakeAnimation} from "../animation/bake.ts";
 import {worldToWall} from "../beatmap/object/wall/world_to_wall.ts";
-import { getActiveDifficulty } from '../../data/active_difficulty.ts'
-import { copy } from '../object/copy.ts'
+import {getActiveDifficulty} from '../../data/active_difficulty.ts'
+import {copy} from '../object/copy.ts'
 import {ColorVec, Vec3} from "../../types/math/vector.ts";
 import {Transform} from "../../types/math/transform.ts";
 import {RuntimeRawKeyframesVec3} from "../../types/animation/keyframe/runtime/vec3.ts";
@@ -29,6 +29,7 @@ let modelToWallCount = 0
  * @param forWall A callback for each wall being spawned.
  * @param distribution Beats to spread spawning of walls out.
  * Animations are adjusted, but keep in mind path animation events for these walls might be messed up.
+ * @param animationSettings Settings for processing the animation, if there is any.
  */
 export async function modelToWall(
     input: string | ReadonlyModel,
@@ -66,7 +67,7 @@ export async function modelToWall(
                 input,
                 `modelToWall_${modelToWallCount}`,
                 (o) => {
-                    o.forEach((x, i) => {
+                    o.forEach((x) => {
                         const animated = isAnimated(x)
 
                         const pos = complexifyKeyframes(x.position)
@@ -115,7 +116,7 @@ export async function modelToWall(
                 [animationSettings!.toData(), distribution],
             )
         } else {
-            objects = input.map((x, i) => {
+            objects = input.map((x) => {
                 const o = copy(x) as ModelObject
                 const animated = isAnimated(o)
 
@@ -186,9 +187,7 @@ export async function modelToWall(
 
                     complexAnim.forEach((k) => {
                         const timeIndex = getKeyframeTimeIndex(k)
-                        const time = (k[timeIndex] as number) * squish +
-                            animationOffset
-                        k[timeIndex] = time
+                        k[timeIndex] = (k[timeIndex] as number) * squish + animationOffset
                     })
                 }
 

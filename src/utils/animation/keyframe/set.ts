@@ -11,10 +11,12 @@ import {InnerKeyframeBoundless} from "../../../types/animation/keyframe/boundles
 import {RuntimeInnerKeyframeBoundless} from "../../../types/animation/keyframe/runtime/boundless.ts";
 
 /** Set the time value of a keyframe. */
-export const setKeyframeTime = (
+export function setKeyframeTime(
     data: RuntimeInnerKeyframeBoundless,
     value: number,
-) => data[getKeyframeTimeIndex(data)] = value
+) {
+    return data[getKeyframeTimeIndex(data)] = value
+}
 
 /** Set the values in the keyframes.
  * For example [x,y,z,time] would have [x,y,z] as values.
