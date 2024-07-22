@@ -16,13 +16,8 @@ export function areKeyframesRuntime(
             // [["runtime", 0]]
             if (typeof inner[0] === 'string') return true
 
-            // [[..., [..., "op"], t]
-            return inner.some(e => {
-                if (typeof e === 'object') {
-                    const last = e[e.length - 1]
-                    return typeof last === 'string'
-                }
-            })
+            // [[..., [...], t]
+            return inner.some(e => typeof e === 'object')
         } else {
             return false
         }
