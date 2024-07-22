@@ -4,7 +4,6 @@ import {
     settings,
 } from '../../../../data/settings.ts'
 
-import { setWallWorldTransform } from '../../../../utils/model/mod.ts'
 import {copy} from "../../../../utils/object/copy.ts";
 import {objectPrune} from "../../../../utils/object/prune.ts";
 import {activeDifficulty, getActiveDifficulty} from "../../../../data/active_difficulty.ts";
@@ -16,6 +15,7 @@ import {Vec3} from "../../../../types/math/vector.ts";
 import {AnimatedTransform} from "../../../../types/math/transform.ts";
 import {Fields, SubclassExclusiveProps} from "../../../../types/util/class.ts";
 import {defaultBoolean, exportInvertedBoolean, getCDProp} from "../../../../utils/beatmap/json.ts";
+import {setWallWorldTransform} from "../../../../utils/beatmap/object/wall/transform.ts";
 
 export class Wall
     extends BeatmapGameplayObject<bsmap.v2.IObstacle, bsmap.v3.IObstacle> {

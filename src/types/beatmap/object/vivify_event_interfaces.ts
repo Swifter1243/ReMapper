@@ -11,7 +11,7 @@ import {MaterialProperty} from "../../vivify/material.ts";
 import {AnimatorProperty} from "../../vivify/animator.ts";
 
 /** JSON properties for SetMaterialProperty events */
-export interface SetMaterialProperty {
+export interface ISetMaterialProperty {
     b: number
     t: 'SetMaterialProperty'
     d: {
@@ -23,7 +23,7 @@ export interface SetMaterialProperty {
 }
 
 /** JSON properties for SetGlobalProperty events */
-export interface SetGlobalProperty {
+export interface ISetGlobalProperty {
     b: number
     t: 'SetGlobalProperty'
     d: {
@@ -34,7 +34,7 @@ export interface SetGlobalProperty {
 }
 
 /** JSON properties for Blit events */
-export interface Blit {
+export interface IBlit {
     b: number
     t: 'Blit'
     d: {
@@ -50,7 +50,7 @@ export interface Blit {
 }
 
 /** JSON properties for DeclareCullingTexture events */
-export interface DeclareCullingTexture {
+export interface IDeclareCullingTexture {
     b: number
     t: 'DeclareCullingTexture'
     d: {
@@ -62,7 +62,7 @@ export interface DeclareCullingTexture {
 }
 
 /** JSON properties for DeclareRenderTexture events */
-export interface DeclareRenderTexture {
+export interface IDeclareRenderTexture {
     b: number
     t: 'DeclareRenderTexture'
     d: {
@@ -77,7 +77,7 @@ export interface DeclareRenderTexture {
 }
 
 /** JSON properties for DestroyTexture events */
-export interface DestroyTexture {
+export interface IDestroyTexture {
     b: number
     t: 'DestroyTexture'
     d: {
@@ -86,7 +86,7 @@ export interface DestroyTexture {
 }
 
 /** JSON properties for InstantiatePrefab events */
-export interface InstantiatePrefab {
+export interface IInstantiatePrefab {
     b: number
     t: 'InstantiatePrefab'
     d: {
@@ -102,7 +102,7 @@ export interface InstantiatePrefab {
 }
 
 /** JSON properties for DestroyPrefab events */
-export interface DestroyPrefab {
+export interface IDestroyPrefab {
     b: number
     t: 'DestroyPrefab'
     d: {
@@ -111,7 +111,7 @@ export interface DestroyPrefab {
 }
 
 /** JSON properties for SetAnimatorProperty events */
-export interface SetAnimatorProperty {
+export interface ISetAnimatorProperty {
     b: number
     t: 'SetAnimatorProperty'
     d: {
@@ -123,7 +123,7 @@ export interface SetAnimatorProperty {
 }
 
 /** JSON properties for SetCameraProperty events */
-export interface SetCameraProperty {
+export interface ISetCameraProperty {
     b: number
     t: 'SetCameraProperty'
     d: {
@@ -132,7 +132,7 @@ export interface SetCameraProperty {
 }
 
 /** JSON properties for AssignTrackPrefab events */
-export interface AssignTrackPrefab {
+export interface IAssignTrackPrefab {
     b: number
     t: 'AssignTrackPrefab'
     d: {
@@ -148,7 +148,7 @@ export interface AssignTrackPrefab {
 }
 
 /** JSON properties for SetRenderSetting events */
-export interface SetRenderSetting {
+export interface ISetRenderSetting {
     b: number
     t: 'SetRenderSetting'
     d: {

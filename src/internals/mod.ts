@@ -1,1 +1,1 @@
-export * from './beatmap/object/basic_event/mod.ts'
+export * from './beatmap/mod.ts'

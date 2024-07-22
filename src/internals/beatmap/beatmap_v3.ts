@@ -48,7 +48,7 @@ import {officialBpmEvent} from "../../builder_functions/beatmap/object/v3_event/
 import {RMDifficulty} from "../../types/beatmap/rm_difficulty.ts";
 import { arraySplit } from '../../utils/array/split.ts'
 import { Track } from '../../utils/animation/track.ts'
-import { BaseCustomEvent } from './object/custom_event/base.ts'
+import { CustomEvent } from './object/custom_event/base.ts'
 import {OfficialBPMEvent} from "./object/v3_event/official_bpm.ts";
 
 import {BeatmapCustomEvents} from "../../types/beatmap/object/custom_event.ts";
@@ -346,7 +346,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         const diffCustomEvents: Partial<BeatmapCustomEvents> = {}
 
         function extractCustomEvents<
-            T extends BaseCustomEvent,
+            T extends CustomEvent,
             K extends keyof BeatmapCustomEvents,
         >(
             obj: (a: object) => T,
@@ -552,7 +552,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         // Custom events
         const customEvents = (Object.values(
             this.customEvents,
-        ) as BaseCustomEvent[][])
+        ) as CustomEvent[][])
             .map((a) => a.map((e) => e.toJson(true)))
             .flat()
             .sort(sortItems) as bsmap.v3.ICustomEvent[]

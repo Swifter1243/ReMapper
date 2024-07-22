@@ -1,15 +1,13 @@
-import { bsmap } from '../../../../deps.ts'
-import {
-    BeatmapInterfaces,
-    copy,
-    getActiveDifficulty,
-    objectPrune,
-} from '../../../../mod.ts'
+import {bsmap} from '../../../../deps.ts'
 
 import {ExcludedObjectFields, ObjectReplacements} from "../../../../types/beatmap/object/object.ts";
 import {JsonWrapper} from "../../../../types/beatmap/json_wrapper.ts";
 import {Fields, SubclassExclusiveProps} from "../../../../types/util/class.ts";
 import {TJson} from "../../../../types/util/json.ts";
+import {getActiveDifficulty} from '../../../../data/active_difficulty.ts'
+import {copy} from '../../../../utils/object/copy.ts'
+import {objectPrune} from '../../../../utils/object/prune.ts'
+import {IV3CustomEvent} from "../../../../types/beatmap/object/custom_event.ts";
 
 export type CustomEventExclusions = {
     type: never
@@ -33,21 +31,6 @@ export function getDataProp<
 
     return undefined
 }
-
-type AllV3CustomEvents =
-    | bsmap.v3.ICustomEvent
-    | BeatmapInterfaces.AssignTrackPrefab
-    | BeatmapInterfaces.Blit
-    | BeatmapInterfaces.DeclareCullingTexture
-    | BeatmapInterfaces.DeclareRenderTexture
-    | BeatmapInterfaces.DestroyPrefab
-    | BeatmapInterfaces.DestroyTexture
-    | BeatmapInterfaces.InstantiatePrefab
-    | BeatmapInterfaces.SetAnimatorProperty
-    | BeatmapInterfaces.SetCameraProperty
-    | BeatmapInterfaces.SetGlobalProperty
-    | BeatmapInterfaces.SetMaterialProperty
-    | BeatmapInterfaces.SetRenderSetting
 
 /** Gives the input params object for the constructor of custom events using a track.
  * Replaces the track property from a track class to a (string | string[])
@@ -75,22 +58,22 @@ export type CustomEventConstructor<T> = ExcludedObjectFields<
 export type CustomEventSubclassFields<T> = Fields<
     SubclassExclusiveProps<
         T,
-        BaseCustomEvent
+        CustomEvent
     >
 >
 
-export abstract class BaseCustomEvent<
+export abstract class CustomEvent<
     TV2 extends bsmap.v2.ICustomEvent = bsmap.v2.ICustomEvent,
-    TV3 extends AllV3CustomEvents = AllV3CustomEvents,
+    TV3 extends IV3CustomEvent = IV3CustomEvent,
 > implements JsonWrapper<TV2, TV3> {
-    /** This this light_event will activate. */
+    /** The beat this light event will activate. */
     beat: number
     /** The type of CustomEvent. */
     type: string
-    /** The "properties" object inside of the CustomEvent. */
+    /** The "properties" object inside the CustomEvent. */
     data: TJson
 
-    constructor(fields: Partial<Fields<BaseCustomEvent<TV2, TV3>>>) {
+    constructor(fields: Partial<Fields<CustomEvent<TV2, TV3>>>) {
         this.beat = fields.beat ?? 0
         this.type = fields.type ?? ''
         this.data = fields.data ?? {}
@@ -99,12 +82,12 @@ export abstract class BaseCustomEvent<
     /** Push this light_event to the difficulty.
      * @param clone Whether this object will be copied before being pushed.
      */
-    abstract push(clone: boolean): BaseCustomEvent<TV2, TV3>
+    abstract push(clone: boolean): CustomEvent<TV2, TV3>
 
     fromJson(json: TV3, v3: true): this
     fromJson(json: TV2, v3: false): this
     fromJson(json: TV2 | TV3, v3: boolean): this {
-        type Params = Fields<BaseCustomEvent<TV2, TV3>>
+        type Params = Fields<CustomEvent<TV2, TV3>>
 
         if (v3) {
             const obj = json as TV3
@@ -134,7 +117,7 @@ export abstract class BaseCustomEvent<
     abstract toJson(v3: boolean, prune?: boolean): TV2 | TV3
 }
 
-export class AbstractCustomEvent extends BaseCustomEvent<
+export class AbstractCustomEvent extends CustomEvent<
     bsmap.v2.ICustomEvent,
     bsmap.v3.ICustomEvent
 > {

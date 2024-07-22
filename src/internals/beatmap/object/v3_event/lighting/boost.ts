@@ -1,13 +1,15 @@
-import { BaseObject } from '../../beatmap/object/object.ts'
-import { ConvertableEvent } from '../../../types/v3_event.ts'
-import { ObjectFields, SubclassExclusiveProps } from '../../../types/object.ts'
-import { EventGroup } from '../../../properties/constants/basic_event.ts'
-import { bsmap } from '../../../deps.ts'
-import { objectPrune } from '../../../utils/object/prune.ts'
-import { getActiveDifficulty } from '../../../properties/active_difficulty.ts'
-import { copy } from '../../../utils/object/copy.ts'
+import { bsmap } from '../../../../../deps.ts'
+import {BeatmapObject} from "../../object.ts";
+import {ConvertableEvent} from "../../../../../types/beatmap/object/v3_event.ts";
+import {ObjectFields} from "../../../../../types/util/json.ts";
+import {getActiveDifficulty} from "../../../../../data/active_difficulty.ts";
+import {copy} from "../../../../../utils/object/copy.ts";
+import {SubclassExclusiveProps} from "../../../../../types/util/class.ts";
+import {objectPrune} from "../../../../../utils/object/prune.ts";
+import {EventGroup} from "../../../../../data/constants/basic_event.ts";
 
-export class BoostEvent extends BaseObject<bsmap.v2.IEvent, bsmap.v3.IColorBoostEvent>
+
+export class BoostEvent extends BeatmapObject<bsmap.v2.IEvent, bsmap.v3.IColorBoostEvent>
     implements ConvertableEvent {
     constructor(obj: Partial<ObjectFields<BoostEvent>>) {
         super(obj)
@@ -39,7 +41,7 @@ export class BoostEvent extends BaseObject<bsmap.v2.IEvent, bsmap.v3.IColorBoost
     ): this {
         type Params = SubclassExclusiveProps<
             BoostEvent,
-            BaseObject<
+            BeatmapObject<
                 bsmap.v2.IEvent,
                 bsmap.v3.IColorBoostEvent
             >

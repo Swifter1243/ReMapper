@@ -1,7 +1,7 @@
-import {bsmap} from '../../deps.ts'
-import {Fields, SubclassExclusiveProps} from '../../types/object.ts'
-import { objectPrune } from '../../utils/object/prune.ts'
 import {BPMEvent} from "./bpm.ts";
+import {Fields, SubclassExclusiveProps} from "../../../../types/util/class.ts";
+import { bsmap } from '../../../../deps.ts'
+import { objectPrune } from '../../../../utils/object/prune.ts'
 
 /*
 - V2 Custom Event

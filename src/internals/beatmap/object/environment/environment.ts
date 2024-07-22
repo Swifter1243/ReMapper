@@ -1,10 +1,10 @@
 import {bsmap} from '../../../../deps.ts'
-import {ExcludedEnvironmentFields, LookupMethod, SubclassExclusiveProps,} from '../../../../types/mod.ts'
-
 import {BaseEnvironmentEnhancement} from "./base_environment.ts";
 import {copy} from "../../../../utils/object/copy.ts";
 import {objectPrune} from "../../../../utils/object/prune.ts";
 import {getActiveDifficulty} from "../../../../data/active_difficulty.ts";
+import {ExcludedEnvironmentFields, LookupMethod} from "../../../../types/beatmap/object/environment.ts";
+import {SubclassExclusiveProps} from "../../../../types/util/class.ts";
 
 export class Environment extends BaseEnvironmentEnhancement<
     bsmap.v2.IChromaEnvironmentID,

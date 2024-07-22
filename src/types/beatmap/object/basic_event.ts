@@ -23,3 +23,4 @@ export type LightParameters =
         'type'
     >,
 ]
+export type LightColor = 'Red' | 'Blue' | 'White'

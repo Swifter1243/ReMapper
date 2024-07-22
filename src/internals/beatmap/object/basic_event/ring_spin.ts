@@ -31,8 +31,8 @@ export class RingSpinEvent extends BasicEvent<bsmap.v2.IEventRing, bsmap.v3.IBas
     rotation?: number
     /** The angle between each ring. */
     step?: number
-    /** The rate at which physics propogate through the rings.
-     * High values will cause rings to move simultneously, low values gives them significant delay.
+    /** The rate at which physics propagate through the rings.
+     * High values will cause rings to move simultaneously, low values gives them significant delay.
      */
     prop?: number
 

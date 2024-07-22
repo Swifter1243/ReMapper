@@ -43,7 +43,7 @@ export abstract class LightEventBox<
     /** The events in this light_event box. */
     events: E[]
 
-    /** Add an light_event to this box's events. */
+    /** Add a light event to this box's events. */
     add(event: E) {
         this.events.push(event)
     }

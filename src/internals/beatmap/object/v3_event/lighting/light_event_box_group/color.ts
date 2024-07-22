@@ -1,8 +1,11 @@
 import { LightEventBoxGroup } from './base.ts'
-import { V3LightColorEventBoxGroup } from '../../../../types/v3_event.ts'
-import { SubclassExclusiveProps } from '../../../../types/object.ts'
-import { lightColorEventBox } from '../../../../builder_functions/v3_event/lighting/light_event_box.ts'
-import { bsmap } from '../../../../deps.ts'
+import {V3LightColorEventBoxGroup} from "../../../../../../types/beatmap/object/v3_event.ts";
+import {SubclassExclusiveProps} from "../../../../../../types/util/class.ts";
+import {
+    lightColorEventBox
+} from "../../../../../../builder_functions/beatmap/object/v3_event/lighting/light_event_box.ts";
+import { bsmap } from '../../../../../../deps.ts'
+
 
 export class LightColorEventBoxGroup extends LightEventBoxGroup<bsmap.v3.ILightColorEventBox> {
     fromJson(json: V3LightColorEventBoxGroup, v3: true): this

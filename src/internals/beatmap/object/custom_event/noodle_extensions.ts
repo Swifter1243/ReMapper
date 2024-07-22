@@ -1,6 +1,6 @@
 import { bsmap } from '../../../../deps.ts'
 import {
-    BaseCustomEvent,
+    CustomEvent,
     CustomEventConstructorTrack,
     CustomEventExclusions,
     CustomEventSubclassFields,
@@ -16,7 +16,7 @@ import {ExcludedObjectFields} from "../../../../types/beatmap/object/object.ts";
 import {EASE} from "../../../../types/animation/easing.ts";
 import {AnimationPropertiesV3} from "../../../../types/animation/properties/properties.ts";
 
-export class AssignPathAnimation extends BaseCustomEvent<
+export class AssignPathAnimation extends CustomEvent<
     bsmap.v2.ICustomEventAssignPathAnimation,
     bsmap.v3.ICustomEventAssignPathAnimation
 > {
@@ -132,7 +132,7 @@ export class AssignPathAnimation extends BaseCustomEvent<
     }
 }
 
-export class AssignTrackParent extends BaseCustomEvent<
+export class AssignTrackParent extends CustomEvent<
     bsmap.v2.ICustomEventAssignTrackParent,
     bsmap.v3.ICustomEventAssignTrackParent
 > {
@@ -237,7 +237,7 @@ export class AssignTrackParent extends BaseCustomEvent<
     }
 }
 
-export class AssignPlayerToTrack extends BaseCustomEvent<
+export class AssignPlayerToTrack extends CustomEvent<
     bsmap.v2.ICustomEventAssignPlayerToTrack,
     bsmap.v3.ICustomEventAssignPlayerToTrack
 > {

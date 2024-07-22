@@ -4,7 +4,7 @@ import {
     TubeBloomPrePassLight,
 } from '../../../../types/beatmap/object/environment.ts'
 import {
-    BaseCustomEvent,
+    CustomEvent,
     CustomEventConstructorTrack,
     CustomEventSubclassFields,
     getDataProp,
@@ -17,7 +17,7 @@ import {EASE} from "../../../../types/animation/easing.ts";
 import {PointDefinitionLinear} from "../../../../types/animation/keyframe/linear.ts";
 
 export class AnimateComponent
-    extends BaseCustomEvent<never, bsmap.v3.ICustomEventAnimateComponent> {
+    extends CustomEvent<never, bsmap.v3.ICustomEventAnimateComponent> {
     constructor(
         params: CustomEventConstructorTrack<AnimateComponent>,
     ) {

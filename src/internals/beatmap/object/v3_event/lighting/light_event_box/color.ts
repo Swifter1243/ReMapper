@@ -1,10 +1,10 @@
-import { Fields } from '../../../../types/object.ts'
-import { lightColorEvent } from '../../../../builder_functions/v3_event/lighting/light_event.ts'
-import { LightEventBox } from './base.ts'
-import { bsmap } from '../../../../deps.ts'
-import { DistributionType } from '../../../../properties/constants/v3_event.ts'
-import { objectPrune } from '../../../../utils/object/prune.ts'
+import { Fields } from '../../../../../../types/util/class.ts'
 import {LightColorEvent} from "../light_event/color.ts";
+import { LightEventBox } from './base.ts'
+import {DistributionType} from "../../../../../../data/constants/v3_event.ts";
+import {lightColorEvent} from "../../../../../../builder_functions/beatmap/object/v3_event/lighting/light_event.ts";
+import { bsmap } from '../../../../../../deps.ts'
+import { objectPrune } from '../../../../../../utils/object/prune.ts'
 
 export class LightColorEventBox
     extends LightEventBox<bsmap.v3.ILightColorEventBox, LightColorEvent> {

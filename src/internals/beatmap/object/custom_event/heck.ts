@@ -1,6 +1,6 @@
 import { bsmap } from '../../../../deps.ts'
 import {
-    BaseCustomEvent,
+    CustomEvent,
     CustomEventConstructorTrack,
     CustomEventSubclassFields,
     getDataProp,
@@ -14,7 +14,7 @@ import {animationToJson} from "../../../../utils/animation/json.ts";
 import {EASE} from "../../../../types/animation/easing.ts";
 import {AnimationPropertiesV3} from "../../../../types/animation/properties/properties.ts";
 
-export class AnimateTrack extends BaseCustomEvent<
+export class AnimateTrack extends CustomEvent<
     bsmap.v2.ICustomEventAnimateTrack,
     bsmap.v3.ICustomEventAnimateTrack
 > {

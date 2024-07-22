@@ -1,5 +1,6 @@
 import {destroyPrefab} from "../../builder_functions/beatmap/object/custom_event/vivify.ts";
-import {InstantiatePrefab} from "../../internals/beatmap/object/custom_event/vivify.ts";
+
+import {InstantiatePrefab} from "../../internals/beatmap/object/custom_event/vivify/instantiate_prefab.ts";
 
 /** An instance of a prefab. */
 export class PrefabInstance {

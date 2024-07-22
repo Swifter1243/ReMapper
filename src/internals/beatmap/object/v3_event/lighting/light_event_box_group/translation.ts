@@ -1,9 +1,12 @@
-import { LightEventBoxGroup } from './base.ts'
-import { V3LightTranslationEventBoxGroup } from '../../../../types/v3_event.ts'
-import { SubclassExclusiveProps } from '../../../../types/object.ts'
-import { LightColorEventBoxGroup } from './color.ts'
-import { lightTranslationEventBox } from '../../../../builder_functions/v3_event/lighting/light_event_box.ts'
-import { bsmap } from '../../../../mod.ts'
+import {LightEventBoxGroup} from "./base.ts";
+import {V3LightTranslationEventBoxGroup} from "../../../../../../types/beatmap/object/v3_event.ts";
+import {SubclassExclusiveProps} from "../../../../../../types/util/class.ts";
+import {LightColorEventBoxGroup} from "./color.ts";
+import {
+    lightTranslationEventBox
+} from "../../../../../../builder_functions/beatmap/object/v3_event/lighting/light_event_box.ts";
+import { bsmap } from '../../../../../../deps.ts'
+
 
 export class LightTranslationEventBoxGroup
     extends LightEventBoxGroup<bsmap.v3.ILightTranslationEventBox> {

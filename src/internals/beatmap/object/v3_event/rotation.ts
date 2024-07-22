@@ -1,13 +1,16 @@
-import { BaseObject, getCDProp } from '../beatmap/object/object.ts'
-import { ConvertableEvent } from '../../types/v3_event.ts'
-import { ObjectFields, SubclassExclusiveProps } from '../../types/object.ts'
-import {EventGroup, InverseRotationAction, RotationAction} from '../../properties/constants/basic_event.ts'
-import {getActiveDifficulty} from "../../properties/active_difficulty.ts";
-import { copy } from '../../utils/object/copy.ts'
-import { bsmap } from '../../deps.ts'
-import { objectPrune } from '../../utils/object/prune.ts'
+import { bsmap } from '../../../../deps.ts'
+import {BeatmapObject} from "../object.ts";
+import {ConvertableEvent} from "../../../../types/beatmap/object/v3_event.ts";
+import {ObjectFields} from "../../../../types/util/json.ts";
+import {getActiveDifficulty} from "../../../../data/active_difficulty.ts";
+import {copy} from "../../../../utils/object/copy.ts";
+import {EventGroup, InverseRotationAction, RotationAction} from "../../../../data/constants/basic_event.ts";
+import {SubclassExclusiveProps} from "../../../../types/util/class.ts";
+import {getCDProp} from "../../../../utils/beatmap/json.ts";
+import {objectPrune} from "../../../../utils/object/prune.ts";
 
-export class RotationEvent extends BaseObject<bsmap.v2.IEventLaneRotation, bsmap.v3.IRotationEvent>
+
+export class RotationEvent extends BeatmapObject<bsmap.v2.IEventLaneRotation, bsmap.v3.IRotationEvent>
     implements ConvertableEvent {
     constructor(obj: Partial<ObjectFields<RotationEvent>>) {
         super(obj)
@@ -46,7 +49,7 @@ export class RotationEvent extends BaseObject<bsmap.v2.IEventLaneRotation, bsmap
     ): this {
         type Params = SubclassExclusiveProps<
             RotationEvent,
-            BaseObject<
+            BeatmapObject<
                 bsmap.v2.IEventLaneRotation,
                 bsmap.v3.IRotationEvent
             >

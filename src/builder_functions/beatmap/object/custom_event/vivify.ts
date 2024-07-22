@@ -1,21 +1,31 @@
-import * as CustomEventInternals from '../../../../internals/beatmap/object/custom_event/mod.ts'
-import {
-    DEPTH_TEX_MODE,
-    RENDER_SETTING,
-} from '../../../../types/vivify/setting.ts'
+import {DEPTH_TEX_MODE, RENDER_SETTING,} from '../../../../types/vivify/setting.ts'
 
 import {EASE} from "../../../../types/animation/easing.ts";
 import {TrackValue} from "../../../../types/animation/track.ts";
 import {FILEPATH} from "../../../../types/beatmap/file.ts";
 import {MaterialProperty} from "../../../../types/vivify/material.ts";
 import {AnimatorProperty} from "../../../../types/vivify/animator.ts";
+import {SetMaterialProperty} from "../../../../internals/beatmap/object/custom_event/vivify/set_material_property.ts";
+import {SetGlobalProperty} from "../../../../internals/beatmap/object/custom_event/vivify/set_global_property.ts";
+import {Blit} from "../../../../internals/beatmap/object/custom_event/vivify/blit.ts";
+import {
+    DeclareCullingTexture
+} from "../../../../internals/beatmap/object/custom_event/vivify/declare_culling_texture.ts";
+import {DeclareRenderTexture} from "../../../../internals/beatmap/object/custom_event/vivify/declare_render_texture.ts";
+import {DestroyTexture} from "../../../../internals/beatmap/object/custom_event/vivify/destroy_texture.ts";
+import {InstantiatePrefab} from "../../../../internals/beatmap/object/custom_event/vivify/instantiate_prefab.ts";
+import {DestroyPrefab} from "../../../../internals/beatmap/object/custom_event/vivify/destroy_prefab.ts";
+import {SetAnimatorProperty} from "../../../../internals/beatmap/object/custom_event/vivify/set_animator_property.ts";
+import {SetCameraProperty} from "../../../../internals/beatmap/object/custom_event/vivify/set_camera_property.ts";
+import {AssignTrackPrefab} from "../../../../internals/beatmap/object/custom_event/vivify/assign_track_prefab.ts";
+import {SetRenderSetting} from "../../../../internals/beatmap/object/custom_event/vivify/set_render_setting.ts";
 
 /**
  * Set properties on a material.
  */
 export function setMaterialProperty(
     ...params:
-        | ConstructorParameters<typeof CustomEventInternals.SetMaterialProperty>
+        | ConstructorParameters<typeof SetMaterialProperty>
         | [
             beat: number,
             asset: string,
@@ -25,16 +35,16 @@ export function setMaterialProperty(
         ]
 ) {
     if (typeof params[0] === 'object') {
-        return new CustomEventInternals.SetMaterialProperty(
+        return new SetMaterialProperty(
             ...params as ConstructorParameters<
-                typeof CustomEventInternals.SetMaterialProperty
+                typeof SetMaterialProperty
             >,
         )
     }
 
     const [beat, asset, properties, duration, easing] = params
 
-    return new CustomEventInternals.SetMaterialProperty(
+    return new SetMaterialProperty(
         {
             beat,
             asset,
@@ -50,7 +60,7 @@ export function setMaterialProperty(
  */
 export function setGlobalProperty(
     ...params:
-        | ConstructorParameters<typeof CustomEventInternals.SetGlobalProperty>
+        | ConstructorParameters<typeof SetGlobalProperty>
         | [
             beat: number,
             properties: MaterialProperty[],
@@ -59,16 +69,16 @@ export function setGlobalProperty(
         ]
 ) {
     if (typeof params[0] === 'object') {
-        return new CustomEventInternals.SetGlobalProperty(
+        return new SetGlobalProperty(
             ...params as ConstructorParameters<
-                typeof CustomEventInternals.SetGlobalProperty
+                typeof SetGlobalProperty
             >,
         )
     }
 
     const [beat, properties, duration, easing] = params
 
-    return new CustomEventInternals.SetGlobalProperty(
+    return new SetGlobalProperty(
         {
             beat,
             properties,
@@ -83,7 +93,7 @@ export function setGlobalProperty(
  */
 export function blit(
     ...params:
-        | ConstructorParameters<typeof CustomEventInternals.Blit>
+        | ConstructorParameters<typeof Blit>
         | [
             beat: number,
             asset?: string,
@@ -93,16 +103,16 @@ export function blit(
         ]
 ) {
     if (typeof params[0] === 'object') {
-        return new CustomEventInternals.Blit(
+        return new Blit(
             ...params as ConstructorParameters<
-                typeof CustomEventInternals.Blit
+                typeof Blit
             >,
         )
     }
 
     const [beat, asset, duration, properties, easing] = params
 
-    return new CustomEventInternals.Blit(
+    return new Blit(
         {
             beat,
             asset,
@@ -120,7 +130,7 @@ export function blit(
 export function declareCullingTexture(
     ...params:
         | ConstructorParameters<
-            typeof CustomEventInternals.DeclareCullingTexture
+            typeof DeclareCullingTexture
         >
         | [
             beat: number,
@@ -130,16 +140,16 @@ export function declareCullingTexture(
         ]
 ) {
     if (typeof params[0] === 'object') {
-        return new CustomEventInternals.DeclareCullingTexture(
+        return new DeclareCullingTexture(
             ...params as ConstructorParameters<
-                typeof CustomEventInternals.DeclareCullingTexture
+                typeof DeclareCullingTexture
             >,
         )
     }
 
     const [beat, id, track, whitelist] = params
 
-    return new CustomEventInternals.DeclareCullingTexture(
+    return new DeclareCullingTexture(
         {
             beat,
             id,
@@ -157,7 +167,7 @@ export function declareCullingTexture(
 export function declareRenderTexture(
     ...params:
         | ConstructorParameters<
-            typeof CustomEventInternals.DeclareRenderTexture
+            typeof DeclareRenderTexture
         >
         | [
             beat: number,
@@ -167,16 +177,16 @@ export function declareRenderTexture(
         ]
 ) {
     if (typeof params[0] === 'object') {
-        return new CustomEventInternals.DeclareRenderTexture(
+        return new DeclareRenderTexture(
             ...params as ConstructorParameters<
-                typeof CustomEventInternals.DeclareRenderTexture
+                typeof DeclareRenderTexture
             >,
         )
     }
 
     const [beat, id, width, height] = params
 
-    return new CustomEventInternals.DeclareRenderTexture(
+    return new DeclareRenderTexture(
         {
             beat,
             id,
@@ -193,7 +203,7 @@ export function declareRenderTexture(
 export function destroyTexture(
     ...params:
         | ConstructorParameters<
-            typeof CustomEventInternals.DestroyTexture
+            typeof DestroyTexture
         >
         | [
             beat: number,
@@ -201,16 +211,16 @@ export function destroyTexture(
         ]
 ) {
     if (typeof params[0] === 'object') {
-        return new CustomEventInternals.DestroyTexture(
+        return new DestroyTexture(
             ...params as ConstructorParameters<
-                typeof CustomEventInternals.DestroyTexture
+                typeof DestroyTexture
             >,
         )
     }
 
     const [beat, id] = params
 
-    return new CustomEventInternals.DestroyTexture(
+    return new DestroyTexture(
         {
             beat,
             id: id as TrackValue,
@@ -224,7 +234,7 @@ export function destroyTexture(
 export function instantiatePrefab(
     ...params:
         | ConstructorParameters<
-            typeof CustomEventInternals.InstantiatePrefab
+            typeof InstantiatePrefab
         >
         | [
             beat: number,
@@ -234,16 +244,16 @@ export function instantiatePrefab(
         ]
 ) {
     if (typeof params[0] === 'object') {
-        return new CustomEventInternals.InstantiatePrefab(
+        return new InstantiatePrefab(
             ...params as ConstructorParameters<
-                typeof CustomEventInternals.InstantiatePrefab
+                typeof InstantiatePrefab
             >,
         )
     }
 
     const [beat, asset, id, track] = params
 
-    return new CustomEventInternals.InstantiatePrefab(
+    return new InstantiatePrefab(
         {
             beat,
             asset,
@@ -257,7 +267,7 @@ export function instantiatePrefab(
 export function destroyPrefab(
     ...params:
         | ConstructorParameters<
-            typeof CustomEventInternals.DestroyPrefab
+            typeof DestroyPrefab
         >
         | [
             beat: number,
@@ -265,16 +275,16 @@ export function destroyPrefab(
         ]
 ) {
     if (typeof params[0] === 'object') {
-        return new CustomEventInternals.DestroyPrefab(
+        return new DestroyPrefab(
             ...params as ConstructorParameters<
-                typeof CustomEventInternals.DestroyPrefab
+                typeof DestroyPrefab
             >,
         )
     }
 
     const [beat, id] = params
 
-    return new CustomEventInternals.DestroyPrefab(
+    return new DestroyPrefab(
         {
             beat,
             id: id as TrackValue,
@@ -287,7 +297,7 @@ export function destroyPrefab(
  */
 export function setAnimatorProperty(
     ...params:
-        | ConstructorParameters<typeof CustomEventInternals.SetAnimatorProperty>
+        | ConstructorParameters<typeof SetAnimatorProperty>
         | [
             beat: number,
             id: string,
@@ -297,16 +307,16 @@ export function setAnimatorProperty(
         ]
 ) {
     if (typeof params[0] === 'object') {
-        return new CustomEventInternals.SetAnimatorProperty(
+        return new SetAnimatorProperty(
             ...params as ConstructorParameters<
-                typeof CustomEventInternals.SetAnimatorProperty
+                typeof SetAnimatorProperty
             >,
         )
     }
 
     const [beat, id, properties, duration, easing] = params
 
-    return new CustomEventInternals.SetAnimatorProperty(
+    return new SetAnimatorProperty(
         {
             beat,
             id,
@@ -320,23 +330,23 @@ export function setAnimatorProperty(
 /** Set properties on the camera. */
 export function setCameraProperty(
     ...params:
-        | ConstructorParameters<typeof CustomEventInternals.SetCameraProperty>
+        | ConstructorParameters<typeof SetCameraProperty>
         | [
             beat: number,
             depthTextureMode: DEPTH_TEX_MODE[],
         ]
 ) {
     if (typeof params[0] === 'object') {
-        return new CustomEventInternals.SetCameraProperty(
+        return new SetCameraProperty(
             ...params as ConstructorParameters<
-                typeof CustomEventInternals.SetCameraProperty
+                typeof SetCameraProperty
             >,
         )
     }
 
     const [beat, depthTextureMode] = params
 
-    return new CustomEventInternals.SetCameraProperty(
+    return new SetCameraProperty(
         {
             beat,
             depthTextureMode,
@@ -347,11 +357,11 @@ export function setCameraProperty(
 /** Replaces all objects on the track with the assigned prefab.
  */
 export function assignTrackPrefab(
-    ...params: ConstructorParameters<typeof CustomEventInternals.AssignTrackPrefab>
+    ...params: ConstructorParameters<typeof AssignTrackPrefab>
 ) {
-    return new CustomEventInternals.AssignTrackPrefab(
+    return new AssignTrackPrefab(
         ...params as ConstructorParameters<
-            typeof CustomEventInternals.AssignTrackPrefab
+            typeof AssignTrackPrefab
         >,
     )
 }
@@ -359,7 +369,7 @@ export function assignTrackPrefab(
 /** Set settings for the rendering. */
 export function setRenderSetting(
     ...params:
-        | ConstructorParameters<typeof CustomEventInternals.SetRenderSetting>
+        | ConstructorParameters<typeof SetRenderSetting>
         | [
             beat: number,
             settings: Partial<RENDER_SETTING>,
@@ -368,16 +378,16 @@ export function setRenderSetting(
         ]
 ) {
     if (typeof params[0] === 'object') {
-        return new CustomEventInternals.SetRenderSetting(
+        return new SetRenderSetting(
             ...params as ConstructorParameters<
-                typeof CustomEventInternals.SetRenderSetting
+                typeof SetRenderSetting
             >,
         )
     }
 
     const [beat, settings, duration, easing] = params
 
-    return new CustomEventInternals.SetRenderSetting(
+    return new SetRenderSetting(
         {
             beat,
             settings,

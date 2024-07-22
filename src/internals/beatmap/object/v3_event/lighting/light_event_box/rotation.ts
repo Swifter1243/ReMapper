@@ -1,10 +1,10 @@
-import { Fields } from '../../../../types/object.ts'
-import { lightRotationEvent } from '../../../../builder_functions/v3_event/lighting/light_event.ts'
+import { Fields } from '../../../../../../types/util/class.ts'
 import { LightEventBox } from './base.ts'
-import {DistributionType, LightAxis} from "../../../../properties/constants/v3_event.ts";
-import { bsmap } from '../../../../mod.ts'
-import { objectPrune } from '../../../../utils/object/prune.ts'
+import {DistributionType, LightAxis} from "../../../../../../data/constants/v3_event.ts";
+import { bsmap } from '../../../../../../deps.ts'
+import { objectPrune } from '../../../../../../utils/object/prune.ts'
 import {LightRotationEvent} from "../light_event/rotation.ts";
+import { lightRotationEvent } from '../../../../../../builder_functions/beatmap/object/v3_event/lighting/light_event.ts'
 
 export class LightRotationEventBox
     extends LightEventBox<bsmap.v3.ILightRotationEventBox, LightRotationEvent> {

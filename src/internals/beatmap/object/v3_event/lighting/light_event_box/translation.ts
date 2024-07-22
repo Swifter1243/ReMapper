@@ -1,10 +1,10 @@
-import { LightTranslationEvent } from '../light_event/translation.ts'
-import { Fields } from '../../../../types/object.ts'
-import { lightTranslationEvent } from '../../../../builder_functions/v3_event/lighting/light_event.ts'
+import { Fields } from '../../../../../../types/util/class.ts'
 import { LightEventBox } from './base.ts'
-import {DistributionType, LightAxis} from '../../../../properties/constants/v3_event.ts'
-import { objectPrune } from '../../../../utils/object/prune.ts'
-import { bsmap } from '../../../../mod.ts'
+import {DistributionType, LightAxis} from "../../../../../../data/constants/v3_event.ts";
+import { bsmap } from '../../../../../../deps.ts'
+import { objectPrune } from '../../../../../../utils/object/prune.ts'
+import {LightTranslationEvent} from "../light_event/translation.ts";
+import { lightTranslationEvent } from '../../../../../../builder_functions/beatmap/object/v3_event/lighting/light_event.ts'
 
 export class LightTranslationEventBox extends LightEventBox<
     bsmap.v3.ILightTranslationEventBox,

@@ -16,15 +16,6 @@ import {defaultBoolean, getCDProp} from "../../../../utils/beatmap/json.ts";
 export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
     /**
      * Arc object for ease of creation.
-     * @param beat The time this arc will be hit.
-     * @param tailBeat The time that the tail of the arc reaches the player.
-     * @param type The color of the arc.
-     * @param headDirection The cut direction of the head of the arc.
-     * @param tailDirection The cut direction of the tail of the arc.
-     * @param x The lane of the arc.
-     * @param y The vertical row of the arc.
-     * @param tailX The lane of the arc's tail.
-     * @param tailY The vertical row of the arc's tail.
      */
     constructor(
         fields: ExcludedObjectFields<Arc>,

@@ -1,6 +1,6 @@
 import { assignTrackPrefab, instantiatePrefab } from '../../builder_functions/beatmap/object/custom_event/vivify.ts'
-import {InstantiatePrefab} from "../../internals/beatmap/object/custom_event/vivify.ts";
 import {PrefabInstance} from "./prefab_instance.ts";
+import {InstantiatePrefab} from "../../internals/beatmap/object/custom_event/vivify/instantiate_prefab.ts";
 
 /** Used to load type safe prefabs. See `loadAssets` */
 export class Prefab {

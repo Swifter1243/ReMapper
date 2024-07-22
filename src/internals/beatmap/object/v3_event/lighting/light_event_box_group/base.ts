@@ -1,11 +1,11 @@
-import { BaseObject } from '../../../beatmap/object/object.ts'
-import { ObjectFields } from '../../../../types/object.ts'
-import { objectPrune } from '../../../../utils/object/prune.ts'
-import { bsmap } from '../../../../mod.ts'
 import {LightEventBox} from "../light_event_box/base.ts";
+import {BeatmapObject} from "../../../object.ts";
+import { bsmap } from '../../../../../../deps.ts'
+import { ObjectFields } from '../../../../../../types/util/json.ts'
+import {objectPrune} from "../../../../../../utils/object/prune.ts";
 
 export abstract class LightEventBoxGroup<T extends bsmap.v3.IEventBox>
-    extends BaseObject<never, bsmap.v3.IEventBoxGroup<T>> {
+    extends BeatmapObject<never, bsmap.v3.IEventBoxGroup<T>> {
     constructor(obj: Partial<ObjectFields<LightEventBoxGroup<T>>>) {
         super(obj)
         this.groupID = obj.groupID ?? 0

@@ -1,18 +1,16 @@
-import { LightID } from '../../../../types/beatmap/object/environment.ts'
-import { EventAction } from '../../../../data/constants/basic_event.ts'
-import { getActiveDifficulty } from '../../../../data/active_difficulty.ts'
-import { copy } from '../../../../utils/object/copy.ts'
-import { objectPrune } from '../../../../utils/object/prune.ts'
-import { BasicEvent } from './basic_event.ts'
-import { bsmap } from '../../../../deps.ts'
-import { BasicEventExcludedFields } from '../../../../types/beatmap/object/basic_event.ts'
+import {LightID} from '../../../../types/beatmap/object/environment.ts'
+import {EventAction} from '../../../../data/constants/basic_event.ts'
+import {getActiveDifficulty} from '../../../../data/active_difficulty.ts'
+import {copy} from '../../../../utils/object/copy.ts'
+import {objectPrune} from '../../../../utils/object/prune.ts'
+import {BasicEvent} from './basic_event.ts'
+import {bsmap} from '../../../../deps.ts'
+import {BasicEventExcludedFields, LightColor} from '../../../../types/beatmap/object/basic_event.ts'
 import {ColorVec} from "../../../../types/math/vector.ts";
 
 import {EASE} from "../../../../types/animation/easing.ts";
 import {Fields, SubclassExclusiveProps} from "../../../../types/util/class.ts";
 import {getCDProp} from "../../../../utils/beatmap/json.ts";
-
-export type LightColor = 'Red' | 'Blue' | 'White'
 
 export class LightEvent<
     TV2 extends bsmap.v2.IEventLight = bsmap.v2.IEventLight,
@@ -64,7 +62,7 @@ export class LightEvent<
     }
 
     /**
-     * Create an light_event that turns lights on.
+     * Create a light event that turns lights on.
      */
     on = this.makeAction({
         Blue: EventAction.BLUE_ON,
@@ -73,7 +71,7 @@ export class LightEvent<
     })
 
     /**
-     * Create an light_event that flashes the lights.
+     * Create a light event that flashes the lights.
      */
     flash = this.makeAction({
         Blue: EventAction.BLUE_FLASH,
@@ -82,7 +80,7 @@ export class LightEvent<
     })
 
     /**
-     * Create an light_event that fades the lights out.
+     * Create a light event that fades the lights out.
      */
     fade = this.makeAction({
         Blue: EventAction.BLUE_FADE,
@@ -91,7 +89,7 @@ export class LightEvent<
     })
 
     /**
-     * Create an light_event that makes the lights fade in to this color from the previous.
+     * Create a light event that makes the lights fade in to this color from the previous.
      */
     transition = this.makeAction({
         Blue: EventAction.BLUE_TRANSITION,

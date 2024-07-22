@@ -1,5 +1,6 @@
+import {bsmap} from '../../../../deps.ts'
+import {ComplexKeyframesLinear} from '../../../../types/animation/keyframe/linear.ts'
 import {BloomFogEnvironment} from '../../../../types/beatmap/object/environment.ts'
-import {bsmap, ComplexKeyframesLinear} from '../../../../mod.ts'
 
 // TODO: Maybe make this a difficulty based thing?
 export type AnyFog = BloomFogEnvironment<
@@ -23,8 +24,7 @@ export class FogEvent {
         const obj = {} as Record<string, unknown>
 
         Object.entries(this.fog).map(([key, value]) => {
-            const newValue = typeof value === 'number' ? [value] : value
-            obj[v3 ? key : `_${key}`] = newValue
+            obj[v3 ? key : `_${key}`] = typeof value === 'number' ? [value] : value
         }) 
         
         return obj as BloomFogEnvironment<ComplexKeyframesLinear | string>
