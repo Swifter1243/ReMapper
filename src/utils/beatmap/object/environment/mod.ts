@@ -1,4 +1,5 @@
 export * from './base_environment.ts'
+export * from './fog.ts'
 export * from './generate.ts'
 export * from './light_id.ts'
 export * from './regex.ts'

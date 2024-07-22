@@ -1,6 +1,6 @@
 import { getActiveDifficulty } from '../../data/active_difficulty.ts'
 import { backLasers } from '../../builder_functions/beatmap/object/basic_event/light_event.ts'
-import { adjustFog } from '../../builder_functions/beatmap/object/environment/fog.ts'
+import { adjustFog } from '../beatmap/object/environment/fog.ts'
 import { environment } from '../../builder_functions/beatmap/object/environment/environment.ts'
 import { arrayAdd } from '../array/operation.ts'
 import { ModelScene } from './model_scene.ts'
