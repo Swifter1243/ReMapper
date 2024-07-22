@@ -1,5 +1,5 @@
 import {bsmap} from '../../deps.ts'
-import {Fields, SubclassExclusiveProps} from '../../types/util.ts'
+import {Fields, SubclassExclusiveProps} from '../../types/object.ts'
 import { objectPrune } from '../../utils/object/prune.ts'
 import {BPMEvent} from "./bpm.ts";
 

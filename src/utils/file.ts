@@ -1,5 +1,6 @@
-import { fs, path } from '../deps.ts'
-import { FILENAME, FILEPATH } from '../types/beatmap.ts'
+import {fs, path} from '../deps.ts'
+import {getWorkingDirectory} from "../data/working_directory.ts";
+import {FILENAME, FILEPATH} from "../types/beatmap/file.ts";
 
 /**
  * Parse a file path, allowing extension forcing and getting useful information.
@@ -27,4 +28,18 @@ export async function parseFilePath(
     if (dir !== '.') output.dir = dir
 
     return output
+}
+
+export async function getBundleCRC(name: string) {
+    const file = path.join(getWorkingDirectory(), name)
+
+    try {
+        const content = await Deno.readTextFile(file)
+        const lines = content.split('\n')
+        const crcLine = lines.find((x) => x.includes('CRC:'))
+        const crcValue = crcLine?.split(':')[1].trim()
+        return crcValue ? parseInt(crcValue) : undefined
+    } catch {
+        return undefined
+    }
 }

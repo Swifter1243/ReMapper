@@ -1,10 +1,10 @@
 import { BaseObject } from '../../beatmap/object/object.ts'
 import { ConvertableEvent } from '../../../types/v3_event.ts'
-import { ObjectFields, SubclassExclusiveProps } from '../../../types/util.ts'
-import { EventGroup } from '../../../data/constants/basic_event.ts'
+import { ObjectFields, SubclassExclusiveProps } from '../../../types/object.ts'
+import { EventGroup } from '../../../properties/constants/basic_event.ts'
 import { bsmap } from '../../../deps.ts'
 import { objectPrune } from '../../../utils/object/prune.ts'
-import { getActiveDifficulty } from '../../../data/active_difficulty.ts'
+import { getActiveDifficulty } from '../../../properties/active_difficulty.ts'
 import { copy } from '../../../utils/object/copy.ts'
 
 export class BoostEvent extends BaseObject<bsmap.v2.IEvent, bsmap.v3.IColorBoostEvent>

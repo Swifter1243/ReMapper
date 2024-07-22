@@ -1,8 +1,11 @@
-import type {DeepReadonly} from '../../../types/util.ts'
-import type {InnerKeyframeBoundless, RuntimeInnerKeyframeBoundless} from '../../../types/animation.ts'
-import {EASE, SPLINE} from "../../../types/animation.ts";
-
 import {findIndexLastFirst} from "../../array/find.ts";
+import {
+    SPLINE
+} from "../../../types/animation/keyframe/keyframe.ts";
+import {EASE} from "../../../types/animation/easing.ts";
+import {InnerKeyframeBoundless} from "../../../types/animation/keyframe/boundless.ts";
+import {RuntimeInnerKeyframeBoundless} from "../../../types/animation/keyframe/runtime/boundless.ts";
+import {DeepReadonly} from "../../../types/util/mutability.ts";
 
 /** Get the index of the time value of a keyframe. */
 export function getKeyframeTimeIndex(

@@ -2,3 +2,10 @@ export * from './base_light_iterator.ts'
 export * from './base_note_iterator.ts'
 export * from './light_iterator.ts'
 export * from './note_iterator.ts'
+export {CutName} from "../../types/iterator.ts";
+export {NoteProcess} from "../../types/iterator.ts";
+export {NoteCondition} from "../../types/iterator.ts";
+export {LightEventProcess} from "../../types/iterator.ts";
+export {LightEventCondition} from "../../types/iterator.ts";
+export {AnyNoteLiteral} from "../../types/beatmap/object/note.ts";
+export {AnyNoteLiteralMap} from "../../types/beatmap/object/note.ts";

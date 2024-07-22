@@ -1,13 +1,13 @@
-import {AnyNote} from '../../general.ts'
-import {NoteRemapperInternals} from '../../internals/mod.ts'
-import {BaseNoteIterator, NoteCondition, NoteProcess} from "./base_note_iterator.ts";
+import {BaseNoteIterator} from "./base_note_iterator.ts";
+import {NoteCondition, NoteProcess} from "../../types/iterator.ts";
+import {AnyNote, AnyNoteLiteral, AnyNoteLiteralMap} from "../../types/beatmap/object/note.ts";
 
 export class AnyNoteIterator extends BaseNoteIterator<AnyNote> {
     /** Filter out note types.  */
-    setTypeFilter<T extends NoteRemapperInternals.NoteType[]>(filter: T) {
-        const newTypes = new Set<NoteRemapperInternals.NoteType>(filter)
+    setTypeFilter<T extends AnyNoteLiteral[]>(filter: T) {
+        const newTypes = new Set<AnyNoteLiteral>(filter)
         
-        type union = NoteRemapperInternals.NoteTypeLookup[(typeof filter)[number]]
+        type union = AnyNoteLiteralMap[(typeof filter)[number]]
         
         const newClass = new BaseNoteIterator<union>()
         newClass.conditions = this.conditions as NoteCondition<union>[]

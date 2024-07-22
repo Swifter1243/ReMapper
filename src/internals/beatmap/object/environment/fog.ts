@@ -1,4 +1,4 @@
-import {BloomFogEnvironment} from '../../../../types/environment.ts'
+import {BloomFogEnvironment} from '../../../../types/beatmap/object/environment.ts'
 import {bsmap, ComplexKeyframesLinear} from '../../../../mod.ts'
 
 // TODO: Maybe make this a difficulty based thing?

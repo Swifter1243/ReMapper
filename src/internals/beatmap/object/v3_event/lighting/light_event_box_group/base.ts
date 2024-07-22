@@ -1,5 +1,5 @@
 import { BaseObject } from '../../../beatmap/object/object.ts'
-import { ObjectFields } from '../../../../types/util.ts'
+import { ObjectFields } from '../../../../types/object.ts'
 import { objectPrune } from '../../../../utils/object/prune.ts'
 import { bsmap } from '../../../../mod.ts'
 import {LightEventBox} from "../light_event_box/base.ts";

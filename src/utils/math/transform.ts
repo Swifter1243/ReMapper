@@ -1,18 +1,17 @@
-import { AnimatedTransform, FullAnimatedTransform, Transform, Vec3 } from '../../types/data.ts'
-import { DeepReadonly } from '../../types/util.ts'
-import { copy } from '../object/copy.ts'
-import { arrayAdd, arraySubtract } from '../array/operation.ts'
-import { getMatrixFromTransform, getTransformFromMatrix } from './matrix.ts'
-import { AnimationSettings } from '../animation/optimizer.ts'
-import { RawKeyframesVec3 } from '../../types/animation.ts'
-import { areKeyframesSimple } from '../animation/keyframe/complexity.ts'
-import { areArraysEqual } from '../array/check.ts'
-import {
-    bakeAnimation,
-    getAnimatedObjectDomain,
-    getKeyframeValuesAtTime,
-} from '../animation/mod.ts'
+import {copy} from '../object/copy.ts'
+import {arrayAdd, arraySubtract} from '../array/operation.ts'
+import {getMatrixFromTransform, getTransformFromMatrix} from './matrix.ts'
+import {AnimationSettings} from '../animation/optimizer.ts'
+import {areKeyframesSimple} from '../animation/keyframe/complexity.ts'
+import {areArraysEqual} from '../array/check.ts'
+import {bakeAnimation, getAnimatedObjectDomain, getKeyframeValuesAtTime,} from '../animation/mod.ts'
 import {iterateKeyframes} from "../animation/keyframe/iterate.ts";
+import {rotatePoint} from "./vector.ts";
+import {Vec3} from "../../types/math/vector.ts";
+import {AnimatedTransform, FullAnimatedTransform, Transform} from "../../types/math/transform.ts";
+
+import {RawKeyframesVec3} from "../../types/animation/keyframe/vec3.ts";
+import {DeepReadonly} from "../../types/util/mutability.ts";
 
 /**
  * Combine 2 rotations. Not commutative.
@@ -218,4 +217,24 @@ export function emulateParent(
         animationSettings,
         domain,
     )
+}
+
+/**
+ * Applies a local offset to an object based on it's transformation, and returns the resulting position.
+ * @param position Position of the object.
+ * @param rotation Rotation of the object.
+ * @param scale Scale of the object.
+ * @param anchor Desired local offset for the object.
+ */
+export function applyAnchor(
+    position: Vec3,
+    rotation: Vec3,
+    scale: Vec3,
+    anchor: Vec3,
+) {
+    const offset = rotatePoint(
+        scale.map((x, i) => x * anchor[i]) as Vec3,
+        rotation,
+    )
+    return position.map((x, i) => x + offset[i]) as Vec3
 }

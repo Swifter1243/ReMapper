@@ -1,8 +1,8 @@
 import { BaseObject, getCDProp } from '../beatmap/object/object.ts'
 import { ConvertableEvent } from '../../types/v3_event.ts'
-import { ObjectFields, SubclassExclusiveProps } from '../../types/util.ts'
-import {EventGroup, InverseRotationAction, RotationAction} from '../../data/constants/basic_event.ts'
-import {getActiveDifficulty} from "../../data/active_difficulty.ts";
+import { ObjectFields, SubclassExclusiveProps } from '../../types/object.ts'
+import {EventGroup, InverseRotationAction, RotationAction} from '../../properties/constants/basic_event.ts'
+import {getActiveDifficulty} from "../../properties/active_difficulty.ts";
 import { copy } from '../../utils/object/copy.ts'
 import { bsmap } from '../../deps.ts'
 import { objectPrune } from '../../utils/object/prune.ts'

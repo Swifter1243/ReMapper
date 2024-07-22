@@ -51,11 +51,13 @@ import {abstractCustomEvent} from "../../builder_functions/beatmap/object/custom
 import {shallowPrune} from "../../utils/object/prune.ts";
 import {EventGroup} from "../../data/constants/basic_event.ts";
 import {officialBpmEvent} from "../../builder_functions/beatmap/object/v3_event/bpm.ts";
-import {BeatmapCustomEvents, RMDifficulty} from "../../types/beatmap_interfaces/difficulty.ts";
+import {RMDifficulty} from "../../types/beatmap/rm_difficulty.ts";
 import { arraySplit } from '../../utils/array/split.ts'
 import { Track } from '../../utils/animation/track.ts'
 import { BaseCustomEvent } from './object/custom_event/base.ts'
 import {OfficialBPMEvent} from "./object/v3_event/official_bpm.ts";
+
+import {BeatmapCustomEvents} from "../../types/beatmap/object/custom_event.ts";
 
 export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
     declare version: bsmap.v3.IDifficulty['version']

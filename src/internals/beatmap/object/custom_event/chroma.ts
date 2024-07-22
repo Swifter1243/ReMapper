@@ -1,9 +1,8 @@
 import { bsmap } from '../../../../deps.ts'
-import { EASE, PointDefinitionLinear } from '../../../../types/animation.ts'
 import {
     ILightWithId,
     TubeBloomPrePassLight,
-} from '../../../../types/environment.ts'
+} from '../../../../types/beatmap/object/environment.ts'
 import {
     BaseCustomEvent,
     CustomEventConstructorTrack,
@@ -14,6 +13,8 @@ import {copy} from "../../../../utils/object/copy.ts";
 import {objectPrune} from "../../../../utils/object/prune.ts";
 import {Track} from "../../../../utils/animation/track.ts";
 import {getActiveDifficulty} from "../../../../data/active_difficulty.ts";
+import {EASE} from "../../../../types/animation/easing.ts";
+import {PointDefinitionLinear} from "../../../../types/animation/keyframe/linear.ts";
 
 export class AnimateComponent
     extends BaseCustomEvent<never, bsmap.v3.ICustomEventAnimateComponent> {

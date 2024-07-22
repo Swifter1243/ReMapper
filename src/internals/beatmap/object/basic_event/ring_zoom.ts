@@ -1,11 +1,11 @@
-import {Fields, SubclassExclusiveProps} from '../../../../types/util.ts'
 import {EventGroup} from '../../../../data/constants/basic_event.ts'
 import {getActiveDifficulty} from '../../../../data/active_difficulty.ts'
 import {copy} from '../../../../utils/object/copy.ts'
 import {objectPrune} from '../../../../utils/object/prune.ts'
 import {BasicEvent} from './basic_event.ts'
 import { bsmap } from '../../../../deps.ts'
-import {getCDProp} from "../../../../utils/beatmap/object.ts";
+import {Fields, SubclassExclusiveProps} from "../../../../types/util/class.ts";
+import {getCDProp} from "../../../../utils/beatmap/json.ts";
 
 export class RingZoomEvent extends BasicEvent<bsmap.v2.IEventZoom, bsmap.v3.IBasicEventRing> {
     constructor(obj: Partial<Omit<Fields<RingZoomEvent>, 'type'>>) {

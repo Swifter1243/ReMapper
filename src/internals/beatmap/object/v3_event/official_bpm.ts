@@ -1,9 +1,9 @@
-import { ConvertableEvent } from '../../../../types/v3_event.ts'
+import { ConvertableEvent } from '../../../../types/beatmap/object/v3_event.ts'
 import { BPMEvent } from './bpm.ts'
-import {Fields, SubclassExclusiveProps} from "../../../../types/util.ts";
 import { bsmap } from '../../../../deps.ts'
 import {objectPrune} from "../../../../utils/object/prune.ts";
 import {EventGroup} from "../../../../data/constants/basic_event.ts";
+import {Fields, SubclassExclusiveProps} from "../../../../types/util/class.ts";
 
 export class OfficialBPMEvent extends BPMEvent<
     bsmap.v2.IEvent,

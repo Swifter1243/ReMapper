@@ -1,9 +1,9 @@
 import {bsmap} from '../../../deps.ts'
 
-import {ObjectFields, TJson,} from '../../../types/util.ts'
-import {JsonWrapper} from '../../../types/beatmap.ts'
 import {isEmptyObject} from "../../../utils/object/check.ts";
 import {objectPrune} from '../../../utils/object/prune.ts'
+import {JsonWrapper} from "../../../types/beatmap/json_wrapper.ts";
+import {ObjectFields, TJson} from "../../../types/util/json.ts";
 
 export abstract class BeatmapObject<
     TV2 extends bsmap.v2.IBaseObject,
@@ -11,7 +11,7 @@ export abstract class BeatmapObject<
 > implements JsonWrapper<TV2, TV3> {
     /** The time that this object is scheduled for. */
     beat: number
-    /** Any community made data on this object. */
+    /** Any community made properties on this object. */
     customData: TV2['_customData'] | TV3['customData']
 
     constructor(

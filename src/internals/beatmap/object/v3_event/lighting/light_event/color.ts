@@ -1,6 +1,6 @@
 import { BaseLightEvent } from './base.ts'
-import { ObjectFields, SubclassExclusiveProps } from '../../../../types/util.ts'
-import { LightColor, LightTransition } from '../../../../data/constants/v3_event.ts'
+import { ObjectFields, SubclassExclusiveProps } from '../../../../types/object.ts'
+import { LightColor, LightTransition } from '../../../../properties/constants/v3_event.ts'
 import { BaseObject } from '../../../beatmap/object/object.ts'
 import { objectPrune } from '../../../../utils/object/prune.ts'
 import { bsmap } from '../../../../deps.ts'

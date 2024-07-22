@@ -1,5 +1,6 @@
-import { Regex } from '../../utils/environment/regex.ts'
-import { Vec3 } from '../../types/data.ts'
+import { Regex } from '../../utils/beatmap/object/environment/regex.ts'
+
+import {Vec3} from "../../types/math/vector.ts";
 
 /**
  * Known transforms for objects with ModelScene.

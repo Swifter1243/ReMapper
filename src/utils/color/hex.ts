@@ -1,4 +1,4 @@
-import { ColorVec, Vec3 } from '../../types/data.ts'
+import {ColorVec, Vec3} from "../../types/math/vector.ts";
 
 function componentToHex(c: number) {
     const hex = (Math.round(c * 255)).toString(16)

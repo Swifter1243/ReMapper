@@ -2,9 +2,8 @@ import {wall} from '../../builder_functions/beatmap/object/gameplay_object/wall.
 import {bsmap} from '../../deps.ts'
 import {AbstractDifficulty} from './abstract_beatmap.ts'
 import {Bomb, ColorNote} from './object/gameplay_object/color_note.ts'
-import {ColorVec} from '../../types/data.ts'
 import {Wall} from './object/gameplay_object/wall.ts'
-import {GeoShader, RawGeometryMaterial} from '../../types/environment.ts'
+import {GeoShader, RawGeometryMaterial} from '../../types/beatmap/object/environment.ts'
 import {
     IInfoSet,
     IInfoSetDifficulty,
@@ -33,10 +32,12 @@ import {arraySplit} from "../../utils/array/split.ts";
 import {objectPrune, shallowPrune} from "../../utils/object/prune.ts";
 import {EventGroup} from "../../data/constants/basic_event.ts";
 import {officialBpmEvent} from "../../builder_functions/beatmap/object/v3_event/bpm.ts";
-import {BeatmapCustomEvents, RMDifficulty} from "../../types/beatmap_interfaces/difficulty.ts";
+import {RMDifficulty} from "../../types/beatmap/rm_difficulty.ts";
 import {OfficialBPMEvent} from "./object/v3_event/official_bpm.ts";
 import {CommunityBPMEvent} from "./object/v3_event/community_bpm.ts";
 import {BaseCustomEvent} from "./object/custom_event/base.ts";
+import {ColorVec} from "../../types/math/vector.ts";
+import {BeatmapCustomEvents} from "../../types/beatmap/object/custom_event.ts";
 
 /** Difficulty V2 beatmap. */
 export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {

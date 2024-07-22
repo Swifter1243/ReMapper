@@ -1,26 +1,23 @@
 import {
-    AnimationKeys,
-    ComplexKeyframesAny,
-    ComplexKeyframesBoundless,
-    EASE,
-    InnerKeyframeBoundless,
-    RawKeyframesAbstract,
-} from '../../types/animation.ts'
-import {
     getKeyframeEasing,
     getKeyframeHSVLerp,
     getKeyframeSpline,
     getKeyframeTime,
     getKeyframeValues,
 } from './keyframe/get.ts'
-import {DeepReadonly} from '../../types/util.ts'
 import {areKeyframesSimple} from './keyframe/complexity.ts'
-import {Vec3, Vec4} from '../../types/data.ts'
 import {arrayAdd, arrayLerp, arrayMultiply} from "../array/operation.ts";
 import {arrayLastElement} from "../array/find.ts";
 import {inverseLerp, lerpRotation} from "../math/lerp.ts";
 import * as easings from "../math/easing_functions.ts";
 import {lerpHSV} from "../color/lerp.ts";
+import {Vec3, Vec4} from "../../types/math/vector.ts";
+import {EASE} from "../../types/animation/easing.ts";
+import {RawKeyframesAbstract} from "../../types/animation/keyframe/abstract.ts";
+import {ComplexKeyframesAny} from "../../types/animation/keyframe/any.ts";
+import {ComplexKeyframesBoundless, InnerKeyframeBoundless} from "../../types/animation/keyframe/boundless.ts";
+import {AnimationKeys} from "../../types/animation/properties/keys.ts";
+import {DeepReadonly} from "../../types/util/mutability.ts";
 
 /**
  * Get the value of keyframes at a given time.

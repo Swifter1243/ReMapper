@@ -1,29 +1,10 @@
-import { AnyNote } from '../../general.ts'
-import { NoteCut, NoteInternals, TrackValue } from '../../mod.ts'
-import {getActiveDifficulty} from "../../data/active_difficulty.ts";
-
-export type NoteCondition<T extends AnyNote> = (event: T) => boolean
-export type NoteProcess<T extends AnyNote> = (event: T) => void
-
-export type NoteTypeLookup = {
-    'ColorNote': NoteInternals.ColorNote
-    'Bomb': NoteInternals.Bomb
-    'Arc': NoteInternals.Arc
-    'Chain': NoteInternals.Chain
-}
-/** All note types. */
-export type NoteType = keyof NoteTypeLookup
-
-type CutName =
-    | 'dot'
-    | 'down'
-    | 'down_left'
-    | 'down_right'
-    | 'left'
-    | 'right'
-    | 'up'
-    | 'up_left'
-    | 'up_right'
+import {getActiveDifficulty} from '../../data/active_difficulty.ts'
+import {NoteCut} from '../../data/constants/note.ts'
+import {ColorNote} from "../../internals/beatmap/object/gameplay_object/color_note.ts";
+import {Chain} from "../../internals/beatmap/object/gameplay_object/chain.ts";
+import {CutName, NoteCondition, NoteProcess} from "../../types/iterator.ts";
+import {TrackValue} from "../../types/animation/track.ts";
+import {AnyNote, AnyNoteLiteral} from "../../types/beatmap/object/note.ts";
 
 const directionsLiteral: Record<NoteCut, CutName> = {
     [NoteCut.DOT]: 'dot',
@@ -43,7 +24,7 @@ export class BaseNoteIterator<T extends AnyNote> {
     /** Function to run on each note. */
     processes: NoteProcess<T>[] = []
     /** The note types to run on. */
-    typeFilter = new Set<NoteType>(['ColorNote', 'Bomb', 'Arc', 'Chain'])
+    typeFilter = new Set<AnyNoteLiteral>(['ColorNote', 'Bomb', 'Arc', 'Chain'])
 
     /**
      * Add a condition that notes must pass.
@@ -115,22 +96,20 @@ export class BaseNoteIterator<T extends AnyNote> {
 
     /** Generate tracks on each note with the cut direction of the note appended. Only works on color notes and chains.
      * @param directionNames Determine what string each cut direction will map to.
-    */
+     */
     addTrackByDirection(
         prefix = 'cut_',
         directionNames?: Record<CutName, string>,
     ) {
         function getTrack(cut: NoteCut) {
             return prefix +
-                (directionNames
-                    ? directionNames[directionsLiteral[cut]]
-                    : directionsLiteral[cut])
+                (directionNames ? directionNames[directionsLiteral[cut]] : directionsLiteral[cut])
         }
 
         return this.addProcess((x) => {
-            if (x instanceof NoteInternals.ColorNote) {
+            if (x instanceof ColorNote) {
                 x.track.add(getTrack(x.cutDirection))
-            } else if (x instanceof NoteInternals.Chain) {
+            } else if (x instanceof Chain) {
                 x.track.add(getTrack(x.headDirection))
             }
         })

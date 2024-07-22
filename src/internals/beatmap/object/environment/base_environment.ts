@@ -1,9 +1,9 @@
-import { JsonWrapper } from '../../../../types/beatmap.ts'
-import { Vec3 } from '../../../../types/data.ts'
-import { Fields } from '../../../../types/util.ts'
 import { bsmap } from '../../../../deps.ts'
-import { ExcludedEnvironmentFields } from '../../../../types/environment.ts'
+import { ExcludedEnvironmentFields } from '../../../../types/beatmap/object/environment.ts'
 import {Track} from "../../../../utils/animation/track.ts";
+import {Vec3} from "../../../../types/math/vector.ts";
+import {JsonWrapper} from "../../../../types/beatmap/json_wrapper.ts";
+import {Fields} from "../../../../types/util/class.ts";
 
 /** The base abstract Environment Enhancement class which is inherited by Environment and Geometry. */
 export abstract class BaseEnvironmentEnhancement<
@@ -66,7 +66,7 @@ export abstract class BaseEnvironmentEnhancement<
     fromJson(json: TV2 | TV3, v3: boolean): this {
         type Params = Fields<BaseEnvironmentEnhancement<TV2, TV3>>
 
-        // TODO: Import custom data, exclude fields imported
+        // TODO: Import custom properties, exclude fields imported
 
         if (v3) {
             const obj = json as TV3

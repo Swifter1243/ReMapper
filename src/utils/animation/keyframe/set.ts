@@ -1,8 +1,14 @@
-import type { InnerKeyframeBoundless, RuntimeInnerKeyframeBoundless } from '../../../types/animation.ts'
-import { EASE, KeyframeFlag, SPLINE } from '../../../types/animation.ts'
+
 import { getKeyframeFlagIndex, getKeyframeTimeIndex } from './get.ts'
 
 import {arrayRemove} from "../../array/mutate.ts";
+import {
+    KeyframeFlag,
+    SPLINE
+} from "../../../types/animation/keyframe/keyframe.ts";
+import {EASE} from "../../../types/animation/easing.ts";
+import {InnerKeyframeBoundless} from "../../../types/animation/keyframe/boundless.ts";
+import {RuntimeInnerKeyframeBoundless} from "../../../types/animation/keyframe/runtime/boundless.ts";
 
 /** Set the time value of a keyframe. */
 export const setKeyframeTime = (

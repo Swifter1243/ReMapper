@@ -1,8 +1,8 @@
-import { Fields } from '../../../../types/util.ts'
+import { Fields } from '../../../../types/object.ts'
 import { lightColorEvent } from '../../../../builder_functions/v3_event/lighting/light_event.ts'
 import { LightEventBox } from './base.ts'
 import { bsmap } from '../../../../deps.ts'
-import { DistributionType } from '../../../../data/constants/v3_event.ts'
+import { DistributionType } from '../../../../properties/constants/v3_event.ts'
 import { objectPrune } from '../../../../utils/object/prune.ts'
 import {LightColorEvent} from "../light_event/color.ts";
 

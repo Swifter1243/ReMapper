@@ -4,18 +4,18 @@ import {
     settings,
 } from '../../../../data/settings.ts'
 
-import { Vec3 } from '../../../../types/data.ts'
-import { Fields, SubclassExclusiveProps } from '../../../../types/util.ts'
-import { setWallWorldTransform } from '../../../../model/mod.ts'
-import { AnimatedTransform } from '../../../../types/data.ts'
+import { setWallWorldTransform } from '../../../../utils/model/mod.ts'
 import {copy} from "../../../../utils/object/copy.ts";
 import {objectPrune} from "../../../../utils/object/prune.ts";
 import {activeDifficulty, getActiveDifficulty} from "../../../../data/active_difficulty.ts";
 import {animationToJson} from "../../../../utils/animation/json.ts";
-import {defaultBoolean, exportInvertedBoolean, getCDProp} from "../../../../utils/beatmap/object.ts";
 import {ExcludedObjectFields} from "../../../../types/beatmap/object/object.ts";
 import {BeatmapGameplayObject} from "./gameplay_object.ts";
 import { AnimationSettings } from '../../../../utils/animation/optimizer.ts'
+import {Vec3} from "../../../../types/math/vector.ts";
+import {AnimatedTransform} from "../../../../types/math/transform.ts";
+import {Fields, SubclassExclusiveProps} from "../../../../types/util/class.ts";
+import {defaultBoolean, exportInvertedBoolean, getCDProp} from "../../../../utils/beatmap/json.ts";
 
 export class Wall
     extends BeatmapGameplayObject<bsmap.v2.IObstacle, bsmap.v3.IObstacle> {

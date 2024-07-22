@@ -1,10 +1,11 @@
-import { DeepReadonly } from '../../types/util.ts'
-import { Transform, Vec3 } from '../../types/data.ts'
 import {eulerFromQuaternion, threeClassToArray, toThreeQuaternion, toThreeVec3} from './three_conversion.ts'
 import { crossProduct, normalize } from './vector.ts'
 import { arraySubtract } from '../array/operation.ts'
 import { three } from '../../deps.ts'
 import {combineTransforms} from "./transform.ts";
+import {Vec3} from "../../types/math/vector.ts";
+import {Transform} from "../../types/math/transform.ts";
+import {DeepReadonly} from "../../types/util/mutability.ts";
 
 /**
  * Takes a transformation and converts it to a matrix.

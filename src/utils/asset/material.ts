@@ -1,9 +1,10 @@
-import {DeepReadonly} from '../../types/util.ts'
-import {MATERIAL_PROP_TYPE, MaterialProperty} from '../../types/vivify.ts'
-import {EASE} from '../../types/animation.ts'
 import {blit, setMaterialProperty} from '../../builder_functions/beatmap/object/custom_event/vivify.ts'
 import {Blit, SetMaterialProperty} from "../../internals/beatmap/object/custom_event/vivify.ts";
 import {MaterialProperties, MaterialPropertyMap} from "../../types/asset.ts";
+
+import {EASE} from "../../types/animation/easing.ts";
+import {DeepReadonly} from "../../types/util/mutability.ts";
+import {MATERIAL_PROP_TYPE, MaterialProperty} from "../../types/vivify/material.ts";
 
 type MaterialSetParameters0<
     T extends MaterialProperties,

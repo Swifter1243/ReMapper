@@ -1,10 +1,10 @@
 import {BaseEnvironmentEnhancement} from './base_environment.ts'
-import {ExcludedEnvironmentFields, GeometryMaterial, GeoType} from '../../../../types/environment.ts'
-import { SubclassExclusiveProps } from '../../../../types/util.ts'
+import {ExcludedEnvironmentFields, GeometryMaterial, GeoType} from '../../../../types/beatmap/object/environment.ts'
 import { bsmap } from '../../../../deps.ts'
 import {copy} from "../../../../utils/object/copy.ts";
 import {objectPrune} from "../../../../utils/object/prune.ts";
 import {getActiveDifficulty} from "../../../../data/active_difficulty.ts";
+import {SubclassExclusiveProps} from "../../../../types/util/class.ts";
 
 export class Geometry extends BaseEnvironmentEnhancement<
     bsmap.v2.IChromaEnvironmentGeometry,

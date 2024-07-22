@@ -1,7 +1,7 @@
-import { Fields } from '../../../../types/util.ts'
+import { Fields } from '../../../../types/object.ts'
 import { lightRotationEvent } from '../../../../builder_functions/v3_event/lighting/light_event.ts'
 import { LightEventBox } from './base.ts'
-import {DistributionType, LightAxis} from "../../../../data/constants/v3_event.ts";
+import {DistributionType, LightAxis} from "../../../../properties/constants/v3_event.ts";
 import { bsmap } from '../../../../mod.ts'
 import { objectPrune } from '../../../../utils/object/prune.ts'
 import {LightRotationEvent} from "../light_event/rotation.ts";

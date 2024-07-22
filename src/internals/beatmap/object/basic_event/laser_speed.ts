@@ -1,11 +1,11 @@
-import { BasicEventExcludedFields } from '../../../../types/basic_event.ts'
+import { BasicEventExcludedFields } from '../../../../types/beatmap/object/basic_event.ts'
 import { getActiveDifficulty } from '../../../../data/active_difficulty.ts'
 import { copy } from '../../../../utils/object/copy.ts'
-import { Fields, SubclassExclusiveProps } from '../../../../types/util.ts'
 import { objectPrune } from '../../../../utils/object/prune.ts'
 import { BasicEvent } from './basic_event.ts'
 import { bsmap } from '../../../../deps.ts'
-import {getCDProp} from "../../../../utils/beatmap/object.ts";
+import {Fields, SubclassExclusiveProps} from "../../../../types/util/class.ts";
+import {getCDProp} from "../../../../utils/beatmap/json.ts";
 
 export class LaserSpeedEvent<
     TV2 extends bsmap.v2.IEventLaser = bsmap.v2.IEventLaser,

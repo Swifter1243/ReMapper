@@ -1,7 +1,7 @@
 import {bsmap} from '../../../../deps.ts'
-import {ObjectFields, SubclassExclusiveProps} from '../../../../types/util.ts'
+import {ObjectFields, SubclassExclusiveProps} from '../../../../types/object.ts'
 import {BaseObject} from '../../../beatmap/object/object.ts'
-import {RotationEase} from "../../../../data/constants/v3_event.ts";
+import {RotationEase} from "../../../../properties/constants/v3_event.ts";
 import {objectPrune} from "../../../../utils/object/prune.ts";
 
 export class LightTranslationEvent extends BaseObject<never, bsmap.v3.ILightTranslationBase> {

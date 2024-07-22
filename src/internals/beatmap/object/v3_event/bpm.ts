@@ -1,8 +1,8 @@
 import {JsonWrapper} from '../../types/beatmap.ts'
-import {Fields, ObjectFields} from '../../types/util.ts'
+import {Fields, ObjectFields} from '../../types/object.ts'
 import {BaseObject} from '../beatmap/object/object.ts'
 import {V2BPM, V3BPM} from "../../types/v3_event.ts";
-import { getActiveDifficulty } from '../../data/active_difficulty.ts'
+import { getActiveDifficulty } from '../../properties/active_difficulty.ts'
 import { copy } from '../../utils/object/copy.ts'
 
 export abstract class BPMEvent<

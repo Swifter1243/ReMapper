@@ -1,7 +1,7 @@
 import {bsmap} from '../../../../deps.ts'
 import {BeatmapObject} from '../object.ts'
-import {SubclassExclusiveProps} from '../../../../types/util.ts'
-import {BasicEventExcludedFields} from "../../../../types/basic_event.ts";
+import {BasicEventExcludedFields} from "../../../../types/beatmap/object/basic_event.ts";
+import {SubclassExclusiveProps} from "../../../../types/util/class.ts";
 
 export abstract class BasicEvent<
     TV2 extends bsmap.v2.IEvent = bsmap.v2.IEvent,
@@ -32,7 +32,7 @@ export abstract class BasicEvent<
         json: TV3 | TV2,
         v3: boolean,
     ): this {
-        // TODO: Implement custom data
+        // TODO: Implement custom properties
 
         type Params = SubclassExclusiveProps<
             BasicEvent,

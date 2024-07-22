@@ -1,6 +1,6 @@
-import {EASE} from "../../types/animation.ts";
-
 import {lerp} from "../math/lerp.ts";
+
+import {EASE} from "../../types/animation/easing.ts";
 
 /**
  * Add either a number or another array to an array.

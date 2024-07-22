@@ -1,7 +1,5 @@
 import {ExcludedObjectFields} from '../../../../types/beatmap/object/object.ts'
 import {Track} from '../../../../utils/animation/track.ts'
-import {ColorVec, Vec2, Vec3} from '../../../../types/data.ts'
-import {AnimationPropertiesV2, AnimationPropertiesV3, ObjectAnimationData,} from '../../../../types/animation.ts'
 import {getActiveDifficulty} from '../../../../data/active_difficulty.ts'
 import {
     getJumps,
@@ -10,12 +8,15 @@ import {
     getOffsetFromReactionTime,
     getReactionTime,
 } from '../../../../utils/math/beatmap.ts'
-import {getInfoDat} from '../../../../data/info.ts'
-import {SubclassExclusiveProps} from '../../../../types/util.ts'
-import {getCDProp, importInvertedBoolean} from '../../../../utils/beatmap/object.ts'
+import {getActiveInfo} from '../../../../data/active_info.ts'
 import {jsonToAnimation} from '../../../../utils/animation/json.ts'
 import {BeatmapObject} from '../object.ts'
 import {bsmap} from '../../../../deps.ts'
+import {ColorVec, Vec2, Vec3} from "../../../../types/math/vector.ts";
+import {AnimationPropertiesV2, AnimationPropertiesV3} from "../../../../types/animation/properties/properties.ts";
+import {ObjectAnimationData} from "../../../../types/animation/properties/object.ts";
+import {SubclassExclusiveProps} from "../../../../types/util/class.ts";
+import {getCDProp, importInvertedBoolean} from "../../../../utils/beatmap/json.ts";
 
 export abstract class BeatmapGameplayObject<
     TV2 extends bsmap.v2.INote | bsmap.v2.IObstacle,
@@ -76,7 +77,7 @@ export abstract class BeatmapGameplayObject<
     track: Track
     /** The chroma color of the object. */
     color?: ColorVec
-    /** The animation json on the object. */
+    /** The animation object on the object. */
     animation: ObjectAnimationData
 
     /** The speed of this object in units (meters) per second.
@@ -100,14 +101,14 @@ export abstract class BeatmapGameplayObject<
         return getJumps(
             this.implicitNoteJumpSpeed,
             this.implicitNoteJumpOffset,
-            getInfoDat()._beatsPerMinute,
+            getActiveInfo()._beatsPerMinute,
         ).halfDuration
     }
     set halfJumpDuration(value: number) {
         this.noteJumpOffset = getOffsetFromHalfJumpDuration(
             value,
             this.implicitNoteJumpSpeed,
-            getInfoDat()._beatsPerMinute,
+            getActiveInfo()._beatsPerMinute,
         )
     }
 
@@ -119,14 +120,14 @@ export abstract class BeatmapGameplayObject<
         return getJumps(
             this.implicitNoteJumpSpeed,
             this.implicitNoteJumpOffset,
-            getInfoDat()._beatsPerMinute,
+            getActiveInfo()._beatsPerMinute,
         ).jumpDistance
     }
     set jumpDistance(value: number) {
         this.noteJumpOffset = getOffsetFromJumpDistance(
             value,
             this.implicitNoteJumpSpeed,
-            getInfoDat()._beatsPerMinute,
+            getActiveInfo()._beatsPerMinute,
         )
     }
 
@@ -135,14 +136,14 @@ export abstract class BeatmapGameplayObject<
         return getReactionTime(
             this.implicitNoteJumpSpeed,
             this.implicitNoteJumpOffset,
-            getInfoDat()._beatsPerMinute,
+            getActiveInfo()._beatsPerMinute,
         )
     }
     set reactionTime(value: number) {
         this.noteJumpOffset = getOffsetFromReactionTime(
             value,
             this.implicitNoteJumpSpeed,
-            getInfoDat()._beatsPerMinute,
+            getActiveInfo()._beatsPerMinute,
         )
     }
 
@@ -171,7 +172,7 @@ export abstract class BeatmapGameplayObject<
         this.noteJumpOffset = getOffsetFromHalfJumpDuration(
             value / 2,
             this.implicitNoteJumpSpeed,
-            getInfoDat()._beatsPerMinute,
+            getActiveInfo()._beatsPerMinute,
         )
     }
 

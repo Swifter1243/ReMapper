@@ -1,7 +1,7 @@
 import * as LightRemapperInternals from './base_light_iterator.ts'
 import {BaseLightIterator} from './base_light_iterator.ts'
 
-import {LightID} from '../../types/environment.ts'
+import {LightID} from '../../types/beatmap/object/environment.ts'
 
 import {doesArrayHave} from "../array/check.ts";
 import {copy} from "../object/copy.ts";

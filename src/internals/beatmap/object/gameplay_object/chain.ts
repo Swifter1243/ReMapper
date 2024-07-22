@@ -1,20 +1,20 @@
 import { settings } from '../../../../data/settings.ts'
 import { bsmap } from '../../../../deps.ts'
-import { Vec2 } from '../../../../types/data.ts'
-import { Fields, SubclassExclusiveProps } from '../../../../types/util.ts'
 import {copy} from "../../../../utils/object/copy.ts";
 import {objectPrune} from "../../../../utils/object/prune.ts";
 import {activeDifficulty, getActiveDifficulty} from "../../../../data/active_difficulty.ts";
 import {animationToJson} from "../../../../utils/animation/json.ts";
+import {ExcludedObjectFields} from "../../../../types/beatmap/object/object.ts";
+
+import {BaseSliderObject} from "./base_slider.ts";
+import {Vec2} from "../../../../types/math/vector.ts";
+import {Fields, SubclassExclusiveProps} from "../../../../types/util/class.ts";
 import {
     defaultBoolean,
     exportInvertedBoolean,
     getCDProp,
     importInvertedBoolean
-} from "../../../../utils/beatmap/object.ts";
-import {ExcludedObjectFields} from "../../../../types/beatmap/object/object.ts";
-
-import {BaseSliderObject} from "./base_slider.ts";
+} from "../../../../utils/beatmap/json.ts";
 
 export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
     constructor(

@@ -1,5 +1,3 @@
-import { NumberTuple } from '../../types/util.ts'
-import { ComplexKeyframesAbstract, EASE, RawKeyframesAbstract } from '../../types/animation.ts'
 import { areKeyframesSimple, complexifyKeyframes } from './keyframe/complexity.ts'
 import { getKeyframeEasing, getKeyframeFlagIndex, getKeyframeTimeIndex } from './keyframe/get.ts'
 import { setKeyframeEasing } from './keyframe/set.ts'
@@ -7,6 +5,9 @@ import { setKeyframeEasing } from './keyframe/set.ts'
 import {iterateKeyframes} from "./keyframe/iterate.ts";
 import {arrayRemove} from "../array/mutate.ts";
 import {copy} from "../object/copy.ts";
+import {EASE} from "../../types/animation/easing.ts";
+import {ComplexKeyframesAbstract, RawKeyframesAbstract} from "../../types/animation/keyframe/abstract.ts";
+import {NumberTuple} from "../../types/util/tuple.ts";
 
 /**
  * Reverse an animation. Accounts for most easings but not splines.

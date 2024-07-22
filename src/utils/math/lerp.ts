@@ -1,9 +1,10 @@
 import { three } from '../../deps.ts'
-import { EASE } from '../../types/animation.ts'
-import { Vec3 } from '../../types/data.ts'
 import {eulerFromQuaternion} from "./three_conversion.ts";
 import {toRadians} from "./degrees_radians.ts";
 import {applyEasing} from "../animation/interpolate.ts";
+import {Vec3} from "../../types/math/vector.ts";
+
+import {EASE} from "../../types/animation/easing.ts";
 
 /**
  * Interpolates between a start and end value to get a value in between.

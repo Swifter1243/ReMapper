@@ -1,6 +1,7 @@
-import { NumberTuple } from '../../../types/util.ts'
-import { ComplexKeyframesAbstract, RawKeyframesAbstract } from '../../../types/animation.ts'
 import { complexifyKeyframes, simplifyKeyframes } from './complexity.ts'
+
+import {ComplexKeyframesAbstract, RawKeyframesAbstract} from "../../../types/animation/keyframe/abstract.ts";
+import {NumberTuple} from "../../../types/util/tuple.ts";
 
 /**
  * Safely iterate through an array of keyframes.

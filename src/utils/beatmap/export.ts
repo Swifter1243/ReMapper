@@ -1,5 +1,4 @@
-import { DIFFS, FILENAME } from '../../types/beatmap.ts'
-import { getInfoDat } from '../../data/info.ts'
+import { getActiveInfo } from '../../data/active_info.ts'
 import { arrayRemove } from '../array/mutate.ts'
 import { compress } from 'https://deno.land/x/zip@v1.2.5/compress.ts'
 import { adbDeno, fs, path } from '../../deps.ts'
@@ -10,6 +9,7 @@ import {getWorkingDirectory} from "../../data/working_directory.ts";
 import {BUNDLE_VERSIONS, QUEST_WIP_PATH} from "../../data/constants/file.ts";
 import {RMLog} from "../rm_log.ts";
 import {parseFilePath} from "../file.ts";
+import {DIFFS, FILENAME} from "../../types/beatmap/file.ts";
 
 /**
  * Create a temporary directory with all of the relevant files for the beatmap.
@@ -21,7 +21,7 @@ export async function collectBeatmapFiles(
     includeBundle = false,
     awaitSave = true,
 ) {
-    const info = getInfoDat()
+    const info = getActiveInfo()
 
     const diff = getActiveDifficulty()
     if (awaitSave && diff) {
@@ -34,7 +34,7 @@ export async function collectBeatmapFiles(
     const unsanitizedFiles: (string | undefined)[] = [
         exportInfo._songFilename,
         exportInfo._coverImageFilename,
-        'cinema-video.json',
+        'cinema-video.object',
         'BPMInfo.dat',
     ]
 
@@ -155,7 +155,7 @@ export async function exportToQuest(
     await currentTransfer
 
     const adbBinary = adbDeno.getADBBinary(adbDeno.defaultADBPath())
-    const info = getInfoDat()
+    const info = getActiveInfo()
 
     // Download ADB
     const adbPromise = fs.exists(adbBinary).then(async (exists) => {

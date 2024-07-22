@@ -1,5 +1,6 @@
 // deno-lint-ignore-file no-explicit-any
-import {TJson} from '../../types/util.ts'
+
+import {TJson} from "../../types/util/json.ts";
 
 /**
  * If a property doesn't exist through a path of objects, fill objects to get to that property.

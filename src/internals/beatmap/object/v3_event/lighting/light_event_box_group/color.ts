@@ -1,6 +1,6 @@
 import { LightEventBoxGroup } from './base.ts'
 import { V3LightColorEventBoxGroup } from '../../../../types/v3_event.ts'
-import { SubclassExclusiveProps } from '../../../../types/util.ts'
+import { SubclassExclusiveProps } from '../../../../types/object.ts'
 import { lightColorEventBox } from '../../../../builder_functions/v3_event/lighting/light_event_box.ts'
 import { bsmap } from '../../../../deps.ts'
 

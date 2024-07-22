@@ -1,7 +1,7 @@
 import {three} from '../../deps.ts'
-import {Vec3} from '../../types/data.ts'
 import {toDegrees, toRadians} from "./degrees_radians.ts";
 import {isNegativeZero} from "./check.ts";
+import {Vec3} from "../../types/math/vector.ts";
 
 /**
  * Converts a quaternion to a euler rotation.

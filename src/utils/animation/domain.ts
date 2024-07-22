@@ -1,8 +1,10 @@
-import { DeepReadonly } from '../../types/util.ts'
-import { AnimatedTransform, Vec3, Vec4 } from '../../types/data.ts'
-import { RawKeyframesAny } from '../../types/animation.ts'
 import { complexifyKeyframes } from './keyframe/complexity.ts'
 import { getKeyframeTime } from './keyframe/get.ts'
+import {Vec3, Vec4} from "../../types/math/vector.ts";
+import {AnimatedTransform} from "../../types/math/transform.ts";
+
+import {RawKeyframesAny} from "../../types/animation/keyframe/any.ts";
+import {DeepReadonly} from "../../types/util/mutability.ts";
 
 /** Gets the minimum and maximum times of an animation. */
 export function getAnimationDomain(arr: DeepReadonly<RawKeyframesAny>) {

@@ -1,12 +1,11 @@
-import { EASE, TrackValue } from '../../../../types/animation.ts'
 import {
     BeatmapInterfaces,
     COLOR_FORMAT,
-    DEPTH_TEX_MODE,
+    DEPTH_TEX_MODE, EASE,
     TEX_FILTER_MODE,
     Vec3,
 } from '../../../../types/mod.ts'
-import { MaterialProperty, RENDER_SETTING } from '../../../../types/vivify.ts'
+import { RENDER_SETTING } from '../../../../types/vivify/setting.ts'
 import {
     BaseCustomEvent,
     CustomEventConstructor,
@@ -19,6 +18,8 @@ import {copy} from "../../../../utils/object/copy.ts";
 import {objectPrune} from "../../../../utils/object/prune.ts";
 import {Track} from "../../../../utils/animation/track.ts";
 import {getActiveDifficulty} from "../../../../data/active_difficulty.ts";
+import {TrackValue} from "../../../../types/animation/track.ts";
+import {MaterialProperty} from "../../../../types/vivify/material.ts";
 
 export class SetMaterialProperty extends BaseCustomEvent<
     never,

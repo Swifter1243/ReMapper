@@ -1,8 +1,9 @@
-import { ColorVec } from '../../types/data.ts'
-import { EASE } from '../../types/animation.ts'
 import { applyEasing } from '../animation/interpolate.ts'
 import { lerp, lerpWrap } from '../math/lerp.ts'
 import { arrayLerp } from '../array/operation.ts'
+import {ColorVec} from "../../types/math/vector.ts";
+
+import {EASE} from "../../types/animation/easing.ts";
 
 /** Lerps an RGB (red, green, blue) color with another RGB color */
 export function lerpRGB(

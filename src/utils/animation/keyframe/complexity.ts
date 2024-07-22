@@ -1,12 +1,13 @@
 // deno-lint-ignore-file
 import {
-    ComplexKeyframesAbstract,
+    DeepReadonly,
     InnerKeyframeBoundless,
+    NumberTuple,
     RawKeyframesAbstract,
     RuntimePointDefinitionBoundless
-} from '../../../types/animation.ts'
-import {DeepReadonly, NumberTuple} from "../../../types/mod.ts";
+} from "../../../types/mod.ts";
 import {getKeyframeTime, getKeyframeValues} from "./get.ts";
+import {ComplexKeyframesAbstract} from "../../../types/animation/keyframe/abstract.ts";
 
 /**
  * Checks if value is an array of keyframes.

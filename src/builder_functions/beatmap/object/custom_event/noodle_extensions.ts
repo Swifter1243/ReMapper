@@ -1,6 +1,8 @@
 import * as CustomEventInternals from '../../../../internals/beatmap/object/custom_event/mod.ts'
-import { EASE, TrackValue } from '../../../../types/animation.ts'
 import { bsmap } from '../../../../deps.ts'
+
+import {EASE} from "../../../../types/animation/easing.ts";
+import {TrackValue} from "../../../../types/animation/track.ts";
 
 /**
  * Animate objects on a track across their lifespan.

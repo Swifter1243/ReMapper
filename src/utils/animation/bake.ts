@@ -1,11 +1,13 @@
-import { DeepReadonly } from '../../types/util.ts'
-import { AnimatedTransform, TransformKeyframe } from '../../types/data.ts'
 import { AnimationSettings, optimizeKeyframes } from './optimizer.ts'
-import { ModelObject } from '../../types/model.ts'
-import { ComplexKeyframesVec3 } from '../../types/animation.ts'
 import { getAnimatedObjectDomain } from './domain.ts'
 import { getKeyframeValuesAtTime } from './interpolate.ts'
 import {ceilTo, floorTo} from "../math/rounding.ts";
+import {AnimatedTransform} from "../../types/math/transform.ts";
+
+import {ComplexKeyframesVec3} from "../../types/animation/keyframe/vec3.ts";
+import {TransformKeyframe} from "../../types/animation/bake.ts";
+import {ModelObject} from "../../types/model/object.ts";
+import {DeepReadonly} from "../../types/util/mutability.ts";
 
 /**
  * Generate keyframes from an animation.

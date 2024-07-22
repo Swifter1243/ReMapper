@@ -5,21 +5,18 @@ import {
     getActiveDifficulty,
     objectPrune,
 } from '../../../../mod.ts'
-import { JsonWrapper } from '../../../../types/beatmap.ts'
-import {
-    Fields,
-    SubclassExclusiveProps,
-    TJson,
-} from '../../../../types/util.ts'
 
 import {ExcludedObjectFields, ObjectReplacements} from "../../../../types/beatmap/object/object.ts";
+import {JsonWrapper} from "../../../../types/beatmap/json_wrapper.ts";
+import {Fields, SubclassExclusiveProps} from "../../../../types/util/class.ts";
+import {TJson} from "../../../../types/util/json.ts";
 
 export type CustomEventExclusions = {
     type: never
 }
 
-/** Get a property from the "data" object in a CustomEvent.
- * This deletes whatever's accessed, so that the values transferred into the class aren't left in the data object.
+/** Get a property from the "properties" object in a CustomEvent.
+ * This deletes whatever's accessed, so that the values transferred into the class aren't left in the properties object.
  */
 export function getDataProp<
     T,
@@ -90,7 +87,7 @@ export abstract class BaseCustomEvent<
     beat: number
     /** The type of CustomEvent. */
     type: string
-    /** The "data" object inside of the CustomEvent. */
+    /** The "properties" object inside of the CustomEvent. */
     data: TJson
 
     constructor(fields: Partial<Fields<BaseCustomEvent<TV2, TV3>>>) {

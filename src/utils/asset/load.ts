@@ -1,7 +1,7 @@
-import {MaterialProperty} from '../../types/vivify.ts'
 import {setMaterialProperty} from '../../builder_functions/beatmap/object/custom_event/vivify.ts'
 import {makeMaterialMap, makePrefabMap} from './map.ts'
 import {AssetMap, MaterialMapOutput, PrefabMapOutput} from "../../types/asset.ts";
+import {MaterialProperty} from "../../types/vivify/material.ts";
 
 function initializeMaterials(assetMap: AssetMap) {
     Object.values(assetMap.default.materials).forEach(

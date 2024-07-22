@@ -1,6 +1,6 @@
 import { BaseObject } from '../../../beatmap/object/object.ts'
-import { ObjectFields, SubclassExclusiveProps } from '../../../../types/util.ts'
-import { RotationDirection, RotationEase } from '../../../../data/constants/v3_event.ts'
+import { ObjectFields, SubclassExclusiveProps } from '../../../../types/object.ts'
+import { RotationDirection, RotationEase } from '../../../../properties/constants/v3_event.ts'
 import { objectPrune } from '../../../../utils/object/prune.ts'
 import { bsmap } from '../../../../deps.ts'
 

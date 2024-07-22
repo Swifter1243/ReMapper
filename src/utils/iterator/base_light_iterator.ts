@@ -1,8 +1,6 @@
 import {getActiveDifficulty} from "../../data/active_difficulty.ts";
 import {LightEvent} from "../../internals/beatmap/object/basic_event/light_event.ts";
-
-export type LightEventCondition = (event: LightEvent) => boolean
-export type LightEventProcess = (event: LightEvent) => void
+import {LightEventCondition, LightEventProcess} from "../../types/iterator.ts";
 
 /*
  * Class used to iterate through every light_event in the map.

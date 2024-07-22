@@ -1,7 +1,7 @@
-import { MATERIAL_PROP_TYPE } from '../../types/vivify.ts'
 import { Prefab } from './prefab.ts'
 import { Material } from './material.ts'
 import {FixedMaterialMap, MaterialMap, MaterialMapOutput, PrefabMap, PrefabMapOutput} from "../../types/asset.ts";
+import {MATERIAL_PROP_TYPE} from "../../types/vivify/material.ts";
 
 
 /** Generate a typed list of prefabs from JSON. */

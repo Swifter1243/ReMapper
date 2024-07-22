@@ -1,7 +1,7 @@
 import {bsmap} from '../../deps.ts'
-import {TJson} from '../../types/util.ts'
 
 import {isEmptyObject} from "./check.ts";
+import {TJson} from "../../types/util/json.ts";
 
 /**
  * Delete empty objects/arrays from an object recursively.

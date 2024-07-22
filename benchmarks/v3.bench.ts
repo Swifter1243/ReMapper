@@ -242,7 +242,7 @@ function rm3ParseJson() {
         v3OldDiff.version = '3.2.0'
     }
 
-    // new remapperv3.Difficulty(undefined!, undefined!, undefined!, undefined!, json, ["_notes"])
+    // new remapperv3.Difficulty(undefined!, undefined!, undefined!, undefined!, object, ["_notes"])
 }
 
 function resetToEmptyDiff() {

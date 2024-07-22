@@ -1,5 +1,5 @@
 import {LightEvent} from "../../../../internals/beatmap/object/basic_event/light_event.ts";
-import {RotationEvent} from "../../internals/v3_event/rotation.ts";
+import {RotationEvent} from "../../../../internals/beatmap/object/v3_event/rotation.ts";
 
 export type LightParameters =
     | [

@@ -1,93 +1,47 @@
 import {bsmap} from '../../deps.ts'
-
-import {
-    AbstractEnvironment,
-    AnimationPropertiesV3,
-    DIFFNAME,
-    DIFFPATH,
-    IInfoSet,
-    IInfoSetDifficulty,
-    RawGeometryMaterial,
-    REQUIRE_MODS,
-    SUGGEST_MODS,
-    TJson,
-} from '../../types/mod.ts'
-import {optimizeKeyframes, OptimizeSettings} from '../../utils/animation/optimizer.ts'
-import {AnyNote} from '../../general.ts'
-import {settings} from '../../data/settings.ts' // TODO: Cyclic, fix
-import * as CustomEventInternals from './object/custom_event/mod.ts'
-import * as EnvironmentInternals from './object/environment/environment.ts'
-import * as NoteInternals from './object/gameplay_object/color_note.ts'
-import * as WallInternals from './object/gameplay_object/wall.ts'
-import * as BasicEventInternals from './object/basic_event/basic_event.ts'
-import {FogEvent} from './object/environment/fog.ts'
-import {getActiveCache} from '../../rm_cache.ts'
-import {RawKeyframesLinear, RuntimePointDefinitionAny, RuntimeRawKeyframesAny,} from '../../types/animation.ts'
-import {objectSafeGet, objectSafeSet} from '../../utils/object/safe.ts'
-import {Geometry} from './object/environment/geometry.ts'
-import {areKeyframesRuntime} from '../../utils/animation/keyframe/runtime.ts'
-import {attachWorkingDirectory} from '../../data/working_directory.ts'
-import {settingsHandler} from './settings_handler.ts'
-import {BeatmapCustomEvents, RMDifficulty} from "../../types/beatmap_interfaces/difficulty.ts";
-import {setDecimals} from "../../utils/math/rounding.ts";
-import {RMLog} from "../../utils/rm_log.ts";
-import {parseFilePath} from "../../utils/file.ts";
-import {AbstractBasicEvent} from "./object/basic_event/abstract.ts";
+import {RMDifficulty} from "../../types/beatmap/rm_difficulty.ts";
+import {IInfoSet, IInfoSetDifficulty} from "../../types/beatmap/info.ts";
+import {ClearProperty, PostProcessFn, REQUIRE_MODS, SUGGEST_MODS} from "../../types/beatmap/beatmap.ts";
 import {LightEvent} from "./object/basic_event/light_event.ts";
 import {LaserSpeedEvent} from "./object/basic_event/laser_speed.ts";
 import {RingZoomEvent} from "./object/basic_event/ring_zoom.ts";
 import {RingSpinEvent} from "./object/basic_event/ring_spin.ts";
-import {RotationEvent} from "../v3_event/rotation.ts";
-import {BoostEvent} from "../v3_event/lighting/boost.ts";
-import {BPMEvent} from "../v3_event/bpm.ts";
-import {LightColorEventBoxGroup} from "../v3_event/lighting/light_event_box_group/color.ts";
-import {LightRotationEventBoxGroup} from "../v3_event/lighting/light_event_box_group/rotation.ts";
-import {LightTranslationEventBoxGroup} from "../v3_event/lighting/light_event_box_group/translation.ts";
-
-const clearPropertyMap = {
-    arcs: 'Arcs',
-    abstractBasicEvents: 'Base Basic Events',
-    bombs: 'Bombs',
-    boostEvents: 'Boost Events',
-    bpmEvents: 'BPM Events',
-    chains: 'Chains',
-    customData: 'Custom Data',
-    environment: 'Environment',
-    fogEvents: 'Fog Events',
-    geometry: 'Geometry',
-    geometryMaterials: 'Geometry Materials',
-    laserSpeedEvents: 'Laser Speed Events',
-    lightColorEventBoxGroups: 'Light Color Event Box Groups',
-    lightEvents: 'Light Events',
-    lightRotationEventBoxGroups: 'Light Rotation Event Box Groups',
-    lightTranslationEventBoxGroups: 'Light Translation Event Box Groups',
-    colorNotes: 'Notes',
-    pointDefinitions: 'Point Definitions',
-    ringSpinEvents: 'Ring Spin Events',
-    ringZoomEvents: 'Ring Zoom Events',
-    rotationEvents: 'Rotation Events',
-    v3: undefined,
-    version: undefined,
-    walls: 'Walls',
-    waypoints: 'Waypoints',
-    customEvents: 'Custom Events',
-} as const satisfies {
-    [K in keyof RMDifficulty]: string | undefined
-}
-
-type ClearProperty = Exclude<
-    typeof clearPropertyMap[keyof typeof clearPropertyMap],
-    undefined
->
-
-/**
- * @returns null if remove value
- */
-export type PostProcessFn = (
-    this: unknown,
-    key: string,
-    value: unknown,
-) => unknown | null
+import {RotationEvent} from "./object/v3_event/rotation.ts";
+import {BoostEvent} from "./object/v3_event/lighting/boost.ts";
+import {AbstractBasicEvent} from "./object/basic_event/abstract.ts";
+import {BPMEvent} from "./object/v3_event/bpm.ts";
+import {LightColorEventBoxGroup} from "./object/v3_event/lighting/light_event_box_group/color.ts";
+import {LightRotationEventBoxGroup} from "./object/v3_event/lighting/light_event_box_group/rotation.ts";
+import { LightTranslationEventBoxGroup } from './object/v3_event/lighting/light_event_box_group/translation.ts'
+import {BeatmapCustomEvents} from "../../types/beatmap/object/custom_event.ts";
+import {RuntimePointDefinitionAny, RuntimeRawKeyframesAny} from "../../types/animation/keyframe/runtime/any.ts";
+import {Environment} from "./object/environment/environment.ts";
+import {Geometry} from "./object/environment/geometry.ts";
+import {AbstractEnvironment, RawGeometryMaterial} from "../../types/beatmap/object/environment.ts";
+import {FogEvent} from "./object/environment/fog.ts";
+import {optimizeKeyframes, OptimizeSettings} from "../../utils/animation/optimizer.ts";
+import {AnimationPropertiesV3} from "../../types/animation/properties/properties.ts";
+import {areKeyframesRuntime} from "../../utils/animation/keyframe/runtime.ts";
+import {RawKeyframesLinear} from "../../types/animation/keyframe/linear.ts";
+import {AnimateTrack} from "./object/custom_event/heck.ts";
+import { parseFilePath } from '../../utils/file.ts'
+import {DIFFNAME, DIFFPATH} from "../../types/beatmap/file.ts";
+import { getActiveCache } from '../../data/active_cache.ts'
+import { attachWorkingDirectory } from '../../data/working_directory.ts'
+import {RMLog} from "../../utils/rm_log.ts";
+import {TJson} from "../../types/util/json.ts";
+import {BasicEvent} from "./object/basic_event/basic_event.ts";
+import { AnyNote } from '../../types/beatmap/object/note.ts'
+import { settingsHandler } from './settings_handler.ts'
+import {objectSafeGet, objectSafeSet} from "../../utils/object/safe.ts";
+import { settings } from '../../data/settings.ts'
+import {setDecimals} from "../../utils/math/rounding.ts";
+import {Wall} from "./object/gameplay_object/wall.ts";
+import {ColorNote} from "./object/gameplay_object/color_note.ts";
+import {Bomb} from "./object/gameplay_object/bomb.ts";
+import {Arc} from "./object/gameplay_object/arc.ts";
+import {Chain} from "./object/gameplay_object/chain.ts";
+import { clearPropertyMap } from '../../data/constants/beatmap.ts'
 
 /** A remapper difficulty, version agnostic */
 export abstract class AbstractDifficulty<
@@ -120,13 +74,14 @@ export abstract class AbstractDifficulty<
     waypoints: bsmap.v2.IWaypoint[] | bsmap.v3.IWaypoint[]
 
     /** All standard color notes. */
-    colorNotes: NoteInternals.ColorNote[]
-    bombs: NoteInternals.Bomb[]
-    arcs: NoteInternals.Arc[]
-    chains: NoteInternals.Chain[]
-    walls: WallInternals.Wall[]
+    colorNotes: ColorNote[]
+    bombs: Bomb[]
+    arcs: Arc[]
+    chains: Chain[]
+    walls: Wall[]
 
     lightEvents: LightEvent[]
+
     laserSpeedEvents: LaserSpeedEvent[]
     ringZoomEvents: RingZoomEvent[]
     ringSpinEvents: RingSpinEvent[]
@@ -143,14 +98,14 @@ export abstract class AbstractDifficulty<
 
     pointDefinitions: Record<string, RuntimeRawKeyframesAny>
     customData: Record<string, unknown>
-    environment: EnvironmentInternals.Environment[]
+    environment: Environment[]
     geometry: Geometry[]
     geometryMaterials: Record<string, RawGeometryMaterial>
     /** All of the fog related things that happen in this difficulty. */
     fogEvents: FogEvent[]
 
     /**
-     * Creates a difficulty. Can be used to access various information and the map data.
+     * Creates a difficulty. Can be used to access various information and the map properties.
      * Will set the active difficulty to this.
      */
     constructor(
@@ -246,7 +201,7 @@ export abstract class AbstractDifficulty<
         this.walls.forEach((e) => optimizeAnimation(e.animation))
         this.customEvents.animateTrackEvents.forEach((e) =>
             optimizeAnimation(
-                (e as CustomEventInternals.AnimateTrack).animation,
+                (e as AnimateTrack).animation,
             )
         )
 
@@ -421,7 +376,7 @@ export abstract class AbstractDifficulty<
      * Iterator for all basic (non V3 lighting_v3) events on the difficulty.
      * @brief Not sorted
      */
-    allBasicEvents(sorted = false): BasicEventInternals.BasicEvent[] {
+    allBasicEvents(sorted = false): BasicEvent[] {
         const arr = [
             ...this.lightEvents,
             ...this.laserSpeedEvents,
@@ -595,14 +550,14 @@ function reduceDecimalsPostProcess(
     // if (typeof v !== "object") return
     // reduceDecimalsInObject(v as Record<string, unknown>)
 
-    // function reduceDecimalsInObject(json: TJson) {
-    //     Object.keys(json).forEach((key) => {
+    // function reduceDecimalsInObject(object: TJson) {
+    //     Object.keys(object).forEach((key) => {
     //         // deno-lint-ignore no-prototype-builtins
-    //         if (!json.hasOwnProperty(key)) return
-    //         const element = json[key]
+    //         if (!object.hasOwnProperty(key)) return
+    //         const element = object[key]
 
     //         if (typeof element === 'number') {
-    //             json[key] = setDecimals(element, settings.decimals as number)
+    //             object[key] = setDecimals(element, settings.decimals as number)
     //         } else if (typeof element === 'object') {
     //             reduceDecimalsInObject(element as TJson)
     //         }

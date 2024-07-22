@@ -1,9 +1,8 @@
-import { RawKeyframesAbstract } from '../../types/animation.ts'
-import { NumberTuple } from '../../types/util.ts'
-import { InnerKeyframeBoundless } from '../../types/animation.ts'
-import { ComplexKeyframesBoundless } from '../../types/animation.ts'
 import {getKeyframeEasing, getKeyframeSpline, getKeyframeTime, getKeyframeValues} from "./keyframe/get.ts";
 import {complexifyKeyframes, simplifyKeyframes} from "./keyframe/complexity.ts";
+import {RawKeyframesAbstract} from "../../types/animation/keyframe/abstract.ts";
+import {ComplexKeyframesBoundless, InnerKeyframeBoundless} from "../../types/animation/keyframe/boundless.ts";
+import {NumberTuple} from "../../types/util/tuple.ts";
 
 function areArrayElementsIdentical<T>(
     enumerable1: T[],
@@ -147,7 +146,7 @@ function ComparePointsSlope(
     GetYIntercept(middlePoint, middleSlope, middleYIntercepts)
     GetYIntercept(endPoint, endSlope, endYIntercepts)
 
-    // example point data
+    // example point properties
     // "_name":"colorWave","_points":[
     // [1,1,1,1,0],
     // [0,0,4,1,0.125],
@@ -448,7 +447,7 @@ export class OptimizeSettings {
     passes = 5
     /** Whether to log the effectiveness of each optimizer. */
     performanceLog = false
-    /** Whether to remove points with the same data. */
+    /** Whether to remove points with the same properties. */
     optimizeDuplicates = true
     /** Remove points that are similar within a given threshold. */
     optimizeSimilarPoints: OptimizeSimilarPointsSettings =

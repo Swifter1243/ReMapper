@@ -1,5 +1,5 @@
 import { Geometry } from '../../../../internals/beatmap/object/environment/geometry.ts'
-import { GeometryMaterial, GeoType } from '../../../../types/environment.ts'
+import { GeometryMaterial, GeoType } from '../../../../types/beatmap/object/environment.ts'
 
 /**
  * Creates a new primitive object.

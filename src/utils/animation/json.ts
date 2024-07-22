@@ -1,5 +1,6 @@
 import { bsmap } from '../../deps.ts'
-import {AnimationPropertiesV2, AnimationPropertiesV3 } from "../../types/animation.ts";
+
+import {AnimationPropertiesV2, AnimationPropertiesV3} from "../../types/animation/properties/properties.ts";
 
 type AnimateV2Scuffed =
     & bsmap.v2.INEAnimation

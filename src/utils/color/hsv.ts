@@ -1,5 +1,5 @@
-import { ColorVec } from '../../types/data.ts'
 import { positiveMod } from '../math/rounding.ts'
+import {ColorVec} from "../../types/math/vector.ts";
 
 /** Converts a color from HSV (hue, saturation, value) to RGB (red, green, blue) */
 export function HSVtoRGB<T extends ColorVec>(color: T) {

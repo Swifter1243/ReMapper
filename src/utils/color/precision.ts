@@ -1,4 +1,4 @@
-import { ColorVec } from '../../types/data.ts'
+import {ColorVec} from "../../types/math/vector.ts";
 
 /** Converts color from integer space (0-255 with whole numbers) to linear space (0-1 with decimals) */
 export function to01Color<T extends ColorVec>(color: T, hsv = false) {

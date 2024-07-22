@@ -1,5 +1,5 @@
 import * as EnvironmentInternals from '../../../../internals/beatmap/object/environment/environment.ts'
-import { LookupMethod } from '../../../../types/environment.ts'
+import { LookupMethod } from '../../../../types/beatmap/object/environment.ts'
 
 /**
  * Targets an existing object in the environment.

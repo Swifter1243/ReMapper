@@ -1,12 +1,14 @@
 import * as CustomEventInternals from '../../../../internals/beatmap/object/custom_event/mod.ts'
-import { EASE, TrackValue } from '../../../../types/animation.ts'
 import {
-    AnimatorProperty,
     DEPTH_TEX_MODE,
-    MaterialProperty,
     RENDER_SETTING,
-} from '../../../../types/vivify.ts'
-import { FILEPATH } from '../../../../types/beatmap.ts'
+} from '../../../../types/vivify/setting.ts'
+
+import {EASE} from "../../../../types/animation/easing.ts";
+import {TrackValue} from "../../../../types/animation/track.ts";
+import {FILEPATH} from "../../../../types/beatmap/file.ts";
+import {MaterialProperty} from "../../../../types/vivify/material.ts";
+import {AnimatorProperty} from "../../../../types/vivify/animator.ts";
 
 /**
  * Set properties on a material.

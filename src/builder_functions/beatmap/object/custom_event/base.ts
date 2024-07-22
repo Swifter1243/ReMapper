@@ -1,5 +1,6 @@
 import * as CustomEventInternals from '../../../../internals/beatmap/object/custom_event/mod.ts'
-import { TJson } from '../../../../types/util.ts'
+
+import {TJson} from "../../../../types/util/json.ts";
 
 /** Make a custom light_event with no particular identity. */
 export function abstractCustomEvent(

@@ -1,11 +1,11 @@
 import { BasicEvent } from './basic_event.ts'
-import { Fields, SubclassExclusiveProps } from '../../../../types/util.ts'
 import { EventGroup } from '../../../../data/constants/basic_event.ts'
 import { getActiveDifficulty } from '../../../../data/active_difficulty.ts'
 import { copy } from '../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../utils/object/prune.ts'
 import { bsmap } from '../../../../deps.ts'
-import {getCDProp} from "../../../../utils/beatmap/object.ts";
+import {Fields, SubclassExclusiveProps} from "../../../../types/util/class.ts";
+import {getCDProp} from "../../../../utils/beatmap/json.ts";
 
 export class RingSpinEvent extends BasicEvent<bsmap.v2.IEventRing, bsmap.v3.IBasicEventRing> {
     constructor(obj: Partial<Omit<Fields<RingSpinEvent>, 'type'>>) {
@@ -49,7 +49,7 @@ export class RingSpinEvent extends BasicEvent<bsmap.v2.IEventRing, bsmap.v3.IBas
         json: bsmap.v3.IBasicEventRing | bsmap.v2.IEventRing,
         v3: boolean,
     ): this {
-        // TODO: Implement custom data
+        // TODO: Implement custom properties
 
         type Params = SubclassExclusiveProps<
             RingSpinEvent,

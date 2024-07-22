@@ -1,5 +1,7 @@
 import * as CustomEventInternals from '../../../../internals/beatmap/object/custom_event/mod.ts'
-import { EASE, TrackValue } from '../../../../types/animation.ts'
+
+import {EASE} from "../../../../types/animation/easing.ts";
+import {TrackValue} from "../../../../types/animation/track.ts";
 
 /**
  * Animate components on a track.

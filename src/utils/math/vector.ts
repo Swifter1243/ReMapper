@@ -1,8 +1,8 @@
-import { Vec3 } from '../../types/data.ts'
 import { arrayAdd, arrayDivide, arrayMultiply, arraySubtract } from '../array/operation.ts'
 import {threeClassToArray, toThreeVec3} from './three_conversion.ts'
 import { three } from '../../deps.ts'
 import {toRadians} from "./degrees_radians.ts";
+import {Vec3} from "../../types/math/vector.ts";
 
 /**
  * Gets the distance between 2 points.

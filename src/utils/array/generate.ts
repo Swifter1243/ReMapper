@@ -6,12 +6,6 @@ export function generateArray<T>(size: number, element: () => T) {
 }
 
 /**
- * Prefer a tuple on a number array
- */
-export const vec = <T extends readonly number[]>(...params: T) =>
-    params as { [K in keyof T]: number }
-
-/**
  * Generate an array from a range of numbers.
  * @param start Starting number.
  * @param start Ending number.

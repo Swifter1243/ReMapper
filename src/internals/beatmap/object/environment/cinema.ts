@@ -2,7 +2,8 @@
 
 import { objectSafeGet } from '../../../../utils/object/safe.ts'
 
-import { TJson } from '../../../../types/util.ts'
+
+import {TJson} from "../../../../types/util/json.ts";
 
 export class CinemaScreen {
     json: Record<string, any> = {
@@ -52,7 +53,7 @@ export class CinemaScreen {
     }
 
     /**
-     * Push Main Cinema Screen to cinema-video.json
+     * Push Main Cinema Screen to cinema-video.object
      * @returns
      */
     push() {
@@ -109,7 +110,7 @@ export class CinemaScreen {
         }
 
         Deno.writeTextFileSync(
-            'cinema-video.json',
+            'cinema-video.object',
             JSON.stringify(this.json, null, 2),
         )
         return this

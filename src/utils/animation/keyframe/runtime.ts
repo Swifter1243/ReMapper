@@ -1,5 +1,5 @@
-import { DeepReadonly } from '../../../types/util.ts'
-import { RuntimePointDefinitionAny } from '../../../types/animation.ts'
+import {RuntimePointDefinitionAny} from "../../../types/animation/keyframe/runtime/any.ts";
+import {DeepReadonly} from "../../../types/util/mutability.ts";
 
 /** Determine if keyframes are considered "runtime",
  * e.g. it contains properties such as "baseHeadLocalPosition" which are only evaluated at runtime. */

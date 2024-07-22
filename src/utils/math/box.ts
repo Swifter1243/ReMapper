@@ -1,9 +1,11 @@
-import { DeepReadonly } from '../../types/util.ts'
-import { Bounds, Transform, Vec3 } from '../../types/data.ts'
 import { rotatePoint } from './vector.ts'
 import { arrayAdd } from '../array/operation.ts'
 import { copy } from '../object/copy.ts'
 import { lerp } from './lerp.ts'
+import {Vec3} from "../../types/math/vector.ts";
+import {Transform} from "../../types/math/transform.ts";
+import {Bounds} from "../../types/math/bounds.ts";
+import {DeepReadonly} from "../../types/util/mutability.ts";
 
 /**
  * Gets information about the bounding box of a box or a bunch of boxes.

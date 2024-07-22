@@ -1,4 +1,4 @@
-import { colorNotesBetween } from '../src/general.ts'
+import { colorNotesBetween } from '../src/utils/beatmap/object/between.ts'
 import {
     setActiveDifficulty,
     bsmap,
@@ -163,7 +163,7 @@ function rm2ParseJson() {
         v2OldDiff.version = '2.2.0'
     }
 
-    // new V2Difficulty(undefined!, undefined!, undefined!, undefined!, json, ["_notes"])
+    // new V2Difficulty(undefined!, undefined!, undefined!, undefined!, object, ["_notes"])
 }
 
 function resetToEmptyDiff() {

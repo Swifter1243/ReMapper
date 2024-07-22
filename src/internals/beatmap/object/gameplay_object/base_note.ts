@@ -1,10 +1,10 @@
 import { ExcludedObjectFields } from '../../../../types/beatmap/object/object.ts'
-import { NoteAnimationData } from '../../../../types/animation.ts'
-import { Vec2 } from '../../../../types/data.ts'
-import { Fields, SubclassExclusiveProps } from '../../../../types/util.ts'
-import { getCDProp, importInvertedBoolean } from '../../../../utils/beatmap/object.ts'
 import { BeatmapGameplayObject } from './gameplay_object.ts'
 import { bsmap } from '../../../../deps.ts'
+import {Vec2} from "../../../../types/math/vector.ts";
+import {NoteAnimationData} from "../../../../types/animation/properties/note.ts";
+import {Fields, SubclassExclusiveProps} from "../../../../types/util/class.ts";
+import {getCDProp, importInvertedBoolean} from "../../../../utils/beatmap/json.ts";
 
 export abstract class BaseNote<
     TV3 extends bsmap.v3.IColorNote | bsmap.v3.IBombNote,

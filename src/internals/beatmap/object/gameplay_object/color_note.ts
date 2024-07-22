@@ -3,18 +3,14 @@ import { bsmap } from '../../../../deps.ts'
 import {activeDifficulty, getActiveDifficulty} from "../../../../data/active_difficulty.ts";
 import {animationToJson} from "../../../../utils/animation/json.ts";
 import {NoteColor, NoteCut} from "../../../../data/constants/note.ts";
-import {defaultBoolean, exportInvertedBoolean} from "../../../../utils/beatmap/object.ts";
 import {ExcludedObjectFields} from "../../../../types/beatmap/object/object.ts";
 
 import {BaseNote} from "./base_note.ts";
 import { copy } from '../../../../utils/object/copy.ts'
-import { SubclassExclusiveProps } from '../../../../types/util.ts'
 import { settings } from '../../../../data/settings.ts'
 import { objectPrune } from '../../../../utils/object/prune.ts'
-
-export { Bomb } from './bomb.ts'
-export { Arc } from './arc.ts'
-export { Chain } from './chain.ts'
+import {SubclassExclusiveProps} from "../../../../types/util/class.ts";
+import {defaultBoolean, exportInvertedBoolean} from "../../../../utils/beatmap/json.ts";
 
 export class ColorNote extends BaseNote<bsmap.v3.IColorNote> {
     constructor(

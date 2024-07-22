@@ -1,5 +1,5 @@
-import {TJson} from '../../types/util.ts'
 import {objectSafeGet} from "./safe.ts";
+import {TJson} from "../../types/util/json.ts";
 
 /**
  * Checks if an object is empty.

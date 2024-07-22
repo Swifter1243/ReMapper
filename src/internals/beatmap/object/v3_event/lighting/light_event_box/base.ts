@@ -1,8 +1,10 @@
 //! Event Boxes
-import {ObjectFields} from '../../../../types/util.ts'
-import {bsmap, JsonWrapper} from '../../../../mod.ts'
-import {DistributionType, RotationEase} from "../../../../data/constants/v3_event.ts";
+
 import {BaseLightEvent} from "../light_event/base.ts";
+import {JsonWrapper} from "../../../../../../types/beatmap/json_wrapper.ts";
+import {ObjectFields} from "../../../../../../types/util/json.ts";
+import {DistributionType, RotationEase} from "../../../../../../data/constants/v3_event.ts";
+import { bsmap } from '../../../../../../deps.ts'
 
 export abstract class LightEventBox<
     T extends bsmap.v3.IEventBox,
@@ -36,7 +38,7 @@ export abstract class LightEventBox<
     beatDistributionType: DistributionType
     /** An integer value which determines the interpolation of the distribution, or the behavior for how to traverse the sequence. */
     distributionEasing: RotationEase
-    /** Community data in the light_event box. */
+    /** Community properties in the light_event box. */
     customData: T['customData']
     /** The events in this light_event box. */
     events: E[]

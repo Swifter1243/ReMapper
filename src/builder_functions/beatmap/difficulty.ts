@@ -1,12 +1,13 @@
-import { DIFFNAME, DIFFPATH } from '../../types/beatmap.ts'
 import { AbstractDifficulty } from '../../internals/beatmap/abstract_beatmap.ts'
-import { getInfoDifficultySets, loadInfoDat } from '../../data/info.ts'
+import { loadActiveInfo } from '../../data/active_info.ts'
 import { V3Difficulty } from '../../internals/beatmap/beatmap_v3.ts'
 import { V2Difficulty } from '../../internals/beatmap/beatmap_v2.ts'
 import { bsmap, path, semver } from '../../deps.ts'
 import {setActiveDifficulty} from "../../data/active_difficulty.ts";
 import {attachWorkingDirectory, setWorkingDirectory, workingDirectoryExists} from "../../data/working_directory.ts";
 import {parseFilePath} from "../../utils/file.ts";
+import {getInfoDifficultySets} from "../../utils/beatmap/info/difficulty_set.ts";
+import {DIFFNAME, DIFFPATH} from "../../types/beatmap/file.ts";
 
 /** Asynchronous function to read a difficulty. Not concerned with version. */
 export async function readDifficulty(
@@ -51,7 +52,7 @@ export async function readDifficulty(
 
     const jsonPromise = Deno.readTextFile(parsedInput.path)
 
-    await loadInfoDat()
+    await loadActiveInfo()
     const infoData = getInfoDifficultySets(parsedOutput.name as DIFFNAME)
     const json = JSON.parse(await jsonPromise) as
         | bsmap.v2.IDifficulty

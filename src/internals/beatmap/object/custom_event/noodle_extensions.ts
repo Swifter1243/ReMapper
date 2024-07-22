@@ -1,5 +1,4 @@
 import { bsmap } from '../../../../deps.ts'
-import {AnimationPropertiesV3, EASE} from '../../../../types/animation.ts'
 import {
     BaseCustomEvent,
     CustomEventConstructorTrack,
@@ -13,6 +12,9 @@ import {Track} from "../../../../utils/animation/track.ts";
 import {getActiveDifficulty} from "../../../../data/active_difficulty.ts";
 import {animationToJson} from "../../../../utils/animation/json.ts";
 import {ExcludedObjectFields} from "../../../../types/beatmap/object/object.ts";
+
+import {EASE} from "../../../../types/animation/easing.ts";
+import {AnimationPropertiesV3} from "../../../../types/animation/properties/properties.ts";
 
 export class AssignPathAnimation extends BaseCustomEvent<
     bsmap.v2.ICustomEventAssignPathAnimation,

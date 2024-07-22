@@ -4,10 +4,10 @@ import {copy} from "../../../../utils/object/copy.ts";
 import {objectPrune} from "../../../../utils/object/prune.ts";
 import {activeDifficulty, getActiveDifficulty} from "../../../../data/active_difficulty.ts";
 import {animationToJson} from "../../../../utils/animation/json.ts";
-import {defaultBoolean, exportInvertedBoolean} from "../../../../utils/beatmap/object.ts";
 import {ExcludedObjectFields} from "../../../../types/beatmap/object/object.ts";
 
 import {BaseNote} from "./base_note.ts";
+import {defaultBoolean, exportInvertedBoolean} from "../../../../utils/beatmap/json.ts";
 
 export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
     constructor(

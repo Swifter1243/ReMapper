@@ -1,10 +1,10 @@
-import { DIFFPATH } from '../../types/beatmap.ts'
 import { AbstractDifficulty } from '../../internals/beatmap/abstract_beatmap.ts'
 
 import {isEmptyObject} from "../object/check.ts";
 
 import {readDifficulty} from "../../builder_functions/beatmap/difficulty.ts";
 import {getActiveDifficulty, setActiveDifficulty} from "../../data/active_difficulty.ts";
+import {DIFFPATH} from "../../types/beatmap/file.ts";
 
 export let currentTransfer: Promise<void>
 
@@ -12,7 +12,7 @@ export let currentTransfer: Promise<void>
  * Transfer the visual aspect of maps to other difficulties.
  * @param diffs The difficulties being effected.
  * @param forDiff A function to run over each difficulty.
- * @param walls If true, walls with custom data will be overriden.
+ * @param walls If true, walls with custom properties will be overriden.
  * The activeDiff keyword will change to be each difficulty running during this function.
  * Be mindful that the external difficulties don't have an input/output structure,
  * so new pushed notes for example may not be cleared on the next run and would build up.
