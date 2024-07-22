@@ -31,6 +31,7 @@ export abstract class BaseSliderObject<TV3 extends bsmap.v3.IBaseSlider>
         this.tailBeat = obj.tailBeat ?? 0
         this.tailX = obj.tailX ?? 0
         this.tailY = obj.tailY ?? 0
+        this.tailCoordinates = obj.tailCoordinates
     }
 
     declare animation: NoteAnimationData
