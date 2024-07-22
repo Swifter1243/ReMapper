@@ -3,7 +3,7 @@ import {RotationEvent} from "../../../../internals/beatmap/object/v3_event/rotat
 /**
  * Used for 360 mode, rotates future objects and active objects.
  * @param beat The beat of the event.
- * @param rotation The rotation of the light_event.
+ * @param rotation The rotation of the event.
  */
 export function earlyRotation(
     beat: number,
@@ -36,7 +36,7 @@ export function earlyRotation(
 /**
  * Used for 360 mode, rotates future objects only.
  * @param beat The beat of the event.
- * @param rotation The rotation of the light_event.
+ * @param rotation The rotation of the event.
  */
 export function lateRotation(
     beat: number,

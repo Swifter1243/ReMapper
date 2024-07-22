@@ -12,7 +12,7 @@ export class PrefabInstance {
     }
     /** Whether this instance has been destroyed. */
     destroyed = false
-    /** The light_event used to push this instance. */
+    /** The event used to push this instance. */
     readonly event: InstantiatePrefab
 
     constructor(id: string, event: InstantiatePrefab) {
@@ -29,7 +29,7 @@ export class PrefabInstance {
     }
 }
 
-/** Destroy multiple prefab instances in one light_event. */
+/** Destroy multiple prefab instances in one event. */
 export function destroyPrefabInstances(prefabs: PrefabInstance[], beat = 0) {
     const ids: string[] = []
 

@@ -35,15 +35,15 @@ export class AssignPathAnimation extends CustomEvent<
         if (params.easing) this.easing = params.easing
     }
 
-    /** The animation of this light_event. */
+    /** The animation of this event. */
     animation: AnimationPropertiesV3
     /** Duration of the animation. */
     duration: number
-    /** The track of this light_event.
+    /** The track of this event.
      * Uses a wrapper that simplifies single strings and arrays.
      */
     track: Track = new Track('')
-    /** The easing on this light_event's animation. */
+    /** The easing on this event's animation. */
     easing?: EASE
 
     push(clone = true) {

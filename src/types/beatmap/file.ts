@@ -6,7 +6,7 @@ type DiffNameBase<T extends string> =
     | `ExpertPlus${T}`
 
 /** All difficulty names. */
-export type DIFFS =
+export type DIFFICULTY_NAME =
     | DiffNameBase<'Standard'>
     | DiffNameBase<'NoArrows'>
     | DiffNameBase<'OneSaber'>
@@ -16,16 +16,16 @@ export type DIFFS =
     | DiffNameBase<'Lawless'>
 
 // TODO: If possible, try to figure out a way to default to a string with no extension or path
-/** File name. `file.object` */
+/** File name. `file.ext` */
 export type FILENAME<T extends string = string> = T | `${T}.${string}`
 
-/** File path, relative or absolute. `file.object` or `src/file.object` or `C:/file.object` */
+/** File path, relative or absolute. `file.ext`, `src/file.ext`, or `C:/file.ext` */
 export type FILEPATH<T extends string = string> =
     | FILENAME<T>
     | `${string}/${FILENAME<T>}`
 
 /** Absolute or relative path to a difficulty. Extension is optional. */
-export type DIFFPATH = FILEPATH<DIFFS>
+export type DIFFICULTY_PATH = FILEPATH<DIFFICULTY_NAME>
 
 /** Filename for a difficulty. Extension is optional. */
-export type DIFFNAME = FILENAME<DIFFS>
+export type DIFFICULTY_FILENAME = FILENAME<DIFFICULTY_NAME>

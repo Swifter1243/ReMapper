@@ -18,7 +18,7 @@ export class RotationEvent extends BeatmapObject<bsmap.v2.IEventLaneRotation, bs
         this.rotation = obj.rotation ?? 0
     }
 
-    /** Whether this light_event effects current objects or only future ones. */
+    /** Whether this event effects current objects or only future ones. */
     early: boolean
     /** The rotation in degrees. V2 will only allow -60 to 60 in multiples of 15. */
     rotation: number

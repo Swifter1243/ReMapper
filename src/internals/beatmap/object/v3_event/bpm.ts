@@ -1,4 +1,4 @@
-import {V2BPM, V3BPM} from "../../../../types/beatmap/object/v3_event.ts";
+import {IV2BPM, IV3BPM} from "../../../../types/beatmap/object/v3_event.ts";
 import {JsonWrapper} from "../../../../types/beatmap/json_wrapper.ts";
 import {Fields} from "../../../../types/util/class.ts";
 import {getActiveDifficulty} from "../../../../data/active_difficulty.ts";
@@ -8,14 +8,14 @@ import {BeatmapObject} from "../object.ts";
 
 
 export abstract class BPMEvent<
-    TV2 extends V2BPM = V2BPM,
-    TV3 extends V3BPM = V3BPM,
+    TV2 extends IV2BPM = IV2BPM,
+    TV3 extends IV3BPM = IV3BPM,
 > implements JsonWrapper<TV2, TV3> {
     protected constructor(obj: Partial<Fields<BPMEvent>>) {
         this.beat = obj.beat ?? 0
     }
 
-    /** The beat the light_event will activate. */
+    /** The beat the event will activate. */
     beat: number
 
     push(

@@ -1,7 +1,7 @@
 import {findIndexLastFirst} from "../../array/find.ts";
 import {
     SPLINE
-} from "../../../types/animation/keyframe/keyframe.ts";
+} from "../../../types/animation/keyframe/components.ts";
 import {EASE} from "../../../types/animation/easing.ts";
 import {InnerKeyframeBoundless} from "../../../types/animation/keyframe/boundless.ts";
 import {RuntimeInnerKeyframeBoundless} from "../../../types/animation/keyframe/runtime/boundless.ts";
@@ -41,6 +41,7 @@ export const getKeyframeSpline = (
 
 /**
  * Gets the index of a flag in a keyframe.
+ * @param data The keyframe data.
  * @param flag The flag to look for.
  * @param exact Whether it should be an exact match, or just contain the flag argument.
  */

@@ -30,7 +30,7 @@ export abstract class LightEventBox<
         this.events = obj.events ?? []
     }
 
-    /** Allows you to filter specific environment objects within an light_event box and control how its effects are distributed. */
+    /** Allows you to filter specific environment objects within an event box and control how its effects are distributed. */
     filter: bsmap.v3.IIndexFilter
     /** https://bsmg.wiki/mapping/map-format/lightshow.html#light-color-event-boxes-beat-distribution */
     beatDistribution: number
@@ -38,9 +38,9 @@ export abstract class LightEventBox<
     beatDistributionType: DistributionType
     /** An integer value which determines the interpolation of the distribution, or the behavior for how to traverse the sequence. */
     distributionEasing: RotationEase
-    /** Community properties in the light_event box. */
+    /** Community properties in the event box. */
     customData: T['customData']
-    /** The events in this light_event box. */
+    /** The events in this event box. */
     events: E[]
 
     /** Add a light event to this box's events. */

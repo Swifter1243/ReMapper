@@ -34,7 +34,7 @@ import {
 } from "./vivify_event_interfaces.ts";
 import { bsmap } from '../../../deps.ts'
 
-/** Wrapper for custom light_event arrays in a beatmap. */
+/** Wrapper for custom event arrays in a beatmap. */
 export interface BeatmapCustomEvents {
     animateComponentEvents: AnimateComponent[]
     animateTrackEvents: AnimateTrack[]

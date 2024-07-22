@@ -11,6 +11,6 @@ export type SceneSwitch = {
     animationDuration?: number
     /** The offset added to `beat` which defines when the animation in the input objects happen. */
     animationOffset?: number
-    /** Runs on each light_event that moves objects in this switch. */
+    /** Runs on each event that moves objects in this switch. */
     forEvent?: (event: CustomEventInternals.AnimateTrack, objects: number) => void
 }

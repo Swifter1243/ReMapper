@@ -5,7 +5,7 @@ import {copy} from '../../../../utils/object/copy.ts'
 import {objectPrune} from '../../../../utils/object/prune.ts'
 import {BasicEvent} from './basic_event.ts'
 import {bsmap} from '../../../../deps.ts'
-import {BasicEventExcludedFields, LightColor} from '../../../../types/beatmap/object/basic_event.ts'
+import {BasicEventExcludedFields, LightColorLiteral} from '../../../../types/beatmap/object/basic_event.ts'
 import {ColorVec} from "../../../../types/math/vector.ts";
 
 import {EASE} from "../../../../types/animation/easing.ts";
@@ -26,14 +26,14 @@ export class LightEvent<
 
     /** The lightIDs to target. */
     lightID?: LightID
-    /** The color of the light_event. */
+    /** The color of the event. */
     color?: ColorVec
-    /** The easing for transition events. Goes on start light_event. */
+    /** The easing for transition events. Goes on start event. */
     easing?: EASE
-    /** The color interpolation for transition events. Goes on start light_event. */
+    /** The color interpolation for transition events. Goes on start event. */
     lerpType?: 'RGB' | 'HSV'
 
-    /** Create an light_event that turns lights off
+    /** Create an event that turns lights off
      * @param lightID The lightIDs to target.
      */
     off(lightID?: LightID) {
@@ -43,10 +43,10 @@ export class LightEvent<
     }
 
     private makeAction(
-        actions: { [K in LightColor]: EventAction },
+        actions: { [K in LightColorLiteral]: EventAction },
     ) {
         return (
-            color: ColorVec | LightColor = 'Blue',
+            color: ColorVec | LightColorLiteral = 'Blue',
             lightID?: LightID,
         ) => {
             if (typeof color === 'string') {

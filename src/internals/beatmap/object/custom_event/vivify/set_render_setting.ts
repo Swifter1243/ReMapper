@@ -25,7 +25,7 @@ export class SetRenderSetting extends CustomEvent<
         if (params.easing) this.easing = params.easing
     }
 
-    /** The length of the light_event in beats. Defaults to 0. */
+    /** The length of the event in beats. Defaults to 0. */
     duration?: number
     /** An easing for the animation to follow. Defaults to "easeLinear". */
     easing?: EASE

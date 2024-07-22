@@ -5,7 +5,7 @@ import {arrayRemove} from "../../array/mutate.ts";
 import {
     KeyframeFlag,
     SPLINE
-} from "../../../types/animation/keyframe/keyframe.ts";
+} from "../../../types/animation/keyframe/components.ts";
 import {EASE} from "../../../types/animation/easing.ts";
 import {InnerKeyframeBoundless} from "../../../types/animation/keyframe/boundless.ts";
 import {RuntimeInnerKeyframeBoundless} from "../../../types/animation/keyframe/runtime/boundless.ts";

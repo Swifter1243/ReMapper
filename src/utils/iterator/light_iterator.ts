@@ -23,7 +23,7 @@ export class LightIterator extends BaseLightIterator {
     type = (type: number) => this.addCondition((x) => x.type === type)
 
     /**
-     * Checks if any lightIDs on this light_event are in this range.
+     * Checks if any lightIDs on this event are in this range.
      */
     hasIDsInRange(min: number, max: number) {
         this.addCondition((x) => {
@@ -55,7 +55,7 @@ export class LightIterator extends BaseLightIterator {
     }
 
     /**
-     * Sets the lightID of the light_event.
+     * Sets the lightID of the event.
      * @param lightID Input lightID(s).
      */
     setIDs(lightID: LightID) {
@@ -70,9 +70,9 @@ export class LightIterator extends BaseLightIterator {
     }
 
     /**
-     * Adds lightIDs to the light_event.
+     * Adds lightIDs to the event.
      * @param lightID LightID(s) to add.
-     * @param initialize If false and light_event has no lightIDs, skip.
+     * @param initialize If false and event has no lightIDs, skip.
      */
     appendIDs = (lightID: LightID, initialize = false) =>
         this.addProcess((x) => {
@@ -90,7 +90,7 @@ export class LightIterator extends BaseLightIterator {
         })
 
     /**
-     * Initialize lightIDs if light_event has none.
+     * Initialize lightIDs if event has none.
      * @param lightID Initializing lightID(s).
      * @param spread If true, use lightID field as min and max to fill lightIDs in between.
      */
@@ -121,14 +121,9 @@ export class LightIterator extends BaseLightIterator {
     /**
      * Normalizes a sequence of lightIDs to a sequence of: 1, 2, 3, 4, 5... etc.
      * Accounts for differences changing at different points.
-     * @param map [[start, step], [start, step]...]
-     *
-     * start - The point at which the differences change.
-     *
-     * step - The new differences.
-     *
      * If the sequence goes: 1, 3, 5, 6, 7, the differences change from 2 to 1 at the third number.
      * So map would look like: [[1, 2], [3, 1]]
+     * @param map
      */
     normalizeWithChanges = (map: number[][]) =>
         this.addProcess((x) => {

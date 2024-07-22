@@ -12,7 +12,7 @@ export class FogEvent {
     beat?: number
     duration?: number
 
-    /** Abstracted fog light_event. */
+    /** Abstracted fog event. */
     constructor(animation: AnyFog, beat?: number, duration?: number) {
         this.fog = animation
         if (beat) this.beat = beat
@@ -32,7 +32,7 @@ export class FogEvent {
 
     /** Export for V3.
      * If static, returns an environment statement for the base environment.
-     * If animated, returns an AnimateComponent light_event.
+     * If animated, returns an AnimateComponent event.
      */
     exportV3() {
         const isStatic = !(
@@ -62,7 +62,7 @@ export class FogEvent {
         } as bsmap.v3.ICustomEventAnimateComponent
     }
 
-    /** Export for V2 into an AnimateTrack light_event. */
+    /** Export for V2 into an AnimateTrack event. */
     exportV2() {
         return {
             _time: this.beat ?? 0,

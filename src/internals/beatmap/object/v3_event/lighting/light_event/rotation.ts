@@ -17,7 +17,7 @@ export class LightRotationEvent extends BeatmapObject<never, bsmap.v3.ILightRota
             RotationDirection.AUTOMATIC
     }
 
-    /** If true, extend the state of the previous light_event. If not, transition from previous state to this state. */
+    /** If true, extend the state of the previous event. If not, transition from previous state to this state. */
     usePreviousEventRotation: boolean
     /** The easing of the rotation. */
     easing: RotationEase

@@ -1,5 +1,5 @@
 import {InnerKeyframeAbstract} from "../abstract.ts";
-import {TimeValue} from "../keyframe.ts";
+import {TimeValue} from "../components.ts";
 import {RuntimeKeyframeValues} from "./structure.ts";
 
 /** Helper type for complex keyframes. `[[...], [...], [...]]`.

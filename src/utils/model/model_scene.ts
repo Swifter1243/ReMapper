@@ -42,10 +42,10 @@ function createYeetDef() {
 
 export class ModelScene {
     /** All of the "groups" stored in this model.
-     * When the model properties is passed, if any model objects have a track that match the name of this group, an animation light_event will be placed for them.
+     * When the model properties is passed, if any model objects have a track that match the name of this group, an animation event will be placed for them.
      */
     groups = <Record<string, ModelGroup>> {}
-    /** Settings for the optimizer on each animation light_event.
+    /** Settings for the optimizer on each animation event.
      * The animations will attempt to be optimized, removing visually redundant points.
      * This controls various parameters about how harshly the algorithm will target changes.
      */
@@ -536,7 +536,7 @@ export class ModelScene {
                     object.scale = scale
                     if (forObject) forObject(object)
                     object.push(false)
-                } // Creating light_event for assigned
+                } // Creating event for assigned
                 else {
                     const event = animateTrack(0, track)
                     event.animation.position = x
@@ -772,7 +772,7 @@ export class ModelScene {
                 event.push()
             }
 
-            // Make animation light_event
+            // Make animation event
             event.beat = s.beat + s.animationOffset!
             event.animation.position = d
                 .position as RuntimeRawKeyframesVec3
@@ -793,7 +793,7 @@ export class ModelScene {
                 event.duration /= (s.model as AnimatedOptions).loop!
             }
 
-            // Run callback and then push light_event
+            // Run callback and then push event
             if (s.forEvent) {
                 s.forEvent(event, objectInfo.perSwitch[s.beat])
             }
@@ -822,14 +822,14 @@ export class ModelScene {
                     const eventTime = firstInitializing ? 0 : switchTime
                     const amount = objectInfo.perSwitch[switchTime]
 
-                    // Initialize the yeet light_event for this switch if not present
+                    // Initialize the yeet event for this switch if not present
                     if (!yeetEvents[switchTime]) {
                         const event = animateTrack(eventTime, [])
                         event.animation.position = 'yeet'
                         yeetEvents[switchTime] = event
                     }
 
-                    // Add unused objects for this switch to the yeet light_event
+                    // Add unused objects for this switch to the yeet event
                     for (let i = amount; i < objectInfo.max; i++) {
                         const track = this.getPieceTrack(
                             group.object,

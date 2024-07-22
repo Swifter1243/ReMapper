@@ -35,21 +35,21 @@ export class AnimateComponent
         this.lightMultiplier = params.lightMultiplier ?? {}
     }
 
-    /** The track of this light_event.
+    /** The track of this event.
      * Uses a wrapper that simplifies single strings and arrays.
      */
     track = new Track('')
 
     /** Duration of the animation. */
     duration?: number
-    /** The easing on this light_event's animation. */
+    /** The easing on this event's animation. */
     easing?: EASE
     /** The "ILightWithId" component to animate. */
     lightID: ILightWithId<PointDefinitionLinear> = {}
     /** The "TubeBloomPrePassLight component to animate." */
     lightMultiplier: TubeBloomPrePassLight<PointDefinitionLinear> = {}
 
-    /** Push this light_event to the difficulty.
+    /** Push this event to the difficulty.
      * @param clone Whether this object will be copied before being pushed.
      */
     push(clone = true) {

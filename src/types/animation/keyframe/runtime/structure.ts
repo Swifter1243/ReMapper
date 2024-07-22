@@ -1,4 +1,4 @@
-import {PointModifier} from '../keyframe.ts'
+import {PointModifier} from '../components.ts'
 
 /** Values for runtime keyframes.
  * [[...], [...], [...]] where [...] is [...x, time]

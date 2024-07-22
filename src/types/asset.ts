@@ -7,18 +7,29 @@ import {RuntimePointDefinitionVec4} from "./animation/keyframe/runtime/vec4.ts";
 import {FILEPATH} from "./beatmap/file.ts";
 import {MATERIAL_PROP_TYPE} from "./vivify/material.ts";
 
-export type PrefabMap = Record<string, string>
-export type MaterialMap = Record<string, {
+/** A list of prefab names and their paths. Typically input from `asset_info.json` */
+export type PrefabInfo = Record<string, string>
+
+/** A list of materials and their property types. Typically input from `asset_info.json`.
+ * Deno doesn't import json strings as literals, so this is considered unclean as I have to specify the type as a key.
+ */
+export type MaterialInfo = Record<string, {
     path: string
     properties: Record<string, Partial<Record<MATERIAL_PROP_TYPE, unknown>>>
 }>
-export type AssetMap = {
+
+/** Asset info exported from the VivifyTemplate exporter. Imported to this type in the form of `asset_info.json`. */
+export type AssetInfo = {
     default: {
-        materials: MaterialMap
-        prefabs: PrefabMap
+        materials: MaterialInfo
+        prefabs: PrefabInfo
     }
 }
-export type FixedMaterialMap<BaseMaterial extends MaterialMap[string]> = {
+
+/** A list of materials and their property types. Typically input from `asset_info.json`.
+ * Deno doesn't import json strings as literals, so this is considered the clean version after it has been processed by `fixMaterial`.
+ */
+export type FixedMaterialInfo<BaseMaterial extends MaterialInfo[string]> = {
     path: string
     properties: {
         [MaterialProperty in keyof BaseMaterial['properties']]:
@@ -29,11 +40,19 @@ export type FixedMaterialMap<BaseMaterial extends MaterialMap[string]> = {
                 : never
     }
 }
-export type PrefabMapOutput<T extends PrefabMap> = Record<keyof T, Prefab>
-export type MaterialMapOutput<T extends MaterialMap> = {
-    [V in keyof T]: Material<FixedMaterialMap<T[V]>['properties']>
+
+/** A typed dictionary of prefabs based on `asset_info.json`. */
+export type PrefabMap<T extends PrefabInfo> = Record<keyof T, Prefab>
+
+/** A typed dictionary of materials based on `asset_info.json`. */
+export type MaterialMap<T extends MaterialInfo> = {
+    [V in keyof T]: Material<FixedMaterialInfo<T[V]>['properties']>
 }
+
+/** Untyped material properties. */
 export type MaterialProperties = Record<string, MATERIAL_PROP_TYPE>
+
+/** Converts a `MATERIAL_PROP_TYPE` to it's corresponding value. */
 export type MaterialPropertyMap = {
     'Texture': FILEPATH
     'Float': number | RuntimePointDefinitionLinear

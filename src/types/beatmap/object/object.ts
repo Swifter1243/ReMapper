@@ -30,5 +30,5 @@ export type ExcludeObjectFields = {
 }
 
 /** All beatmap objects. */
-export type BeatmapObject = AnyNote | Wall | LightEvent
+export type AnyBeatmapObject = AnyNote | Wall | LightEvent
 

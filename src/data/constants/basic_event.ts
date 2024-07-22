@@ -1,4 +1,4 @@
-/** Basic light_event groups/types. */
+/** Basic event groups/types. */
 export enum EventGroup {
     BACK_LASERS,
     RING_LIGHTS,
@@ -23,7 +23,7 @@ export enum EventGroup {
     BPM = 100,
 }
 
-/** Basic lighting_v3 light_event actions. */
+/** Basic lighting_v3 event actions. */
 export enum EventAction {
     OFF,
     BLUE_ON,
@@ -52,7 +52,7 @@ export enum InterscopeGroup {
     BACK_CARS,
 }
 
-/** Rotation basic light_event values. */
+/** Rotation basic event values. */
 export const RotationAction = {
     CCW_60: 0,
     CCW_45: 1,
@@ -64,7 +64,7 @@ export const RotationAction = {
     CW_60: 7,
 }
 
-/** Convert the value of a rotation light_event into it's corresponding angle. */
+/** Convert the value of a rotation event into it's corresponding angle. */
 export const InverseRotationAction = {
     0: -60,
     1: -45,

@@ -29,7 +29,7 @@ export class Prefab {
         return new PrefabInstance(id, instantiation)
     }
 
-    /** Create an light_event to assign this prefab to color notes. */
+    /** Create an event to assign this prefab to color notes. */
     assignToColorNote(track: string, beat = 0) {
         assignTrackPrefab({
             beat,
@@ -38,7 +38,7 @@ export class Prefab {
         }).push()
     }
 
-    /** Create an light_event to assign this prefab to color note debris. */
+    /** Create an event to assign this prefab to color note debris. */
     assignToColorNoteDebris(track: string, beat = 0) {
         assignTrackPrefab({
             beat,
@@ -47,7 +47,7 @@ export class Prefab {
         }).push()
     }
 
-    /** Create an light_event to assign this prefab to bombs. */
+    /** Create an event to assign this prefab to bombs. */
     assignToBombs(track: string, beat = 0) {
         assignTrackPrefab({
             beat,
@@ -56,7 +56,7 @@ export class Prefab {
         }).push()
     }
 
-    /** Create an light_event to assign this prefab to chain heads. */
+    /** Create an event to assign this prefab to chain heads. */
     assignToChainHeads(track: string, beat = 0) {
         assignTrackPrefab({
             beat,
@@ -65,7 +65,7 @@ export class Prefab {
         }).push()
     }
 
-    /** Create an light_event to assign this prefab to chain head debris. */
+    /** Create an event to assign this prefab to chain head debris. */
     assignToChainHeadDebris(track: string, beat = 0) {
         assignTrackPrefab({
             beat,
@@ -74,7 +74,7 @@ export class Prefab {
         }).push()
     }
 
-    /** Create an light_event to assign this prefab to chain head debris. */
+    /** Create an event to assign this prefab to chain head debris. */
     assignToChainLinks(track: string, beat = 0) {
         assignTrackPrefab({
             beat,
@@ -83,7 +83,7 @@ export class Prefab {
         }).push()
     }
 
-    /** Create an light_event to assign this prefab to chain head debris. */
+    /** Create an event to assign this prefab to chain head debris. */
     assignToChainLinkDebris(track: string, beat = 0) {
         assignTrackPrefab({
             beat,

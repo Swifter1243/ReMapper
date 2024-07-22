@@ -7,13 +7,12 @@ import {setActiveDifficulty} from "../../data/active_difficulty.ts";
 import {attachWorkingDirectory, setWorkingDirectory, workingDirectoryExists} from "../../data/working_directory.ts";
 import {parseFilePath} from "../../utils/file.ts";
 import {getInfoDifficultySets} from "../../utils/beatmap/info/difficulty_set.ts";
-import {DIFFNAME, DIFFPATH} from "../../types/beatmap/file.ts";
+import {DIFFICULTY_FILENAME, DIFFICULTY_PATH} from "../../types/beatmap/file.ts";
 
 /** Asynchronous function to read a difficulty. Not concerned with version. */
 export async function readDifficulty(
-    input: DIFFPATH,
-    output?: DIFFPATH,
-    process: boolean = true,
+    input: DIFFICULTY_PATH,
+    output?: DIFFICULTY_PATH,
 ): Promise<AbstractDifficulty> {
     if (
         workingDirectoryExists() && (
@@ -24,8 +23,8 @@ export async function readDifficulty(
         throw 'A working directory is already defined and your difficulties are not in it.'
     }
 
-    input = attachWorkingDirectory(input) as DIFFPATH
-    output = attachWorkingDirectory(output ?? input) as DIFFPATH
+    input = attachWorkingDirectory(input) as DIFFICULTY_PATH
+    output = attachWorkingDirectory(output ?? input) as DIFFICULTY_PATH
 
     const parsedInput = await parseFilePath(input, '.dat')
     const parsedOutput = await parseFilePath(output, '.dat', false)
@@ -53,7 +52,7 @@ export async function readDifficulty(
     const jsonPromise = Deno.readTextFile(parsedInput.path)
 
     await loadActiveInfo()
-    const infoData = getInfoDifficultySets(parsedOutput.name as DIFFNAME)
+    const infoData = getInfoDifficultySets(parsedOutput.name as DIFFICULTY_FILENAME)
     const json = JSON.parse(await jsonPromise) as
         | bsmap.v2.IDifficulty
         | bsmap.v3.IDifficulty

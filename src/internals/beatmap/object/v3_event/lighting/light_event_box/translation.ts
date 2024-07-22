@@ -29,7 +29,7 @@ export class LightTranslationEventBox extends LightEventBox<
     translationAxis: LightAxis
     /** An integer value which determines whether the translation should be mirrored. */
     flipTranslation: boolean
-    /** A binary integer value (0 or 1) which determines whether the distribution should affect the first light_event in the sequence. */
+    /** A binary integer value (0 or 1) which determines whether the distribution should affect the first event in the sequence. */
     translationDistributionFirst: boolean
 
     fromJson(json: bsmap.v3.ILightTranslationEventBox, v3: true): this

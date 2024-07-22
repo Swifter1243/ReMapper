@@ -1,6 +1,4 @@
-// TODO: Stink
 import {ModelObject} from "../object.ts";
-
 
 /**
  * The properties reported for a given group in `ModelScene` after the model is instantiated.

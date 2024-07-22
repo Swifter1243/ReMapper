@@ -1,5 +1,6 @@
 import {RuntimePointDefinitionVec3} from "../keyframe/runtime/vec3.ts";
 
+/** Animation properties for environment enhancements */
 export interface EnvironmentAnimationData {
     /** The position of the object in world space. */
     position?: RuntimePointDefinitionVec3

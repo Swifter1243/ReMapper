@@ -3,13 +3,13 @@ import {LightEvent} from "../../internals/beatmap/object/basic_event/light_event
 import {LightEventCondition, LightEventProcess} from "../../types/iterator.ts";
 
 /*
- * Class used to iterate through every light_event in the map.
+ * Class used to iterate through every event in the map.
  * Has various tools to transform the events.
  */
 export class BaseLightIterator {
-    /** Conditions that each light_event needs to pass. */
+    /** Conditions that each event needs to pass. */
     conditions: LightEventCondition[] = []
-    /** Function to run on each light_event. */
+    /** Function to run on each event. */
     processes: LightEventProcess[] = []
 
     /**
@@ -22,7 +22,7 @@ export class BaseLightIterator {
     }
 
     /**
-     * Add a function to edit the light_event.
+     * Add a function to edit the event.
      * @param process Input function.
      */
     addProcess(process: LightEventProcess) {
@@ -31,7 +31,7 @@ export class BaseLightIterator {
     }
 
     /**
-     * Sets the type of the light_event.
+     * Sets the type of the event.
      * @param type Input type.
      */
     setType = (type: number) =>
@@ -40,7 +40,7 @@ export class BaseLightIterator {
         })
 
     /**
-     * Multiplies the colors of the light_event.
+     * Multiplies the colors of the event.
      * @param rgb Multiplier for r, g, and b values.
      * @param alpha Multiplier for alpha.
      */
@@ -76,7 +76,7 @@ export class BaseLightIterator {
 
     /**
      * Run the algorithm.
-     * @param log Log the output JSON of each light_event.
+     * @param log Log the output JSON of each event.
      */
     run = (log = false) => this.processEvents(getActiveDifficulty().lightEvents, log)
 

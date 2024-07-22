@@ -1,5 +1,5 @@
 import { bsmap } from '../../../../../../deps.ts'
-import { V3LightRotationEventBoxGroup } from '../../../../../../types/beatmap/object/v3_event.ts'
+import { IV3LightRotationEventBoxGroup } from '../../../../../../types/beatmap/object/v3_event.ts'
 import { SubclassExclusiveProps } from '../../../../../../types/util/class.ts'
 import { LightEventBoxGroup } from './base.ts'
 import { LightColorEventBoxGroup } from './color.ts'
@@ -10,9 +10,9 @@ import {
 
 export class LightRotationEventBoxGroup
     extends LightEventBoxGroup<bsmap.v3.ILightRotationEventBox> {
-    fromJson(json: V3LightRotationEventBoxGroup, v3: true): this
+    fromJson(json: IV3LightRotationEventBoxGroup, v3: true): this
     fromJson(json: never, v3: false): this
-    fromJson(json: V3LightRotationEventBoxGroup, v3: boolean): this {
+    fromJson(json: IV3LightRotationEventBoxGroup, v3: boolean): this {
         if (!v3) throw 'Event box groups are not supported in V2!'
 
         type Params = SubclassExclusiveProps<

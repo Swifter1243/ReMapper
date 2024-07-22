@@ -9,22 +9,24 @@ import {getWorkingDirectory} from "../../data/working_directory.ts";
 import {BUNDLE_VERSIONS, QUEST_WIP_PATH} from "../../data/constants/file.ts";
 import {RMLog} from "../rm_log.ts";
 import {parseFilePath} from "../file.ts";
-import {DIFFS, FILENAME} from "../../types/beatmap/file.ts";
+import {DIFFICULTY_NAME, FILENAME} from "../../types/beatmap/file.ts";
 
 /**
- * Create a temporary directory with all of the relevant files for the beatmap.
- * Returns all of the files that are in the directory.
+ * Create a temporary directory with all the relevant files for the beatmap.
+ * Returns all the files that are in the directory.
  * @param excludeDiffs Difficulties to exclude.
+ * @param includeBundles Whether to include vivify bundles in the beatmap collection.
+ * @param awaitSave Whether to await the active difficulty's saving action.
  */
 export async function collectBeatmapFiles(
-    excludeDiffs: FILENAME<DIFFS>[] = [],
-    includeBundle = false,
+    excludeDiffs: FILENAME<DIFFICULTY_NAME>[] = [],
+    includeBundles = false,
     awaitSave = true,
 ) {
     const info = getActiveInfo()
 
-    const diff = getActiveDifficulty()
-    if (awaitSave && diff) {
+    if (awaitSave) {
+        const diff = getActiveDifficulty()
         await diff.savePromise
     }
 
@@ -38,7 +40,7 @@ export async function collectBeatmapFiles(
         'BPMInfo.dat',
     ]
 
-    if (includeBundle) {
+    if (includeBundles) {
         unsanitizedFiles.push(...BUNDLE_VERSIONS.map((x) => `bundle${x}`))
     }
 
@@ -92,11 +94,12 @@ export async function collectBeatmapFiles(
  * Automatically zip the map, including only necessary files.
  * @param excludeDiffs Difficulties to exclude.
  * @param zipName Name of the zip (don't include ".zip"). Uses folder name if undefined.
+ * @param includeBundles Whether to include vivify bundles in the zip.
  */
 export async function exportZip(
-    excludeDiffs: FILENAME<DIFFS>[] = [],
+    excludeDiffs: FILENAME<DIFFICULTY_NAME>[] = [],
     zipName?: string,
-    includeBundle = false,
+    includeBundles = false,
 ) {
     await currentTransfer
 
@@ -106,7 +109,7 @@ export async function exportZip(
     zipName = zipName.replaceAll(' ', '_')
     zipName = encodeURI(zipName)
 
-    const files = (await collectBeatmapFiles(excludeDiffs, includeBundle))
+    const files = (await collectBeatmapFiles(excludeDiffs, includeBundles))
         .map((v) => `"${v}"`) // surround with quotes for safety
 
     // Check file lock
@@ -149,7 +152,7 @@ export async function exportZip(
  * @param options Options to pass to ADB
  */
 export async function exportToQuest(
-    excludeDiffs: FILENAME<DIFFS>[] = [],
+    excludeDiffs: FILENAME<DIFFICULTY_NAME>[] = [],
     options?: adbDeno.InvokeADBOptions,
 ) {
     await currentTransfer

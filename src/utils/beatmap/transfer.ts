@@ -4,7 +4,7 @@ import {isEmptyObject} from "../object/check.ts";
 
 import {readDifficulty} from "../../builder_functions/beatmap/difficulty.ts";
 import {getActiveDifficulty, setActiveDifficulty} from "../../data/active_difficulty.ts";
-import {DIFFPATH} from "../../types/beatmap/file.ts";
+import {DIFFICULTY_PATH} from "../../types/beatmap/file.ts";
 
 export let currentTransfer: Promise<void>
 
@@ -16,9 +16,11 @@ export let currentTransfer: Promise<void>
  * The activeDiff keyword will change to be each difficulty running during this function.
  * Be mindful that the external difficulties don't have an input/output structure,
  * so new pushed notes for example may not be cleared on the next run and would build up.
+ * @param arcs Whether to clone arcs.
+ * @param colorSchemes Whether to clone color schemes.
  */
 export async function transferVisuals(
-    diffs: DIFFPATH[] | DIFFPATH,
+    diffs: DIFFICULTY_PATH[] | DIFFICULTY_PATH,
     forDiff?: (diff: AbstractDifficulty) => void,
     walls = true,
     arcs = true,
@@ -29,7 +31,7 @@ export async function transferVisuals(
     async function thisFunction() {
         const currentDiff = getActiveDifficulty()
 
-        async function process(x: DIFFPATH) {
+        async function process(x: DIFFICULTY_PATH) {
             const workingDiff = await readDifficulty(x)
 
             workingDiff.colorNotes = workingDiff.colorNotes

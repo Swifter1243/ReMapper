@@ -14,16 +14,16 @@ export abstract class BasicEvent<
         this.floatValue = obj.floatValue ?? 1
     }
 
-    /** Push this light_event to the difficulty
+    /** Push this event to the difficulty
      * @param clone Whether this object will be copied before being pushed.
      */
     abstract push(clone: boolean): BasicEvent<TV2, TV3>
 
-    /** The type of the light_event. */
+    /** The type of the event. */
     type: number
-    /** The value of the light_event. */
+    /** The value of the event. */
     value: number
-    /** The value of the light_event, but allowing decimals. */
+    /** The value of the event, but allowing decimals. */
     floatValue: number
 
     fromJson(json: TV3, v3: true): this

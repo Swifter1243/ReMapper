@@ -21,7 +21,7 @@ export class LightColorEvent extends BaseLightEvent<bsmap.v3.ILightColorBase> {
     color: LightColor
     /** The brightness of the effect, as a percentage (0-1). */
     brightness: number
-    /** Blinking frequency in beat time of the light_event, 0 is static. */
+    /** Blinking frequency in beat time of the event, 0 is static. */
     blinkingFrequency: number
 
     fromJson(json: bsmap.v3.ILightColorBase, v3: true): this

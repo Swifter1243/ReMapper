@@ -9,10 +9,10 @@ export type GroupObjectTypes =
     | Geometry
 
 /** A group in a ModelScene.
- * When the model properties is passed, if any model objects have a track that match the name of this group, an animation light_event will be placed for them.
+ * When the model properties is passed, if any model objects have a track that match the name of this group, an animation event will be placed for them.
  */
 export type ModelGroup = {
-    /** What object to spawn for each object in this group.
+    /** What objects to spawn for each object in this group.
      * If undefined, an existing object with the same track is assumed to exist and will be animated.
      */
     object?: GroupObjectTypes

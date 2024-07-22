@@ -14,7 +14,7 @@ export abstract class LightEventBoxGroup<T extends bsmap.v3.IEventBox>
 
     /** An integer value which represents what group of environment objects are affected. */
     groupID: number
-    /** The light_event boxes in this group.  */
+    /** The event boxes in this group.  */
     boxes: LightEventBox<T>[]
 
     /** Add a box to this group's boxes. */

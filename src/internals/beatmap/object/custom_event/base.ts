@@ -52,7 +52,7 @@ export type CustomEventConstructor<T> = ExcludedObjectFields<
     CustomEventExclusions
 >
 
-/** Gives the fields exclusive to the subclass of a custom light_event.
+/** Gives the fields exclusive to the subclass of a custom event.
  * Kind of just removes some biolerplate where I define BaseCustomEvent as the parent.
  */
 export type CustomEventSubclassFields<T> = Fields<
@@ -79,7 +79,7 @@ export abstract class CustomEvent<
         this.data = fields.data ?? {}
     }
 
-    /** Push this light_event to the difficulty.
+    /** Push this event to the difficulty.
      * @param clone Whether this object will be copied before being pushed.
      */
     abstract push(clone: boolean): CustomEvent<TV2, TV3>

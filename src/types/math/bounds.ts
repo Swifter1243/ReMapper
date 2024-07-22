@@ -2,9 +2,9 @@ import { Vec3 } from './vector.ts'
 
 /** Information describing a 3D rectangle. */
 export type Bounds = {
-    /** Corner with smallest coordinates in the rectangle. */
+    /** Corner with the smallest coordinates in the rectangle. */
     lowBound: Vec3
-    /** Corner with highest coordinates in the rectangle. */
+    /** Corner with the highest coordinates in the rectangle. */
     highBound: Vec3
     /** How a unit rectangle would be scaled to this rectangle.
      * Equivalent to `[width, height, depth]`

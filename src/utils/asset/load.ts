@@ -1,9 +1,9 @@
 import {setMaterialProperty} from '../../builder_functions/beatmap/object/custom_event/vivify.ts'
 import {makeMaterialMap, makePrefabMap} from './map.ts'
-import {AssetMap, MaterialMapOutput, PrefabMapOutput} from "../../types/asset.ts";
+import {AssetInfo, MaterialMap, PrefabMap} from "../../types/asset.ts";
 import {MaterialProperty} from "../../types/vivify/material.ts";
 
-function initializeMaterials(assetMap: AssetMap) {
+function initializeMaterials(assetMap: AssetInfo) {
     Object.values(assetMap.default.materials).forEach(
         (value) => {
             const path = value.path
@@ -35,14 +35,15 @@ function initializeMaterials(assetMap: AssetMap) {
 }
 
 /** Generate a typed list of assets from JSON.
- * @param initialize Whether to set the default value of all materials at the start of the map. This is redundancy incase material values are externally altered.
+ * @param assetMap The `asset_info.json` to import.
+ * @param initialize Whether to set the default value of all materials at the start of the map. This is redundancy in case material values are externally altered.
  */
-export function loadAssets<T extends AssetMap>(
+export function loadAssets<T extends AssetInfo>(
     assetMap: T,
     initialize = true,
 ): {
-    materials: MaterialMapOutput<T['default']['materials']>
-    prefabs: PrefabMapOutput<T['default']['prefabs']>
+    materials: MaterialMap<T['default']['materials']>
+    prefabs: PrefabMap<T['default']['prefabs']>
 } {
     const materials = makeMaterialMap(assetMap.default.materials)
     const prefabs = makePrefabMap(assetMap.default.prefabs)

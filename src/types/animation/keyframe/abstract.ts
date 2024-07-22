@@ -1,4 +1,4 @@
-import { KeyframeFlag, TimeValue } from './keyframe.ts'
+import { KeyframeFlag, TimeValue } from './components.ts'
 
 /** Helper type for single keyframes. `[...]` */
 export type InnerKeyframeAbstract<T extends unknown[]> =

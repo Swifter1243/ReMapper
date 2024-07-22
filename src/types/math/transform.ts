@@ -9,6 +9,7 @@ export type FullTransform = {
     rotation: Vec3
     scale: Vec3
 }
+
 /** Describes a transformation.
  * Intended defaults:
  * ```
@@ -18,12 +19,14 @@ export type FullTransform = {
  * ```
  */
 export type Transform = Partial<FullTransform>
+
 /** Describes a transformation, animated. Full information of the transformation is required. */
 export type FullAnimatedTransform = {
     position: RawKeyframesVec3
     rotation: RawKeyframesVec3
     scale: RawKeyframesVec3
 }
+
 /** Describes a transformation, animated.
  * Intended defaults:
  * ```

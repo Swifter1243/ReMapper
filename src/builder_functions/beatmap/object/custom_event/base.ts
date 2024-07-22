@@ -2,7 +2,7 @@ import * as CustomEventInternals from '../../../../internals/beatmap/object/cust
 
 import {TJson} from "../../../../types/util/json.ts";
 
-/** Make a custom light_event with no particular identity. */
+/** Make a custom event with no particular identity. */
 export function abstractCustomEvent(
     ...params:
         | ConstructorParameters<typeof CustomEventInternals.AbstractCustomEvent>

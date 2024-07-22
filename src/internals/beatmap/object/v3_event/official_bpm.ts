@@ -14,7 +14,7 @@ export class OfficialBPMEvent extends BPMEvent<
         this.bpm = obj.bpm ?? 0
     }
 
-    /** What BPM this light_event changes the map to. */
+    /** What BPM this event changes the map to. */
     bpm: number
 
     fromBasicEvent(json: bsmap.v3.IBasicEvent) {

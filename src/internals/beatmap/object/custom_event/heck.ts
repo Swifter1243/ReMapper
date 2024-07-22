@@ -37,17 +37,17 @@ export class AnimateTrack extends CustomEvent<
         if (params.repeat) this.repeat = params.repeat
     }
 
-    /** The animation of this light_event. */
+    /** The animation of this event. */
     animation: AnimationPropertiesV3
     /** Duration of the animation. */
     duration: number
-    /** The track of this light_event.
+    /** The track of this event.
      * Uses a wrapper that simplifies single strings and arrays.
      */
     track: Track = new Track('')
-    /** The easing on this light_event's animation. */
+    /** The easing on this event's animation. */
     easing?: EASE
-    /** The amount of times to repeat this light_event. */
+    /** The amount of times to repeat this event. */
     repeat?: number
 
     push(clone = true) {

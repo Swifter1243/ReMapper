@@ -8,5 +8,6 @@ export type ColorTypes = {
 }
 /** Color formats. */
 export type ColorFormat = keyof ColorTypes
+
 /** All supported color types. */
 export type Color = ColorTypes[ColorFormat]

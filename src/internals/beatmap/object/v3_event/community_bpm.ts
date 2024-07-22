@@ -26,9 +26,9 @@ export class CommunityBPMEvent extends BPMEvent<
         this.metronomeOffset = obj.metronomeOffset ?? 0
     }
 
-    /** What BPM this light_event changes the map to. */
+    /** What BPM this event changes the map to. */
     bpm: number
-    /** Whether this light_event is in the mediocre mapper format. */
+    /** Whether this event is in the mediocre mapper format. */
     mediocreMapper: boolean
     /** ??? */
     beatsPerBar: number

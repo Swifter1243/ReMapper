@@ -15,7 +15,7 @@ export class LightTranslationEvent extends BeatmapObject<never, bsmap.v3.ILightT
         this.magnitude = obj.magnitude ?? 0
     }
 
-    /** If true, extend the state of the previous light_event. If not, transition from previous state to this state. */
+    /** If true, extend the state of the previous event. If not, transition from previous state to this state. */
     usePreviousEventTranslation: boolean
     /** The easing of the translation. */
     easing: RotationEase

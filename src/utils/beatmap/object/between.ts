@@ -1,7 +1,7 @@
 import {Wall} from '../../../internals/beatmap/object/gameplay_object/wall.ts'
 import {getActiveDifficulty} from "../../../data/active_difficulty.ts";
 import {LightEvent} from "../../../internals/beatmap/object/basic_event/light_event.ts";
-import {BeatmapObject} from "../../../types/beatmap/object/object.ts";
+import {AnyBeatmapObject} from "../../../types/beatmap/object/object.ts";
 import {Chain} from "../../../internals/beatmap/object/gameplay_object/chain.ts";
 import {ColorNote} from "../../../internals/beatmap/object/gameplay_object/color_note.ts";
 import {Bomb} from "../../../internals/beatmap/object/gameplay_object/bomb.ts";
@@ -9,7 +9,7 @@ import {Arc} from "../../../internals/beatmap/object/gameplay_object/arc.ts";
 import {AnyNote} from "../../../types/beatmap/object/note.ts";
 import {filterObjectsByProperty} from "../../object/filter.ts";
 
-function objectsBetween<T extends BeatmapObject>(
+function objectsBetween<T extends AnyBeatmapObject>(
     array: T[],
     min: number,
     max: number,

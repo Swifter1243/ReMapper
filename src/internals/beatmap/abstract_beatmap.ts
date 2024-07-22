@@ -25,7 +25,7 @@ import {areKeyframesRuntime} from "../../utils/animation/keyframe/runtime.ts";
 import {RawKeyframesLinear} from "../../types/animation/keyframe/linear.ts";
 import {AnimateTrack} from "./object/custom_event/heck.ts";
 import { parseFilePath } from '../../utils/file.ts'
-import {DIFFNAME, DIFFPATH} from "../../types/beatmap/file.ts";
+import {DIFFICULTY_FILENAME, DIFFICULTY_PATH} from "../../types/beatmap/file.ts";
 import { getActiveCache } from '../../data/active_cache.ts'
 import { attachWorkingDirectory } from '../../data/working_directory.ts'
 import {RMLog} from "../../utils/rm_log.ts";
@@ -232,13 +232,14 @@ export abstract class AbstractDifficulty<
      * Saves the difficulty.
      * @param diffName Filename for the save.
      * If left blank, the beatmap file name will be used for the save.
+     * @param pretty Whether to make the saved JSON prettified.
      */
-    async save(diffName?: DIFFPATH, pretty = false) {
+    async save(diffName?: DIFFICULTY_PATH, pretty = false) {
         async function thisProcess(self: AbstractDifficulty) {
             if (diffName) {
                 diffName = (await parseFilePath(diffName, '.dat'))
-                    .name as DIFFPATH
-            } else diffName = self.fileName as DIFFNAME
+                    .name as DIFFICULTY_PATH
+            } else diffName = self.fileName as DIFFICULTY_FILENAME
 
             await self.awaitAllAsync()
             const outputJSON = self.toJSON()
@@ -418,7 +419,7 @@ export abstract class AbstractDifficulty<
 
     /** The filename for this difficulty. */
     get fileName() {
-        return this.info._beatmapFilename as DIFFNAME
+        return this.info._beatmapFilename as DIFFICULTY_FILENAME
     }
     set fileName(value: string) {
         this.info._beatmapFilename = value

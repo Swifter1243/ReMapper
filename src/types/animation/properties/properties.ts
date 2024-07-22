@@ -18,6 +18,7 @@ export type AnimationPropertiesV2 = {
     _localPosition?: RuntimePointDefinitionVec3
     [key: string]: RuntimePointDefinitionAny | undefined
 }
+
 /** All animatable properties for V3. */
 export type AnimationPropertiesV3 = {
     offsetPosition?: RuntimePointDefinitionVec3

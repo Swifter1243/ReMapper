@@ -21,7 +21,7 @@ export class LightColorEventBox
     brightnessDistribution: number
     /** Determines how the brightness of all filtered objects should be adjusted when iterating through the sequence. */
     brightnessDistributionType: DistributionType
-    /** A binary integer value (0 or 1) which determines whether the distribution should affect the first light_event in the sequence. */
+    /** A binary integer value (0 or 1) which determines whether the distribution should affect the first event in the sequence. */
     brightnessDistributionFirst: boolean
 
     fromJson(json: bsmap.v3.ILightColorEventBox, v3: true): this

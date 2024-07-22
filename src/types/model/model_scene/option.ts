@@ -20,6 +20,7 @@ export type StaticOptions = {
         anchor?: Vec3
     }
 }
+
 /** Input options for the "animate" method in a ModelScene. */
 export type AnimatedOptions = StaticOptions & {
     /** Whether or not to re-bake the object animations if you input an array of objects.

@@ -26,7 +26,7 @@ export class LightRotationEventBox
     rotationAxis: LightAxis
     /** An integer value which determines whether the rotation should be mirrored. */
     flipRotation: boolean
-    /** A binary integer value (0 or 1) which determines whether the distribution should affect the first light_event in the sequence. */
+    /** A binary integer value (0 or 1) which determines whether the distribution should affect the first event in the sequence. */
     rotationDistributionFirst: boolean
 
     fromJson(json: bsmap.v3.ILightRotationEventBox, v3: true): this
