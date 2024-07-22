@@ -32,7 +32,7 @@ import {RMLog} from "../../utils/rm_log.ts";
 import {TJson} from "../../types/util/json.ts";
 import {BasicEvent} from "./object/basic_event/basic_event.ts";
 import { AnyNote } from '../../types/beatmap/object/note.ts'
-import { settingsHandler } from './settings_handler.ts'
+import { SettingsHandler } from './settings_handler.ts'
 import {objectSafeGet, objectSafeSet} from "../../utils/object/safe.ts";
 import { settings } from '../../data/settings.ts'
 import {setDecimals} from "../../utils/math/rounding.ts";
@@ -468,7 +468,7 @@ export abstract class AbstractDifficulty<
     }
 
     /** An aliased settings object. This controls the heck settings setter. */
-    readonly settings = new Proxy(new settingsHandler(this), {
+    readonly settings = new Proxy(new SettingsHandler(this), {
         get(handler, property) {
             const objValue = handler[property as keyof typeof handler]
             const path = (

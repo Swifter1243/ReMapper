@@ -1,7 +1,7 @@
 import { AbstractDifficulty } from './abstract_beatmap.ts'
 
 /** Handler to alias settings. */
-export class settingsHandler {
+export class SettingsHandler {
     private diff: AbstractDifficulty
     constructor(diff: AbstractDifficulty) {
         this.diff = diff
