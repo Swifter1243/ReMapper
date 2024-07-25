@@ -11,8 +11,6 @@ function initializeMaterials(assetInfo: AssetInfo) {
 
             const setProperties: MaterialProperty[] = []
 
-            if (Object.keys(properties).length === 0) return
-
             Object.entries(properties).forEach(([propName, typeHolder]) => {
                 const propType = Object.keys(
                     typeHolder,
@@ -28,6 +26,8 @@ function initializeMaterials(assetInfo: AssetInfo) {
                     value: propValue,
                 })
             })
+
+            if (Object.keys(setProperties).length === 0) return
 
             setMaterialProperty(0, path, setProperties).push()
         },
