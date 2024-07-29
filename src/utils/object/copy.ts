@@ -1,3 +1,5 @@
+import {DeepReadonly} from "../../types/util/mutability.ts";
+
 /**
  * Copies @param obj with the new properties in @param overwrite
  * @param obj Original
@@ -19,8 +21,10 @@ export function copyWith<T extends Record<string | number | symbol, never>>(
  * @param obj Object to copy
  * @returns The copy
  */
+export function copy<T>(obj: readonly T[]): T[]
+export function copy<T>(obj: ReadonlyArray<DeepReadonly<T>>): T[]
 export function copy<T extends []>(obj: ReadonlyArray<T>): T[]
-export function copy<T extends []>(obj: readonly T[]): T[]
+export function copy<T>(obj: DeepReadonly<T>): T
 export function copy<T>(obj: Readonly<T>): T
 export function copy<T extends []>(obj: readonly Readonly<T>[]): T[]
 export function copy<T>(obj: T): T
