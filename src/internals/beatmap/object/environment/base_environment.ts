@@ -1,21 +1,16 @@
 import { bsmap } from '../../../../deps.ts'
 import { ExcludedEnvironmentFields } from '../../../../types/beatmap/object/environment.ts'
-import {Track} from "../../../../utils/animation/track.ts";
-import {Vec3} from "../../../../types/math/vector.ts";
-import {JsonWrapper} from "../../../../types/beatmap/json_wrapper.ts";
-import {Fields} from "../../../../types/util/class.ts";
+import { Track } from '../../../../utils/animation/track.ts'
+import { Vec3 } from '../../../../types/math/vector.ts'
+import { JsonWrapper } from '../../../../types/beatmap/json_wrapper.ts'
+import { Fields } from '../../../../types/util/class.ts'
 
 /** The base abstract Environment Enhancement class which is inherited by Environment and Geometry. */
 export abstract class BaseEnvironmentEnhancement<
     TV2 extends bsmap.v2.IChromaEnvironmentBase,
     TV3 extends bsmap.v3.IChromaEnvironmentBase,
 > implements JsonWrapper<TV2, TV3> {
-    /** Push this environment/geometry object to the difficulty.
-     * @param clone Whether this object will be copied before being pushed.
-     */
-    abstract push(clone: boolean): void
-
-    constructor(
+    protected constructor(
         fields:
             & ExcludedEnvironmentFields<BaseEnvironmentEnhancement<TV2, TV3>>
             & {
@@ -30,12 +25,15 @@ export abstract class BaseEnvironmentEnhancement<
         this.localPosition = fields.localPosition
         this.localRotation = fields.localRotation
         this.track = fields.track instanceof Track ? fields.track : new Track(fields.track)
-
         this.components = fields.components
         this.lightID = fields.lightID
         this.lightType = fields.lightType
     }
 
+    /** The track class for this object.
+     * Please read the properties of this class to see how it works.
+     */
+    track: Track
     /** How many times to duplicate this object. */
     duplicate?: number
     /** Whether this object is enabled. */
@@ -50,10 +48,6 @@ export abstract class BaseEnvironmentEnhancement<
     rotation?: Vec3
     /** The rotation of this object relative to it's parent. */
     localRotation?: Vec3
-    /** The track class for this object.
-     * Please read the properties of this class to see how it works.
-     */
-    track: Track = new Track()
     /** V3 only. Allows you to use heck's component system. See https://github.com/Aeroluna/Heck/wiki/Environment#components. */
     components?: TV3['components']
     /** If defined, will fill out the ILightWithId component using this ID. In V2, this will just use the _lightID property. */
@@ -61,52 +55,45 @@ export abstract class BaseEnvironmentEnhancement<
     /** V3 only. If defined, will fill out the ILightWithId component using this type. */
     lightType?: number
 
-    fromJson(json: TV3, v3: true): this
-    fromJson(json: TV2, v3: false): this
-    fromJson(json: TV2 | TV3, v3: boolean): this {
-        type Params = Fields<BaseEnvironmentEnhancement<TV2, TV3>>
+    /** Default values for initializing class fields */
+    static defaults: Fields<
+        BaseEnvironmentEnhancement<bsmap.v2.IChromaEnvironmentBase, bsmap.v3.IChromaEnvironmentBase>
+    > = {
+        track: new Track(),
+    }
 
-        // TODO: Import custom properties, exclude fields imported
-
-        if (v3) {
-            const obj = json as TV3
-
-            const params = {
-                track: new Track(obj.track),
-                active: obj.active,
-                duplicate: obj.duplicate,
-                lightID: obj.components?.ILightWithId?.lightID,
-                lightType: obj.components?.ILightWithId?.type,
-                localPosition: obj.localPosition,
-                localRotation: obj.localRotation,
-                position: obj.position,
-                rotation: obj.rotation,
-                scale: obj.scale,
-            } as Params
-
-            Object.assign(this, params)
-        } else {
-            const obj = json as TV2
-
-            const params = {
-                track: new Track(obj._track),
-                active: obj._active,
-                duplicate: obj._duplicate,
-                lightID: obj._lightID,
-                localPosition: obj._localPosition,
-                localRotation: obj._localRotation,
-                position: obj._position,
-                rotation: obj._rotation,
-                scale: obj._scale,
-            } as Params
-
-            Object.assign(this, params)
-        }
-
+    fromJsonV3(json: TV3): this {
+        this.duplicate = json.duplicate
+        this.active = json.active
+        this.scale = json.scale
+        this.position = json.position
+        this.rotation = json.rotation
+        this.localPosition = json.localPosition
+        this.localRotation = json.localRotation
+        this.track = new Track(json.track)
+        this.components = json.components
+        this.lightID = json.components?.ILightWithId?.lightID
+        this.lightType = json.components?.ILightWithId?.type
         return this
     }
 
-    abstract toJson(v3: true, prune?: boolean): TV3
-    abstract toJson(v3: false, prune?: boolean): TV2
-    abstract toJson(v3: boolean, prune?: boolean): TV3 | TV2
+    fromJsonV2(json: TV2): this {
+        this.duplicate = json._duplicate
+        this.active = json._active
+        this.scale = json._scale
+        this.position = json._position
+        this.rotation = json._rotation
+        this.localPosition = json._localPosition
+        this.localRotation = json._localRotation
+        this.track = new Track(json._track)
+        return this
+    }
+
+    abstract toJsonV2(prune?: boolean): TV2
+    abstract toJsonV3(prune?: boolean): TV3
+
+    /** Push this environment/geometry object to the difficulty.
+     * @param clone Whether this object will be copied before being pushed.
+     */
+    abstract push(clone: boolean): void
 }

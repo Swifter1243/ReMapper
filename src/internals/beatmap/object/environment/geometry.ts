@@ -4,25 +4,19 @@ import { bsmap } from '../../../../deps.ts'
 import {copy} from "../../../../utils/object/copy.ts";
 import {objectPrune} from "../../../../utils/object/prune.ts";
 import {getActiveDifficulty} from "../../../../data/active_difficulty.ts";
-import {SubclassExclusiveProps} from "../../../../types/util/class.ts";
+import {Fields} from "../../../../types/util/class.ts";
 
 export class Geometry extends BaseEnvironmentEnhancement<
     bsmap.v2.IChromaEnvironmentGeometry,
     bsmap.v3.IChromaEnvironmentGeometry
 > {
-    push(clone = true): void {
-        getActiveDifficulty().geometry.push(clone ? copy(this) : this)
-    }
 
     constructor(
         fields: ExcludedEnvironmentFields<Geometry>,
     ) {
         super(fields)
-
-        this.type = fields.type ?? 'Cube'
-        this.material = fields.material ?? {
-            shader: 'Standard',
-        }
+        this.type = fields.type ?? Geometry.defaults.type
+        this.material = fields.material ?? Geometry.defaults.material
         this.collision = fields.collision
     }
 
@@ -33,81 +27,55 @@ export class Geometry extends BaseEnvironmentEnhancement<
     /** Whether this geometry object has collision. */
     collision?: boolean
 
-    fromJson(json: bsmap.v3.IChromaEnvironmentGeometry, v3: true): this
-    fromJson(json: bsmap.v2.IChromaEnvironmentGeometry, v3: false): this
-    fromJson(
-        json:
-            | bsmap.v2.IChromaEnvironmentGeometry
-            | bsmap.v3.IChromaEnvironmentGeometry,
-        v3: boolean,
-    ): this {
-        type Params = SubclassExclusiveProps<
-            Geometry,
-            BaseEnvironmentEnhancement<
-                bsmap.v2.IChromaEnvironmentID,
-                bsmap.v3.IChromaEnvironmentID
-            >
-        >
-
-        if (v3) {
-            const obj = json as bsmap.v3.IChromaEnvironmentGeometry
-
-            const params = {
-                collision: obj.geometry.collision,
-                material: obj.geometry.material,
-                type: obj.geometry.type,
-            } as Params
-
-            Object.assign(this, params)
-            return super.fromJson(obj, v3)
-        } else {
-            const obj = json as bsmap.v2.IChromaEnvironmentGeometry
-
-            const params = {
-                collision: obj._geometry._collision,
-                material: obj._geometry._material,
-                type: obj._geometry._type,
-            } as Params
-
-            Object.assign(this, params)
-            return super.fromJson(obj, v3)
-        }
+    static defaults: Fields<Geometry> = {
+        type: 'Cube',
+        material: {
+            shader: 'Standard',
+        },
+        ...super.defaults,
     }
 
-    toJson(v3: true, prune?: boolean): bsmap.v3.IChromaEnvironmentGeometry
-    toJson(v3: false, prune?: boolean): bsmap.v2.IChromaEnvironmentGeometry
-    toJson(
-        v3: boolean,
-        prune = true,
-    ):
-        | bsmap.v2.IChromaEnvironmentGeometry
-        | bsmap.v3.IChromaEnvironmentGeometry {
-        if (v3) {
-            const output = {
-                geometry: {
-                    material: this.material,
-                    type: this.type,
-                    collision: this.collision,
-                },
-                active: this.active,
-                components: {
-                    ILightWithId: {
-                        lightID: this.lightID,
-                        type: this.lightType,
-                    },
-                    ...this.components,
-                },
-                duplicate: this.duplicate,
-                localPosition: this.localPosition,
-                localRotation: this.localRotation,
-                position: this.position,
-                rotation: this.rotation,
-                scale: this.scale,
-                track: this.track?.value as string,
-            } satisfies bsmap.v3.IChromaEnvironmentGeometry
-            return prune ? objectPrune(output) : output
-        }
+    fromJsonV3(json: bsmap.v3.IChromaEnvironmentGeometry): this {
+        this.type = json.geometry.type as GeoType ?? Geometry.defaults.type
+        this.material = json.geometry.material as GeometryMaterial ?? Geometry.defaults.material
+        this.collision = json.geometry.collision
+        return super.fromJsonV3(json);
+    }
 
+    fromJsonV2(json: bsmap.v2.IChromaEnvironmentGeometry): this {
+        this.type = json._geometry._type as GeoType ?? Geometry.defaults.type
+        this.material = json._geometry._material as GeometryMaterial ?? Geometry.defaults.material
+        this.collision = json._geometry._collision
+        return super.fromJsonV2(json);
+    }
+
+    toJsonV3(prune?: boolean): bsmap.v3.IChromaEnvironmentGeometry {
+        const output = {
+            geometry: {
+                material: this.material,
+                type: this.type,
+                collision: this.collision,
+            },
+            active: this.active,
+            components: {
+                ILightWithId: {
+                    lightID: this.lightID,
+                    type: this.lightType,
+                },
+                ...this.components,
+            },
+            duplicate: this.duplicate,
+            localPosition: this.localPosition,
+            localRotation: this.localRotation,
+            position: this.position,
+            rotation: this.rotation,
+            scale: this.scale,
+            track: this.track?.value as string,
+        } satisfies bsmap.v3.IChromaEnvironmentGeometry
+        return prune ? objectPrune(output) : output
+    }
+
+    toJsonV2(prune?: boolean): bsmap.v2.IChromaEnvironmentGeometry {
         const output = {
             _geometry: {
                 _material: typeof this.material === 'string' ? this.material : {
@@ -129,5 +97,9 @@ export class Geometry extends BaseEnvironmentEnhancement<
             _track: this.track?.value as string,
         } satisfies bsmap.v2.IChromaEnvironmentGeometry
         return prune ? objectPrune(output) : output
+    }
+
+    push(clone = true): void {
+        getActiveDifficulty().geometry.push(clone ? copy(this) : this)
     }
 }
