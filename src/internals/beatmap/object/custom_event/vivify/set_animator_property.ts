@@ -1,16 +1,14 @@
 import { getActiveDifficulty } from '../../../../../data/active_difficulty.ts'
 import { copy } from '../../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
-import {
-    ISetAnimatorProperty,
-} from '../../../../../types/beatmap/object/vivify_event_interfaces.ts'
+import { ISetAnimatorProperty } from '../../../../../types/beatmap/object/vivify_event_interfaces.ts'
 import { EASE } from '../../../../../types/animation/easing.ts'
 import { AnimatorProperty } from '../../../../../types/vivify/animator.ts'
-import { Fields } from '../../../../../types/util/class.ts'
 import { CustomEventConstructor } from '../../../../../types/beatmap/object/custom_event.ts'
 
 import { getDataProp } from '../../../../../utils/beatmap/json.ts'
 import { CustomEvent } from '../base/custom_event.ts'
+import { DefaultFields } from '../../../../../types/beatmap/object/object.ts'
 
 export class SetAnimatorProperty extends CustomEvent<
     never,
@@ -22,7 +20,7 @@ export class SetAnimatorProperty extends CustomEvent<
         super(params)
         this.type = 'SetAnimatorProperty'
         this.id = params.id ?? SetAnimatorProperty.defaults.id
-        this.properties = params.properties ?? SetAnimatorProperty.defaults.properties
+        this.properties = params.properties ?? copy<typeof this.properties>(SetAnimatorProperty.defaults.properties)
         this.duration = params.duration
         this.easing = params.easing
     }
@@ -36,7 +34,7 @@ export class SetAnimatorProperty extends CustomEvent<
     /** Properties to set. */
     properties: AnimatorProperty[]
 
-    static defaults: Fields<SetAnimatorProperty> = {
+    static defaults: DefaultFields<SetAnimatorProperty> = {
         id: '',
         properties: [],
         ...super.defaults,
@@ -52,7 +50,7 @@ export class SetAnimatorProperty extends CustomEvent<
     fromJsonV3(json: ISetAnimatorProperty): this {
         this.id = getDataProp(json.d, 'id') ?? SetAnimatorProperty.defaults.id
         this.properties = getDataProp(json.d, 'properties') ??
-            SetAnimatorProperty.defaults.properties
+            copy<typeof this.properties>(SetAnimatorProperty.defaults.properties)
         this.duration = getDataProp(json.d, 'duration')
         this.easing = getDataProp(json.d, 'easing') as EASE
         return super.fromJsonV3(json)

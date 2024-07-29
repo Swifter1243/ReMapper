@@ -4,11 +4,11 @@ import { getActiveDifficulty } from '../../../../../data/active_difficulty.ts'
 import { copy } from '../../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import { EASE } from '../../../../../types/animation/easing.ts'
-import {Fields} from "../../../../../types/util/class.ts";
-import {CustomEventConstructor} from "../../../../../types/beatmap/object/custom_event.ts";
+import { CustomEventConstructor } from '../../../../../types/beatmap/object/custom_event.ts'
 
-import {getDataProp} from "../../../../../utils/beatmap/json.ts";
-import {CustomEvent} from "../base/custom_event.ts";
+import { getDataProp } from '../../../../../utils/beatmap/json.ts'
+import { CustomEvent } from '../base/custom_event.ts'
+import { DefaultFields } from '../../../../../types/beatmap/object/object.ts'
 
 export class SetMaterialProperty extends CustomEvent<
     never,
@@ -20,7 +20,7 @@ export class SetMaterialProperty extends CustomEvent<
         super(params)
         this.type = 'SetMaterialProperty'
         this.asset = params.asset ?? SetMaterialProperty.defaults.asset
-        this.properties = params.properties ?? SetMaterialProperty.defaults.properties
+        this.properties = params.properties ?? copy<MaterialProperty[]>(SetMaterialProperty.defaults.properties)
         this.duration = params.duration
         this.easing = params.easing
     }
@@ -34,10 +34,10 @@ export class SetMaterialProperty extends CustomEvent<
     /** An easing for the animation to follow. */
     easing?: EASE
 
-    static defaults: Fields<SetMaterialProperty> = {
+    static defaults: DefaultFields<SetMaterialProperty> = {
         asset: '',
         properties: [],
-        ...super.defaults
+        ...super.defaults,
     }
 
     push(clone = true) {
@@ -49,10 +49,10 @@ export class SetMaterialProperty extends CustomEvent<
 
     fromJsonV3(json: ISetMaterialProperty): this {
         this.asset = getDataProp(json.d, 'asset') ?? SetMaterialProperty.defaults.asset
-        this.properties = getDataProp(json.d, 'properties') ?? SetMaterialProperty.defaults.properties
+        this.properties = getDataProp(json.d, 'properties') ?? copy<MaterialProperty[]>(SetMaterialProperty.defaults.properties)
         this.duration = getDataProp(json.d, 'duration')
         this.easing = getDataProp(json.d, 'easing')
-        return super.fromJsonV3(json);
+        return super.fromJsonV3(json)
     }
 
     fromJsonV2(_json: never): this {

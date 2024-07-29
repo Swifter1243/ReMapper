@@ -3,11 +3,11 @@ import { getActiveDifficulty } from '../../../../../data/active_difficulty.ts'
 import { copy } from '../../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import { IDeclareCullingTexture } from '../../../../../types/beatmap/object/vivify_event_interfaces.ts'
-import {Fields} from "../../../../../types/util/class.ts";
 import {CustomEventConstructorTrack} from "../../../../../types/beatmap/object/custom_event.ts";
 
 import {getDataProp} from "../../../../../utils/beatmap/json.ts";
 import {CustomEvent} from "../base/custom_event.ts";
+import {DefaultFields} from "../../../../../types/beatmap/object/object.ts";
 
 export class DeclareCullingTexture extends CustomEvent<
     never,
@@ -36,7 +36,7 @@ export class DeclareCullingTexture extends CustomEvent<
     /** When true, write depth texture to "'name'_Depth". Default = false. */
     depthTexture?: boolean
 
-    static defaults: Fields<DeclareCullingTexture> = {
+    static defaults: DefaultFields<DeclareCullingTexture> = {
         id: '',
         track: new Track(),
         ...super.defaults

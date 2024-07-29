@@ -3,11 +3,11 @@ import { copy } from '../../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import { ISetCameraProperty } from '../../../../../types/beatmap/object/vivify_event_interfaces.ts'
 import { DEPTH_TEX_MODE } from '../../../../../types/vivify/setting.ts'
-import {Fields} from "../../../../../types/util/class.ts";
 import {CustomEventConstructor} from "../../../../../types/beatmap/object/custom_event.ts";
 
 import {getDataProp} from "../../../../../utils/beatmap/json.ts";
 import {CustomEvent} from "../base/custom_event.ts";
+import {DefaultFields} from "../../../../../types/beatmap/object/object.ts";
 
 export class SetCameraProperty extends CustomEvent<
     never,
@@ -18,13 +18,13 @@ export class SetCameraProperty extends CustomEvent<
     ) {
         super(params)
         this.type = 'SetCameraProperty'
-        this.depthTextureMode = params.depthTextureMode ?? SetCameraProperty.defaults.depthTextureMode
+        this.depthTextureMode = params.depthTextureMode ?? copy(SetCameraProperty.defaults.depthTextureMode)
     }
 
     /** Sets the depth texture mode on the camera. */
     depthTextureMode: DEPTH_TEX_MODE[]
 
-    static defaults: Fields<SetCameraProperty> = {
+    static defaults: DefaultFields<SetCameraProperty> = {
         depthTextureMode: [],
         ...super.defaults
     }
@@ -37,7 +37,7 @@ export class SetCameraProperty extends CustomEvent<
     }
 
     fromJsonV3(json: ISetCameraProperty): this {
-        this.depthTextureMode = getDataProp(json.d, 'depthTextureMode') ?? SetCameraProperty.defaults.depthTextureMode
+        this.depthTextureMode = getDataProp(json.d, 'depthTextureMode') ?? copy(SetCameraProperty.defaults.depthTextureMode)
         return super.fromJsonV3(json);
     }
 

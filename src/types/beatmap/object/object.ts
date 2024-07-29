@@ -5,6 +5,7 @@ import {LightEvent} from "../../../internals/beatmap/object/basic_event/light_ev
 import {TrackValue} from "../../animation/track.ts";
 import {AnyNote} from "./note.ts";
 import {Fields} from "../../util/class.ts";
+import {DeepReadonly} from "../../util/mutability.ts";
 
 /** Properties to replace on constructor objects for gameplay objects. */
 export type ObjectReplacements = {
@@ -32,3 +33,4 @@ export type ExcludeObjectFields = {
 /** All beatmap objects. */
 export type AnyBeatmapObject = AnyNote | Wall | LightEvent
 
+export type DefaultFields<Class> = DeepReadonly<Fields<Class>>

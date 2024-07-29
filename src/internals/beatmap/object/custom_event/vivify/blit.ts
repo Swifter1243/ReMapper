@@ -4,11 +4,11 @@ import { copy } from '../../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import { IBlit } from '../../../../../types/beatmap/object/vivify_event_interfaces.ts'
 import { EASE } from '../../../../../types/animation/easing.ts'
-import { Fields } from '../../../../../types/util/class.ts'
 import {CustomEventConstructor} from "../../../../../types/beatmap/object/custom_event.ts";
 
 import {getDataProp} from "../../../../../utils/beatmap/json.ts";
 import {CustomEvent} from "../base/custom_event.ts";
+import {DefaultFields} from "../../../../../types/beatmap/object/object.ts";
 
 export class Blit extends CustomEvent<
     never,
@@ -45,7 +45,7 @@ export class Blit extends CustomEvent<
     /** Properties to set. */
     properties?: MaterialProperty[]
 
-    static defaults: Fields<Blit> = {
+    static defaults: DefaultFields<Blit> = {
         asset: '',
         ...super.defaults,
     }

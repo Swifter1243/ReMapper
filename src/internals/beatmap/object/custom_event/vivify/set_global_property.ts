@@ -4,11 +4,11 @@ import { copy } from '../../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import { EASE } from '../../../../../types/animation/easing.ts'
 import {ISetGlobalProperty} from "../../../../../types/beatmap/object/vivify_event_interfaces.ts";
-import {Fields} from "../../../../../types/util/class.ts";
 import {CustomEventConstructor} from "../../../../../types/beatmap/object/custom_event.ts";
 
 import {getDataProp} from "../../../../../utils/beatmap/json.ts";
 import {CustomEvent} from "../base/custom_event.ts";
+import {DefaultFields} from "../../../../../types/beatmap/object/object.ts";
 
 export class SetGlobalProperty extends CustomEvent<
     never,
@@ -19,7 +19,7 @@ export class SetGlobalProperty extends CustomEvent<
     ) {
         super(params)
         this.type = 'SetGlobalProperty'
-        this.properties = params.properties ?? SetGlobalProperty.defaults.properties
+        this.properties = params.properties ?? copy<MaterialProperty[]>(SetGlobalProperty.defaults.properties)
         this.duration = params.duration
         this.easing = params.easing
     }
@@ -31,20 +31,18 @@ export class SetGlobalProperty extends CustomEvent<
     /** An easing for the animation to follow. */
     easing?: EASE
 
-    static defaults: Fields<SetGlobalProperty> = {
+    static defaults: DefaultFields<SetGlobalProperty> = {
         properties: [],
         ...super.defaults
     }
 
     push(clone = true) {
-        getActiveDifficulty().customEvents.setGlobalPropertyEvents.push(
-            clone ? copy(this) : this,
-        )
+        getActiveDifficulty().customEvents.setGlobalPropertyEvents.push(clone ? copy(this) : this)
         return this
     }
 
     fromJsonV3(json: ISetGlobalProperty): this {
-        this.properties = getDataProp(json.d, 'properties') ?? SetGlobalProperty.defaults.properties
+        this.properties = getDataProp(json.d, 'properties') ?? copy<MaterialProperty[]>(SetGlobalProperty.defaults.properties)
         this.duration = getDataProp(json.d, 'duration')
         this.easing = getDataProp(json.d, 'easing')
         return super.fromJsonV3(json);

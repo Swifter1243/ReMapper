@@ -4,7 +4,7 @@ import {copy} from "../../../../utils/object/copy.ts";
 import {objectPrune} from "../../../../utils/object/prune.ts";
 import {getActiveDifficulty} from "../../../../data/active_difficulty.ts";
 import {ExcludedEnvironmentFields, LookupMethod} from "../../../../types/beatmap/object/environment.ts";
-import {Fields} from "../../../../types/util/class.ts";
+import {DefaultFields} from "../../../../types/beatmap/object/object.ts";
 
 export class Environment extends BaseEnvironmentEnhancement<
     bsmap.v2.IChromaEnvironmentID,
@@ -24,7 +24,7 @@ export class Environment extends BaseEnvironmentEnhancement<
     /** The method of looking up the object name in the environment. */
     lookupMethod: LookupMethod
 
-    static defaults: Fields<Environment> = {
+    static defaults: DefaultFields<Environment> = {
         id: '',
         lookupMethod: 'Contains',
         ...super.defaults

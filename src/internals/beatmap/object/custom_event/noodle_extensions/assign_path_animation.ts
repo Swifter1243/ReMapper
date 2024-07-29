@@ -3,13 +3,13 @@ import { CustomEventConstructorTrack } from '../../../../../types/beatmap/object
 import { Track } from '../../../../../utils/animation/track.ts'
 import { AnimationPropertiesV3 } from '../../../../../types/animation/properties/properties.ts'
 import { EASE } from '../../../../../types/animation/easing.ts'
-import { Fields } from '../../../../../types/util/class.ts'
 import { getActiveDifficulty } from '../../../../../data/active_difficulty.ts'
 import { copy } from '../../../../../utils/object/copy.ts'
 import { getDataProp } from '../../../../../utils/beatmap/json.ts'
 import { animationV2ToV3, animationV3toV2 } from '../../../../../utils/animation/json.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import { bsmap } from '../../../../../deps.ts'
+import { DefaultFields } from '../../../../../types/beatmap/object/object.ts'
 
 export class AssignPathAnimation extends CustomEvent<
     bsmap.v2.ICustomEventAssignPathAnimation,
@@ -20,7 +20,7 @@ export class AssignPathAnimation extends CustomEvent<
     ) {
         super(params)
         this.type = 'AssignPathAnimation'
-        this.animation = params.animation ?? AssignPathAnimation.defaults.animation
+        this.animation = params.animation ?? copy(AssignPathAnimation.defaults.animation)
         this.track = params.track instanceof Track ? params.track : new Track(params.track)
         this.duration = params.duration
         this.easing = params.easing
@@ -37,16 +37,14 @@ export class AssignPathAnimation extends CustomEvent<
     /** The easing on this event's animation. */
     easing?: EASE
 
-    static defaults: Fields<AssignPathAnimation> = {
+    static defaults: DefaultFields<AssignPathAnimation> = {
         animation: {},
         track: new Track(),
         ...super.defaults,
     }
 
     push(clone = true) {
-        getActiveDifficulty().customEvents.assignPathAnimationEvents.push(
-            clone ? copy(this) : this,
-        )
+        getActiveDifficulty().customEvents.assignPathAnimationEvents.push(clone ? copy(this) : this)
         return this
     }
 

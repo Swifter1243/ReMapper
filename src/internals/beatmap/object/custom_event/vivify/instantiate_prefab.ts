@@ -3,11 +3,11 @@ import { copy } from '../../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import {IInstantiatePrefab} from "../../../../../types/beatmap/object/vivify_event_interfaces.ts";
 import {Vec3} from "../../../../../types/math/vector.ts";
-import {Fields} from "../../../../../types/util/class.ts";
 import {CustomEventConstructor} from "../../../../../types/beatmap/object/custom_event.ts";
 
 import {getDataProp} from "../../../../../utils/beatmap/json.ts";
 import {CustomEvent} from "../base/custom_event.ts";
+import {DefaultFields} from "../../../../../types/beatmap/object/object.ts";
 
 export class InstantiatePrefab extends CustomEvent<
     never,
@@ -45,7 +45,7 @@ export class InstantiatePrefab extends CustomEvent<
     /** Set scale. */
     scale?: Vec3
 
-    static defaults: Fields<InstantiatePrefab> = {
+    static defaults: DefaultFields<InstantiatePrefab> = {
         asset: '',
         ...super.defaults
     }

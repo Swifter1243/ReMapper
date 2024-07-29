@@ -1,11 +1,11 @@
 import { CustomEvent } from '../base/custom_event.ts'
 import { CustomEventConstructorTrack } from '../../../../../types/beatmap/object/custom_event.ts'
-import { Fields } from '../../../../../types/util/class.ts'
 import { getActiveDifficulty } from '../../../../../data/active_difficulty.ts'
 import { copy } from '../../../../../utils/object/copy.ts'
 import { getDataProp } from '../../../../../utils/beatmap/json.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import { bsmap } from '../../../../../deps.ts'
+import { DefaultFields } from '../../../../../types/beatmap/object/object.ts'
 
 export class AssignTrackParent extends CustomEvent<
     bsmap.v2.ICustomEventAssignTrackParent,
@@ -19,7 +19,7 @@ export class AssignTrackParent extends CustomEvent<
     ) {
         super(params)
         this.type = 'AssignTrackParent'
-        this.childrenTracks = params.childrenTracks ?? AssignTrackParent.defaults.childrenTracks
+        this.childrenTracks = params.childrenTracks ?? copy(AssignTrackParent.defaults.childrenTracks)
         this.parentTrack = params.parentTrack ?? AssignTrackParent.defaults.parentTrack
         this.worldPositionStays = params.worldPositionStays
     }
@@ -31,7 +31,7 @@ export class AssignTrackParent extends CustomEvent<
     /** Modifies the transform of children objects to remain in the same place relative to world space. */
     worldPositionStays?: boolean
 
-    static defaults: Fields<AssignTrackParent> = {
+    static defaults: DefaultFields<AssignTrackParent> = {
         childrenTracks: [],
         parentTrack: '',
         ...super.defaults,
@@ -45,19 +45,17 @@ export class AssignTrackParent extends CustomEvent<
     }
 
     fromJsonV3(json: bsmap.v3.ICustomEventAssignTrackParent): this {
-        this.childrenTracks = getDataProp(json.d, 'childrenTracks') as string[] ??
-            AssignTrackParent.defaults.childrenTracks
-        this.parentTrack = getDataProp(json.d, 'parentTrack') ??
-            AssignTrackParent.defaults.parentTrack
+        this.childrenTracks = getDataProp(json.d, 'childrenTracks') as string[] | undefined ??
+            copy(AssignTrackParent.defaults.childrenTracks)
+        this.parentTrack = getDataProp(json.d, 'parentTrack') ?? AssignTrackParent.defaults.parentTrack
         this.worldPositionStays = getDataProp(json.d, 'worldPositionStays')
         return super.fromJsonV3(json)
     }
 
     fromJsonV2(json: bsmap.v2.ICustomEventAssignTrackParent): this {
-        this.childrenTracks = getDataProp(json._data, '_childrenTracks') as string[] ??
-            AssignTrackParent.defaults.childrenTracks
-        this.parentTrack = getDataProp(json._data, '_parentTrack') ??
-            AssignTrackParent.defaults.parentTrack
+        this.childrenTracks = getDataProp(json._data, '_childrenTracks') as string[] | undefined ??
+            copy(AssignTrackParent.defaults.childrenTracks)
+        this.parentTrack = getDataProp(json._data, '_parentTrack') ?? AssignTrackParent.defaults.parentTrack
         this.worldPositionStays = getDataProp(json._data, '_worldPositionStays')
         return super.fromJsonV2(json)
     }

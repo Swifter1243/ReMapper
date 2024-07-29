@@ -3,12 +3,12 @@ import { copy } from '../../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import { IDeclareRenderTexture } from '../../../../../types/beatmap/object/vivify_event_interfaces.ts'
 import { COLOR_FORMAT, TEX_FILTER_MODE } from '../../../../../types/vivify/setting.ts'
-import {Fields} from "../../../../../types/util/class.ts";
 import {DeclareCullingTexture} from "./declare_culling_texture.ts";
 import {CustomEventConstructor} from "../../../../../types/beatmap/object/custom_event.ts";
 
 import {getDataProp} from "../../../../../utils/beatmap/json.ts";
 import {CustomEvent} from "../base/custom_event.ts";
+import {DefaultFields} from "../../../../../types/beatmap/object/object.ts";
 
 export class DeclareRenderTexture extends CustomEvent<
     never,
@@ -46,7 +46,7 @@ export class DeclareRenderTexture extends CustomEvent<
     /** https://docs.unity3d.com/ScriptReference/FilterMode.html */
     filterMode?: TEX_FILTER_MODE
 
-    static defaults: Fields<DeclareRenderTexture> = {
+    static defaults: DefaultFields<DeclareRenderTexture> = {
         id: '',
         ...super.defaults
     }

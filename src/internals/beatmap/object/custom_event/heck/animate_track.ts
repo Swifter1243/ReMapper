@@ -3,13 +3,13 @@ import { CustomEventConstructorTrack } from '../../../../../types/beatmap/object
 import { Track } from '../../../../../utils/animation/track.ts'
 import { AnimationPropertiesV3 } from '../../../../../types/animation/properties/properties.ts'
 import { EASE } from '../../../../../types/animation/easing.ts'
-import { Fields } from '../../../../../types/util/class.ts'
 import { getActiveDifficulty } from '../../../../../data/active_difficulty.ts'
 import { copy } from '../../../../../utils/object/copy.ts'
 import { getDataProp } from '../../../../../utils/beatmap/json.ts'
 import { animationV2ToV3, animationV3toV2 } from '../../../../../utils/animation/json.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import { bsmap } from '../../../../../deps.ts'
+import { DefaultFields } from '../../../../../types/beatmap/object/object.ts'
 
 export class AnimateTrack extends CustomEvent<
     bsmap.v2.ICustomEventAnimateTrack,
@@ -24,7 +24,7 @@ export class AnimateTrack extends CustomEvent<
         super(params)
         this.type = 'AnimateTrack'
         this.track = params.track instanceof Track ? params.track : new Track(params.track)
-        this.animation = params.animation ?? AnimateTrack.defaults.animation
+        this.animation = params.animation ?? copy(AnimateTrack.defaults.animation)
         this.duration = params.duration
         this.easing = params.easing
         this.repeat = params.repeat
@@ -43,7 +43,7 @@ export class AnimateTrack extends CustomEvent<
     /** The amount of times to repeat this event. */
     repeat?: number
 
-    static defaults: Fields<AnimateTrack> = {
+    static defaults: DefaultFields<AnimateTrack> = {
         animation: {},
         track: new Track(),
         ...super.defaults,

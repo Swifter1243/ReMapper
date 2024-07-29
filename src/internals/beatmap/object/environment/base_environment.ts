@@ -3,7 +3,7 @@ import { ExcludedEnvironmentFields } from '../../../../types/beatmap/object/envi
 import { Track } from '../../../../utils/animation/track.ts'
 import { Vec3 } from '../../../../types/math/vector.ts'
 import { JsonWrapper } from '../../../../types/beatmap/json_wrapper.ts'
-import { Fields } from '../../../../types/util/class.ts'
+import {DefaultFields} from "../../../../types/beatmap/object/object.ts";
 
 /** The base abstract Environment Enhancement class which is inherited by Environment and Geometry. */
 export abstract class BaseEnvironmentEnhancement<
@@ -56,7 +56,7 @@ export abstract class BaseEnvironmentEnhancement<
     lightType?: number
 
     /** Default values for initializing class fields */
-    static defaults: Fields<
+    static defaults: DefaultFields<
         BaseEnvironmentEnhancement<bsmap.v2.IChromaEnvironmentBase, bsmap.v3.IChromaEnvironmentBase>
     > = {
         track: new Track(),

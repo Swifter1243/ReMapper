@@ -2,11 +2,11 @@ import { getActiveDifficulty } from '../../../../../data/active_difficulty.ts'
 import { copy } from '../../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import { IAssignTrackPrefab } from '../../../../../types/beatmap/object/vivify_event_interfaces.ts'
-import { Fields } from '../../../../../types/util/class.ts'
 import {CustomEventConstructor} from "../../../../../types/beatmap/object/custom_event.ts";
 
 import {getDataProp} from "../../../../../utils/beatmap/json.ts";
 import {CustomEvent} from "../base/custom_event.ts";
+import {DefaultFields} from "../../../../../types/beatmap/object/object.ts";
 
 export class AssignTrackPrefab extends CustomEvent<
     never,
@@ -44,7 +44,7 @@ export class AssignTrackPrefab extends CustomEvent<
     /** File path to the desired prefab to replace chain link debris. */
     chainLinkDebris?: string
 
-    static defaults: Fields<AssignTrackPrefab> = {
+    static defaults: DefaultFields<AssignTrackPrefab> = {
         track: '',
         ...super.defaults,
     }

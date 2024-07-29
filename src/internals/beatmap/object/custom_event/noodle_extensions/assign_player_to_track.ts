@@ -1,7 +1,6 @@
 import { CustomEvent } from '../base/custom_event.ts'
-import { ExcludedObjectFields } from '../../../../../types/beatmap/object/object.ts'
+import { DefaultFields, ExcludedObjectFields } from '../../../../../types/beatmap/object/object.ts'
 import { CustomEventExclusions } from '../../../../../types/beatmap/object/custom_event.ts'
-import { Fields } from '../../../../../types/util/class.ts'
 import { getActiveDifficulty } from '../../../../../data/active_difficulty.ts'
 import { copy } from '../../../../../utils/object/copy.ts'
 import { getDataProp } from '../../../../../utils/beatmap/json.ts'
@@ -31,15 +30,13 @@ export class AssignPlayerToTrack extends CustomEvent<
     /** Which component of the player to target. */
     target?: bsmap.PlayerObject
 
-    static defaults: Fields<AssignPlayerToTrack> = {
+    static defaults: DefaultFields<AssignPlayerToTrack> = {
         track: '',
         ...super.defaults,
     }
 
     push(clone = true) {
-        getActiveDifficulty().customEvents.assignPlayerTrackEvents.push(
-            clone ? copy(this) : this,
-        )
+        getActiveDifficulty().customEvents.assignPlayerTrackEvents.push(clone ? copy(this) : this)
         return this
     }
 
@@ -50,8 +47,7 @@ export class AssignPlayerToTrack extends CustomEvent<
     }
 
     fromJsonV2(json: bsmap.v2.ICustomEventAssignPlayerToTrack): this {
-        this.track = getDataProp(json._data, '_track') as string ??
-            AssignPlayerToTrack.defaults.track
+        this.track = getDataProp(json._data, '_track') as string ?? AssignPlayerToTrack.defaults.track
         this.target = getDataProp(json._data, '_target')
         return super.fromJsonV2(json)
     }

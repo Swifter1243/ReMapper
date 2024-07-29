@@ -4,7 +4,7 @@ import { bsmap } from '../../../../deps.ts'
 import {copy} from "../../../../utils/object/copy.ts";
 import {objectPrune} from "../../../../utils/object/prune.ts";
 import {getActiveDifficulty} from "../../../../data/active_difficulty.ts";
-import {Fields} from "../../../../types/util/class.ts";
+import {DefaultFields} from "../../../../types/beatmap/object/object.ts";
 
 export class Geometry extends BaseEnvironmentEnhancement<
     bsmap.v2.IChromaEnvironmentGeometry,
@@ -16,7 +16,7 @@ export class Geometry extends BaseEnvironmentEnhancement<
     ) {
         super(fields)
         this.type = fields.type ?? Geometry.defaults.type
-        this.material = fields.material ?? Geometry.defaults.material
+        this.material = fields.material ?? copy(Geometry.defaults.material)
         this.collision = fields.collision
     }
 
@@ -27,7 +27,7 @@ export class Geometry extends BaseEnvironmentEnhancement<
     /** Whether this geometry object has collision. */
     collision?: boolean
 
-    static defaults: Fields<Geometry> = {
+    static defaults: DefaultFields<Geometry> = {
         type: 'Cube',
         material: {
             shader: 'Standard',
@@ -36,15 +36,15 @@ export class Geometry extends BaseEnvironmentEnhancement<
     }
 
     fromJsonV3(json: bsmap.v3.IChromaEnvironmentGeometry): this {
-        this.type = json.geometry.type as GeoType ?? Geometry.defaults.type
-        this.material = json.geometry.material as GeometryMaterial ?? Geometry.defaults.material
+        this.type = (json.geometry.type ?? Geometry.defaults.type) as GeoType
+        this.material = json.geometry.material as GeometryMaterial | undefined ?? copy(Geometry.defaults.material)
         this.collision = json.geometry.collision
         return super.fromJsonV3(json);
     }
 
     fromJsonV2(json: bsmap.v2.IChromaEnvironmentGeometry): this {
-        this.type = json._geometry._type as GeoType ?? Geometry.defaults.type
-        this.material = json._geometry._material as GeometryMaterial ?? Geometry.defaults.material
+        this.type = (json._geometry._type ?? Geometry.defaults.type) as GeoType
+        this.material = json._geometry._material as GeometryMaterial | undefined ?? copy(Geometry.defaults.material)
         this.collision = json._geometry._collision
         return super.fromJsonV2(json);
     }
