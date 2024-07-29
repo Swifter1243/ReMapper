@@ -23,6 +23,7 @@ export type AssetInfo = {
     default: {
         materials: MaterialInfo
         prefabs: PrefabInfo
+        bundleCRCs: Record<string, number>
     }
 }
 

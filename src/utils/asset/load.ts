@@ -2,6 +2,7 @@ import {setMaterialProperty} from '../../builder_functions/beatmap/object/custom
 import {makeMaterialMap, makePrefabMap} from './map.ts'
 import {AssetInfo, MaterialMap, PrefabMap} from "../../types/asset.ts";
 import {MaterialProperty} from "../../types/vivify/material.ts";
+import { getActiveInfo } from '../../data/active_info.ts'
 
 function initializeMaterials(assetInfo: AssetInfo) {
     Object.values(assetInfo.default.materials).forEach(
@@ -34,6 +35,12 @@ function initializeMaterials(assetInfo: AssetInfo) {
     )
 }
 
+function applyCRCsToInfo(assetInfo: AssetInfo) {
+    const info = getActiveInfo()
+    info._customData ??= {}
+    Object.assign(info._customData._assetBundle, assetInfo.default.bundleCRCs)
+}
+
 /** Generate a typed list of assets from JSON.
  * @param assetInfo The `asset_info.json` to import.
  * @param initialize Whether to set the default value of all materials at the start of the map. This is redundancy in case material values are externally altered.
@@ -41,6 +48,7 @@ function initializeMaterials(assetInfo: AssetInfo) {
 export function loadAssets<T extends AssetInfo>(
     assetInfo: T,
     initialize = true,
+    applyToInfo = true
 ): {
     materials: MaterialMap<T['default']['materials']>
     prefabs: PrefabMap<T['default']['prefabs']>
@@ -50,6 +58,10 @@ export function loadAssets<T extends AssetInfo>(
 
     if (initialize) {
         initializeMaterials(assetInfo)
+    }
+
+    if (applyToInfo) {
+        applyCRCsToInfo(assetInfo)
     }
 
     return {
