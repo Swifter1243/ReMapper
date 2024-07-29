@@ -1,15 +1,14 @@
-import {
-    CustomEvent,
-    CustomEventConstructor,
-    CustomEventSubclassFields,
-    getDataProp,
-} from '../base.ts'
 import { MaterialProperty } from '../../../../../types/vivify/material.ts'
 import { getActiveDifficulty } from '../../../../../data/active_difficulty.ts'
 import { copy } from '../../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
-import {IBlit} from "../../../../../types/beatmap/object/vivify_event_interfaces.ts";
-import {EASE} from "../../../../../types/animation/easing.ts";
+import { IBlit } from '../../../../../types/beatmap/object/vivify_event_interfaces.ts'
+import { EASE } from '../../../../../types/animation/easing.ts'
+import { Fields } from '../../../../../types/util/class.ts'
+import {CustomEventConstructor} from "../../../../../types/beatmap/object/custom_event.ts";
+
+import {getDataProp} from "../../../../../utils/beatmap/json.ts";
+import {CustomEvent} from "../base/custom_event.ts";
 
 export class Blit extends CustomEvent<
     never,
@@ -20,18 +19,18 @@ export class Blit extends CustomEvent<
     ) {
         super(params)
         this.type = 'Blit'
-        this.asset = params.asset ?? ''
-        if (params.pass) this.pass = params.pass
-        if (params.source) this.source = params.source
-        if (params.destination) this.destination = params.destination
-        if (params.duration) this.duration = params.duration
-        if (params.easing) this.easing = params.easing
-        if (params.properties) this.properties = params.properties
+        this.asset = params.asset ?? Blit.defaults.asset
+        this.pass = params.pass
+        this.source = params.source
+        this.destination = params.destination
+        this.duration = params.duration
+        this.easing = params.easing
+        this.properties = params.properties
     }
 
     /** File path to the material. */
     asset: string
-    /** Which order to run current active post processing effects. Higher priority will run first. Default = 0 */
+    /** Which order to run current active post-processing effects. Higher priority will run first. Default = 0 */
     priority?: number
     /** Which pass in the shader to use. Will use all passes if not defined. */
     pass?: number
@@ -46,6 +45,11 @@ export class Blit extends CustomEvent<
     /** Properties to set. */
     properties?: MaterialProperty[]
 
+    static defaults: Fields<Blit> = {
+        asset: '',
+        ...super.defaults,
+    }
+
     push(clone = true) {
         getActiveDifficulty().customEvents.blitEvents.push(
             clone ? copy(this) : this,
@@ -53,45 +57,23 @@ export class Blit extends CustomEvent<
         return this
     }
 
-    fromJson(json: IBlit, v3: true): this
-    fromJson(json: never, v3: false): this
-    fromJson(
-        json:
-            | IBlit
-            | never,
-        v3: boolean,
-    ): this {
-        type Params = CustomEventSubclassFields<Blit>
-
-        if (!v3) throw 'Blit is only supported in V3!'
-
-        const obj = json as IBlit
-
-        const params = {
-            asset: getDataProp(obj.d, 'asset'),
-            destination: getDataProp(obj.d, 'destination'),
-            duration: getDataProp(obj.d, 'duration'),
-            easing: getDataProp(obj.d, 'easing'),
-            pass: getDataProp(obj.d, 'pass'),
-            priority: getDataProp(obj.d, 'priority'),
-            properties: getDataProp(obj.d, 'properties'),
-            source: getDataProp(obj.d, 'source'),
-        } as Params
-
-        Object.assign(this, params)
-        return super.fromJson(obj, v3)
+    fromJsonV3(json: IBlit): this {
+        this.asset = getDataProp(json.d, 'asset') ?? Blit.defaults.asset
+        this.destination = getDataProp(json.d, 'destination')
+        this.duration = getDataProp(json.d, 'duration')
+        this.easing = getDataProp(json.d, 'easing')
+        this.pass = getDataProp(json.d, 'pass')
+        this.priority = getDataProp(json.d, 'priority')
+        this.properties = getDataProp(json.d, 'properties')
+        this.source = getDataProp(json.d, 'source')
+        return super.fromJsonV3(json)
     }
 
-    toJson(v3: true, prune?: boolean): IBlit
-    toJson(v3: false, prune?: boolean): never
-    toJson(
-        v3: boolean,
-        prune = true,
-    ) {
-        if (!v3) throw 'Blit is only supported in V3!'
+    fromJsonV2(_json: never): this {
+        throw 'Blit is only supported in V3!'
+    }
 
-        if (!this.asset) throw 'asset is undefined, which is required for Blit!'
-
+    toJsonV3(prune?: boolean): IBlit {
         const output = {
             b: this.beat,
             d: {
@@ -108,5 +90,9 @@ export class Blit extends CustomEvent<
             t: 'Blit',
         } satisfies IBlit
         return prune ? objectPrune(output) : output
+    }
+
+    toJsonV2(_prune?: boolean): never {
+        throw 'Blit is only supported in V3!'
     }
 }

@@ -1,14 +1,14 @@
-import {
-    CustomEvent,
-    CustomEventConstructor,
-    CustomEventSubclassFields,
-    getDataProp,
-} from '../base.ts'
 import { getActiveDifficulty } from '../../../../../data/active_difficulty.ts'
 import { copy } from '../../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import { IDeclareRenderTexture } from '../../../../../types/beatmap/object/vivify_event_interfaces.ts'
 import { COLOR_FORMAT, TEX_FILTER_MODE } from '../../../../../types/vivify/setting.ts'
+import {Fields} from "../../../../../types/util/class.ts";
+import {DeclareCullingTexture} from "./declare_culling_texture.ts";
+import {CustomEventConstructor} from "../../../../../types/beatmap/object/custom_event.ts";
+
+import {getDataProp} from "../../../../../utils/beatmap/json.ts";
+import {CustomEvent} from "../base/custom_event.ts";
 
 export class DeclareRenderTexture extends CustomEvent<
     never,
@@ -22,13 +22,13 @@ export class DeclareRenderTexture extends CustomEvent<
     ) {
         super(params)
         this.type = 'DeclareRenderTexture'
-        this.id = params.id ?? ''
-        if (params.xRatio) this.xRatio = params.xRatio
-        if (params.yRatio) this.yRatio = params.yRatio
-        if (params.width) this.width = params.width
-        if (params.height) this.height = params.height
-        if (params.colorFormat) this.colorFormat = params.colorFormat
-        if (params.filterMode) this.filterMode = params.filterMode
+        this.id = params.id ?? DeclareCullingTexture.defaults.id
+        this.xRatio = params.xRatio
+        this.yRatio = params.yRatio
+        this.width = params.width
+        this.height = params.height
+        this.colorFormat = params.colorFormat
+        this.filterMode = params.filterMode
     }
 
     /** Name of the texture */
@@ -46,6 +46,11 @@ export class DeclareRenderTexture extends CustomEvent<
     /** https://docs.unity3d.com/ScriptReference/FilterMode.html */
     filterMode?: TEX_FILTER_MODE
 
+    static defaults: Fields<DeclareRenderTexture> = {
+        id: '',
+        ...super.defaults
+    }
+
     push(clone = true) {
         getActiveDifficulty().customEvents.declareRenderTextureEvents.push(
             clone ? copy(this) : this,
@@ -53,46 +58,22 @@ export class DeclareRenderTexture extends CustomEvent<
         return this
     }
 
-    fromJson(json: IDeclareRenderTexture, v3: true): this
-    fromJson(json: never, v3: false): this
-    fromJson(
-        json:
-            | IDeclareRenderTexture
-            | never,
-        v3: boolean,
-    ): this {
-        type Params = CustomEventSubclassFields<DeclareRenderTexture>
-
-        if (!v3) throw 'DeclareRenderTexture is only supported in V3!'
-
-        const obj = json as IDeclareRenderTexture
-
-        const params = {
-            colorFormat: getDataProp(obj.d, 'colorFormat'),
-            filterMode: getDataProp(obj.d, 'filterMode'),
-            height: getDataProp(obj.d, 'height'),
-            id: getDataProp(obj.d, 'id'),
-            width: getDataProp(obj.d, 'width'),
-            xRatio: getDataProp(obj.d, 'xRatio'),
-            yRatio: getDataProp(obj.d, 'yRatio'),
-        } as Params
-
-        Object.assign(this, params)
-        return super.fromJson(obj, v3)
+    fromJsonV3(json: IDeclareRenderTexture): this {
+        this.id = getDataProp(json.d, 'id') ?? DeclareCullingTexture.defaults.id
+        this.xRatio = getDataProp(json.d, 'xRatio')
+        this.yRatio = getDataProp(json.d, 'yRatio')
+        this.width = getDataProp(json.d, 'width')
+        this.height = getDataProp(json.d, 'height')
+        this.colorFormat = getDataProp(json.d, 'colorFormat')
+        this.filterMode = getDataProp(json.d, 'filterMode')
+        return super.fromJsonV3(json);
     }
 
-    toJson(v3: true, prune?: boolean): IDeclareRenderTexture
-    toJson(v3: false, prune?: boolean): never
-    toJson(
-        v3: boolean,
-        prune = true,
-    ) {
-        if (!v3) throw 'DeclareRenderTexture is only supported in V3!'
+    fromJsonV2(_json: never): this {
+        throw 'DeclareRenderTexture is only supported in V3!'
+    }
 
-        if (!this.id) {
-            throw 'id is undefined, which is required for DeclareRenderTexture!'
-        }
-
+    toJsonV3(prune?: boolean): IDeclareRenderTexture {
         const output = {
             b: this.beat,
             d: {
@@ -108,5 +89,9 @@ export class DeclareRenderTexture extends CustomEvent<
             t: 'DeclareRenderTexture',
         } satisfies IDeclareRenderTexture
         return prune ? objectPrune(output) : output
+    }
+
+    toJsonV2(_prune?: boolean): never {
+        throw 'DeclareRenderTexture is only supported in V3!'
     }
 }

@@ -62,3 +62,22 @@ export function getCDProp<
 
     return undefined
 }
+
+/** Get a property from the "properties" object in a CustomEvent.
+ * This deletes whatever's accessed, so that the values transferred into the class aren't left in the properties object.
+ */
+export function getDataProp<
+    T,
+    K extends keyof T,
+>(
+    obj: T,
+    prop: K,
+) {
+    if (obj[prop] !== undefined) {
+        const result = obj[prop]
+        delete obj[prop]
+        return result as T[K]
+    }
+
+    return undefined
+}

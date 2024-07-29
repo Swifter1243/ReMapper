@@ -4,7 +4,7 @@ import { bsmap } from '../../../../deps.ts'
 import {copy} from "../../../../utils/object/copy.ts";
 import {objectPrune} from "../../../../utils/object/prune.ts";
 import {activeDifficulty, getActiveDifficulty} from "../../../../data/active_difficulty.ts";
-import {animationToJson} from "../../../../utils/animation/json.ts";
+import {animationV3toV2} from "../../../../utils/animation/json.ts";
 import {NoteCut} from "../../../../data/constants/note.ts";
 import {ExcludedObjectFields} from "../../../../types/beatmap/object/object.ts";
 
@@ -111,7 +111,7 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
             x: this.x,
             y: this.y,
             customData: {
-                animation: animationToJson(this.animation, v3),
+                animation: animationV3toV2(this.animation, v3),
                 color: this.color,
                 coordinates: this.coordinates,
                 tailCoordinates: this.tailCoordinates,

@@ -18,3 +18,10 @@ export type Fields<T> = ExcludeFunctionPropertyNames<T>
 export type SubclassExclusiveProps<Subclass, Class> = {
     [K in Exclude<keyof Subclass, keyof Class>]: Subclass[K]
 }
+
+/**
+ * Represents exclusive fields of a subclass compared to its superclass.
+ * @typeparam Subclass - The subclass type.
+ * @typeparam Class - The superclass type.
+ */
+export type SubclassExclusiveFields<Subclass, Class> = Fields<SubclassExclusiveProps<Subclass, Class>>

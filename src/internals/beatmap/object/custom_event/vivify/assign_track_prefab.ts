@@ -1,13 +1,12 @@
-import {
-    CustomEvent,
-    CustomEventConstructor,
-    CustomEventSubclassFields,
-    getDataProp,
-} from '../base.ts'
 import { getActiveDifficulty } from '../../../../../data/active_difficulty.ts'
 import { copy } from '../../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
-import {IAssignTrackPrefab} from "../../../../../types/beatmap/object/vivify_event_interfaces.ts";
+import { IAssignTrackPrefab } from '../../../../../types/beatmap/object/vivify_event_interfaces.ts'
+import { Fields } from '../../../../../types/util/class.ts'
+import {CustomEventConstructor} from "../../../../../types/beatmap/object/custom_event.ts";
+
+import {getDataProp} from "../../../../../utils/beatmap/json.ts";
+import {CustomEvent} from "../base/custom_event.ts";
 
 export class AssignTrackPrefab extends CustomEvent<
     never,
@@ -18,7 +17,7 @@ export class AssignTrackPrefab extends CustomEvent<
     ) {
         super(params)
         this.type = 'AssignTrackPrefab'
-        this.track = params.track ?? ''
+        this.track = params.track ?? AssignTrackPrefab.defaults.track
         this.colorNotes = params.colorNotes
         this.bombNotes = params.bombNotes
         this.chainHeads = params.chainHeads
@@ -45,6 +44,11 @@ export class AssignTrackPrefab extends CustomEvent<
     /** File path to the desired prefab to replace chain link debris. */
     chainLinkDebris?: string
 
+    static defaults: Fields<AssignTrackPrefab> = {
+        track: '',
+        ...super.defaults,
+    }
+
     push(clone = true) {
         getActiveDifficulty().customEvents.assignTrackPrefabEvents.push(
             clone ? copy(this) : this,
@@ -52,47 +56,23 @@ export class AssignTrackPrefab extends CustomEvent<
         return this
     }
 
-    fromJson(json: IAssignTrackPrefab, v3: true): this
-    fromJson(json: never, v3: false): this
-    fromJson(
-        json:
-            | IAssignTrackPrefab
-            | never,
-        v3: boolean,
-    ): this {
-        type Params = CustomEventSubclassFields<AssignTrackPrefab>
-
-        if (!v3) throw 'AssignTrackPrefab is only supported in V3!'
-
-        const obj = json as IAssignTrackPrefab
-
-        const params = {
-            track: getDataProp(obj.d, 'track'),
-            colorNotes: getDataProp(obj.d, 'colorNotes'),
-            colorNoteDebris: getDataProp(obj.d, 'colorNoteDebris'),
-            chainHeadDebris: getDataProp(obj.d, 'burstSliderDebris'),
-            chainLinkDebris: getDataProp(obj.d, 'burstSliderElementDebris'),
-            chainLinks: getDataProp(obj.d, 'burstSliderElements'),
-            chainHeads: getDataProp(obj.d, 'burstSliders'),
-            bombNotes: getDataProp(obj.d, 'bombNotes'),
-        } as Params
-
-        Object.assign(this, params)
-        return super.fromJson(obj, v3)
+    fromJsonV3(json: IAssignTrackPrefab): this {
+        this.track = getDataProp(json.d, 'track') ?? AssignTrackPrefab.defaults.track
+        this.colorNotes = getDataProp(json.d, 'colorNotes')
+        this.colorNoteDebris = getDataProp(json.d, 'colorNoteDebris')
+        this.chainHeadDebris = getDataProp(json.d, 'burstSliderDebris')
+        this.chainLinkDebris = getDataProp(json.d, 'burstSliderElementDebris')
+        this.chainLinks = getDataProp(json.d, 'burstSliderElements')
+        this.chainHeads = getDataProp(json.d, 'burstSliders')
+        this.bombNotes = getDataProp(json.d, 'bombNotes')
+        return super.fromJsonV3(json)
     }
 
-    toJson(v3: true, prune?: boolean): IAssignTrackPrefab
-    toJson(v3: false, prune?: boolean): never
-    toJson(
-        v3: boolean,
-        prune = true,
-    ) {
-        if (!v3) throw 'AssignTrackPrefab is only supported in V3!'
+    fromJsonV2(_json: never): this {
+        throw 'AssignTrackPrefab is only supported in V3!'
+    }
 
-        if (!this.track) {
-            throw 'track is undefined, which is required for AssignTrackPrefab!'
-        }
-
+    toJsonV3(prune?: boolean): IAssignTrackPrefab {
         const output = {
             b: this.beat,
             d: {
@@ -109,5 +89,9 @@ export class AssignTrackPrefab extends CustomEvent<
             t: 'AssignTrackPrefab',
         } satisfies IAssignTrackPrefab
         return prune ? objectPrune(output) : output
+    }
+
+    toJsonV2(_prune?: boolean): never {
+        throw 'AssignTrackPrefab is only supported in V3!'
     }
 }

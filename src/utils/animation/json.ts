@@ -1,28 +1,12 @@
 import { bsmap } from '../../deps.ts'
 
-import {AnimationPropertiesV2, AnimationPropertiesV3} from "../../types/animation/properties/properties.ts";
+import {AnimationPropertiesV3} from "../../types/animation/properties/properties.ts";
 
 type AnimateV2Scuffed =
     & bsmap.v2.INEAnimation
     & bsmap.v2.IChromaAnimation
-type AnimateV3Scuffed =
-    & bsmap.v3.INEAnimation
-    & bsmap.v3.IChromaAnimation
 
-export function animationToJson(
-    obj: AnimationPropertiesV3,
-    v3: true,
-): AnimateV3Scuffed
-export function animationToJson(
-    obj: AnimationPropertiesV3,
-    v3: false,
-): AnimateV2Scuffed
-export function animationToJson(
-    obj: AnimationPropertiesV3,
-    v3: boolean,
-): AnimateV2Scuffed | AnimateV3Scuffed {
-    if (v3) return obj as AnimateV3Scuffed
-
+export function animationV3toV2(obj: AnimationPropertiesV3): AnimateV2Scuffed {
     return {
         _color: obj.color,
         _definitePosition: obj.definitePosition,
@@ -38,22 +22,22 @@ export function animationToJson(
     } as AnimateV2Scuffed
 }
 
-export function jsonToAnimation(
-    obj: AnimationPropertiesV2,
+export function animationV2ToV3(
+    animation: AnimateV2Scuffed,
 ): AnimationPropertiesV3 {
     return {
-        color: obj._color,
-        definitePosition: obj._definitePosition,
-        dissolve: obj._dissolve,
-        dissolveArrow: obj._dissolveArrow,
-        interactable: obj._interactable,
-        localPosition: obj._localPosition,
-        localRotation: obj._localRotation,
-        offsetPosition: obj._position,
-        offsetWorldRotation: obj._rotation,
-        position: obj._position,
-        rotation: obj._rotation,
-        scale: obj._scale,
-        time: obj._time,
+        color: animation._color,
+        definitePosition: animation._definitePosition,
+        dissolve: animation._dissolve,
+        dissolveArrow: animation._dissolveArrow,
+        interactable: animation._interactable,
+        localPosition: undefined,
+        localRotation: animation._localRotation,
+        offsetPosition: animation._position,
+        offsetWorldRotation: animation._rotation,
+        position: animation._position,
+        rotation: animation._rotation,
+        scale: animation._scale,
+        time: animation._time,
     } as AnimationPropertiesV3
 }

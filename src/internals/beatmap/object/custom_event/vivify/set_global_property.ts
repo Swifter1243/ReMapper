@@ -1,15 +1,14 @@
-import {
-    CustomEvent,
-    CustomEventConstructor,
-    CustomEventSubclassFields,
-    getDataProp,
-} from '../base.ts'
 import { MaterialProperty } from '../../../../../types/vivify/material.ts'
 import { getActiveDifficulty } from '../../../../../data/active_difficulty.ts'
 import { copy } from '../../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import { EASE } from '../../../../../types/animation/easing.ts'
 import {ISetGlobalProperty} from "../../../../../types/beatmap/object/vivify_event_interfaces.ts";
+import {Fields} from "../../../../../types/util/class.ts";
+import {CustomEventConstructor} from "../../../../../types/beatmap/object/custom_event.ts";
+
+import {getDataProp} from "../../../../../utils/beatmap/json.ts";
+import {CustomEvent} from "../base/custom_event.ts";
 
 export class SetGlobalProperty extends CustomEvent<
     never,
@@ -20,17 +19,22 @@ export class SetGlobalProperty extends CustomEvent<
     ) {
         super(params)
         this.type = 'SetGlobalProperty'
-        if (params.duration) this.duration = params.duration
-        if (params.easing) this.easing = params.easing
-        if (params.properties) this.properties = params.properties
+        this.properties = params.properties ?? SetGlobalProperty.defaults.properties
+        this.duration = params.duration
+        this.easing = params.easing
     }
 
+    /** Properties to set. */
+    properties: MaterialProperty[]
     /** The duration of the animation. */
     duration?: number
     /** An easing for the animation to follow. */
     easing?: EASE
-    /** Properties to set. */
-    properties: MaterialProperty[] = []
+
+    static defaults: Fields<SetGlobalProperty> = {
+        properties: [],
+        ...super.defaults
+    }
 
     push(clone = true) {
         getActiveDifficulty().customEvents.setGlobalPropertyEvents.push(
@@ -39,37 +43,18 @@ export class SetGlobalProperty extends CustomEvent<
         return this
     }
 
-    fromJson(json: ISetGlobalProperty, v3: true): this
-    fromJson(json: never, v3: false): this
-    fromJson(
-        json:
-            | ISetGlobalProperty
-            | never,
-        v3: boolean,
-    ): this {
-        type Params = CustomEventSubclassFields<SetGlobalProperty>
-
-        if (!v3) throw 'SetGlobalProperty is only supported in V3!'
-
-        const obj = json as ISetGlobalProperty
-
-        const params = {
-            duration: getDataProp(obj.d, 'duration'),
-            easing: getDataProp(obj.d, 'easing'),
-            properties: getDataProp(obj.d, 'properties'),
-        } as Params
-
-        Object.assign(this, params)
-        return super.fromJson(obj, v3)
+    fromJsonV3(json: ISetGlobalProperty): this {
+        this.properties = getDataProp(json.d, 'properties') ?? SetGlobalProperty.defaults.properties
+        this.duration = getDataProp(json.d, 'duration')
+        this.easing = getDataProp(json.d, 'easing')
+        return super.fromJsonV3(json);
     }
 
-    toJson(v3: true, prune?: boolean): ISetGlobalProperty
-    toJson(v3: false, prune?: boolean): never
-    toJson(
-        v3: boolean,
-        prune = true,
-    ) {
-        if (!v3) throw 'SetGlobalProperty is only supported in V3!'
+    fromJsonV2(_json: never): this {
+        throw 'SetGlobalProperty is only supported in V3!'
+    }
+
+    toJsonV3(prune?: boolean): ISetGlobalProperty {
         if (Object.keys(this.properties).length === 0) {
             throw 'properties is empty, which is redundant for SetGlobalProperty!'
         }
@@ -85,5 +70,9 @@ export class SetGlobalProperty extends CustomEvent<
             t: 'SetGlobalProperty',
         } satisfies ISetGlobalProperty
         return prune ? objectPrune(output) : output
+    }
+
+    toJsonV2(_prune?: boolean): never {
+        throw 'SetGlobalProperty is only supported in V3!'
     }
 }

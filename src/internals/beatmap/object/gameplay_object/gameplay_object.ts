@@ -9,7 +9,7 @@ import {
     getReactionTime,
 } from '../../../../utils/math/beatmap.ts'
 import {getActiveInfo} from '../../../../data/active_info.ts'
-import {jsonToAnimation} from '../../../../utils/animation/json.ts'
+import {animationV2ToV3} from '../../../../utils/animation/json.ts'
 import {BeatmapObject} from '../object.ts'
 import {bsmap} from '../../../../deps.ts'
 import {ColorVec, Vec2, Vec3} from "../../../../types/math/vector.ts";
@@ -233,7 +233,7 @@ export abstract class BeatmapGameplayObject<
             const params = {
                 x: obj._lineIndex ?? 0,
 
-                animation: jsonToAnimation(
+                animation: animationV2ToV3(
                     getCDProp(obj, '_animation') as AnimationPropertiesV2 ?? {},
                 ),
                 color: getCDProp(obj, '_color') as ColorVec,

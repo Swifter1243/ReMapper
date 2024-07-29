@@ -1,5 +1,5 @@
-import { AnimatedObjectInput } from './input.ts'
-import type * as CustomEventInternals from '../../../internals/beatmap/object/custom_event/mod.ts'
+import {AnimatedObjectInput} from './input.ts'
+import {AnimateTrack} from "../../../internals/beatmap/object/custom_event/heck/animate_track.ts";
 
 /** A scene switch used in a ModelScene */
 export type SceneSwitch = {
@@ -12,5 +12,5 @@ export type SceneSwitch = {
     /** The offset added to `beat` which defines when the animation in the input objects happen. */
     animationOffset?: number
     /** Runs on each event that moves objects in this switch. */
-    forEvent?: (event: CustomEventInternals.AnimateTrack, objects: number) => void
+    forEvent?: (event: AnimateTrack, objects: number) => void
 }

@@ -1,14 +1,13 @@
-import {
-    CustomEvent,
-    CustomEventConstructor,
-    CustomEventSubclassFields,
-    getDataProp,
-} from '../base.ts'
 import { getActiveDifficulty } from '../../../../../data/active_difficulty.ts'
 import { copy } from '../../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import { ISetCameraProperty } from '../../../../../types/beatmap/object/vivify_event_interfaces.ts'
 import { DEPTH_TEX_MODE } from '../../../../../types/vivify/setting.ts'
+import {Fields} from "../../../../../types/util/class.ts";
+import {CustomEventConstructor} from "../../../../../types/beatmap/object/custom_event.ts";
+
+import {getDataProp} from "../../../../../utils/beatmap/json.ts";
+import {CustomEvent} from "../base/custom_event.ts";
 
 export class SetCameraProperty extends CustomEvent<
     never,
@@ -19,11 +18,16 @@ export class SetCameraProperty extends CustomEvent<
     ) {
         super(params)
         this.type = 'SetCameraProperty'
-        this.depthTextureMode = params.depthTextureMode ?? []
+        this.depthTextureMode = params.depthTextureMode ?? SetCameraProperty.defaults.depthTextureMode
     }
 
     /** Sets the depth texture mode on the camera. */
     depthTextureMode: DEPTH_TEX_MODE[]
+
+    static defaults: Fields<SetCameraProperty> = {
+        depthTextureMode: [],
+        ...super.defaults
+    }
 
     push(clone = true) {
         getActiveDifficulty().customEvents.setCameraPropertyEvents.push(
@@ -32,40 +36,16 @@ export class SetCameraProperty extends CustomEvent<
         return this
     }
 
-    fromJson(json: ISetCameraProperty, v3: true): this
-    fromJson(json: never, v3: false): this
-    fromJson(
-        json:
-            | ISetCameraProperty
-            | never,
-        v3: boolean,
-    ): this {
-        type Params = CustomEventSubclassFields<SetCameraProperty>
-
-        if (!v3) throw 'SetCameraProperty is only supported in V3!'
-
-        const obj = json as ISetCameraProperty
-
-        const params = {
-            depthTextureMode: getDataProp(obj.d, 'depthTextureMode'),
-        } as Params
-
-        Object.assign(this, params)
-        return super.fromJson(obj, v3)
+    fromJsonV3(json: ISetCameraProperty): this {
+        this.depthTextureMode = getDataProp(json.d, 'depthTextureMode') ?? SetCameraProperty.defaults.depthTextureMode
+        return super.fromJsonV3(json);
     }
 
-    toJson(v3: true, prune?: boolean): ISetCameraProperty
-    toJson(v3: false, prune?: boolean): never
-    toJson(
-        v3: boolean,
-        prune = true,
-    ) {
-        if (!v3) throw 'SetCameraProperty is only supported in V3!'
+    fromJsonV2(_json: never): this {
+        throw 'SetCameraProperty is only supported in V3!'
+    }
 
-        if (this.depthTextureMode.length === 0) {
-            throw 'depthTextureMode is empty, which is redundant for SetCameraProperty!'
-        }
-
+    toJsonV3(prune?: boolean): ISetCameraProperty {
         const output = {
             b: this.beat,
             d: {
@@ -75,5 +55,9 @@ export class SetCameraProperty extends CustomEvent<
             t: 'SetCameraProperty',
         } satisfies ISetCameraProperty
         return prune ? objectPrune(output) : output
+    }
+
+    toJsonV2(_prune?: boolean): never {
+        throw 'SetCameraProperty is only supported in V3!'
     }
 }

@@ -3,7 +3,7 @@ import { bsmap } from "../../../../deps.ts";
 import {copy} from "../../../../utils/object/copy.ts";
 import {objectPrune} from "../../../../utils/object/prune.ts";
 import {activeDifficulty, getActiveDifficulty} from "../../../../data/active_difficulty.ts";
-import {animationToJson} from "../../../../utils/animation/json.ts";
+import {animationV3toV2} from "../../../../utils/animation/json.ts";
 import {ExcludedObjectFields} from "../../../../types/beatmap/object/object.ts";
 
 import {BaseNote} from "./base_note.ts";
@@ -39,7 +39,7 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
                 x: this.x,
                 y: this.y,
                 customData: {
-                    animation: animationToJson(this.animation, v3),
+                    animation: animationV3toV2(this.animation, v3),
                     flip: this.flip,
                     disableNoteGravity: defaultBoolean(this.disableNoteGravity, false),
                     disableNoteLook: defaultBoolean(this.disableNoteLook, false),
@@ -70,7 +70,7 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
             _time: this.beat,
             _type: 3,
             _customData: {
-                _animation: animationToJson(this.animation, v3),
+                _animation: animationV3toV2(this.animation, v3),
                 _flip: this.flip,
                 _color: this.color,
                 _noteJumpMovementSpeed: NJS,

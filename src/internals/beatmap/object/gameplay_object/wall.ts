@@ -7,7 +7,7 @@ import {
 import {copy} from "../../../../utils/object/copy.ts";
 import {objectPrune} from "../../../../utils/object/prune.ts";
 import {activeDifficulty, getActiveDifficulty} from "../../../../data/active_difficulty.ts";
-import {animationToJson} from "../../../../utils/animation/json.ts";
+import {animationV3toV2} from "../../../../utils/animation/json.ts";
 import {ExcludedObjectFields} from "../../../../types/beatmap/object/object.ts";
 import {BeatmapGameplayObject} from "./gameplay_object.ts";
 import { AnimationSettings } from '../../../../utils/animation/optimizer.ts'
@@ -151,7 +151,7 @@ export class Wall
                 x: this.x,
                 y: this.y,
                 customData: {
-                    animation: animationToJson(this.animation, v3),
+                    animation: animationV3toV2(this.animation, v3),
                     size: this.size,
                     noteJumpMovementSpeed: NJS,
                     noteJumpStartBeatOffset: offset,
@@ -175,7 +175,7 @@ export class Wall
             _type: 0,
             _width: this.width,
             _customData: {
-                _animation: animationToJson(this.animation, v3),
+                _animation: animationV3toV2(this.animation, v3),
                 _scale: this.size,
                 _noteJumpMovementSpeed: NJS,
                 _noteJumpStartBeatOffset: offset,

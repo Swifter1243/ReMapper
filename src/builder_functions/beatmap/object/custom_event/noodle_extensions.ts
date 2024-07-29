@@ -1,34 +1,42 @@
-import * as CustomEventInternals from '../../../../internals/beatmap/object/custom_event/mod.ts'
-import { bsmap } from '../../../../deps.ts'
+import {bsmap} from '../../../../deps.ts'
 
 import {EASE} from "../../../../types/animation/easing.ts";
 import {TrackValue} from "../../../../types/animation/track.ts";
+import {
+    AssignPathAnimation
+} from "../../../../internals/beatmap/object/custom_event/noodle_extensions/assign_path_animation.ts";
+import {
+    AssignTrackParent
+} from "../../../../internals/beatmap/object/custom_event/noodle_extensions/assign_track_parent.ts";
+import {
+    AssignPlayerToTrack
+} from "../../../../internals/beatmap/object/custom_event/noodle_extensions/assign_player_to_track.ts";
 
 /**
  * Animate objects on a track across their lifespan.
  */
 export function assignPathAnimation(
     ...params:
-        | ConstructorParameters<typeof CustomEventInternals.AssignPathAnimation>
+        | ConstructorParameters<typeof AssignPathAnimation>
         | [
             beat: number,
             track: TrackValue,
             duration?: number,
-            animation?: CustomEventInternals.AssignPathAnimation['animation'],
+            animation?: AssignPathAnimation['animation'],
             easing?: EASE,
         ]
 ) {
     if (typeof params[0] === 'object') {
-        return new CustomEventInternals.AssignPathAnimation(
+        return new AssignPathAnimation(
             ...params as ConstructorParameters<
-                typeof CustomEventInternals.AssignPathAnimation
+                typeof AssignPathAnimation
             >,
         )
     }
 
     const [beat, track, duration, animation, easing] = params
 
-    return new CustomEventInternals.AssignPathAnimation(
+    return new AssignPathAnimation(
         {
             beat: beat as number,
             track: track as TrackValue,
@@ -44,7 +52,7 @@ export function assignPathAnimation(
  */
 export function assignTrackParent(
     ...params:
-        | ConstructorParameters<typeof CustomEventInternals.AssignTrackParent>
+        | ConstructorParameters<typeof AssignTrackParent>
         | [
             beat: number,
             childrenTracks: string[],
@@ -53,16 +61,16 @@ export function assignTrackParent(
         ]
 ) {
     if (typeof params[0] === 'object') {
-        return new CustomEventInternals.AssignTrackParent(
+        return new AssignTrackParent(
             ...params as ConstructorParameters<
-                typeof CustomEventInternals.AssignTrackParent
+                typeof AssignTrackParent
             >,
         )
     }
 
     const [beat, childrenTracks, parentTrack, worldPositionStays] = params
 
-    return new CustomEventInternals.AssignTrackParent(
+    return new AssignTrackParent(
         {
             beat: beat as number,
             childrenTracks: childrenTracks!,
@@ -77,7 +85,7 @@ export function assignTrackParent(
  */
 export function assignPlayerToTrack(
     ...params:
-        | ConstructorParameters<typeof CustomEventInternals.AssignPlayerToTrack>
+        | ConstructorParameters<typeof AssignPlayerToTrack>
         | [
             beat: number,
             track?: string,
@@ -85,16 +93,16 @@ export function assignPlayerToTrack(
         ]
 ) {
     if (typeof params[0] === 'object') {
-        return new CustomEventInternals.AssignPlayerToTrack(
+        return new AssignPlayerToTrack(
             ...params as ConstructorParameters<
-                typeof CustomEventInternals.AssignPlayerToTrack
+                typeof AssignPlayerToTrack
             >,
         )
     }
 
     const [beat, track, target] = params
 
-    return new CustomEventInternals.AssignPlayerToTrack(
+    return new AssignPlayerToTrack(
         {
             beat: beat as number,
             track,

@@ -23,7 +23,6 @@ import {optimizeKeyframes, OptimizeSettings} from "../../utils/animation/optimiz
 import {AnimationPropertiesV3} from "../../types/animation/properties/properties.ts";
 import {areKeyframesRuntime} from "../../utils/animation/keyframe/runtime.ts";
 import {RawKeyframesLinear} from "../../types/animation/keyframe/linear.ts";
-import {AnimateTrack} from "./object/custom_event/heck.ts";
 import { parseFilePath } from '../../utils/file.ts'
 import {DIFFICULTY_FILENAME, DIFFICULTY_PATH} from "../../types/beatmap/file.ts";
 import { getActiveCache } from '../../data/active_cache.ts'
@@ -42,6 +41,7 @@ import {Bomb} from "./object/gameplay_object/bomb.ts";
 import {Arc} from "./object/gameplay_object/arc.ts";
 import {Chain} from "./object/gameplay_object/chain.ts";
 import { clearPropertyMap } from '../../data/constants/beatmap.ts'
+import {AnimateTrack} from "./object/custom_event/heck/animate_track.ts";
 
 /** A remapper difficulty, version agnostic */
 export abstract class AbstractDifficulty<

@@ -1,14 +1,13 @@
-import * as CustomEventInternals from '../../../../internals/beatmap/object/custom_event/mod.ts'
-
 import {EASE} from "../../../../types/animation/easing.ts";
 import {TrackValue} from "../../../../types/animation/track.ts";
+import {AnimateComponent} from "../../../../internals/beatmap/object/custom_event/chroma/animate_component.ts";
 
 /**
  * Animate components on a track.
  */
 export function animateComponent(
     ...params:
-        | ConstructorParameters<typeof CustomEventInternals.AnimateComponent>
+        | ConstructorParameters<typeof AnimateComponent>
         | [
             beat: number,
             track: TrackValue,
@@ -17,16 +16,16 @@ export function animateComponent(
         ]
 ) {
     if (typeof params[0] === 'object') {
-        return new CustomEventInternals.AnimateComponent(
+        return new AnimateComponent(
             ...params as ConstructorParameters<
-                typeof CustomEventInternals.AnimateComponent
+                typeof AnimateComponent
             >,
         )
     }
 
     const [beat, track, duration, easing] = params
 
-    return new CustomEventInternals.AnimateComponent(
+    return new AnimateComponent(
         {
             beat: beat as number,
             track,

@@ -1,7 +1,7 @@
 import { bsmap } from '../../../../deps.ts'
 
 import {activeDifficulty, getActiveDifficulty} from "../../../../data/active_difficulty.ts";
-import {animationToJson} from "../../../../utils/animation/json.ts";
+import {animationV3toV2} from "../../../../utils/animation/json.ts";
 import {NoteColor, NoteCut} from "../../../../data/constants/note.ts";
 import {ExcludedObjectFields} from "../../../../types/beatmap/object/object.ts";
 
@@ -86,7 +86,7 @@ export class ColorNote extends BaseNote<bsmap.v3.IColorNote> {
                 x: this.x,
                 y: this.y,
                 customData: {
-                    animation: animationToJson(this.animation, v3),
+                    animation: animationV3toV2(this.animation, v3),
                     flip: this.flip,
                     disableNoteGravity: defaultBoolean(this.disableNoteGravity, false),
                     disableNoteLook: defaultBoolean(this.disableNoteLook, false),
@@ -117,7 +117,7 @@ export class ColorNote extends BaseNote<bsmap.v3.IColorNote> {
             _time: this.beat,
             _type: this.type,
             _customData: {
-                _animation: animationToJson(this.animation, v3),
+                _animation: animationV3toV2(this.animation, v3),
                 _flip: this.flip,
                 _disableNoteGravity: defaultBoolean(this.disableNoteGravity, false),
                 _disableNoteLook: defaultBoolean(this.disableNoteLook, false),

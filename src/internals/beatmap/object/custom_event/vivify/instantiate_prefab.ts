@@ -1,14 +1,13 @@
-import {
-    CustomEvent,
-    CustomEventConstructor,
-    CustomEventSubclassFields,
-    getDataProp,
-} from '../base.ts'
 import { getActiveDifficulty } from '../../../../../data/active_difficulty.ts'
 import { copy } from '../../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import {IInstantiatePrefab} from "../../../../../types/beatmap/object/vivify_event_interfaces.ts";
 import {Vec3} from "../../../../../types/math/vector.ts";
+import {Fields} from "../../../../../types/util/class.ts";
+import {CustomEventConstructor} from "../../../../../types/beatmap/object/custom_event.ts";
+
+import {getDataProp} from "../../../../../utils/beatmap/json.ts";
+import {CustomEvent} from "../base/custom_event.ts";
 
 export class InstantiatePrefab extends CustomEvent<
     never,
@@ -19,14 +18,14 @@ export class InstantiatePrefab extends CustomEvent<
     ) {
         super(params)
         this.type = 'InstantiatePrefab'
-        this.asset = params.asset ?? ''
-        if (params.id) this.id = params.id
-        if (params.track) this.track = params.track
-        if (params.position) this.position = params.position
-        if (params.localPosition) this.localPosition = params.localPosition
-        if (params.rotation) this.rotation = params.rotation
-        if (params.localRotation) this.localRotation = params.localRotation
-        if (params.scale) this.scale = params.scale
+        this.asset = params.asset ?? InstantiatePrefab.defaults.asset
+        this.id = params.id
+        this.track = params.track
+        this.position = params.position
+        this.localPosition = params.localPosition
+        this.rotation = params.rotation
+        this.localRotation = params.localRotation
+        this.scale = params.scale
     }
 
     /** File path to the desired prefab. */
@@ -46,6 +45,11 @@ export class InstantiatePrefab extends CustomEvent<
     /** Set scale. */
     scale?: Vec3
 
+    static defaults: Fields<InstantiatePrefab> = {
+        asset: '',
+        ...super.defaults
+    }
+
     push(clone = true) {
         getActiveDifficulty().customEvents.instantiatePrefabEvents.push(
             clone ? copy(this) : this,
@@ -53,47 +57,23 @@ export class InstantiatePrefab extends CustomEvent<
         return this
     }
 
-    fromJson(json: IInstantiatePrefab, v3: true): this
-    fromJson(json: never, v3: false): this
-    fromJson(
-        json:
-            | IInstantiatePrefab
-            | never,
-        v3: boolean,
-    ): this {
-        type Params = CustomEventSubclassFields<InstantiatePrefab>
-
-        if (!v3) throw 'InstantiatePrefab is only supported in V3!'
-
-        const obj = json as IInstantiatePrefab
-
-        const params = {
-            asset: getDataProp(obj.d, 'asset'),
-            id: getDataProp(obj.d, 'id'),
-            localPosition: getDataProp(obj.d, 'localPosition'),
-            localRotation: getDataProp(obj.d, 'localRotation'),
-            position: getDataProp(obj.d, 'position'),
-            rotation: getDataProp(obj.d, 'rotation'),
-            scale: getDataProp(obj.d, 'scale'),
-            track: getDataProp(obj.d, 'track'),
-        } as Params
-
-        Object.assign(this, params)
-        return super.fromJson(obj, v3)
+    fromJsonV3(json: IInstantiatePrefab): this {
+        this.asset = getDataProp(json.d, 'asset') ?? InstantiatePrefab.defaults.asset
+        this.id = getDataProp(json.d, 'id')
+        this.track = getDataProp(json.d, 'track')
+        this.position = getDataProp(json.d, 'position')
+        this.localPosition = getDataProp(json.d, 'localPosition')
+        this.rotation = getDataProp(json.d, 'rotation')
+        this.localRotation = getDataProp(json.d, 'localRotation')
+        this.scale = getDataProp(json.d, 'scale')
+        return super.fromJsonV3(json);
     }
 
-    toJson(v3: true, prune?: boolean): IInstantiatePrefab
-    toJson(v3: false, prune?: boolean): never
-    toJson(
-        v3: boolean,
-        prune = true,
-    ) {
-        if (!v3) throw 'InstantiatePrefab is only supported in V3!'
+    fromJsonV2(_json: never): this {
+        throw 'InstantiatePrefab is only supported in V3!'
+    }
 
-        if (!this.asset) {
-            throw 'asset is undefined, which is required for InstantiatePrefab!'
-        }
-
+    toJsonV3(prune?: boolean): IInstantiatePrefab {
         const output = {
             b: this.beat,
             d: {
@@ -110,5 +90,9 @@ export class InstantiatePrefab extends CustomEvent<
             t: 'InstantiatePrefab',
         } satisfies IInstantiatePrefab
         return prune ? objectPrune(output) : output
+    }
+
+    toJsonV2(_prune?: boolean): never {
+        throw 'InstantiatePrefab is only supported in V3!'
     }
 }

@@ -48,7 +48,6 @@ import {officialBpmEvent} from "../../builder_functions/beatmap/object/v3_event/
 import {RMDifficulty} from "../../types/beatmap/rm_difficulty.ts";
 import { arraySplit } from '../../utils/array/split.ts'
 import { Track } from '../../utils/animation/track.ts'
-import { CustomEvent } from './object/custom_event/base.ts'
 import {OfficialBPMEvent} from "./object/v3_event/official_bpm.ts";
 
 import {BeatmapCustomEvents} from "../../types/beatmap/object/custom_event.ts";
@@ -58,6 +57,7 @@ import {Bomb} from "./object/gameplay_object/bomb.ts";
 import {Arc} from "./object/gameplay_object/arc.ts";
 import {Chain} from "./object/gameplay_object/chain.ts";
 import { RawGeometryMaterial } from '../../types/beatmap/object/environment.ts'
+import {CustomEvent} from "./object/custom_event/base/custom_event.ts";
 
 export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
     declare version: bsmap.v3.IDifficulty['version']

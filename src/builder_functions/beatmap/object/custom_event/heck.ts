@@ -1,33 +1,32 @@
-import * as CustomEventInternals from '../../../../internals/beatmap/object/custom_event/mod.ts'
-
 import {EASE} from "../../../../types/animation/easing.ts";
 import {TrackValue} from "../../../../types/animation/track.ts";
+import {AnimateTrack} from "../../../../internals/beatmap/object/custom_event/heck/animate_track.ts";
 
 /**
  * Animate a track.
  */
 export function animateTrack(
     ...params:
-        | ConstructorParameters<typeof CustomEventInternals.AnimateTrack>
+        | ConstructorParameters<typeof AnimateTrack>
         | [
             beat: number,
             track: TrackValue,
             duration?: number,
-            animation?: CustomEventInternals.AnimateTrack['animation'],
+            animation?: AnimateTrack['animation'],
             easing?: EASE,
         ]
 ) {
     if (typeof params[0] === 'object') {
-        return new CustomEventInternals.AnimateTrack(
+        return new AnimateTrack(
             ...params as ConstructorParameters<
-                typeof CustomEventInternals.AnimateTrack
+                typeof AnimateTrack
             >,
         )
     }
 
     const [beat, track, duration, animation, easing] = params
 
-    return new CustomEventInternals.AnimateTrack(
+    return new AnimateTrack(
         {
             beat: beat as number,
             track: track as TrackValue,

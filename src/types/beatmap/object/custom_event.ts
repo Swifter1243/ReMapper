@@ -1,11 +1,3 @@
-import {AbstractCustomEvent} from "../../../internals/beatmap/object/custom_event/base.ts";
-import {AnimateComponent} from "../../../internals/beatmap/object/custom_event/chroma.ts";
-import {AnimateTrack} from "../../../internals/beatmap/object/custom_event/heck.ts";
-import {
-    AssignPathAnimation,
-    AssignPlayerToTrack,
-    AssignTrackParent
-} from "../../../internals/beatmap/object/custom_event/noodle_extensions.ts";
 import {SetMaterialProperty} from "../../../internals/beatmap/object/custom_event/vivify/set_material_property.ts";
 import {SetGlobalProperty} from "../../../internals/beatmap/object/custom_event/vivify/set_global_property.ts";
 import {Blit} from "../../../internals/beatmap/object/custom_event/vivify/blit.ts";
@@ -32,7 +24,22 @@ import {
     ISetMaterialProperty,
     ISetRenderSetting
 } from "./vivify_event_interfaces.ts";
-import { bsmap } from '../../../deps.ts'
+import {bsmap} from '../../../deps.ts'
+import {Fields, SubclassExclusiveProps} from "../../util/class.ts";
+import {ExcludedObjectFields, ObjectReplacements} from "./object.ts";
+import {CustomEvent} from "../../../internals/beatmap/object/custom_event/base/custom_event.ts";
+import {AbstractCustomEvent} from "../../../internals/beatmap/object/custom_event/base/abstract_custom_event.ts";
+import {AnimateComponent} from "../../../internals/beatmap/object/custom_event/chroma/animate_component.ts";
+import {AnimateTrack} from "../../../internals/beatmap/object/custom_event/heck/animate_track.ts";
+import {
+    AssignPathAnimation
+} from "../../../internals/beatmap/object/custom_event/noodle_extensions/assign_path_animation.ts";
+import {
+    AssignTrackParent
+} from "../../../internals/beatmap/object/custom_event/noodle_extensions/assign_track_parent.ts";
+import {
+    AssignPlayerToTrack
+} from "../../../internals/beatmap/object/custom_event/noodle_extensions/assign_player_to_track.ts";
 
 /** Wrapper for custom event arrays in a beatmap. */
 export interface BeatmapCustomEvents {
@@ -72,3 +79,37 @@ export type IV3CustomEvent =
     | ISetGlobalProperty
     | ISetMaterialProperty
     | ISetRenderSetting
+
+export type CustomEventExclusions = {
+    type: never
+}
+
+/** Gives the input params object for the constructor of custom events using a track.
+ * Replaces the track property from a track class to a (string | string[])
+ */
+export type CustomEventConstructorTrack<T, R = ObjectReplacements> =
+    ExcludedObjectFields<
+        T,
+        R,
+        CustomEventExclusions
+    >
+
+/**
+ * Gives the input params object for the constructor of custom events.
+ */
+export type CustomEventConstructor<T> = ExcludedObjectFields<
+    T,
+    // deno-lint-ignore ban-types
+    {},
+    CustomEventExclusions
+>
+
+/** Gives the fields exclusive to the subclass of a custom event.
+ * Kind of just removes some biolerplate where I define BaseCustomEvent as the parent.
+ */
+export type CustomEventSubclassFields<T> = Fields<
+    SubclassExclusiveProps<
+        T,
+        CustomEvent
+    >
+>

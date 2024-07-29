@@ -1,15 +1,16 @@
-import {
-    CustomEvent,
-    CustomEventConstructor,
-    CustomEventSubclassFields,
-    getDataProp,
-} from '../base.ts'
 import { getActiveDifficulty } from '../../../../../data/active_difficulty.ts'
 import { copy } from '../../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
-import {ISetAnimatorProperty} from "../../../../../types/beatmap/object/vivify_event_interfaces.ts";
-import {EASE} from "../../../../../types/animation/easing.ts";
-import {AnimatorProperty} from "../../../../../types/vivify/animator.ts";
+import {
+    ISetAnimatorProperty,
+} from '../../../../../types/beatmap/object/vivify_event_interfaces.ts'
+import { EASE } from '../../../../../types/animation/easing.ts'
+import { AnimatorProperty } from '../../../../../types/vivify/animator.ts'
+import { Fields } from '../../../../../types/util/class.ts'
+import { CustomEventConstructor } from '../../../../../types/beatmap/object/custom_event.ts'
+
+import { getDataProp } from '../../../../../utils/beatmap/json.ts'
+import { CustomEvent } from '../base/custom_event.ts'
 
 export class SetAnimatorProperty extends CustomEvent<
     never,
@@ -20,10 +21,10 @@ export class SetAnimatorProperty extends CustomEvent<
     ) {
         super(params)
         this.type = 'SetAnimatorProperty'
-        this.id = params.id ?? ''
-        if (params.duration) this.duration = params.duration
-        if (params.easing) this.easing = params.easing
-        if (params.properties) this.properties = params.properties
+        this.id = params.id ?? SetAnimatorProperty.defaults.id
+        this.properties = params.properties ?? SetAnimatorProperty.defaults.properties
+        this.duration = params.duration
+        this.easing = params.easing
     }
 
     /** Id assigned to prefab. */
@@ -33,7 +34,13 @@ export class SetAnimatorProperty extends CustomEvent<
     /** An easing for the animation to follow. Defaults to "easeLinear". */
     easing?: EASE
     /** Properties to set. */
-    properties: AnimatorProperty[] = []
+    properties: AnimatorProperty[]
+
+    static defaults: Fields<SetAnimatorProperty> = {
+        id: '',
+        properties: [],
+        ...super.defaults,
+    }
 
     push(clone = true) {
         getActiveDifficulty().customEvents.setAnimatorPropertyEvents.push(
@@ -42,42 +49,20 @@ export class SetAnimatorProperty extends CustomEvent<
         return this
     }
 
-    fromJson(json: ISetAnimatorProperty, v3: true): this
-    fromJson(json: never, v3: false): this
-    fromJson(
-        json:
-            | ISetAnimatorProperty
-            | never,
-        v3: boolean,
-    ): this {
-        type Params = CustomEventSubclassFields<SetAnimatorProperty>
-
-        if (!v3) throw 'SetAnimatorProperty is only supported in V3!'
-
-        const obj = json as ISetAnimatorProperty
-
-        const params = {
-            id: getDataProp(obj.d, 'id'),
-            duration: getDataProp(obj.d, 'duration'),
-            easing: getDataProp(obj.d, 'easing'),
-            properties: getDataProp(obj.d, 'properties'),
-        } as Params
-
-        Object.assign(this, params)
-        return super.fromJson(obj, v3)
+    fromJsonV3(json: ISetAnimatorProperty): this {
+        this.id = getDataProp(json.d, 'id') ?? SetAnimatorProperty.defaults.id
+        this.properties = getDataProp(json.d, 'properties') ??
+            SetAnimatorProperty.defaults.properties
+        this.duration = getDataProp(json.d, 'duration')
+        this.easing = getDataProp(json.d, 'easing') as EASE
+        return super.fromJsonV3(json)
     }
 
-    toJson(v3: true, prune?: boolean): ISetAnimatorProperty
-    toJson(v3: false, prune?: boolean): never
-    toJson(
-        v3: boolean,
-        prune = true,
-    ) {
-        if (!v3) throw 'SetAnimatorProperty is only supported in V3!'
+    fromJsonV2(_json: never): this {
+        throw 'SetAnimatorProperty is only supported in V3!'
+    }
 
-        if (!this.id) {
-            throw 'id is undefined, which is required for SetAnimatorProperty!'
-        }
+    toJsonV3(prune?: boolean): ISetAnimatorProperty {
         if (Object.keys(this.properties).length === 0) {
             throw 'properties is empty, which is redundant for SetAnimatorProperty!'
         }
@@ -94,5 +79,9 @@ export class SetAnimatorProperty extends CustomEvent<
             t: 'SetAnimatorProperty',
         } satisfies ISetAnimatorProperty
         return prune ? objectPrune(output) : output
+    }
+
+    toJsonV2(_prune?: boolean): never {
+        throw 'SetAnimatorProperty is only supported in V3!'
     }
 }

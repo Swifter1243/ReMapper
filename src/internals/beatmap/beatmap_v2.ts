@@ -29,13 +29,13 @@ import {officialBpmEvent} from "../../builder_functions/beatmap/object/v3_event/
 import {RMDifficulty} from "../../types/beatmap/rm_difficulty.ts";
 import {OfficialBPMEvent} from "./object/v3_event/official_bpm.ts";
 import {CommunityBPMEvent} from "./object/v3_event/community_bpm.ts";
-import {CustomEvent} from "./object/custom_event/base.ts";
 import {ColorVec} from "../../types/math/vector.ts";
 import {BeatmapCustomEvents} from "../../types/beatmap/object/custom_event.ts";
 import { IInfoSet, IInfoSetDifficulty } from '../../types/beatmap/info.ts'
 import { ColorNote } from './object/gameplay_object/color_note.ts'
 import {Bomb} from "./object/gameplay_object/bomb.ts";
 import { RuntimeRawKeyframesAny } from '../../types/animation/keyframe/runtime/any.ts'
+import {CustomEvent} from "./object/custom_event/base/custom_event.ts";
 
 /** Difficulty V2 beatmap. */
 export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {

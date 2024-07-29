@@ -1,15 +1,14 @@
-import {
-    CustomEvent,
-    CustomEventConstructor,
-    CustomEventSubclassFields,
-    getDataProp,
-} from '../base.ts'
 import { RENDER_SETTING } from '../../../../../types/vivify/setting.ts'
 import { getActiveDifficulty } from '../../../../../data/active_difficulty.ts'
 import { copy } from '../../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import { ISetRenderSetting } from '../../../../../types/beatmap/object/vivify_event_interfaces.ts'
 import { EASE } from '../../../../../types/animation/easing.ts'
+import { Fields } from '../../../../../types/util/class.ts'
+import {CustomEventConstructor} from "../../../../../types/beatmap/object/custom_event.ts";
+
+import {getDataProp} from "../../../../../utils/beatmap/json.ts";
+import {CustomEvent} from "../base/custom_event.ts";
 
 export class SetRenderSetting extends CustomEvent<
     never,
@@ -20,17 +19,22 @@ export class SetRenderSetting extends CustomEvent<
     ) {
         super(params)
         this.type = 'SetRenderSetting'
-        this.settings = params.settings ?? {}
-        if (params.duration) this.duration = params.duration
-        if (params.easing) this.easing = params.easing
+        this.settings = params.settings ?? SetRenderSetting.defaults.settings
+        this.duration = params.duration
+        this.easing = params.easing
     }
 
+    /** The settings to set. */
+    settings: Partial<RENDER_SETTING>
     /** The length of the event in beats. Defaults to 0. */
     duration?: number
     /** An easing for the animation to follow. Defaults to "easeLinear". */
     easing?: EASE
-    /** The settings to set. */
-    settings: Partial<RENDER_SETTING>
+
+    static defaults: Fields<SetRenderSetting> = {
+        settings: {},
+        ...super.defaults,
+    }
 
     push(clone = true) {
         getActiveDifficulty().customEvents.setRenderSettingEvents.push(
@@ -39,40 +43,18 @@ export class SetRenderSetting extends CustomEvent<
         return this
     }
 
-    fromJson(json: ISetRenderSetting, v3: true): this
-    fromJson(json: never, v3: false): this
-    fromJson(
-        json:
-            | ISetRenderSetting
-            | never,
-        v3: boolean,
-    ): this {
-        type Params = CustomEventSubclassFields<SetRenderSetting>
-
-        if (!v3) throw 'SetRenderSetting is only supported in V3!'
-
-        const obj = json as ISetRenderSetting
-
-        const params = {
-            duration: getDataProp(obj.d, 'duration'),
-            easing: getDataProp(obj.d, 'easing'),
-            settings: obj.d,
-        } as Params
-
-        obj.d = {}
-
-        Object.assign(this, params)
-        return super.fromJson(obj, v3)
+    fromJsonV3(json: ISetRenderSetting): this {
+        this.duration = getDataProp(json.d, 'duration')
+        this.easing = getDataProp(json.d, 'easing')
+        this.settings = { ...json.d }
+        return super.fromJsonV3(json)
     }
 
-    toJson(v3: true, prune?: boolean): ISetRenderSetting
-    toJson(v3: false, prune?: boolean): never
-    toJson(
-        v3: boolean,
-        prune = true,
-    ) {
-        if (!v3) throw 'SetRenderSetting is only supported in V3!'
+    fromJsonV2(_json: never): this {
+        throw 'SetRenderSetting is only supported in V3!'
+    }
 
+    toJsonV3(prune?: boolean): ISetRenderSetting {
         if (Object.keys(this.settings).length === 0) {
             throw 'settings is empty, which is redundant for SetRenderSetting!'
         }
@@ -88,5 +70,9 @@ export class SetRenderSetting extends CustomEvent<
             t: 'SetRenderSetting',
         } satisfies ISetRenderSetting
         return prune ? objectPrune(output) : output
+    }
+
+    toJsonV2(_prune?: boolean): never {
+        throw 'SetRenderSetting is only supported in V3!'
     }
 }
