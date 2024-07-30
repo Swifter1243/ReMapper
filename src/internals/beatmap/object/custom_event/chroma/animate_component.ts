@@ -18,8 +18,8 @@ export class AnimateComponent extends CustomEvent<never, bsmap.v3.ICustomEventAn
         super(params)
         this.type = 'AnimateComponent'
         this.track = params.track instanceof Track ? params.track : new Track(params.track)
-        this.duration = params.duration ?? AnimateComponent.defaults.duration
-        this.easing = params.easing ?? AnimateComponent.defaults.easing
+        this.duration = params.duration
+        this.easing = params.easing
         this.lightMultiplier = params.lightMultiplier ?? copy(AnimateComponent.defaults.lightMultiplier)
         this.fog = params.fog ?? copy(AnimateComponent.defaults.fog)
     }
@@ -28,14 +28,14 @@ export class AnimateComponent extends CustomEvent<never, bsmap.v3.ICustomEventAn
      * Uses a wrapper that simplifies single strings and arrays.
      */
     track: Track
-    /** Duration of the animation. */
-    duration?: number
-    /** The easing on this event's animation. */
-    easing?: EASE
     /** The "TubeBloomPrePassLight component to animate." */
     lightMultiplier: TubeBloomPrePassLight<PointDefinitionLinear>
     /** The "BloomFogEnvironment component to animate." */
     fog: BloomFogEnvironment<PointDefinitionLinear>
+    /** Duration of the animation. */
+    duration?: number
+    /** The easing on this event's animation. */
+    easing?: EASE
 
     static defaults: DefaultFields<AnimateComponent> = {
         lightMultiplier: {},
