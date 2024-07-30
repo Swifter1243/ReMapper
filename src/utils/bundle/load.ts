@@ -1,11 +1,11 @@
 import {setMaterialProperty} from '../../builder_functions/beatmap/object/custom_event/vivify.ts'
 import {makeMaterialMap, makePrefabMap} from './map.ts'
-import {AssetInfo, MaterialMap, PrefabMap} from "../../types/asset.ts";
+import {BundleInfo, MaterialMap, PrefabMap} from "../../types/bundle.ts";
 import {MaterialProperty} from "../../types/vivify/material.ts";
 import { getActiveInfo } from '../../data/active_info.ts'
 
-function initializeMaterials(assetInfo: AssetInfo) {
-    Object.values(assetInfo.default.materials).forEach(
+function initializeMaterials(bundleInfo: BundleInfo) {
+    Object.values(bundleInfo.default.materials).forEach(
         (value) => {
             const path = value.path
             const properties = value.properties
@@ -35,33 +35,33 @@ function initializeMaterials(assetInfo: AssetInfo) {
     )
 }
 
-function applyCRCsToInfo(assetInfo: AssetInfo) {
+function applyCRCsToInfo(bundleInfo: BundleInfo) {
     const info = getActiveInfo()
     info._customData ??= {}
-    Object.assign(info._customData._assetBundle, assetInfo.default.bundleCRCs)
+    Object.assign(info._customData._assetBundle, bundleInfo.default.bundleCRCs)
 }
 
 /** Generate a typed list of assets from JSON.
- * @param assetInfo The `asset_info.json` to import.
+ * @param bundleInfo The `bundleinfo.json` to import.
  * @param initialize Whether to set the default value of all materials at the start of the map. This is redundancy in case material values are externally altered.
  */
-export function loadAssets<T extends AssetInfo>(
-    assetInfo: T,
+export function loadBundle<T extends BundleInfo>(
+    bundleInfo: T,
     initialize = true,
     applyToInfo = true
 ): {
     materials: MaterialMap<T['default']['materials']>
     prefabs: PrefabMap<T['default']['prefabs']>
 } {
-    const materials = makeMaterialMap(assetInfo.default.materials)
-    const prefabs = makePrefabMap(assetInfo.default.prefabs)
+    const materials = makeMaterialMap(bundleInfo.default.materials)
+    const prefabs = makePrefabMap(bundleInfo.default.prefabs)
 
     if (initialize) {
-        initializeMaterials(assetInfo)
+        initializeMaterials(bundleInfo)
     }
 
     if (applyToInfo) {
-        applyCRCsToInfo(assetInfo)
+        applyCRCsToInfo(bundleInfo)
     }
 
     return {

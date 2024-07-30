@@ -1,6 +1,6 @@
 import { Prefab } from './prefab.ts'
 import { Material } from './material.ts'
-import {FixedMaterialInfo, MaterialInfo, MaterialMap, PrefabInfo, PrefabMap} from "../../types/asset.ts";
+import {FixedMaterialInfo, MaterialInfo, MaterialMap, PrefabInfo, PrefabMap} from "../../types/bundle.ts";
 import {MATERIAL_PROP_TYPE} from "../../types/vivify/material.ts";
 
 

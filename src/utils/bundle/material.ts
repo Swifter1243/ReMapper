@@ -1,5 +1,5 @@
 import {blit, setMaterialProperty} from '../../builder_functions/beatmap/object/custom_event/vivify.ts'
-import {MaterialProperties, MaterialPropertyMap} from "../../types/asset.ts";
+import {MaterialProperties, MaterialPropertyMap} from "../../types/bundle.ts";
 
 import {EASE} from "../../types/animation/easing.ts";
 import {DeepReadonly} from "../../types/util/mutability.ts";

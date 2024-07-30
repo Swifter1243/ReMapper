@@ -1,5 +1,5 @@
-import { Material } from '../utils/asset/material.ts'
-import { Prefab } from '../utils/asset/prefab.ts'
+import { Material } from '../utils/bundle/material.ts'
+import { Prefab } from '../utils/bundle/prefab.ts'
 
 import { ColorVec, Vec4 } from './math/vector.ts'
 import { RuntimePointDefinitionLinear } from './animation/keyframe/runtime/linear.ts'
@@ -18,8 +18,8 @@ export type MaterialInfo = Record<string, {
     properties: Record<string, Partial<Record<MATERIAL_PROP_TYPE, unknown>>>
 }>
 
-/** Asset info exported from the VivifyTemplate exporter. Imported to this type in the form of `asset_info.json`. */
-export type AssetInfo = {
+/** Bundle info exported from the VivifyTemplate exporter. Imported to this type in the form of `asset_info.json`. */
+export type BundleInfo = {
     default: {
         materials: MaterialInfo
         prefabs: PrefabInfo

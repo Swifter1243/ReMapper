@@ -1,6 +1,6 @@
 export * from './animation/mod.ts'
 export * from './array/mod.ts'
-export * from './asset/mod.ts'
+export * from './bundle/mod.ts'
 export * from './beatmap/mod.ts'
 export * from './color/mod.ts'
 export * from './iterator/mod.ts'
