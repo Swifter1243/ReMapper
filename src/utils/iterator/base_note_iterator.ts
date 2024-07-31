@@ -95,7 +95,8 @@ export class BaseNoteIterator<T extends AnyNote> {
     }
 
     /** Generate tracks on each note with the cut direction of the note appended. Only works on color notes and chains.
-     * @param directionNames Determine what string each cut direction will map to.
+     * @param prefix How to prefix every string
+     * @param directionNames Determine what string each cut direction will map to
      */
     addTrackByDirection(
         prefix = 'cut_',
@@ -131,7 +132,7 @@ export class BaseNoteIterator<T extends AnyNote> {
             this.processes.forEach((p) => {
                 p(x)
             })
-            if (log) console.log(x.toJson(true))
+            if (log) console.log(x.toJsonV3())
         })
     }
 

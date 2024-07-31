@@ -186,13 +186,10 @@ function GetYIntercept(
     for (let i = 0; i < slopeArray.length; i++) {
         const slope = slopeArray[i]
         const x = pointValues[i]
-        const y = pointTime
-
         //y = mx + b
         // solve for y
         // b = y - mx
-        const yIntercept = y - (slope * x)
-        yIntercepts[i] = yIntercept
+        yIntercepts[i] = pointTime - (slope * x)
     }
 }
 

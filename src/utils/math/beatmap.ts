@@ -41,9 +41,8 @@ export function getReactionTime(
     beatsPerMinute: number,
 ) {
     const halfJumpDuration = getJumps(noteJumpSpeed, noteJumpOffset, beatsPerMinute).halfDuration
-    const beatms = 60000 / beatsPerMinute
-    const reactionTime = beatms * halfJumpDuration
-    return reactionTime;
+    const beatMilliseconds = 60000 / beatsPerMinute
+    return beatMilliseconds * halfJumpDuration;
 }
 
 /** Convert seconds to beats given a bpm. Doesn't account for bpm changes. */

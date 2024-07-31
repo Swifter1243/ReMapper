@@ -1,6 +1,7 @@
-import { pngs } from '../deps.ts'
+import {pngs} from '../deps.ts'
 
 import {ColorVec, Vec4} from "../types/math/vector.ts";
+import {generateArray} from "./array/generate.ts";
 
 export class Image {
     /** Width of the image in pixels. */
@@ -54,10 +55,7 @@ export class Image {
     /** Get a pixel color at the given coordinates. */
     getPixel(x: number, y: number) {
         const index = this.coordToIndex(x, y)
-        const output = [0, 0, 0, 0].map((_x, i) =>
-            this.data[i + index] / 255
-        ) as Vec4
-        return output
+        return generateArray(4, (i) => this.data[i + index] / 255) as Vec4
     }
 
     /** Save the image to a file. */

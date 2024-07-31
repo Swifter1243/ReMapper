@@ -3,11 +3,11 @@ import { backLasers } from '../../builder_functions/beatmap/object/basic_event/l
 import { adjustFog } from '../beatmap/object/environment/fog.ts'
 import { environment } from '../../builder_functions/beatmap/object/environment/environment.ts'
 import { arrayAdd } from '../array/operation.ts'
-import { ModelScene } from './model_scene.ts'
 import { geometry } from '../../builder_functions/beatmap/object/environment/geometry.ts'
 import {Vec3} from "../../types/math/vector.ts";
 import {ModelObject} from "../../types/model/object.ts";
 import {GroupObjectTypes} from "../../types/model/model_scene/group.ts";
+import {modelScene} from "../../builder_functions/model/model_scene.ts";
 
 /**
  * Debug the transformations necessary to fit an object to a cube.
@@ -18,7 +18,7 @@ import {GroupObjectTypes} from "../../types/model/model_scene/group.ts";
  * @param anchor The anchor offset for the spawned object previously mentioned.
  * @param rotation The rotation offset for the spawned object previously mentioned.
  */
-export function debugObject(
+export async function debugObject(
     input: GroupObjectTypes,
     resolution: number,
     scale?: Vec3,
@@ -98,9 +98,9 @@ export function debugObject(
         [[0, 0, -resolution / 2 - axisDist], [1, 1, resolution]],
     ])
 
-    const scene = new ModelScene(input, scale, anchor, rotation)
+    const scene = modelScene(input, scale, anchor, rotation)
     scene.addPrimaryGroups('debugCubeX', geometry('Cube', 'debugCubeX'))
     scene.addPrimaryGroups('debugCubeY', geometry('Cube', 'debugCubeY'))
     scene.addPrimaryGroups('debugCubeZ', geometry('Cube', 'debugCubeZ'))
-    scene.static(modelData)
+    await scene.static(modelData)
 }

@@ -1,7 +1,7 @@
 /** Generate array from a function */
-export function generateArray<T>(size: number, element: () => T) {
+export function generateArray<T>(size: number, element: (index: number) => T) {
     const result = []
-    for (let i = 0; i < size; i++) result.push(element())
+    for (let i = 0; i < size; i++) result.push(element(i))
     return result
 }
 

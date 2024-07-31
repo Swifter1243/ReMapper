@@ -44,6 +44,7 @@ function applyCRCsToInfo(bundleInfo: BundleInfo) {
 /** Generate a typed list of assets from JSON.
  * @param bundleInfo The `bundleinfo.json` to import.
  * @param initialize Whether to set the default value of all materials at the start of the map. This is redundancy in case material values are externally altered.
+ * @param applyToInfo Whether to apply CRC data from `bunfleInfo` to the Info.dat
  */
 export function loadBundle<T extends BundleInfo>(
     bundleInfo: T,

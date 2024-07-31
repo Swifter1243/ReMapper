@@ -102,7 +102,7 @@ export async function transferVisuals(
             }
 
             if (forDiff !== undefined) forDiff(workingDiff)
-            workingDiff.save()
+            await workingDiff.save()
         }
 
         const promises: Promise<void>[] = []

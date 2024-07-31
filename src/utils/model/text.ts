@@ -22,10 +22,7 @@ export class Text implements TextInfo {
     /** The model properties of the text. */
     model: ReadonlyText = []
     /** The height of the text model. Generated from input. */
-    get modelHeight() {
-        return this._modelHeight
-    }
-    private _modelHeight = 0
+    readonly modelHeight: number;
 
     /**
      * An interface to generate objects from text.
@@ -35,7 +32,7 @@ export class Text implements TextInfo {
     constructor(input: ReadonlyText) {
         this.model = input
         const bounds = getBoxBounds(input as TextObject[])
-        this._modelHeight = bounds.highBound[1]
+        this.modelHeight = bounds.highBound[1]
     }
 
     /**
@@ -134,8 +131,9 @@ export class Text implements TextInfo {
      * @param wall A callback for each wall being spawned.
      * @param distribution Beats to spread spawning of walls out.
      * Animations are adjusted, but keep in mind path animation events for these walls might be messed up.
+     * @param animationSettings Settings used to process the animation.
      */
-    toWalls(
+    async toWalls(
         text: string,
         start: number,
         end: number,
@@ -144,7 +142,7 @@ export class Text implements TextInfo {
         animationSettings = new AnimationSettings()
     ) {
         const model = this.toObjects(text)
-        modelToWall(
+        await modelToWall(
             model,
             start,
             end,

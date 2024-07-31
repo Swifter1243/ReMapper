@@ -2,8 +2,7 @@
 
 import { objectSafeGet } from '../../../../utils/object/safe.ts'
 
-
-import {TJson} from "../../../../types/util/json.ts";
+import { TJson } from '../../../../types/util/json.ts'
 
 export class CinemaScreen {
     json: Record<string, any> = {
@@ -271,14 +270,14 @@ This setting prevents the user from overriding the environment. */
         this.json.endVideoAt = value
     }
     set position(value: [number, number, number]) {
-        this.json.screenPosition.x = value[0],
-            this.json.screenPosition.y = value[1],
-            this.json.screenPosition.z = value[2]
+        this.json.screenPosition.x = value[0]
+        this.json.screenPosition.y = value[1]
+        this.json.screenPosition.z = value[2]
     }
     set rotation(value: [number, number, number]) {
-        this.json.screenRotation.x = value[0],
-            this.json.screenRotation.y = value[1],
-            this.json.screenRotation.z = value[2]
+        this.json.screenRotation.x = value[0]
+        this.json.screenRotation.y = value[1]
+        this.json.screenRotation.z = value[2]
     }
     set height(value: number) {
         this.json.screenHeight = value
