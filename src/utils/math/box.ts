@@ -24,7 +24,7 @@ export function getBoxBounds(
         const rot = b.rotation ?? [0, 0, 0]
         const scale = b.scale ?? [1, 1, 1]
 
-        const corners: Vec3[] = [
+        const corners: Readonly<Vec3>[] = [
             [-1, 1, 1],
             [1, 1, 1],
             [-1, -1, 1],
@@ -41,8 +41,8 @@ export function getBoxBounds(
             c = arrayAdd(c, pos as Vec3)
 
             if (lowBound === undefined) {
-                lowBound = copy(c)
-                highBound = copy(c)
+                lowBound = copy<Vec3>(c)
+                highBound = copy<Vec3>(c)
                 return
             }
 

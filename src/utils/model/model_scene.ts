@@ -786,7 +786,7 @@ export class ModelScene {
                 !objectIsStatic
             ) {
                 event.repeat = (s.model as AnimatedOptions).loop! - 1
-                event.duration /= (s.model as AnimatedOptions).loop!
+                event.duration! /= (s.model as AnimatedOptions).loop!
             }
 
             // Run callback and then push event

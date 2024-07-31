@@ -96,7 +96,7 @@ export class BaseLightIterator {
             this.processes.forEach((p) => {
                 p(x)
             })
-            if (log) console.log(x.toJson(true))
+            if (log) console.log(x.toJsonV3())
         })
     }
 }

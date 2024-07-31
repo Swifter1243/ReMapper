@@ -148,7 +148,7 @@ export async function modelToWall(
             o.animation.definitePosition = copy(
                 x.position,
             ) as RuntimeRawKeyframesVec3
-            if (x.color) o.color = copy(x.color) as ColorVec
+            if (x.color) o.chromaColor = copy(x.color) as ColorVec
 
             // Copy rotation
             if (areKeyframesSimple(x.rotation)) {

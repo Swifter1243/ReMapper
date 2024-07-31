@@ -19,7 +19,7 @@ export function reverseAnimation<T extends NumberTuple>(
     if (areKeyframesSimple(animation)) return animation
     const keyframes: ComplexKeyframesAbstract<T> = []
     ;(animation as ComplexKeyframesAbstract<T>).forEach((x, i) => {
-        const k = copy(x)
+        const k = copy<typeof x>(x)
         const timeIndex = getKeyframeTimeIndex(k)
         k[timeIndex] = 1 - (k as number[])[timeIndex]
         keyframes[animation.length - 1 - i] = k
@@ -66,14 +66,14 @@ export function mirrorAnimation<T extends NumberTuple>(
     const output: ComplexKeyframesAbstract<T> = []
 
     iterateKeyframes(animation, (x) => {
-        const k = copy(x)
+        const k = copy<typeof x>(x)
         const timeIndex = getKeyframeTimeIndex(k)
         k[timeIndex] = (k as number[])[timeIndex] / 2
         output.push(k)
     })
 
     iterateKeyframes(reversedAnim, (x) => {
-        const k = copy(x)
+        const k = copy<typeof x>(x)
         const timeIndex = getKeyframeTimeIndex(k)
         k[timeIndex] = (k as number[])[timeIndex] / 2 + 0.5
         output.push(k)
