@@ -4,21 +4,22 @@ import { getActiveDifficulty } from '../../../../data/active_difficulty.ts'
 import { copy } from '../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../utils/object/prune.ts'
 import { bsmap } from '../../../../deps.ts'
-import {Fields, SubclassExclusiveProps} from "../../../../types/util/class.ts";
-import {getCDProp} from "../../../../utils/beatmap/json.ts";
+import { getCDProp } from '../../../../utils/beatmap/json.ts'
+import { DeepReadonly } from '../../../../types/util/mutability.ts'
+import { ObjectFields } from '../../../../types/util/json.ts'
 
 export class RingSpinEvent extends BasicEvent<bsmap.v2.IEventRing, bsmap.v3.IBasicEventRing> {
-    constructor(obj: Partial<Omit<Fields<RingSpinEvent>, 'type'>>) {
+    constructor(obj: Partial<Omit<ObjectFields<RingSpinEvent>, 'type'>>) {
         super({
             ...obj,
             type: EventGroup.RING_SPIN,
         })
-        this.type = EventGroup.RING_SPIN
         this.speed = obj.speed
         this.direction = obj.direction
         this.nameFilter = obj.nameFilter
         this.rotation = obj.rotation
         this.step = obj.step
+        this.prop = obj.prop
     }
 
     /** The speed multiplier of the spin. */
@@ -36,6 +37,10 @@ export class RingSpinEvent extends BasicEvent<bsmap.v2.IEventRing, bsmap.v3.IBas
      */
     prop?: number
 
+    static defaults: DeepReadonly<ObjectFields<RingSpinEvent>> = {
+        ...super.defaults,
+    }
+
     push(
         clone = true,
     ): RingSpinEvent {
@@ -43,74 +48,45 @@ export class RingSpinEvent extends BasicEvent<bsmap.v2.IEventRing, bsmap.v3.IBas
         return this
     }
 
-    fromJson(json: bsmap.v3.IBasicEventRing, v3: true): this
-    fromJson(json: bsmap.v2.IEventRing, v3: false): this
-    fromJson(
-        json: bsmap.v3.IBasicEventRing | bsmap.v2.IEventRing,
-        v3: boolean,
-    ): this {
-        // TODO: Implement custom properties
-
-        type Params = SubclassExclusiveProps<
-            RingSpinEvent,
-            BasicEvent
-        >
-
-        if (v3) {
-            const obj = json as bsmap.v3.IBasicEventRing
-
-            const params = {
-                direction: getCDProp(obj, 'direction'),
-                nameFilter: getCDProp(obj, 'nameFilter'),
-                prop: getCDProp(obj, 'prop'),
-                rotation: getCDProp(obj, 'rotation'),
-                speed: getCDProp(obj, 'speed'),
-                step: getCDProp(obj, 'step'),
-            } as Params
-
-            Object.assign(this, params)
-            return super.fromJson(obj, true)
-        } else {
-            const obj = json as bsmap.v2.IEventRing
-
-            const params = {
-                direction: getCDProp(obj, '_direction'),
-                nameFilter: getCDProp(obj, '_nameFilter'),
-                prop: getCDProp(obj, '_prop'),
-                rotation: getCDProp(obj, '_rotation'),
-                speed: getCDProp(obj, '_speed'),
-                step: getCDProp(obj, '_step'),
-            } as Params
-
-            Object.assign(this, params)
-            return super.fromJson(obj, false)
-        }
+    fromJsonV3(json: bsmap.v3.IBasicEventRing): this {
+        this.direction = getCDProp(json, 'direction') as 0 | 1 | undefined
+        this.nameFilter = getCDProp(json, 'nameFilter')
+        this.prop = getCDProp(json, 'prop')
+        this.rotation = getCDProp(json, 'rotation')
+        this.speed = getCDProp(json, 'speed')
+        this.step = getCDProp(json, 'step')
+        return super.fromJsonV3(json)
     }
 
-    toJson(v3: true, prune?: boolean): bsmap.v3.IBasicEventRing
-    toJson(v3: false, prune?: boolean): bsmap.v2.IEventRing
-    toJson(
-        v3 = true,
-        prune = true,
-    ): bsmap.v2.IEventRing | bsmap.v3.IBasicEventRing {
-        if (v3) {
-            const output = {
-                b: this.beat,
-                et: EventGroup.RING_SPIN,
-                f: this.floatValue,
-                i: this.value,
-                customData: {
-                    direction: this.direction,
-                    nameFilter: this.nameFilter,
-                    prop: this.prop,
-                    rotation: this.rotation,
-                    speed: this.speed,
-                    step: this.step,
-                },
-            } satisfies bsmap.v3.IBasicEventRing
-            return prune ? objectPrune(output) : output
-        }
+    fromJsonV2(json: bsmap.v2.IEventRing): this {
+        this.direction = getCDProp(json, '_direction') as 0 | 1 | undefined
+        this.nameFilter = getCDProp(json, '_nameFilter')
+        this.prop = getCDProp(json, '_prop')
+        this.rotation = getCDProp(json, '_rotation')
+        this.speed = getCDProp(json, '_speed')
+        this.step = getCDProp(json, '_step')
+        return super.fromJsonV2(json)
+    }
 
+    toJsonV3(prune?: boolean): bsmap.v3.IBasicEventRing {
+        const output = {
+            b: this.beat,
+            et: EventGroup.RING_SPIN,
+            f: this.floatValue,
+            i: this.value,
+            customData: {
+                direction: this.direction,
+                nameFilter: this.nameFilter,
+                prop: this.prop,
+                rotation: this.rotation,
+                speed: this.speed,
+                step: this.step,
+            },
+        } satisfies bsmap.v3.IBasicEventRing
+        return prune ? objectPrune(output) : output
+    }
+
+    toJsonV2(prune?: boolean): bsmap.v2.IEventRing {
         const output = {
             _floatValue: this.floatValue,
             _time: this.beat,

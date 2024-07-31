@@ -5,11 +5,7 @@ import { Fields } from './class.ts'
  * @typeparam T - The input type.
  * @typeparam V - The custom properties type.
  */
-export type ObjectFields<T extends { customData: V }, V = T['customData']> =
-    & Omit<Omit<Fields<T>, 'isModded'>, 'customData'>
-    & {
-        customData?: T['customData']
-    }
+export type ObjectFields<T> = Omit<Fields<T>, 'isModded'>
 
 /** Represents a JSON properties type. */
 export type TJson = Record<string, unknown>

@@ -6,6 +6,7 @@ import {TrackValue} from "../../animation/track.ts";
 import {AnyNote} from "./note.ts";
 import {Fields} from "../../util/class.ts";
 import {DeepReadonly} from "../../util/mutability.ts";
+import {ObjectFields} from "../../util/json.ts";
 
 /** Properties to replace on constructor objects for gameplay objects. */
 export type ObjectReplacements = {
@@ -18,7 +19,7 @@ export type ExcludedObjectFields<
     Replacement = ObjectReplacements,
     Exclusion = ExcludeObjectFields,
 > = Omit<
-    Replace<Partial<Fields<Class>>, Replacement>,
+    Replace<ObjectFields<Class>, Replacement>,
     keyof Exclusion
 >
 
@@ -26,7 +27,6 @@ export type ExcludedObjectFields<
 export type ExcludeObjectFields = {
     implicitNoteJumpSpeed: never
     implicitNoteJumpOffset: never
-    isModded: never
     isGameplayModded: never
 }
 

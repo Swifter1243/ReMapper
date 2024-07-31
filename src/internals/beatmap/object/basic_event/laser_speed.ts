@@ -1,19 +1,18 @@
-import { BasicEventExcludedFields } from '../../../../types/beatmap/object/basic_event.ts'
 import { getActiveDifficulty } from '../../../../data/active_difficulty.ts'
 import { copy } from '../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../utils/object/prune.ts'
 import { BasicEvent } from './basic_event.ts'
 import { bsmap } from '../../../../deps.ts'
-import {Fields, SubclassExclusiveProps} from "../../../../types/util/class.ts";
 import {getCDProp} from "../../../../utils/beatmap/json.ts";
+import {DeepReadonly} from "../../../../types/util/mutability.ts";
+import {ObjectFields} from "../../../../types/util/json.ts";
 
-export class LaserSpeedEvent<
-    TV2 extends bsmap.v2.IEventLaser = bsmap.v2.IEventLaser,
-    TV3 extends bsmap.v3.IBasicEventLaserRotation = bsmap.v3.IBasicEventLaserRotation,
-> extends BasicEvent<TV2, TV3> {
-    constructor(obj: BasicEventExcludedFields<LaserSpeedEvent<TV2, TV3>>) {
+export class LaserSpeedEvent extends BasicEvent<bsmap.v2.IEventLaser, bsmap.v3.IBasicEventLaserRotation> {
+    constructor(obj: Partial<ObjectFields<LaserSpeedEvent>>) {
         super(obj)
-        this.lockRotation = obj.lockRotation, this.speed = obj.speed, this.direction = obj.direction
+        this.lockRotation = obj.lockRotation
+        this.speed = obj.speed
+        this.direction = obj.direction
     }
 
     /** Whether the existing rotation should be kept. */
@@ -23,85 +22,62 @@ export class LaserSpeedEvent<
     /** Direction of the rotating lasers. */
     direction?: number
 
+    static defaults: DeepReadonly<ObjectFields<LaserSpeedEvent>> = {
+        ...super.defaults
+    }
+
     push(
         clone = true,
-    ): LaserSpeedEvent<TV2, TV3> {
+    ): LaserSpeedEvent {
         getActiveDifficulty().laserSpeedEvents.push(clone ? copy(this) : this)
         return this
     }
 
-    fromJson(json: TV3, v3: true): this
-    fromJson(json: TV2, v3: false): this
-    fromJson(json: TV2 | TV3, v3: boolean): this {
-        type Params = Fields<
-            SubclassExclusiveProps<
-                LaserSpeedEvent,
-                BasicEvent
-            >
-        >
 
-        if (v3) {
-            const obj = json as TV3
-
-            const params = {
-                direction: getCDProp(obj, 'direction'),
-                lockRotation: getCDProp(obj, 'lockRotation'),
-                speed: getCDProp(obj, 'speed'),
-            } as Params
-
-            Object.assign(this, params)
-            return super.fromJson(obj, true)
-        } else {
-            const obj = json as TV2
-
-            const params = {
-                direction: getCDProp(obj, '_direction'),
-                lockRotation: getCDProp(obj, '_lockPosition'),
-                speed: getCDProp(obj, '_preciseSpeed'),
-                // TODO: Confirm if this is correct?
-                // _preciseSpeed vs _speed
-            } as Params
-
-            Object.assign(this, params)
-            return super.fromJson(obj, false)
-        }
+    fromJsonV3(json: bsmap.v3.IBasicEventLaserRotation): this {
+        this.lockRotation = getCDProp(json, 'lockRotation')
+        this.speed = getCDProp(json, 'speed')
+        this.direction = getCDProp(json, 'direction')
+        return super.fromJsonV3(json);
     }
 
-    toJson(v3: true, prune?: boolean): TV3
-    toJson(v3: false, prune?: boolean): TV2
-    toJson(
-        v3: boolean,
-        prune = true,
-    ): bsmap.v2.IEventLaser | bsmap.v3.IBasicEventLaserRotation {
-        if (v3) {
-            const output = {
-                b: this.beat,
-                et: this.type as bsmap.v3.IBasicEventLaserRotation['et'],
-                f: this.floatValue,
-                i: this.value,
-                customData: {
-                    direction: this.direction,
-                    lockRotation: this.lockRotation,
-                    speed: this.speed,
-                    ...this.customData,
-                },
-            } satisfies bsmap.v3.IBasicEventLaserRotation
-            return prune ? objectPrune(output) : output
-        } else {
-            const output = {
-                _floatValue: this.floatValue,
-                _time: this.beat,
-                _type: this.type as bsmap.v2.IEventLaser['_type'],
-                _value: this.value,
-                _customData: {
-                    _direction: this.direction,
-                    _lockPosition: this.lockRotation,
-                    _preciseSpeed: this.speed,
-                    _speed: this.speed,
-                    ...this.customData,
-                },
-            } satisfies bsmap.v2.IEventLaser
-            return prune ? objectPrune(output) : output
-        }
+    fromJsonV2(json: bsmap.v2.IEventLaser): this {
+        this.lockRotation = getCDProp(json, '_lockPosition')
+        this.speed = getCDProp(json, '_preciseSpeed')
+        this.direction = getCDProp(json, '_direction')
+        return super.fromJsonV2(json);
+    }
+
+    toJsonV3(prune?: boolean): bsmap.v3.IBasicEventLaserRotation {
+        const output = {
+            b: this.beat,
+            et: this.type as bsmap.v3.IBasicEventLaserRotation['et'],
+            f: this.floatValue,
+            i: this.value,
+            customData: {
+                direction: this.direction,
+                lockRotation: this.lockRotation,
+                speed: this.speed,
+                ...this.customData,
+            },
+        } satisfies bsmap.v3.IBasicEventLaserRotation
+        return prune ? objectPrune(output) : output
+    }
+
+    toJsonV2(prune?: boolean): bsmap.v2.IEventLaser {
+        const output = {
+            _floatValue: this.floatValue,
+            _time: this.beat,
+            _type: this.type as bsmap.v2.IEventLaser['_type'],
+            _value: this.value,
+            _customData: {
+                _direction: this.direction,
+                _lockPosition: this.lockRotation,
+                _preciseSpeed: this.speed,
+                _speed: this.speed,
+                ...this.customData,
+            },
+        } satisfies bsmap.v2.IEventLaser
+        return prune ? objectPrune(output) : output
     }
 }

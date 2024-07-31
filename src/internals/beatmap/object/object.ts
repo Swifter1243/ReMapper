@@ -1,61 +1,53 @@
 import {bsmap} from '../../../deps.ts'
 
 import {isEmptyObject} from "../../../utils/object/check.ts";
-import {objectPrune} from '../../../utils/object/prune.ts'
 import {JsonWrapper} from "../../../types/beatmap/json_wrapper.ts";
-import {ObjectFields, TJson} from "../../../types/util/json.ts";
+import {ObjectFields} from "../../../types/util/json.ts";
+import {copy} from "../../../utils/object/copy.ts";
+import {DeepReadonly} from "../../../types/util/mutability.ts";
 
 export abstract class BeatmapObject<
-    TV2 extends bsmap.v2.IBaseObject,
-    TV3 extends bsmap.v3.IBaseObject,
+    TV2 extends bsmap.v2.IBaseObject = bsmap.v2.IBaseObject,
+    TV3 extends bsmap.v3.IBaseObject = bsmap.v3.IBaseObject,
 > implements JsonWrapper<TV2, TV3> {
     /** The time that this object is scheduled for. */
     beat: number
     /** Any community made properties on this object. */
-    customData: TV2['_customData'] | TV3['customData']
+    customData: NonNullable<TV2['_customData'] | TV3['customData']>
+
+    /** Default values for initializing class fields */
+    static defaults: DeepReadonly<ObjectFields<BeatmapObject>> = {
+        beat: 0,
+        customData: {}
+    }
 
     constructor(
-        obj: ObjectFields<BeatmapObject<TV2, TV3>> | Record<string, unknown>,
+        obj: Partial<ObjectFields<BeatmapObject<TV2, TV3>>>,
     ) {
-        this.beat = (obj.beat as number | undefined) ?? 0
-        this.customData = obj.customData ?? {}
+        this.beat = (obj.beat as number | undefined) ?? BeatmapObject.defaults.beat
+
+        // gotta do this funky shit cause obj.customData is generic
+        this.customData = (obj as Record<string, unknown>).customData ?? copy(BeatmapObject.defaults.customData)
     }
 
     /** Checks if the object has modded properties. */
     get isModded() {
-        return !isEmptyObject(objectPrune(this.toJson(true).customData as TJson))
+        return !isEmptyObject(this.toJsonV3(true).customData)
     }
 
-    fromJson(json: TV3, v3: true): this
-    fromJson(json: TV2, v3: false): this
-    fromJson(json: TV2 | TV3, v3: boolean): this {
-        type Params = ObjectFields<BeatmapObject<TV2, TV3>>
-
-        if (v3) {
-            const obj = json as TV3
-
-            const params = {
-                beat: obj.b ?? 0,
-                customData: obj.customData,
-            } as Params
-
-            Object.assign(this, params)
-        } else {
-            const obj = json as TV2
-
-            const params = {
-                beat: obj._time ?? 0,
-                customData: obj._customData,
-            } as Params
-
-            Object.assign(this, params)
-        }
-
+    fromJsonV3(json: TV3): this {
+        this.beat = json.b ?? BeatmapObject.defaults.beat
+        this.customData = json.customData ?? copy(BeatmapObject.defaults.customData)
         return this
     }
 
-    abstract toJson(v3: true, prune?: boolean): TV3
-    abstract toJson(v3: false, prune?: boolean): TV2
-    abstract toJson(v3: true, prune?: boolean): TV2 | TV3
+    fromJsonV2(json: TV2): this {
+        this.beat = json._time ?? BeatmapObject.defaults.beat
+        this.customData = json._customData ?? copy(BeatmapObject.defaults.customData)
+        return this
+    }
+
+    abstract toJsonV3(prune?: boolean): TV3
+    abstract toJsonV2(prune?: boolean): TV2
 }
 

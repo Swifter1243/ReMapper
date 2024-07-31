@@ -1,17 +1,17 @@
 import {bsmap} from '../../../../deps.ts'
 import {BeatmapObject} from '../object.ts'
-import {BasicEventExcludedFields} from "../../../../types/beatmap/object/basic_event.ts";
-import {SubclassExclusiveProps} from "../../../../types/util/class.ts";
+import {DeepReadonly} from "../../../../types/util/mutability.ts";
+import {ObjectFields} from "../../../../types/util/json.ts";
 
 export abstract class BasicEvent<
     TV2 extends bsmap.v2.IEvent = bsmap.v2.IEvent,
     TV3 extends bsmap.v3.IBasicEvent = bsmap.v3.IBasicEvent,
 > extends BeatmapObject<TV2, TV3> {
-    constructor(obj: BasicEventExcludedFields<BasicEvent<TV2, TV3>>) {
+    constructor(obj: Partial<ObjectFields<BasicEvent<TV2, TV3>>>) {
         super(obj)
-        this.type = obj.type ?? 0
-        this.value = obj.value ?? 0
-        this.floatValue = obj.floatValue ?? 1
+        this.type = obj.type ?? BasicEvent.defaults.type
+        this.value = obj.value ?? BasicEvent.defaults.value
+        this.floatValue = obj.floatValue ?? BasicEvent.defaults.floatValue
     }
 
     /** Push this event to the difficulty
@@ -26,41 +26,24 @@ export abstract class BasicEvent<
     /** The value of the event, but allowing decimals. */
     floatValue: number
 
-    fromJson(json: TV3, v3: true): this
-    fromJson(json: TV2, v3: false): this
-    fromJson(
-        json: TV3 | TV2,
-        v3: boolean,
-    ): this {
-        // TODO: Implement custom properties
+    static defaults: DeepReadonly<ObjectFields<BasicEvent>> = {
+        type: 0,
+        value: 0,
+        floatValue: 1,
+        ...super.defaults
+    }
 
-        type Params = SubclassExclusiveProps<
-            BasicEvent,
-            BeatmapObject<TV2, TV3>
-        >
+    fromJsonV3(json: TV3): this {
+        this.type = json.et ?? BasicEvent.defaults.type
+        this.value = json.i ?? BasicEvent.defaults.value
+        this.floatValue = json.f ?? BasicEvent.defaults.floatValue
+        return super.fromJsonV3(json);
+    }
 
-        if (v3) {
-            const obj = json as TV3
-
-            const params = {
-                type: obj.et ?? 0,
-                floatValue: obj.f ?? 0,
-                value: obj.i ?? 0,
-            } as Params
-
-            Object.assign(this, params)
-            return super.fromJson(obj, true)
-        } else {
-            const obj = json as TV2
-
-            const params = {
-                type: obj._type ?? 0,
-                floatValue: obj._floatValue ?? 0,
-                value: obj._value ?? 0,
-            } as Params
-
-            Object.assign(this, params)
-            return super.fromJson(obj, false)
-        }
+    fromJsonV2(json: TV2): this {
+        this.type = json._type ?? BasicEvent.defaults.type
+        this.value = json._value ?? BasicEvent.defaults.value
+        this.floatValue = json._floatValue ?? BasicEvent.defaults.floatValue
+        return super.fromJsonV2(json);
     }
 }
