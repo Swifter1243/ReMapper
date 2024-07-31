@@ -21,7 +21,7 @@ export class AssignPathAnimation extends CustomEvent<
         super(params)
         this.type = 'AssignPathAnimation'
         this.animation = params.animation ?? copy(AssignPathAnimation.defaults.animation)
-        this.track = params.track instanceof Track ? params.track : new Track(params.track)
+        this.track = new Track(params.track)
         this.duration = params.duration
         this.easing = params.easing
     }

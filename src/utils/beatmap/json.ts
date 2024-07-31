@@ -45,7 +45,7 @@ export function getCDProp<
     T extends Record<string, unknown>,
     K extends keyof T,
 >(
-    obj: { customData?: T; _customData?: T },
+    obj: { customData?: T, _customData?: T },
     prop: K,
 ) {
     if (obj._customData && obj._customData[prop] !== undefined) {

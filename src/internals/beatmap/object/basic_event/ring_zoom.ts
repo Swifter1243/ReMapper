@@ -5,8 +5,8 @@ import { objectPrune } from '../../../../utils/object/prune.ts'
 import { BasicEvent } from './basic_event.ts'
 import { bsmap } from '../../../../deps.ts'
 import { getCDProp } from '../../../../utils/beatmap/json.ts'
-import { ObjectFields } from '../../../../types/util/json.ts'
 import { DeepReadonly } from '../../../../types/util/mutability.ts'
+import {ObjectFields} from "../../../../types/beatmap/object/object.ts";
 
 export class RingZoomEvent extends BasicEvent<bsmap.v2.IEventZoom, bsmap.v3.IBasicEventRing> {
     constructor(obj: Partial<Omit<ObjectFields<RingZoomEvent>, 'type'>>) {

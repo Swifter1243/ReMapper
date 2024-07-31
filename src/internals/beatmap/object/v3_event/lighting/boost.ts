@@ -1,12 +1,12 @@
 import { bsmap } from '../../../../../deps.ts'
 import {BeatmapObject} from "../../object.ts";
 import {ConvertableEvent} from "../../../../../types/beatmap/object/v3_event.ts";
-import {ObjectFields} from "../../../../../types/util/json.ts";
 import {getActiveDifficulty} from "../../../../../data/active_difficulty.ts";
 import {copy} from "../../../../../utils/object/copy.ts";
 import {SubclassExclusiveProps} from "../../../../../types/util/class.ts";
 import {objectPrune} from "../../../../../utils/object/prune.ts";
 import {EventGroup} from "../../../../../data/constants/basic_event.ts";
+import {ObjectFields} from "../../../../../types/beatmap/object/object.ts";
 
 
 export class BoostEvent extends BeatmapObject<bsmap.v2.IEvent, bsmap.v3.IColorBoostEvent>

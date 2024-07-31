@@ -2,9 +2,9 @@
 
 import {BaseLightEvent} from "../light_event/base.ts";
 import {JsonWrapper} from "../../../../../../types/beatmap/json_wrapper.ts";
-import {ObjectFields} from "../../../../../../types/util/json.ts";
 import {DistributionType, RotationEase} from "../../../../../../data/constants/v3_event.ts";
 import { bsmap } from '../../../../../../deps.ts'
+import {ObjectFields} from "../../../../../../types/beatmap/object/object.ts";
 
 export abstract class LightEventBox<
     T extends bsmap.v3.IEventBox,

@@ -1,16 +1,29 @@
 import { NoteColor, NoteCut } from '../../../../data/constants/note.ts'
-import { ExcludedObjectFields } from '../../../../types/beatmap/object/object.ts'
 import { BeatmapGameplayObject } from './gameplay_object.ts'
 import { bsmap } from '../../../../deps.ts'
 import {Vec2} from "../../../../types/math/vector.ts";
 import {NoteAnimationData} from "../../../../types/animation/properties/note.ts";
-import {Fields, SubclassExclusiveProps} from "../../../../types/util/class.ts";
 import {getCDProp} from "../../../../utils/beatmap/json.ts";
+import {GameplayObjectDefaultFields, GameplayObjectFields} from "../../../../types/beatmap/object/gameplay_object.ts";
 
-export abstract class BaseSliderObject<TV3 extends bsmap.v3.IBaseSlider>
+export abstract class BaseSliderObject<TV3 extends bsmap.v3.IBaseSlider = bsmap.v3.IBaseSlider>
     extends BeatmapGameplayObject<never, TV3> {
+
+    constructor(
+        obj: GameplayObjectFields<BaseSliderObject<TV3>>,
+    ) {
+        super(obj)
+        this.color = obj.color ?? BaseSliderObject.defaults.color
+        this.cutDirection = obj.cutDirection ?? BaseSliderObject.defaults.cutDirection
+        this.tailBeat = obj.tailBeat ?? BaseSliderObject.defaults.tailBeat
+        this.tailX = obj.tailX ?? BaseSliderObject.defaults.tailX
+        this.tailY = obj.tailY ?? BaseSliderObject.defaults.tailY
+        this.tailCoordinates = obj.tailCoordinates
+    }
+
+    declare animation: NoteAnimationData
     /** The color of the object. */
-    type: NoteColor
+    color: NoteColor
     /** The cut direction of the head. */
     cutDirection: NoteCut
     /** The time the tail arrives at the player. */
@@ -22,19 +35,14 @@ export abstract class BaseSliderObject<TV3 extends bsmap.v3.IBaseSlider>
     /** The position of the tail. */
     tailCoordinates?: Vec2
 
-    constructor(
-        obj: ExcludedObjectFields<BaseSliderObject<TV3>>,
-    ) {
-        super(obj)
-        this.type = obj.type ?? NoteColor.RED
-        this.cutDirection = obj.cutDirection ?? 0
-        this.tailBeat = obj.tailBeat ?? 0
-        this.tailX = obj.tailX ?? 0
-        this.tailY = obj.tailY ?? 0
-        this.tailCoordinates = obj.tailCoordinates
+    static defaults: GameplayObjectDefaultFields<BaseSliderObject> = {
+        color: NoteColor.RED,
+        cutDirection: 0,
+        tailBeat: 0,
+        tailX: 0,
+        tailY: 0,
+        ...super.defaults
     }
-
-    declare animation: NoteAnimationData
 
     get isGameplayModded() {
         if (super.isGameplayModded) return true
@@ -42,30 +50,17 @@ export abstract class BaseSliderObject<TV3 extends bsmap.v3.IBaseSlider>
         return false
     }
 
-    fromJson(json: TV3, v3: true): this
-    fromJson(json: never, v3: false): this
-    fromJson(json: never | TV3, v3: boolean): this {
-        if (!v3) throw 'V2 is not supported for slider notes'
+    fromJsonV3(json: TV3): this {
+        this.color = json.c ?? BaseSliderObject.defaults.color
+        this.cutDirection = json.d ?? BaseSliderObject.defaults.cutDirection
+        this.tailBeat = json.tb ?? BaseSliderObject.defaults.tailBeat
+        this.tailX = json.tx ?? BaseSliderObject.defaults.tailX
+        this.tailY = json.ty ?? BaseSliderObject.defaults.tailY
+        this.tailCoordinates = getCDProp(json, 'tailCoordinates') ?? BaseSliderObject.defaults.tailBeat
+        return super.fromJsonV3(json);
+    }
 
-        type Params = Fields<
-            SubclassExclusiveProps<
-                BaseSliderObject<TV3>,
-                BeatmapGameplayObject<never, TV3>
-            >
-        >
-
-        const obj = json as TV3
-
-        const params = {
-            type: obj.c ?? 0,
-            cutDirection: obj.d ?? 0,
-            tailCoordinates: getCDProp(obj, 'tailCoordinates'),
-            tailBeat: obj.tb ?? 0,
-            tailX: obj.tx ?? 0,
-            tailY: obj.ty ?? 0,
-        } satisfies Params
-
-        Object.assign(this, params)
-        return super.fromJson(obj, v3)
+    fromJsonV2(_json: never): this {
+        throw 'V2 is not supported for slider notes'
     }
 }

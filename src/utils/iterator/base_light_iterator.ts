@@ -46,11 +46,11 @@ export class BaseLightIterator {
      */
     multiplyColor = (rgb: number, alpha = 1) =>
         this.addProcess((x) => {
-            if (x.color) {
-                x.color[0] *= rgb
-                x.color[1] *= rgb
-                x.color[2] *= rgb
-                if (x.color[3]) x.color[3] *= alpha
+            if (x.chromaColor) {
+                x.chromaColor[0] *= rgb
+                x.chromaColor[1] *= rgb
+                x.chromaColor[2] *= rgb
+                if (x.chromaColor[3]) x.chromaColor[3] *= alpha
             }
         })
 

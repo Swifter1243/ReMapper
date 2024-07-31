@@ -1,9 +1,9 @@
 import {BeatmapObject} from "../../../object.ts";
-import {ObjectFields} from "../../../../../../types/util/json.ts";
 import {RotationDirection, RotationEase} from "../../../../../../data/constants/v3_event.ts";
 import {SubclassExclusiveProps} from "../../../../../../types/util/class.ts";
 import { bsmap } from '../../../../../../deps.ts'
 import { objectPrune } from '../../../../../../utils/object/prune.ts'
+import {ObjectFields} from "../../../../../../types/beatmap/object/object.ts";
 
 
 export class LightRotationEvent extends BeatmapObject<never, bsmap.v3.ILightRotationBase> {

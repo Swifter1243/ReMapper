@@ -3,8 +3,8 @@ import {JsonWrapper} from "../../../../types/beatmap/json_wrapper.ts";
 import {Fields} from "../../../../types/util/class.ts";
 import {getActiveDifficulty} from "../../../../data/active_difficulty.ts";
 import {copy} from "../../../../utils/object/copy.ts";
-import {ObjectFields} from "../../../../types/util/json.ts";
 import {BeatmapObject} from "../object.ts";
+import {ObjectFields} from "../../../../types/beatmap/object/object.ts";
 
 
 export abstract class BPMEvent<

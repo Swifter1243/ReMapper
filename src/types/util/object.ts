@@ -41,3 +41,11 @@ export type OnlyNumbersOptional<T> = FilterTypes<T, number | undefined>
  */
 export type Replace<T, N> = Omit<T, keyof N> & N
 
+type FilterUnique<A, B> = {
+    [K in keyof A]: K extends keyof B ? never : K;
+}[keyof A];
+
+/**
+ * Represents a type where the keys only exist on type A compared to type B.
+ */
+export type UniqueTypes<A, B> = Pick<A, FilterUnique<A, B>>;

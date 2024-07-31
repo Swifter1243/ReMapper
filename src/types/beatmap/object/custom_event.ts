@@ -26,7 +26,7 @@ import {
 } from "./vivify_event_interfaces.ts";
 import {bsmap} from '../../../deps.ts'
 import {Fields, SubclassExclusiveProps} from "../../util/class.ts";
-import {ExcludedObjectFields, ObjectReplacements} from "./object.ts";
+import {ExcludedObjectFields} from "./object.ts";
 import {CustomEvent} from "../../../internals/beatmap/object/custom_event/base/custom_event.ts";
 import {AbstractCustomEvent} from "../../../internals/beatmap/object/custom_event/base/abstract_custom_event.ts";
 import {AnimateComponent} from "../../../internals/beatmap/object/custom_event/chroma/animate_component.ts";
@@ -40,6 +40,7 @@ import {
 import {
     AssignPlayerToTrack
 } from "../../../internals/beatmap/object/custom_event/noodle_extensions/assign_player_to_track.ts";
+import {GameplayObjectReplacedFields} from "./gameplay_object.ts";
 
 /** Wrapper for custom event arrays in a beatmap. */
 export interface BeatmapCustomEvents {
@@ -87,7 +88,7 @@ export type CustomEventExclusions = {
 /** Gives the input params object for the constructor of custom events using a track.
  * Replaces the track property from a track class to a (string | string[])
  */
-export type CustomEventConstructorTrack<T, R = ObjectReplacements> =
+export type CustomEventConstructorTrack<T, R = GameplayObjectReplacedFields> =
     ExcludedObjectFields<
         T,
         R,

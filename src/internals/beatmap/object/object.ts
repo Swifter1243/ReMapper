@@ -2,9 +2,9 @@ import {bsmap} from '../../../deps.ts'
 
 import {isEmptyObject} from "../../../utils/object/check.ts";
 import {JsonWrapper} from "../../../types/beatmap/json_wrapper.ts";
-import {ObjectFields} from "../../../types/util/json.ts";
 import {copy} from "../../../utils/object/copy.ts";
 import {DeepReadonly} from "../../../types/util/mutability.ts";
+import {ObjectFields} from "../../../types/beatmap/object/object.ts";
 
 export abstract class BeatmapObject<
     TV2 extends bsmap.v2.IBaseObject = bsmap.v2.IBaseObject,

@@ -1,8 +1,8 @@
 import {LightEventBox} from "../light_event_box/base.ts";
 import {BeatmapObject} from "../../../object.ts";
 import { bsmap } from '../../../../../../deps.ts'
-import { ObjectFields } from '../../../../../../types/util/json.ts'
 import {objectPrune} from "../../../../../../utils/object/prune.ts";
+import {ObjectFields} from "../../../../../../types/beatmap/object/object.ts";
 
 export abstract class LightEventBoxGroup<T extends bsmap.v3.IEventBox>
     extends BeatmapObject<never, bsmap.v3.IEventBoxGroup<T>> {

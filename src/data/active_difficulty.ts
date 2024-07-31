@@ -3,7 +3,7 @@ import type { AbstractDifficulty } from '../internals/beatmap/abstract_beatmap.t
 /** This is the current difficulty ReMapper considers "active".
  * This gets set automatically whenever a difficulty class constructor is called.
  */
-export let activeDifficulty: AbstractDifficulty
+let activeDifficulty: AbstractDifficulty
 
 /**
  * Set the difficulty that objects are being created for.

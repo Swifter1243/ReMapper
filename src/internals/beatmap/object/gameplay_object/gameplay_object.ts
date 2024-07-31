@@ -1,6 +1,5 @@
-import {ExcludedObjectFields} from '../../../../types/beatmap/object/object.ts'
-import {Track} from '../../../../utils/animation/track.ts'
-import {getActiveDifficulty} from '../../../../data/active_difficulty.ts'
+import { Track } from '../../../../utils/animation/track.ts'
+import { getActiveDifficulty } from '../../../../data/active_difficulty.ts'
 import {
     getJumps,
     getOffsetFromHalfJumpDuration,
@@ -8,35 +7,41 @@ import {
     getOffsetFromReactionTime,
     getReactionTime,
 } from '../../../../utils/math/beatmap.ts'
-import {getActiveInfo} from '../../../../data/active_info.ts'
-import {animationV2ToV3} from '../../../../utils/animation/json.ts'
-import {BeatmapObject} from '../object.ts'
-import {bsmap} from '../../../../deps.ts'
-import {ColorVec, Vec2, Vec3} from "../../../../types/math/vector.ts";
-import {AnimationPropertiesV2, AnimationPropertiesV3} from "../../../../types/animation/properties/properties.ts";
-import {ObjectAnimationData} from "../../../../types/animation/properties/object.ts";
-import {SubclassExclusiveProps} from "../../../../types/util/class.ts";
-import {getCDProp, importInvertedBoolean} from "../../../../utils/beatmap/json.ts";
+import { getActiveInfo } from '../../../../data/active_info.ts'
+import { animationV2ToV3 } from '../../../../utils/animation/json.ts'
+import { BeatmapObject } from '../object.ts'
+import { ColorVec, Vec2, Vec3 } from '../../../../types/math/vector.ts'
+import { ObjectAnimationData } from '../../../../types/animation/properties/object.ts'
+import { getCDProp, importInvertedBoolean } from '../../../../utils/beatmap/json.ts'
+import {
+    GameplayObjectDefaultFields,
+    GameplayObjectFields,
+    GameplayObjectGetters,
+    GameplayObjectSetters, IV2GameplayObject, IV3GameplayObject,
+} from '../../../../types/beatmap/object/gameplay_object.ts'
+import { copy } from '../../../../utils/object/copy.ts'
+import {AnimationPropertiesV3} from "../../../../types/animation/properties/properties.ts";
+import {settings} from "../../../../data/settings.ts";
 
 export abstract class BeatmapGameplayObject<
-    TV2 extends bsmap.v2.INote | bsmap.v2.IObstacle,
-    TV3 extends bsmap.v3.IGridObject,
-> extends BeatmapObject<TV2, TV3> {
+    TV2 extends IV2GameplayObject = IV2GameplayObject,
+    TV3 extends IV3GameplayObject = IV3GameplayObject,
+> extends BeatmapObject<TV2, TV3> implements GameplayObjectSetters, GameplayObjectGetters {
     constructor(
-        obj: ExcludedObjectFields<BeatmapGameplayObject<TV2, TV3>>,
+        obj: GameplayObjectFields<BeatmapGameplayObject<TV2, TV3>>,
     ) {
-        super(obj)
-        this.animation = obj.animation ?? {}
-        this.x = obj.x ?? 0
-        this.y = obj.y ?? 0
+        super(obj as Partial<ObjectFields<BeatmapGameplayObject<TV2, TV3>>>)
+        this.animation = obj.animation ?? copy(BeatmapGameplayObject.defaults.animation)
+        this.x = obj.x ?? BeatmapGameplayObject.defaults.x
+        this.y = obj.y ?? BeatmapGameplayObject.defaults.y
+        this.track = new Track(obj.track)
         this.coordinates = obj.coordinates
         this.worldRotation = obj.worldRotation
         this.localRotation = obj.localRotation
         this.noteJumpSpeed = obj.noteJumpSpeed
         this.noteJumpOffset = obj.noteJumpOffset
         this.uninteractable = obj.uninteractable
-        this.track = obj.track instanceof Track ? obj.track : new Track(obj.track)
-        this.color = obj.color
+        this.chromaColor = obj.chromaColor
 
         if (obj.life !== undefined) {
             this.life = obj.life
@@ -59,6 +64,12 @@ export abstract class BeatmapGameplayObject<
     x: number
     /** The y position of this object on the grid. */
     y: number
+    /** The animation object on the object. */
+    animation: ObjectAnimationData
+    /** The track of this object.
+     * Uses a wrapper that simplifies single strings and arrays.
+     */
+    track: Track
     /** Noodle Extensions offset coordinates for this object on the grid. */
     coordinates?: Vec2
     /** The rotation added to an object around the world origin. */
@@ -71,14 +82,16 @@ export abstract class BeatmapGameplayObject<
     noteJumpOffset?: number
     /** Whether this object is uninteractable with the player. */
     uninteractable?: boolean
-    /** The track of this object.
-     * Uses a wrapper that simplifies single strings and arrays.
-     */
-    track: Track
     /** The chroma color of the object. */
-    color?: ColorVec
-    /** The animation object on the object. */
-    animation: ObjectAnimationData
+    chromaColor?: ColorVec
+
+    static defaults: GameplayObjectDefaultFields<BeatmapGameplayObject> = {
+        x: 0,
+        y: 0,
+        animation: {},
+        track: new Track(),
+        ...super.defaults,
+    }
 
     /** The speed of this object in units (meters) per second.
      * Refers to the difficulty if undefined. */
@@ -197,62 +210,45 @@ export abstract class BeatmapGameplayObject<
         return false
     }
 
-    fromJson(json: TV3, v3: true): this
-    fromJson(json: TV2, v3: false): this
-    fromJson(json: TV2 | TV3, v3: boolean): this {
-        type Params = SubclassExclusiveProps<
-            ExcludedObjectFields<BeatmapGameplayObject<TV2, TV3>>,
-            BeatmapObject<TV2, TV3>
-        >
-
-        if (v3) {
-            const obj = json as TV3
-
-            const params = {
-                x: obj.x ?? 0,
-                y: obj.y ?? 0,
-
-                animation: getCDProp(obj, 'animation') as AnimationPropertiesV3 ?? {},
-                color: getCDProp(obj, 'color') as ColorVec,
-                coordinates: getCDProp(obj, 'coordinates'),
-                uninteractable: getCDProp(obj, 'uninteractable'),
-                localRotation: getCDProp(obj, 'localRotation'),
-                worldRotation: typeof obj.customData?.worldRotation === 'number'
-                    ? [0, getCDProp(obj, 'worldRotation'), 0]
-                    : getCDProp(obj, 'worldRotation'),
-                track: new Track(getCDProp(obj, 'track')),
-                noteJumpSpeed: getCDProp(obj, 'noteJumpMovementSpeed'),
-                noteJumpOffset: getCDProp(obj, 'noteJumpStartBeatOffset'),
-            } as Params
-
-            Object.assign(this, params)
-            return super.fromJson(obj, v3)
+    protected getForcedOffset() {
+        if (settings.forceJumpsForNoodle && this.isGameplayModded) {
+            return this.noteJumpOffset ?? getActiveDifficulty().noteJumpOffset
         } else {
-            const obj = json as TV2
-
-            const params = {
-                x: obj._lineIndex ?? 0,
-
-                animation: animationV2ToV3(
-                    getCDProp(obj, '_animation') as AnimationPropertiesV2 ?? {},
-                ),
-                color: getCDProp(obj, '_color') as ColorVec,
-                coordinates: getCDProp(obj, '_position'),
-                uninteractable: importInvertedBoolean(
-                    getCDProp(obj, '_interactable'),
-                ),
-                localRotation: getCDProp(obj, '_localRotation'),
-                worldRotation: typeof obj._customData?._rotation === 'number'
-                    ? [0, getCDProp(obj, '_rotation'), 0]
-                    : getCDProp(obj, '_rotation'),
-                track: new Track(getCDProp(obj, '_track')),
-                noteJumpSpeed: getCDProp(obj, '_noteJumpMovementSpeed'),
-                noteJumpOffset: getCDProp(obj, '_noteJumpStartBeatOffset'),
-            } as Params
-
-            Object.assign(this, params)
-            return super.fromJson(obj, v3)
+            return this.noteJumpOffset
         }
     }
-}
 
+    fromJsonV3(json: TV3): this {
+        this.x = json.x ?? BeatmapGameplayObject.defaults.x
+        this.y = json.y ?? BeatmapGameplayObject.defaults.y
+        this.animation = getCDProp(json, 'animation') as AnimationPropertiesV3 | undefined ?? copy(BeatmapGameplayObject.defaults.animation)
+        this.chromaColor = getCDProp(json, 'color') as ColorVec
+        this.coordinates = getCDProp(json, 'coordinates')
+        this.uninteractable = getCDProp(json, 'uninteractable')
+        this.localRotation = getCDProp(json, 'localRotation')
+        this.worldRotation = typeof json.customData?.worldRotation === 'number'
+            ? [0, getCDProp(json, 'worldRotation'), 0]
+            : getCDProp(json, 'worldRotation')
+        this.track = new Track(getCDProp(json, 'track'))
+        this.noteJumpSpeed = getCDProp(json, 'noteJumpMovementSpeed')
+        this.noteJumpOffset = getCDProp(json, 'noteJumpStartBeatOffset')
+        return super.fromJsonV3(json)
+    }
+
+    fromJsonV2(json: TV2): this {
+        this.x = json._lineIndex ?? BeatmapGameplayObject.defaults.x
+        const animationProp = getCDProp(json, '_animation')
+        this.animation = animationProp ? animationV2ToV3(animationProp) : copy(BeatmapGameplayObject.defaults.animation)
+        this.chromaColor = getCDProp(json, '_color') as ColorVec
+        this.coordinates = getCDProp(json, '_position')
+        this.uninteractable = importInvertedBoolean(getCDProp(json, '_interactable'))
+        this.localRotation = getCDProp(json, '_localRotation')
+        this.worldRotation = typeof json._customData?._rotation === 'number'
+            ? [0, getCDProp(json, '_rotation'), 0] as Vec3
+            : getCDProp(json, '_rotation') as Vec3
+        this.track = new Track(getCDProp(json, '_track'))
+        this.noteJumpSpeed = getCDProp(json, '_noteJumpMovementSpeed')
+        this.noteJumpOffset = getCDProp(json, '_noteJumpStartBeatOffset')
+        return super.fromJsonV2(json)
+    }
+}

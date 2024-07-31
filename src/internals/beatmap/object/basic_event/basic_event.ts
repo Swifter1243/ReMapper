@@ -1,7 +1,8 @@
 import {bsmap} from '../../../../deps.ts'
 import {BeatmapObject} from '../object.ts'
 import {DeepReadonly} from "../../../../types/util/mutability.ts";
-import {ObjectFields} from "../../../../types/util/json.ts";
+
+import {ObjectFields} from "../../../../types/beatmap/object/object.ts";
 
 export abstract class BasicEvent<
     TV2 extends bsmap.v2.IEvent = bsmap.v2.IEvent,

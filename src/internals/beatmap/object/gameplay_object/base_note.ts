@@ -1,18 +1,18 @@
-import { ExcludedObjectFields } from '../../../../types/beatmap/object/object.ts'
 import { BeatmapGameplayObject } from './gameplay_object.ts'
 import { bsmap } from '../../../../deps.ts'
-import {Vec2} from "../../../../types/math/vector.ts";
-import {NoteAnimationData} from "../../../../types/animation/properties/note.ts";
-import {Fields, SubclassExclusiveProps} from "../../../../types/util/class.ts";
-import {getCDProp, importInvertedBoolean} from "../../../../utils/beatmap/json.ts";
+import { Vec2 } from '../../../../types/math/vector.ts'
+import { NoteAnimationData } from '../../../../types/animation/properties/note.ts'
+import { getCDProp, importInvertedBoolean } from '../../../../utils/beatmap/json.ts'
+import { GameplayObjectDefaultFields, GameplayObjectFields } from '../../../../types/beatmap/object/gameplay_object.ts'
+import { IV3Note } from '../../../../types/beatmap/object/note.ts'
 
 export abstract class BaseNote<
-    TV3 extends bsmap.v3.IColorNote | bsmap.v3.IBombNote,
+    TV3 extends IV3Note = IV3Note,
 > extends BeatmapGameplayObject<bsmap.v2.INote, TV3> {
     constructor(
-        fields: ExcludedObjectFields<BaseNote<TV3>>,
+        fields: GameplayObjectFields<BaseNote<TV3>>,
     ) {
-        super(fields as ExcludedObjectFields<BaseNote<TV3>>)
+        super(fields)
         this.fake = fields.fake
         this.flip = fields.flip
         this.disableNoteGravity = fields.disableNoteGravity
@@ -48,6 +48,10 @@ export abstract class BaseNote<
     /** Whether debris from this note should be disabled. */
     disableDebris?: boolean
 
+    static defaults: GameplayObjectDefaultFields<BaseNote> = {
+        ...super.defaults,
+    }
+
     /**
      * Push this note to the difficulty.
      * @param clone Whether this object will be copied before being pushed.
@@ -68,54 +72,26 @@ export abstract class BaseNote<
         return false
     }
 
-    fromJson(json: TV3, v3: true): this
-    fromJson(json: bsmap.v2.INote, v3: false): this
-    fromJson(json: TV3 | bsmap.v2.INote, v3: boolean): this {
-        type Params = Fields<
-            SubclassExclusiveProps<
-                BaseNote<TV3>,
-                BeatmapGameplayObject<bsmap.v2.INote, TV3>
-            >
-        >
+    fromJsonV3(json: TV3): this {
+        this.flip = getCDProp(json, 'flip')
+        this.disableNoteLook = getCDProp(json, 'disableNoteLook')
+        this.disableNoteGravity = getCDProp(json, 'disableNoteGravity')
+        this.disableSpawnEffect = importInvertedBoolean(getCDProp(json, 'spawnEffect'))
+        this.disableDebris = getCDProp(json, 'disableDebris')
+        this.disableBadCutSpeed = getCDProp(json, 'disableBadCutSpeed')
+        this.disableBadCutDirection = getCDProp(json, 'disableBadCutDirection')
+        this.disableBadCutSaberType = getCDProp(json, 'disableBadCutSaberType')
+        this.link = getCDProp(json, 'link')
+        return super.fromJsonV3(json)
+    }
 
-        if (v3) {
-            const obj = json as TV3
-
-            const params = {
-                flip: getCDProp(obj, 'flip'),
-
-                disableNoteLook: getCDProp(obj, 'disableNoteLook'),
-                disableNoteGravity: getCDProp(obj, 'disableNoteGravity'),
-                disableSpawnEffect: importInvertedBoolean(
-                    getCDProp(obj, 'spawnEffect'),
-                ),
-                disableDebris: getCDProp(obj, 'disableDebris'),
-                // TODO: Badcut on bombs is incorrect.
-                disableBadCutSpeed: getCDProp(obj, 'disableBadCutSpeed'),
-                disableBadCutDirection: getCDProp(obj, 'disableBadCutDirection'),
-                disableBadCutSaberType: getCDProp(obj, 'disableBadCutSaberType'),
-                link: getCDProp(obj, 'link'),
-            } as Params
-
-            Object.assign(this, params)
-            return super.fromJson(obj, v3)
-        } else {
-            const obj = json as bsmap.v2.INote
-
-            const params = {
-                flip: getCDProp(obj, '_flip'),
-
-                disableNoteLook: getCDProp(obj, '_disableNoteLook'),
-                disableNoteGravity: getCDProp(obj, '_disableNoteGravity'),
-                disableSpawnEffect: getCDProp(obj, '_disableSpawnEffect'),
-                fake: getCDProp(obj, '_fake'),
-            } as Params
-
-            // Walls in V2 don't have a "y" property
-            this.y = obj._lineLayer
-
-            Object.assign(this, params)
-            return super.fromJson(obj, v3)
-        }
+    fromJsonV2(json: bsmap.v2.INote): this {
+        this.flip = getCDProp(json, '_flip')
+        this.disableNoteLook = getCDProp(json, '_disableNoteLook')
+        this.disableNoteGravity = getCDProp(json, '_disableNoteGravity')
+        this.disableSpawnEffect = getCDProp(json, '_disableSpawnEffect')
+        this.fake = getCDProp(json, '_fake')
+        this.y = json._lineLayer
+        return super.fromJsonV2(json)
     }
 }

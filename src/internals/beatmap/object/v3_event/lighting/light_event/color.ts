@@ -1,10 +1,10 @@
 import { BaseLightEvent } from './base.ts'
-import {ObjectFields} from "../../../../../../types/util/json.ts";
 import { bsmap } from '../../../../../../deps.ts'
 import {LightColor, LightTransition} from "../../../../../../data/constants/v3_event.ts";
 import {SubclassExclusiveProps} from "../../../../../../types/util/class.ts";
 import {BeatmapObject} from "../../../object.ts";
 import { objectPrune } from '../../../../../../utils/object/prune.ts'
+import {ObjectFields} from "../../../../../../types/beatmap/object/object.ts";
 
 export class LightColorEvent extends BaseLightEvent<bsmap.v3.ILightColorBase> {
     constructor(obj: Partial<ObjectFields<LightColorEvent>>) {

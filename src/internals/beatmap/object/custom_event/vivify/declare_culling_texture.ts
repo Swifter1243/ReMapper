@@ -22,7 +22,7 @@ export class DeclareCullingTexture extends CustomEvent<
         super(params)
         this.type = 'DeclareCullingTexture'
         this.id = params.id ?? DeclareCullingTexture.defaults.id
-        this.track = params.track instanceof Track ? params.track : new Track(params.track)
+        this.track = new Track(params.track)
         this.whitelist = params.whitelist
         this.depthTexture = params.depthTexture
     }

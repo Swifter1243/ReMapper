@@ -35,7 +35,7 @@ export function arc(
 
     return new Arc({
         beat: beat as number ?? 0,
-        type: type ?? NoteColor.BLUE,
+        color: type ?? NoteColor.BLUE,
         tailBeat: tailBeat ?? 0,
         cutDirection: headDirection ?? NoteCut.DOWN,
         tailDirection: tailDirection ?? NoteCut.DOWN,

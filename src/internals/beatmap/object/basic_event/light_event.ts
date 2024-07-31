@@ -10,14 +10,14 @@ import { ColorVec } from '../../../../types/math/vector.ts'
 
 import { EASE } from '../../../../types/animation/easing.ts'
 import { getCDProp } from '../../../../utils/beatmap/json.ts'
-import { ObjectFields } from '../../../../types/util/json.ts'
 import { DeepReadonly } from '../../../../types/util/mutability.ts'
+import {ObjectFields} from "../../../../types/beatmap/object/object.ts";
 
 export class LightEvent extends BasicEvent<bsmap.v2.IEventLight, bsmap.v3.IBasicEventLight> {
     constructor(obj: Partial<ObjectFields<LightEvent>>) {
         super(obj)
         this.lightID = obj.lightID
-        this.color = obj.color
+        this.chromaColor = obj.chromaColor
         this.easing = obj.easing
         this.lerpType = obj.lerpType
     }
@@ -25,7 +25,7 @@ export class LightEvent extends BasicEvent<bsmap.v2.IEventLight, bsmap.v3.IBasic
     /** The lightIDs to target. */
     lightID?: LightID
     /** The color of the event. */
-    color?: ColorVec
+    chromaColor?: ColorVec
     /** The easing for transition events. Goes on start event. */
     easing?: EASE
     /** The color interpolation for transition events. Goes on start event. */
@@ -55,7 +55,7 @@ export class LightEvent extends BasicEvent<bsmap.v2.IEventLight, bsmap.v3.IBasic
                 this.value = actions[color]
             } else {
                 this.value = Object.values(actions)[0]
-                this.color = color
+                this.chromaColor = color
             }
 
             if (lightID) this.lightID = lightID
@@ -105,7 +105,7 @@ export class LightEvent extends BasicEvent<bsmap.v2.IEventLight, bsmap.v3.IBasic
     }
 
     fromJsonV3(json: bsmap.v3.IBasicEventLight): this {
-        this.color = getCDProp(json, 'color') as ColorVec | undefined
+        this.chromaColor = getCDProp(json, 'color') as ColorVec | undefined
         this.easing = getCDProp(json, 'easing')
         this.lerpType = getCDProp(json, 'lerpType')
         this.lightID = getCDProp(json, 'lightID')
@@ -113,7 +113,7 @@ export class LightEvent extends BasicEvent<bsmap.v2.IEventLight, bsmap.v3.IBasic
     }
 
     fromJsonV2(json: bsmap.v2.IEventLight): this {
-        this.color = getCDProp(json, '_color') as ColorVec | undefined
+        this.chromaColor = getCDProp(json, '_color') as ColorVec | undefined
         this.easing = getCDProp(json, '_easing')
         this.lerpType = getCDProp(json, '_lerpType')
         this.lightID = getCDProp(json, '_lightID')
@@ -127,7 +127,7 @@ export class LightEvent extends BasicEvent<bsmap.v2.IEventLight, bsmap.v3.IBasic
             f: this.floatValue,
             i: this.value,
             customData: {
-                color: this.color,
+                color: this.chromaColor,
                 easing: this.easing,
                 lerpType: this.lerpType,
                 lightID: this.lightID,
@@ -144,7 +144,7 @@ export class LightEvent extends BasicEvent<bsmap.v2.IEventLight, bsmap.v3.IBasic
             _type: this.type as bsmap.v2.IEventLight['_type'],
             _value: this.value,
             _customData: {
-                _color: this.color,
+                _color: this.chromaColor,
                 _easing: this.easing,
                 _lerpType: this.lerpType,
                 _lightID: this.lightID,

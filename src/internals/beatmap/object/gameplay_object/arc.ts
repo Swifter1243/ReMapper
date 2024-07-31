@@ -1,30 +1,26 @@
-import { settings } from '../../../../data/settings.ts'
 import { AnchorMode } from '../../../../data/constants/arc.ts'
 import { bsmap } from '../../../../deps.ts'
-import {copy} from "../../../../utils/object/copy.ts";
-import {objectPrune} from "../../../../utils/object/prune.ts";
-import {activeDifficulty, getActiveDifficulty} from "../../../../data/active_difficulty.ts";
-import {animationV3toV2} from "../../../../utils/animation/json.ts";
-import {NoteCut} from "../../../../data/constants/note.ts";
-import {ExcludedObjectFields} from "../../../../types/beatmap/object/object.ts";
-
-import {BaseSliderObject} from "./base_slider.ts";
-import {Vec2} from "../../../../types/math/vector.ts";
-import {Fields, SubclassExclusiveProps} from "../../../../types/util/class.ts";
-import {defaultBoolean, getCDProp} from "../../../../utils/beatmap/json.ts";
+import { copy } from '../../../../utils/object/copy.ts'
+import { objectPrune } from '../../../../utils/object/prune.ts'
+import { getActiveDifficulty } from '../../../../data/active_difficulty.ts'
+import { NoteCut } from '../../../../data/constants/note.ts'
+import { BaseSliderObject } from './base_slider.ts'
+import { Vec2 } from '../../../../types/math/vector.ts'
+import { defaultBoolean, getCDProp } from '../../../../utils/beatmap/json.ts'
+import { GameplayObjectDefaultFields, GameplayObjectFields } from '../../../../types/beatmap/object/gameplay_object.ts'
 
 export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
     /**
      * Arc object for ease of creation.
      */
     constructor(
-        fields: ExcludedObjectFields<Arc>,
+        fields: GameplayObjectFields<Arc>,
     ) {
-        super(fields as ExcludedObjectFields<Arc>)
-        this.tailDirection = fields.tailDirection ?? NoteCut.DOT
-        this.headLength = fields.headLength ?? 0
-        this.tailLength = fields.tailLength ?? 0
-        this.anchorMode = fields.anchorMode ?? AnchorMode.STRAIGHT
+        super(fields)
+        this.tailDirection = fields.tailDirection ?? Arc.defaults.tailDirection
+        this.headLength = fields.headLength ?? Arc.defaults.headLength
+        this.tailLength = fields.tailLength ?? Arc.defaults.tailLength
+        this.anchorMode = fields.anchorMode ?? Arc.defaults.anchorMode
         this.flip = fields.flip
         this.disableNoteGravity = fields.disableNoteGravity
     }
@@ -47,6 +43,14 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
     /** Whether note gravity (the effect where notes move to their vertical row from the bottom row) is disabled. */
     disableNoteGravity?: boolean
 
+    static defaults: GameplayObjectDefaultFields<Arc> = {
+        tailDirection: NoteCut.DOT,
+        headLength: 0,
+        tailLength: 0,
+        anchorMode: AnchorMode.STRAIGHT,
+        ...super.defaults,
+    }
+
     /** Determines whether this note uses Noodle Extensions features. */
     get isGameplayModded() {
         if (super.isGameplayModded) return true
@@ -55,49 +59,24 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
         return false
     }
 
-    fromJson(json: bsmap.v3.IArc, v3: true): this
-    fromJson(json: never, v3: false): this
-    fromJson(json: never, v3: boolean): this {
-        if (!v3) throw 'V2 is not supported for arcs'
-
-        type Params = Fields<
-            SubclassExclusiveProps<
-                Arc,
-                BaseSliderObject<bsmap.v3.IBaseSlider>
-            >
-        >
-
-        const obj = json as bsmap.v3.IArc
-
-        const params = {
-            anchorMode: obj.m ?? 0,
-            flip: getCDProp(obj, 'flip'),
-            headLength: obj.mu ?? 0,
-            disableNoteGravity: getCDProp(obj, 'disableNoteGravity'),
-            tailDirection: obj.tc ?? 0,
-            tailLength: obj.tmu ?? 0,
-        } satisfies Params
-
-        Object.assign(this, params)
-        return super.fromJson(obj, v3)
+    fromJsonV3(json: bsmap.v3.IArc): this {
+        this.tailDirection = json.tc ?? Arc.defaults.tailDirection
+        this.headLength = json.mu ?? Arc.defaults.headLength
+        this.tailLength = json.tmu ?? Arc.defaults.tailLength
+        this.anchorMode = json.m ?? Arc.defaults.anchorMode
+        this.flip = getCDProp(json, 'flip')
+        this.disableNoteGravity = getCDProp(json, 'disableNoteGravity')
+        return super.fromJsonV3(json)
     }
 
-    toJson(v3: true, prune?: boolean): bsmap.v3.IArc
-    toJson(v3: false, prune?: boolean): never
-    toJson(v3 = true, prune = true): bsmap.v3.IArc {
-        if (!v3) throw 'V2 is not supported for arcs'
+    fromJsonV2(_json: never): this {
+        throw 'V2 is not supported for arcs'
+    }
 
-        const diff = activeDifficulty
-        const NJS = this.noteJumpSpeed
-        let offset = this.noteJumpOffset
-
-        if (diff && settings.forceJumpsForNoodle && this.isGameplayModded) {
-            offset ??= diff.noteJumpOffset
-        }
-
+    toJsonV3(prune?: boolean): bsmap.v3.IArc {
         const output = {
             b: this.beat,
-            c: this.type,
+            c: this.color,
             d: this.cutDirection,
 
             m: this.anchorMode,
@@ -111,13 +90,13 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
             x: this.x,
             y: this.y,
             customData: {
-                animation: animationV3toV2(this.animation, v3),
-                color: this.color,
+                animation: this.animation as bsmap.v3.IAnimation['animation'],
+                color: this.chromaColor,
                 coordinates: this.coordinates,
                 tailCoordinates: this.tailCoordinates,
                 flip: this.flip,
-                noteJumpMovementSpeed: NJS,
-                noteJumpStartBeatOffset: offset,
+                noteJumpMovementSpeed: this.noteJumpSpeed,
+                noteJumpStartBeatOffset: this.getForcedOffset(),
                 uninteractable: defaultBoolean(this.uninteractable, false),
                 localRotation: this.localRotation,
                 disableNoteGravity: defaultBoolean(this.disableNoteGravity, false),
@@ -127,5 +106,9 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
             },
         } satisfies bsmap.v3.IArc
         return prune ? objectPrune(output) : output
+    }
+
+    toJsonV2(_prune?: boolean): never {
+        throw 'V2 is not supported for arcs'
     }
 }

@@ -5,7 +5,8 @@ import { BasicEvent } from './basic_event.ts'
 import { bsmap } from '../../../../deps.ts'
 import {getCDProp} from "../../../../utils/beatmap/json.ts";
 import {DeepReadonly} from "../../../../types/util/mutability.ts";
-import {ObjectFields} from "../../../../types/util/json.ts";
+
+import {ObjectFields} from "../../../../types/beatmap/object/object.ts";
 
 export class LaserSpeedEvent extends BasicEvent<bsmap.v2.IEventLaser, bsmap.v3.IBasicEventLaserRotation> {
     constructor(obj: Partial<ObjectFields<LaserSpeedEvent>>) {

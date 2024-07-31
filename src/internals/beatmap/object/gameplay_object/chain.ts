@@ -1,29 +1,20 @@
-import { settings } from '../../../../data/settings.ts'
 import { bsmap } from '../../../../deps.ts'
-import {copy} from "../../../../utils/object/copy.ts";
-import {objectPrune} from "../../../../utils/object/prune.ts";
-import {activeDifficulty, getActiveDifficulty} from "../../../../data/active_difficulty.ts";
-import {animationV3toV2} from "../../../../utils/animation/json.ts";
-import {ExcludedObjectFields} from "../../../../types/beatmap/object/object.ts";
-
-import {BaseSliderObject} from "./base_slider.ts";
-import {Vec2} from "../../../../types/math/vector.ts";
-import {Fields, SubclassExclusiveProps} from "../../../../types/util/class.ts";
-import {
-    defaultBoolean,
-    exportInvertedBoolean,
-    getCDProp,
-    importInvertedBoolean
-} from "../../../../utils/beatmap/json.ts";
+import { copy } from '../../../../utils/object/copy.ts'
+import { objectPrune } from '../../../../utils/object/prune.ts'
+import { getActiveDifficulty } from '../../../../data/active_difficulty.ts'
+import { BaseSliderObject } from './base_slider.ts'
+import { Vec2 } from '../../../../types/math/vector.ts'
+import { exportInvertedBoolean, getCDProp, importInvertedBoolean } from '../../../../utils/beatmap/json.ts'
+import { GameplayObjectDefaultFields, GameplayObjectFields } from '../../../../types/beatmap/object/gameplay_object.ts'
 
 export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
     constructor(
-        fields: ExcludedObjectFields<Chain>,
+        fields: GameplayObjectFields<Chain>,
     ) {
-        super(fields as ExcludedObjectFields<Chain>)
+        super(fields)
+        this.links = fields.links ?? Chain.defaults.links
+        this.squish = fields.squish ?? Chain.defaults.squish
         this.fake = fields.fake
-        this.links = fields.links ?? 4
-        this.squish = fields.squish ?? 0
         this.flip = fields.flip
         this.disableNoteGravity = fields.disableNoteGravity
         this.disableNoteLook = fields.disableNoteLook
@@ -40,12 +31,12 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
         return this
     }
 
-    /** Moves the note to the separate fake note array on save. */
-    fake?: boolean
     /** The amount of links in the chain. */
     links: number
     /** An interpolation or extrapolation of the path between the head and tail. */
     squish: number
+    /** Moves the note to the separate fake note array on save. */
+    fake?: boolean
     /** Specifies an initial position the chain will spawn at before going to it's unmodified position.  */
     flip?: Vec2
     /** Whether note gravity (the effect where notes move to their vertical row from the bottom row) is disabled. */
@@ -65,6 +56,12 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
     /** Whether debris from this note should be disabled. */
     disableDebris?: boolean
 
+    static defaults: GameplayObjectDefaultFields<Chain> = {
+        links: 4,
+        squish: 0,
+        ...super.defaults,
+    }
+
     get isGameplayModded() {
         if (super.isGameplayModded) return true
         if (this.fake) return true
@@ -79,57 +76,29 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
         return false
     }
 
-    fromJson(json: bsmap.v3.IChain, v3: true): this
-    fromJson(json: never, v3: false): this
-    fromJson(json: never, v3: boolean): this {
-        if (!v3) throw 'V2 is not supported for chains'
-
-        type Params = Fields<
-            SubclassExclusiveProps<
-                Chain,
-                BaseSliderObject<bsmap.v3.IBaseSlider>
-            >
-        >
-
-        const obj = json as bsmap.v3.IChain
-
-        const params = {
-            // fake is defined when object is built
-            flip: obj.customData?.flip,
-            disableNoteLook: getCDProp(obj, 'disableNoteLook'),
-            disableNoteGravity: getCDProp(obj, 'disableNoteGravity'),
-            disableSpawnEffect: importInvertedBoolean(
-                    getCDProp(obj, 'spawnEffect')
-            ),
-            disableDebris: getCDProp(obj, 'disableDebris'),
-            disableBadCutSpeed: getCDProp(obj, 'disableBadCutSpeed'),
-            disableBadCutDirection: getCDProp(obj, 'disableBadCutDirection'),
-            disableBadCutSaberType: getCDProp(obj, 'disableBadCutSaberType'),
-            link: getCDProp(obj, 'link'),
-            links: obj.sc ?? 0,
-            squish: obj.s ?? 0,
-        } as Params
-
-        Object.assign(this, params)
-        return super.fromJson(obj, v3)
+    fromJsonV3(json: bsmap.v3.IChain): this {
+        this.links = json.sc ?? Chain.defaults.links
+        this.squish = json.s ?? Chain.defaults.squish
+        this.link = getCDProp(json, 'link')
+        this.flip = getCDProp(json, 'flip')
+        this.disableNoteLook = getCDProp(json, 'disableNoteLook')
+        this.disableNoteGravity = getCDProp(json, 'disableNoteGravity')
+        this.disableSpawnEffect = importInvertedBoolean(getCDProp(json, 'spawnEffect'))
+        this.disableDebris = getCDProp(json, 'disableDebris')
+        this.disableBadCutSpeed = getCDProp(json, 'disableBadCutSpeed')
+        this.disableBadCutDirection = getCDProp(json, 'disableBadCutDirection')
+        this.disableBadCutSaberType = getCDProp(json, 'disableBadCutSaberType')
+        return super.fromJsonV3(json)
     }
 
-    toJson(v3: true, prune?: boolean): bsmap.v3.IChain
-    toJson(v3: false, prune?: boolean): never
-    toJson(v3 = true, prune = true): bsmap.v3.IChain {
-        if (!v3) throw 'V2 is not supported for chains'
+    fromJsonV2(_json: never): this {
+        throw 'V2 is not supported for chains'
+    }
 
-        const diff = activeDifficulty
-        const NJS = this.noteJumpSpeed
-        let offset = this.noteJumpOffset
-
-        if (diff && settings.forceJumpsForNoodle && this.isGameplayModded) {
-            offset ??= diff.noteJumpOffset
-        }
-
+    toJsonV3(prune?: boolean): bsmap.v3.IChain {
         const output = {
             b: this.beat,
-            c: this.type,
+            c: this.color,
             d: this.cutDirection,
             sc: this.links,
             s: this.squish,
@@ -139,28 +108,32 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
             x: this.x,
             y: this.y,
             customData: {
-                animation: animationV3toV2(this.animation, v3),
-                color: this.color,
+                animation: this.animation as bsmap.v3.IAnimation['animation'],
+                color: this.chromaColor,
                 coordinates: this.coordinates,
                 tailCoordinates: this.tailCoordinates,
                 flip: this.flip,
-                noteJumpMovementSpeed: NJS,
-                noteJumpStartBeatOffset: offset,
-                uninteractable: defaultBoolean(this.uninteractable, false),
+                noteJumpMovementSpeed: this.noteJumpSpeed,
+                noteJumpStartBeatOffset: this.getForcedOffset(),
+                uninteractable: this.uninteractable,
                 localRotation: this.localRotation,
-                disableNoteGravity: defaultBoolean(this.disableNoteGravity, false),
-                disableNoteLook: defaultBoolean(this.disableNoteLook, false),
+                disableNoteGravity: this.disableNoteGravity,
+                disableNoteLook: this.disableNoteLook,
                 spawnEffect: exportInvertedBoolean(this.disableSpawnEffect, true),
                 track: this.track.value,
                 worldRotation: this.worldRotation,
                 link: this.link,
-                disableBadCutDirection: defaultBoolean(this.disableBadCutDirection, false),
-                disableBadCutSpeed: defaultBoolean(this.disableBadCutSpeed, false),
-                disableBadCutSaberType: defaultBoolean(this.disableBadCutSaberType, false),
-                disableDebris: defaultBoolean(this.disableDebris, false),
+                disableBadCutDirection: this.disableBadCutDirection,
+                disableBadCutSpeed: this.disableBadCutSpeed,
+                disableBadCutSaberType: this.disableBadCutSaberType,
+                disableDebris: this.disableDebris,
                 ...this.customData,
             },
         } satisfies bsmap.v3.IChain
         return prune ? objectPrune(output) : output
+    }
+
+    toJsonV2(_prune?: boolean): never {
+        throw 'V2 is not supported for chains'
     }
 }

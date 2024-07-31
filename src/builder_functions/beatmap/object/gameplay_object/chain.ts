@@ -26,7 +26,7 @@ export function chain(
     return new Chain({
         beat: beat as number ?? 0,
         tailBeat: tailBeat ?? 0,
-        type: type ?? NoteColor.BLUE,
+        color: type ?? NoteColor.BLUE,
         cutDirection: direction ?? NoteCut.DOWN,
         x: x ?? 0,
         y: y ?? 0,

@@ -6,7 +6,8 @@ import { objectPrune } from '../../../../utils/object/prune.ts'
 import { bsmap } from '../../../../deps.ts'
 import { getCDProp } from '../../../../utils/beatmap/json.ts'
 import { DeepReadonly } from '../../../../types/util/mutability.ts'
-import { ObjectFields } from '../../../../types/util/json.ts'
+
+import {ObjectFields} from "../../../../types/beatmap/object/object.ts";
 
 export class RingSpinEvent extends BasicEvent<bsmap.v2.IEventRing, bsmap.v3.IBasicEventRing> {
     constructor(obj: Partial<Omit<ObjectFields<RingSpinEvent>, 'type'>>) {

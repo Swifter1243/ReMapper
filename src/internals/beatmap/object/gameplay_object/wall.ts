@@ -1,34 +1,28 @@
 import { bsmap } from '../../../../deps.ts'
 
-import {
-    settings,
-} from '../../../../data/settings.ts'
-
-import {copy} from "../../../../utils/object/copy.ts";
-import {objectPrune} from "../../../../utils/object/prune.ts";
-import {activeDifficulty, getActiveDifficulty} from "../../../../data/active_difficulty.ts";
-import {animationV3toV2} from "../../../../utils/animation/json.ts";
-import {ExcludedObjectFields} from "../../../../types/beatmap/object/object.ts";
-import {BeatmapGameplayObject} from "./gameplay_object.ts";
+import { copy } from '../../../../utils/object/copy.ts'
+import { objectPrune } from '../../../../utils/object/prune.ts'
+import { getActiveDifficulty } from '../../../../data/active_difficulty.ts'
+import { animationV3toV2 } from '../../../../utils/animation/json.ts'
+import { BeatmapGameplayObject } from './gameplay_object.ts'
 import { AnimationSettings } from '../../../../utils/animation/optimizer.ts'
-import {Vec3} from "../../../../types/math/vector.ts";
-import {AnimatedTransform} from "../../../../types/math/transform.ts";
-import {Fields, SubclassExclusiveProps} from "../../../../types/util/class.ts";
-import {defaultBoolean, exportInvertedBoolean, getCDProp} from "../../../../utils/beatmap/json.ts";
-import {setWallWorldTransform} from "../../../../utils/beatmap/object/wall/transform.ts";
+import { Vec3 } from '../../../../types/math/vector.ts'
+import { AnimatedTransform } from '../../../../types/math/transform.ts'
+import { exportInvertedBoolean, getCDProp } from '../../../../utils/beatmap/json.ts'
+import { setWallWorldTransform } from '../../../../utils/beatmap/object/wall/transform.ts'
+import { GameplayObjectDefaultFields, GameplayObjectFields } from '../../../../types/beatmap/object/gameplay_object.ts'
 
-export class Wall
-    extends BeatmapGameplayObject<bsmap.v2.IObstacle, bsmap.v3.IObstacle> {
+export class Wall extends BeatmapGameplayObject<bsmap.v2.IObstacle, bsmap.v3.IObstacle> {
     constructor(
-        fields: ExcludedObjectFields<Wall>,
+        fields: GameplayObjectFields<Wall>,
     ) {
         super(fields)
 
-        this.duration = fields.duration ?? 0
-        this.height = fields.height ?? 1
-        this.width = fields.width ?? 1
+        this.duration = fields.duration ?? Wall.defaults.duration
+        this.height = fields.height ?? Wall.defaults.height
+        this.width = fields.width ?? Wall.defaults.width
         this.size = fields.size
-        this.fake = fields.fake ?? false
+        this.fake = fields.fake
 
         if (fields.life !== undefined) {
             this.life = fields.life
@@ -36,6 +30,24 @@ export class Wall
         if (fields.lifeStart !== undefined) {
             this.lifeStart = fields.lifeStart
         }
+    }
+
+    /** The duration of the wall. */
+    duration: number
+    /** The height of the wall. */
+    height: number
+    /** The width of the wall. */
+    width: number
+    /** The scale of the wall. */
+    size?: Vec3
+    /** Moves the note to the separate fake note array on save. */
+    fake?: boolean
+
+    static defaults: GameplayObjectDefaultFields<Wall> = {
+        duration: 1,
+        height: 1,
+        width: 1,
+        ...super.defaults,
     }
 
     /**
@@ -76,17 +88,6 @@ export class Wall
         this.beat = value + this.halfJumpDuration
     }
 
-    /** The duration of the wall. */
-    duration!: number
-    /** The height of the wall. */
-    height: number
-    /** The width of the wall. */
-    width: number
-    /** The scale of the wall. */
-    size?: Vec3
-    /** Moves the note to the separate fake note array on save. */
-    fake?: boolean
-
     get isGameplayModded() {
         if (super.isGameplayModded) return true
         if (this.size) return true
@@ -94,80 +95,49 @@ export class Wall
         return false
     }
 
-    fromJson(json: bsmap.v3.IObstacle, v3: true): this
-    fromJson(json: bsmap.v2.IObstacle, v3: false): this
-    fromJson(json: bsmap.v2.IObstacle | bsmap.v3.IObstacle, v3: boolean): this {
-        type Params = Fields<
-            SubclassExclusiveProps<
-                Wall,
-                BeatmapGameplayObject<bsmap.v2.IObstacle, bsmap.v3.IObstacle>
-            >
-        >
-
-        if (v3) {
-            const obj = json as bsmap.v3.IObstacle
-
-            const params = {
-                duration: obj.d ?? 0,
-                height: obj.h,
-                size: getCDProp(obj, 'size'),
-                width: obj.w ?? 0,
-            } as Params
-
-            Object.assign(this, params)
-            return super.fromJson(obj, true)
-        } else {
-            const obj = json as bsmap.v2.IObstacle
-
-            const params = {
-                duration: obj._duration ?? 0,
-                size: getCDProp(obj, '_scale'),
-                width: obj._width ?? 0,
-                fake: getCDProp(obj, '_fake'),
-            } as Params
-
-            Object.assign(this, params)
-            return super.fromJson(obj, false)
-        }
+    fromJsonV3(json: bsmap.v3.IObstacle): this {
+        this.duration = json.d ?? Wall.defaults.duration
+        this.height = json.h ?? Wall.defaults.height
+        this.width = json.w ?? Wall.defaults.width
+        this.size = getCDProp(json, 'size') as Vec3 | undefined
+        return super.fromJsonV3(json)
     }
 
-    toJson(v3: true, prune?: boolean): bsmap.v3.IObstacle
-    toJson(v3: false, prune?: boolean): bsmap.v2.IObstacle
-    toJson(v3 = true, prune = true): bsmap.v2.IObstacle | bsmap.v3.IObstacle {
-        const diff = activeDifficulty
-        const NJS = this.noteJumpSpeed
-        let offset = this.noteJumpOffset
+    fromJsonV2(json: bsmap.v2.IObstacle): this {
+        this.duration = json._duration ?? Wall.defaults.duration
+        this.width = json._width ?? Wall.defaults.width
+        this.size = getCDProp(json, '_scale') as Vec3 | undefined
+        this.fake = getCDProp(json, '_fake')
+        return super.fromJsonV2(json)
+    }
 
-        if (diff && settings.forceJumpsForNoodle && this.isGameplayModded) {
-            offset ??= diff.noteJumpOffset
-        }
+    toJsonV3(prune?: boolean): bsmap.v3.IObstacle {
+        const output = {
+            b: this.beat,
+            d: this.duration,
+            h: this.height,
+            w: this.width,
+            x: this.x,
+            y: this.y,
+            customData: {
+                animation: this.animation as bsmap.v3.IAnimation['animation'],
+                size: this.size,
+                noteJumpMovementSpeed: this.noteJumpSpeed,
+                noteJumpStartBeatOffset: this.getForcedOffset(),
+                localRotation: this.localRotation,
+                coordinates: this.coordinates,
+                worldRotation: this.worldRotation,
+                track: this.track.value,
+                color: this.chromaColor,
+                uninteractable: this.uninteractable,
+                fake: this.fake,
+                ...this.customData,
+            },
+        } satisfies bsmap.v3.IObstacle
+        return prune ? objectPrune(output) : output
+    }
 
-        if (v3) {
-            const output = {
-                b: this.beat,
-                d: this.duration,
-                h: this.height,
-                w: this.width,
-                x: this.x,
-                y: this.y,
-                customData: {
-                    animation: animationV3toV2(this.animation, v3),
-                    size: this.size,
-                    noteJumpMovementSpeed: NJS,
-                    noteJumpStartBeatOffset: offset,
-                    localRotation: this.localRotation,
-                    coordinates: this.coordinates,
-                    worldRotation: this.worldRotation,
-                    track: this.track.value,
-                    color: this.color,
-                    uninteractable: defaultBoolean(this.uninteractable, false),
-                    fake: defaultBoolean(this.fake, false),
-                    ...this.customData,
-                },
-            } satisfies bsmap.v3.IObstacle
-            return prune ? objectPrune(output) : output
-        }
-
+    toJsonV2(prune?: boolean): bsmap.v2.IObstacle {
         const output = {
             _duration: this.duration,
             _lineIndex: this.x,
@@ -175,17 +145,17 @@ export class Wall
             _type: 0,
             _width: this.width,
             _customData: {
-                _animation: animationV3toV2(this.animation, v3),
+                _animation: animationV3toV2(this.animation),
                 _scale: this.size,
-                _noteJumpMovementSpeed: NJS,
-                _noteJumpStartBeatOffset: offset,
+                _noteJumpMovementSpeed: this.noteJumpSpeed,
+                _noteJumpStartBeatOffset: this.getForcedOffset(),
                 _localRotation: this.localRotation,
                 _position: this.coordinates,
                 _rotation: this.worldRotation,
                 _track: this.track.value,
-                _color: this.color,
+                _color: this.chromaColor,
                 _interactable: exportInvertedBoolean(this.uninteractable, true),
-                _fake: defaultBoolean(this.fake, false),
+                _fake: this.fake,
                 ...this.customData,
             },
         } satisfies bsmap.v2.IObstacle

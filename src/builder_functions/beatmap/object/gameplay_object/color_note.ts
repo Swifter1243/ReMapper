@@ -21,7 +21,7 @@ export function colorNote(
 
     return new ColorNote({
         beat: beat as number ?? 0,
-        type: type ?? NoteColor.BLUE,
+        color: type ?? NoteColor.BLUE,
         cutDirection: direction ?? NoteCut.DOWN,
         x: x ?? 0,
         y: y ?? 0,

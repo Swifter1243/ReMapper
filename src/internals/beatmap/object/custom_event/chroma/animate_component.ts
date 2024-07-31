@@ -17,7 +17,7 @@ export class AnimateComponent extends CustomEvent<never, bsmap.v3.ICustomEventAn
     ) {
         super(params)
         this.type = 'AnimateComponent'
-        this.track = params.track instanceof Track ? params.track : new Track(params.track)
+        this.track = new Track(params.track)
         this.duration = params.duration
         this.easing = params.easing
         this.lightMultiplier = params.lightMultiplier ?? copy(AnimateComponent.defaults.lightMultiplier)
