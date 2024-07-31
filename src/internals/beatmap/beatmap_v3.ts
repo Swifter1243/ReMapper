@@ -1,7 +1,7 @@
-import {wall} from '../../builder_functions/beatmap/object/gameplay_object/wall.ts'
-import {bsmap} from '../../deps.ts'
-import {AbstractDifficulty} from './abstract_beatmap.ts'
-import {AnyFog, FogEvent} from './object/environment/fog.ts'
+import { wall } from '../../builder_functions/beatmap/object/gameplay_object/wall.ts'
+import { bsmap } from '../../deps.ts'
+import { AbstractDifficulty } from './abstract_beatmap.ts'
+import { AnyFog, FogEvent } from './object/environment/fog.ts'
 import {
     assignTrackPrefab,
     blit,
@@ -14,58 +14,56 @@ import {
     setCameraProperty,
     setGlobalProperty,
     setMaterialProperty,
-    setRenderSetting
-} from "../../builder_functions/beatmap/object/custom_event/vivify.ts";
-import {animateTrack} from "../../builder_functions/beatmap/object/custom_event/heck.ts";
+    setRenderSetting,
+} from '../../builder_functions/beatmap/object/custom_event/vivify.ts'
+import { animateTrack } from '../../builder_functions/beatmap/object/custom_event/heck.ts'
 import {
     assignPathAnimation,
     assignPlayerToTrack,
-    assignTrackParent
-} from "../../builder_functions/beatmap/object/custom_event/noodle_extensions.ts";
-import {animateComponent} from "../../builder_functions/beatmap/object/custom_event/chroma.ts";
+    assignTrackParent,
+} from '../../builder_functions/beatmap/object/custom_event/noodle_extensions.ts'
+import { animateComponent } from '../../builder_functions/beatmap/object/custom_event/chroma.ts'
 import {
     lightColorEventBoxGroup,
     lightRotationEventBoxGroup,
-    lightTranslationEventBoxGroup
-} from "../../builder_functions/beatmap/object/v3_event/lighting/light_event_box_group.ts";
-import {communityBpmEvent} from "../../builder_functions/beatmap/object/basic_event/bpm.ts";
-import {earlyRotation, lateRotation} from "../../builder_functions/beatmap/object/v3_event/rotation.ts";
-import {leftLaserSpeed} from "../../builder_functions/beatmap/object/basic_event/laser_speed.ts";
-import {ringSpin, ringZoom} from "../../builder_functions/beatmap/object/basic_event/ring.ts";
-import {abstract} from "../../builder_functions/beatmap/object/basic_event/abstract.ts";
-import {backLasers} from "../../builder_functions/beatmap/object/basic_event/light_event.ts";
-import {boost} from "../../builder_functions/beatmap/object/v3_event/lighting/boost.ts";
-import {environment} from "../../builder_functions/beatmap/object/environment/environment.ts";
-import {geometry} from "../../builder_functions/beatmap/object/environment/geometry.ts";
-import {colorNote} from "../../builder_functions/beatmap/object/gameplay_object/color_note.ts";
-import {bomb} from "../../builder_functions/beatmap/object/gameplay_object/bomb.ts";
-import {chain} from "../../builder_functions/beatmap/object/gameplay_object/chain.ts";
-import {arc} from "../../builder_functions/beatmap/object/gameplay_object/arc.ts";
-import {abstractCustomEvent} from "../../builder_functions/beatmap/object/custom_event/base.ts";
-import {shallowPrune} from "../../utils/object/prune.ts";
-import {EventGroup} from "../../data/constants/basic_event.ts";
-import {officialBpmEvent} from "../../builder_functions/beatmap/object/v3_event/bpm.ts";
-import {RMDifficulty} from "../../types/beatmap/rm_difficulty.ts";
+    lightTranslationEventBoxGroup,
+} from '../../builder_functions/beatmap/object/v3_event/lighting/light_event_box_group.ts'
+import { communityBpmEvent } from '../../builder_functions/beatmap/object/basic_event/bpm.ts'
+import { earlyRotation, lateRotation } from '../../builder_functions/beatmap/object/v3_event/rotation.ts'
+import { leftLaserSpeed } from '../../builder_functions/beatmap/object/basic_event/laser_speed.ts'
+import { ringSpin, ringZoom } from '../../builder_functions/beatmap/object/basic_event/ring.ts'
+import { abstract } from '../../builder_functions/beatmap/object/basic_event/abstract.ts'
+import { backLasers } from '../../builder_functions/beatmap/object/basic_event/light_event.ts'
+import { boost } from '../../builder_functions/beatmap/object/v3_event/lighting/boost.ts'
+import { environment } from '../../builder_functions/beatmap/object/environment/environment.ts'
+import { geometry } from '../../builder_functions/beatmap/object/environment/geometry.ts'
+import { colorNote } from '../../builder_functions/beatmap/object/gameplay_object/color_note.ts'
+import { bomb } from '../../builder_functions/beatmap/object/gameplay_object/bomb.ts'
+import { chain } from '../../builder_functions/beatmap/object/gameplay_object/chain.ts'
+import { arc } from '../../builder_functions/beatmap/object/gameplay_object/arc.ts'
+import { abstractCustomEvent } from '../../builder_functions/beatmap/object/custom_event/base.ts'
+import { shallowPrune } from '../../utils/object/prune.ts'
+import { EventGroup } from '../../data/constants/basic_event.ts'
+import { officialBpmEvent } from '../../builder_functions/beatmap/object/v3_event/bpm.ts'
+import { RMDifficulty } from '../../types/beatmap/rm_difficulty.ts'
 import { arraySplit } from '../../utils/array/split.ts'
 import { Track } from '../../utils/animation/track.ts'
-import {OfficialBPMEvent} from "./object/v3_event/bpm/official_bpm.ts";
+import { OfficialBPMEvent } from './object/v3_event/bpm/official_bpm.ts'
 
-import {BeatmapCustomEvents} from "../../types/beatmap/object/custom_event.ts";
+import { BeatmapCustomEvents } from '../../types/beatmap/object/custom_event.ts'
 import { IInfoSet, IInfoSetDifficulty } from '../../types/beatmap/info.ts'
 import { ColorNote } from './object/gameplay_object/color_note.ts'
-import {Bomb} from "./object/gameplay_object/bomb.ts";
-import {Arc} from "./object/gameplay_object/arc.ts";
-import {Chain} from "./object/gameplay_object/chain.ts";
+import { Bomb } from './object/gameplay_object/bomb.ts'
+import { Arc } from './object/gameplay_object/arc.ts'
+import { Chain } from './object/gameplay_object/chain.ts'
 import { RawGeometryMaterial } from '../../types/beatmap/object/environment.ts'
-import {CustomEvent} from "./object/custom_event/base/custom_event.ts";
+import { CustomEvent } from './object/custom_event/base/custom_event.ts'
 
 export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
     declare version: bsmap.v3.IDifficulty['version']
     declare waypoints: bsmap.v3.IWaypoint[]
-    basicEventTypesWithKeywords:
-        bsmap.v3.IDifficulty['basicEventTypesWithKeywords']
-    useNormalEventsAsCompatibleEvents:
-        bsmap.v3.IDifficulty['useNormalEventsAsCompatibleEvents']
+    basicEventTypesWithKeywords: bsmap.v3.IDifficulty['basicEventTypesWithKeywords']
+    useNormalEventsAsCompatibleEvents: bsmap.v3.IDifficulty['useNormalEventsAsCompatibleEvents']
 
     constructor(
         info: IInfoSetDifficulty,
@@ -85,73 +83,64 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
             return callback(json[key])
         }
 
+        // TODO: Throw if expected arrays are not present
+
         // Notes
         const colorNotes: ColorNote[] = runProcess(
             'colorNotes',
-            (notes) => notes.map((o) => colorNote().fromJson(o, true)),
+            (notes) => notes.map((o) => colorNote().fromJsonV3(o)),
         ) ?? []
 
         const bombs: Bomb[] = runProcess(
             'bombNotes',
-            (notes) => notes.map((o) => bomb().fromJson(o, true)),
+            (notes) => notes.map((o) => bomb().fromJsonV3(o)),
         ) ?? []
 
         const arcs: Arc[] = runProcess(
             'sliders',
-            (arcs) => arcs.map((o) => arc().fromJson(o, true)),
+            (arcs) => arcs.map((o) => arc().fromJsonV3(o)),
         ) ?? []
 
         const chains: Chain[] = runProcess(
             'burstSliders',
-            (chains) => chains.map((o) => chain().fromJson(o, true)),
+            (chains) => chains.map((o) => chain().fromJsonV3(o)),
         ) ?? []
 
         const obstacles = runProcess(
             'obstacles',
-            (obstacles) => obstacles.map((o) => wall().fromJson(o, true)),
+            (obstacles) => obstacles.map((o) => wall().fromJsonV3(o)),
         ) ?? []
 
         // Fake stuff
         if (json.customData?.fakeColorNotes) {
             colorNotes.push(
-                ...json.customData.fakeColorNotes.map((o) =>
-                    colorNote({ fake: true }).fromJson(o, true)
-                ),
+                ...json.customData.fakeColorNotes.map((o) => colorNote({ fake: true }).fromJsonV3(o)),
             )
             delete json.customData.fakeColorNotes
         }
 
         if (json.customData?.fakeBombNotes) {
             bombs.push(
-                ...json.customData.fakeBombNotes.map((o) =>
-                    bomb({ fake: true }).fromJson(o, true)
-                ),
+                ...json.customData.fakeBombNotes.map((o) => bomb({ fake: true }).fromJsonV3(o)),
             )
             delete json.customData.fakeBombNotes
         }
 
         if (json.customData?.fakeBurstSliders) {
             chains.push(
-                ...json.customData.fakeBurstSliders.map((o) =>
-                    chain({ fake: true }).fromJson(o, true)
-                ),
+                ...json.customData.fakeBurstSliders.map((o) => chain({ fake: true }).fromJsonV3(o)),
             )
             delete json.customData.fakeBurstSliders
         }
 
         if (json.customData?.fakeObstacles) {
             obstacles.push(
-                ...json.customData.fakeObstacles.map((o) =>
-                    wall({ fake: true }).fromJson(o, true)
-                ),
+                ...json.customData.fakeObstacles.map((o) => wall({ fake: true }).fromJsonV3(o)),
             )
             delete json.customData.fakeObstacles
         }
 
         // Events
-        if (!json.basicBeatmapEvents) {
-            throw `"basicBeatmapEvents" does not exist in the beatmap!`
-        }
         const lightEventsFilter = arraySplit(json.basicBeatmapEvents, (x) => {
             return x.et === EventGroup.BACK_LASERS ||
                 x.et === EventGroup.RING_LIGHTS ||
@@ -211,28 +200,13 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         })
         json.basicBeatmapEvents = bpmEventsFilter.fail
 
-        const lightEvents = lightEventsFilter.success.map((o) =>
-            backLasers().fromJson(o as bsmap.v3.IBasicEventLight, true)
-        )
+        const lightEvents = lightEventsFilter.success.map((o) => backLasers().fromJsonV3(o as bsmap.v3.IBasicEventLight))
 
         const laserSpeedEvents = laserSpeedEventsFilter.success.map((o) =>
-            leftLaserSpeed({}).fromJson(
-                o as bsmap.v3.IBasicEventLaserRotation,
-                true,
-            )
+            leftLaserSpeed({}).fromJsonV3(o as bsmap.v3.IBasicEventLaserRotation)
         )
-
-        const ringZoomEvents = ringZoomEventsFilter.success.map((o) =>
-            ringZoom({}).fromJson(o as bsmap.v3.IBasicEventRing, true)
-        )
-
-        const ringSpinEvents = ringSpinEventsFilter.success.map((o) =>
-            ringSpin({}).fromJson(o as bsmap.v3.IBasicEventRing, true)
-        )
-
-        if (!json.rotationEvents) {
-            throw `"rotationEvents" does not exist in the beatmap!`
-        }
+        const ringZoomEvents = ringZoomEventsFilter.success.map((o) => ringZoom({}).fromJsonV3(o as bsmap.v3.IBasicEventRing))
+        const ringSpinEvents = ringSpinEventsFilter.success.map((o) => ringSpin({}).fromJsonV3(o as bsmap.v3.IBasicEventRing))
         const rotationEvents = [
             ...rotationEventsFilter.success.map((o) => {
                 if (o.et === EventGroup.EARLY_ROTATION) {
@@ -245,42 +219,21 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
                     )
                 }
             }),
-            ...json.rotationEvents.map((o) =>
-                lateRotation({}).fromJson(o, true)
-            ),
+            ...json.rotationEvents.map((o) => lateRotation({}).fromJsonV3(o)),
         ]
-
-        if (!json.colorBoostBeatmapEvents) {
-            throw `"colorBoostBeatmapEvents" does not exist in the beatmap!`
-        }
         const boostEvents = [
             ...boostEventsFilter.success.map((o) =>
                 boost({}).fromBasicEvent(
                     o as bsmap.v3.IBasicEventBoost,
                 )
             ),
-            ...json.colorBoostBeatmapEvents.map((o) =>
-                boost({}).fromJson(o, true)
-            ),
+            ...json.colorBoostBeatmapEvents.map((o) => boost({}).fromJsonV3(o)),
         ]
-
-        const baseBasicEvents = json.basicBeatmapEvents.map((o) =>
-            abstract({}).fromJson(o, true)
-        )
-
-        if (!json.bpmEvents) {
-            throw `"bpmEvents" does not exist in the beatmap!`
-        }
+        const baseBasicEvents = json.basicBeatmapEvents.map((o) => abstract({}).fromJsonV3(o))
         const bpmEvents = [
-            ...bpmEventsFilter.success.map((o) =>
-                officialBpmEvent({}).fromBasicEvent(o)
-            ),
-            ...(json.customData?.BPMChanges ?? []).map((o) =>
-                communityBpmEvent({}).fromJson(o, true)
-            ),
-            ...json.bpmEvents.map((o) =>
-                officialBpmEvent({}).fromJson(o, true)
-            ),
+            ...bpmEventsFilter.success.map((o) => officialBpmEvent({}).fromBasicEvent(o)),
+            ...(json.customData?.BPMChanges ?? []).map((o) => communityBpmEvent({}).fromJsonV3(o)),
+            ...json.bpmEvents.map((o) => officialBpmEvent({}).fromJsonV3(o)),
         ]
         delete json.customData?.BPMChanges
 
@@ -359,16 +312,10 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
                 (x) => x.t === type,
             )
 
-            const result = filter.success.map((x) =>
-                obj({}).fromJson(
-                    x as bsmap.v3.ICustomEventAnimateTrack,
-                    true,
-                )
-            )
             customEvents = filter.fail
 
-            diffCustomEvents[property] =
-                result as unknown as BeatmapCustomEvents[K]
+            const result = filter.success.map((x) => obj({}).fromJsonV3(x as bsmap.v3.ICustomEventAnimateTrack))
+            diffCustomEvents[property] = result as unknown as BeatmapCustomEvents[K]
         }
 
         extractCustomEvents(animateComponent, 'animateComponentEvents')
@@ -393,26 +340,17 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         extractCustomEvents(assignTrackPrefab, 'assignTrackPrefabEvents')
         extractCustomEvents(setRenderSetting, 'setRenderSettingEvents')
 
-        diffCustomEvents.abstractCustomEvents = customEvents.map((x) =>
-            abstractCustomEvent({}).fromJson(x, true)
-        )
+        diffCustomEvents.abstractCustomEvents = customEvents.map((x) => abstractCustomEvent({}).fromJsonV3(x))
 
         // Environment
         const environmentArr =
-            json.customData?.environment?.filter((x) =>
-                x.geometry === undefined
-            ).map((x) =>
-                environment().fromJson(x as bsmap.v3.IChromaEnvironmentID, true)
+            json.customData?.environment?.filter((x) => x.geometry === undefined).map((x) =>
+                environment().fromJsonV3(x as bsmap.v3.IChromaEnvironmentID)
             ) ?? []
 
         const geometryArr =
-            json.customData?.environment?.filter((x) =>
-                x.geometry !== undefined
-            ).map((x) =>
-                geometry().fromJson(
-                    x as bsmap.v3.IChromaEnvironmentGeometry,
-                    true,
-                )
+            json.customData?.environment?.filter((x) => x.geometry !== undefined).map((x) =>
+                geometry().fromJsonV3(x as bsmap.v3.IChromaEnvironmentGeometry)
             ) ?? []
         delete json.customData?.environment
 
@@ -424,21 +362,13 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
 
         // V3 Lighting
         const lightColorEventBoxGroups = (json.lightColorEventBoxGroups ?? [])
-            .map(
-                (x) => lightColorEventBoxGroup().fromJson(x, true),
-            )
+            .map((x) => lightColorEventBoxGroup().fromJsonV3(x))
 
-        const lightRotationEventBoxGroups =
-            (json.lightRotationEventBoxGroups ?? [])
-                .map(
-                    (x) => lightRotationEventBoxGroup().fromJson(x, true),
-                )
+        const lightRotationEventBoxGroups = (json.lightRotationEventBoxGroups ?? [])
+            .map((x) => lightRotationEventBoxGroup().fromJsonV3(x))
 
-        const lightTranslationEventBoxGroups =
-            (json.lightTranslationEventBoxGroups ?? [])
-                .map(
-                    (x) => lightTranslationEventBoxGroup().fromJson(x, true),
-                )
+        const lightTranslationEventBoxGroups = (json.lightTranslationEventBoxGroups ?? [])
+            .map((x) => lightTranslationEventBoxGroup().fromJsonV3(x))
 
         super(
             json,
@@ -483,8 +413,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
 
         // Extra
         this.basicEventTypesWithKeywords = json.basicEventTypesWithKeywords
-        this.useNormalEventsAsCompatibleEvents =
-            json.useNormalEventsAsCompatibleEvents
+        this.useNormalEventsAsCompatibleEvents = json.useNormalEventsAsCompatibleEvents
     }
 
     toJSON(): bsmap.v3.IDifficulty {
@@ -492,30 +421,30 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
 
         // Notes
         const colorNotes = this.colorNotes.filter((e) => !e.fake)
-            .map((e) => (e.toJson(true)))
+            .map((e) => (e.toJsonV3()))
             .sort(sortItems)
 
         const bombNotes = this.bombs.filter((e) => !e.fake)
-            .map((e) => (e.toJson(true)))
+            .map((e) => (e.toJsonV3()))
             .sort(sortItems)
 
         const chains = this.chains.filter((e) => !e.fake)
-            .map((e) => (e.toJson(true)))
+            .map((e) => (e.toJsonV3()))
             .sort(sortItems)
 
         const arcs = this.arcs
-            .map((e) => (e.toJson(true)))
+            .map((e) => (e.toJsonV3()))
             .sort(sortItems)
 
         // Walls
         const obstacles = this.walls.filter((e) => !e.fake)
-            .map((e) => (e.toJson(true)))
+            .map((e) => (e.toJsonV3()))
             .sort(sortItems)
 
         // Environment
         const environment = [
-            ...this.environment.map((e) => e.toJson(true)),
-            ...this.geometry.map((e) => e.toJson(true)),
+            ...this.environment.map((e) => e.toJsonV3()),
+            ...this.geometry.map((e) => e.toJsonV3()),
         ]
 
         // Events
@@ -525,15 +454,15 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
             ...this.ringZoomEvents,
             ...this.ringSpinEvents,
             ...this.abstractBasicEvents,
-        ].map((o) => o.toJson(true))
+        ].map((o) => o.toJsonV3())
             .sort(sortItems)
 
         const boostEvents = this.boostEvents
-            .map((x) => x.toJson(true))
+            .map((x) => x.toJsonV3())
             .sort(sortItems)
 
         const rotationEvents = this.rotationEvents
-            .map((x) => x.toJson(true))
+            .map((x) => x.toJsonV3())
             .sort(sortItems)
 
         const bpmEventsFilter = arraySplit(
@@ -542,18 +471,18 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         )
 
         const officialBPMEvents = bpmEventsFilter.success
-            .map((x) => x.toJson(true))
+            .map((x) => x.toJsonV3())
             .sort(sortItems) as bsmap.v3.IBPMEvent[]
 
         const communityBPMEvents = bpmEventsFilter.fail
-            .map((x) => x.toJson(true))
+            .map((x) => x.toJsonV3())
             .sort(sortItems) as bsmap.v3.IBPMChange[]
 
         // Custom events
         const customEvents = (Object.values(
             this.customEvents,
         ) as CustomEvent[][])
-            .map((a) => a.map((e) => e.toJson(true)))
+            .map((a) => a.map((e) => e.toJsonV3()))
             .flat()
             .sort(sortItems) as bsmap.v3.ICustomEvent[]
 
@@ -584,19 +513,14 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         if (fogEnvironment!) environment.push(fogEnvironment)
 
         // V3 Lighting
-        const lightColorEventBoxGroups = this.lightColorEventBoxGroups.map(
-            (x) => x.toJson(true),
-        ).sort(sortItems)
+        const lightColorEventBoxGroups = this.lightColorEventBoxGroups
+            .map((x) => x.toJsonV3()).sort(sortItems)
 
         const lightRotationEventBoxGroups = this.lightRotationEventBoxGroups
-            .map(
-                (x) => x.toJson(true),
-            ).sort(sortItems)
+            .map((x) => x.toJsonV3()).sort(sortItems)
 
-        const lightTranslationEventBoxGroups = this
-            .lightTranslationEventBoxGroups.map(
-                (x) => x.toJson(true),
-            ).sort(sortItems)
+        const lightTranslationEventBoxGroups = this.lightTranslationEventBoxGroups
+            .map((x) => x.toJsonV3()).sort(sortItems)
 
         return {
             version: '3.2.0',
@@ -616,16 +540,16 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
             customData: shallowPrune({
                 ...this.customData,
                 fakeColorNotes: this.colorNotes.filter((e) => e.fake)
-                    .map((e) => e.toJson(true))
+                    .map((e) => e.toJsonV3())
                     .sort(sortItems),
                 fakeBombNotes: this.bombs.filter((e) => e.fake)
-                    .map((e) => e.toJson(true))
+                    .map((e) => e.toJsonV3())
                     .sort(sortItems),
                 fakeBurstSliders: this.chains.filter((e) => e.fake)
-                    .map((e) => e.toJson(true))
+                    .map((e) => e.toJsonV3())
                     .sort(sortItems),
                 fakeObstacles: this.walls.filter((e) => e.fake)
-                    .map((e) => e.toJson(true))
+                    .map((e) => e.toJsonV3())
                     .sort(sortItems),
                 environment: environment,
                 materials: this.geometryMaterials as Record<
@@ -637,8 +561,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
                     .pointDefinitions as bsmap.v3.IPointDefinition,
                 BPMChanges: communityBPMEvents,
             }) satisfies bsmap.v3.ICustomDataDifficulty,
-            useNormalEventsAsCompatibleEvents:
-                this.useNormalEventsAsCompatibleEvents,
+            useNormalEventsAsCompatibleEvents: this.useNormalEventsAsCompatibleEvents,
             basicEventTypesWithKeywords: this.basicEventTypesWithKeywords,
         }
     }
