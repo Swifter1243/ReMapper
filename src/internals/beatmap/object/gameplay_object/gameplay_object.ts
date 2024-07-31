@@ -22,6 +22,7 @@ import {
 import { copy } from '../../../../utils/object/copy.ts'
 import {AnimationPropertiesV3} from "../../../../types/animation/properties/properties.ts";
 import {settings} from "../../../../data/settings.ts";
+import { ObjectFields } from '../../../../types/beatmap/object/object.ts'
 
 export abstract class BeatmapGameplayObject<
     TV2 extends IV2GameplayObject = IV2GameplayObject,

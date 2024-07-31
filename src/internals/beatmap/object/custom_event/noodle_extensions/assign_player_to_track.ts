@@ -1,6 +1,6 @@
 import { CustomEvent } from '../base/custom_event.ts'
-import { DefaultFields, ExcludedObjectFields } from '../../../../../types/beatmap/object/object.ts'
-import { CustomEventExclusions } from '../../../../../types/beatmap/object/custom_event.ts'
+import { DefaultFields } from '../../../../../types/beatmap/object/object.ts'
+import { CustomEventConstructorTrack } from '../../../../../types/beatmap/object/custom_event.ts'
 import { getActiveDifficulty } from '../../../../../data/active_difficulty.ts'
 import { copy } from '../../../../../utils/object/copy.ts'
 import { getDataProp } from '../../../../../utils/beatmap/json.ts'
@@ -12,12 +12,7 @@ export class AssignPlayerToTrack extends CustomEvent<
     bsmap.v3.ICustomEventAssignPlayerToTrack
 > {
     constructor(
-        params: ExcludedObjectFields<
-            AssignPlayerToTrack,
-            // deno-lint-ignore ban-types
-            {},
-            CustomEventExclusions
-        >,
+        params: CustomEventConstructorTrack<AssignPlayerToTrack, { track: string }>,
     ) {
         super(params)
         this.type = 'AssignPlayerToTrack'

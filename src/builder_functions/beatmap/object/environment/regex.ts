@@ -6,4 +6,6 @@ import { Regex } from '../../../../utils/beatmap/object/environment/regex.ts'
  * // "Parent\.\[\d*\]Child$"
  * ```
  */
-export const regex = (...params: ConstructorParameters<typeof Regex>) => new Regex(...params)
+export function regex(...params: ConstructorParameters<typeof Regex>) {
+    return new Regex(...params)
+}
