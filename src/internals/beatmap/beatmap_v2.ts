@@ -309,18 +309,18 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
 
         // Notes
         const notes = [...this.colorNotes, ...this.bombs]
-            .map((e) => objectPrune(e.toJsonV2()))
+            .map((e) => e.toJsonV2(true))
             .sort(sortItems)
 
         // Walls
         const obstacles = this.walls
-            .map((e) => objectPrune(e.toJsonV2()))
+            .map((e) => e.toJsonV2(true))
             .sort(sortItems)
 
         // Environment
         const environment = [
-            ...this.environment.map((e) => e.toJsonV2()),
-            ...this.geometry.map((e) => e.toJsonV2()),
+            ...this.environment.map((e) => e.toJsonV2(true)),
+            ...this.geometry.map((e) => e.toJsonV2(true)),
         ]
 
         // Point Definitions
@@ -367,14 +367,14 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
             ...this.boostEvents,
             ...this.abstractBasicEvents,
             ...bpmEventsFilter.success,
-        ].map((o) => o.toJsonV2())
+        ].map((o) => o.toJsonV2(true))
             .sort(sortItems) as bsmap.v2.IEvent[]
 
         // Custom Events
         const customEvents = (Object.values(
             this.customEvents,
         ) as CustomEvent[][])
-            .map((a) => a.map((e) => e.toJsonV2()))
+            .map((a) => a.map((e) => e.toJsonV2(true)))
             .flat()
             .sort(sortItems) as bsmap.v2.ICustomEvent[]
 
@@ -390,7 +390,7 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
         }
 
         this.fogEvents.forEach((x) => {
-            customEvents.push(x.exportV2())
+            customEvents.push(x.exportV2(true))
         })
 
         return {
@@ -407,10 +407,10 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
                 _customEvents: customEvents,
                 _materials: materials,
                 _bpmChanges: mediocreEventsFilter.success
-                    .map((o) => o.toJsonV2())
+                    .map((o) => o.toJsonV2(true))
                     .sort(sortItems) as bsmap.v2.IBPMChangeOld[],
                 _BPMChanges: mediocreEventsFilter.fail
-                    .map((o) => o.toJsonV2())
+                    .map((o) => o.toJsonV2(true))
                     .sort(sortItems) as bsmap.v2.IBPMChange[],
             }) satisfies bsmap.v2.ICustomDataDifficulty,
             _specialEventsKeywordFilters: this.specialEventsKeywordFilters,

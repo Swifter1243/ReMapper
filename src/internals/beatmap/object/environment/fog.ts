@@ -1,6 +1,7 @@
-import {bsmap} from '../../../../deps.ts'
-import {ComplexKeyframesLinear} from '../../../../types/animation/keyframe/linear.ts'
-import {BloomFogEnvironment} from '../../../../types/beatmap/object/environment.ts'
+import { bsmap } from '../../../../deps.ts'
+import { ComplexKeyframesLinear } from '../../../../types/animation/keyframe/linear.ts'
+import { BloomFogEnvironment } from '../../../../types/beatmap/object/environment.ts'
+import { objectPrune } from '../../../../utils/object/prune.ts'
 
 // TODO: Maybe make this a difficulty based thing?
 export type AnyFog = BloomFogEnvironment<
@@ -25,8 +26,8 @@ export class FogEvent {
 
         Object.entries(this.fog).map(([key, value]) => {
             obj[v3 ? key : `_${key}`] = typeof value === 'number' ? [value] : value
-        }) 
-        
+        })
+
         return obj as BloomFogEnvironment<ComplexKeyframesLinear | string>
     }
 
@@ -34,7 +35,7 @@ export class FogEvent {
      * If static, returns an environment statement for the base environment.
      * If animated, returns an AnimateComponent event.
      */
-    exportV3() {
+    exportV3(prune?: boolean) {
         const isStatic = !(
             this.beat ||
             this.duration ||
@@ -42,37 +43,39 @@ export class FogEvent {
         )
 
         if (isStatic) {
-            return {
+            const result = {
                 id: '[0]Environment',
                 lookupMethod: 'EndsWith',
                 components: {
-                    BloomFogEnvironment: this.fog,
+                    BloomFogEnvironment: this.fog as BloomFogEnvironment<number>,
                 },
-            } as bsmap.v3.IChromaEnvironment
+            } satisfies bsmap.v3.IChromaEnvironment
+            return prune ? objectPrune(result) : result
         }
 
-        return {
+        const result = {
             b: this.beat ?? 0,
             t: 'AnimateComponent',
             d: {
-                duration: this.duration,
+                duration: this.duration!, // duration can be undefined here... why do I have to do this
                 track: 'ReMapper_Fog',
-                BloomFogEnvironment: this.complexifyFog(),
+                BloomFogEnvironment: this.complexifyFog() as bsmap.v3.ICustomEventAnimateComponent['d']['BloomFogEnvironment'],
             },
-        } as bsmap.v3.ICustomEventAnimateComponent
+        } satisfies bsmap.v3.ICustomEventAnimateComponent
+        return prune ? objectPrune(result) : result
     }
 
     /** Export for V2 into an AnimateTrack event. */
-    exportV2() {
-        return {
+    exportV2(prune?: boolean) {
+        const result = {
             _time: this.beat ?? 0,
             _type: 'AnimateTrack',
             _data: {
                 _track: 'ReMapper_Fog',
                 _duration: this.duration,
-                ...this.complexifyFog(false)
-            }
-        } as bsmap.v2.ICustomEventAnimateTrack
+                ...this.complexifyFog(false),
+            },
+        } satisfies bsmap.v2.ICustomEventAnimateTrack
+        return prune ? objectPrune(result) : result
     }
 }
-

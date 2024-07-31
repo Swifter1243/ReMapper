@@ -43,6 +43,8 @@ export class Environment extends BaseEnvironmentEnhancement<
     }
 
     toJsonV3(prune?: boolean): bsmap.v3.IChromaEnvironmentID {
+        if (this.id === "") throw "'id' is empty, which is redundant for environment statements!"
+
         const output = {
             id: this.id,
             lookupMethod: this.lookupMethod,
@@ -66,6 +68,7 @@ export class Environment extends BaseEnvironmentEnhancement<
     }
 
     toJsonV2(prune?: boolean): bsmap.v2.IChromaEnvironmentID {
+        if (this.id === "") throw "'id' is empty, which is redundant for environment statements!"
         if (this.components) throw 'Components are not supported in v2'
 
         const output = {

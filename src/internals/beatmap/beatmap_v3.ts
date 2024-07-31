@@ -421,30 +421,30 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
 
         // Notes
         const colorNotes = this.colorNotes.filter((e) => !e.fake)
-            .map((e) => (e.toJsonV3()))
+            .map((e) => (e.toJsonV3(true)))
             .sort(sortItems)
 
         const bombNotes = this.bombs.filter((e) => !e.fake)
-            .map((e) => (e.toJsonV3()))
+            .map((e) => (e.toJsonV3(true)))
             .sort(sortItems)
 
         const chains = this.chains.filter((e) => !e.fake)
-            .map((e) => (e.toJsonV3()))
+            .map((e) => (e.toJsonV3(true)))
             .sort(sortItems)
 
         const arcs = this.arcs
-            .map((e) => (e.toJsonV3()))
+            .map((e) => (e.toJsonV3(true)))
             .sort(sortItems)
 
         // Walls
         const obstacles = this.walls.filter((e) => !e.fake)
-            .map((e) => (e.toJsonV3()))
+            .map((e) => (e.toJsonV3(true)))
             .sort(sortItems)
 
         // Environment
         const environment = [
-            ...this.environment.map((e) => e.toJsonV3()),
-            ...this.geometry.map((e) => e.toJsonV3()),
+            ...this.environment.map((e) => e.toJsonV3(true)),
+            ...this.geometry.map((e) => e.toJsonV3(true)),
         ]
 
         // Events
@@ -454,15 +454,15 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
             ...this.ringZoomEvents,
             ...this.ringSpinEvents,
             ...this.abstractBasicEvents,
-        ].map((o) => o.toJsonV3())
+        ].map((o) => o.toJsonV3(true))
             .sort(sortItems)
 
         const boostEvents = this.boostEvents
-            .map((x) => x.toJsonV3())
+            .map((x) => x.toJsonV3(true))
             .sort(sortItems)
 
         const rotationEvents = this.rotationEvents
-            .map((x) => x.toJsonV3())
+            .map((x) => x.toJsonV3(true))
             .sort(sortItems)
 
         const bpmEventsFilter = arraySplit(
@@ -471,18 +471,18 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         )
 
         const officialBPMEvents = bpmEventsFilter.success
-            .map((x) => x.toJsonV3())
+            .map((x) => x.toJsonV3(true))
             .sort(sortItems) as bsmap.v3.IBPMEvent[]
 
         const communityBPMEvents = bpmEventsFilter.fail
-            .map((x) => x.toJsonV3())
+            .map((x) => x.toJsonV3(true))
             .sort(sortItems) as bsmap.v3.IBPMChange[]
 
         // Custom events
         const customEvents = (Object.values(
             this.customEvents,
         ) as CustomEvent[][])
-            .map((a) => a.map((e) => e.toJsonV3()))
+            .map((a) => a.map((e) => e.toJsonV3(true)))
             .flat()
             .sort(sortItems) as bsmap.v3.ICustomEvent[]
 
@@ -491,7 +491,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         let animatedFog = false
 
         this.fogEvents.forEach((x) => {
-            const result = x.exportV3()
+            const result = x.exportV3(true)
 
             if (Object.hasOwn(result, 'id') && !fogEnvironment) {
                 fogEnvironment = result as bsmap.v3.IChromaEnvironment
@@ -514,13 +514,13 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
 
         // V3 Lighting
         const lightColorEventBoxGroups = this.lightColorEventBoxGroups
-            .map((x) => x.toJsonV3()).sort(sortItems)
+            .map((x) => x.toJsonV3(true)).sort(sortItems)
 
         const lightRotationEventBoxGroups = this.lightRotationEventBoxGroups
-            .map((x) => x.toJsonV3()).sort(sortItems)
+            .map((x) => x.toJsonV3(true)).sort(sortItems)
 
         const lightTranslationEventBoxGroups = this.lightTranslationEventBoxGroups
-            .map((x) => x.toJsonV3()).sort(sortItems)
+            .map((x) => x.toJsonV3(true)).sort(sortItems)
 
         return {
             version: '3.2.0',
@@ -540,16 +540,16 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
             customData: shallowPrune({
                 ...this.customData,
                 fakeColorNotes: this.colorNotes.filter((e) => e.fake)
-                    .map((e) => e.toJsonV3())
+                    .map((e) => e.toJsonV3(true))
                     .sort(sortItems),
                 fakeBombNotes: this.bombs.filter((e) => e.fake)
-                    .map((e) => e.toJsonV3())
+                    .map((e) => e.toJsonV3(true))
                     .sort(sortItems),
                 fakeBurstSliders: this.chains.filter((e) => e.fake)
-                    .map((e) => e.toJsonV3())
+                    .map((e) => e.toJsonV3(true))
                     .sort(sortItems),
                 fakeObstacles: this.walls.filter((e) => e.fake)
-                    .map((e) => e.toJsonV3())
+                    .map((e) => e.toJsonV3(true))
                     .sort(sortItems),
                 environment: environment,
                 materials: this.geometryMaterials as Record<
