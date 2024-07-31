@@ -8,7 +8,7 @@ import {CustomEventConstructor} from "../../../../../types/beatmap/object/custom
 
 import {getDataProp} from "../../../../../utils/beatmap/json.ts";
 import {CustomEvent} from "../base/custom_event.ts";
-import {DefaultFields} from "../../../../../types/beatmap/object/object.ts";
+import {JsonObjectDefaults} from "../../../../../types/beatmap/object/object.ts";
 
 export class SetRenderSetting extends CustomEvent<
     never,
@@ -31,7 +31,7 @@ export class SetRenderSetting extends CustomEvent<
     /** An easing for the animation to follow. Defaults to "easeLinear". */
     easing?: EASE
 
-    static defaults: DefaultFields<SetRenderSetting> = {
+    static defaults: JsonObjectDefaults<SetRenderSetting> = {
         settings: {},
         ...super.defaults,
     }

@@ -27,8 +27,8 @@ import {objectPrune, shallowPrune} from "../../utils/object/prune.ts";
 import {EventGroup} from "../../data/constants/basic_event.ts";
 import {officialBpmEvent} from "../../builder_functions/beatmap/object/v3_event/bpm.ts";
 import {RMDifficulty} from "../../types/beatmap/rm_difficulty.ts";
-import {OfficialBPMEvent} from "./object/v3_event/official_bpm.ts";
-import {CommunityBPMEvent} from "./object/v3_event/community_bpm.ts";
+import {OfficialBPMEvent} from "./object/v3_event/bpm/official_bpm.ts";
+import {CommunityBPMEvent} from "./object/v3_event/bpm/community_bpm.ts";
 import {ColorVec} from "../../types/math/vector.ts";
 import {BeatmapCustomEvents} from "../../types/beatmap/object/custom_event.ts";
 import { IInfoSet, IInfoSetDifficulty } from '../../types/beatmap/info.ts'

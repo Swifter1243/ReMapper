@@ -1,14 +1,19 @@
 import { IV3CustomEvent } from '../../../../../types/beatmap/object/custom_event.ts'
 import { JsonWrapper } from '../../../../../types/beatmap/json_wrapper.ts'
 import { TJson } from '../../../../../types/util/json.ts'
-import { Fields } from '../../../../../types/util/class.ts'
 import { bsmap } from '../../../../../deps.ts'
-import {DefaultFields} from "../../../../../types/beatmap/object/object.ts";
+import {JsonObjectConstructor, JsonObjectDefaults} from "../../../../../types/beatmap/object/object.ts";
 
 export abstract class CustomEvent<
     TV2 extends bsmap.v2.ICustomEvent = bsmap.v2.ICustomEvent,
     TV3 extends IV3CustomEvent = IV3CustomEvent,
 > implements JsonWrapper<TV2, TV3> {
+    constructor(fields: JsonObjectConstructor<CustomEvent<TV2, TV3>>) {
+        this.beat = fields.beat ?? CustomEvent.defaults.beat
+        this.type = fields.type ?? CustomEvent.defaults.type
+        this.data = fields.data ?? CustomEvent.defaults.data
+    }
+
     /** The beat this light event will activate. */
     beat: number
     /** The type of CustomEvent. */
@@ -17,16 +22,10 @@ export abstract class CustomEvent<
     data: TJson
 
     /** Default values for initializing class fields */
-    static defaults: DefaultFields<CustomEvent> = {
+    static defaults: JsonObjectDefaults<CustomEvent> = {
         beat: 0,
         data: {},
         type: '',
-    }
-
-    constructor(fields: Partial<Fields<CustomEvent<TV2, TV3>>>) {
-        this.beat = fields.beat ?? CustomEvent.defaults.beat
-        this.type = fields.type ?? CustomEvent.defaults.type
-        this.data = fields.data ?? CustomEvent.defaults.data
     }
 
     fromJsonV3(json: TV3): this {

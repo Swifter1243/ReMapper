@@ -5,11 +5,11 @@ import { getActiveDifficulty } from '../../../../data/active_difficulty.ts'
 import { BaseSliderObject } from './base_slider.ts'
 import { Vec2 } from '../../../../types/math/vector.ts'
 import { exportInvertedBoolean, getCDProp, importInvertedBoolean } from '../../../../utils/beatmap/json.ts'
-import { GameplayObjectDefaultFields, GameplayObjectFields } from '../../../../types/beatmap/object/gameplay_object.ts'
+import { GameplayObjectDefaults, GameplayObjectConstructor } from '../../../../types/beatmap/object/gameplay_object.ts'
 
 export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
     constructor(
-        fields: GameplayObjectFields<Chain>,
+        fields: GameplayObjectConstructor<Chain>,
     ) {
         super(fields)
         this.links = fields.links ?? Chain.defaults.links
@@ -56,7 +56,7 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
     /** Whether debris from this note should be disabled. */
     disableDebris?: boolean
 
-    static defaults: GameplayObjectDefaultFields<Chain> = {
+    static defaults: GameplayObjectDefaults<Chain> = {
         links: 4,
         squish: 0,
         ...super.defaults,

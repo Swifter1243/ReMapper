@@ -15,9 +15,9 @@ export type IV3GameplayObject = bsmap.v3.IGridObject
 
 export type GameplayObjectExcludedFields = UniqueTypes<GameplayObjectGetters, GameplayObjectSetters>
 
-export type GameplayObjectFields<Class> = Partial<ExcludedObjectFields<Class, GameplayObjectReplacedFields, GameplayObjectExcludedFields>>
+export type GameplayObjectConstructor<Class> = Partial<ExcludedObjectFields<Class, GameplayObjectReplacedFields, GameplayObjectExcludedFields>>
 
-export type GameplayObjectDefaultFields<Class> = DeepReadonly<
+export type GameplayObjectDefaults<Class> = DeepReadonly<
     ExcludedObjectFields<Class, object, GameplayObjectGetters & GameplayObjectSetters>
 >
 

@@ -1,20 +1,17 @@
-import {BeatmapObject} from "../../../object.ts";
-import {RotationDirection, RotationEase} from "../../../../../../data/constants/v3_event.ts";
-import {SubclassExclusiveProps} from "../../../../../../types/util/class.ts";
+import { BeatmapObject } from '../../../object.ts'
+import { RotationDirection, RotationEase } from '../../../../../../data/constants/v3_event.ts'
 import { bsmap } from '../../../../../../deps.ts'
 import { objectPrune } from '../../../../../../utils/object/prune.ts'
-import {ObjectFields} from "../../../../../../types/beatmap/object/object.ts";
-
+import { BeatmapObjectConstructor, BeatmapObjectDefaults } from '../../../../../../types/beatmap/object/object.ts'
 
 export class LightRotationEvent extends BeatmapObject<never, bsmap.v3.ILightRotationBase> {
-    constructor(obj: Partial<ObjectFields<LightRotationEvent>>) {
+    constructor(obj: BeatmapObjectConstructor<LightRotationEvent>) {
         super(obj)
-        this.usePreviousEventRotation = obj.usePreviousEventRotation ?? true
-        this.easing = obj.easing ?? RotationEase.None
-        this.loopCount = obj.loopCount ?? 1
-        this.rotationDegrees = obj.rotationDegrees ?? 0
-        this.rotationDirection = obj.rotationDirection ??
-            RotationDirection.AUTOMATIC
+        this.usePreviousEventRotation = obj.usePreviousEventRotation ?? LightRotationEvent.defaults.usePreviousEventRotation
+        this.easing = obj.easing ?? LightRotationEvent.defaults.easing
+        this.loopCount = obj.loopCount ?? LightRotationEvent.defaults.loopCount
+        this.rotationDegrees = obj.rotationDegrees ?? LightRotationEvent.defaults.rotationDegrees
+        this.rotationDirection = obj.rotationDirection ?? LightRotationEvent.defaults.rotationDirection
     }
 
     /** If true, extend the state of the previous event. If not, transition from previous state to this state. */
@@ -28,33 +25,29 @@ export class LightRotationEvent extends BeatmapObject<never, bsmap.v3.ILightRota
     /** The direction to rotate. */
     rotationDirection: RotationDirection
 
-    fromJson(json: bsmap.v3.ILightRotationBase, v3: true): this
-    fromJson(json: never, v3: false): this
-    fromJson(json: bsmap.v3.ILightRotationBase, v3: boolean): this {
-        if (!v3) throw 'Event box groups are not supported in V2!'
-
-        type Params = SubclassExclusiveProps<
-            LightRotationEvent,
-            BeatmapObject<never, bsmap.v3.ILightRotationBase>
-        >
-
-        const params = {
-            easing: json.e ?? 0,
-            loopCount: json.l ?? 0,
-            rotationDegrees: json.r ?? 0,
-            rotationDirection: json.o ?? 0,
-            usePreviousEventRotation: json.p === 1,
-        } as Params
-
-        Object.assign(this, params)
-        return super.fromJson(json, true)
+    static defaults: BeatmapObjectDefaults<LightRotationEvent> = {
+        usePreviousEventRotation: true,
+        easing: RotationEase.None,
+        loopCount: 1,
+        rotationDegrees: 0,
+        rotationDirection: RotationDirection.AUTOMATIC,
+        ...super.defaults,
     }
 
-    toJson(v3: true, prune?: boolean): bsmap.v3.ILightRotationBase
-    toJson(v3: false, prune?: boolean): never
-    toJson(v3: boolean, prune?: boolean): bsmap.v3.ILightRotationBase {
-        if (!v3) throw 'Event box groups are not supported in V2!'
+    fromJsonV3(json: bsmap.v3.ILightRotationBase): this {
+        this.usePreviousEventRotation = json.p !== undefined ? json.p === 1 : LightRotationEvent.defaults.usePreviousEventRotation
+        this.easing = json.e ?? LightRotationEvent.defaults.easing
+        this.loopCount = json.l ?? LightRotationEvent.defaults.loopCount
+        this.rotationDegrees = json.r ?? LightRotationEvent.defaults.rotationDegrees
+        this.rotationDirection = json.o ?? LightRotationEvent.defaults.rotationDirection
+        return super.fromJsonV3(json)
+    }
 
+    fromJsonV2(_json: never): this {
+        throw 'Event box groups are not supported in V2!'
+    }
+
+    toJsonV3(prune?: boolean): bsmap.v3.ILightRotationBase {
         const output = {
             b: this.beat,
             e: this.easing as bsmap.v3.ILightRotationBase['e'],
@@ -65,5 +58,9 @@ export class LightRotationEvent extends BeatmapObject<never, bsmap.v3.ILightRota
             customData: this.customData,
         } satisfies bsmap.v3.ILightRotationBase
         return prune ? objectPrune(output) : output
+    }
+
+    toJsonV2(_prune?: boolean): never {
+        throw 'Event box groups are not supported in V2!'
     }
 }

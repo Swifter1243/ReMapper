@@ -5,12 +5,11 @@ import { copy } from '../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../utils/object/prune.ts'
 import { bsmap } from '../../../../deps.ts'
 import { getCDProp } from '../../../../utils/beatmap/json.ts'
-import { DeepReadonly } from '../../../../types/util/mutability.ts'
 
-import {ObjectFields} from "../../../../types/beatmap/object/object.ts";
+import {BeatmapObjectDefaults, BeatmapObjectFields} from "../../../../types/beatmap/object/object.ts";
 
 export class RingSpinEvent extends BasicEvent<bsmap.v2.IEventRing, bsmap.v3.IBasicEventRing> {
-    constructor(obj: Partial<Omit<ObjectFields<RingSpinEvent>, 'type'>>) {
+    constructor(obj: Partial<Omit<BeatmapObjectFields<RingSpinEvent>, 'type'>>) {
         super({
             ...obj,
             type: EventGroup.RING_SPIN,
@@ -38,7 +37,7 @@ export class RingSpinEvent extends BasicEvent<bsmap.v2.IEventRing, bsmap.v3.IBas
      */
     prop?: number
 
-    static defaults: DeepReadonly<ObjectFields<RingSpinEvent>> = {
+    static defaults: BeatmapObjectDefaults<RingSpinEvent> = {
         ...super.defaults,
     }
 

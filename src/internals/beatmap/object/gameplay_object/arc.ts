@@ -7,14 +7,14 @@ import { NoteCut } from '../../../../data/constants/note.ts'
 import { BaseSliderObject } from './base_slider.ts'
 import { Vec2 } from '../../../../types/math/vector.ts'
 import { defaultBoolean, getCDProp } from '../../../../utils/beatmap/json.ts'
-import { GameplayObjectDefaultFields, GameplayObjectFields } from '../../../../types/beatmap/object/gameplay_object.ts'
+import { GameplayObjectDefaults, GameplayObjectConstructor } from '../../../../types/beatmap/object/gameplay_object.ts'
 
 export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
     /**
      * Arc object for ease of creation.
      */
     constructor(
-        fields: GameplayObjectFields<Arc>,
+        fields: GameplayObjectConstructor<Arc>,
     ) {
         super(fields)
         this.tailDirection = fields.tailDirection ?? Arc.defaults.tailDirection
@@ -43,7 +43,7 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
     /** Whether note gravity (the effect where notes move to their vertical row from the bottom row) is disabled. */
     disableNoteGravity?: boolean
 
-    static defaults: GameplayObjectDefaultFields<Arc> = {
+    static defaults: GameplayObjectDefaults<Arc> = {
         tailDirection: NoteCut.DOT,
         headLength: 0,
         tailLength: 0,

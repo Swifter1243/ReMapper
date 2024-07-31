@@ -5,11 +5,10 @@ import { objectPrune } from '../../../../utils/object/prune.ts'
 import { BasicEvent } from './basic_event.ts'
 import { bsmap } from '../../../../deps.ts'
 import { getCDProp } from '../../../../utils/beatmap/json.ts'
-import { DeepReadonly } from '../../../../types/util/mutability.ts'
-import {ObjectFields} from "../../../../types/beatmap/object/object.ts";
+import {BeatmapObjectDefaults, BeatmapObjectFields} from "../../../../types/beatmap/object/object.ts";
 
 export class RingZoomEvent extends BasicEvent<bsmap.v2.IEventZoom, bsmap.v3.IBasicEventRing> {
-    constructor(obj: Partial<Omit<ObjectFields<RingZoomEvent>, 'type'>>) {
+    constructor(obj: Partial<Omit<BeatmapObjectFields<RingZoomEvent>, 'type'>>) {
         super({
             ...obj,
             type: EventGroup.RING_ZOOM,
@@ -23,7 +22,7 @@ export class RingZoomEvent extends BasicEvent<bsmap.v2.IEventZoom, bsmap.v3.IBas
     /** The speed of the zoom. */
     speed?: number
 
-    static defaults: DeepReadonly<ObjectFields<RingZoomEvent>> = {
+    static defaults: BeatmapObjectDefaults<RingZoomEvent> = {
         ...super.defaults,
     }
 

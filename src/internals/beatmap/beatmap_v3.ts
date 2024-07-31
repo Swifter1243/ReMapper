@@ -48,7 +48,7 @@ import {officialBpmEvent} from "../../builder_functions/beatmap/object/v3_event/
 import {RMDifficulty} from "../../types/beatmap/rm_difficulty.ts";
 import { arraySplit } from '../../utils/array/split.ts'
 import { Track } from '../../utils/animation/track.ts'
-import {OfficialBPMEvent} from "./object/v3_event/official_bpm.ts";
+import {OfficialBPMEvent} from "./object/v3_event/bpm/official_bpm.ts";
 
 import {BeatmapCustomEvents} from "../../types/beatmap/object/custom_event.ts";
 import { IInfoSet, IInfoSetDifficulty } from '../../types/beatmap/info.ts'

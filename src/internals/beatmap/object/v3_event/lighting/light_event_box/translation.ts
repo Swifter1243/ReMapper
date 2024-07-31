@@ -1,16 +1,16 @@
-import { Fields } from '../../../../../../types/util/class.ts'
 import { LightEventBox } from './base.ts'
-import {DistributionType, LightAxis} from "../../../../../../data/constants/v3_event.ts";
+import { DistributionType, LightAxis } from '../../../../../../data/constants/v3_event.ts'
 import { bsmap } from '../../../../../../deps.ts'
 import { objectPrune } from '../../../../../../utils/object/prune.ts'
-import {LightTranslationEvent} from "../light_event/translation.ts";
+import { LightTranslationEvent } from '../light_event/translation.ts'
 import { lightTranslationEvent } from '../../../../../../builder_functions/beatmap/object/v3_event/lighting/light_event.ts'
+import { JsonObjectConstructor, JsonObjectDefaults } from '../../../../../../types/beatmap/object/object.ts'
 
 export class LightTranslationEventBox extends LightEventBox<
     bsmap.v3.ILightTranslationEventBox,
     LightTranslationEvent
 > {
-    constructor(obj: Partial<Fields<LightTranslationEventBox>>) {
+    constructor(obj: JsonObjectConstructor<LightTranslationEventBox>) {
         super(obj)
         this.translationDistribution = obj.translationDistribution ?? 0
         this.translationDistributionType = obj.translationDistributionType ??
@@ -32,36 +32,38 @@ export class LightTranslationEventBox extends LightEventBox<
     /** A binary integer value (0 or 1) which determines whether the distribution should affect the first event in the sequence. */
     translationDistributionFirst: boolean
 
-    fromJson(json: bsmap.v3.ILightTranslationEventBox, v3: true): this
-    fromJson(json: never, v3: false): this
-    fromJson(json: bsmap.v3.ILightTranslationEventBox, v3: boolean): this {
-        if (!v3) throw 'Event boxes are not supported in V2!'
+    static defaults: JsonObjectDefaults<LightTranslationEventBox> = {
+        translationDistribution: 0,
+        translationDistributionType: DistributionType.STEP,
+        translationAxis: LightAxis.X,
+        flipTranslation: false,
+        translationDistributionFirst: true,
+        ...super.defaults,
+        events: [],
+    }
 
-        type Params = Fields<LightTranslationEventBox>
-
-        const params = {
-            filter: json.f,
-            beatDistribution: json.w ?? 0,
-            beatDistributionType: json.d,
-            distributionEasing: json.i ?? 0,
-            flipTranslation: json.r === 1,
-            translationAxis: json.a ?? 0,
-            translationDistribution: json.s ?? 0,
-            translationDistributionFirst: json.b === 1,
-            translationDistributionType: json.t,
-            events: json.l.map((x) => lightTranslationEvent({}).fromJson(x, true)),
-            customData: json.customData,
-        } as Params
-
-        Object.assign(this, params)
+    fromJsonV3(json: bsmap.v3.ILightTranslationEventBox): this {
+        this.filter = json.f ?? LightTranslationEventBox.defaults.filter
+        this.beatDistribution = json.w ?? LightTranslationEventBox.defaults.beatDistribution
+        this.beatDistributionType = json.d ?? LightTranslationEventBox.defaults.beatDistributionType
+        this.distributionEasing = json.i ?? LightTranslationEventBox.defaults.distributionEasing
+        this.flipTranslation = json.r !== undefined ? json.r === 1 : LightTranslationEventBox.defaults.flipTranslation
+        this.translationAxis = json.a ?? LightTranslationEventBox.defaults.translationAxis
+        this.translationDistribution = json.s ?? LightTranslationEventBox.defaults.translationDistribution
+        this.translationDistributionFirst = json.b !== undefined
+            ? json.b === 1
+            : LightTranslationEventBox.defaults.translationDistributionFirst
+        this.translationDistributionType = json.t ?? LightTranslationEventBox.defaults.translationDistributionType
+        this.events = json.l.map((x) => lightTranslationEvent({}).fromJsonV3(x))
+        this.customData = json.customData ?? LightTranslationEventBox.defaults.customData
         return this
     }
 
-    toJson(v3: true, prune?: boolean): bsmap.v3.ILightTranslationEventBox
-    toJson(v3: false, prune?: boolean): never
-    toJson(v3: boolean, prune?: boolean): bsmap.v3.ILightTranslationEventBox {
-        if (!v3) throw 'Event boxes are not supported in V2!'
+    fromJsonV2(_json: never): this {
+        throw 'Event boxes are not supported in V2!'
+    }
 
+    toJsonV3(prune?: boolean): bsmap.v3.ILightTranslationEventBox {
         const output = {
             d: this.beatDistributionType,
             f: this.filter,
@@ -69,12 +71,16 @@ export class LightTranslationEventBox extends LightEventBox<
             w: this.beatDistribution,
             a: this.translationAxis,
             b: this.translationDistributionFirst ? 1 : 0,
-            l: this.events.map((x) => x.toJson(true)),
+            l: this.events.map((x) => x.toJsonV3(prune)),
             r: this.flipTranslation ? 1 : 0,
             s: this.translationDistribution,
             t: this.translationDistributionType,
             customData: this.customData,
         } satisfies bsmap.v3.ILightTranslationEventBox
         return prune ? objectPrune(output) : output
+    }
+
+    toJsonV2(_prune?: boolean): never {
+        throw 'Event boxes are not supported in V2!'
     }
 }

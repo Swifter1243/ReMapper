@@ -3,14 +3,14 @@ import { bsmap } from '../../../../deps.ts'
 import { Vec2 } from '../../../../types/math/vector.ts'
 import { NoteAnimationData } from '../../../../types/animation/properties/note.ts'
 import { getCDProp, importInvertedBoolean } from '../../../../utils/beatmap/json.ts'
-import { GameplayObjectDefaultFields, GameplayObjectFields } from '../../../../types/beatmap/object/gameplay_object.ts'
+import { GameplayObjectDefaults, GameplayObjectConstructor } from '../../../../types/beatmap/object/gameplay_object.ts'
 import { IV3Note } from '../../../../types/beatmap/object/note.ts'
 
 export abstract class BaseNote<
     TV3 extends IV3Note = IV3Note,
 > extends BeatmapGameplayObject<bsmap.v2.INote, TV3> {
     constructor(
-        fields: GameplayObjectFields<BaseNote<TV3>>,
+        fields: GameplayObjectConstructor<BaseNote<TV3>>,
     ) {
         super(fields)
         this.fake = fields.fake
@@ -48,7 +48,7 @@ export abstract class BaseNote<
     /** Whether debris from this note should be disabled. */
     disableDebris?: boolean
 
-    static defaults: GameplayObjectDefaultFields<BaseNote> = {
+    static defaults: GameplayObjectDefaults<BaseNote> = {
         ...super.defaults,
     }
 

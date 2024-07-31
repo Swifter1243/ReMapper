@@ -7,7 +7,7 @@ import {CustomEventConstructorTrack} from "../../../../../types/beatmap/object/c
 
 import {getDataProp} from "../../../../../utils/beatmap/json.ts";
 import {CustomEvent} from "../base/custom_event.ts";
-import {DefaultFields} from "../../../../../types/beatmap/object/object.ts";
+import {JsonObjectDefaults} from "../../../../../types/beatmap/object/object.ts";
 
 export class DeclareCullingTexture extends CustomEvent<
     never,
@@ -36,7 +36,7 @@ export class DeclareCullingTexture extends CustomEvent<
     /** When true, write depth texture to "'name'_Depth". Default = false. */
     depthTexture?: boolean
 
-    static defaults: DefaultFields<DeclareCullingTexture> = {
+    static defaults: JsonObjectDefaults<DeclareCullingTexture> = {
         id: '',
         track: new Track(),
         ...super.defaults

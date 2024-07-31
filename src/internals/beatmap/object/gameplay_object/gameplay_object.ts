@@ -14,24 +14,26 @@ import { ColorVec, Vec2, Vec3 } from '../../../../types/math/vector.ts'
 import { ObjectAnimationData } from '../../../../types/animation/properties/object.ts'
 import { getCDProp, importInvertedBoolean } from '../../../../utils/beatmap/json.ts'
 import {
-    GameplayObjectDefaultFields,
-    GameplayObjectFields,
+    GameplayObjectConstructor,
+    GameplayObjectDefaults,
     GameplayObjectGetters,
-    GameplayObjectSetters, IV2GameplayObject, IV3GameplayObject,
+    GameplayObjectSetters,
+    IV2GameplayObject,
+    IV3GameplayObject,
 } from '../../../../types/beatmap/object/gameplay_object.ts'
 import { copy } from '../../../../utils/object/copy.ts'
-import {AnimationPropertiesV3} from "../../../../types/animation/properties/properties.ts";
-import {settings} from "../../../../data/settings.ts";
-import { ObjectFields } from '../../../../types/beatmap/object/object.ts'
+import { AnimationPropertiesV3 } from '../../../../types/animation/properties/properties.ts'
+import { settings } from '../../../../data/settings.ts'
+import { BeatmapObjectConstructor } from '../../../../types/beatmap/object/object.ts'
 
 export abstract class BeatmapGameplayObject<
     TV2 extends IV2GameplayObject = IV2GameplayObject,
     TV3 extends IV3GameplayObject = IV3GameplayObject,
 > extends BeatmapObject<TV2, TV3> implements GameplayObjectSetters, GameplayObjectGetters {
     constructor(
-        obj: GameplayObjectFields<BeatmapGameplayObject<TV2, TV3>>,
+        obj: GameplayObjectConstructor<BeatmapGameplayObject<TV2, TV3>>,
     ) {
-        super(obj as Partial<ObjectFields<BeatmapGameplayObject<TV2, TV3>>>)
+        super(obj as BeatmapObjectConstructor<BeatmapGameplayObject<TV2, TV3>>)
         this.animation = obj.animation ?? copy(BeatmapGameplayObject.defaults.animation)
         this.x = obj.x ?? BeatmapGameplayObject.defaults.x
         this.y = obj.y ?? BeatmapGameplayObject.defaults.y
@@ -86,7 +88,7 @@ export abstract class BeatmapGameplayObject<
     /** The chroma color of the object. */
     chromaColor?: ColorVec
 
-    static defaults: GameplayObjectDefaultFields<BeatmapGameplayObject> = {
+    static defaults: GameplayObjectDefaults<BeatmapGameplayObject> = {
         x: 0,
         y: 0,
         animation: {},

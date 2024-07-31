@@ -25,6 +25,7 @@ export enum RotationTransition {
 
 /** The colors for V3 lights. */
 export enum LightColor {
+    NONE = -1,
     RED,
     BLUE,
     WHITE,

@@ -8,7 +8,7 @@ import {CustomEventConstructor} from "../../../../../types/beatmap/object/custom
 
 import {getDataProp} from "../../../../../utils/beatmap/json.ts";
 import {CustomEvent} from "../base/custom_event.ts";
-import {DefaultFields} from "../../../../../types/beatmap/object/object.ts";
+import {JsonObjectDefaults} from "../../../../../types/beatmap/object/object.ts";
 
 export class Blit extends CustomEvent<
     never,
@@ -45,7 +45,7 @@ export class Blit extends CustomEvent<
     /** Properties to set. */
     properties?: MaterialProperty[]
 
-    static defaults: DefaultFields<Blit> = {
+    static defaults: JsonObjectDefaults<Blit> = {
         asset: '',
         ...super.defaults,
     }

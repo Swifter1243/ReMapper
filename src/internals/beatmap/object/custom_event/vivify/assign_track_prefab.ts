@@ -6,7 +6,7 @@ import {CustomEventConstructor} from "../../../../../types/beatmap/object/custom
 
 import {getDataProp} from "../../../../../utils/beatmap/json.ts";
 import {CustomEvent} from "../base/custom_event.ts";
-import {DefaultFields} from "../../../../../types/beatmap/object/object.ts";
+import {JsonObjectDefaults} from "../../../../../types/beatmap/object/object.ts";
 
 export class AssignTrackPrefab extends CustomEvent<
     never,
@@ -44,7 +44,7 @@ export class AssignTrackPrefab extends CustomEvent<
     /** File path to the desired prefab to replace chain link debris. */
     chainLinkDebris?: string
 
-    static defaults: DefaultFields<AssignTrackPrefab> = {
+    static defaults: JsonObjectDefaults<AssignTrackPrefab> = {
         track: '',
         ...super.defaults,
     }

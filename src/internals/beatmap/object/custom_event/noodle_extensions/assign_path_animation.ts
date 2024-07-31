@@ -9,7 +9,7 @@ import { getDataProp } from '../../../../../utils/beatmap/json.ts'
 import { animationV2ToV3, animationV3toV2 } from '../../../../../utils/animation/json.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import { bsmap } from '../../../../../deps.ts'
-import { DefaultFields } from '../../../../../types/beatmap/object/object.ts'
+import { JsonObjectDefaults } from '../../../../../types/beatmap/object/object.ts'
 
 export class AssignPathAnimation extends CustomEvent<
     bsmap.v2.ICustomEventAssignPathAnimation,
@@ -37,7 +37,7 @@ export class AssignPathAnimation extends CustomEvent<
     /** The easing on this event's animation. */
     easing?: EASE
 
-    static defaults: DefaultFields<AssignPathAnimation> = {
+    static defaults: JsonObjectDefaults<AssignPathAnimation> = {
         animation: {},
         track: new Track(),
         ...super.defaults,

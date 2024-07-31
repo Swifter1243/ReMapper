@@ -7,7 +7,7 @@ import {CustomEventConstructor} from "../../../../../types/beatmap/object/custom
 
 import {getDataProp} from "../../../../../utils/beatmap/json.ts";
 import {CustomEvent} from "../base/custom_event.ts";
-import {DefaultFields} from "../../../../../types/beatmap/object/object.ts";
+import {JsonObjectDefaults} from "../../../../../types/beatmap/object/object.ts";
 
 export class SetCameraProperty extends CustomEvent<
     never,
@@ -24,7 +24,7 @@ export class SetCameraProperty extends CustomEvent<
     /** Sets the depth texture mode on the camera. */
     depthTextureMode: DEPTH_TEX_MODE[]
 
-    static defaults: DefaultFields<SetCameraProperty> = {
+    static defaults: JsonObjectDefaults<SetCameraProperty> = {
         depthTextureMode: [],
         ...super.defaults
     }

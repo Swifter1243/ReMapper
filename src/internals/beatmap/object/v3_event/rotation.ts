@@ -1,21 +1,18 @@
 import { bsmap } from '../../../../deps.ts'
-import {BeatmapObject} from "../object.ts";
-import {ConvertableEvent} from "../../../../types/beatmap/object/v3_event.ts";
-import {getActiveDifficulty} from "../../../../data/active_difficulty.ts";
-import {copy} from "../../../../utils/object/copy.ts";
-import {EventGroup, InverseRotationAction, RotationAction} from "../../../../data/constants/basic_event.ts";
-import {SubclassExclusiveProps} from "../../../../types/util/class.ts";
-import {getCDProp} from "../../../../utils/beatmap/json.ts";
-import {objectPrune} from "../../../../utils/object/prune.ts";
-import {ObjectFields} from "../../../../types/beatmap/object/object.ts";
+import { BeatmapObject } from '../object.ts'
+import { ConvertableEvent } from '../../../../types/beatmap/object/v3_event.ts'
+import { getActiveDifficulty } from '../../../../data/active_difficulty.ts'
+import { copy } from '../../../../utils/object/copy.ts'
+import { EventGroup, InverseRotationAction, RotationAction } from '../../../../data/constants/basic_event.ts'
+import { getCDProp } from '../../../../utils/beatmap/json.ts'
+import { objectPrune } from '../../../../utils/object/prune.ts'
+import { BeatmapObjectConstructor, BeatmapObjectDefaults } from '../../../../types/beatmap/object/object.ts'
 
-
-export class RotationEvent extends BeatmapObject<bsmap.v2.IEventLaneRotation, bsmap.v3.IRotationEvent>
-    implements ConvertableEvent {
-    constructor(obj: Partial<ObjectFields<RotationEvent>>) {
+export class RotationEvent extends BeatmapObject<bsmap.v2.IEventLaneRotation, bsmap.v3.IRotationEvent> implements ConvertableEvent {
+    constructor(obj: BeatmapObjectConstructor<RotationEvent>) {
         super(obj)
-        this.early = obj.early ?? true
-        this.rotation = obj.rotation ?? 0
+        this.early = obj.early ?? RotationEvent.defaults.early
+        this.rotation = obj.rotation ?? RotationEvent.defaults.rotation
     }
 
     /** Whether this event effects current objects or only future ones. */
@@ -23,80 +20,57 @@ export class RotationEvent extends BeatmapObject<bsmap.v2.IEventLaneRotation, bs
     /** The rotation in degrees. V2 will only allow -60 to 60 in multiples of 15. */
     rotation: number
 
-    push(
-        clone = true,
-    ) {
+    static defaults: BeatmapObjectDefaults<RotationEvent> = {
+        early: true,
+        rotation: 0,
+        ...super.defaults,
+    }
+
+    push(clone = true) {
         getActiveDifficulty().rotationEvents.push(clone ? copy(this) : this)
         return this
     }
 
+    private tryInverseRotation(value: number) {
+        if (value === undefined) return
+        try {
+            return InverseRotationAction[value as keyof typeof InverseRotationAction]
+        } catch {
+            return
+        }
+    }
+
     fromBasicEvent(json: bsmap.v3.IBasicEventLaneRotation) {
-        this.early = json.et === EventGroup.EARLY_ROTATION
-        this.rotation = json.customData?.rotation ??
-            InverseRotationAction[
-                json.i as keyof typeof InverseRotationAction
-            ]
-        this.beat = json.b
-        this.customData = json.customData
+        this.early = json.et !== undefined ? json.et === EventGroup.EARLY_ROTATION : RotationEvent.defaults.early
+        this.rotation = json.customData?.rotation ?? this.tryInverseRotation(json.i) ?? RotationEvent.defaults.rotation
+        this.beat = json.b ?? RotationEvent.defaults.beat
+        this.customData = json.customData ?? RotationEvent.defaults.customData
         return this
     }
 
-    fromJson(json: bsmap.v3.IRotationEvent, v3: true): this
-    fromJson(json: bsmap.v2.IEventLaneRotation, v3: false): this
-    fromJson(
-        json: bsmap.v2.IEventLaneRotation | bsmap.v3.IRotationEvent,
-        v3: boolean,
-    ): this {
-        type Params = SubclassExclusiveProps<
-            RotationEvent,
-            BeatmapObject<
-                bsmap.v2.IEventLaneRotation,
-                bsmap.v3.IRotationEvent
-            >
-        >
-
-        if (v3) {
-            const obj = json as bsmap.v3.IRotationEvent
-
-            const params = {
-                early: obj.e === 1,
-                rotation: obj.r ?? 0,
-            } as Params
-
-            Object.assign(this, params)
-            return super.fromJson(obj, true)
-        } else {
-            const obj = json as bsmap.v2.IEventLaneRotation
-
-            const params = {
-                early: obj._type === EventGroup.EARLY_ROTATION,
-                rotation: getCDProp(obj, '_rotation') ??
-                    InverseRotationAction[
-                        (obj._value ?? 0) as keyof typeof InverseRotationAction
-                    ],
-            } as Params
-
-            Object.assign(this, params)
-            return super.fromJson(obj, false)
-        }
+    fromJsonV3(json: bsmap.v3.IRotationEvent): this {
+        this.early = json.e !== undefined ? json.e === 1 : RotationEvent.defaults.early
+        this.rotation = json.r ?? RotationEvent.defaults.rotation
+        return super.fromJsonV3(json);
     }
 
-    toJson(v3: true, prune?: boolean): bsmap.v3.IRotationEvent
-    toJson(v3: false, prune?: boolean): bsmap.v2.IEventLaneRotation
-    toJson(
-        v3: boolean,
-        prune = true,
-    ): bsmap.v2.IEventLaneRotation | bsmap.v3.IRotationEvent {
-        if (v3) {
-            const output = {
-                b: this.beat,
-                e: this.early ? 1 : 0,
-                r: this.rotation,
-                customData: this.customData,
-            } satisfies bsmap.v3.IRotationEvent
-            return prune ? objectPrune(output) : output
-        }
+    fromJsonV2(json: bsmap.v2.IEventLaneRotation): this {
+        this.early = json._type !== undefined ? json._type === EventGroup.EARLY_ROTATION : RotationEvent.defaults.early
+        this.rotation = getCDProp(json, '_rotation') ?? this.tryInverseRotation(json._value) ?? RotationEvent.defaults.rotation
+        return super.fromJsonV2(json);
+    }
 
+    toJsonV3(prune?: boolean): bsmap.v3.IRotationEvent {
+        const output = {
+            b: this.beat,
+            e: this.early ? 1 : 0,
+            r: this.rotation,
+            customData: this.customData,
+        } satisfies bsmap.v3.IRotationEvent
+        return prune ? objectPrune(output) : output
+    }
+
+    toJsonV2(prune?: boolean): bsmap.v2.IEventLaneRotation {
         let vanillaRotation
 
         if (
@@ -104,12 +78,11 @@ export class RotationEvent extends BeatmapObject<bsmap.v2.IEventLaneRotation, bs
             this.rotation >= -60 &&
             this.rotation <= 60
         ) {
-            const key = (this.rotation < 0 ? 'CCW_' : 'CW_') +
-                Math.abs(this.rotation) as keyof typeof RotationAction
-            vanillaRotation = RotationAction[key]
+            const key = (this.rotation < 0 ? 'CCW_' : 'CW_') + Math.abs(this.rotation)
+            vanillaRotation = RotationAction[key as keyof typeof RotationAction]
         }
 
-        return {
+        const output = {
             _time: this.beat,
             _floatValue: 0,
             _type: this.early ? EventGroup.EARLY_ROTATION : EventGroup.LATE_ROTATION,
@@ -118,5 +91,6 @@ export class RotationEvent extends BeatmapObject<bsmap.v2.IEventLaneRotation, bs
                 _rotation: vanillaRotation !== undefined ? undefined : this.rotation,
             },
         } satisfies bsmap.v2.IEventLaneRotation
+        return prune ? objectPrune(output) : output
     }
 }

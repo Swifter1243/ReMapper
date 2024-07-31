@@ -7,11 +7,11 @@ import { BaseNote } from './base_note.ts'
 import { copy } from '../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../utils/object/prune.ts'
 import { exportInvertedBoolean } from '../../../../utils/beatmap/json.ts'
-import { GameplayObjectDefaultFields, GameplayObjectFields } from '../../../../types/beatmap/object/gameplay_object.ts'
+import { GameplayObjectDefaults, GameplayObjectConstructor } from '../../../../types/beatmap/object/gameplay_object.ts'
 
 export class ColorNote extends BaseNote<bsmap.v3.IColorNote> {
     constructor(
-        fields: GameplayObjectFields<ColorNote>,
+        fields: GameplayObjectConstructor<ColorNote>,
     ) {
         super(fields)
         this.color = fields.color ?? 0
@@ -26,7 +26,7 @@ export class ColorNote extends BaseNote<bsmap.v3.IColorNote> {
     /** The angle added to the note's rotation. */
     angleOffset: number
 
-    static defaults: GameplayObjectDefaultFields<ColorNote> = {
+    static defaults: GameplayObjectDefaults<ColorNote> = {
         color: NoteColor.RED,
         cutDirection: NoteCut.DOWN,
         angleOffset: 0,

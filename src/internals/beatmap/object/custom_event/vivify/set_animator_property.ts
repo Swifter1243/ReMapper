@@ -8,7 +8,7 @@ import { CustomEventConstructor } from '../../../../../types/beatmap/object/cust
 
 import { getDataProp } from '../../../../../utils/beatmap/json.ts'
 import { CustomEvent } from '../base/custom_event.ts'
-import { DefaultFields } from '../../../../../types/beatmap/object/object.ts'
+import { JsonObjectDefaults } from '../../../../../types/beatmap/object/object.ts'
 
 export class SetAnimatorProperty extends CustomEvent<
     never,
@@ -34,7 +34,7 @@ export class SetAnimatorProperty extends CustomEvent<
     /** Properties to set. */
     properties: AnimatorProperty[]
 
-    static defaults: DefaultFields<SetAnimatorProperty> = {
+    static defaults: JsonObjectDefaults<SetAnimatorProperty> = {
         id: '',
         properties: [],
         ...super.defaults,

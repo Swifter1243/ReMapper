@@ -9,7 +9,7 @@ import { copy } from '../../../../../utils/object/copy.ts'
 import { getDataProp } from '../../../../../utils/beatmap/json.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import { bsmap } from '../../../../../deps.ts'
-import { DefaultFields } from '../../../../../types/beatmap/object/object.ts'
+import { JsonObjectDefaults } from '../../../../../types/beatmap/object/object.ts'
 
 export class AnimateComponent extends CustomEvent<never, bsmap.v3.ICustomEventAnimateComponent> {
     constructor(
@@ -37,7 +37,7 @@ export class AnimateComponent extends CustomEvent<never, bsmap.v3.ICustomEventAn
     /** The easing on this event's animation. */
     easing?: EASE
 
-    static defaults: DefaultFields<AnimateComponent> = {
+    static defaults: JsonObjectDefaults<AnimateComponent> = {
         lightMultiplier: {},
         fog: {},
         track: new Track(),

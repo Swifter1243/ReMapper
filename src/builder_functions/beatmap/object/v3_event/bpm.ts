@@ -1,4 +1,4 @@
-import {OfficialBPMEvent} from "../../../../internals/beatmap/object/v3_event/official_bpm.ts";
+import {OfficialBPMEvent} from "../../../../internals/beatmap/object/v3_event/bpm/official_bpm.ts";
 
 
 /** Creates an official BPM event, which changes the actual time between object beats.

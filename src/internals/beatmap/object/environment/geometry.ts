@@ -4,7 +4,7 @@ import { bsmap } from '../../../../deps.ts'
 import {copy} from "../../../../utils/object/copy.ts";
 import {objectPrune} from "../../../../utils/object/prune.ts";
 import {getActiveDifficulty} from "../../../../data/active_difficulty.ts";
-import {DefaultFields} from "../../../../types/beatmap/object/object.ts";
+import {JsonObjectDefaults} from "../../../../types/beatmap/object/object.ts";
 
 export class Geometry extends BaseEnvironmentEnhancement<
     bsmap.v2.IChromaEnvironmentGeometry,
@@ -27,7 +27,7 @@ export class Geometry extends BaseEnvironmentEnhancement<
     /** Whether this geometry object has collision. */
     collision?: boolean
 
-    static defaults: DefaultFields<Geometry> = {
+    static defaults: JsonObjectDefaults<Geometry> = {
         type: 'Cube',
         material: {
             shader: 'Standard',

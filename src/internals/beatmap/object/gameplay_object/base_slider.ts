@@ -4,13 +4,13 @@ import { bsmap } from '../../../../deps.ts'
 import {Vec2} from "../../../../types/math/vector.ts";
 import {NoteAnimationData} from "../../../../types/animation/properties/note.ts";
 import {getCDProp} from "../../../../utils/beatmap/json.ts";
-import {GameplayObjectDefaultFields, GameplayObjectFields} from "../../../../types/beatmap/object/gameplay_object.ts";
+import {GameplayObjectDefaults, GameplayObjectConstructor} from "../../../../types/beatmap/object/gameplay_object.ts";
 
 export abstract class BaseSliderObject<TV3 extends bsmap.v3.IBaseSlider = bsmap.v3.IBaseSlider>
     extends BeatmapGameplayObject<never, TV3> {
 
     constructor(
-        obj: GameplayObjectFields<BaseSliderObject<TV3>>,
+        obj: GameplayObjectConstructor<BaseSliderObject<TV3>>,
     ) {
         super(obj)
         this.color = obj.color ?? BaseSliderObject.defaults.color
@@ -35,7 +35,7 @@ export abstract class BaseSliderObject<TV3 extends bsmap.v3.IBaseSlider = bsmap.
     /** The position of the tail. */
     tailCoordinates?: Vec2
 
-    static defaults: GameplayObjectDefaultFields<BaseSliderObject> = {
+    static defaults: GameplayObjectDefaults<BaseSliderObject> = {
         color: NoteColor.RED,
         cutDirection: 0,
         tailBeat: 0,

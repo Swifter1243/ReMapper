@@ -7,14 +7,12 @@ import { BasicEvent } from './basic_event.ts'
 import { bsmap } from '../../../../deps.ts'
 import { LightColorLiteral } from '../../../../types/beatmap/object/basic_event.ts'
 import { ColorVec } from '../../../../types/math/vector.ts'
-
 import { EASE } from '../../../../types/animation/easing.ts'
 import { getCDProp } from '../../../../utils/beatmap/json.ts'
-import { DeepReadonly } from '../../../../types/util/mutability.ts'
-import {ObjectFields} from "../../../../types/beatmap/object/object.ts";
+import { BeatmapObjectConstructor, BeatmapObjectDefaults } from '../../../../types/beatmap/object/object.ts'
 
 export class LightEvent extends BasicEvent<bsmap.v2.IEventLight, bsmap.v3.IBasicEventLight> {
-    constructor(obj: Partial<ObjectFields<LightEvent>>) {
+    constructor(obj: BeatmapObjectConstructor<LightEvent>) {
         super(obj)
         this.lightID = obj.lightID
         this.chromaColor = obj.chromaColor
@@ -31,7 +29,7 @@ export class LightEvent extends BasicEvent<bsmap.v2.IEventLight, bsmap.v3.IBasic
     /** The color interpolation for transition events. Goes on start event. */
     lerpType?: 'RGB' | 'HSV'
 
-    static defaults: DeepReadonly<ObjectFields<LightEvent>> = {
+    static defaults: BeatmapObjectDefaults<LightEvent> = {
         ...super.defaults,
     }
 

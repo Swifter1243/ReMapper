@@ -1,4 +1,4 @@
-import { CommunityBPMEvent } from '../../../../internals/beatmap/object/v3_event/community_bpm.ts'
+import { CommunityBPMEvent } from '../../../../internals/beatmap/object/v3_event/bpm/community_bpm.ts'
 
 /** Creates a community BPM event, which is deprecated.
  * It is only interpreted by the editor, and doesn't actually change the time between object beats.

@@ -3,13 +3,11 @@ import { copy } from '../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../utils/object/prune.ts'
 import { BasicEvent } from './basic_event.ts'
 import { bsmap } from '../../../../deps.ts'
-import {getCDProp} from "../../../../utils/beatmap/json.ts";
-import {DeepReadonly} from "../../../../types/util/mutability.ts";
-
-import {ObjectFields} from "../../../../types/beatmap/object/object.ts";
+import { getCDProp } from '../../../../utils/beatmap/json.ts'
+import { BeatmapObjectConstructor, BeatmapObjectDefaults } from '../../../../types/beatmap/object/object.ts'
 
 export class LaserSpeedEvent extends BasicEvent<bsmap.v2.IEventLaser, bsmap.v3.IBasicEventLaserRotation> {
-    constructor(obj: Partial<ObjectFields<LaserSpeedEvent>>) {
+    constructor(obj: BeatmapObjectConstructor<LaserSpeedEvent>) {
         super(obj)
         this.lockRotation = obj.lockRotation
         this.speed = obj.speed
@@ -23,8 +21,8 @@ export class LaserSpeedEvent extends BasicEvent<bsmap.v2.IEventLaser, bsmap.v3.I
     /** Direction of the rotating lasers. */
     direction?: number
 
-    static defaults: DeepReadonly<ObjectFields<LaserSpeedEvent>> = {
-        ...super.defaults
+    static defaults: BeatmapObjectDefaults<LaserSpeedEvent> = {
+        ...super.defaults,
     }
 
     push(
@@ -34,19 +32,18 @@ export class LaserSpeedEvent extends BasicEvent<bsmap.v2.IEventLaser, bsmap.v3.I
         return this
     }
 
-
     fromJsonV3(json: bsmap.v3.IBasicEventLaserRotation): this {
         this.lockRotation = getCDProp(json, 'lockRotation')
         this.speed = getCDProp(json, 'speed')
         this.direction = getCDProp(json, 'direction')
-        return super.fromJsonV3(json);
+        return super.fromJsonV3(json)
     }
 
     fromJsonV2(json: bsmap.v2.IEventLaser): this {
         this.lockRotation = getCDProp(json, '_lockPosition')
         this.speed = getCDProp(json, '_preciseSpeed')
         this.direction = getCDProp(json, '_direction')
-        return super.fromJsonV2(json);
+        return super.fromJsonV2(json)
     }
 
     toJsonV3(prune?: boolean): bsmap.v3.IBasicEventLaserRotation {

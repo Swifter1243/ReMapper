@@ -1,18 +1,16 @@
 import { BaseLightEvent } from './base.ts'
 import { bsmap } from '../../../../../../deps.ts'
-import {LightColor, LightTransition} from "../../../../../../data/constants/v3_event.ts";
-import {SubclassExclusiveProps} from "../../../../../../types/util/class.ts";
-import {BeatmapObject} from "../../../object.ts";
+import { LightColor, LightTransition } from '../../../../../../data/constants/v3_event.ts'
 import { objectPrune } from '../../../../../../utils/object/prune.ts'
-import {ObjectFields} from "../../../../../../types/beatmap/object/object.ts";
+import { BeatmapObjectConstructor, BeatmapObjectDefaults } from '../../../../../../types/beatmap/object/object.ts'
 
 export class LightColorEvent extends BaseLightEvent<bsmap.v3.ILightColorBase> {
-    constructor(obj: Partial<ObjectFields<LightColorEvent>>) {
+    constructor(obj: BeatmapObjectConstructor<LightColorEvent>) {
         super(obj)
-        this.transitionType = obj.transitionType ?? LightTransition.INSTANT
-        this.color = obj.color ?? LightColor.RED
-        this.brightness = obj.brightness ?? 1
-        this.blinkingFrequency = obj.blinkingFrequency ?? 0
+        this.transitionType = obj.transitionType ?? LightColorEvent.defaults.transitionType
+        this.color = obj.color ?? LightColorEvent.defaults.color
+        this.brightness = obj.brightness ?? LightColorEvent.defaults.brightness
+        this.blinkingFrequency = obj.blinkingFrequency ?? LightColorEvent.defaults.blinkingFrequency
     }
 
     /** An integer value which determines the behavior of the effect, relative to the previous effect. */
@@ -24,32 +22,27 @@ export class LightColorEvent extends BaseLightEvent<bsmap.v3.ILightColorBase> {
     /** Blinking frequency in beat time of the event, 0 is static. */
     blinkingFrequency: number
 
-    fromJson(json: bsmap.v3.ILightColorBase, v3: true): this
-    fromJson(json: never, v3: false): this
-    fromJson(json: bsmap.v3.ILightColorBase, v3: boolean): this {
-        if (!v3) throw 'Event box groups are not supported in V2!'
-
-        type Params = SubclassExclusiveProps<
-            LightColorEvent,
-            BeatmapObject<never, bsmap.v3.ILightColorBase>
-        >
-
-        const params = {
-            blinkingFrequency: json.f ?? 0,
-            brightness: json.s ?? 0,
-            color: json.c ?? 0,
-            transitionType: json.i ?? 0,
-        } as Params
-
-        Object.assign(this, params)
-        return super.fromJson(json, true)
+    static defaults: BeatmapObjectDefaults<LightColorEvent> = {
+        transitionType: LightTransition.INSTANT,
+        color: LightColor.RED,
+        brightness: 1,
+        blinkingFrequency: 0,
+        ...super.defaults,
     }
 
-    toJson(v3: true, prune?: boolean): bsmap.v3.ILightColorBase
-    toJson(v3: false, prune?: boolean): never
-    toJson(v3: boolean, prune?: boolean): bsmap.v3.ILightColorBase {
-        if (!v3) throw 'Event box groups are not supported in V2!'
+    fromJsonV3(json: bsmap.v3.ILightColorBase): this {
+        this.transitionType = json.i ?? LightColorEvent.defaults.transitionType
+        this.color = json.c ?? LightColorEvent.defaults.color
+        this.brightness = json.s ?? LightColorEvent.defaults.brightness
+        this.blinkingFrequency = json.f ?? LightColorEvent.defaults.blinkingFrequency
+        return super.fromJsonV3(json)
+    }
 
+    fromJsonV2(_json: never): this {
+        throw 'Event box groups are not supported in V2!'
+    }
+
+    toJsonV3(prune?: boolean): bsmap.v3.ILightColorBase {
         const output = {
             b: this.beat,
             c: this.color,
@@ -59,5 +52,9 @@ export class LightColorEvent extends BaseLightEvent<bsmap.v3.ILightColorBase> {
             customData: this.customData,
         } satisfies bsmap.v3.ILightColorBase
         return prune ? objectPrune(output) : output
+    }
+
+    toJsonV2(_prune?: boolean): never {
+        throw 'Event box groups are not supported in V2!'
     }
 }

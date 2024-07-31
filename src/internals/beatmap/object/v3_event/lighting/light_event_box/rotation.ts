@@ -1,21 +1,20 @@
-import { Fields } from '../../../../../../types/util/class.ts'
 import { LightEventBox } from './base.ts'
-import {DistributionType, LightAxis} from "../../../../../../data/constants/v3_event.ts";
+import { DistributionType, LightAxis } from '../../../../../../data/constants/v3_event.ts'
 import { bsmap } from '../../../../../../deps.ts'
 import { objectPrune } from '../../../../../../utils/object/prune.ts'
-import {LightRotationEvent} from "../light_event/rotation.ts";
+import { LightRotationEvent } from '../light_event/rotation.ts'
 import { lightRotationEvent } from '../../../../../../builder_functions/beatmap/object/v3_event/lighting/light_event.ts'
+import { JsonObjectConstructor, JsonObjectDefaults } from '../../../../../../types/beatmap/object/object.ts'
+import { LightColorEventBox } from './color.ts'
 
-export class LightRotationEventBox
-    extends LightEventBox<bsmap.v3.ILightRotationEventBox, LightRotationEvent> {
-    constructor(obj: Partial<Fields<LightRotationEventBox>>) {
+export class LightRotationEventBox extends LightEventBox<bsmap.v3.ILightRotationEventBox, LightRotationEvent> {
+    constructor(obj: JsonObjectConstructor<LightRotationEventBox>) {
         super(obj)
-        this.rotationDistribution = obj.rotationDistribution ?? 0
-        this.rotationDistributionType = obj.rotationDistributionType ??
-            DistributionType.STEP
-        this.rotationAxis = obj.rotationAxis ?? LightAxis.X
-        this.flipRotation = obj.flipRotation ?? false
-        this.rotationDistributionFirst = obj.rotationDistributionFirst ?? true
+        this.rotationDistribution = obj.rotationDistribution ?? LightRotationEventBox.defaults.rotationDistribution
+        this.rotationDistributionType = obj.rotationDistributionType ?? LightRotationEventBox.defaults.rotationDistributionType
+        this.rotationAxis = obj.rotationAxis ?? LightRotationEventBox.defaults.rotationAxis
+        this.flipRotation = obj.flipRotation ?? LightRotationEventBox.defaults.flipRotation
+        this.rotationDistributionFirst = obj.rotationDistributionFirst ?? LightRotationEventBox.defaults.rotationDistributionFirst
     }
 
     /** https://bsmg.wiki/mapping/map-format/lightshow.html#light-rotation-event-boxes-effect-distribution */
@@ -29,43 +28,43 @@ export class LightRotationEventBox
     /** A binary integer value (0 or 1) which determines whether the distribution should affect the first event in the sequence. */
     rotationDistributionFirst: boolean
 
-    fromJson(json: bsmap.v3.ILightRotationEventBox, v3: true): this
-    fromJson(json: never, v3: false): this
-    fromJson(json: bsmap.v3.ILightRotationEventBox, v3: boolean): this {
-        if (!v3) throw 'Event boxes are not supported in V2!'
+    static defaults: JsonObjectDefaults<LightRotationEventBox> = {
+        rotationDistribution: 0,
+        rotationDistributionType: DistributionType.STEP,
+        rotationAxis: LightAxis.X,
+        flipRotation: false,
+        rotationDistributionFirst: true,
+        ...super.defaults,
+        events: [],
+    }
 
-        type Params = Fields<LightRotationEventBox>
-
-        const params = {
-            filter: json.f,
-            beatDistribution: json.w ?? 0,
-            beatDistributionType: json.d,
-            distributionEasing: json.i ?? 0,
-            flipRotation: json.r === 1,
-            rotationAxis: json.a ?? 0,
-            rotationDistribution: json.s ?? 0,
-            rotationDistributionFirst: json.b === 1,
-            rotationDistributionType: json.t,
-            events: json.l.map((x) => lightRotationEvent({}).fromJson(x, true)),
-            customData: json.customData,
-        } as Params
-
-        Object.assign(this, params)
+    fromJsonV3(json: bsmap.v3.ILightRotationEventBox): this {
+        this.filter = json.f ?? LightRotationEventBox.defaults.filter
+        this.beatDistribution = json.w ?? LightRotationEventBox.defaults.beatDistribution
+        this.beatDistributionType = json.d ?? LightRotationEventBox.defaults.beatDistributionType
+        this.distributionEasing = json.i ?? LightRotationEventBox.defaults.distributionEasing
+        this.flipRotation = json.r !== undefined ? json.r === 1 : LightRotationEventBox.defaults.flipRotation
+        this.rotationAxis = json.a ?? LightRotationEventBox.defaults.rotationAxis
+        this.rotationDistribution = json.s ?? LightRotationEventBox.defaults.rotationDistribution
+        this.rotationDistributionFirst = json.b !== undefined ? json.b === 1 : LightRotationEventBox.defaults.rotationDistributionFirst
+        this.rotationDistributionType = json.t ?? LightRotationEventBox.defaults.rotationDistributionType
+        this.events = json.l.map((x) => lightRotationEvent({}).fromJsonV3(x))
+        this.customData = json.customData ?? LightColorEventBox.defaults.customData
         return this
     }
 
-    toJson(v3: true, prune?: boolean): bsmap.v3.ILightRotationEventBox
-    toJson(v3: false, prune?: boolean): never
-    toJson(v3: boolean, prune?: boolean): bsmap.v3.ILightRotationEventBox {
-        if (!v3) throw 'Event boxes are not supported in V2!'
+    fromJsonV2(_json: never): this {
+        throw 'Event boxes are not supported in V2!'
+    }
 
+    toJsonV3(prune?: boolean): bsmap.v3.ILightRotationEventBox {
         const output = {
             a: this.rotationAxis,
             b: this.rotationDistributionFirst ? 1 : 0,
             d: this.beatDistributionType,
             f: this.filter,
             i: this.distributionEasing as 0 | 1 | 2 | 3,
-            l: this.events.map((x) => x.toJson(true)),
+            l: this.events.map((x) => x.toJsonV3(prune)),
             r: this.flipRotation ? 1 : 0,
             s: this.rotationDistribution,
             t: this.rotationDistributionType,
@@ -73,5 +72,9 @@ export class LightRotationEventBox
             customData: this.customData,
         } satisfies bsmap.v3.ILightRotationEventBox
         return prune ? objectPrune(output) : output
+    }
+
+    toJsonV2(_prune?: boolean): never {
+        throw 'Event boxes are not supported in V2!'
     }
 }

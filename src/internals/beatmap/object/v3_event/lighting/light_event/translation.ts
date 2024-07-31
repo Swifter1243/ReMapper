@@ -1,18 +1,15 @@
-import {BeatmapObject} from "../../../object.ts";
-import {RotationEase} from "../../../../../../data/constants/v3_event.ts";
-import {SubclassExclusiveProps} from "../../../../../../types/util/class.ts";
+import { BeatmapObject } from '../../../object.ts'
+import { RotationEase } from '../../../../../../data/constants/v3_event.ts'
 import { bsmap } from '../../../../../../deps.ts'
 import { objectPrune } from '../../../../../../utils/object/prune.ts'
-import {ObjectFields} from "../../../../../../types/beatmap/object/object.ts";
-
+import { BeatmapObjectConstructor, BeatmapObjectDefaults } from '../../../../../../types/beatmap/object/object.ts'
 
 export class LightTranslationEvent extends BeatmapObject<never, bsmap.v3.ILightTranslationBase> {
-    constructor(obj: Partial<ObjectFields<LightTranslationEvent>>) {
+    constructor(obj: BeatmapObjectConstructor<LightTranslationEvent>) {
         super(obj)
-        this.usePreviousEventTranslation = obj.usePreviousEventTranslation ??
-            false
-        this.easing = obj.easing ?? RotationEase.None
-        this.magnitude = obj.magnitude ?? 0
+        this.usePreviousEventTranslation = obj.usePreviousEventTranslation ?? LightTranslationEvent.defaults.usePreviousEventTranslation
+        this.easing = obj.easing ?? LightTranslationEvent.defaults.easing
+        this.magnitude = obj.magnitude ?? LightTranslationEvent.defaults.magnitude
     }
 
     /** If true, extend the state of the previous event. If not, transition from previous state to this state. */
@@ -22,31 +19,25 @@ export class LightTranslationEvent extends BeatmapObject<never, bsmap.v3.ILightT
     /** The magnitude of the translation. */
     magnitude: number
 
-    fromJson(json: bsmap.v3.ILightTranslationBase, v3: true): this
-    fromJson(json: never, v3: false): this
-    fromJson(json: bsmap.v3.ILightTranslationBase, v3: boolean): this {
-        if (!v3) throw 'Event box groups are not supported in V2!'
-
-        type Params = SubclassExclusiveProps<
-            LightTranslationEvent,
-            BeatmapObject<never, bsmap.v3.ILightTranslationBase>
-        >
-
-        const params = {
-            easing: json.e ?? 0,
-            usePreviousEventTranslation: json.p === 1,
-            magnitude: json.t ?? 0,
-        } as Params
-
-        Object.assign(this, params)
-        return super.fromJson(json, true)
+    static defaults: BeatmapObjectDefaults<LightTranslationEvent> = {
+        usePreviousEventTranslation: true,
+        easing: RotationEase.None,
+        magnitude: 0,
+        ...super.defaults,
     }
 
-    toJson(v3: true, prune?: boolean): bsmap.v3.ILightTranslationBase
-    toJson(v3: false, prune?: boolean): never
-    toJson(v3: boolean, prune?: boolean): bsmap.v3.ILightTranslationBase {
-        if (!v3) throw 'Event box groups are not supported in V2!'
+    fromJsonV3(json: bsmap.v3.ILightTranslationBase): this {
+        this.usePreviousEventTranslation = json.p !== undefined ? json.p === 1 : LightTranslationEvent.defaults.usePreviousEventTranslation
+        this.easing = json.e ?? LightTranslationEvent.defaults.easing
+        this.magnitude = json.t ?? LightTranslationEvent.defaults.magnitude
+        return super.fromJsonV3(json)
+    }
 
+    fromJsonV2(_json: never): this {
+        throw 'Event box groups are not supported in V2!'
+    }
+
+    toJsonV3(prune?: boolean): bsmap.v3.ILightTranslationBase {
         const output = {
             b: this.beat,
             e: this.easing as bsmap.v3.ILightTranslationBase['e'],
@@ -55,5 +46,9 @@ export class LightTranslationEvent extends BeatmapObject<never, bsmap.v3.ILightT
             customData: this.customData,
         } satisfies bsmap.v3.ILightTranslationBase
         return prune ? objectPrune(output) : output
+    }
+
+    toJsonV2(_prune?: boolean): never {
+        throw 'Event box groups are not supported in V2!'
     }
 }

@@ -1,33 +1,21 @@
-//! Event Boxes
-
-import {BaseLightEvent} from "../light_event/base.ts";
-import {JsonWrapper} from "../../../../../../types/beatmap/json_wrapper.ts";
-import {DistributionType, RotationEase} from "../../../../../../data/constants/v3_event.ts";
+import { BaseLightEvent } from '../light_event/base.ts'
+import { JsonWrapper } from '../../../../../../types/beatmap/json_wrapper.ts'
+import { DistributionType, RotationEase } from '../../../../../../data/constants/v3_event.ts'
 import { bsmap } from '../../../../../../deps.ts'
-import {ObjectFields} from "../../../../../../types/beatmap/object/object.ts";
+import { JsonObjectConstructor, JsonObjectDefaults } from '../../../../../../types/beatmap/object/object.ts'
+import { copy } from '../../../../../../utils/object/copy.ts'
 
 export abstract class LightEventBox<
-    T extends bsmap.v3.IEventBox,
+    T extends bsmap.v3.IEventBox = bsmap.v3.IEventBox,
     E extends BaseLightEvent = BaseLightEvent,
 > implements JsonWrapper<never, T> {
-    constructor(obj: Partial<ObjectFields<LightEventBox<T, E>>>) {
-        this.filter = obj.filter ?? {
-            f: 1,
-            c: 0,
-            d: 0,
-            l: 0,
-            n: 0,
-            p: 0,
-            r: 0,
-            s: 0,
-            t: 0,
-        }
-        this.beatDistribution = obj.beatDistribution ?? 0
-        this.beatDistributionType = obj.beatDistributionType ??
-            DistributionType.STEP
-        this.distributionEasing = obj.distributionEasing ?? RotationEase.None
-        this.customData = obj.customData ?? {}
-        this.events = obj.events ?? []
+    constructor(obj: JsonObjectConstructor<LightEventBox<T, E>>) {
+        this.filter = obj.filter ?? copy(LightEventBox.defaults.filter)
+        this.beatDistribution = obj.beatDistribution ?? LightEventBox.defaults.beatDistribution
+        this.beatDistributionType = obj.beatDistributionType ?? LightEventBox.defaults.beatDistributionType
+        this.distributionEasing = obj.distributionEasing ?? LightEventBox.defaults.distributionEasing
+        this.customData = (obj as Record<string, unknown>).customData ?? copy(LightEventBox.defaults.customData)
+        this.events = obj.events ?? copy(LightEventBox.defaults.events) as E[]
     }
 
     /** Allows you to filter specific environment objects within an event box and control how its effects are distributed. */
@@ -43,17 +31,34 @@ export abstract class LightEventBox<
     /** The events in this event box. */
     events: E[]
 
+    //** Default values to initialize fields in the class. */
+    static defaults: JsonObjectDefaults<LightEventBox> = {
+        filter: {
+            f: 1,
+            c: 0,
+            d: 0,
+            l: 0,
+            n: 0,
+            p: 0,
+            r: 0,
+            s: 0,
+            t: 0,
+        },
+        beatDistribution: 0,
+        beatDistributionType: DistributionType.STEP,
+        distributionEasing: RotationEase.None,
+        customData: {},
+        events: [],
+    }
+
     /** Add a light event to this box's events. */
     add(event: E) {
         this.events.push(event)
     }
 
-    abstract fromJson(json: T, v3: true): this
-    abstract fromJson(json: never, v3: false): this
-    abstract fromJson(json: T, v3: boolean): this
+    abstract fromJsonV2(json: never): this
+    abstract fromJsonV3(json: T): this
 
-    abstract toJson(v3: true, prune?: boolean): T
-    abstract toJson(v3: false, prune?: boolean): never
-    abstract toJson(v3: boolean, prune?: boolean): T
+    abstract toJsonV2(prune?: boolean): never
+    abstract toJsonV3(prune?: boolean): T
 }
-

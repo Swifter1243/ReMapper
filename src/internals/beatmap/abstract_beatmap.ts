@@ -9,7 +9,7 @@ import {RingSpinEvent} from "./object/basic_event/ring_spin.ts";
 import {RotationEvent} from "./object/v3_event/rotation.ts";
 import {BoostEvent} from "./object/v3_event/lighting/boost.ts";
 import {AbstractBasicEvent} from "./object/basic_event/abstract.ts";
-import {BPMEvent} from "./object/v3_event/bpm.ts";
+import {BPMEvent} from "./object/v3_event/bpm/bpm.ts";
 import {LightColorEventBoxGroup} from "./object/v3_event/lighting/light_event_box_group/color.ts";
 import {LightRotationEventBoxGroup} from "./object/v3_event/lighting/light_event_box_group/rotation.ts";
 import { LightTranslationEventBoxGroup } from './object/v3_event/lighting/light_event_box_group/translation.ts'

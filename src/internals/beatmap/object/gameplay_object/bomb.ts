@@ -6,11 +6,11 @@ import {animationV3toV2} from "../../../../utils/animation/json.ts";
 
 import {BaseNote} from "./base_note.ts";
 import {exportInvertedBoolean} from "../../../../utils/beatmap/json.ts";
-import {GameplayObjectFields} from "../../../../types/beatmap/object/gameplay_object.ts";
+import {GameplayObjectConstructor} from "../../../../types/beatmap/object/gameplay_object.ts";
 
 export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
     constructor(
-        fields: GameplayObjectFields<Bomb>,
+        fields: GameplayObjectConstructor<Bomb>,
     ) {
         super(fields)
     }

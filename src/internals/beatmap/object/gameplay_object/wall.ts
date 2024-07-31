@@ -10,11 +10,11 @@ import { Vec3 } from '../../../../types/math/vector.ts'
 import { AnimatedTransform } from '../../../../types/math/transform.ts'
 import { exportInvertedBoolean, getCDProp } from '../../../../utils/beatmap/json.ts'
 import { setWallWorldTransform } from '../../../../utils/beatmap/object/wall/transform.ts'
-import { GameplayObjectDefaultFields, GameplayObjectFields } from '../../../../types/beatmap/object/gameplay_object.ts'
+import { GameplayObjectDefaults, GameplayObjectConstructor } from '../../../../types/beatmap/object/gameplay_object.ts'
 
 export class Wall extends BeatmapGameplayObject<bsmap.v2.IObstacle, bsmap.v3.IObstacle> {
     constructor(
-        fields: GameplayObjectFields<Wall>,
+        fields: GameplayObjectConstructor<Wall>,
     ) {
         super(fields)
 
@@ -43,7 +43,7 @@ export class Wall extends BeatmapGameplayObject<bsmap.v2.IObstacle, bsmap.v3.IOb
     /** Moves the note to the separate fake note array on save. */
     fake?: boolean
 
-    static defaults: GameplayObjectDefaultFields<Wall> = {
+    static defaults: GameplayObjectDefaults<Wall> = {
         duration: 1,
         height: 1,
         width: 1,

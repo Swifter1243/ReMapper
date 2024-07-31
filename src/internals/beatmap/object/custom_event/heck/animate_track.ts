@@ -9,7 +9,7 @@ import { getDataProp } from '../../../../../utils/beatmap/json.ts'
 import { animationV2ToV3, animationV3toV2 } from '../../../../../utils/animation/json.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import { bsmap } from '../../../../../deps.ts'
-import { DefaultFields } from '../../../../../types/beatmap/object/object.ts'
+import { JsonObjectDefaults } from '../../../../../types/beatmap/object/object.ts'
 
 export class AnimateTrack extends CustomEvent<
     bsmap.v2.ICustomEventAnimateTrack,
@@ -43,7 +43,7 @@ export class AnimateTrack extends CustomEvent<
     /** The amount of times to repeat this event. */
     repeat?: number
 
-    static defaults: DefaultFields<AnimateTrack> = {
+    static defaults: JsonObjectDefaults<AnimateTrack> = {
         animation: {},
         track: new Track(),
         ...super.defaults,

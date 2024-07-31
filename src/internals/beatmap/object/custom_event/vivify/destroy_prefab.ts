@@ -8,7 +8,7 @@ import { CustomEventConstructorTrack } from '../../../../../types/beatmap/object
 
 import { getDataProp } from '../../../../../utils/beatmap/json.ts'
 import { CustomEvent } from '../base/custom_event.ts'
-import {DefaultFields} from "../../../../../types/beatmap/object/object.ts";
+import {JsonObjectDefaults} from "../../../../../types/beatmap/object/object.ts";
 
 export class DestroyPrefab extends CustomEvent<
     never,
@@ -28,7 +28,7 @@ export class DestroyPrefab extends CustomEvent<
     /** ID(s) of prefab to destroy. */
     id: Track
 
-    static defaults: DefaultFields<DestroyPrefab> = {
+    static defaults: JsonObjectDefaults<DestroyPrefab> = {
         id: new Track(),
         ...super.defaults,
     }

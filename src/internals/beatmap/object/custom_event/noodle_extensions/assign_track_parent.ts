@@ -5,7 +5,7 @@ import { copy } from '../../../../../utils/object/copy.ts'
 import { getDataProp } from '../../../../../utils/beatmap/json.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import { bsmap } from '../../../../../deps.ts'
-import { DefaultFields } from '../../../../../types/beatmap/object/object.ts'
+import { JsonObjectDefaults } from '../../../../../types/beatmap/object/object.ts'
 
 export class AssignTrackParent extends CustomEvent<
     bsmap.v2.ICustomEventAssignTrackParent,
@@ -31,7 +31,7 @@ export class AssignTrackParent extends CustomEvent<
     /** Modifies the transform of children objects to remain in the same place relative to world space. */
     worldPositionStays?: boolean
 
-    static defaults: DefaultFields<AssignTrackParent> = {
+    static defaults: JsonObjectDefaults<AssignTrackParent> = {
         childrenTracks: [],
         parentTrack: '',
         ...super.defaults,

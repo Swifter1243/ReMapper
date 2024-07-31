@@ -8,7 +8,7 @@ import {CustomEventConstructor} from "../../../../../types/beatmap/object/custom
 
 import {getDataProp} from "../../../../../utils/beatmap/json.ts";
 import {CustomEvent} from "../base/custom_event.ts";
-import {DefaultFields} from "../../../../../types/beatmap/object/object.ts";
+import {JsonObjectDefaults} from "../../../../../types/beatmap/object/object.ts";
 
 export class DeclareRenderTexture extends CustomEvent<
     never,
@@ -46,7 +46,7 @@ export class DeclareRenderTexture extends CustomEvent<
     /** https://docs.unity3d.com/ScriptReference/FilterMode.html */
     filterMode?: TEX_FILTER_MODE
 
-    static defaults: DefaultFields<DeclareRenderTexture> = {
+    static defaults: JsonObjectDefaults<DeclareRenderTexture> = {
         id: '',
         ...super.defaults
     }

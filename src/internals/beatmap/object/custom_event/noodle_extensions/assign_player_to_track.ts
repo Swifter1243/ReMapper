@@ -1,5 +1,5 @@
 import { CustomEvent } from '../base/custom_event.ts'
-import { DefaultFields } from '../../../../../types/beatmap/object/object.ts'
+import { JsonObjectDefaults } from '../../../../../types/beatmap/object/object.ts'
 import { CustomEventConstructorTrack } from '../../../../../types/beatmap/object/custom_event.ts'
 import { getActiveDifficulty } from '../../../../../data/active_difficulty.ts'
 import { copy } from '../../../../../utils/object/copy.ts'
@@ -25,7 +25,7 @@ export class AssignPlayerToTrack extends CustomEvent<
     /** Which component of the player to target. */
     target?: bsmap.PlayerObject
 
-    static defaults: DefaultFields<AssignPlayerToTrack> = {
+    static defaults: JsonObjectDefaults<AssignPlayerToTrack> = {
         track: '',
         ...super.defaults,
     }

@@ -8,7 +8,7 @@ import { CustomEventConstructor } from '../../../../../types/beatmap/object/cust
 
 import { getDataProp } from '../../../../../utils/beatmap/json.ts'
 import { CustomEvent } from '../base/custom_event.ts'
-import { DefaultFields } from '../../../../../types/beatmap/object/object.ts'
+import { JsonObjectDefaults } from '../../../../../types/beatmap/object/object.ts'
 
 export class SetMaterialProperty extends CustomEvent<
     never,
@@ -34,7 +34,7 @@ export class SetMaterialProperty extends CustomEvent<
     /** An easing for the animation to follow. */
     easing?: EASE
 
-    static defaults: DefaultFields<SetMaterialProperty> = {
+    static defaults: JsonObjectDefaults<SetMaterialProperty> = {
         asset: '',
         properties: [],
         ...super.defaults,

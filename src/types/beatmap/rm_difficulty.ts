@@ -12,7 +12,7 @@ import {RingZoomEvent} from "../../internals/beatmap/object/basic_event/ring_zoo
 import {RingSpinEvent} from "../../internals/beatmap/object/basic_event/ring_spin.ts";
 import {RotationEvent} from "../../internals/beatmap/object/v3_event/rotation.ts";
 import {BoostEvent} from "../../internals/beatmap/object/v3_event/lighting/boost.ts";
-import {BPMEvent} from "../../internals/beatmap/object/v3_event/bpm.ts";
+import {BPMEvent} from "../../internals/beatmap/object/v3_event/bpm/bpm.ts";
 import {LightColorEventBoxGroup} from "../../internals/beatmap/object/v3_event/lighting/light_event_box_group/color.ts";
 import {
     LightRotationEventBoxGroup

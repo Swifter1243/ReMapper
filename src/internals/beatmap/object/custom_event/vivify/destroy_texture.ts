@@ -8,7 +8,7 @@ import {CustomEventConstructorTrack} from "../../../../../types/beatmap/object/c
 
 import {getDataProp} from "../../../../../utils/beatmap/json.ts";
 import {CustomEvent} from "../base/custom_event.ts";
-import {DefaultFields} from "../../../../../types/beatmap/object/object.ts";
+import {JsonObjectDefaults} from "../../../../../types/beatmap/object/object.ts";
 
 export class DestroyTexture extends CustomEvent<
     never,
@@ -28,7 +28,7 @@ export class DestroyTexture extends CustomEvent<
     /** Names(s) of textures to destroy. */
     id: Track
 
-    static defaults: DefaultFields<DestroyTexture> = {
+    static defaults: JsonObjectDefaults<DestroyTexture> = {
         id: new Track(),
         ...super.defaults
     }
