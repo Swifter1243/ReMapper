@@ -584,8 +584,6 @@ export function optimizeKeyframes<T extends NumberTuple>(
     }
 
     return simplifyKeyframes<T>(
-        optimizeKeyframesInternal(keyframes, settings) as RawKeyframesAbstract<
-            T
-        >,
+        optimizeKeyframesInternal(keyframes, settings) as RawKeyframesAbstract<T>,
     )
 }

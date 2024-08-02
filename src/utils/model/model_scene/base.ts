@@ -7,10 +7,10 @@ import { Geometry } from '../../../internals/beatmap/object/environment/geometry
 import { AnimatedObjectInput, ObjectInput } from '../../../types/model/model_scene/input.ts'
 import { AnimatedOptions } from '../../../types/model/model_scene/option.ts'
 import { ModelObject, ReadonlyModel } from '../../../types/model/object.ts'
-import { RawKeyframesVec3 } from '../../../types/animation/keyframe/vec3.ts'
+import { InnerKeyframeVec3, RawKeyframesVec3 } from '../../../types/animation/keyframe/vec3.ts'
 import { complexifyKeyframes } from '../../animation/keyframe/complexity.ts'
 import { copy } from '../../object/copy.ts'
-import {applyAnchor, combineRotations, combineTransforms} from '../../math/transform.ts'
+import { applyAnchor, combineRotations, combineTransforms } from '../../math/transform.ts'
 import { positionUnityToNoodle } from '../../beatmap/object/environment/unit_conversion.ts'
 import { mirrorAnimation } from '../../animation/time_warp.ts'
 import { parseFilePath } from '../../file.ts'
@@ -22,7 +22,7 @@ import { DeepReadonly } from '../../../types/util/mutability.ts'
 
 export abstract class ModelScene<I, O> {
     protected static modelSceneCount = 0
-    static defaultGroupKey = "default_group"
+    static defaultGroupKey = 'default_group'
 
     protected groups = <Record<string, ModelGroup>> {}
 
@@ -231,7 +231,7 @@ export abstract class ModelScene<I, O> {
     ): ReadonlyModel {
         const outputObjects: ModelObject[] = []
         if (options.objects) options.objects(objectInput)
-
+        const v3 = getActiveDifficulty().v3
         objectInput.forEach((x) => {
             const o = copy(x) as ModelObject
 
@@ -290,7 +290,7 @@ export abstract class ModelScene<I, O> {
                     this.animationSettings,
                 )
 
-                if (!getActiveDifficulty().v3) {
+                if (!v3) {
                     positionUnityToNoodle(bakedCube.position)
                 }
 
@@ -352,6 +352,7 @@ export abstract class ModelScene<I, O> {
         fileObjects: ModelObject[],
         options: AnimatedOptions,
     ) {
+        const v3 = getActiveDifficulty().v3
         if (options.onCache) options.onCache(fileObjects)
         fileObjects.forEach((x) => {
             if (options.static) {
@@ -376,34 +377,14 @@ export abstract class ModelScene<I, O> {
             x.scale = complexifyKeyframes(x.scale)
 
             // Applying transformation to each keyframe
-            for (let i = 0; i < x.position.length; i++) {
-                let objPos = copy(
-                    x.position[i],
-                ) as number[]
-                let objRot = copy(
-                    x.rotation[i],
-                ) as number[]
-                let objScale = copy(
-                    x.scale[i],
-                ) as number[]
-                objPos.pop()
-                objRot.pop()
-                objScale.pop()
+            function getVec3(keyframe: InnerKeyframeVec3): Vec3 {
+                return [keyframe[0], keyframe[1], keyframe[2]]
+            }
 
-                if (options.transform) {
-                    const combined = combineTransforms(
-                        {
-                            position: objPos as Vec3,
-                            rotation: objRot as Vec3,
-                            scale: objScale as Vec3,
-                        },
-                        options.transform,
-                        options.transform.anchor,
-                    )
-                    objPos = combined.position
-                    objRot = combined.rotation
-                    objScale = combined.scale
-                }
+            for (let i = 0; i < x.position.length; i++) {
+                let objPos = getVec3(x.position[i])
+                let objRot = getVec3(x.rotation[i])
+                let objScale = getVec3(x.scale[i])
 
                 if (anchor) {
                     objPos = applyAnchor(
@@ -415,38 +396,41 @@ export abstract class ModelScene<I, O> {
                 }
 
                 if (rotation) {
-                    objRot = combineRotations(objRot as Vec3, rotation)
+                    objRot = combineRotations(objRot, rotation)
                 }
 
                 if (scale) {
-                    objScale = (objScale as Vec3).map((x, i) => x * (scale as Vec3)[i])
+                    objScale = objScale.map((x, i) => x * objScale[i]) as Vec3
                 }
 
-                if (!getActiveDifficulty().v3) {
-                    positionUnityToNoodle(objPos as Vec3)
+                if (!v3) {
+                    positionUnityToNoodle(objPos)
                 }
 
-                x.position[i] = [...(objPos as Vec3), x.position[i][3]]
-                x.rotation[i] = [...(objRot as Vec3), x.rotation[i][3]]
-                x.scale[i] = [
-                    ...(objScale as Vec3),
-                    x.scale[i][3],
-                ]
+                if (options.transform) {
+                    const combined = combineTransforms(
+                        {
+                            position: objPos,
+                            rotation: objRot,
+                            scale: objScale,
+                        },
+                        options.transform,
+                        options.transform.anchor,
+                    )
+                    objPos = combined.position
+                    objRot = combined.rotation
+                    objScale = combined.scale
+                }
+
+                x.position[i] = [...objPos, x.position[i][3]]
+                x.rotation[i] = [...objRot, x.rotation[i][3]]
+                x.scale[i] = [...objScale, x.scale[i][3]]
             }
 
             // Optimizing object
-            x.position = optimizeKeyframes(
-                x.position,
-                this.animationSettings.optimizeSettings,
-            )
-            x.rotation = optimizeKeyframes(
-                x.rotation,
-                this.animationSettings.optimizeSettings,
-            )
-            x.scale = optimizeKeyframes(
-                x.scale,
-                this.animationSettings.optimizeSettings,
-            )
+            x.position = optimizeKeyframes(x.position, this.animationSettings.optimizeSettings)
+            x.rotation = optimizeKeyframes(x.rotation, this.animationSettings.optimizeSettings)
+            x.scale = optimizeKeyframes(x.scale, this.animationSettings.optimizeSettings)
 
             // Loop animation
             if (options.mirror) {
@@ -455,6 +439,7 @@ export abstract class ModelScene<I, O> {
                 x.scale = mirrorAnimation(x.scale)
             }
         })
+
         return fileObjects
     }
 }
