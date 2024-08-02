@@ -330,7 +330,7 @@ export abstract class ModelScene<I, O> {
     private async getObjectsFromString(objectInput: string, options: AnimatedOptions) {
         const inputPath = (await parseFilePath(objectInput, '.rmmodel')).path
         const onCache = options.onCache ? options.onCache.toString() : undefined
-        const processing: unknown[] = [
+        const hashObjects: unknown[] = [
             options,
             onCache,
             this.groups,
@@ -338,13 +338,13 @@ export abstract class ModelScene<I, O> {
             getActiveDifficulty().v3,
         ]
 
-        const model = getModel(
+        const model = await getModel(
             inputPath,
             `modelScene${this.ID}_${inputPath}`,
             (objects) => this.processFileObjects(objects, options),
-            processing,
+            hashObjects,
         )
-        if (options.objects) options.objects(await model)
+        if (options.objects) options.objects(model)
         return model
     }
 

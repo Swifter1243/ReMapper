@@ -6,8 +6,8 @@ import { NumberTuple } from '../../types/util/tuple.ts'
 import { KeyframeInfo, OptimizeFunction } from '../../types/animation/keyframe/optimizer.ts'
 
 function areArrayElementsIdentical<T>(
-    enumerable1: T[],
-    enumerable2: T[],
+    enumerable1: readonly T[],
+    enumerable2: readonly T[],
 ): boolean {
     if (enumerable1.length !== enumerable2.length) {
         return false
@@ -30,8 +30,8 @@ function areArrayElementsIdentical<T>(
 // threshold is the minimum difference for contrast
 // e.g 0.2 threshold means difference must be 0.2 or greater
 function areFloatsSimilar(
-    enumerable1: number[],
-    enumerable2: number[],
+    enumerable1: readonly number[],
+    enumerable2: readonly number[],
     threshold: number,
 ) {
     if (enumerable1.length !== enumerable2.length) {
@@ -390,7 +390,7 @@ export class OptimizeSettings {
 
 function getKeyframeInfo(keyframe: InnerKeyframeBoundless) {
     const timeIndex = getKeyframeTimeIndex(keyframe)
-    const values = keyframe.splice(0, timeIndex) as number[]
+    const values = keyframe.slice(0, timeIndex) as number[]
     const time = keyframe[timeIndex] as number
     const hasFlags = keyframe.length > timeIndex + 1
     return {
@@ -502,15 +502,17 @@ function optimizeKeyframesInternal(
 export function optimizeKeyframes<T extends NumberTuple>(
     animation: RawKeyframesAbstract<T>,
     settings: OptimizeSettings,
-): RawKeyframesAbstract<T> {
+): RawKeyframesAbstract<T> {    
     const keyframes = complexifyKeyframes<T>(animation)
+
+    if (keyframes.length === 1) {
+        return animation
+    }
 
     // not enough points to optimize
     if (keyframes.length <= 2) {
-        return simplifyKeyframes(keyframes)
+        return keyframes
     }
 
-    return simplifyKeyframes<T>(
-        optimizeKeyframesInternal(keyframes, settings) as RawKeyframesAbstract<T>,
-    )
+    return simplifyKeyframes<T>(optimizeKeyframesInternal(keyframes, settings) as RawKeyframesAbstract<T>)
 }

@@ -8,13 +8,12 @@ import {ObjectInput} from "./input.ts";
 export type StaticOptions = {
     /** The input of objects. Can be an array of objects or a path to a model. */
     input: ObjectInput
-    /** Function to run on objects when they're being cached. Only works for path input. */
+    /** Function to run on model objects when they're being cached. Only works for path input. */
     onCache?: (objs: ModelObject[]) => void
-    /** Function to run on objects about to be processed.
-     Be careful when mutating these, as cached objects are stored across script executions. */
+    /** Function to run on model objects that are about to be instantiated. */
     objects?: (arr: ReadonlyModel) => void
-    /** Recache the objects when information in this array changes. Only works for path input. */
-    processing?: unknown
+    /** Recache the model when this data changes. */
+    hash?: unknown
     /** Transform the objects. */
     transform?: Transform & {
         anchor?: Vec3

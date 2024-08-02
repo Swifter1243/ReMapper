@@ -15,13 +15,16 @@ export const modelScene = {
      * @param input An animated model.
      * @param duration The duration of the animation.
      * @param start When to start the animation. Defaults to beat 0.
+     * @param getSwitch Get the SceneSwitch information being used to construct the AnimatedModelScene.
      */
-    singleAnimated: (input: AnimatedObjectInput, duration: number, start = 0) => {
-        return new AnimatedModelScene([{
+    singleAnimated: (input: AnimatedObjectInput, duration: number, start = 0, getSwitch?: (sceneSwitch: SceneSwitch) => void) => {
+        const sceneSwitch: SceneSwitch = {
             beat: start,
             animationDuration: duration,
-            model: input
-        }])
+            model: input,
+        }
+        if (getSwitch) getSwitch(sceneSwitch)
+        return new AnimatedModelScene([sceneSwitch])
     },
     /**
      * Creates an animated environment/geometry scene from model objects, switches scenes at different times.

@@ -1,10 +1,10 @@
 import {InnerKeyframeBoundless} from './boundless.ts'
 
 export type KeyframeInfo = {
-    values: number[]
-    time: number
-    hasFlags: boolean
-    original: InnerKeyframeBoundless
+    readonly values: ReadonlyArray<number>
+    readonly time: number
+    readonly hasFlags: boolean
+    readonly original: InnerKeyframeBoundless
 }
 
 // pointC is undefined if array is size 2
