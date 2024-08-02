@@ -7,7 +7,7 @@ import { geometry } from '../../builder_functions/beatmap/object/environment/geo
 import {Vec3} from "../../types/math/vector.ts";
 import {ModelObject} from "../../types/model/object.ts";
 import {GroupObjectTypes} from "../../types/model/model_scene/group.ts";
-import { staticModelScene } from '../../builder_functions/model/model_scene.ts'
+import {modelScene} from "../../builder_functions/model/model_scene.ts";
 
 /**
  * Debug the transformations necessary to fit an object to a cube.
@@ -98,9 +98,10 @@ export async function debugObject(
         [[0, 0, -resolution / 2 - axisDist], [1, 1, resolution]],
     ])
 
-    const scene = staticModelScene(input, scale, anchor, rotation)
-    scene.addPrimaryGroups('debugCubeX', geometry('Cube', 'debugCubeX'))
-    scene.addPrimaryGroups('debugCubeY', geometry('Cube', 'debugCubeY'))
-    scene.addPrimaryGroups('debugCubeZ', geometry('Cube', 'debugCubeZ'))
-    await scene.run(modelData)
+    const scene = modelScene.static(modelData)
+    scene.setDefaultGroup(input, scale, anchor, rotation)
+    scene.addObjectGroup('debugCubeX', geometry('Cube', 'debugCubeX'))
+    scene.addObjectGroup('debugCubeY', geometry('Cube', 'debugCubeY'))
+    scene.addObjectGroup('debugCubeZ', geometry('Cube', 'debugCubeZ'))
+    await scene.instantiate()
 }

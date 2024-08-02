@@ -24,53 +24,53 @@ import { DeepReadonly } from '../../../types/util/mutability.ts'
 export abstract class ModelScene<I, O> {
     protected static modelSceneCount = 0
 
-    /** All the "groups" stored in this model.
-     * When the model properties is passed, if any model objects have a track that match the name of this group, an animation event will be placed for them.
+    /**
+     * Every ModelObject in the model has a "group" key. This collection matches ModelObjects with a given "group" to their in-game representation.
      */
     groups = <Record<string, ModelGroup>> {}
+
     /** Settings for the optimizer on each animation event.
      * The animations will attempt to be optimized, removing visually redundant points.
      * This controls various parameters about how harshly the algorithm will target changes.
      */
     animationSettings = new AnimationSettings()
+
     /** The unique ID of this model scene, used for tracks.
      * If multiple model scenes are used, this ID is used so the track names don't conflict.
      */
-    ID: number
+    readonly ID: number
+
     /** The info outputted from instantiating object properties from `static` or `animate`, for each group.
      * @see this.groups
      */
     sceneObjectInfo = <Record<string, SceneObjectInfo>> {}
+
     /** If the scene is instantiated with `animate` and the first switch is not at a time of 0, `initializePositions` determines whether the first switch will be initialized at beat 0 and held in place until it is animated. */
     initializeObjects = true
+
     /** Whether this scene has been instantiated. */
     private instantiated = false
 
-    /**
-     * Handler for representing object properties as part of the environment.
-     * @param object Object to spawn on model objects with no track.
-     * @param scale The scale multiplier for the spawned object previously mentioned.
-     * @param anchor The anchor offset for the spawned object previously mentioned.
-     * @param rotation The rotation offset for the spawned object previously mentioned.
-     */
-    constructor(
-        object?: GroupObjectTypes,
-        scale?: Vec3,
-        anchor?: Vec3,
-        rotation?: Vec3,
-    ) {
-        if (object) this.pushGroup(undefined, object, scale, anchor, rotation)
+    protected readonly modelInput: I
+
+    constructor(input: I) {
+        this.modelInput = input
         this.ID = ModelScene.modelSceneCount
         ModelScene.modelSceneCount++
     }
 
     /** Instantiate the model scene given object inputs. Your difficulty will await this process before saving. */
-    async run(input: I) {
+    async instantiate() {
         this.ensureNotInstantiated()
-        return await getActiveDifficulty().runAsync(async () => await this._run(input))
+
+        if (Object.values(this.groups).length === 0) {
+            throw 'ModelScene has no groups, which is redundant as no objects will be represented.'
+        }
+
+        return await getActiveDifficulty().runAsync(async () => await this._instantiate())
     }
 
-    protected abstract _run(input: I): Promise<O>
+    protected abstract _instantiate(): Promise<O>
 
     protected static createYeetDef() {
         getActiveDifficulty().pointDefinitions.yeet = [0, -69420, 0]
@@ -104,46 +104,57 @@ export abstract class ModelScene<I, O> {
     }
 
     /**
-     * Assign a track in input ModelObjects to spawn and pool new objects.
-     * @param track Track to check for.
-     * @param object Object to spawn.
+     * When the model is instantiated, model objects with no "group" key will invoke this object to represent it
+     * @param object The object to spawn.
      * @param scale The scale multiplier for the spawned object previously mentioned.
      * @param anchor The anchor offset for the spawned object previously mentioned.
      * @param rotation The rotation offset for the spawned object previously mentioned.
+     * @see groups
      */
-    addPrimaryGroups(
-        track: string | string[],
+    setDefaultGroup(
         object: GroupObjectTypes,
         scale?: Vec3,
         anchor?: Vec3,
         rotation?: Vec3,
     ) {
-        const tracks = typeof track === 'object' ? track : [track]
-        tracks.forEach((t) => {
-            this.pushGroup(t, object, scale, anchor, rotation)
-        })
+        this.pushGroup(undefined, object, scale, anchor, rotation)
     }
 
     /**
-     * Assign a track in input ModelObjects to animate an existing object with identical track name.
-     * @param track Track to check for and animate.
+     * When the model is instantiated, model objects with the matching "group" key will invoke this object to represent it
+     * @param group The group key for objects to identify they are part of this group.
+     * @param object The object to spawn.
      * @param scale The scale multiplier for the spawned object previously mentioned.
      * @param anchor The anchor offset for the spawned object previously mentioned.
      * @param rotation The rotation offset for the spawned object previously mentioned.
+     */
+    addObjectGroup(
+        group: string,
+        object: GroupObjectTypes,
+        scale?: Vec3,
+        anchor?: Vec3,
+        rotation?: Vec3,
+    ) {
+        this.pushGroup(group, object, scale, anchor, rotation)
+    }
+
+    /**
+     * When the model is instantiated, model objects with a "group" key matching this track will invoke an AnimateTrack event with the same track name to represent it.
+     * @param track Track to target for and animate, also the group key.
+     * @param scale The scale multiplier for the object previously mentioned.
+     * @param anchor The anchor offset for the object previously mentioned.
+     * @param rotation The rotation offset for the object previously mentioned.
      * @param disappearWhenAbsent Make the object on this track disappear when no ModelObject with the corresponding track exists.
      */
-    assignObjects(
-        track: string | string[],
+    addTrackGroup(
+        track: string,
         scale?: Vec3,
         anchor?: Vec3,
         rotation?: Vec3,
         disappearWhenAbsent = true,
     ) {
-        const tracks = typeof track === 'object' ? track : [track]
-        tracks.forEach((t) => {
-            this.pushGroup(t, undefined, scale, anchor, rotation, (x) => {
-                x.disappearWhenAbsent = disappearWhenAbsent
-            })
+        this.pushGroup(track, undefined, scale, anchor, rotation, (x) => {
+            x.disappearWhenAbsent = disappearWhenAbsent
         })
     }
 

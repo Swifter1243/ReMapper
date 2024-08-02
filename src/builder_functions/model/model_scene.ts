@@ -1,36 +1,31 @@
-import { GroupObjectTypes } from '../../types/model/model_scene/group.ts'
-import { Vec3 } from '../../types/math/vector.ts'
 import { StaticModelScene } from '../../utils/model/model_scene/static.ts'
 import {AnimatedModelScene} from "../../utils/model/model_scene/animated.ts";
+import { StaticObjectInput } from '../../types/model/model_scene/input.ts'
+import { SceneSwitch } from '../../types/model/model_scene/scene_switch.ts'
+import { AnimatedObjectInput } from '../../types/model/model_scene/input.ts'
 
-/**
- * Creates a static environment/geometry scene from model objects
- * @param object Object to spawn on model objects with no track.
- * @param scale The scale multiplier for the spawned object previously mentioned.
- * @param anchor The anchor offset for the spawned object previously mentioned.
- * @param rotation The rotation offset for the spawned object previously mentioned.
- */
-export function staticModelScene(
-    object?: GroupObjectTypes,
-    scale?: Vec3,
-    anchor?: Vec3,
-    rotation?: Vec3,
-) {
-    return new StaticModelScene(object, scale, anchor, rotation)
-}
-
-/**
- * Creates an animated environment/geometry scene from model objects
- * @param object Object to spawn on model objects with no track.
- * @param scale The scale multiplier for the spawned object previously mentioned.
- * @param anchor The anchor offset for the spawned object previously mentioned.
- * @param rotation The rotation offset for the spawned object previously mentioned.
- */
-export function animatedModelScene(
-    object?: GroupObjectTypes,
-    scale?: Vec3,
-    anchor?: Vec3,
-    rotation?: Vec3,
-) {
-    return new AnimatedModelScene(object, scale, anchor, rotation)
+export const modelScene = {
+    /**
+     * Creates a static environment/geometry scene from model objects
+     * @param input A static model.
+     */
+    static: (input: StaticObjectInput) => new StaticModelScene(input),
+    /**
+     * Creates an animated environment/geometry scene from model objects
+     * @param input An animated model.
+     * @param duration The duration of the animation.
+     * @param start When to start the animation. Defaults to beat 0.
+     */
+    singleAnimated: (input: AnimatedObjectInput, duration: number, start = 0) => {
+        return new AnimatedModelScene([{
+            beat: start,
+            animationDuration: duration,
+            model: input
+        }])
+    },
+    /**
+     * Creates an animated environment/geometry scene from model objects, switches scenes at different times.
+     * @param switches A collection of models at different times.
+     */
+    multipleAnimated: (switches: SceneSwitch[]) => new AnimatedModelScene(switches)
 }

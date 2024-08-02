@@ -8,7 +8,7 @@ import { animateTrack } from '../../../builder_functions/beatmap/object/custom_e
 import { RuntimeRawKeyframesVec3 } from '../../../types/animation/keyframe/runtime/vec3.ts'
 
 export class StaticModelScene extends ModelScene<StaticObjectInput, void> {
-    protected async _run(input: StaticObjectInput) {
+    protected async _instantiate() {
         // Initialize info
         Object.keys(this.groups).forEach((x) => {
             this.sceneObjectInfo[x] = {
@@ -19,7 +19,7 @@ export class StaticModelScene extends ModelScene<StaticObjectInput, void> {
             }
         })
 
-        const data = await this.getObjects(input)
+        const data = await this.getObjects(this.modelInput)
         data.forEach((x) => {
             // Getting info about group
             const groupKey = x.group as string

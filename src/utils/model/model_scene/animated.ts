@@ -22,9 +22,10 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], void> {
         }
     }
 
-    protected async _run(switches: SceneSwitch[]) {
+    protected async _instantiate() {
         ModelScene.createYeetDef()
-        switches.sort((a, b) => a.beat - b.beat)
+
+        this.modelInput.sort((a, b) => a.beat - b.beat)
 
         // Initialize info
         const animatedMaterials: string[] = []
@@ -38,9 +39,9 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], void> {
         })
 
         // Object animation
-        const promises = switches.map(async (s, switchIndex) =>
+        const promises = this.modelInput.map(async (sceneSwitch, switchIndex) =>
             await this.processSwitch(
-                s,
+                sceneSwitch,
                 switchIndex,
                 animatedMaterials,
             )
