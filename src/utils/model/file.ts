@@ -1,5 +1,3 @@
-// deno-lint-ignore-file no-explicit-any
-
 import {parseFilePath} from "../file.ts";
 import {attachWorkingDirectory} from "../../data/working_directory.ts";
 
@@ -13,19 +11,19 @@ import {cacheData} from "../rm_cache/write.ts";
  * @param filePath Path to the .rmmodel.
  * @param name Name to cache the properties as. Defaults to file name.
  * @param process Function to run for each object on the cached properties.
- * @param processing Parameters that will re-process the properties if changed.
+ * @param hashedObjects Parameters that will re-process the properties if changed.
  */
 export async function getModel(
     filePath: FILEPATH,
     name?: string,
     process?: (objects: ModelObject[]) => void,
-    processing?: any[],
+    hashedObjects?: unknown[],
 ) {
     const parsedPath = await parseFilePath(filePath, '.rmmodel')
     const inputPath = attachWorkingDirectory(parsedPath.path)
     const mTime = await Deno.stat(inputPath).then((x) => x.mtime?.toString())
-    processing ??= []
-    processing.push.apply(processing, [mTime, process?.toString()])
+    hashedObjects ??= []
+    hashedObjects.push.apply(hashedObjects, [mTime, process?.toString()])
 
     name ??= parsedPath.name
 
@@ -58,6 +56,6 @@ export async function getModel(
 
         if (process) process(objects)
         return objects as ReadonlyModel
-    }, processing)
+    }, hashedObjects)
 }
 

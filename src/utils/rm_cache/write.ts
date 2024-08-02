@@ -2,19 +2,19 @@ import { RMLog } from '../rm_log.ts'
 import { getActiveCache } from '../../data/active_cache.ts'
 
 /**
- * Store properties in the ReMapper cache.
- * Retrieves the same properties unless specified parameters are changed.
- * @param name Name of the properties.
- * @param process Function to generate new properties if the parameters are changed.
- * @param processing Parameters to compare to see if properties should be re-cached.
+ * Store data in the ReMapper cache.
+ * Retrieves the same data unless the hash/hashed objects have changed.
+ * @param name Name of the data.
+ * @param process Generates the data to cache, given the hash changes.
+ * @param hashedObjects Objects that will be turned into JSON and compared to any existing hashes in the cache. If they don't match, `process` will be run to recache the data.
  */
 export async function cacheData<T>(
     name: string,
     process: () => Promise<T>,
-    processing: unknown[] = [],
+    hashedObjects: unknown[] = [],
 ): Promise<T> {
     let outputData: unknown
-    const processingJSON = JSON.stringify(processing).replaceAll('"', '')
+    const hash = JSON.stringify(hashedObjects).replaceAll('"', '')
 
     async function getData() {
         outputData = await process()
@@ -26,15 +26,15 @@ export async function cacheData<T>(
 
     const cachedData = rmCache.cachedData[name]
     if (cachedData !== undefined) {
-        if (processingJSON !== cachedData.processing) {
-            cachedData.processing = processingJSON
+        if (hash !== cachedData.hash) {
+            cachedData.hash = hash
             cachedData.data = await getData()
         } else {
             outputData = cachedData.data
         }
     } else {
         rmCache.cachedData[name] = {
-            processing: processingJSON,
+            hash,
             data: await getData(),
         }
     }

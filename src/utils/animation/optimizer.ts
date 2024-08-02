@@ -1,8 +1,9 @@
-import {getKeyframeEasing, getKeyframeSpline, getKeyframeTime, getKeyframeValues} from "./keyframe/get.ts";
-import {complexifyKeyframes, simplifyKeyframes} from "./keyframe/complexity.ts";
-import {RawKeyframesAbstract} from "../../types/animation/keyframe/abstract.ts";
-import {ComplexKeyframesBoundless, InnerKeyframeBoundless} from "../../types/animation/keyframe/boundless.ts";
-import {NumberTuple} from "../../types/util/tuple.ts";
+import { getKeyframeTimeIndex } from './keyframe/get.ts'
+import { complexifyKeyframes, simplifyKeyframes } from './keyframe/complexity.ts'
+import { RawKeyframesAbstract } from '../../types/animation/keyframe/abstract.ts'
+import { ComplexKeyframesBoundless, InnerKeyframeBoundless } from '../../types/animation/keyframe/boundless.ts'
+import { NumberTuple } from '../../types/util/tuple.ts'
+import { KeyframeInfo, OptimizeFunction } from '../../types/animation/keyframe/optimizer.ts'
 
 function areArrayElementsIdentical<T>(
     enumerable1: T[],
@@ -52,39 +53,22 @@ function areFloatsSimilar(
 }
 
 function arePointSimilar(
-    a: InnerKeyframeBoundless,
-    b: InnerKeyframeBoundless,
+    a: KeyframeInfo,
+    b: KeyframeInfo,
     differenceThreshold: number,
     timeDifferenceThreshold: number,
 ) {
-    const aValues = getKeyframeValues(a)
-    const bValues = getKeyframeValues(b)
-    const aTime = getKeyframeTime(a)
-    const bTime = getKeyframeTime(b)
-
     // Both points are identical
-    return areFloatsSimilar(aValues, bValues, differenceThreshold) &&
+    return areFloatsSimilar(a.values, b.values, differenceThreshold) &&
         // time difference is small
         // points are not similar if the delta of a.time and b.time are GREATER than timeDifferenceThreshold
-        Math.abs(aTime - bTime) <= timeDifferenceThreshold
+        Math.abs(a.time - b.time) <= timeDifferenceThreshold
 }
 
-/// <summary>
-///
-/// </summary>
-/// <param name="startPoint"></param>
-/// <param name="middlePoint"></param>
-/// <param name="endPoint"></param>
-/// <param name="middleSlope"></param>
-/// <param name="endSlope"></param>
-/// <param name="middleYIntercepts"></param>
-/// <param name="endYIntercepts"></param>
-/// <param name="skip"></param>
-/// <returns>true if similar</returns>
 function ComparePointsSlope(
-    startPoint: InnerKeyframeBoundless,
-    middlePoint: InnerKeyframeBoundless,
-    endPoint: InnerKeyframeBoundless,
+    startPoint: KeyframeInfo,
+    middlePoint: KeyframeInfo,
+    endPoint: KeyframeInfo,
     // pass in array to reuse and avoid allocations
     middleSlope: number[],
     endSlope: number[],
@@ -94,16 +78,12 @@ function ComparePointsSlope(
     differenceThreshold: number,
     yInterceptDifferenceThreshold: number,
 ): { similar: boolean; skip: boolean } {
-    const startPointTime = getKeyframeTime(startPoint)
-    const middlePointTime = getKeyframeTime(startPoint)
-    const endPointTime = getKeyframeTime(startPoint)
-
     // skip these points because time difference is too small
     if (
-        Math.abs(startPointTime - endPointTime) <= timeDifferenceThreshold ||
-        Math.abs(startPointTime - middlePointTime) <=
+        Math.abs(startPoint.time - endPoint.time) <= timeDifferenceThreshold ||
+        Math.abs(startPoint.time - middlePoint.time) <=
             timeDifferenceThreshold ||
-        Math.abs(middlePointTime - endPointTime) <= timeDifferenceThreshold
+        Math.abs(middlePoint.time - endPoint.time) <= timeDifferenceThreshold
     ) {
         return { skip: true, similar: false }
     }
@@ -118,22 +98,13 @@ function ComparePointsSlope(
     // 	return false;
     // }
 
-    // Skip points where their easing or smoothness is different,
-    // which would allow for middlePoint to cause a non-negligible difference
-    if (
-        getKeyframeEasing(endPoint) != getKeyframeEasing(middlePoint) ||
-        getKeyframeSpline(endPoint) != getKeyframeSpline(middlePoint)
-    ) {
-        return { skip: true, similar: false }
-    }
-
     // Skip points that are identical with large time differences
     // used for keyframe pause
     if (
-        Math.abs(endPointTime - middlePointTime) > differenceThreshold &&
+        Math.abs(endPoint.time - middlePoint.time) > differenceThreshold &&
         areFloatsSimilar(
-            getKeyframeValues(endPoint),
-            getKeyframeValues(middlePoint),
+            endPoint.values,
+            middlePoint.values,
             differenceThreshold,
         )
     ) {
@@ -176,37 +147,29 @@ function ComparePointsSlope(
 }
 
 function GetYIntercept(
-    pointData: InnerKeyframeBoundless,
+    pointData: KeyframeInfo,
     slopeArray: number[],
     yIntercepts: number[],
 ) {
-    const pointValues = getKeyframeValues(pointData)
-    const pointTime = getKeyframeTime(pointData)
-
     for (let i = 0; i < slopeArray.length; i++) {
         const slope = slopeArray[i]
-        const x = pointValues[i]
+        const x = pointData.values[i]
         //y = mx + b
         // solve for y
         // b = y - mx
-        yIntercepts[i] = pointTime - (slope * x)
+        yIntercepts[i] = pointData.time - (slope * x)
     }
 }
 
 function SlopeOfPoint(
-    a: InnerKeyframeBoundless,
-    b: InnerKeyframeBoundless,
+    a: KeyframeInfo,
+    b: KeyframeInfo,
     slopes: number[],
 ) {
-    const aValues = getKeyframeValues(a)
-    const bValues = getKeyframeValues(b)
-    const aTime = getKeyframeTime(a)
-    const bTime = getKeyframeTime(b)
+    const yDiff = b.time - a.time
 
-    const yDiff = bTime - aTime
-
-    for (let i = 0; i < bValues.length; i++) {
-        const xDiff = bValues[i] - aValues[i]
+    for (let i = 0; i < b.values.length; i++) {
+        const xDiff = b.values[i] - a.values[i]
         if (xDiff === 0 || yDiff === 0) {
             slopes[i] = 0
         } else {
@@ -215,39 +178,22 @@ function SlopeOfPoint(
     }
 }
 
-// pointC is undefined if array is size 2
-// return true to remove point
-/**
- * Function for an Optimizer.
- */
-export type OptimizeFunction = (
-    pointA: InnerKeyframeBoundless,
-    pointB: InnerKeyframeBoundless,
-    pointC: InnerKeyframeBoundless | undefined,
-) => InnerKeyframeBoundless | undefined
-
 // https://github.com/ErisApps/OhHeck/blob/ae8d02bf6bf2ec8545c2a07546c6844185b97f1c/OhHeck.Core/Analyzer/Lints/Animation/DuplicatePointData.cs
 function optimizeDuplicates(
-    pointA: InnerKeyframeBoundless,
-    pointB: InnerKeyframeBoundless,
-    pointC: InnerKeyframeBoundless | undefined,
-): InnerKeyframeBoundless | undefined {
-    const aValues = getKeyframeValues(pointA)
-    const bValues = getKeyframeValues(pointB)
-
+    pointA: KeyframeInfo,
+    pointB: KeyframeInfo,
+    pointC: KeyframeInfo | undefined,
+): KeyframeInfo | undefined {
     if (pointC === undefined) {
         // array is size 2
-        return areArrayElementsIdentical(aValues, bValues) ? pointA : undefined
+        return areArrayElementsIdentical(pointA.values, pointB.values) ? pointA : undefined
     }
-
-    const cValues = getKeyframeValues(pointC)
 
     // [[0,2, 0.2], [0, 2, 0.5], [0, 2, 1]]
     // removes the middle point
     // ignores time
-    const middlePointUnnecessary =
-        areArrayElementsIdentical(aValues, bValues) &&
-        areArrayElementsIdentical(bValues, cValues)
+    const middlePointUnnecessary = areArrayElementsIdentical(pointA.values, pointB.values) &&
+        areArrayElementsIdentical(pointB.values, pointC.values)
 
     return middlePointUnnecessary ? pointB : undefined
 }
@@ -255,30 +201,17 @@ function optimizeDuplicates(
 // TODO: Configure threshold
 // https://github.com/ErisApps/OhHeck/blob/ae8d02bf6bf2ec8545c2a07546c6844185b97f1c/OhHeck.Core/Analyzer/Lints/Animation/SimilarPointData.cs
 function optimizeSimilarPoints(
-    pointA: InnerKeyframeBoundless,
-    pointB: InnerKeyframeBoundless,
-    pointC: InnerKeyframeBoundless | undefined,
+    pointA: KeyframeInfo,
+    pointB: KeyframeInfo,
+    pointC: KeyframeInfo | undefined,
     settings: OptimizeSimilarPointsSettings,
-): InnerKeyframeBoundless | undefined {
+): KeyframeInfo | undefined {
     // The minimum difference for considering not similar
     const differenceThreshold = settings.differenceThreshold
     const timeDifferenceThreshold = settings.timeDifferenceThreshold
 
-    const aEasing = getKeyframeEasing(pointA)
-    const aSpline = getKeyframeSpline(pointA)
-    const bEasing = getKeyframeEasing(pointB)
-    const bSpline = getKeyframeSpline(pointB)
-    const cEasing = getKeyframeEasing(pointC ?? [0])
-    const cSpline = getKeyframeSpline(pointC ?? [0])
-
-    // ignore points who have different easing or smoothness since those can
-    // be considered not similar even with small time differences
-    if (
-        aEasing !== bEasing || aSpline !== bSpline ||
-        (pointC !== undefined &&
-            (bSpline !== cSpline ||
-                bEasing !== cEasing))
-    ) {
+    // ignore points who have flags (easings/splines)
+    if (pointA.hasFlags || pointB.hasFlags || pointC?.hasFlags) {
         return undefined
     }
 
@@ -318,29 +251,18 @@ function optimizeSimilarPoints(
 // TODO: Configure threshold
 // https://github.com/ErisApps/OhHeck/blob/ae8d02bf6bf2ec8545c2a07546c6844185b97f1c/OhHeck.Core/Analyzer/Lints/Animation/SimilarPointDataSlope.cs
 function optimizeSimilarPointsSlope(
-    pointA: InnerKeyframeBoundless,
-    pointB: InnerKeyframeBoundless,
-    pointC: InnerKeyframeBoundless | undefined,
+    pointA: KeyframeInfo,
+    pointB: KeyframeInfo,
+    pointC: KeyframeInfo | undefined,
     settings: OptimizeSimilarPointsSlopeSettings,
-): InnerKeyframeBoundless | undefined {
+): KeyframeInfo | undefined {
     if (pointC === undefined) {
         // array is size 2
         return undefined
     }
 
-    const aEasing = getKeyframeEasing(pointA)
-    const aSpline = getKeyframeSpline(pointA)
-    const bEasing = getKeyframeEasing(pointB)
-    const bSpline = getKeyframeSpline(pointB)
-    const cEasing = getKeyframeEasing(pointC)
-    const cSpline = getKeyframeSpline(pointC)
-
-    // ignore points who have different easing or smoothness since those can
-    // be considered not similar even with small time differences
-    if (
-        aEasing !== bEasing || aSpline !== bSpline ||
-        bSpline !== cSpline || bEasing !== cEasing
-    ) {
+    // ignore points who have flags (easings/splines)
+    if (pointA.hasFlags || pointB.hasFlags || pointC?.hasFlags) {
         return undefined
     }
 
@@ -447,11 +369,9 @@ export class OptimizeSettings {
     /** Whether to remove points with the same properties. */
     optimizeDuplicates = true
     /** Remove points that are similar within a given threshold. */
-    optimizeSimilarPoints: OptimizeSimilarPointsSettings =
-        new OptimizeSimilarPointsSettings()
+    optimizeSimilarPoints: OptimizeSimilarPointsSettings = new OptimizeSimilarPointsSettings()
     /** Remove points that don't change the curve/slope of the animation. */
-    optimizeSimilarPointsSlope: OptimizeSimilarPointsSlopeSettings =
-        new OptimizeSimilarPointsSlopeSettings()
+    optimizeSimilarPointsSlope: OptimizeSimilarPointsSlopeSettings = new OptimizeSimilarPointsSlopeSettings()
     /** Any additional optimization functions to run. */
     additionalOptimizers: OptimizeFunction[] = []
 
@@ -468,17 +388,30 @@ export class OptimizeSettings {
     }
 }
 
+function getKeyframeInfo(keyframe: InnerKeyframeBoundless) {
+    const timeIndex = getKeyframeTimeIndex(keyframe)
+    const values = keyframe.splice(0, timeIndex) as number[]
+    const time = keyframe[timeIndex] as number
+    const hasFlags = keyframe.length > timeIndex + 1
+    return {
+        values,
+        time,
+        hasFlags,
+        original: keyframe,
+    } satisfies KeyframeInfo
+}
+
 function optimizeKeyframesInternal(
     keyframes: ComplexKeyframesBoundless,
     optimizeSettings: OptimizeSettings,
 ): ComplexKeyframesBoundless {
     if (optimizeSettings.disabled) return keyframes
 
-    const sortedKeyframes = keyframes.sort((a, b) =>
-        getKeyframeTime(a) - getKeyframeTime(b)
-    )
+    const sortedKeyframes = keyframes
+        .map((x) => getKeyframeInfo(x))
+        .sort((a, b) => a.time - b.time)
 
-    const optimizers: OptimizeFunction[] = optimizeSettings.additionalOptimizers
+    const optimizers: OptimizeFunction[] = [...optimizeSettings.additionalOptimizers]
 
     if (optimizeSettings.optimizeDuplicates) optimizers.push(optimizeDuplicates)
     if (optimizeSettings.optimizeSimilarPoints.active) {
@@ -511,7 +444,7 @@ function optimizeKeyframesInternal(
     let optimizedKeyframes = [...sortedKeyframes]
 
     for (let pass = 0; pass < optimizeSettings.passes; pass++) {
-        const toRemove: (InnerKeyframeBoundless | undefined)[] = []
+        const toRemove: (KeyframeInfo | undefined)[] = []
 
         if (optimizedKeyframes.length === 2) {
             toRemove.push(
@@ -531,14 +464,12 @@ function optimizeKeyframesInternal(
             const pointC = optimizedKeyframes[i + 1]
 
             toRemove.push(
-                ...optimizers.map((optimizerFn) =>
-                    optimizerFn(pointA, pointB, pointC)
-                ),
+                ...optimizers.map((optimizerFn) => optimizerFn(pointA, pointB, pointC)),
             )
         }
 
         // get unique redundant points and none undefined
-        const toRemoveUnique: InnerKeyframeBoundless[] = []
+        const toRemoveUnique: KeyframeInfo[] = []
         toRemove.forEach((e) => {
             // only add items that are not undefined and not in the array already
             if (
@@ -550,20 +481,16 @@ function optimizeKeyframesInternal(
         })
 
         // probably slow but JS is weird for removing items at specific indexes, oh well
-        optimizedKeyframes = sortedKeyframes.filter((p) =>
-            !toRemoveUnique.some((otherP) => p === otherP)
-        )
+        optimizedKeyframes = sortedKeyframes.filter((p) => !toRemoveUnique.some((otherP) => p === otherP))
     }
 
     if (optimizeSettings.performanceLog) {
         console.log(
-            `Optimized to ${optimizedKeyframes.length} (${
-                optimizedKeyframes.length / keyframes.length * 100
-            }%) points`,
+            `Optimized to ${optimizedKeyframes.length} (${optimizedKeyframes.length / keyframes.length * 100}%) points`,
         )
     }
 
-    return optimizedKeyframes
+    return optimizedKeyframes.map((x) => x.original)
 }
 
 /**

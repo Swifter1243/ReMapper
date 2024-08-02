@@ -1,6 +1,6 @@
 /** Cached properties saved in the ReMapper cache. */
 export type CachedData = {
-    processing: string
+    hash: string
     data: unknown
     accessed?: boolean
 }
