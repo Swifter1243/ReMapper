@@ -43,6 +43,7 @@ export class StaticModelScene extends ModelScene<StaticObjectInput, StaticSceneI
             // Getting info about group
             const groupKey = modelObject.group ?? ModelScene.defaultGroupKey
             const group = this.groups[groupKey]
+            if (!group) return
             const track = this.getPieceTrack(group.object, groupKey, index)
 
             // Get transforms
