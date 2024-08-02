@@ -130,7 +130,7 @@ export abstract class ModelScene<I, O> {
      * @param anchor The anchor offset for the spawned object previously mentioned.
      * @param rotation The rotation offset for the spawned object previously mentioned.
      */
-    addObjectGroup(
+    setObjectGroup(
         group: string,
         object: GroupObjectTypes,
         scale?: Vec3,
@@ -148,7 +148,7 @@ export abstract class ModelScene<I, O> {
      * @param rotation The rotation offset for the object previously mentioned.
      * @param disappearWhenAbsent Make the object on this track disappear when no ModelObject with the corresponding track exists.
      */
-    addTrackGroup(
+    setTrackGroup(
         track: string,
         scale?: Vec3,
         anchor?: Vec3,

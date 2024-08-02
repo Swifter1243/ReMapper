@@ -100,8 +100,8 @@ export async function debugObject(
 
     const scene = modelScene.static(modelData)
     scene.setDefaultGroup(input, scale, anchor, rotation)
-    scene.addObjectGroup('debugCubeX', geometry('Cube', 'debugCubeX'))
-    scene.addObjectGroup('debugCubeY', geometry('Cube', 'debugCubeY'))
-    scene.addObjectGroup('debugCubeZ', geometry('Cube', 'debugCubeZ'))
+    scene.setObjectGroup('debugCubeX', geometry('Cube', 'debugCubeX'))
+    scene.setObjectGroup('debugCubeY', geometry('Cube', 'debugCubeY'))
+    scene.setObjectGroup('debugCubeZ', geometry('Cube', 'debugCubeZ'))
     await scene.instantiate()
 }
