@@ -10,4 +10,6 @@ export type SceneSwitch = {
     animationDuration?: number
     /** The offset added to `beat` which defines when the animation in the input objects happen. */
     animationOffset?: number
+    /** Whether to loop the animation, and how many times to loop. */
+    loop?: number
 }

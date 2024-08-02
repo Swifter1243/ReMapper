@@ -28,8 +28,6 @@ export type AnimatedOptions = StaticOptions & {
     bake?: boolean
     /** If this input is animated, use the only first frame. */
     static?: boolean
-    /** Whether to loop the animation. */
-    loop?: number
     /** Whether to mirror the animation. */
     mirror?: boolean
 }

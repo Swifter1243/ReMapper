@@ -229,15 +229,9 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], MultiSceneInfo
             event.animation.scale = modelObject.scale as RuntimeRawKeyframesVec3
 
             // Apply loops if necessary
-            if (
-                typeof sceneSwitch.model === 'object' &&
-                !Array.isArray(sceneSwitch.model) &&
-                (sceneSwitch.model as AnimatedOptions).loop !== undefined &&
-                (sceneSwitch.model as AnimatedOptions).loop! > 1 &&
-                !objectIsStatic
-            ) {
-                event.repeat = (sceneSwitch.model as AnimatedOptions).loop! - 1
-                event.duration! /= (sceneSwitch.model as AnimatedOptions).loop!
+            if (sceneSwitch.loop && sceneSwitch.loop > 1 && !objectIsStatic) {
+                event.repeat = sceneSwitch.loop - 1
+                event.duration! /= sceneSwitch.loop
             }
 
             // Push event
