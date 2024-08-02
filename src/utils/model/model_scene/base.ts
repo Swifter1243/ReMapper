@@ -1,7 +1,6 @@
 import { getActiveDifficulty } from '../../../data/active_difficulty.ts'
 import { GroupObjectTypes, ModelGroup } from '../../../types/model/model_scene/group.ts'
 import { AnimationSettings, optimizeKeyframes } from '../../animation/optimizer.ts'
-import { SceneObjectInfo } from '../../../types/model/model_scene/scene_object_info.ts'
 import { Vec3 } from '../../../types/math/vector.ts'
 import { Environment } from '../../../internals/beatmap/object/environment/environment.ts'
 import { Geometry } from '../../../internals/beatmap/object/environment/geometry.ts'
@@ -23,11 +22,9 @@ import { DeepReadonly } from '../../../types/util/mutability.ts'
 
 export abstract class ModelScene<I, O> {
     protected static modelSceneCount = 0
+    static defaultGroupKey = "default_group"
 
-    /**
-     * Every ModelObject in the model has a "group" key. This collection matches ModelObjects with a given "group" to their in-game representation.
-     */
-    groups = <Record<string, ModelGroup>> {}
+    protected groups = <Record<string, ModelGroup>> {}
 
     /** Settings for the optimizer on each animation event.
      * The animations will attempt to be optimized, removing visually redundant points.
@@ -39,11 +36,6 @@ export abstract class ModelScene<I, O> {
      * If multiple model scenes are used, this ID is used so the track names don't conflict.
      */
     readonly ID: number
-
-    /** The info outputted from instantiating object properties from `static` or `animate`, for each group.
-     * @see this.groups
-     */
-    sceneObjectInfo = <Record<string, SceneObjectInfo>> {}
 
     /** If the scene is instantiated with `animate` and the first switch is not at a time of 0, `initializePositions` determines whether the first switch will be initialized at beat 0 and held in place until it is animated. */
     initializeObjects = true
@@ -76,8 +68,18 @@ export abstract class ModelScene<I, O> {
         getActiveDifficulty().pointDefinitions.yeet = [0, -69420, 0]
     }
 
+    /** Get a group from this ModelScene's internal group collection */
+    getGroup(key: string): DeepReadonly<ModelGroup> {
+        return this.groups[key]
+    }
+
+    /** Get the default group from this ModelScene */
+    getDefaultGroup(): DeepReadonly<ModelGroup> {
+        return this.groups[ModelScene.defaultGroupKey]
+    }
+
     private pushGroup(
-        key: string | undefined,
+        key: string,
         object?: GroupObjectTypes,
         scale?: Vec3,
         anchor?: Vec3,
@@ -117,7 +119,7 @@ export abstract class ModelScene<I, O> {
         anchor?: Vec3,
         rotation?: Vec3,
     ) {
-        this.pushGroup(undefined, object, scale, anchor, rotation)
+        this.pushGroup(ModelScene.defaultGroupKey, object, scale, anchor, rotation)
     }
 
     /**
@@ -171,7 +173,7 @@ export abstract class ModelScene<I, O> {
         this.groups[group as string].defaultMaterial = undefined
     }
 
-    private makeModelObjectStatic(obj: ModelObject) {
+    private static makeModelObjectStatic(obj: ModelObject) {
         const doStatic = (k: RawKeyframesVec3) => typeof k[0] === 'object' ? [k[0][0], k[0][1], k[0][2]] as Vec3 : k as Vec3
 
         obj.position = doStatic(obj.position)
@@ -179,13 +181,7 @@ export abstract class ModelScene<I, O> {
         obj.scale = doStatic(obj.scale)
     }
 
-    protected getPieceTrack = (
-        object: undefined | GroupObjectTypes,
-        track: string,
-        index: number,
-    ) => object ? `modelScene${this.ID}_${track}_${index}` : track
-
-    protected getFirstValues(keyframes: DeepReadonly<RawKeyframesVec3>) {
+    protected static getFirstValues(keyframes: DeepReadonly<RawKeyframesVec3>) {
         const complexTransform = complexifyKeyframes(copy(keyframes))[0]
         return [
             complexTransform[0],
@@ -193,6 +189,12 @@ export abstract class ModelScene<I, O> {
             complexTransform[2],
         ] as Vec3
     }
+
+    protected getPieceTrack = (
+        object: undefined | GroupObjectTypes,
+        track: string,
+        index: number,
+    ) => object ? `modelScene${this.ID}_${track}_${index}` : track
 
     protected ensureNotInstantiated() {
         if (this.instantiated) {
@@ -234,7 +236,7 @@ export abstract class ModelScene<I, O> {
             const o = copy(x) as ModelObject
 
             if (options.static) {
-                this.makeModelObjectStatic(o)
+                ModelScene.makeModelObjectStatic(o)
             }
 
             // Getting relevant object transforms
@@ -353,7 +355,7 @@ export abstract class ModelScene<I, O> {
         if (options.onCache) options.onCache(fileObjects)
         fileObjects.forEach((x) => {
             if (options.static) {
-                this.makeModelObjectStatic(x)
+                ModelScene.makeModelObjectStatic(x)
             }
 
             // Getting relevant object transforms

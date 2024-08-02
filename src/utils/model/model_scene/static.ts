@@ -6,52 +6,58 @@ import { Geometry } from '../../../internals/beatmap/object/environment/geometry
 import { ColorVec } from '../../../types/math/vector.ts'
 import { animateTrack } from '../../../builder_functions/beatmap/object/custom_event/heck.ts'
 import { RuntimeRawKeyframesVec3 } from '../../../types/animation/keyframe/runtime/vec3.ts'
+import { StaticSceneInfo } from '../../../types/model/model_scene/scene info.ts'
 
-export class StaticModelScene extends ModelScene<StaticObjectInput, void> {
-    protected async _instantiate() {
-        // Initialize info
-        Object.keys(this.groups).forEach((x) => {
-            this.sceneObjectInfo[x] = {
-                max: 0,
-                perSwitch: {
-                    0: 0,
-                },
+export class StaticModelScene extends ModelScene<StaticObjectInput, StaticSceneInfo> {
+    private initializeSceneInfo() {
+        const sceneInfo: StaticSceneInfo = {
+            trackGroupInfo: {},
+            objectGroupInfo: {},
+        }
+
+        Object.entries(this.groups).forEach(([key, group]) => {
+            if (group.object) {
+                sceneInfo.objectGroupInfo[key] = {
+                    group,
+                    count: 0,
+                    objects: [],
+                }
+            } else {
+                sceneInfo.trackGroupInfo[key] = {
+                    group,
+                    count: 0,
+                    events: [],
+                }
             }
         })
 
+        return sceneInfo
+    }
+
+    protected async _instantiate() {
+        // Initialize info
+        const sceneInfo = this.initializeSceneInfo()
+
         const data = await this.getObjects(this.modelInput)
-        data.forEach((x) => {
+        data.forEach((modelObject, index) => {
             // Getting info about group
-            const groupKey = x.group as string
+            const groupKey = modelObject.group ?? ModelScene.defaultGroupKey
             const group = this.groups[groupKey]
-
-            // Registering properties about object amounts
-            const objectInfo = this.sceneObjectInfo[groupKey]
-            if (!objectInfo) return
-            objectInfo.perSwitch[0]++
-            if (objectInfo.perSwitch[0] > objectInfo.max) {
-                objectInfo.max = objectInfo.perSwitch[0]
-            }
-
-            const track = this.getPieceTrack(
-                group.object,
-                groupKey,
-                objectInfo.perSwitch[0] - 1,
-            )
+            const track = this.getPieceTrack(group.object, groupKey, index)
 
             // Get transforms
-            const pos = this.getFirstValues(x.position)
-            const rot = this.getFirstValues(x.rotation)
-            const scale = this.getFirstValues(x.scale)
+            const pos = StaticModelScene.getFirstValues(modelObject.position)
+            const rot = StaticModelScene.getFirstValues(modelObject.rotation)
+            const scale = StaticModelScene.getFirstValues(modelObject.scale)
 
-            // Creating objects
+            // Creating objects/events
             if (group.object) {
                 const object = copy(group.object)
 
-                if (group.defaultMaterial) {
+                if (group.defaultMaterial && object instanceof Geometry) {
                     const materialName = `modelScene${this.ID}_${groupKey}_material`
                     getActiveDifficulty().geometryMaterials[materialName] = group.defaultMaterial
-                    ;(object as Geometry).material = materialName
+                    object.material = materialName
                 }
 
                 if (
@@ -59,43 +65,52 @@ export class StaticModelScene extends ModelScene<StaticObjectInput, void> {
                     !group.defaultMaterial &&
                     typeof object.material !== 'string' &&
                     !object.material.color &&
-                    x.color
-                ) object.material.color = copy(x.color) as ColorVec
+                    modelObject.color
+                ) object.material.color = copy(modelObject.color) as ColorVec
 
                 object.track.value = track
                 object.position = pos
                 object.rotation = rot
                 object.scale = scale
-                // if (forObject) forObject(object) TODO
+
+                const groupInfo = sceneInfo.objectGroupInfo[groupKey]
+                groupInfo.count++
+                groupInfo.group = group
+                groupInfo.objects.push(object)
+
                 object.push(false)
-            } // Creating event for assigned
+            }
             else {
                 const event = animateTrack(0, track)
-                event.animation.position = x
-                    .position as RuntimeRawKeyframesVec3
-                event.animation.rotation = x
-                    .rotation as RuntimeRawKeyframesVec3
-                event.animation.scale = x.scale as RuntimeRawKeyframesVec3
-                // if (forAssigned) forAssigned(event) TODO
-                getActiveDifficulty().customEvents.animateTrackEvents.push(
-                    event,
-                )
+                event.animation.position = modelObject.position as RuntimeRawKeyframesVec3
+                event.animation.rotation = modelObject.rotation as RuntimeRawKeyframesVec3
+                event.animation.scale = modelObject.scale as RuntimeRawKeyframesVec3
+
+                const groupInfo = sceneInfo.trackGroupInfo[groupKey]
+                groupInfo.count++
+                groupInfo.group = group
+                groupInfo.events.push(event)
+
+                getActiveDifficulty().customEvents.animateTrackEvents.push(event)
             }
         })
 
-        Object.keys(this.groups).forEach((x) => {
-            const objectInfo = this.sceneObjectInfo[x]
-            const group = this.groups[x]
+        // Hide track groups if they aren't present
+        Object.entries(this.groups).forEach(([groupKey, group]) => {
+            if (group.object) return
 
-            if (
-                objectInfo.max === 0 && !group.object &&
-                group.disappearWhenAbsent
-            ) {
+            const groupInfo = sceneInfo.trackGroupInfo[groupKey]
+            if (groupInfo.count === 0 && group.disappearWhenAbsent) {
                 ModelScene.createYeetDef()
-                const event = animateTrack(0, x)
-                event.animation.position = 'yeet'
-                event.push(false)
+                animateTrack({
+                    track: groupKey,
+                    animation: {
+                        position: 'yeet'
+                    }
+                }).push(false)
             }
         })
+
+        return sceneInfo
     }
 }

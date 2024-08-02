@@ -12,14 +12,52 @@ import { copy } from '../../object/copy.ts'
 import { RawGeometryMaterial } from '../../../types/beatmap/object/environment.ts'
 import { DeepReadonly } from '../../../types/util/mutability.ts'
 import { ModelObject } from '../../../types/model/object.ts'
+import { MultiSceneInfo, SceneSwitchInfo } from '../../../types/model/model_scene/scene info.ts'
 
-export class AnimatedModelScene extends ModelScene<SceneSwitch[], void> {
-    private getFirstTransform(obj: DeepReadonly<ModelObject>) {
+export class AnimatedModelScene extends ModelScene<SceneSwitch[], MultiSceneInfo> {
+    private static getFirstTransform(obj: DeepReadonly<ModelObject>) {
         return {
-            position: this.getFirstValues(obj.position),
-            rotation: this.getFirstValues(obj.rotation),
-            scale: this.getFirstValues(obj.scale),
+            position: ModelScene.getFirstValues(obj.position),
+            rotation: ModelScene.getFirstValues(obj.rotation),
+            scale: ModelScene.getFirstValues(obj.scale),
         }
+    }
+
+    private initializeSceneInfo() {
+        const sceneInfo: MultiSceneInfo = {
+            yeetEvents: [],
+            groupInfo: {},
+            objects: [],
+            sceneSwitches: [],
+        }
+
+        Object.entries(this.groups).forEach(([key, group]) => {
+            sceneInfo.groupInfo[key] = {
+                group,
+                count: 0,
+                moveEvents: [],
+            }
+        })
+
+        return sceneInfo
+    }
+
+    private initializeSceneSwitchInfo(sceneSwitch: SceneSwitch, firstInitializing: boolean) {
+        const sceneSwitchInfo: SceneSwitchInfo = {
+            firstInitializing: firstInitializing,
+            switch: sceneSwitch,
+            groupInfo: {},
+        }
+
+        Object.entries(this.groups).forEach(([key, group]) => {
+            sceneSwitchInfo.groupInfo[key] = {
+                group,
+                count: 0,
+                moveEvents: [],
+            }
+        })
+
+        return sceneSwitchInfo
     }
 
     protected async _instantiate() {
@@ -29,14 +67,7 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], void> {
 
         // Initialize info
         const animatedMaterials: string[] = []
-
-        Object.keys(this.groups).forEach((x) => {
-            this.sceneObjectInfo[x] = {
-                max: 0,
-                perSwitch: {},
-            }
-            if (!this.groups[x].object) this.sceneObjectInfo[x].max = 1
-        })
+        const sceneInfo = this.initializeSceneInfo()
 
         // Object animation
         const promises = this.modelInput.map(async (sceneSwitch, switchIndex) =>
@@ -44,35 +75,41 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], void> {
                 sceneSwitch,
                 switchIndex,
                 animatedMaterials,
+                sceneInfo,
             )
         )
-        await Promise.all(promises)
+        const processedSwitches = await Promise.all(promises)
+        const groupInitialStates = processedSwitches.reduce((prev, curr) => prev ?? curr)
 
-        // List of all tracks for each switch
-        // (possibly from different groups) to be "yeeted"
-        const yeetEvents: Record<
-            number,
-            AnimateTrack
-        > = {}
+        // Apply "count" to sceneInfo.groupInfo
+        Object.entries(sceneInfo.groupInfo).forEach(([groupKey, groupInfo]) => {
+            groupInfo.count = sceneInfo.sceneSwitches
+                .reduce((prev, curr) => Math.max(prev, curr.groupInfo[groupKey].count), 0)
+        })
 
-        // Process groups
-        // (add yeet events, spawn objects)
+        // Process groups (add yeet events, spawn objects)
+        const yeetEvents: Record<number, AnimateTrack> = {}
+
         Object.keys(this.groups).forEach((groupKey) =>
             this.processGroup(
                 groupKey,
-                yeetEvents,
                 animatedMaterials,
-                // forObject, TODO
+                sceneInfo,
+                yeetEvents,
+                groupInitialStates,
             )
         )
 
         Object.values(yeetEvents).forEach((x) => x.push(false))
+        sceneInfo.yeetEvents = Object.values(yeetEvents)
+        return sceneInfo
     }
 
     private async processSwitch(
         sceneSwitch: SceneSwitch,
         switchIndex: number,
         animatedMaterials: string[],
+        sceneInfo: MultiSceneInfo,
     ) {
         sceneSwitch.animationDuration ??= 0
         sceneSwitch.animationOffset ??= 0
@@ -80,65 +117,64 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], void> {
         // This determines whether objects are initialized at beat 0, and this is the first switch.
         // When this is true, assigned objects need to be set in place at beat 0
         // It's wasteful to animate spawned objects into place since we can just set their transforms in the environment statement.
-        const firstInitializing = this.initializeObjects &&
-            switchIndex === 0 &&
-            sceneSwitch.beat !== 0
+        const firstInitializing = this.initializeObjects && switchIndex === 0
 
         // If the animation has any sort of delay, we need to put the objects into place.
         // Though if we're already initializing, we can ignore this.
         const delaying = !firstInitializing && sceneSwitch.animationOffset > 0
 
+        // If the animation offset ends up being past the next switch, ignore it
+        const finalSwitch = switchIndex === this.modelInput.length - 1
+        const nextSwitch = finalSwitch ? undefined : this.modelInput[switchIndex + 1]
+        const ignoreAnimation = nextSwitch ? sceneSwitch.beat + sceneSwitch.animationOffset > nextSwitch.beat : false
+
         // Initializing the switch properties of each group.
-        Object.keys(this.groups).forEach((g) => {
-            this.sceneObjectInfo[g].perSwitch[sceneSwitch.beat] = 0
+        const sceneSwitchInfo = this.initializeSceneSwitchInfo(sceneSwitch, firstInitializing)
+        sceneInfo.sceneSwitches.push(sceneSwitchInfo)
+        const groupInitialStates: Record<string, ModelObject[]> | undefined = firstInitializing ? {} : undefined
+
+        Object.keys(this.groups).forEach((groupKey) => {
+            sceneSwitchInfo.groupInfo[groupKey].count = 0
             if (firstInitializing) {
-                this.sceneObjectInfo[g].initialPos = []
+                groupInitialStates![groupKey] = []
             }
         })
 
         const objects = await this.getObjects(sceneSwitch.model)
-        objects.forEach((d, i) => {
-            const objectIsStatic = complexifyKeyframes(d.position).length === 1 &&
-                complexifyKeyframes(d.rotation).length === 1 &&
-                complexifyKeyframes(d.scale).length === 1
+        objects.forEach((modelObject) => {
+            const objectIsStatic = complexifyKeyframes(modelObject.position).length === 1 &&
+                complexifyKeyframes(modelObject.rotation).length === 1 &&
+                complexifyKeyframes(modelObject.scale).length === 1
 
             // Getting info about group
-            const key = d.group as string
-            const group = this.groups[key]
+            const groupKey = modelObject.group ?? ModelScene.defaultGroupKey
+            const group = this.groups[groupKey]
+            if (!group) return // continue if object isn't present
 
             // Registering properties about object amounts
-            const objectInfo = this.sceneObjectInfo[key]
-            if (!objectInfo) return // continue if object isn't present
-            objectInfo.perSwitch[sceneSwitch.beat]++
-            if (objectInfo.perSwitch[sceneSwitch.beat] > objectInfo.max) {
-                // increment max if exceeded
-                objectInfo.max = objectInfo.perSwitch[sceneSwitch.beat]
-            }
+            const groupInfo = sceneSwitchInfo.groupInfo[groupKey]
+            const sceneGroupInfo = sceneInfo.groupInfo[groupKey]
+            groupInfo.count++
+            sceneGroupInfo.count = Math.max(groupInfo.count, sceneGroupInfo.count)
 
-            const track = this.getPieceTrack(group.object, key, objectInfo.perSwitch[sceneSwitch.beat] - 1)
+            const index = groupInfo.count - 1
+            const track = this.getPieceTrack(group.object, groupKey, index)
 
             // Set initializing positions
             if (firstInitializing) {
-                objectInfo.initialPos![i] = this.getFirstTransform(d)
-            }
+                const initialState = AnimatedModelScene.getFirstTransform(modelObject)
+                groupInitialStates![groupKey][index] = initialState
 
-            // If assigned object and initializing, set their position at beat 0
-            if (!group.object && firstInitializing) {
-                const event = animateTrack(0, track)
-                const initalizePos = objectInfo.initialPos![i]
-
-                event.animation.position = initalizePos
-                    .position as Vec3
-                event.animation.rotation = initalizePos
-                    .rotation as Vec3
-                event.animation.scale = initalizePos
-                    .scale as Vec3
-
-                if (sceneSwitch.forEvent) {
-                    sceneSwitch.forEvent(event, objectInfo.perSwitch[sceneSwitch.beat])
+                // If assigned object and initializing, set their position at beat 0
+                if (!group.object) {
+                    const event = animateTrack(0, track)
+                    event.animation.position = initialState.position
+                    event.animation.rotation = initialState.rotation
+                    event.animation.scale = initialState.scale
+                    sceneGroupInfo.moveEvents.push(event)
+                    groupInfo.moveEvents.push(event)
+                    event.push(false)
                 }
-
-                event.push(false)
             }
 
             // Animate color if the object has unique colors
@@ -148,19 +184,16 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], void> {
                 !group.defaultMaterial &&
                 typeof group.object.material !== 'string' &&
                 !group.object.material.color &&
-                d.color
+                modelObject.color
             ) {
-                const color = d.color as Vec4
+                const color = modelObject.color as Vec4
                 color[3] ??= 1
                 animatedMaterials.push(track)
 
                 if (firstInitializing) {
-                    objectInfo.initialPos![i].color = color
+                    groupInitialStates![groupKey][index].color = color
                 } else {
-                    const event = animateTrack(
-                        sceneSwitch.beat,
-                        track + '_material',
-                    )
+                    const event = animateTrack(sceneSwitch.beat, track + '_material')
                     event.animation.color = color
                     event.push(false)
                 }
@@ -168,10 +201,7 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], void> {
 
             // If a spawned object is static and initializing
             // No point using the delay system
-            if (
-                objectIsStatic && firstInitializing &&
-                group.object
-            ) {
+            if (objectIsStatic && firstInitializing && group.object) {
                 return
             }
 
@@ -179,29 +209,24 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], void> {
             const event = animateTrack(sceneSwitch.beat, track, sceneSwitch.animationDuration)
 
             if (delaying) {
-                event.animation.position = this.getFirstValues(
-                    d.position,
-                )
-                event.animation.rotation = this.getFirstValues(
-                    d.rotation,
-                )
-                event.animation.scale = this.getFirstValues(
-                    d.scale,
-                )
-                if (sceneSwitch.forEvent) {
-                    sceneSwitch.forEvent(event, objectInfo.perSwitch[sceneSwitch.beat])
-                }
+                event.animation.position = ModelScene.getFirstValues(modelObject.position)
+                event.animation.rotation = ModelScene.getFirstValues(modelObject.rotation)
+                event.animation.scale = ModelScene.getFirstValues(modelObject.scale)
+                sceneGroupInfo.moveEvents.push(event)
+                groupInfo.moveEvents.push(event)
                 event.push()
+            }
+
+            // If ignoring animation, don't make animation events
+            if (ignoreAnimation) {
+                return
             }
 
             // Make animation event
             event.beat = sceneSwitch.beat + sceneSwitch.animationOffset!
-            event.animation.position = d
-                .position as RuntimeRawKeyframesVec3
-            event.animation.rotation = d
-                .rotation as RuntimeRawKeyframesVec3
-            event.animation.scale = d
-                .scale as RuntimeRawKeyframesVec3
+            event.animation.position = modelObject.position as RuntimeRawKeyframesVec3
+            event.animation.rotation = modelObject.rotation as RuntimeRawKeyframesVec3
+            event.animation.scale = modelObject.scale as RuntimeRawKeyframesVec3
 
             // Apply loops if necessary
             if (
@@ -215,61 +240,57 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], void> {
                 event.duration! /= (sceneSwitch.model as AnimatedOptions).loop!
             }
 
-            // Run callback and then push event
-            if (sceneSwitch.forEvent) {
-                sceneSwitch.forEvent(event, objectInfo.perSwitch[sceneSwitch.beat])
-            }
+            // Push event
+            sceneGroupInfo.moveEvents.push(event)
+            groupInfo.moveEvents.push(event)
             event.push(false)
         })
+
+        return groupInitialStates
     }
 
     private processGroup(
         groupKey: string,
-        yeetEvents: Record<number, AnimateTrack>,
         animatedMaterials: string[],
+        sceneInfo: MultiSceneInfo,
+        yeetEvents: Record<number, AnimateTrack>,
+        groupInitialStates: Record<string, ModelObject[]> | undefined,
     ) {
         const group = this.groups[groupKey]
-        const objectInfo = this.sceneObjectInfo[groupKey]
-        if (!objectInfo) return // skip object if it's not present
+        const groupInfo = sceneInfo.groupInfo[groupKey]
 
         // Yeeting objects
         if (group.disappearWhenAbsent || group.object) {
-            Object.keys(objectInfo.perSwitch).forEach(
-                (x, switchIndex) => {
-                    const switchTime = parseInt(x)
-                    const firstInitializing = this.initializeObjects &&
-                        switchIndex === 0 &&
-                        switchTime !== 0
-                    const eventTime = firstInitializing ? 0 : switchTime
-                    const amount = objectInfo.perSwitch[switchTime]
+            sceneInfo.sceneSwitches.forEach((switchInfo) => {
+                const switchBeat = switchInfo.switch.beat
+                const eventTime = switchInfo.firstInitializing ? 0 : switchBeat
+                const count = switchInfo.groupInfo[groupKey].count
 
-                    // Initialize the yeet event for this switch if not present
-                    if (!yeetEvents[switchTime]) {
-                        const event = animateTrack(eventTime, [])
-                        event.animation.position = 'yeet'
-                        yeetEvents[switchTime] = event
-                    }
+                // If there's nothing to yeet, return
+                if (count == groupInfo.count) return
 
-                    // Add unused objects for this switch to the yeet event
-                    for (let i = amount; i < objectInfo.max; i++) {
-                        const track = this.getPieceTrack(
-                            group.object,
-                            groupKey,
-                            i,
-                        )
+                // Initialize the yeet event for this switch if not present
+                if (!yeetEvents[switchBeat]) {
+                    yeetEvents[switchBeat] = animateTrack({
+                        beat: eventTime,
+                        track: [],
+                        animation: {
+                            position: 'yeet',
+                        },
+                    })
+                }
 
-                        yeetEvents[switchTime].track.add(
-                            track,
-                        )
-                    }
-                },
-            )
+                // Add unused objects for this switch to the yeet event
+                for (let i = count; i < groupInfo.count; i++) {
+                    const track = this.getPieceTrack(group.object, groupKey, i)
+                    yeetEvents[switchBeat].track.add(track)
+                }
+            })
         }
 
         // Spawning objects
-        const initializing = objectInfo.initialPos !== undefined
-
         if (group.object) { // Only spawn if group has object
+            const initializing = groupInitialStates !== undefined
             let materialName: string | undefined = undefined
 
             // Add default material to the beatmap if it is present
@@ -278,19 +299,16 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], void> {
                 getActiveDifficulty().geometryMaterials[materialName] = group.defaultMaterial
             }
 
-            for (let i = 0; i < objectInfo.max; i++) {
+            for (let i = 0; i < groupInfo.count; i++) {
                 const object = copy(group.object)
 
                 // Apply track to the object
-                object.track.value = this.getPieceTrack(
-                    group.object,
-                    groupKey,
-                    i,
-                )
+                object.track.value = this.getPieceTrack(group.object, groupKey, i)
 
                 // Apply initializing position if necessary
                 if (initializing) {
-                    const initialPos = objectInfo.initialPos![i] ?? {
+                    const initialState = groupInitialStates[groupKey][i]
+                    const initialPos = initialState ?? {
                         position: [0, -69420, 0],
                     }
                     object.position = initialPos.position as Vec3
@@ -298,8 +316,7 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], void> {
                     object.scale = initialPos.scale as Vec3
 
                     if (initialPos.color) {
-                        const material = (object as Geometry)
-                            .material as RawGeometryMaterial
+                        const material = (object as Geometry).material as RawGeometryMaterial
                         material.color = initialPos.color
                     }
                 }
@@ -313,13 +330,12 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], void> {
                 if (
                     animatedMaterials.some((x) => x === object.track.value)
                 ) {
-                    const material = (object as Geometry)
-                        .material as RawGeometryMaterial
+                    const material = (object as Geometry).material as RawGeometryMaterial
                     material.track = object.track.value + '_material'
                 }
 
                 // Run callback and push object
-                // if (forObject) forObject(object) TODO
+                sceneInfo.objects.push(object)
                 object.push(false)
             }
         }
