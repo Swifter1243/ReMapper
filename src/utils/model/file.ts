@@ -46,12 +46,13 @@ export async function getModel(
             oldObjects.forEach((x) => {
                 if (x.track) {
                     x.group = x.track
-                    x.position = x.pos!
-                    x.rotation = x.rot!
-                    delete x.track
-                    delete x.pos
-                    delete x.rot
                 }
+
+                x.position = x.pos!
+                x.rotation = x.rot!
+                delete x.track
+                delete x.pos
+                delete x.rot
             })
         }
 
