@@ -12,7 +12,7 @@ import { complexifyKeyframes } from '../../animation/keyframe/complexity.ts'
 import { copy } from '../../object/copy.ts'
 import { applyAnchor, combineRotations, combineTransforms } from '../../math/transform.ts'
 import { positionUnityToNoodle } from '../../beatmap/object/environment/unit_conversion.ts'
-import { mirrorAnimation } from '../../animation/time_warp.ts'
+import {mirrorAnimation, reverseAnimation} from '../../animation/time_warp.ts'
 import { parseFilePath } from '../../file.ts'
 import { getModel } from '../file.ts'
 import { TransformKeyframe } from '../../../types/animation/bake.ts'
@@ -233,62 +233,32 @@ export abstract class ModelScene<I, O> {
         if (options.objects) options.objects(objectInput)
         const v3 = getActiveDifficulty().v3
         objectInput.forEach((x) => {
+            const group = this.groups[x.group ?? ModelScene.defaultGroupKey]
+            if (!group) return
+
             const o = copy(x) as ModelObject
 
             if (options.static) {
                 ModelScene.makeModelObjectStatic(o)
             }
 
-            // Getting relevant object transforms
-            let scale: Vec3 | undefined
-            let anchor: Vec3 | undefined
-            let rotation: Vec3 | undefined
-
-            const group = this.groups[x.group as string]
-            if (group) {
-                if (group.scale) scale = group.scale
-                if (group.anchor) anchor = group.anchor
-                if (group.rotation) rotation = group.rotation
-            }
-
             function getBakedTransform(transform: TransformKeyframe) {
                 if (options.transform) {
-                    const combined = combineTransforms(
-                        {
-                            position: transform.position,
-                            rotation: transform.rotation,
-                            scale: transform.scale,
-                        },
-                        options.transform,
-                        options.transform.anchor,
-                    )
+                    const combined = combineTransforms(transform, options.transform, options.transform.anchor)
                     transform.position = combined.position
                     transform.rotation = combined.rotation
                     transform.scale = combined.scale
                 }
 
-                transform.position = applyAnchor(
-                    transform.position,
-                    transform.rotation,
-                    transform.scale,
-                    anchor ?? [0, 0, 0] as Vec3,
-                )
+                transform.position = applyAnchor(transform.position, transform.rotation, transform.scale, group.anchor ?? [0, 0, 0] as Vec3)
             }
 
-            const shouldBake = (anchor && options.bake !== false && !options.static) ||
+            const shouldBake = (group.anchor && options.bake !== false && !options.static) ||
                 options.bake === true ||
                 options.transform !== undefined
             if (shouldBake) {
                 // Baking animation
-                const bakedCube: ModelObject = bakeAnimation(
-                    {
-                        position: x.position,
-                        rotation: x.rotation,
-                        scale: x.scale,
-                    },
-                    getBakedTransform,
-                    this.animationSettings,
-                )
+                const bakedCube: ModelObject = bakeAnimation(x, getBakedTransform, this.animationSettings)
 
                 if (!v3) {
                     positionUnityToNoodle(bakedCube.position)
@@ -299,19 +269,26 @@ export abstract class ModelScene<I, O> {
                 o.scale = bakedCube.scale
             }
 
-            if (rotation) {
+            if (group.rotation) {
                 iterateKeyframes(o.rotation, (y) => {
-                    const newRotation = combineRotations([y[0], y[1], y[2]], rotation!)
+                    const newRotation = combineRotations([y[0], y[1], y[2]], group.rotation!)
                     Object.assign(y, newRotation)
                 })
             }
 
-            if (scale) {
+            if (group.scale) {
                 iterateKeyframes(o.scale, (y) => {
-                    y[0] *= (scale!)[0]
-                    y[1] *= (scale!)[1]
-                    y[2] *= (scale!)[2]
+                    y[0] *= (group.scale!)[0]
+                    y[1] *= (group.scale!)[1]
+                    y[2] *= (group.scale!)[2]
                 })
+            }
+
+            // Reverse animation
+            if (options.reverse) {
+                o.position = reverseAnimation(o.position)
+                o.rotation = reverseAnimation(o.rotation)
+                o.scale = reverseAnimation(o.scale)
             }
 
             // Loop animation
@@ -355,20 +332,11 @@ export abstract class ModelScene<I, O> {
         const v3 = getActiveDifficulty().v3
         if (options.onCache) options.onCache(fileObjects)
         fileObjects.forEach((x) => {
+            const group = this.groups[x.group ?? ModelScene.defaultGroupKey]
+            if (!group) return
+
             if (options.static) {
                 ModelScene.makeModelObjectStatic(x)
-            }
-
-            // Getting relevant object transforms
-            let scale: Vec3 | undefined
-            let anchor: Vec3 | undefined
-            let rotation: Vec3 | undefined
-
-            const group = this.groups[x.group as string]
-            if (group) {
-                if (group.scale) scale = group.scale
-                if (group.anchor) anchor = group.anchor
-                if (group.rotation) rotation = group.rotation
             }
 
             // Making keyframes a consistent array format
@@ -382,55 +350,58 @@ export abstract class ModelScene<I, O> {
             }
 
             for (let i = 0; i < x.position.length; i++) {
-                let objPos = getVec3(x.position[i])
-                let objRot = getVec3(x.rotation[i])
-                let objScale = getVec3(x.scale[i])
+                const transform = {
+                    position: getVec3(x.position[i]),
+                    rotation: getVec3(x.rotation[i]),
+                    scale: getVec3(x.scale[i])
+                }
 
-                if (anchor) {
-                    objPos = applyAnchor(
-                        objPos as Vec3,
-                        objRot as Vec3,
-                        objScale as Vec3,
-                        anchor,
+                if (group.anchor) {
+                    transform.position = applyAnchor(
+                        transform.position as Vec3,
+                        transform.rotation as Vec3,
+                        transform.scale as Vec3,
+                        group.anchor,
                     )
                 }
 
-                if (rotation) {
-                    objRot = combineRotations(objRot, rotation)
+                if (group.rotation) {
+                    transform.rotation = combineRotations(transform.rotation, group.rotation)
                 }
 
-                if (scale) {
-                    objScale = objScale.map((x, i) => x * objScale[i]) as Vec3
+                if (group.scale) {
+                    transform.scale[0] *= group.scale[0]
+                    transform.scale[1] *= group.scale[1]
+                    transform.scale[2] *= group.scale[2]
                 }
 
                 if (!v3) {
-                    positionUnityToNoodle(objPos)
+                    positionUnityToNoodle(transform.position)
                 }
 
                 if (options.transform) {
-                    const combined = combineTransforms(
-                        {
-                            position: objPos,
-                            rotation: objRot,
-                            scale: objScale,
-                        },
-                        options.transform,
-                        options.transform.anchor,
-                    )
-                    objPos = combined.position
-                    objRot = combined.rotation
-                    objScale = combined.scale
+                    const combined = combineTransforms(transform, options.transform, options.transform.anchor)
+                    transform.position = combined.position
+                    transform.rotation = combined.rotation
+                    transform.scale = combined.scale
                 }
 
-                x.position[i] = [...objPos, x.position[i][3]]
-                x.rotation[i] = [...objRot, x.rotation[i][3]]
-                x.scale[i] = [...objScale, x.scale[i][3]]
+                x.position[i] = [...transform.position, x.position[i][3]]
+                x.rotation[i] = [...transform.rotation, x.rotation[i][3]]
+                x.scale[i] = [...transform.scale, x.scale[i][3]]
             }
 
             // Optimizing object
             x.position = optimizeKeyframes(x.position, this.animationSettings.optimizeSettings)
             x.rotation = optimizeKeyframes(x.rotation, this.animationSettings.optimizeSettings)
             x.scale = optimizeKeyframes(x.scale, this.animationSettings.optimizeSettings)
+
+            // Reverse animation
+            if (options.reverse) {
+                x.position = reverseAnimation(x.position)
+                x.rotation = reverseAnimation(x.rotation)
+                x.scale = reverseAnimation(x.scale)
+            }
 
             // Loop animation
             if (options.mirror) {

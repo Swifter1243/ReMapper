@@ -29,4 +29,6 @@ export type AnimatedOptions = StaticOptions & {
     static?: boolean
     /** Whether to mirror the animation. */
     mirror?: boolean
+    /** Whether to reverse the animation. */
+    reverse?: boolean
 }
