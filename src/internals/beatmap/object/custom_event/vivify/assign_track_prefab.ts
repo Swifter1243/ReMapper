@@ -33,20 +33,20 @@ export class AssignTrackPrefab extends CustomEvent<
     track: string
     /** Determines how this prefab will be assigned to this track. */
     loadMode?: LOAD_MODE
-    /** File path to the desired prefab to replace color notes. */
-    colorNotes?: string
-    /** File path to the desired prefab to replace bombs. */
-    bombNotes?: string
-    /** File path to the desired prefab to replace chain heads. */
-    chainHeads?: string
-    /** File path to the desired prefab to replace chain links. */
-    chainLinks?: string
-    /** File path to the desired prefab to replace color note debris. */
-    colorNoteDebris?: string
-    /** File path to the desired prefab to replace chain head debris. */
-    chainHeadDebris?: string
-    /** File path to the desired prefab to replace chain link debris. */
-    chainLinkDebris?: string
+    /** File path to the desired prefab to replace color notes. Use null to revert to the default model. */
+    colorNotes?: string | null
+    /** File path to the desired prefab to replace bombs. Use null to revert to the default model. */
+    bombNotes?: string | null
+    /** File path to the desired prefab to replace chain heads. Use null to revert to the default model. */
+    chainHeads?: string | null
+    /** File path to the desired prefab to replace chain links. Use null to revert to the default model. */
+    chainLinks?: string | null
+    /** File path to the desired prefab to replace color note debris. Use null to revert to the default model. */
+    colorNoteDebris?: string | null
+    /** File path to the desired prefab to replace chain head debris. Use null to revert to the default model. */
+    chainHeadDebris?: string | null
+    /** File path to the desired prefab to replace chain link debris. Use null to revert to the default model. */
+    chainLinkDebris?: string | null
 
     static defaults: JsonObjectDefaults<AssignTrackPrefab> = {
         track: '',

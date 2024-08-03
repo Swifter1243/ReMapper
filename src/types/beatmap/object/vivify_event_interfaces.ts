@@ -138,13 +138,13 @@ export interface IAssignTrackPrefab {
     d: {
         track: string
         loadMode?: LOAD_MODE
-        colorNotes?: string
-        bombNotes?: string
-        burstSliders?: string
-        burstSliderElements?: string
-        colorNoteDebris?: string
-        burstSliderDebris?: string
-        burstSliderElementDebris?: string
+        colorNotes?: string | null
+        bombNotes?: string | null
+        burstSliders?: string | null
+        burstSliderElements?: string | null
+        colorNoteDebris?: string | null
+        burstSliderDebris?: string | null
+        burstSliderElementDebris?: string | null
     }
 }
 
