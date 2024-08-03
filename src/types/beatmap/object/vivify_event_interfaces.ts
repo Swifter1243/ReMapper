@@ -1,6 +1,6 @@
 import {
     COLOR_FORMAT,
-    DEPTH_TEX_MODE,
+    DEPTH_TEX_MODE, LOAD_MODE,
     RENDER_SETTING,
     TEX_FILTER_MODE
 } from '../../vivify/setting.ts'
@@ -137,6 +137,7 @@ export interface IAssignTrackPrefab {
     t: 'AssignTrackPrefab'
     d: {
         track: string
+        loadMode?: LOAD_MODE
         colorNotes?: string
         bombNotes?: string
         burstSliders?: string

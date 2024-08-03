@@ -1,8 +1,8 @@
-import {ColorVec} from "../math/vector.ts";
+import { ColorVec } from '../math/vector.ts'
 
-import {RuntimeRawKeyframesAbstract} from "../animation/keyframe/runtime/abstract.ts";
-import {RuntimeRawKeyframesLinear} from "../animation/keyframe/runtime/linear.ts";
-import {RuntimeRawKeyframesVec4} from "../animation/keyframe/runtime/vec4.ts";
+import { RuntimeRawKeyframesAbstract } from '../animation/keyframe/runtime/abstract.ts'
+import { RuntimeRawKeyframesLinear } from '../animation/keyframe/runtime/linear.ts'
+import { RuntimeRawKeyframesVec4 } from '../animation/keyframe/runtime/vec4.ts'
 
 /** Color format types for textures. */
 export type COLOR_FORMAT =
@@ -68,7 +68,7 @@ export enum FOG_MODE {
     ExponentialSquared,
 }
 
-/** Changeable render settings with SetRenderSetting events. 
+/** Changeable render settings with SetRenderSetting events.
  * https://docs.unity3d.com/ScriptReference/RenderSettings.html
  */
 export type RENDER_SETTING = {
@@ -129,3 +129,8 @@ export enum SHADOWS {
     HardOnly,
     All,
 }
+
+/** Load mode for AssignTrackPrefab events */
+export type LOAD_MODE =
+    | 'Additive'
+    | 'Single'

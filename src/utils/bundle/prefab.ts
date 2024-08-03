@@ -1,6 +1,7 @@
 import { assignTrackPrefab, instantiatePrefab } from '../../builder_functions/beatmap/object/custom_event/vivify.ts'
 import {PrefabInstance} from "./prefab_instance.ts";
 import {InstantiatePrefab} from "../../internals/beatmap/object/custom_event/vivify/instantiate_prefab.ts";
+import {LOAD_MODE} from "../../types/vivify/setting.ts";
 
 /** Used to load type safe prefabs. See `loadAssets` */
 export class Prefab {
@@ -30,64 +31,71 @@ export class Prefab {
     }
 
     /** Create an event to assign this prefab to color notes. */
-    assignToColorNote(track: string, beat = 0) {
+    assignToColorNote(track: string, loadMode?: LOAD_MODE, beat = 0) {
         assignTrackPrefab({
             beat,
             track,
+            loadMode,
             colorNotes: this.path,
         }).push()
     }
 
     /** Create an event to assign this prefab to color note debris. */
-    assignToColorNoteDebris(track: string, beat = 0) {
+    assignToColorNoteDebris(track: string, loadMode?: LOAD_MODE, beat = 0) {
         assignTrackPrefab({
             beat,
             track,
+            loadMode,
             colorNoteDebris: this.path,
         }).push()
     }
 
     /** Create an event to assign this prefab to bombs. */
-    assignToBombs(track: string, beat = 0) {
+    assignToBombs(track: string, loadMode?: LOAD_MODE, beat = 0) {
         assignTrackPrefab({
             beat,
             track,
+            loadMode,
             bombNotes: this.path,
         }).push()
     }
 
     /** Create an event to assign this prefab to chain heads. */
-    assignToChainHeads(track: string, beat = 0) {
+    assignToChainHeads(track: string, loadMode?: LOAD_MODE, beat = 0) {
         assignTrackPrefab({
             beat,
             track,
+            loadMode,
             chainHeads: this.path,
         }).push()
     }
 
     /** Create an event to assign this prefab to chain head debris. */
-    assignToChainHeadDebris(track: string, beat = 0) {
+    assignToChainHeadDebris(track: string, loadMode?: LOAD_MODE, beat = 0) {
         assignTrackPrefab({
             beat,
             track,
+            loadMode,
             chainHeadDebris: this.path,
         }).push()
     }
 
     /** Create an event to assign this prefab to chain head debris. */
-    assignToChainLinks(track: string, beat = 0) {
+    assignToChainLinks(track: string, loadMode?: LOAD_MODE, beat = 0) {
         assignTrackPrefab({
             beat,
             track,
+            loadMode,
             chainLinks: this.path,
         }).push()
     }
 
     /** Create an event to assign this prefab to chain head debris. */
-    assignToChainLinkDebris(track: string, beat = 0) {
+    assignToChainLinkDebris(track: string, loadMode?: LOAD_MODE, beat = 0) {
         assignTrackPrefab({
             beat,
             track,
+            loadMode,
             chainLinkDebris: this.path,
         }).push()
     }

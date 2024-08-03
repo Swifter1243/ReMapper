@@ -7,6 +7,7 @@ import {CustomEventConstructor} from "../../../../../types/beatmap/object/custom
 import {getDataProp} from "../../../../../utils/beatmap/json.ts";
 import {CustomEvent} from "../base/custom_event.ts";
 import {JsonObjectDefaults} from "../../../../../types/beatmap/object/object.ts";
+import {LOAD_MODE} from "../../../../../types/vivify/setting.ts";
 
 export class AssignTrackPrefab extends CustomEvent<
     never,
@@ -17,6 +18,7 @@ export class AssignTrackPrefab extends CustomEvent<
     ) {
         super(params)
         this.type = 'AssignTrackPrefab'
+        this.loadMode = params.loadMode
         this.track = params.track ?? AssignTrackPrefab.defaults.track
         this.colorNotes = params.colorNotes
         this.bombNotes = params.bombNotes
@@ -29,6 +31,8 @@ export class AssignTrackPrefab extends CustomEvent<
 
     /** Only objects on this track will be affected. */
     track: string
+    /** Determines how this prefab will be assigned to this track. */
+    loadMode?: LOAD_MODE
     /** File path to the desired prefab to replace color notes. */
     colorNotes?: string
     /** File path to the desired prefab to replace bombs. */
@@ -58,6 +62,7 @@ export class AssignTrackPrefab extends CustomEvent<
 
     fromJsonV3(json: IAssignTrackPrefab): this {
         this.track = getDataProp(json.d, 'track') ?? AssignTrackPrefab.defaults.track
+        this.loadMode = getDataProp(json.d, 'loadMode')
         this.colorNotes = getDataProp(json.d, 'colorNotes')
         this.colorNoteDebris = getDataProp(json.d, 'colorNoteDebris')
         this.chainHeadDebris = getDataProp(json.d, 'burstSliderDebris')
@@ -77,6 +82,7 @@ export class AssignTrackPrefab extends CustomEvent<
             b: this.beat,
             d: {
                 track: this.track,
+                loadMode: this.loadMode,
                 colorNoteDebris: this.colorNoteDebris,
                 colorNotes: this.colorNotes,
                 burstSliderDebris: this.chainHeadDebris,
