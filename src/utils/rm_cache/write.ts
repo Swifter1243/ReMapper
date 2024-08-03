@@ -6,15 +6,14 @@ import { getActiveCache } from '../../data/active_cache.ts'
  * Retrieves the same data unless the hash/hashed objects have changed.
  * @param name Name of the data.
  * @param process Generates the data to cache, given the hash changes.
- * @param hashedObjects Objects that will be turned into JSON and compared to any existing hashes in the cache. If they don't match, `process` will be run to recache the data.
+ * @param hash If the corresponding entry in the cache does not have the same hash, `process` will be run again to re-cache data.
  */
 export async function cacheData<T>(
     name: string,
     process: () => Promise<T>,
-    hashedObjects: unknown[] = [],
+    hash: string,
 ): Promise<T> {
     let outputData: unknown
-    const hash = JSON.stringify(hashedObjects).replaceAll('"', '')
 
     async function getData() {
         outputData = await process()

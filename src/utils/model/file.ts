@@ -11,19 +11,19 @@ import {cacheData} from "../rm_cache/write.ts";
  * @param filePath Path to the .rmmodel.
  * @param name Name to cache the properties as. Defaults to file name.
  * @param process Function to run for each object on the cached properties.
- * @param hashedObjects Parameters that will re-process the properties if changed.
+ * @param hash Parameters that will re-process the properties if changed.
  */
 export async function getModel(
     filePath: FILEPATH,
     name?: string,
     process?: (objects: ModelObject[]) => void,
-    hashedObjects?: unknown[],
+    hash = '',
 ) {
     const parsedPath = await parseFilePath(filePath, '.rmmodel')
     const inputPath = attachWorkingDirectory(parsedPath.path)
     const mTime = await Deno.stat(inputPath).then((x) => x.mtime?.toString())
-    hashedObjects ??= []
-    hashedObjects.push.apply(hashedObjects, [mTime, process?.toString()])
+    hash += mTime
+    hash += process?.toString()
 
     name ??= parsedPath.name
 
@@ -56,6 +56,6 @@ export async function getModel(
 
         if (process) process(objects)
         return objects as ReadonlyModel
-    }, hashedObjects)
+    }, hash)
 }
 

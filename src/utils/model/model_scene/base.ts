@@ -12,7 +12,7 @@ import { complexifyKeyframes } from '../../animation/keyframe/complexity.ts'
 import { copy } from '../../object/copy.ts'
 import { applyAnchor, combineRotations, combineTransforms } from '../../math/transform.ts'
 import { positionUnityToNoodle } from '../../beatmap/object/environment/unit_conversion.ts'
-import {mirrorAnimation, reverseAnimation} from '../../animation/time_warp.ts'
+import { mirrorAnimation, reverseAnimation } from '../../animation/time_warp.ts'
 import { parseFilePath } from '../../file.ts'
 import { getModel } from '../file.ts'
 import { TransformKeyframe } from '../../../types/animation/bake.ts'
@@ -23,6 +23,9 @@ import { DeepReadonly } from '../../../types/util/mutability.ts'
 export abstract class ModelScene<I, O> {
     protected static modelSceneCount = 0
     static defaultGroupKey = 'default_group'
+
+    // hash -> name
+    private static cachedModels: Record<string, string> = {}
 
     protected groups = <Record<string, ModelGroup>> {}
 
@@ -68,6 +71,17 @@ export abstract class ModelScene<I, O> {
         getActiveDifficulty().pointDefinitions.yeet = [0, -69420, 0]
     }
 
+    protected static getModelNameFromHash(hash: string) {
+        if (this.cachedModels[hash]) {
+            return this.cachedModels[hash]
+        }
+
+        const length = Object.values(this.cachedModels).length
+        const name = `model_scene_model_${length}`
+        this.cachedModels[hash] = name
+        return name
+    }
+
     /** Get a group from this ModelScene's internal group collection */
     getGroup(key: string): DeepReadonly<ModelGroup> {
         return this.groups[key]
@@ -95,7 +109,6 @@ export abstract class ModelScene<I, O> {
             ) {
                 group.defaultMaterial = object.material
             }
-            object.position = [0, -69420, 0]
             group.object = object
         }
         if (scale) group.scale = scale
@@ -307,20 +320,16 @@ export abstract class ModelScene<I, O> {
     private async getObjectsFromString(objectInput: string, options: AnimatedOptions) {
         const inputPath = (await parseFilePath(objectInput, '.rmmodel')).path
         const onCache = options.onCache ? options.onCache.toString() : undefined
-        const hashObjects: unknown[] = [
+        const hash = JSON.stringify([
             options,
             onCache,
             this.groups,
             this.animationSettings.toData(),
             getActiveDifficulty().v3,
-        ]
+        ]).replaceAll('"', '')
 
-        const model = await getModel(
-            inputPath,
-            `modelScene${this.ID}_${inputPath}`,
-            (objects) => this.processFileObjects(objects, options),
-            hashObjects,
-        )
+        const name = ModelScene.getModelNameFromHash(hash)
+        const model = await getModel(inputPath, name, (objects) => this.processFileObjects(objects, options), hash)
         if (options.objects) options.objects(model)
         return model
     }
@@ -353,7 +362,7 @@ export abstract class ModelScene<I, O> {
                 const transform = {
                     position: getVec3(x.position[i]),
                     rotation: getVec3(x.rotation[i]),
-                    scale: getVec3(x.scale[i])
+                    scale: getVec3(x.scale[i]),
                 }
 
                 if (group.anchor) {

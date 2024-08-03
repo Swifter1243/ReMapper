@@ -7,7 +7,6 @@ import { animateTrack } from '../../../builder_functions/beatmap/object/custom_e
 import { Vec3, Vec4 } from '../../../types/math/vector.ts'
 import { Geometry } from '../../../internals/beatmap/object/environment/geometry.ts'
 import { RuntimeRawKeyframesVec3 } from '../../../types/animation/keyframe/runtime/vec3.ts'
-import { AnimatedOptions } from '../../../types/model/model_scene/option.ts'
 import { copy } from '../../object/copy.ts'
 import { RawGeometryMaterial } from '../../../types/beatmap/object/environment.ts'
 import { DeepReadonly } from '../../../types/util/mutability.ts'
