@@ -1,4 +1,4 @@
-export * from './assign_track_prefab.ts'
+export * from './assign_object_prefab.ts'
 export * from './blit.ts'
 export * from './declare_culling_texture.ts'
 export * from './declare_render_texture.ts'

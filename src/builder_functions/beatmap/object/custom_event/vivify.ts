@@ -17,7 +17,7 @@ import {InstantiatePrefab} from "../../../../internals/beatmap/object/custom_eve
 import {DestroyPrefab} from "../../../../internals/beatmap/object/custom_event/vivify/destroy_prefab.ts";
 import {SetAnimatorProperty} from "../../../../internals/beatmap/object/custom_event/vivify/set_animator_property.ts";
 import {SetCameraProperty} from "../../../../internals/beatmap/object/custom_event/vivify/set_camera_property.ts";
-import {AssignTrackPrefab} from "../../../../internals/beatmap/object/custom_event/vivify/assign_track_prefab.ts";
+import {AssignObjectPrefab} from "../../../../internals/beatmap/object/custom_event/vivify/assign_object_prefab.ts";
 import {SetRenderSetting} from "../../../../internals/beatmap/object/custom_event/vivify/set_render_setting.ts";
 
 /**
@@ -354,14 +354,13 @@ export function setCameraProperty(
     )
 }
 
-/** Replaces all objects on the track with the assigned prefab.
- */
-export function assignTrackPrefab(
-    ...params: ConstructorParameters<typeof AssignTrackPrefab>
+/** Replaces objects in the map with prefabs. */
+export function assignObjectPrefab(
+    ...params: ConstructorParameters<typeof AssignObjectPrefab>
 ) {
-    return new AssignTrackPrefab(
+    return new AssignObjectPrefab(
         ...params as ConstructorParameters<
-            typeof AssignTrackPrefab
+            typeof AssignObjectPrefab
         >,
     )
 }

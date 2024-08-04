@@ -3,7 +3,7 @@ import { bsmap } from '../../deps.ts'
 import { AbstractDifficulty } from './abstract_beatmap.ts'
 import { AnyFog, FogEvent } from './object/environment/fog.ts'
 import {
-    assignTrackPrefab,
+    assignObjectPrefab,
     blit,
     declareCullingTexture,
     declareRenderTexture,
@@ -337,7 +337,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         extractCustomEvents(destroyPrefab, 'destroyPrefabEvents')
         extractCustomEvents(setAnimatorProperty, 'setAnimatorPropertyEvents')
         extractCustomEvents(setCameraProperty, 'setCameraPropertyEvents')
-        extractCustomEvents(assignTrackPrefab, 'assignTrackPrefabEvents')
+        extractCustomEvents(assignObjectPrefab, 'assignObjectPrefabEvents')
         extractCustomEvents(setRenderSetting, 'setRenderSettingEvents')
 
         diffCustomEvents.abstractCustomEvents = customEvents.map((x) => abstractCustomEvent({}).fromJsonV3(x))

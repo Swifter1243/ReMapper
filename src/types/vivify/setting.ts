@@ -130,7 +130,7 @@ export enum SHADOWS {
     All,
 }
 
-/** Load mode for AssignTrackPrefab events */
+/** Load mode for AssignObjectPrefab events */
 export type LOAD_MODE =
     | 'Additive'
     | 'Single'

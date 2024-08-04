@@ -8,10 +8,10 @@ import { InstantiatePrefab } from '../../../internals/beatmap/object/custom_even
 import { DestroyPrefab } from '../../../internals/beatmap/object/custom_event/vivify/destroy_prefab.ts'
 import { SetAnimatorProperty } from '../../../internals/beatmap/object/custom_event/vivify/set_animator_property.ts'
 import { SetCameraProperty } from '../../../internals/beatmap/object/custom_event/vivify/set_camera_property.ts'
-import { AssignTrackPrefab } from '../../../internals/beatmap/object/custom_event/vivify/assign_track_prefab.ts'
+import { AssignObjectPrefab } from '../../../internals/beatmap/object/custom_event/vivify/assign_object_prefab.ts'
 import { SetRenderSetting } from '../../../internals/beatmap/object/custom_event/vivify/set_render_setting.ts'
 import {
-    IAssignTrackPrefab,
+    IAssignObjectPrefab,
     IBlit,
     IDeclareCullingTexture,
     IDeclareRenderTexture,
@@ -54,7 +54,7 @@ export interface BeatmapCustomEvents {
     destroyPrefabEvents: DestroyPrefab[]
     setAnimatorPropertyEvents: SetAnimatorProperty[]
     setCameraPropertyEvents: SetCameraProperty[]
-    assignTrackPrefabEvents: AssignTrackPrefab[]
+    assignObjectPrefabEvents: AssignObjectPrefab[]
     setRenderSettingEvents: SetRenderSetting[]
 
     abstractCustomEvents: AbstractCustomEvent[]
@@ -62,7 +62,7 @@ export interface BeatmapCustomEvents {
 
 export type IV3CustomEvent =
     | bsmap.v3.ICustomEvent
-    | IAssignTrackPrefab
+    | IAssignObjectPrefab
     | IBlit
     | IDeclareCullingTexture
     | IDeclareRenderTexture

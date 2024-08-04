@@ -131,20 +131,50 @@ export interface ISetCameraProperty {
     }
 }
 
-/** JSON properties for AssignTrackPrefab events */
-export interface IAssignTrackPrefab {
+/** JSON properties for AssignObjectPrefab events */
+export interface IAssignObjectPrefab {
     b: number
-    t: 'AssignTrackPrefab'
+    t: 'AssignObjectPrefab'
     d: {
-        track: string
         loadMode?: LOAD_MODE
-        colorNotes?: string | null
-        bombNotes?: string | null
-        burstSliders?: string | null
-        burstSliderElements?: string | null
-        colorNoteDebris?: string | null
-        burstSliderDebris?: string | null
-        burstSliderElementDebris?: string | null
+        colorNotes?: {
+            /** The track to replace this prefab on. */
+            track: string
+            /** The path to the prefab to replace the model. */
+            asset: string | null
+            /** The path to the prefab to replace debris. */
+            debrisAsset?: string | null
+        }
+        bombNotes?: {
+            /** The track to replace this prefab on. */
+            track: string
+            /** The path to the prefab to replace the model. */
+            asset: string | null
+        }
+        burstSliders?: {
+            /** The track to replace this prefab on. */
+            track: string
+            /** The path to the prefab to replace the model. */
+            asset: string | null
+            /** The path to the prefab to replace debris. */
+            debrisAsset?: string | null
+        }
+        burstSliderElements?: {
+            /** The track to replace this prefab on. */
+            track: string
+            /** The path to the prefab to replace the model. */
+            asset: string | null
+            /** The path to the prefab to replace debris. */
+            debrisAsset?: string | null
+        }
+        saber?: {
+            /** The path to the prefab to replace the model. */
+            asset: string | null
+            /** The path to the material to go on this saber's trails. */
+            trailMaterial: string
+            /** The length of this saber's trails. */
+            trailLength: number
+        }
     }
 }
 
