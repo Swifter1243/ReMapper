@@ -19,16 +19,14 @@ export class AssignObjectPrefab extends CustomEvent<
         super(params)
         this.type = 'AssignObjectPrefab'
         this.loadMode = params.loadMode
-        this.track = params.track ?? AssignObjectPrefab.defaults.track
         this.colorNotes = params.colorNotes
         this.bombNotes = params.bombNotes
         this.chainHeads = params.chainHeads
         this.chainLinks = params.chainLinks
-        this.saber = params.saber
+        this.leftSaber = params.leftSaber
+        this.rightSaber = params.rightSaber
     }
 
-    /** Only objects on this track will be affected. */
-    track: string
     /** Determines how this prefab will be assigned to this track. */
     loadMode?: LOAD_MODE
     /** The desired prefab(s) to replace color notes. */
@@ -40,10 +38,11 @@ export class AssignObjectPrefab extends CustomEvent<
     /** The desired prefab(s) to replace chain links. */
     chainLinks?: IAssignObjectPrefab['d']['burstSliderElements']
     /** The desired prefab/material to replace sabers */
-    saber?: IAssignObjectPrefab['d']['saber']
+    leftSaber?: IAssignObjectPrefab['d']['saberA']
+    /** The desired prefab/material to replace sabers */
+    rightSaber?: IAssignObjectPrefab['d']['saberB']
 
     static defaults: JsonObjectDefaults<AssignObjectPrefab> = {
-        track: '',
         ...super.defaults,
     }
 
@@ -60,7 +59,8 @@ export class AssignObjectPrefab extends CustomEvent<
         this.chainLinks = getDataProp(json.d, 'burstSliderElements')
         this.chainHeads = getDataProp(json.d, 'burstSliders')
         this.bombNotes = getDataProp(json.d, 'bombNotes')
-        this.saber = getDataProp(json.d, 'saber')
+        this.leftSaber = getDataProp(json.d, 'saberA')
+        this.rightSaber = getDataProp(json.d, 'saberB')
         return super.fromJsonV3(json)
     }
 
@@ -77,7 +77,8 @@ export class AssignObjectPrefab extends CustomEvent<
                 burstSliders: this.chainHeads,
                 burstSliderElements: this.chainLinks,
                 bombNotes: this.bombNotes,
-                saber: this.saber,
+                saberA: this.leftSaber,
+                saberB: this.rightSaber,
                 ...this.data,
             },
             t: 'AssignObjectPrefab',
