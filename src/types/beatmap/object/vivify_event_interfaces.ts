@@ -141,7 +141,7 @@ export interface IAssignObjectPrefab {
             /** The track to replace this prefab on. */
             track: string
             /** The path to the prefab to replace the model. */
-            asset: string | null
+            asset?: string | null
             /** The path to the prefab to replace debris. */
             debrisAsset?: string | null
         }
@@ -149,13 +149,13 @@ export interface IAssignObjectPrefab {
             /** The track to replace this prefab on. */
             track: string
             /** The path to the prefab to replace the model. */
-            asset: string | null
+            asset?: string | null
         }
         burstSliders?: {
             /** The track to replace this prefab on. */
             track: string
             /** The path to the prefab to replace the model. */
-            asset: string | null
+            asset?: string | null
             /** The path to the prefab to replace debris. */
             debrisAsset?: string | null
         }
@@ -163,15 +163,15 @@ export interface IAssignObjectPrefab {
             /** The track to replace this prefab on. */
             track: string
             /** The path to the prefab to replace the model. */
-            asset: string | null
+            asset?: string | null
             /** The path to the prefab to replace debris. */
             debrisAsset?: string | null
         }
         saberA?: {
             /** The path to the prefab to replace the model. */
-            asset: string | null
+            asset?: string | null
             /** The path to the material to go on this saber's trails. */
-            trailAsset: string
+            trailAsset?: string
             /** The length of this saber's trails. */
             trailDuration?: number
             /** The tip of the saber. */
@@ -181,9 +181,9 @@ export interface IAssignObjectPrefab {
         }
         saberB?: {
             /** The path to the prefab to replace the model. */
-            asset: string | null
+            asset?: string | null
             /** The path to the material to go on this saber's trails. */
-            trailAsset: string
+            trailAsset?: string
             /** The length of this saber's trails. */
             trailLength?: number
             /** The tip of the saber. */
