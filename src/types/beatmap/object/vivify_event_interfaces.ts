@@ -140,48 +140,52 @@ export interface IAssignObjectPrefab {
         colorNotes?: {
             /** The track to replace this prefab on. */
             track: string | string[]
-            /** The path to the prefab to replace the model for arrow notes. */
+            /** File path to the desired prefab. Only applies to directional notes. Sets properties _Color and _Cutout. */
             asset?: string | null
-            /** The path to the prefab to replace debris. */
+            /** Applies to cut debris. Sets properties _Cutout, _Color, _CutPlane, and _CutoutTexOffset. */
             debrisAsset?: string | null
-            /** The path to the prefab to replace any direction (dot) note models. */
+            /** Only applies to dot notes. Sets same properties as directional notes. */
             anyDirectionAsset?: string | null
         }
         bombNotes?: {
-            /** The track to replace this prefab on. */
+            /** File path to the desired prefab. */
             track: string | string[]
-            /** The path to the prefab to replace the model. */
+            /** File path to the desired prefab. Sets properties _Color and _Cutout. */
             asset?: string | null
         }
         burstSliders?: {
             /** The track to replace this prefab on. */
             track: string | string[]
-            /** The path to the prefab to replace the model. */
+            /** File path to the desired prefab. Only applies to chain heads. Sets properties _Color and _Cutout. */
             asset?: string | null
-            /** The path to the prefab to replace debris. */
+            /** Applies to cut debris. Sets properties _Cutout, _Color, _CutPlane, and _CutoutTexOffset. */
             debrisAsset?: string | null
         }
         burstSliderElements?: {
             /** The track to replace this prefab on. */
             track: string | string[]
-            /** The path to the prefab to replace the model. */
+            /** File path to the desired prefab. Only applies to chain links. Sets properties _Color and _Cutout. */
             asset?: string | null
-            /** The path to the prefab to replace debris. */
+            /** Applies to cut debris. Sets properties _Cutout, _Color, _CutPlane, and _CutoutTexOffset.  */
             debrisAsset?: string | null
         }
         saber?: {
             /** Determines which sabers should be effected. */
             type: 'Left' | 'Right' | 'Both'
-            /** The path to the prefab to replace the model. */
+            /** File path to the desired prefab. Sets property _Color.*/
             asset?: string | null
-            /** The path to the material to go on this saber's trails. */
+            /** File path to the material to replace the saber. Sets property _Color and sets vertex colors for a gradient. */
             trailAsset?: string
-            /** The length of this saber's trails. */
+            /** Age of most distant segment of trail in seconds. Defaults to 0.4 */
             trailDuration?: number
-            /** The tip of the saber. */
+            /** Vector3 position of the top of the trail. Defaults to [0, 0, 1] */
             trailTopPos?: Vec3
-            /** The bottom the saber. */
+            /** Vector3 position of the top of the trail. Defaults to [0, 0, 0] */
             trailBottomPos?: Vec3
+            /** Saber position snapshots taken per second. Defaults to 50 */
+            trailSamplingFrequency: number
+            /** Segments count in final trail mesh. Defaults to 60 */
+            trailGranularity: number
         }
     }
 }
