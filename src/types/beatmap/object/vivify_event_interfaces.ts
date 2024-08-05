@@ -140,10 +140,12 @@ export interface IAssignObjectPrefab {
         colorNotes?: {
             /** The track to replace this prefab on. */
             track: string
-            /** The path to the prefab to replace the model. */
+            /** The path to the prefab to replace the model for arrow notes. */
             asset?: string | null
             /** The path to the prefab to replace debris. */
             debrisAsset?: string | null
+            /** The path to the prefab to replace any direction (dot) note models. */
+            anyDirectionAsset?: string | null
         }
         bombNotes?: {
             /** The track to replace this prefab on. */
