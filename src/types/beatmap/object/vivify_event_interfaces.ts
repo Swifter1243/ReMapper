@@ -139,7 +139,7 @@ export interface IAssignObjectPrefab {
         loadMode?: LOAD_MODE
         colorNotes?: {
             /** The track to replace this prefab on. */
-            track: string
+            track: string | string[]
             /** The path to the prefab to replace the model for arrow notes. */
             asset?: string | null
             /** The path to the prefab to replace debris. */
@@ -149,13 +149,13 @@ export interface IAssignObjectPrefab {
         }
         bombNotes?: {
             /** The track to replace this prefab on. */
-            track: string
+            track: string | string[]
             /** The path to the prefab to replace the model. */
             asset?: string | null
         }
         burstSliders?: {
             /** The track to replace this prefab on. */
-            track: string
+            track: string | string[]
             /** The path to the prefab to replace the model. */
             asset?: string | null
             /** The path to the prefab to replace debris. */
@@ -163,7 +163,7 @@ export interface IAssignObjectPrefab {
         }
         burstSliderElements?: {
             /** The track to replace this prefab on. */
-            track: string
+            track: string | string[]
             /** The path to the prefab to replace the model. */
             asset?: string | null
             /** The path to the prefab to replace debris. */
