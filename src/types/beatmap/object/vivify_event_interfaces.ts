@@ -169,25 +169,15 @@ export interface IAssignObjectPrefab {
             /** The path to the prefab to replace debris. */
             debrisAsset?: string | null
         }
-        saberA?: {
+        saber?: {
+            /** Determines which sabers should be effected. */
+            type: 'Left' | 'Right' | 'Both'
             /** The path to the prefab to replace the model. */
             asset?: string | null
             /** The path to the material to go on this saber's trails. */
             trailAsset?: string
             /** The length of this saber's trails. */
             trailDuration?: number
-            /** The tip of the saber. */
-            trailTopPos?: Vec3
-            /** The bottom the saber. */
-            trailBottomPos?: Vec3
-        }
-        saberB?: {
-            /** The path to the prefab to replace the model. */
-            asset?: string | null
-            /** The path to the material to go on this saber's trails. */
-            trailAsset?: string
-            /** The length of this saber's trails. */
-            trailLength?: number
             /** The tip of the saber. */
             trailTopPos?: Vec3
             /** The bottom the saber. */

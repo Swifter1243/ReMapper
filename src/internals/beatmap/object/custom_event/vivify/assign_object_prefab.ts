@@ -23,8 +23,7 @@ export class AssignObjectPrefab extends CustomEvent<
         this.bombNotes = params.bombNotes
         this.chainHeads = params.chainHeads
         this.chainLinks = params.chainLinks
-        this.leftSaber = params.leftSaber
-        this.rightSaber = params.rightSaber
+        this.saber = params.saber
     }
 
     /** Determines how this prefab will be assigned to this track. */
@@ -38,9 +37,7 @@ export class AssignObjectPrefab extends CustomEvent<
     /** The desired prefab(s) to replace chain links. */
     chainLinks?: IAssignObjectPrefab['d']['burstSliderElements']
     /** The desired prefab/material to replace sabers */
-    leftSaber?: IAssignObjectPrefab['d']['saberA']
-    /** The desired prefab/material to replace sabers */
-    rightSaber?: IAssignObjectPrefab['d']['saberB']
+    saber?: IAssignObjectPrefab['d']['saber']
 
     static defaults: JsonObjectDefaults<AssignObjectPrefab> = {
         ...super.defaults,
@@ -59,8 +56,7 @@ export class AssignObjectPrefab extends CustomEvent<
         this.chainLinks = getDataProp(json.d, 'burstSliderElements')
         this.chainHeads = getDataProp(json.d, 'burstSliders')
         this.bombNotes = getDataProp(json.d, 'bombNotes')
-        this.leftSaber = getDataProp(json.d, 'saberA')
-        this.rightSaber = getDataProp(json.d, 'saberB')
+        this.saber = getDataProp(json.d, 'saber')
         return super.fromJsonV3(json)
     }
 
@@ -77,8 +73,7 @@ export class AssignObjectPrefab extends CustomEvent<
                 burstSliders: this.chainHeads,
                 burstSliderElements: this.chainLinks,
                 bombNotes: this.bombNotes,
-                saberA: this.leftSaber,
-                saberB: this.rightSaber,
+                saber: this.saber,
                 ...this.data,
             },
             t: 'AssignObjectPrefab',
