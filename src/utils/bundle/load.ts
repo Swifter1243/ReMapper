@@ -24,6 +24,7 @@ function initializeMaterials(materials: Material[]) {
 
         const properties: MaterialPropertyValues = {}
         keys.forEach((property) => {
+            if (material.propertyTypes[property] === 'Texture') return // TODO: Proper Texture default values
             properties[property] = material.defaults[property] as MATERIAL_PROP_TYPE
         })
         material.set(properties)
