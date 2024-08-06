@@ -183,9 +183,9 @@ export interface IAssignObjectPrefab {
             /** Vector3 position of the top of the trail. Defaults to [0, 0, 0] */
             trailBottomPos?: Vec3
             /** Saber position snapshots taken per second. Defaults to 50 */
-            trailSamplingFrequency: number
+            trailSamplingFrequency?: number
             /** Segments count in final trail mesh. Defaults to 60 */
-            trailGranularity: number
+            trailGranularity?: number
         }
     }
 }
