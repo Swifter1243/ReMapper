@@ -1,5 +1,5 @@
 import {blit, setMaterialProperty} from '../../builder_functions/beatmap/object/custom_event/vivify.ts'
-import {MaterialProperties, MaterialPropertyMap} from "../../types/bundle.ts";
+import {MaterialProperties, MaterialPropertyMap, MaterialPropertyValues} from "../../types/bundle.ts";
 
 import {EASE} from "../../types/animation/easing.ts";
 import {DeepReadonly} from "../../types/util/mutability.ts";
@@ -10,7 +10,7 @@ import {Blit} from "../../internals/beatmap/object/custom_event/vivify/blit.ts";
 type MaterialSetParameters0<
     T extends MaterialProperties,
 > = [
-    values: Partial<{ [K in keyof T]: MaterialPropertyMap[T[K]] }>,
+    values: Partial<MaterialPropertyValues<T>>,
     beat?: number,
     duration?: number,
     easing?: EASE,
@@ -45,13 +45,16 @@ export class Material<T extends MaterialProperties = MaterialProperties> {
     readonly path: string
     /** Name of this material. */
     readonly name: string
-    /** Properties in this material. */
-    properties: DeepReadonly<T>
+    /** Properties in this material and their corresponding type. */
+    readonly propertyTypes: DeepReadonly<T>
+    /** The default values for properties in this material. */
+    readonly defaults: DeepReadonly<MaterialPropertyValues<T>>
 
-    constructor(path: string, name: string, properties: T) {
+    constructor(path: string, name: string, propertyTypes: T, defaults: typeof this.defaults) {
         this.path = path
         this.name = name
-        this.properties = properties
+        this.propertyTypes = propertyTypes
+        this.defaults = defaults
     }
 
     /** Apply this material to the post processing stack. */
@@ -130,7 +133,7 @@ export class Material<T extends MaterialProperties = MaterialProperties> {
 
             fixedValues.push({
                 id: k,
-                type: this.properties[k] as MATERIAL_PROP_TYPE,
+                type: this.propertyTypes[k] as MATERIAL_PROP_TYPE,
                 value: fixedValue,
             })
         })

@@ -15,7 +15,7 @@ export type PrefabInfo = Record<string, string>
  */
 export type MaterialInfo = Record<string, {
     path: string
-    properties: Record<string, Partial<Record<MATERIAL_PROP_TYPE, unknown>>>
+    properties: Record<string, Partial<Record<MATERIAL_PROP_TYPE, string>>>
 }>
 
 /** Bundle info exported from the VivifyTemplate exporter. Imported to this type in the form of `asset_info.json`. */
@@ -27,17 +27,28 @@ export type BundleInfo = {
     }
 }
 
-/** A list of materials and their property types. Typically input from `asset_info.json`.
+/** Generates the "properties" field for FixedMaterialInfo
+ * @see FixedMaterialInfo
+ * */
+export type FixedMaterialProperties<BaseMaterial extends MaterialInfo[string]> = {
+    [MaterialProperty in keyof BaseMaterial['properties']]:
+    BaseMaterial['properties'][MaterialProperty] extends Record<string, unknown>
+        ? Extract<keyof BaseMaterial['properties'][MaterialProperty], MATERIAL_PROP_TYPE>
+        : never
+}
+
+/** Represents a list of material properties and their types as the equivalent list with their values. */
+export type MaterialPropertyValues<T extends MaterialProperties = MaterialProperties> = {
+    [K in keyof T]: MaterialPropertyMap[T[K]]
+}
+
+/** A list of materials and their property types. Typically input from `bundleinfo.json`.
  * Deno doesn't import json strings as literals, so this is considered the clean version after it has been processed by `fixMaterial`.
  */
 export type FixedMaterialInfo<BaseMaterial extends MaterialInfo[string]> = {
     path: string
-    properties: {
-        [MaterialProperty in keyof BaseMaterial['properties']]:
-            BaseMaterial['properties'][MaterialProperty] extends Record<string, unknown>
-                ? Extract<keyof BaseMaterial['properties'][MaterialProperty], MATERIAL_PROP_TYPE>
-                : never
-    }
+    properties: FixedMaterialProperties<BaseMaterial>
+    defaults: MaterialPropertyValues<FixedMaterialProperties<BaseMaterial>>
 }
 
 /** A typed dictionary of prefabs based on `asset_info.json`. */
