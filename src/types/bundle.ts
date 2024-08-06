@@ -38,9 +38,31 @@ export type FixedMaterialProperties<BaseMaterial extends MaterialInfo[string]> =
 }
 
 /** Represents a list of material properties and their types as the equivalent list with their values. */
+export type StaticMaterialPropertyValues<T extends MaterialProperties = MaterialProperties> = {
+    [K in keyof T]: StaticMaterialPropertyMap[T[K]]
+}
+
+/** Converts a `MATERIAL_PROP_TYPE` to it's corresponding value. */
+export type StaticMaterialPropertyMap = {
+    'Texture': FILEPATH
+    'Float': number
+    'Color': ColorVec
+    'Vector': Vec4
+}
+
+/** Represents a list of material properties and their types as the equivalent list with their values. */
 export type MaterialPropertyValues<T extends MaterialProperties = MaterialProperties> = {
     [K in keyof T]: MaterialPropertyMap[T[K]]
 }
+
+/** Converts a `MATERIAL_PROP_TYPE` to it's corresponding value. */
+export type MaterialPropertyMap = {
+    'Texture': FILEPATH
+    'Float': number | RuntimePointDefinitionLinear
+    'Color': ColorVec | RuntimePointDefinitionVec4
+    'Vector': Vec4 | RuntimePointDefinitionVec4
+}
+
 
 /** A list of materials and their property types. Typically input from `bundleinfo.json`.
  * Deno doesn't import json strings as literals, so this is considered the clean version after it has been processed by `fixMaterial`.
@@ -61,11 +83,3 @@ export type MaterialMap<T extends MaterialInfo> = {
 
 /** Untyped material properties. */
 export type MaterialProperties = Record<string, MATERIAL_PROP_TYPE>
-
-/** Converts a `MATERIAL_PROP_TYPE` to it's corresponding value. */
-export type MaterialPropertyMap = {
-    'Texture': FILEPATH
-    'Float': number | RuntimePointDefinitionLinear
-    'Color': ColorVec | RuntimePointDefinitionVec4
-    'Vector': Vec4 | RuntimePointDefinitionVec4
-}

@@ -1,5 +1,10 @@
 import {blit, setMaterialProperty} from '../../builder_functions/beatmap/object/custom_event/vivify.ts'
-import {MaterialProperties, MaterialPropertyMap, MaterialPropertyValues} from "../../types/bundle.ts";
+import {
+    MaterialProperties,
+    MaterialPropertyMap,
+    MaterialPropertyValues,
+    StaticMaterialPropertyValues
+} from "../../types/bundle.ts";
 
 import {EASE} from "../../types/animation/easing.ts";
 import {DeepReadonly} from "../../types/util/mutability.ts";
@@ -48,7 +53,7 @@ export class Material<T extends MaterialProperties = MaterialProperties> {
     /** Properties in this material and their corresponding type. */
     readonly propertyTypes: DeepReadonly<T>
     /** The default values for properties in this material. */
-    readonly defaults: DeepReadonly<MaterialPropertyValues<T>>
+    readonly defaults: DeepReadonly<StaticMaterialPropertyValues<T>>
 
     constructor(path: string, name: string, propertyTypes: T, defaults: typeof this.defaults) {
         this.path = path
