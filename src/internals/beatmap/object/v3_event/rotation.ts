@@ -88,7 +88,7 @@ export class RotationEvent extends BeatmapObject<bsmap.v2.IEventLaneRotation, bs
             _type: this.early ? EventGroup.EARLY_ROTATION : EventGroup.LATE_ROTATION,
             _value: vanillaRotation ?? 0,
             _customData: {
-                _rotation: vanillaRotation !== undefined ? undefined : this.rotation,
+                _rotation: vanillaRotation === undefined ? this.rotation : undefined,
             },
         } satisfies bsmap.v2.IEventLaneRotation
         return prune ? objectPrune(output) : output
