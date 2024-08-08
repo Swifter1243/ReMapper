@@ -49,7 +49,7 @@ export class RotationEvent extends BeatmapObject<bsmap.v2.IEventLaneRotation, bs
     }
 
     fromJsonV3(json: bsmap.v3.IRotationEvent): this {
-        this.early = json.e !== undefined ? json.e === 1 : RotationEvent.defaults.early
+        this.early = json.e !== undefined ? json.e === 0 : RotationEvent.defaults.early
         this.rotation = json.r ?? RotationEvent.defaults.rotation
         return super.fromJsonV3(json);
     }
@@ -63,7 +63,7 @@ export class RotationEvent extends BeatmapObject<bsmap.v2.IEventLaneRotation, bs
     toJsonV3(prune?: boolean): bsmap.v3.IRotationEvent {
         const output = {
             b: this.beat,
-            e: this.early ? 1 : 0,
+            e: this.early ? 0 : 1,
             r: this.rotation,
             customData: this.customData,
         } satisfies bsmap.v3.IRotationEvent

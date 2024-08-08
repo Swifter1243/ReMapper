@@ -42,6 +42,7 @@ import {Arc} from "./object/gameplay_object/arc.ts";
 import {Chain} from "./object/gameplay_object/chain.ts";
 import { clearPropertyMap } from '../../data/constants/beatmap.ts'
 import {AnimateTrack} from "./object/custom_event/heck/animate_track.ts";
+import {convertRotationEventsToObjectRotation} from "../../utils/beatmap/convert.ts";
 
 /** A remapper difficulty, version agnostic */
 export abstract class AbstractDifficulty<
@@ -242,6 +243,11 @@ export abstract class AbstractDifficulty<
             } else diffName = self.fileName as DIFFICULTY_FILENAME
 
             await self.awaitAllAsync()
+
+            if (settings.convertRotationEventsToObjectRotation) {
+                convertRotationEventsToObjectRotation(self)
+            }
+
             const outputJSON = self.toJSON()
 
             // this.doPostProcess(undefined, outputJSON)
