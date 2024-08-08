@@ -1,6 +1,4 @@
 import { AbstractDifficulty } from '../../internals/beatmap/abstract_beatmap.ts'
-import {combineRotations} from "../math/transform.ts";
-import {Vec3} from "../../types/math/vector.ts";
 
 /** Bakes all rotations from `RotationEvent`s in a difficulty into gameplay object `worldRotation` fields. */
 export function convertRotationEventsToObjectRotation(difficulty: AbstractDifficulty) {
