@@ -6,7 +6,7 @@ import { NoteColor, NoteCut } from '../../../../data/constants/note.ts'
 import { BaseNote } from './base_note.ts'
 import { copy } from '../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../utils/object/prune.ts'
-import { exportInvertedBoolean } from '../../../../utils/beatmap/json.ts'
+import {exportInvertedBoolean, simplifyWorldRotation} from '../../../../utils/beatmap/json.ts'
 import { GameplayObjectDefaults, GameplayObjectConstructor } from '../../../../types/beatmap/object/gameplay_object.ts'
 
 export class ColorNote extends BaseNote<bsmap.v3.IColorNote> {
@@ -72,7 +72,7 @@ export class ColorNote extends BaseNote<bsmap.v3.IColorNote> {
                 noteJumpStartBeatOffset: this.getForcedOffset(),
                 track: this.track.value,
                 uninteractable: this.uninteractable,
-                worldRotation: this.worldRotation,
+                worldRotation: simplifyWorldRotation(this.worldRotation),
                 link: this.link,
                 disableBadCutDirection: this.disableBadCutDirection,
                 disableBadCutSpeed: this.disableBadCutSpeed,
@@ -104,7 +104,7 @@ export class ColorNote extends BaseNote<bsmap.v3.IColorNote> {
                 _noteJumpStartBeatOffset: this.getForcedOffset(),
                 _track: this.track.value,
                 _interactable: exportInvertedBoolean(this.uninteractable, true),
-                _rotation: this.worldRotation,
+                _rotation: simplifyWorldRotation(this.worldRotation),
                 _fake: this.fake,
                 _cutDirection: this.angleOffset !== 0 ? this.angleOffset : undefined,
                 ...this.customData,

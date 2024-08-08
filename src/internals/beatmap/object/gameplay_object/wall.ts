@@ -8,7 +8,7 @@ import { BeatmapGameplayObject } from './gameplay_object.ts'
 import { AnimationSettings } from '../../../../utils/animation/optimizer.ts'
 import { Vec3 } from '../../../../types/math/vector.ts'
 import { AnimatedTransform } from '../../../../types/math/transform.ts'
-import { exportInvertedBoolean, getCDProp } from '../../../../utils/beatmap/json.ts'
+import {exportInvertedBoolean, getCDProp, simplifyWorldRotation} from '../../../../utils/beatmap/json.ts'
 import { setWallWorldTransform } from '../../../../utils/beatmap/object/wall/transform.ts'
 import { GameplayObjectDefaults, GameplayObjectConstructor } from '../../../../types/beatmap/object/gameplay_object.ts'
 
@@ -126,7 +126,7 @@ export class Wall extends BeatmapGameplayObject<bsmap.v2.IObstacle, bsmap.v3.IOb
                 noteJumpStartBeatOffset: this.getForcedOffset(),
                 localRotation: this.localRotation,
                 coordinates: this.coordinates,
-                worldRotation: this.worldRotation,
+                worldRotation: simplifyWorldRotation(this.worldRotation),
                 track: this.track.value,
                 color: this.chromaColor,
                 uninteractable: this.uninteractable,
@@ -151,7 +151,7 @@ export class Wall extends BeatmapGameplayObject<bsmap.v2.IObstacle, bsmap.v3.IOb
                 _noteJumpStartBeatOffset: this.getForcedOffset(),
                 _localRotation: this.localRotation,
                 _position: this.coordinates,
-                _rotation: this.worldRotation,
+                _rotation: simplifyWorldRotation(this.worldRotation),
                 _track: this.track.value,
                 _color: this.chromaColor,
                 _interactable: exportInvertedBoolean(this.uninteractable, true),

@@ -5,7 +5,7 @@ import {getActiveDifficulty} from "../../../../data/active_difficulty.ts";
 import {animationV3toV2} from "../../../../utils/animation/json.ts";
 
 import {BaseNote} from "./base_note.ts";
-import {exportInvertedBoolean} from "../../../../utils/beatmap/json.ts";
+import {exportInvertedBoolean, simplifyWorldRotation} from "../../../../utils/beatmap/json.ts";
 import {GameplayObjectConstructor} from "../../../../types/beatmap/object/gameplay_object.ts";
 
 export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
@@ -38,7 +38,7 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
                 color: this.chromaColor,
                 coordinates: this.coordinates,
                 track: this.track.value,
-                worldRotation: this.worldRotation,
+                worldRotation: simplifyWorldRotation(this.worldRotation),
                 link: this.link,
                 disableBadCutDirection: this.disableBadCutDirection,
                 disableBadCutSpeed: this.disableBadCutSpeed,
@@ -67,7 +67,7 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
                 _fake: this.fake,
                 _localRotation: this.localRotation,
                 _position: this.coordinates,
-                _rotation: this.worldRotation,
+                _rotation: simplifyWorldRotation(this.worldRotation),
                 _track: this.track.value,
                 _disableNoteGravity: this.disableNoteGravity,
                 _disableNoteLook: this.disableNoteLook,

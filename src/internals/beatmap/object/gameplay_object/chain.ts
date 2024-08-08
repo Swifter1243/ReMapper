@@ -4,7 +4,12 @@ import { objectPrune } from '../../../../utils/object/prune.ts'
 import { getActiveDifficulty } from '../../../../data/active_difficulty.ts'
 import { BaseSliderObject } from './base_slider.ts'
 import { Vec2 } from '../../../../types/math/vector.ts'
-import { exportInvertedBoolean, getCDProp, importInvertedBoolean } from '../../../../utils/beatmap/json.ts'
+import {
+    exportInvertedBoolean,
+    getCDProp,
+    importInvertedBoolean,
+    simplifyWorldRotation
+} from '../../../../utils/beatmap/json.ts'
 import { GameplayObjectDefaults, GameplayObjectConstructor } from '../../../../types/beatmap/object/gameplay_object.ts'
 
 export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
@@ -121,7 +126,7 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
                 disableNoteLook: this.disableNoteLook,
                 spawnEffect: exportInvertedBoolean(this.disableSpawnEffect, true),
                 track: this.track.value,
-                worldRotation: this.worldRotation,
+                worldRotation: simplifyWorldRotation(this.worldRotation),
                 link: this.link,
                 disableBadCutDirection: this.disableBadCutDirection,
                 disableBadCutSpeed: this.disableBadCutSpeed,

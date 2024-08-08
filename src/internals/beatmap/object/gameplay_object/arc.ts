@@ -6,7 +6,7 @@ import { getActiveDifficulty } from '../../../../data/active_difficulty.ts'
 import { NoteCut } from '../../../../data/constants/note.ts'
 import { BaseSliderObject } from './base_slider.ts'
 import { Vec2 } from '../../../../types/math/vector.ts'
-import { defaultBoolean, getCDProp } from '../../../../utils/beatmap/json.ts'
+import {defaultBoolean, getCDProp, simplifyWorldRotation} from '../../../../utils/beatmap/json.ts'
 import { GameplayObjectDefaults, GameplayObjectConstructor } from '../../../../types/beatmap/object/gameplay_object.ts'
 
 export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
@@ -101,7 +101,7 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
                 localRotation: this.localRotation,
                 disableNoteGravity: defaultBoolean(this.disableNoteGravity, false),
                 track: this.track.value,
-                worldRotation: this.worldRotation,
+                worldRotation: simplifyWorldRotation(this.worldRotation),
                 ...this.customData,
             },
         } satisfies bsmap.v3.IArc

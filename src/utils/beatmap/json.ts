@@ -1,3 +1,5 @@
+import {Vec3} from "../../types/math/vector.ts";
+
 /**
  * Converts an array of Json objects to a class counterpart.
  * Used internally in Difficulty to import Json.
@@ -80,4 +82,11 @@ export function getDataProp<
     }
 
     return undefined
+}
+
+/** Try to collapse `worldRotation` on gameplay objects to a single number if the X and Z components are 0. */
+export function simplifyWorldRotation(worldRotation: number | Vec3 | undefined) {
+    if (typeof worldRotation !== 'object') return worldRotation
+    if (worldRotation[0] === 0 && worldRotation[2] === 0) return worldRotation[1]
+    return worldRotation
 }
