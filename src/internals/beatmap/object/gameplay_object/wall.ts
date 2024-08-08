@@ -89,10 +89,9 @@ export class Wall extends BeatmapGameplayObject<bsmap.v2.IObstacle, bsmap.v3.IOb
     }
 
     get isGameplayModded() {
-        if (super.isGameplayModded) return true
         if (this.size) return true
         if (this.fake) return true
-        return false
+        return super.isGameplayModded
     }
 
     fromJsonV3(json: bsmap.v3.IObstacle): this {

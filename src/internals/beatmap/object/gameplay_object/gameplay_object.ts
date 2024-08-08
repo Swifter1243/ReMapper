@@ -209,8 +209,7 @@ export abstract class BeatmapGameplayObject<
         if (this.localRotation) return true
         if (this.noteJumpSpeed !== undefined) return true
         if (this.noteJumpOffset !== undefined) return true
-        if (this.uninteractable) return true
-        return false
+        return !!this.uninteractable;
     }
 
     protected getForcedOffset() {

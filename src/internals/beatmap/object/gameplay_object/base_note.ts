@@ -59,7 +59,6 @@ export abstract class BaseNote<
     abstract push(clone: boolean): void
 
     get isGameplayModded() {
-        if (super.isGameplayModded) return true
         if (this.fake) return true
         if (this.flip) return true
         if (this.disableNoteGravity) return true
@@ -69,7 +68,7 @@ export abstract class BaseNote<
         if (this.disableBadCutSpeed) return true
         if (this.disableBadCutSaberType) return true
         if (this.disableDebris) return true
-        return false
+        return super.isGameplayModded
     }
 
     fromJsonV3(json: TV3): this {

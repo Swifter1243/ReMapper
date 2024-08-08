@@ -45,9 +45,8 @@ export abstract class BaseSliderObject<TV3 extends bsmap.v3.IBaseSlider = bsmap.
     }
 
     get isGameplayModded() {
-        if (super.isGameplayModded) return true
         if (this.tailCoordinates) return true
-        return false
+        return super.isGameplayModded
     }
 
     fromJsonV3(json: TV3): this {

@@ -53,10 +53,9 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
 
     /** Determines whether this note uses Noodle Extensions features. */
     get isGameplayModded() {
-        if (super.isGameplayModded) return true
         if (this.flip) return true
         if (this.disableNoteGravity) return true
-        return false
+        return super.isGameplayModded
     }
 
     fromJsonV3(json: bsmap.v3.IArc): this {
