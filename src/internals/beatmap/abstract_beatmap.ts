@@ -546,12 +546,12 @@ function reduceDecimalsPostProcess(
     _k: string,
     v: unknown,
 ): unknown {
-    if (!settings.decimals) return
+    if (!settings.decimalPrecision) return
     if (!v) return
 
     if (typeof v !== 'number') return
 
-    return setDecimals(v, settings.decimals)
+    return setDecimals(v, settings.decimalPrecision)
 
     // TODO: Remove
     // if (typeof v !== "object") return
