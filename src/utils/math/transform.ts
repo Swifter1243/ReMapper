@@ -12,6 +12,7 @@ import {AnimatedTransform, FullAnimatedTransform, Transform} from "../../types/m
 
 import {RawKeyframesVec3} from "../../types/animation/keyframe/vec3.ts";
 import {DeepReadonly} from "../../types/util/mutability.ts";
+import {eulerFromQuaternion, toThreeQuaternion} from "./three_conversion.ts";
 
 /**
  * Combine 2 rotations. Not commutative.
@@ -20,11 +21,10 @@ export function combineRotations(
     target: Readonly<Vec3>,
     rotation: Readonly<Vec3>,
 ) {
-    return combineTransforms({
-        rotation: target,
-    }, {
-        rotation: rotation,
-    }).rotation
+    const targetQuaternion = toThreeQuaternion(target)
+    const rotationQuaternion = toThreeQuaternion(rotation)
+    targetQuaternion.premultiply(rotationQuaternion)
+    return eulerFromQuaternion(targetQuaternion)
 }
 
 /**
