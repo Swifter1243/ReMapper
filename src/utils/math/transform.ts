@@ -50,11 +50,11 @@ export function combineTransforms(
     targetM.premultiply(transformM)
     const finalTarget = getTransformFromMatrix(targetM)
 
-    const finalPos = arrayAdd(finalTarget.pos, anchor)
+    const finalPos = arrayAdd(finalTarget.position, anchor)
 
     return {
         position: finalPos,
-        rotation: finalTarget.rot as Vec3,
+        rotation: finalTarget.rotation as Vec3,
         scale: finalTarget.scale as Vec3,
     }
 }

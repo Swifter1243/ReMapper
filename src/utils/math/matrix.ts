@@ -45,10 +45,10 @@ export function getTransformFromMatrix(matrix: three.Matrix4) {
     const q = new three.Quaternion()
     const scale = new three.Vector3()
     matrix.decompose(pos, q, scale)
-    const rot = eulerFromQuaternion(q)
+    const rotation = eulerFromQuaternion(q)
     return {
-        pos: threeClassToArray(pos),
-        rot: rot,
+        position: threeClassToArray(pos),
+        rotation,
         scale: threeClassToArray(scale),
     }
 }
@@ -65,7 +65,7 @@ export function lookAt(
     const right = crossProduct(up, forward)
     up = crossProduct(forward, right)
     const m = matrixFromBasisVectors(right, up, forward)
-    return getTransformFromMatrix(m).rot
+    return getTransformFromMatrix(m).rotation
 }
 
 /**
