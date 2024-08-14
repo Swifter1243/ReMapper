@@ -52,6 +52,12 @@ export enum InterscopeGroup {
     BACK_CARS,
 }
 
+/** Direction of spin in ring spin and laser speed events. */
+export enum SpinDirection {
+    COUNTER_CLOCKWISE,
+    CLOCKWISE
+}
+
 /** Rotation basic event values. */
 export const RotationAction = {
     CCW_60: 0,

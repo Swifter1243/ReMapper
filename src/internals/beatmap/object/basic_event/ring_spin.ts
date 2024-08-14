@@ -1,5 +1,5 @@
 import { BasicEvent } from './basic_event.ts'
-import { EventGroup } from '../../../../data/constants/basic_event.ts'
+import {EventGroup, SpinDirection} from '../../../../data/constants/basic_event.ts'
 import { getActiveDifficulty } from '../../../../data/active_difficulty.ts'
 import { copy } from '../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../utils/object/prune.ts'
@@ -24,8 +24,8 @@ export class RingSpinEvent extends BasicEvent<bsmap.v2.IEventRing, bsmap.v3.IBas
 
     /** The speed multiplier of the spin. */
     speed?: number
-    /** Direction of the spin. 1 is clockwise, 0 is counterclockwise. */
-    direction?: 0 | 1
+    /** Direction of the spin. */
+    direction?: SpinDirection
     /** The ring object name to target. */
     nameFilter?: string
     /** Degrees of the spin. */
@@ -49,7 +49,7 @@ export class RingSpinEvent extends BasicEvent<bsmap.v2.IEventRing, bsmap.v3.IBas
     }
 
     fromJsonV3(json: bsmap.v3.IBasicEventRing): this {
-        this.direction = getCDProp(json, 'direction') as 0 | 1 | undefined
+        this.direction = getCDProp(json, 'direction')
         this.nameFilter = getCDProp(json, 'nameFilter')
         this.prop = getCDProp(json, 'prop')
         this.rotation = getCDProp(json, 'rotation')
@@ -59,7 +59,7 @@ export class RingSpinEvent extends BasicEvent<bsmap.v2.IEventRing, bsmap.v3.IBas
     }
 
     fromJsonV2(json: bsmap.v2.IEventRing): this {
-        this.direction = getCDProp(json, '_direction') as 0 | 1 | undefined
+        this.direction = getCDProp(json, '_direction')
         this.nameFilter = getCDProp(json, '_nameFilter')
         this.prop = getCDProp(json, '_prop')
         this.rotation = getCDProp(json, '_rotation')

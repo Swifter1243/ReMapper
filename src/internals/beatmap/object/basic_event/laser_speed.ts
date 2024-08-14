@@ -5,6 +5,7 @@ import { BasicEvent } from './basic_event.ts'
 import { bsmap } from '../../../../deps.ts'
 import { getCDProp } from '../../../../utils/beatmap/json.ts'
 import { BeatmapObjectConstructor, BeatmapObjectDefaults } from '../../../../types/beatmap/object/object.ts'
+import {SpinDirection} from "../../../../data/constants/basic_event.ts";
 
 export class LaserSpeedEvent extends BasicEvent<bsmap.v2.IEventLaser, bsmap.v3.IBasicEventLaserRotation> {
     constructor(obj: BeatmapObjectConstructor<LaserSpeedEvent>) {
@@ -19,7 +20,7 @@ export class LaserSpeedEvent extends BasicEvent<bsmap.v2.IEventLaser, bsmap.v3.I
     /** Speed of the rotating lasers. */
     speed?: number
     /** Direction of the rotating lasers. */
-    direction?: number
+    direction?: SpinDirection
 
     static defaults: BeatmapObjectDefaults<LaserSpeedEvent> = {
         ...super.defaults,

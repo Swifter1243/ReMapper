@@ -1,11 +1,12 @@
 import {RingZoomEvent} from "../../../../internals/beatmap/object/basic_event/ring_zoom.ts";
 import {RingSpinEvent} from "../../../../internals/beatmap/object/basic_event/ring_spin.ts";
+import {SpinDirection} from "../../../../data/constants/basic_event.ts";
 
 /**
  * Spin the rings of an environment.
  * @param beat The beat of the event spin.
  * @param rotation Degrees of the spin.
- * @param direction Direction of the spin. 1 is clockwise, 0 is counterclockwise.
+ * @param direction Direction of the spin.
  * @param step The angle between each ring.
  * @param speed The speed multiplier of the spin.
  * @param prop The rate at which physics propagate through the rings.
@@ -15,7 +16,7 @@ import {RingSpinEvent} from "../../../../internals/beatmap/object/basic_event/ri
 export function ringSpin(
     beat: number,
     rotation?: number,
-    direction?: RingSpinEvent['direction'],
+    direction?: SpinDirection,
     step?: number,
     speed?: number,
     prop?: number,
@@ -26,7 +27,7 @@ export function ringSpin(
     ...params: [
         beat: number,
         rotation?: number,
-        direction?: RingSpinEvent['direction'],
+        direction?: SpinDirection,
         step?: number,
         speed?: number,
         prop?: number,
