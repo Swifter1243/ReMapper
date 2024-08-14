@@ -6,7 +6,7 @@ import { BasicEvent } from './basic_event.ts'
 
 export class AbstractBasicEvent extends BasicEvent {
     push(
-        clone: boolean,
+        clone?: boolean,
     ) {
         getActiveDifficulty().abstractBasicEvents.push(clone ? copy(this) : this)
         return this
