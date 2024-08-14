@@ -20,7 +20,7 @@ export class LightIterator extends BaseLightIterator {
      * Events will pass if they have this type.
      * @param type Input type.
      */
-    type = (type: number) => this.addCondition((x) => x.type === type)
+    isType = (type: number) => this.addCondition((x) => x.type === type)
 
     /**
      * Checks if any lightIDs on this event are in this range.
