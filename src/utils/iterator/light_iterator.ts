@@ -135,13 +135,23 @@ export class LightIterator extends BaseLightIterator {
      * @param offset Adds a number to each lightID.
      */
     transformWithChanges = (map: number[][], offset = 0) =>
-        this.addProcess((x) => {
-            if (x.lightID === undefined) return
+        this.addProcess((e) => {
+            if (e.lightID === undefined) return
 
-            const lightIDs = complexifyLightIDs(x.lightID)
+            const lightIDs = complexifyLightIDs(e.lightID)
             applyLightMap([offset, ...map], lightIDs)
-            x.lightID = simplifyLightIDs(lightIDs)
+            e.lightID = simplifyLightIDs(lightIDs)
         })
+
+    /** Provide a dictionary of IDs and their corresponding new IDs, and apply it to the IDs of each event. */
+    remapIDs(map: Record<number, number>) {
+        this.addProcess((e) => {
+            if (e.lightID === undefined) return
+
+            const lightIDs = complexifyLightIDs(e.lightID).map(x => map[x])
+            e.lightID = simplifyLightIDs(lightIDs)
+        })
+    }
 }
 
 // Made by Rabbit cause I'm too dumb! :)
