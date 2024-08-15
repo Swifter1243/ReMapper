@@ -45,7 +45,7 @@ export class BaseNoteIterator<T extends AnyNote> {
     }
 
     /**
-     * Run the algorithm on notes in the active difficulty.
+     * Run the iterator on notes in the active difficulty.
      * @param log Log the output JSON of each note.
      */
     run(log = false) {
@@ -117,7 +117,7 @@ export class BaseNoteIterator<T extends AnyNote> {
     }
 
     /**
-     * Process an array of provided notes through the algorithm.
+     * Process an array of provided notes through the iterator.
      * @param notes Notes to process.
      * @param log Whether passing notes should be logged.
      */

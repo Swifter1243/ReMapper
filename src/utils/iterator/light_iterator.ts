@@ -1,168 +1,146 @@
-import * as LightRemapperInternals from './base_light_iterator.ts'
 import {BaseLightIterator} from './base_light_iterator.ts'
 
 import {LightID} from '../../types/beatmap/object/environment.ts'
 
 import {doesArrayHave} from "../array/check.ts";
 import {copy} from "../object/copy.ts";
+import {complexifyLightIDs, simplifyLightIDs} from "../beatmap/object/environment/light_id.ts";
 
 export class LightIterator extends BaseLightIterator {
-    private complexifyLightIDs(
-        lightID: LightID,
-        callback: (ids: number[]) => number[],
-    ) {
-        let ids = typeof lightID === 'number' ? [lightID] : lightID
-        ids = callback(ids)
-        return ids.length === 1 ? ids[0] : ids
-    }
-
     /**
-     * Events will pass if they have this type.
-     * @param type Input type.
-     */
-    isType = (type: number) => this.addCondition((x) => x.type === type)
-
-    /**
-     * Checks if any lightIDs on this event are in this range.
+     * Checks if any light IDs on this event are in this range.
      */
     hasIDsInRange(min: number, max: number) {
-        this.addCondition((x) => {
-            return isInID(x.lightID, min, max)
+        this.addCondition((e) => {
+            return isInID(e.lightID, min, max)
         })
     }
 
+    /** Checks whether this event uses light IDs or is considered an "all lights" event. */
+    usesIDs() {
+        return this.addCondition(e => e.lightID !== undefined)
+    }
+
     /**
-     * Events will pass if they have lightIDs, or contain one of the lightIDs you specify.
-     * @param lightIDs Input lightID(s).
+     * Events will pass if one of their light IDs matches an element in {@link checkID}.
+     * @param checkID Input light ID(s).
      */
-    hasIDs(lightIDs?: LightID) {
-        return this.addCondition((x) => {
-            if (x.lightID) {
-                if (lightIDs) {
-                    const arrIDs = typeof lightIDs === 'object'
-                        ? lightIDs
-                        : [lightIDs]
-                    let passed = false
-                    this.complexifyLightIDs(x.lightID, (ids) => {
-                        if (ids.some((i) => doesArrayHave(arrIDs, i))) passed = true
-                        return ids
-                    })
-                    return passed
-                } else return true
-            }
-            return false
+    checkIDs(checkID: LightID) {
+        return this.addCondition((e) => {
+            if (e.lightID === undefined) return false
+
+            const checkIDs = complexifyLightIDs(checkID)
+            const eventIDs = complexifyLightIDs(e.lightID)
+            return eventIDs.some(x => doesArrayHave(checkIDs, x))
         })
     }
 
     /**
-     * Sets the lightID of the event.
-     * @param lightID Input lightID(s).
+     * Sets the light ID of the event.
+     * @param lightID Input light ID(s).
      */
     setIDs(lightID: LightID) {
-        this.addProcess((x) => {
-            x.lightID = lightID
+        this.addProcess((e) => {
+            e.lightID = lightID
         })
 
-        const lightOverrider = new LightRemapperInternals.BaseLightIterator()
+        const lightOverrider = new BaseLightIterator()
         lightOverrider.conditions = this.conditions
         lightOverrider.processes = this.processes
         return lightOverrider
     }
 
     /**
-     * Adds lightIDs to the event.
-     * @param lightID LightID(s) to add.
-     * @param initialize If false and event has no lightIDs, skip.
+     * Adds light IDs to the event.
+     * @param lightID Light ID(s) to add.
+     * @param initialize Whether to initialize IDs on events that don't have them, or move on.
      */
     appendIDs = (lightID: LightID, initialize = false) =>
         this.addProcess((x) => {
-            if (!x.lightID) {
+            if (x.lightID === undefined) {
                 if (initialize) x.lightID = []
                 else return
             }
 
-            this.complexifyLightIDs(lightID, (ids1) => {
-                x.lightID = this.complexifyLightIDs(x.lightID!, (ids2) => {
-                    return ids2.concat(ids1)
-                })
-                return ids1
-            })
+            const addIDs = complexifyLightIDs(lightID)
+            const lightIDs = complexifyLightIDs(x.lightID)
+            x.lightID = [...lightIDs, ...addIDs]
         })
 
     /**
-     * Initialize lightIDs if event has none.
-     * @param lightID Initializing lightID(s).
-     * @param spread If true, use lightID field as min and max to fill lightIDs in between.
+     * Initialize light IDs if event has none.
+     * @param lightID Initializing light ID(s).
      */
-    initalizeIDs = (lightID: LightID, spread = false) =>
+    initializeIDs = (lightID: LightID) =>
         this.addProcess((x) => {
-            let output: LightID = []
-
-            if (spread && typeof lightID === 'object' && lightID.length === 2) {
-                for (let i = lightID[0]; i <= lightID[1]; i++) output.push(i)
-            } else output = lightID
-
-            if (!x.lightID) x.lightID = output
+            if (x.lightID === undefined) x.lightID = lightID
         })
 
     /**
-     * Normalizes a sequence of lightIDs to a sequence of: 1, 2, 3, 4, 5... etc.
-     * @param step Differences between lightIDs.
+     * Normalizes a sequence of light IDs to a sequence of: 1, 2, 3, 4, 5... etc.
+     * @param step Differences between light IDs.
      * @param start Start of the sequence.
      */
     normalizeLinear = (step: number, start = 1) =>
         this.addProcess((x) => {
-            if (x.lightID) {
-                x.lightID = this.complexifyLightIDs(x.lightID, (ids) =>
-                    solveLightMap([[start, step]], ids))
+            if (x.lightID !== undefined && typeof x.lightID === 'object') {
+                x.lightID = solveLightMap([[start, step]], x.lightID)
             }
         })
 
     /**
-     * Normalizes a sequence of lightIDs to a sequence of: 1, 2, 3, 4, 5... etc.
+     * Normalizes a sequence of light IDs to a sequence of: 1, 2, 3, 4, 5... etc.
      * Accounts for differences changing at different points.
      * If the sequence goes: 1, 3, 5, 6, 7, the differences change from 2 to 1 at the third number.
      * So map would look like: [[1, 2], [3, 1]]
-     * @param map
      */
     normalizeWithChanges = (map: number[][]) =>
         this.addProcess((x) => {
-            if (x.lightID) {
-                x.lightID = this.complexifyLightIDs(x.lightID, (ids) =>
-                    solveLightMap(map, ids))
+            if (x.lightID && typeof x.lightID === 'object') {
+                x.lightID = solveLightMap(map, x.lightID)
+            }
+        })
+
+    /** Goes through every light ID in each event and adds an offset to them. */
+    shiftIDs = (offset: number) =>
+        this.addProcess((e) => {
+            if (e.lightID === undefined) return
+
+            if (typeof e.lightID === 'object') {
+                e.lightID = e.lightID.map(x => x + offset)
+            } else {
+                e.lightID += offset
             }
         })
 
     /**
-     * Effects the ending sequence of lightIDs.
-     * @param offset Add a number to each lightID.
-     * @param step Changes the differences between each lightID.
+     * Given a normalized sequence of lightIDs (1, 2, 3, 4, 5), linearly multiplies and adds an offset
+     * @param offset Add a number to each light ID.
+     * @param step Changes the differences between each light ID.
      */
-    addToEnd = (offset: number, step?: number) =>
+    transformLinear = (offset = 0, step = 1) =>
         this.addProcess((x) => {
-            if (x.lightID) {
-                x.lightID = this.complexifyLightIDs(x.lightID, (ids) => {
-                    return ids.map((i) => {
-                        if (step) i = (i - 1) * step + 1
-                        return i + offset
-                    })
-                })
-            }
+            if (x.lightID === undefined) return
+
+            const lightIDs = complexifyLightIDs(x.lightID).map(id => {
+                id = (id - 1) * step + 1
+                return id + offset
+            })
+            x.lightID = simplifyLightIDs(lightIDs)
         })
 
     /**
-     * Remap lightIDs assuming the output is a sequence of 1, 2, 3, 4, 5...
-     * @param map Works like map in normalizeWithChanges() but in reverse.
+     * Given a normalized sequence of lightIDs (1, 2, 3, 4, 5), applies changes at given times
+     * @param map Works like map in {@link normalizeWithChanges} but in reverse.
      * @param offset Adds a number to each lightID.
      */
-    remapEnd = (map: number[][], offset = 0) =>
+    transformWithChanges = (map: number[][], offset = 0) =>
         this.addProcess((x) => {
-            if (x.lightID) {
-                x.lightID = this.complexifyLightIDs(x.lightID, (ids) => {
-                    applyLightMap([offset, ...map], ids)
-                    return ids
-                })
-            }
+            if (x.lightID === undefined) return
+
+            const lightIDs = complexifyLightIDs(x.lightID)
+            applyLightMap([offset, ...map], lightIDs)
+            x.lightID = simplifyLightIDs(lightIDs)
         })
 }
 
@@ -262,12 +240,16 @@ function applyLightMap(map: (number | number[])[], ids: number[]) {
 
 function isInID(lightID: LightID | undefined, start: number, end: number) {
     if (lightID === undefined) return false
+
     if (typeof lightID === 'object') {
         let passed = false
         lightID.forEach((z) => {
             if (z >= start && z <= end) passed = true
         })
         if (passed) return true
-    } else if (lightID >= start && lightID <= end) return true
+    } else {
+        return (lightID >= start && lightID <= end)
+    }
+
     return false
 }

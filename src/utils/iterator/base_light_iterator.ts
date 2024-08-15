@@ -1,6 +1,7 @@
 import {getActiveDifficulty} from "../../data/active_difficulty.ts";
 import {LightEvent} from "../../internals/beatmap/object/basic_event/light_event.ts";
 import {LightEventCondition, LightEventProcess} from "../../types/iterator.ts";
+import {lightEvent} from "../../builder_functions/beatmap/object/basic_event/light_event.ts";
 
 /*
  * Class used to iterate through every event in the map.
@@ -40,6 +41,12 @@ export class BaseLightIterator {
         })
 
     /**
+     * Events will pass if they have this type.
+     * @param type Input type.
+     */
+    isType = (type: number) => this.addCondition((e) => e.type === type)
+
+    /**
      * Multiplies the colors of the event.
      * @param rgb Multiplier for r, g, and b values.
      * @param alpha Multiplier for alpha.
@@ -55,33 +62,26 @@ export class BaseLightIterator {
         })
 
     /**
-     * Test the algorithm with some lightIDs which will be logged.
+     * Test processes only on light IDs. IDs before and after will be logged.
      * @param ids IDs to test.
      */
-    test(ids: number[]) {
+    testOnIDs(ids: number[]) {
         this.conditions = []
 
-        const event = new LightEvent({
-            beat: 0,
-            type: 0,
-            value: 0,
-            floatValue: 1,
-            customData: {
-                lightID: ids,
-            },
-        })
-
-        this.processEvents([event], true)
+        const event = lightEvent({}).on('Red', ids)
+        console.log('Input IDs: ' + ids)
+        this.processEvents([event])
+        console.log('Output IDs: ' + event.lightID)
     }
 
     /**
-     * Run the algorithm.
+     * Run the iterator on light events in the active difficulty.
      * @param log Log the output JSON of each event.
      */
     run = (log = false) => this.processEvents(getActiveDifficulty().lightEvents, log)
 
     /**
-     * Process events through the algorithm.
+     * Process events through the iterator.
      * @param events Events to process.
      * @param log Whether passing events should be logged.
      */
