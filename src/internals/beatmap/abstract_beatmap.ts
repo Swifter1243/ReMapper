@@ -1,48 +1,48 @@
-import {bsmap} from '../../deps.ts'
-import {RMDifficulty} from "../../types/beatmap/rm_difficulty.ts";
-import {IInfoSet, IInfoSetDifficulty} from "../../types/beatmap/info.ts";
-import {ClearProperty, PostProcessFn, REQUIRE_MODS, SUGGEST_MODS} from "../../types/beatmap/beatmap.ts";
-import {LightEvent} from "./object/basic_event/light_event.ts";
-import {LaserSpeedEvent} from "./object/basic_event/laser_speed.ts";
-import {RingZoomEvent} from "./object/basic_event/ring_zoom.ts";
-import {RingSpinEvent} from "./object/basic_event/ring_spin.ts";
-import {RotationEvent} from "./object/v3_event/rotation.ts";
-import {BoostEvent} from "./object/v3_event/lighting/boost.ts";
-import {AbstractBasicEvent} from "./object/basic_event/abstract.ts";
-import {BPMEvent} from "./object/v3_event/bpm/bpm.ts";
-import {LightColorEventBoxGroup} from "./object/v3_event/lighting/light_event_box_group/color.ts";
-import {LightRotationEventBoxGroup} from "./object/v3_event/lighting/light_event_box_group/rotation.ts";
+import { bsmap } from '../../deps.ts'
+import { RMDifficulty } from '../../types/beatmap/rm_difficulty.ts'
+import { IInfoSet, IInfoSetDifficulty } from '../../types/beatmap/info.ts'
+import { ClearProperty, PostProcessFn, REQUIRE_MODS, SUGGEST_MODS } from '../../types/beatmap/beatmap.ts'
+import { LightEvent } from './object/basic_event/light_event.ts'
+import { LaserSpeedEvent } from './object/basic_event/laser_speed.ts'
+import { RingZoomEvent } from './object/basic_event/ring_zoom.ts'
+import { RingSpinEvent } from './object/basic_event/ring_spin.ts'
+import { RotationEvent } from './object/v3_event/rotation.ts'
+import { BoostEvent } from './object/v3_event/lighting/boost.ts'
+import { AbstractBasicEvent } from './object/basic_event/abstract.ts'
+import { BPMEvent } from './object/v3_event/bpm/bpm.ts'
+import { LightColorEventBoxGroup } from './object/v3_event/lighting/light_event_box_group/color.ts'
+import { LightRotationEventBoxGroup } from './object/v3_event/lighting/light_event_box_group/rotation.ts'
 import { LightTranslationEventBoxGroup } from './object/v3_event/lighting/light_event_box_group/translation.ts'
-import {BeatmapCustomEvents} from "../../types/beatmap/object/custom_event.ts";
-import {RuntimePointDefinitionAny, RuntimeRawKeyframesAny} from "../../types/animation/keyframe/runtime/any.ts";
-import {Environment} from "./object/environment/environment.ts";
-import {Geometry} from "./object/environment/geometry.ts";
-import {AbstractEnvironment, RawGeometryMaterial} from "../../types/beatmap/object/environment.ts";
-import {FogEvent} from "./object/environment/fog.ts";
-import {optimizeKeyframes, OptimizeSettings} from "../../utils/animation/optimizer.ts";
-import {AnimationPropertiesV3} from "../../types/animation/properties/properties.ts";
-import {areKeyframesRuntime} from "../../utils/animation/keyframe/runtime.ts";
-import {RawKeyframesLinear} from "../../types/animation/keyframe/linear.ts";
+import { BeatmapCustomEvents } from '../../types/beatmap/object/custom_event.ts'
+import { RuntimePointDefinitionAny, RuntimeRawKeyframesAny } from '../../types/animation/keyframe/runtime/any.ts'
+import { Environment } from './object/environment/environment.ts'
+import { Geometry } from './object/environment/geometry.ts'
+import { AbstractEnvironment, RawGeometryMaterial } from '../../types/beatmap/object/environment.ts'
+import { FogEvent } from './object/environment/fog.ts'
+import { optimizeKeyframes, OptimizeSettings } from '../../utils/animation/optimizer.ts'
+import { AnimationPropertiesV3 } from '../../types/animation/properties/properties.ts'
+import { areKeyframesRuntime } from '../../utils/animation/keyframe/runtime.ts'
+import { RawKeyframesLinear } from '../../types/animation/keyframe/linear.ts'
 import { parseFilePath } from '../../utils/file.ts'
-import {DIFFICULTY_FILENAME, DIFFICULTY_PATH} from "../../types/beatmap/file.ts";
+import { DIFFICULTY_FILENAME, DIFFICULTY_PATH } from '../../types/beatmap/file.ts'
 import { getActiveCache } from '../../data/active_cache.ts'
 import { attachWorkingDirectory } from '../../data/working_directory.ts'
-import {RMLog} from "../../utils/rm_log.ts";
-import {TJson} from "../../types/util/json.ts";
-import {BasicEvent} from "./object/basic_event/basic_event.ts";
+import { RMLog } from '../../utils/rm_log.ts'
+import { TJson } from '../../types/util/json.ts'
+import { BasicEvent } from './object/basic_event/basic_event.ts'
 import { AnyNote } from '../../types/beatmap/object/note.ts'
 import { SettingsHandler } from './settings_handler.ts'
-import {objectSafeGet, objectSafeSet} from "../../utils/object/safe.ts";
+import { objectSafeGet, objectSafeSet } from '../../utils/object/safe.ts'
 import { settings } from '../../data/settings.ts'
-import {setDecimals} from "../../utils/math/rounding.ts";
-import {Wall} from "./object/gameplay_object/wall.ts";
-import {ColorNote} from "./object/gameplay_object/color_note.ts";
-import {Bomb} from "./object/gameplay_object/bomb.ts";
-import {Arc} from "./object/gameplay_object/arc.ts";
-import {Chain} from "./object/gameplay_object/chain.ts";
+import { setDecimals } from '../../utils/math/rounding.ts'
+import { Wall } from './object/gameplay_object/wall.ts'
+import { ColorNote } from './object/gameplay_object/color_note.ts'
+import { Bomb } from './object/gameplay_object/bomb.ts'
+import { Arc } from './object/gameplay_object/arc.ts'
+import { Chain } from './object/gameplay_object/chain.ts'
 import { clearPropertyMap } from '../../data/constants/beatmap.ts'
-import {AnimateTrack} from "./object/custom_event/heck/animate_track.ts";
-import {convertRotationEventsToObjectRotation} from "../../utils/beatmap/convert.ts";
+import { AnimateTrack } from './object/custom_event/heck/animate_track.ts'
+import { convertRotationEventsToObjectRotation } from '../../utils/beatmap/convert.ts'
 
 /** A remapper difficulty, version agnostic */
 export abstract class AbstractDifficulty<
@@ -182,9 +182,9 @@ export abstract class AbstractDifficulty<
      * @param optimize Settings for the optimization.
      */
     optimize(optimize: OptimizeSettings = new OptimizeSettings()) {
-        const optimizeAnimation = (
+        function optimizeAnimation(
             animation: AnimationPropertiesV3,
-        ) => {
+        ) {
             Object.entries(animation).forEach(([key, keyframes]) => {
                 if (typeof keyframes === 'string') return
                 if (areKeyframesRuntime(keyframes!)) {
@@ -200,11 +200,7 @@ export abstract class AbstractDifficulty<
 
         this.colorNotes.forEach((e) => optimizeAnimation(e.animation))
         this.walls.forEach((e) => optimizeAnimation(e.animation))
-        this.customEvents.animateTrackEvents.forEach((e) =>
-            optimizeAnimation(
-                (e as AnimateTrack).animation,
-            )
-        )
+        this.customEvents.animateTrackEvents.forEach((e) => optimizeAnimation((e as AnimateTrack).animation))
 
         // TODO: Optimize point definitions
     }

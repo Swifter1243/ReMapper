@@ -17,8 +17,16 @@ export class AnyNoteIterator extends BaseNoteIterator<AnyNote> {
         return newClass
     }
 
-    onlyColorNotes = () => this.setTypeFilter(['ColorNote'])
-    onlyBombs = () => this.setTypeFilter(['Bomb'])
-    onlyChains = () => this.setTypeFilter(['Chain'])
-    onlyArcs = () => this.setTypeFilter(['Arc'])
+    onlyColorNotes() {
+        return this.setTypeFilter(['ColorNote'])
+    }
+    onlyBombs() {
+        return this.setTypeFilter(['Bomb'])
+    }
+    onlyChains() {
+        return this.setTypeFilter(['Chain'])
+    }
+    onlyArcs() {
+        return this.setTypeFilter(['Arc'])
+    }
 }

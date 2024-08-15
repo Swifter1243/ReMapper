@@ -74,14 +74,16 @@ export async function modelToWall(
                         const rot = complexifyKeyframes(x.rotation)
                         const scale = complexifyKeyframes(x.scale)
 
-                        const getVec3 = (
+                        function getVec3(
                             keyframes: ComplexKeyframesVec3,
                             index: number,
-                        ) => [
-                            keyframes[index][0],
-                            keyframes[index][1],
-                            keyframes[index][2],
-                        ] as Vec3
+                        ): Vec3 {
+                            return [
+                                keyframes[index][0],
+                                keyframes[index][1],
+                                keyframes[index][2],
+                            ]
+                        }
 
                         for (let i = 0; i < pos.length; i++) {
                             const transform: Transform = {
@@ -113,7 +115,7 @@ export async function modelToWall(
                         )
                     })
                 },
-                [animationSettings!.toData(), distribution],
+                animationSettings!.toData() + distribution?.toString(),
             )
         } else {
             objects = input.map((x) => {

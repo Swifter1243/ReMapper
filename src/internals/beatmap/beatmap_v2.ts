@@ -23,7 +23,7 @@ import { bomb } from '../../builder_functions/beatmap/object/gameplay_object/bom
 import { AnyFog, FogEvent } from './object/environment/fog.ts'
 import { abstractCustomEvent } from '../../builder_functions/beatmap/object/custom_event/base.ts'
 import { arraySplit } from '../../utils/array/split.ts'
-import { objectPrune, shallowPrune } from '../../utils/object/prune.ts'
+import { shallowPrune } from '../../utils/object/prune.ts'
 import { EventGroup } from '../../data/constants/basic_event.ts'
 import { officialBpmEvent } from '../../builder_functions/beatmap/object/v3_event/bpm.ts'
 import { RMDifficulty } from '../../types/beatmap/rm_difficulty.ts'
@@ -305,7 +305,9 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
     }
 
     toJSON(): bsmap.v2.IDifficulty {
-        const sortItems = (a: { _time: number }, b: { _time: number }) => a._time - b._time
+        function sortItems(a: { _time: number }, b: { _time: number }) {
+            return a._time - b._time
+        }
 
         // Notes
         const notes = [...this.colorNotes, ...this.bombs]

@@ -35,24 +35,27 @@ export class BaseLightIterator {
      * Sets the type of the event.
      * @param type Input type.
      */
-    setType = (type: number) =>
-        this.addProcess((x) => {
+    setType(type: number) {
+        return this.addProcess((x) => {
             x.type = type
         })
+    }
 
     /**
      * Events will pass if they have this type.
      * @param type Input type.
      */
-    isType = (type: number) => this.addCondition((e) => e.type === type)
+    isType(type: number) {
+        return this.addCondition((e) => e.type === type)
+    }
 
     /**
      * Multiplies the colors of the event.
      * @param rgb Multiplier for r, g, and b values.
      * @param alpha Multiplier for alpha.
      */
-    multiplyColor = (rgb: number, alpha = 1) =>
-        this.addProcess((x) => {
+    multiplyColor(rgb: number, alpha = 1) {
+        return this.addProcess((x) => {
             if (x.chromaColor) {
                 x.chromaColor[0] *= rgb
                 x.chromaColor[1] *= rgb
@@ -60,6 +63,7 @@ export class BaseLightIterator {
                 if (x.chromaColor[3]) x.chromaColor[3] *= alpha
             }
         })
+    }
 
     /**
      * Test processes only on light IDs. IDs before and after will be logged.
@@ -78,7 +82,9 @@ export class BaseLightIterator {
      * Run the iterator on light events in the active difficulty.
      * @param log Log the output JSON of each event.
      */
-    run = (log = false) => this.processEvents(getActiveDifficulty().lightEvents, log)
+    run(log = false) {
+        return this.processEvents(getActiveDifficulty().lightEvents, log)
+    }
 
     /**
      * Process events through the iterator.

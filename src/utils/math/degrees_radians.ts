@@ -7,7 +7,9 @@ export function toRadians<T extends [] | number[]>(values: Readonly<T>): T
 export function toRadians<T extends [] | number[]>(
     values: Readonly<T> | number,
 ) {
-    const toRadNum = (x: number) => x * (Math.PI / 180)
+    function toRadNum(x: number) {
+        return x * (Math.PI / 180)
+    }
 
     if (typeof values === 'number') {
         return toRadNum(values) as number
@@ -25,7 +27,9 @@ export function toDegrees<T extends [] | number[]>(values: Readonly<T>): T
 export function toDegrees<T extends [] | number[]>(
     values: Readonly<T> | number,
 ) {
-    const toDegreesNum = (x: number) => x * (180 / Math.PI)
+    function toDegreesNum(x: number) {
+        return x * (180 / Math.PI)
+    }
 
     if (typeof values === 'number') {
         return toDegreesNum(values) as number

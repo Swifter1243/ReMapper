@@ -417,7 +417,9 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
     }
 
     toJSON(): bsmap.v3.IDifficulty {
-        const sortItems = (a: { b: number }, b: { b: number }) => a.b - b.b
+        function sortItems(a: { b: number }, b: { b: number }) {
+            return a.b - b.b
+        }
 
         // Notes
         const colorNotes = this.colorNotes.filter((e) => !e.fake)

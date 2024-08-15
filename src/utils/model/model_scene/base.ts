@@ -187,7 +187,9 @@ export abstract class ModelScene<I, O> {
     }
 
     private static makeModelObjectStatic(obj: ModelObject) {
-        const doStatic = (k: RawKeyframesVec3) => typeof k[0] === 'object' ? [k[0][0], k[0][1], k[0][2]] as Vec3 : k as Vec3
+        function doStatic(k: RawKeyframesVec3): Vec3 {
+            return typeof k[0] === 'object' ? [k[0][0], k[0][1], k[0][2]] : k as Vec3
+        }
 
         obj.position = doStatic(obj.position)
         obj.rotation = doStatic(obj.rotation)
