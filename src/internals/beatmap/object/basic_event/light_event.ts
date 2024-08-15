@@ -11,6 +11,11 @@ import { EASE } from '../../../../types/animation/easing.ts'
 import { getCDProp } from '../../../../utils/beatmap/json.ts'
 import { BeatmapObjectConstructor, BeatmapObjectDefaults } from '../../../../types/beatmap/object/object.ts'
 
+type ActionFunction = [
+    color?: ColorVec | LightColorLiteral,
+    lightID?: LightID,
+]
+
 export class LightEvent extends BasicEvent<bsmap.v2.IEventLight, bsmap.v3.IBasicEventLight> {
     constructor(obj: BeatmapObjectConstructor<LightEvent>) {
         super(obj)
@@ -42,60 +47,67 @@ export class LightEvent extends BasicEvent<bsmap.v2.IEventLight, bsmap.v3.IBasic
         return this
     }
 
-    private makeAction(
-        actions: { [K in LightColorLiteral]: EventAction },
+    private setAction(
+        params: ActionFunction,
+        actions: { [K in LightColorLiteral]: EventAction }
     ) {
-        return (
-            color: ColorVec | LightColorLiteral = 'Blue',
-            lightID?: LightID,
-        ) => {
-            if (typeof color === 'string') {
-                this.value = actions[color]
-            } else {
-                this.value = Object.values(actions)[0]
-                this.chromaColor = color
-            }
+        let [color, lightID] = params
+        color ??= 'Blue'
 
-            if (lightID !== undefined) this.lightID = lightID
-            return this
+        if (typeof color === 'string') {
+            this.value = actions[color]
+        } else {
+            this.value = Object.values(actions)[0]
+            this.chromaColor = color
         }
+
+        if (lightID !== undefined) this.lightID = lightID
+        return this
     }
 
     /**
      * Create a light event that turns lights on.
      */
-    on = this.makeAction({
-        Blue: EventAction.BLUE_ON,
-        Red: EventAction.RED_ON,
-        White: EventAction.WHITE_ON,
-    })
+    on(...params: ActionFunction) {
+        return this.setAction(params, {
+            Blue: EventAction.BLUE_ON,
+            Red: EventAction.RED_ON,
+            White: EventAction.WHITE_ON,
+        })
+    }
 
     /**
      * Create a light event that flashes the lights.
      */
-    flash = this.makeAction({
-        Blue: EventAction.BLUE_FLASH,
-        Red: EventAction.RED_FLASH,
-        White: EventAction.WHITE_FLASH,
-    })
+    flash(...params: ActionFunction) {
+        return this.setAction(params, {
+            Blue: EventAction.BLUE_FLASH,
+            Red: EventAction.RED_FLASH,
+            White: EventAction.WHITE_FLASH,
+        })
+    }
 
     /**
      * Create a light event that fades the lights out.
      */
-    fade = this.makeAction({
-        Blue: EventAction.BLUE_FADE,
-        Red: EventAction.RED_FADE,
-        White: EventAction.WHITE_FADE,
-    })
+    fade(...params: ActionFunction) {
+        return this.setAction(params, {
+            Blue: EventAction.BLUE_FADE,
+            Red: EventAction.RED_FADE,
+            White: EventAction.WHITE_FADE,
+        })
+    }
 
     /**
      * Create a light event that makes the lights fade in to this color from the previous.
      */
-    transition = this.makeAction({
-        Blue: EventAction.BLUE_TRANSITION,
-        Red: EventAction.RED_TRANSITION,
-        White: EventAction.WHITE_TRANSITION,
-    })
+    transition(...params: ActionFunction) {
+        return this.setAction(params, {
+            Blue: EventAction.BLUE_TRANSITION,
+            Red: EventAction.RED_TRANSITION,
+            White: EventAction.WHITE_TRANSITION,
+        })
+    }
 
     push(clone = true): this {
         getActiveDifficulty().lightEvents.push(clone ? copy(this) : this)
