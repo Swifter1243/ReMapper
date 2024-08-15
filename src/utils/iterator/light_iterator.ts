@@ -75,7 +75,7 @@ export class LightIterator extends BaseLightIterator {
 
     /**
      * Normalizes a sequence of light IDs to a sequence of: 1, 2, 3, 4, 5... etc.
-     * A good explanation of this function can be found here: https://github.com/Swifter1243/ReMapper/wiki/Lighting/#normalizingtransforming
+     * A good explanation of this function can be found here: https://github.com/Swifter1243/ReMapper/wiki/Lighting/#id-manipulation
      * @param start Start of the sequence.
      * @param step Differences between light IDs.
      */
@@ -91,7 +91,7 @@ export class LightIterator extends BaseLightIterator {
     /**
      * Normalizes a sequence of light IDs to a sequence of: 1, 2, 3, 4, 5... etc.
      * Accounts for "step" changing at different points.
-     * A good explanation of this function can be found here: https://github.com/Swifter1243/ReMapper/wiki/Lighting/#normalizingtransforming
+     * A good explanation of this function can be found here: https://github.com/Swifter1243/ReMapper/wiki/Lighting/#id-manipulation
      */
     normalizeWithChanges = (start: number, map: Record<number, number>) =>
         this.addProcess((x) => {
@@ -113,27 +113,10 @@ export class LightIterator extends BaseLightIterator {
         })
 
     /**
-     * Given a normalized sequence of lightIDs (1, 2, 3, 4, 5), linearly multiplies and adds an offset
-     * A good explanation of this function can be found here: https://github.com/Swifter1243/ReMapper/wiki/Lighting/#normalizingtransforming
-     * @param offset Add a number to each light ID.
-     * @param step Changes the differences between each light ID.
-     */
-    transformLinear = (offset = 0, step = 1) =>
-        this.addProcess((x) => {
-            if (x.lightID === undefined) return
-
-            const lightIDs = complexifyLightIDs(x.lightID).map(id => {
-                id = (id - 1) * step + 1
-                return id + offset
-            })
-            x.lightID = simplifyLightIDs(lightIDs)
-        })
-
-    /**
      * Provide a dictionary of IDs and their corresponding new IDs, and apply it to the IDs of each event.
-     * A good explanation of this function can be found here: https://github.com/Swifter1243/ReMapper/wiki/Lighting/#normalizingtransforming
+     * A good explanation of this function can be found here: https://github.com/Swifter1243/ReMapper/wiki/Lighting/#id-manipulation
      * */
-    remapIDs(map: Record<number, number>) {
+    remapIDs = (map: Record<number, number>) =>
         this.addProcess((e) => {
             if (e.lightID === undefined) return
 
@@ -146,7 +129,6 @@ export class LightIterator extends BaseLightIterator {
             })
             e.lightID = simplifyLightIDs(lightIDs)
         })
-    }
 }
 
 function normalizeIDChanges(start: number, map: Record<number, number>, ids: number[]) {
