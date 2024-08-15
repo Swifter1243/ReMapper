@@ -31,22 +31,28 @@ export function setKeyframeValues(
 }
 
 /** Set easing in the keyframe. */
-export const setKeyframeEasing = (
+export function setKeyframeEasing(
     data: RuntimeInnerKeyframeBoundless,
     value: EASE | undefined,
-) => setKeyframeFlag(data, value, 'ease')
-/** Set the spline in the keyframe. */
+) {
+    setKeyframeFlag(data, value, 'ease')
+}
 
-export const setKeyframeSpline = (
+/** Set the spline in the keyframe. */
+export function setKeyframeSpline(
     data: RuntimeInnerKeyframeBoundless,
     value: SPLINE | undefined,
-) => setKeyframeFlag(data, value, 'spline')
-/** Set whether this keyframe has the "lerpHSV" flag. */
+) {
+    setKeyframeFlag(data, value, 'spline')
+}
 
-export const setKeyframeHSVLerp = (
+/** Set whether this keyframe has the "lerpHSV" flag. */
+export function setKeyframeHSVLerp(
     data: RuntimeInnerKeyframeBoundless,
     hasHSVLerp: boolean,
-) => setKeyframeFlag(data, hasHSVLerp ? 'lerpHSV' : undefined, 'lerpHSV', true)
+) {
+    setKeyframeFlag(data, hasHSVLerp ? 'lerpHSV' : undefined, 'lerpHSV', true)
+}
 
 /**
  * Set a flag in a keyframe.

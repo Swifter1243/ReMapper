@@ -14,19 +14,25 @@ export function positiveMod(a: number, b: number) {
  * @param input Number to round.
  * @param step Number to round to.
  */
-export const round = (input: number, step: number) => Math.round(input / step) * step
+export function round(input: number, step: number) {
+    return Math.round(input / step) * step
+}
 /**
  * Floors a number to the nearest multiple of another number.
  * @param input Number to floor.
  * @param step Number to floor to.
  */
-export const floorTo = (input: number, step: number) => Math.floor(input / step) * step
+export function floorTo(input: number, step: number) {
+    return Math.floor(input / step) * step
+}
 /**
  * Ceils a number to the nearest multiple of another number.
  * @param input Number to ceil.
  * @param step Number to ceil to.
  */
-export const ceilTo = (input: number, step: number) => Math.ceil(input / step) * step
+export function ceilTo(input: number, step: number) {
+    return Math.ceil(input / step) * step
+}
 
 /**
  * Makes a number fit between a min and max value.

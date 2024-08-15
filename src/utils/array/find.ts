@@ -2,13 +2,17 @@
  * Get the last element in an array.
  * @param arr Input array.
  */
-export const arrayLastElement = <T>(arr: readonly T[]) => arr[arr.length - 1]
+export function arrayLastElement<T>(arr: readonly T[]) {
+    return arr[arr.length - 1]
+}
 
 /**
  * Get the first element in an array.
  * @param arr Input array.
  */
-export const arrayFirstElement = <T>(arr: readonly T[]) => arr[0]
+export function arrayFirstElement<T>(arr: readonly T[]){
+    return arr[0]
+}
 
 /** Find the index of an element in an array, searching from the last element to first. -1 is returned if nothing is found. */
 export function findIndexLastFirst<T extends unknown>(

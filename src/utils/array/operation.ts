@@ -65,9 +65,11 @@ export function arrayDivide<T extends readonly [] | readonly number[]>(
  * @param fraction Value to find in between start and end.
  * @param easing Optional easing.
  */
-export const arrayLerp = <T extends readonly [] | readonly number[]>(
+export function arrayLerp<T extends readonly [] | readonly number[]>(
     start: T,
     end: { readonly [K in keyof T]: number },
     fraction: number,
     easing?: EASE,
-) => start.map((x, i) => lerp(x, end[i], fraction, easing)) as unknown as T
+) {
+    return start.map((x, i) => lerp(x, end[i], fraction, easing)) as unknown as T
+}

@@ -10,5 +10,6 @@ export function generateArray<T>(size: number, element: (index: number) => T) {
  * @param start Starting number.
  * @param end Ending number.
  */
-export const fillArrayWithValues = (start: number, end: number) =>
-    Array.from({ length: end - start + 1 }, (_, i) => i + start)
+export function fillArrayWithValues(start: number, end: number) {
+    return generateArray(end - start + 1, (i) => start + i)
+}

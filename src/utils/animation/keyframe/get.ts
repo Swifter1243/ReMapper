@@ -18,26 +18,34 @@ export function getKeyframeTimeIndex(
 }
 
 /** Get the time value of a keyframe. */
-export const getKeyframeTime = (
+export function getKeyframeTime(
     data: DeepReadonly<RuntimeInnerKeyframeBoundless>,
-) => data[getKeyframeTimeIndex(data)] as number
+) {
+    return data[getKeyframeTimeIndex(data)] as number
+}
 
 /** Get the values in the keyframes.
  * For example [x,y,z,time] would have [x,y,z] as values.
  */
-export const getKeyframeValues = (
+export function getKeyframeValues(
     data: DeepReadonly<InnerKeyframeBoundless>,
-) => data.slice(0, getKeyframeTimeIndex(data)) as number[]
+) {
+    return data.slice(0, getKeyframeTimeIndex(data)) as number[]
+}
 
 /** Get the easing in the keyframe. Returns undefined if not found. */
-export const getKeyframeEasing = (
+export function getKeyframeEasing(
     data: DeepReadonly<RuntimeInnerKeyframeBoundless>,
-) => data[getKeyframeFlagIndex(data, 'ease', false)] as EASE
+) {
+    return data[getKeyframeFlagIndex(data, 'ease', false)] as EASE
+}
 
 /** Get the spline in the keyframe. Returns undefined if not found. */
-export const getKeyframeSpline = (
+export function getKeyframeSpline(
     data: DeepReadonly<RuntimeInnerKeyframeBoundless>,
-) => data[getKeyframeFlagIndex(data, 'spline', false)] as SPLINE
+) {
+    return data[getKeyframeFlagIndex(data, 'spline', false)] as SPLINE
+}
 
 /**
  * Gets the index of a flag in a keyframe.
@@ -63,6 +71,8 @@ export function getKeyframeFlagIndex(
 }
 
 /** Whether this keyframe has the "lerpHSV" flag. */
-export const getKeyframeHSVLerp = (
+export function getKeyframeHSVLerp(
     data: DeepReadonly<RuntimeInnerKeyframeBoundless>,
-) => getKeyframeFlagIndex(data, 'lerpHSV') !== -1
+) {
+    return getKeyframeFlagIndex(data, 'lerpHSV') !== -1
+}

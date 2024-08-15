@@ -48,8 +48,14 @@ export function voronoi<T extends number>(dimensions: T, seed: number) {
 }
 
 /** Create a 1D voronoi function given a seed. */
-export const voronoi1D = (seed: number) => voronoi(1, seed)
+export function voronoi1D(seed: number) {
+    return voronoi(1, seed)
+}
 /** Create a 2D voronoi function given a seed. */
-export const voronoi2D = (seed: number) => voronoi(2, seed)
+export function voronoi2D(seed: number) {
+    return voronoi(2, seed)
+}
 /** Create a 3D voronoi function given a seed. */
-export const voronoi3D = (seed: number) => voronoi(3, seed)
+export function voronoi3D(seed: number) {
+    return voronoi(3, seed)
+}

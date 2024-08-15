@@ -51,8 +51,14 @@ export function gradientNoise<T extends number>(dimensions: T, seed: number) {
 }
 
 /** Create a 1D gradient noise function given a seed. */
-export const gradientNoise1D = (seed: number) => gradientNoise(1, seed)
+export function gradientNoise1D(seed: number) {
+    return gradientNoise(1, seed)
+}
 /** Create a 2D gradient noise function given a seed. */
-export const gradientNoise2D = (seed: number) => gradientNoise(2, seed)
+export function gradientNoise2D(seed: number) {
+    return gradientNoise(2, seed)
+}
 /** Create a 3D gradient noise function given a seed. */
-export const gradientNoise3D = (seed: number) => gradientNoise(3, seed)
+export function gradientNoise3D(seed: number) {
+    return gradientNoise(3, seed)
+}

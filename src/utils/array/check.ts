@@ -3,10 +3,12 @@
  * @param arr Input array.
  * @param value Value to check for.
  */
-export const doesArrayHave = <T>(
+export function doesArrayHave<T>(
     arr: readonly T[],
     value: T,
-) => arr.some((x) => x === value)
+) {
+    return arr.some((x) => x === value)
+}
 
 /**
  * Check if 2 arrays are equal to each other.

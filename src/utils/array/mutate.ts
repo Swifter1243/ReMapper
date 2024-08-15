@@ -19,4 +19,6 @@ export function arrayRemove(arr: unknown[], index: number) {
  * @param arr Array to add values to.
  * @param arr2 Values to add.
  */
-export const appendArray = <T>(arr: T[], arr2: readonly T[]) => arr.push(...arr2)
+export function appendArray<T>(arr: T[], arr2: readonly T[]) {
+    return arr.push(...arr2)
+}
