@@ -1,9 +1,6 @@
 import {BaseLightIterator} from './base_light_iterator.ts'
-
 import {LightID} from '../../types/beatmap/object/environment.ts'
-
 import {doesArrayHave} from "../array/check.ts";
-import {copy} from "../object/copy.ts";
 import {complexifyLightIDs, simplifyLightIDs} from "../beatmap/object/environment/light_id.ts";
 
 export class LightIterator extends BaseLightIterator {
@@ -78,26 +75,28 @@ export class LightIterator extends BaseLightIterator {
 
     /**
      * Normalizes a sequence of light IDs to a sequence of: 1, 2, 3, 4, 5... etc.
-     * @param step Differences between light IDs.
+     * A good explanation of this function can be found here: https://github.com/Swifter1243/ReMapper/wiki/Lighting/#normalizingtransforming
      * @param start Start of the sequence.
+     * @param step Differences between light IDs.
      */
-    normalizeLinear = (step: number, start = 1) =>
+    normalizeLinear = (start: number, step: number) =>
         this.addProcess((x) => {
             if (x.lightID !== undefined && typeof x.lightID === 'object') {
-                x.lightID = solveLightMap([[start, step]], x.lightID)
+                x.lightID = normalizeIDChanges(start, {
+                    1: step
+                }, x.lightID)
             }
         })
 
     /**
      * Normalizes a sequence of light IDs to a sequence of: 1, 2, 3, 4, 5... etc.
-     * Accounts for differences changing at different points.
-     * If the sequence goes: 1, 3, 5, 6, 7, the differences change from 2 to 1 at the third number.
-     * So map would look like: [[1, 2], [3, 1]]
+     * Accounts for "step" changing at different points.
+     * A good explanation of this function can be found here: https://github.com/Swifter1243/ReMapper/wiki/Lighting/#normalizingtransforming
      */
-    normalizeWithChanges = (map: number[][]) =>
+    normalizeWithChanges = (start: number, map: Record<number, number>) =>
         this.addProcess((x) => {
             if (x.lightID && typeof x.lightID === 'object') {
-                x.lightID = solveLightMap(map, x.lightID)
+                x.lightID = normalizeIDChanges(start, map, x.lightID)
             }
         })
 
@@ -115,6 +114,7 @@ export class LightIterator extends BaseLightIterator {
 
     /**
      * Given a normalized sequence of lightIDs (1, 2, 3, 4, 5), linearly multiplies and adds an offset
+     * A good explanation of this function can be found here: https://github.com/Swifter1243/ReMapper/wiki/Lighting/#normalizingtransforming
      * @param offset Add a number to each light ID.
      * @param step Changes the differences between each light ID.
      */
@@ -130,122 +130,68 @@ export class LightIterator extends BaseLightIterator {
         })
 
     /**
-     * Given a normalized sequence of lightIDs (1, 2, 3, 4, 5), applies changes at given times
-     * @param map Works like map in {@link normalizeWithChanges} but in reverse.
-     * @param offset Adds a number to each lightID.
-     */
-    transformWithChanges = (map: number[][], offset = 0) =>
-        this.addProcess((e) => {
-            if (e.lightID === undefined) return
-
-            const lightIDs = complexifyLightIDs(e.lightID)
-            applyLightMap([offset, ...map], lightIDs)
-            e.lightID = simplifyLightIDs(lightIDs)
-        })
-
-    /** Provide a dictionary of IDs and their corresponding new IDs, and apply it to the IDs of each event. */
+     * Provide a dictionary of IDs and their corresponding new IDs, and apply it to the IDs of each event.
+     * A good explanation of this function can be found here: https://github.com/Swifter1243/ReMapper/wiki/Lighting/#normalizingtransforming
+     * */
     remapIDs(map: Record<number, number>) {
         this.addProcess((e) => {
             if (e.lightID === undefined) return
 
-            const lightIDs = complexifyLightIDs(e.lightID).map(x => map[x])
+            const lightIDs = complexifyLightIDs(e.lightID).map(id => {
+                if (map[id] === undefined) {
+                    throw `ID ${id} was not found in the provided map.`
+                } else {
+                    return map[id]
+                }
+            })
             e.lightID = simplifyLightIDs(lightIDs)
         })
     }
 }
 
-// Made by Rabbit cause I'm too dumb! :)
-function solveLightMap(map: number[][], ids: number[]) {
-    function solve(output: number, changes: number[][]) {
-        let inputMapped = 0
+function normalizeIDChanges(start: number, map: Record<number, number>, ids: number[]) {
+    let currentRawTime = start
 
-        if (changes.length < 1) {
-            return output
-        }
-
-        let currentChange, lastChange
-        let currentIndex = 0
-        while (true) {
-            currentChange = changes[currentIndex++]
-
-            const lastInputMapped = inputMapped
-
-            if (!lastChange) { // implicit [0,1]
-                inputMapped += currentChange[0]
-            } else {
-                inputMapped += lastChange[1] *
-                    (currentChange[0] - lastChange[0])
+    const changes = Object.entries(map)
+        // Build array of objects from dictionary
+        .map(([key, value]) => {
+            return {
+                normalizedTime: parseFloat(key),
+                step: value
+            }
+        })
+        // Sort by time
+        .sort((a, b) => a.normalizedTime - b.normalizedTime)
+        // Accumulate changes and store timestamps
+        .map((o, i, arr) => {
+            if (i > 0) {
+                const last = arr[i - 1]
+                const elapsed = o.normalizedTime - last.normalizedTime
+                currentRawTime += elapsed * last.step
             }
 
-            if (inputMapped > output) { // next change is too far out
-                if (!lastChange) { // implicit [0,1]
-                    return output
-                } else {
-                    return lastChange[0] +
-                        (output - lastInputMapped) / lastChange[1]
-                }
-            } else if (changes.length - currentIndex < 1) {
-                return currentChange[0] +
-                    (output - inputMapped) / currentChange[1]
+            return {
+                ...o,
+                rawTime: currentRawTime
             }
+        })
 
-            lastChange = currentChange
-        }
+    if (changes.length === 0) {
+        return
     }
 
-    for (let i = 0; i < ids.length; i++) {
-        ids[i] = solve(ids[i], map)
-    }
+    return ids.map(id => {
+        const lastChange = changes.findLast(change => change.rawTime <= id)
 
-    return ids
-}
-
-// This too, I cba to add type stuff here cause IDK how it works lol
-function applyLightMap(map: (number | number[])[], ids: number[]) {
-    map = copy(map)
-    const offset = map.splice(0, 1)[0]
-
-    // deno-lint-ignore no-explicit-any
-    function apply(input: any, changes: any) {
-        let output = 0
-
-        if (changes.length < 1) {
-            return input
+        if (!lastChange) {
+            throw `id ${id} was outside of the range of the map provided.`
         }
 
-        let currentChange, lastChange
-        let currentIndex = 0
-
-        while (true) {
-            currentChange = changes[currentIndex++]
-
-            if (currentChange[0] <= input) { // fill entire previous change
-                if (!lastChange) { // implicit [0,1]
-                    output += currentChange[0]
-                } else {
-                    output += lastChange[1] * (currentChange[0] - lastChange[0])
-                }
-            } else { // next change is too far out
-                if (!lastChange) { // implicit [0,1]
-                    return input
-                } else {
-                    output += lastChange[1] * (input - lastChange[0])
-                    return output
-                }
-            }
-
-            if (changes.length - currentIndex < 1) {
-                output += currentChange[1] * (input - currentChange[0])
-                return output
-            }
-
-            lastChange = currentChange
-        }
-    }
-
-    for (let i = 0; i < ids.length; i++) {
-        ids[i] = apply(ids[i], map) + offset
-    }
+        id -= lastChange.rawTime
+        id /= lastChange.step
+        id += lastChange.normalizedTime
+        return id
+    })
 }
 
 function isInID(lightID: LightID | undefined, start: number, end: number) {
