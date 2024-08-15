@@ -38,7 +38,7 @@ export class LightEvent extends BasicEvent<bsmap.v2.IEventLight, bsmap.v3.IBasic
      */
     off(lightID?: LightID) {
         this.value = EventAction.OFF
-        if (lightID) this.lightID = lightID
+        if (lightID !== undefined) this.lightID = lightID
         return this
     }
 
@@ -56,7 +56,7 @@ export class LightEvent extends BasicEvent<bsmap.v2.IEventLight, bsmap.v3.IBasic
                 this.chromaColor = color
             }
 
-            if (lightID) this.lightID = lightID
+            if (lightID !== undefined) this.lightID = lightID
             return this
         }
     }
