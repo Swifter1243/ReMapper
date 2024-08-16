@@ -19,7 +19,7 @@ export const modelScene = {
      * @param start When to start the animation. Defaults to beat 0.
      * @param getSwitch Get the SceneSwitch information being used to construct the AnimatedModelScene.
      */
-    singleAnimated(input: AnimatedObjectInput, duration: number, start = 0, getSwitch?: (sceneSwitch: SceneSwitch) => void) {
+    singleAnimated(input: AnimatedObjectInput, start: number, duration: number, getSwitch?: (sceneSwitch: SceneSwitch) => void) {
         const sceneSwitch: SceneSwitch = {
             beat: start,
             animationDuration: duration,
