@@ -70,7 +70,7 @@ export type MaterialPropertyMap = {
 export type FixedMaterialInfo<BaseMaterial extends MaterialInfo[string]> = {
     path: string
     properties: FixedMaterialProperties<BaseMaterial>
-    defaults: MaterialPropertyValues<FixedMaterialProperties<BaseMaterial>>
+    defaults: StaticMaterialPropertyValues<FixedMaterialProperties<BaseMaterial>>
 }
 
 /** A typed dictionary of prefabs based on `asset_info.json`. */
