@@ -1,5 +1,4 @@
 import { getActiveDifficulty } from '../../data/active_difficulty.ts'
-import { backLasers } from '../../builder_functions/beatmap/object/basic_event/light_event.ts'
 import { adjustFog } from '../beatmap/object/environment/fog.ts'
 import { environment } from '../../builder_functions/beatmap/object/environment/environment.ts'
 import { arrayAdd } from '../array/operation.ts'
@@ -9,6 +8,8 @@ import {ModelObject} from "../../types/model/object.ts";
 import {GroupObjectTypes} from "../../types/model/model_scene/group.ts";
 import {modelScene} from "../../builder_functions/model/model_scene.ts";
 import {Transform} from "../../types/math/transform.ts";
+import { fromType } from '../../builder_functions/beatmap/object/basic_event/light_event.ts'
+import { vec } from '../array/tuple.ts'
 
 /**
  * Debug the transformations necessary to fit an object to a cube.
@@ -25,12 +26,27 @@ export async function debugModelPiece(
     const diff = getActiveDifficulty()
     diff.clear(['Geometry Materials'])
 
-    backLasers().on([3, 3, 3, 1]).push(false)
+    const lightType = 0
+    const lightID = 1000
+    fromType(lightType).on([300, 300, 300, 1], lightID).push(false)
+
+    const center = vec(0, 10, 0)
+    const axisDist = 5
 
     adjustFog({
         attenuation: 0.000001,
         startY: -69420,
     })
+
+    geometry({
+        lightID,
+        lightType,
+        position: center,
+        scale: [0.2, 0.2, 0.2],
+        material: {
+            shader: 'TransparentLight'
+        }
+    }).push()
 
     environment({
         id: 'NarrowGameHUD',
@@ -61,7 +77,7 @@ export async function debugModelPiece(
     function addCubes(transforms: [Vec3, Vec3?, string?][], track?: string) {
         transforms.forEach((transform) => {
             const data: ModelObject = {
-                position: arrayAdd(transform[0], [0, 10, 0]) as Vec3,
+                position: arrayAdd(transform[0], center) as Vec3,
                 rotation: [0, 0, 0],
                 scale: transform[1] ?? [1, 1, 1],
             }
@@ -72,8 +88,6 @@ export async function debugModelPiece(
             modelData.push(data)
         })
     }
-
-    const axisDist = 5
 
     // Debug
     addCubes([
