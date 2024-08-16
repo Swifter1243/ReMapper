@@ -1,7 +1,8 @@
-import { Vec3 } from '../../math/vector.ts'
 import { RawGeometryMaterial } from '../../beatmap/object/environment.ts'
 import type * as EnvironmentInternals from '../../../internals/beatmap/object/environment/environment.ts'
 import { Geometry } from '../../../internals/beatmap/object/environment/geometry.ts'
+import {Transform} from "../../math/transform.ts";
+import {DeepReadonly} from "../../util/mutability.ts";
 
 /** Objects that are allowed to be spawned with a ModelScene. */
 export type GroupObjectTypes =
@@ -16,12 +17,8 @@ export type ModelGroup = {
      * If undefined, an existing object with the same track is assumed to exist and will be animated.
      */
     object?: GroupObjectTypes
-    /** What is considered to be the "center point" of the objects in this group. */
-    anchor?: Vec3
-    /** How objects should be scaled in this group. */
-    scale?: Vec3
-    /** The offset rotation for objects in this group. */
-    rotation?: Vec3
+    /** The transformation applied to objects in this group before positioning it. */
+    transform?: DeepReadonly<Transform>
     /** Whether remaining pooled objects in a switch should be moved out of the way.
      * For example, if switch `A` has 40 objects, and switch `B` has 20, should the remaining 20 be moved out of the way?
      */

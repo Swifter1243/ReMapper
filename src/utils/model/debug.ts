@@ -8,22 +8,19 @@ import {Vec3} from "../../types/math/vector.ts";
 import {ModelObject} from "../../types/model/object.ts";
 import {GroupObjectTypes} from "../../types/model/model_scene/group.ts";
 import {modelScene} from "../../builder_functions/model/model_scene.ts";
+import {Transform} from "../../types/math/transform.ts";
 
 /**
  * Debug the transformations necessary to fit an object to a cube.
  * Use the axis indicators to guide the process.
  * @param input Object to spawn.
  * @param resolution The scale of the object for each axis.
- * @param scale The scale multiplier for the spawned object previously mentioned.
- * @param anchor The anchor offset for the spawned object previously mentioned.
- * @param rotation The rotation offset for the spawned object previously mentioned.
+ * @param transform The transform to apply to each object.
  */
-export async function debugObject(
+export async function debugModelPiece(
     input: GroupObjectTypes,
     resolution: number,
-    scale?: Vec3,
-    anchor?: Vec3,
-    rotation?: Vec3,
+    transform?: Transform
 ) {
     const diff = getActiveDifficulty()
     diff.clear(['Geometry Materials'])
@@ -32,7 +29,7 @@ export async function debugObject(
 
     adjustFog({
         attenuation: 0.000001,
-        startY: 0,
+        startY: -69420,
     })
 
     environment({
@@ -99,7 +96,7 @@ export async function debugObject(
     ])
 
     const scene = modelScene.static(modelData)
-    scene.setDefaultGroup(input, scale, anchor, rotation)
+    scene.setDefaultGroup(input, transform)
     scene.setObjectGroup('debugCubeX', geometry('Cube', 'debugCubeX'))
     scene.setObjectGroup('debugCubeY', geometry('Cube', 'debugCubeY'))
     scene.setObjectGroup('debugCubeZ', geometry('Cube', 'debugCubeZ'))

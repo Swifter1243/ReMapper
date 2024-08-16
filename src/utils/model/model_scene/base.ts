@@ -3,22 +3,24 @@ import { GroupObjectTypes, ModelGroup } from '../../../types/model/model_scene/g
 import { AnimationSettings, optimizeKeyframes } from '../../animation/optimizer.ts'
 import { Vec3 } from '../../../types/math/vector.ts'
 import { Environment } from '../../../internals/beatmap/object/environment/environment.ts'
-import { Geometry } from '../../../internals/beatmap/object/environment/geometry.ts'
 import { AnimatedObjectInput, ObjectInput } from '../../../types/model/model_scene/input.ts'
 import { AnimatedOptions } from '../../../types/model/model_scene/option.ts'
 import { ModelObject, ReadonlyModel } from '../../../types/model/object.ts'
 import { InnerKeyframeVec3, RawKeyframesVec3 } from '../../../types/animation/keyframe/vec3.ts'
 import { complexifyKeyframes } from '../../animation/keyframe/complexity.ts'
 import { copy } from '../../object/copy.ts'
-import { applyAnchor, combineRotations, combineTransforms } from '../../math/transform.ts'
+import { combineTransforms } from '../../math/transform.ts'
 import { positionUnityToNoodle } from '../../beatmap/object/environment/unit_conversion.ts'
 import { mirrorAnimation, reverseAnimation } from '../../animation/time_warp.ts'
 import { parseFilePath } from '../../file.ts'
 import { getModel } from '../file.ts'
 import { TransformKeyframe } from '../../../types/animation/bake.ts'
 import { bakeAnimation } from '../../animation/bake.ts'
-import { iterateKeyframes } from '../../animation/keyframe/iterate.ts'
 import { DeepReadonly } from '../../../types/util/mutability.ts'
+import { Transform } from '../../../types/math/transform.ts'
+import { EnvironmentModelPiece } from '../../../types/model/model_scene/piece.ts'
+import { environment } from '../../../builder_functions/beatmap/object/environment/environment.ts'
+import {BaseEnvironmentEnhancement} from "../../../internals/beatmap/object/environment/base_environment.ts";
 
 export abstract class ModelScene<I, O> {
     protected static modelSceneCount = 0
@@ -92,85 +94,114 @@ export abstract class ModelScene<I, O> {
         return this.groups[ModelScene.defaultGroupKey]
     }
 
-    private pushGroup(
+    private pushObjectGroup(
         key: string,
-        object?: GroupObjectTypes,
-        scale?: Vec3,
-        anchor?: Vec3,
-        rotation?: Vec3,
-        changeGroup?: (group: ModelGroup) => void,
+        object: GroupObjectTypes,
+        transform?: DeepReadonly<Transform>,
     ) {
-        const group: ModelGroup = {}
-        if (object) {
-            if (object instanceof Environment) object.duplicate = 1
-            if (
-                object instanceof Geometry &&
-                typeof object.material !== 'string'
-            ) {
-                group.defaultMaterial = object.material
-            }
-            group.object = object
+        const group: ModelGroup = {
+            object,
+            transform,
         }
-        if (scale) group.scale = scale
-        if (anchor) group.anchor = anchor
-        if (rotation) group.rotation = rotation
-        if (changeGroup) changeGroup(group)
+
+        if (object instanceof Environment) object.duplicate = 1
+        else if (typeof object.material !== 'string') {
+            group.defaultMaterial = object.material
+        }
+
         this.groups[key as string] = group
     }
 
     /**
      * When the model is instantiated, model objects with no "group" key will invoke this object to represent it
      * @param object The object to spawn.
-     * @param scale The scale multiplier for the spawned object previously mentioned.
-     * @param anchor The anchor offset for the spawned object previously mentioned.
-     * @param rotation The rotation offset for the spawned object previously mentioned.
+     * @param transform The transform applied to the spawned object.
      * @see groups
      */
     setDefaultGroup(
         object: GroupObjectTypes,
-        scale?: Vec3,
-        anchor?: Vec3,
-        rotation?: Vec3,
-    ) {
-        this.pushGroup(ModelScene.defaultGroupKey, object, scale, anchor, rotation)
+        transform?: DeepReadonly<Transform>,
+    ): void
+    setDefaultGroup(
+        modelPiece: EnvironmentModelPiece,
+    ): void
+    setDefaultGroup(
+        ...params: [
+            object: GroupObjectTypes,
+            transform?: DeepReadonly<Transform>,
+        ] | [modelPiece: EnvironmentModelPiece]
+    ): void {
+        if (params[0] instanceof BaseEnvironmentEnhancement) {
+            const [object, transform] = params
+
+            this.pushObjectGroup(ModelScene.defaultGroupKey, object, transform)
+        } else {
+            const [modelPiece] = params
+
+            const object = environment({
+                id: modelPiece.id,
+                lookupMethod: modelPiece.lookupMethod,
+            })
+            this.pushObjectGroup(ModelScene.defaultGroupKey, object, modelPiece.transform)
+        }
     }
 
     /**
      * When the model is instantiated, model objects with the matching "group" key will invoke this object to represent it
      * @param group The group key for objects to identify they are part of this group.
      * @param object The object to spawn.
-     * @param scale The scale multiplier for the spawned object previously mentioned.
-     * @param anchor The anchor offset for the spawned object previously mentioned.
-     * @param rotation The rotation offset for the spawned object previously mentioned.
+     * @param transform The transform applied to the spawned object.
      */
     setObjectGroup(
         group: string,
         object: GroupObjectTypes,
-        scale?: Vec3,
-        anchor?: Vec3,
-        rotation?: Vec3,
-    ) {
-        this.pushGroup(group, object, scale, anchor, rotation)
+        transform?: DeepReadonly<Transform>,
+    ): void
+    setObjectGroup(
+        group: string,
+        modelPiece: EnvironmentModelPiece,
+    ): void
+    setObjectGroup(
+        ...params: [
+            group: string,
+            object: GroupObjectTypes,
+            transform?: DeepReadonly<Transform>,
+        ] | [
+            group: string,
+            modelPiece: EnvironmentModelPiece,
+        ]
+    ): void {
+        if (params[1] instanceof BaseEnvironmentEnhancement) {
+            const [group, object, transform] = params
+
+            this.pushObjectGroup(group, object, transform)
+        } else {
+            const [group, modelPiece] = params
+
+            const object = environment({
+                id: modelPiece.id,
+                lookupMethod: modelPiece.lookupMethod,
+            })
+            this.pushObjectGroup(group, object, modelPiece.transform)
+        }
     }
 
     /**
      * When the model is instantiated, model objects with a "group" key matching this track will invoke an AnimateTrack event with the same track name to represent it.
      * @param track Track to target for and animate, also the group key.
-     * @param scale The scale multiplier for the object previously mentioned.
-     * @param anchor The anchor offset for the object previously mentioned.
-     * @param rotation The rotation offset for the object previously mentioned.
+     * @param transform The transform applied to the object.
      * @param disappearWhenAbsent Make the object on this track disappear when no ModelObject with the corresponding track exists.
      */
     setTrackGroup(
         track: string,
-        scale?: Vec3,
-        anchor?: Vec3,
-        rotation?: Vec3,
+        transform?: DeepReadonly<Transform>,
         disappearWhenAbsent = true,
     ) {
-        this.pushGroup(track, undefined, scale, anchor, rotation, (x) => {
-            x.disappearWhenAbsent = disappearWhenAbsent
-        })
+        this.groups[track] = {
+            object: undefined,
+            transform,
+            disappearWhenAbsent,
+        }
     }
 
     /**
@@ -257,46 +288,25 @@ export abstract class ModelScene<I, O> {
                 ModelScene.makeModelObjectStatic(o)
             }
 
-            function getBakedTransform(transform: TransformKeyframe) {
-                if (options.transform) {
-                    const combined = combineTransforms(transform, options.transform, options.transform.anchor)
-                    transform.position = combined.position
-                    transform.rotation = combined.rotation
-                    transform.scale = combined.scale
-                }
-
-                transform.position = applyAnchor(transform.position, transform.rotation, transform.scale, group.anchor ?? [0, 0, 0] as Vec3)
+            function applyGroupTransform(transform: TransformKeyframe) {
+                const combined = combineTransforms(group.transform!, transform)
+                transform.position = combined.position
+                transform.rotation = combined.rotation
+                transform.scale = combined.scale
             }
 
-            const shouldBake = (group.anchor && options.bake !== false && !options.static) ||
-                options.bake === true ||
-                options.transform !== undefined
+            const shouldBake = (group.transform && options.bake !== false) || options.bake
             if (shouldBake) {
                 // Baking animation
-                const bakedCube: ModelObject = bakeAnimation(x, getBakedTransform, this.animationSettings)
-
-                if (!v3) {
-                    positionUnityToNoodle(bakedCube.position)
-                }
+                const bakedCube: ModelObject = bakeAnimation(x, group.transform ? applyGroupTransform : undefined, this.animationSettings)
 
                 o.position = bakedCube.position
                 o.rotation = bakedCube.rotation
                 o.scale = bakedCube.scale
             }
 
-            if (group.rotation) {
-                iterateKeyframes(o.rotation, (y) => {
-                    const newRotation = combineRotations([y[0], y[1], y[2]], group.rotation!)
-                    Object.assign(y, newRotation)
-                })
-            }
-
-            if (group.scale) {
-                iterateKeyframes(o.scale, (y) => {
-                    y[0] *= (group.scale!)[0]
-                    y[1] *= (group.scale!)[1]
-                    y[2] *= (group.scale!)[2]
-                })
+            if (!v3) {
+                positionUnityToNoodle(o.position)
             }
 
             // Reverse animation
@@ -351,61 +361,43 @@ export abstract class ModelScene<I, O> {
             }
 
             // Making keyframes a consistent array format
-            x.position = complexifyKeyframes(x.position)
-            x.rotation = complexifyKeyframes(x.rotation)
-            x.scale = complexifyKeyframes(x.scale)
+            const position = complexifyKeyframes(x.position)
+            const rotation = complexifyKeyframes(x.rotation)
+            const scale = complexifyKeyframes(x.scale)
 
             // Applying transformation to each keyframe
             function getVec3(keyframe: InnerKeyframeVec3): Vec3 {
                 return [keyframe[0], keyframe[1], keyframe[2]]
             }
 
-            for (let i = 0; i < x.position.length; i++) {
-                const transform = {
-                    position: getVec3(x.position[i]),
-                    rotation: getVec3(x.rotation[i]),
-                    scale: getVec3(x.scale[i]),
+            if (position.length !== rotation.length || rotation.length !== scale.length) {
+                throw 'Animated model data expected uniform length for scale, position, and rotation animations'
+            }
+
+            for (let i = 0; i < position.length; i++) {
+                let transform = {
+                    position: getVec3(position[i]),
+                    rotation: getVec3(rotation[i]),
+                    scale: getVec3(scale[i]),
                 }
 
-                if (group.anchor) {
-                    transform.position = applyAnchor(
-                        transform.position as Vec3,
-                        transform.rotation as Vec3,
-                        transform.scale as Vec3,
-                        group.anchor,
-                    )
-                }
-
-                if (group.rotation) {
-                    transform.rotation = combineRotations(transform.rotation, group.rotation)
-                }
-
-                if (group.scale) {
-                    transform.scale[0] *= group.scale[0]
-                    transform.scale[1] *= group.scale[1]
-                    transform.scale[2] *= group.scale[2]
+                if (group.transform) {
+                    transform = combineTransforms(group.transform, transform)
                 }
 
                 if (!v3) {
                     positionUnityToNoodle(transform.position)
                 }
 
-                if (options.transform) {
-                    const combined = combineTransforms(transform, options.transform, options.transform.anchor)
-                    transform.position = combined.position
-                    transform.rotation = combined.rotation
-                    transform.scale = combined.scale
-                }
-
-                x.position[i] = [...transform.position, x.position[i][3]]
-                x.rotation[i] = [...transform.rotation, x.rotation[i][3]]
-                x.scale[i] = [...transform.scale, x.scale[i][3]]
+                position[i] = [...transform.position, position[i][3]]
+                rotation[i] = [...transform.rotation, rotation[i][3]]
+                scale[i] = [...transform.scale, scale[i][3]]
             }
 
-            // Optimizing object
-            x.position = optimizeKeyframes(x.position, this.animationSettings.optimizeSettings)
-            x.rotation = optimizeKeyframes(x.rotation, this.animationSettings.optimizeSettings)
-            x.scale = optimizeKeyframes(x.scale, this.animationSettings.optimizeSettings)
+            // Optimizing object (also simplifies it)
+            x.position = optimizeKeyframes(position, this.animationSettings.optimizeSettings)
+            x.rotation = optimizeKeyframes(rotation, this.animationSettings.optimizeSettings)
+            x.scale = optimizeKeyframes(scale, this.animationSettings.optimizeSettings)
 
             // Reverse animation
             if (options.reverse) {

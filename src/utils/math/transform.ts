@@ -6,9 +6,8 @@ import {areKeyframesSimple} from '../animation/keyframe/complexity.ts'
 import {areArraysEqual} from '../array/check.ts'
 import {bakeAnimation, getAnimatedObjectDomain, getKeyframeValuesAtTime,} from '../animation/mod.ts'
 import {iterateKeyframes} from "../animation/keyframe/iterate.ts";
-import {rotatePoint} from "./vector.ts";
 import {Vec3} from "../../types/math/vector.ts";
-import {AnimatedTransform, FullAnimatedTransform, Transform} from "../../types/math/transform.ts";
+import {AnimatedTransform, FullAnimatedTransform, FullTransform, Transform} from "../../types/math/transform.ts";
 
 import {RawKeyframesVec3} from "../../types/animation/keyframe/vec3.ts";
 import {DeepReadonly} from "../../types/util/mutability.ts";
@@ -37,25 +36,25 @@ export function combineRotations(
 export function combineTransforms(
     target: DeepReadonly<Transform>,
     transform: DeepReadonly<Transform>,
-    anchor: Readonly<Vec3> = [0, 0, 0],
-) {
+    anchor?: Readonly<Vec3>,
+): FullTransform {
     const newTarget = copy(target) as Transform
     const newTransform = copy(transform) as Transform
 
     newTarget.position ??= [0, 0, 0]
-    newTarget.position = arraySubtract(newTarget.position, anchor)
+    newTarget.position = anchor ? arraySubtract(newTarget.position, anchor) : newTarget.position
 
     const targetM = getMatrixFromTransform(newTarget)
     const transformM = getMatrixFromTransform(newTransform)
     targetM.premultiply(transformM)
     const finalTarget = getTransformFromMatrix(targetM)
 
-    const finalPos = arrayAdd(finalTarget.position, anchor)
+    const finalPos = anchor ? arrayAdd(finalTarget.position, anchor) : finalTarget.position
 
     return {
         position: finalPos,
-        rotation: finalTarget.rotation as Vec3,
-        scale: finalTarget.scale as Vec3,
+        rotation: finalTarget.rotation,
+        scale: finalTarget.scale,
     }
 }
 
@@ -217,24 +216,4 @@ export function emulateParent(
         animationSettings,
         domain,
     )
-}
-
-/**
- * Applies a local offset to an object based on it's transformation, and returns the resulting position.
- * @param position Position of the object.
- * @param rotation Rotation of the object.
- * @param scale Scale of the object.
- * @param anchor Desired local offset for the object.
- */
-export function applyAnchor(
-    position: Vec3,
-    rotation: Vec3,
-    scale: Vec3,
-    anchor: Vec3,
-) {
-    const offset = rotatePoint(
-        scale.map((x, i) => x * anchor[i]) as Vec3,
-        rotation,
-    )
-    return position.map((x, i) => x + offset[i]) as Vec3
 }

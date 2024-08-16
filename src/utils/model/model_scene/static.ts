@@ -47,8 +47,8 @@ export class StaticModelScene extends ModelScene<StaticObjectInput, StaticSceneI
             const track = this.getPieceTrack(group.object, groupKey, index)
 
             // Get transforms
-            const pos = StaticModelScene.getFirstValues(modelObject.position)
-            const rot = StaticModelScene.getFirstValues(modelObject.rotation)
+            const position = StaticModelScene.getFirstValues(modelObject.position)
+            const rotation = StaticModelScene.getFirstValues(modelObject.rotation)
             const scale = StaticModelScene.getFirstValues(modelObject.scale)
 
             // Creating objects/events
@@ -70,8 +70,8 @@ export class StaticModelScene extends ModelScene<StaticObjectInput, StaticSceneI
                 ) object.material.color = copy(modelObject.color) as ColorVec
 
                 object.track.value = track
-                object.position = pos
-                object.rotation = rot
+                object.position = position
+                object.rotation = rotation
                 object.scale = scale
 
                 const groupInfo = sceneInfo.objectGroupInfo[groupKey]

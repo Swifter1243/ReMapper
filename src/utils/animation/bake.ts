@@ -25,8 +25,8 @@ export function bakeAnimation(
 ): ModelObject {
     animationSettings ??= new AnimationSettings()
 
-    const pos = animation.position ?? [0, 0, 0]
-    const rot = animation.rotation ?? [0, 0, 0]
+    const position = animation.position ?? [0, 0, 0]
+    const rotation = animation.rotation ?? [0, 0, 0]
     const scale = animation.scale ?? [1, 1, 1]
 
     const data = {
@@ -46,8 +46,8 @@ export function bakeAnimation(
         i += invBakeFreq
     ) {
         const keyframe = {
-            position: getKeyframeValuesAtTime('position', pos, i),
-            rotation: getKeyframeValuesAtTime('rotation', rot, i),
+            position: getKeyframeValuesAtTime('position', position, i),
+            rotation: getKeyframeValuesAtTime('rotation', rotation, i),
             scale: getKeyframeValuesAtTime('scale', scale, i),
             time: i,
         } satisfies TransformKeyframe

@@ -1,6 +1,6 @@
 import {BaseEnvironmentEnhancement} from "../../../internals/beatmap/object/environment/base_environment.ts";
 import {Replace} from "../../util/object.ts";
-import { bsmap } from '../../../deps.ts'
+import {bsmap} from '../../../deps.ts'
 import {Track} from "../../../utils/animation/track.ts";
 import {ColorVec} from "../../math/vector.ts";
 
@@ -100,3 +100,4 @@ export type ExcludedEnvironmentFields<
     Partial<Fields<Class>>,
     Replacement
 >
+

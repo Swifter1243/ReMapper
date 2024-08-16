@@ -1,6 +1,4 @@
 import { ModelObject, ReadonlyModel } from '../object.ts'
-import { Transform } from '../../math/transform.ts'
-import { Vec3 } from '../../math/vector.ts'
 
 import {ObjectInput} from "./input.ts";
 
@@ -14,10 +12,6 @@ export type StaticOptions = {
     objects?: (arr: ReadonlyModel) => void
     /** Recache the model when this data changes. */
     hash?: unknown
-    /** Transform the objects. */
-    transform?: Transform & {
-        anchor?: Vec3
-    }
 }
 
 /** Input options for the "animate" method in a ModelScene. */
