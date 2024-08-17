@@ -51,6 +51,9 @@ export abstract class ModelScene<I, O> {
      * */
     allowUniqueMaterials = false
 
+    /** Throw when a model has groups that aren't represented. */
+    throwOnMissingGroup = true
+
     /** Whether this scene has been instantiated. */
     private instantiated = false
 
@@ -267,15 +270,27 @@ export abstract class ModelScene<I, O> {
     }
 
     private getObjectsFromArray(
-        objectInput: ReadonlyModel,
+        objects: ReadonlyModel,
         options: AnimatedOptions,
     ): ReadonlyModel {
+        if (options.objects) options.objects(objects)
         const outputObjects: ModelObject[] = []
-        if (options.objects) options.objects(objectInput)
         const v3 = getActiveDifficulty().v3
-        objectInput.forEach((x) => {
-            const group = this.groups[x.group ?? ModelScene.defaultGroupKey]
-            if (!group) return
+        const trackGroups = new Set<string>()
+
+        objects.forEach((x) => {
+            const groupKey = x.group ?? ModelScene.defaultGroupKey
+            const group = this.groups[groupKey]
+
+            if (!group) {
+                if (this.throwOnMissingGroup) throw `Group '${groupKey}' is in model object, but ModelScene has no corresponding group!`
+                return
+            }
+
+            if (!group.object) {
+                if (trackGroups.has(groupKey)) throw `Track group '${groupKey}' has multiple model objects, when track groups should only have one!`
+                trackGroups.add(groupKey)
+            }
 
             const o = copy(x) as ModelObject
 
@@ -342,14 +357,26 @@ export abstract class ModelScene<I, O> {
     }
 
     private processFileObjects(
-        fileObjects: ModelObject[],
+        objects: ModelObject[],
         options: AnimatedOptions,
     ) {
         const v3 = getActiveDifficulty().v3
-        if (options.onCache) options.onCache(fileObjects)
-        fileObjects.forEach((x) => {
-            const group = this.groups[x.group ?? ModelScene.defaultGroupKey]
-            if (!group) return
+        if (options.onCache) options.onCache(objects)
+        const trackGroups = new Set<string>()
+
+        objects.forEach((x) => {
+            const groupKey = x.group ?? ModelScene.defaultGroupKey
+            const group = this.groups[groupKey]
+
+            if (!group) {
+                if (this.throwOnMissingGroup) throw `Group '${groupKey}' is in model object, but ModelScene has no corresponding group!`
+                return
+            }
+
+            if (!group.object) {
+                if (trackGroups.has(groupKey)) throw `Track group '${groupKey}' has multiple model objects, when track groups should only have one!`
+                trackGroups.add(groupKey)
+            }
 
             if (options.static) {
                 ModelScene.makeModelObjectStatic(x)
@@ -409,6 +436,6 @@ export abstract class ModelScene<I, O> {
             }
         })
 
-        return fileObjects
+        return objects
     }
 }
