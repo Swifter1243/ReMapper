@@ -1,15 +1,16 @@
 import { getActiveDifficulty } from '../../data/active_difficulty.ts'
 import { adjustFog } from '../beatmap/object/environment/fog.ts'
-import { environment } from '../../builder_functions/beatmap/object/environment/environment.ts'
 import { arrayAdd } from '../array/operation.ts'
 import { geometry } from '../../builder_functions/beatmap/object/environment/geometry.ts'
-import {Vec3} from "../../types/math/vector.ts";
-import {ModelObject} from "../../types/model/object.ts";
-import {GroupObjectTypes} from "../../types/model/model_scene/group.ts";
-import {modelScene} from "../../builder_functions/model/model_scene.ts";
-import {Transform} from "../../types/math/transform.ts";
+import { Vec3 } from '../../types/math/vector.ts'
+import { ModelObject } from '../../types/model/object.ts'
+import { GroupObjectTypes } from '../../types/model/model_scene/group.ts'
+import { modelScene } from '../../builder_functions/model/model_scene.ts'
+import { Transform } from '../../types/math/transform.ts'
 import { fromType } from '../../builder_functions/beatmap/object/basic_event/light_event.ts'
 import { vec } from '../array/tuple.ts'
+import { getBaseEnvironment } from '../beatmap/object/environment/base_environment.ts'
+import { generateArray } from '../array/generate.ts'
 
 /**
  * Debug the transformations necessary to fit an object to a cube.
@@ -18,25 +19,26 @@ import { vec } from '../array/tuple.ts'
  * @param resolution The scale of the object for each axis.
  * @param transform The transform to apply to each object.
  */
-export async function debugModelPiece(
+export async function debugFitObjectToUnitCube(
     input: GroupObjectTypes,
     resolution: number,
-    transform?: Transform
+    transform?: Transform,
 ) {
     const diff = getActiveDifficulty()
     diff.clear(['Geometry Materials'])
 
+    const center = vec(0, 10, 0)
+    const planeDistance = 5
+    const planeThickness = 0.0001
+    const model: ModelObject[] = []
+
+    getBaseEnvironment((env) => {
+        env.position = [0, -69420, 0]
+    })
+
     const lightType = 0
     const lightID = 1000
     fromType(lightType).on([300, 300, 300, 1], lightID).push(false)
-
-    const center = vec(0, 10, 0)
-    const axisDist = 5
-
-    adjustFog({
-        attenuation: 0.000001,
-        startY: -69420,
-    })
 
     geometry({
         lightID,
@@ -44,15 +46,14 @@ export async function debugModelPiece(
         position: center,
         scale: [0.2, 0.2, 0.2],
         material: {
-            shader: 'TransparentLight'
-        }
+            shader: 'TransparentLight',
+        },
     }).push()
 
-    environment({
-        id: 'NarrowGameHUD',
-        lookupMethod: 'EndsWith',
-        active: false,
-    }).push()
+    adjustFog({
+        attenuation: 0.000001,
+        startY: -69420,
+    })
 
     diff.geometryMaterials.debugCubeX = {
         shader: 'Standard',
@@ -72,44 +73,43 @@ export async function debugModelPiece(
         shaderKeywords: [],
     }
 
-    const modelData: ModelObject[] = []
+    type Position = Vec3
+    type Scale = Vec3
+    type Group = string
+    type QuickObject = [Position, Scale?, Group?]
 
-    function addCubes(transforms: [Vec3, Vec3?, string?][], track?: string) {
-        transforms.forEach((transform) => {
-            const data: ModelObject = {
-                position: arrayAdd(transform[0], center) as Vec3,
+    function addObjects(objects: QuickObject[]) {
+        objects.forEach((object) => {
+            model.push({
+                position: arrayAdd(object[0], center),
                 rotation: [0, 0, 0],
-                scale: transform[1] ?? [1, 1, 1],
-            }
-
-            if (track) data.group = track
-            if (transform[2]) data.group = transform[2]
-
-            modelData.push(data)
+                scale: object[1] ?? [1, 1, 1],
+                group: object[2],
+            })
         })
     }
 
-    // Debug
-    addCubes([
-        [[0, axisDist, 0], [1, 0.0001, 1], 'debugCubeY'],
-        [[0, -axisDist, 0], [1, 0.0001, 1], 'debugCubeY'],
-        [[axisDist, 0, 0], [0.0001, 1, 1], 'debugCubeX'],
-        [[-axisDist, 0, 0], [0.0001, 1, 1], 'debugCubeX'],
-        [[0, 0, axisDist], [1, 1, 0.0001], 'debugCubeZ'],
-        [[0, 0, -axisDist], [1, 1, 0.0001], 'debugCubeZ'],
+    // Axis Planes
+    addObjects([
+        [[0, planeDistance, 0], [1, planeThickness, 1], 'debugCubeY'],
+        [[0, -planeDistance, 0], [1, planeThickness, 1], 'debugCubeY'],
+        [[planeDistance, 0, 0], [planeThickness, 1, 1], 'debugCubeX'],
+        [[-planeDistance, 0, 0], [planeThickness, 1, 1], 'debugCubeX'],
+        [[0, 0, planeDistance], [1, 1, planeThickness], 'debugCubeZ'],
+        [[0, 0, -planeDistance], [1, 1, planeThickness], 'debugCubeZ'],
     ])
 
     // Object
-    addCubes([
-        [[0, resolution / 2 + axisDist, 0], [1, resolution, 1]],
-        [[0, -resolution / 2 - axisDist, 0], [1, resolution, 1]],
-        [[resolution / 2 + axisDist, 0, 0], [resolution, 1, 1]],
-        [[-resolution / 2 - axisDist, 0, 0], [resolution, 1, 1]],
-        [[0, 0, resolution / 2 + axisDist], [1, 1, resolution]],
-        [[0, 0, -resolution / 2 - axisDist], [1, 1, resolution]],
+    addObjects([
+        [[0, resolution / 2 + planeDistance, 0], [1, resolution, 1]],
+        [[0, -resolution / 2 - planeDistance, 0], [1, resolution, 1]],
+        [[resolution / 2 + planeDistance, 0, 0], [resolution, 1, 1]],
+        [[-resolution / 2 - planeDistance, 0, 0], [resolution, 1, 1]],
+        [[0, 0, resolution / 2 + planeDistance], [1, 1, resolution]],
+        [[0, 0, -resolution / 2 - planeDistance], [1, 1, resolution]],
     ])
 
-    const scene = modelScene.static(modelData)
+    const scene = modelScene.static(model)
     scene.setDefaultGroup(input, transform)
     scene.setObjectGroup('debugCubeX', geometry('Cube', 'debugCubeX'))
     scene.setObjectGroup('debugCubeY', geometry('Cube', 'debugCubeY'))
