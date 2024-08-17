@@ -124,18 +124,20 @@ export abstract class ModelScene<I, O> {
      * @param transform The transform applied to the spawned object.
      * @see groups
      */
-    setDefaultGroup(
+    setDefaultObjectGroup(
         object: GroupObjectTypes,
         transform?: DeepReadonly<Transform>,
     ): void
-    setDefaultGroup(
+    setDefaultObjectGroup(
         modelPiece: EnvironmentModelPiece,
     ): void
-    setDefaultGroup(
+    setDefaultObjectGroup(
         ...params: [
             object: GroupObjectTypes,
             transform?: DeepReadonly<Transform>,
-        ] | [modelPiece: EnvironmentModelPiece]
+        ] | [
+            modelPiece: EnvironmentModelPiece
+        ]
     ): void {
         if (params[0] instanceof BaseEnvironmentEnhancement) {
             const [object, transform] = params

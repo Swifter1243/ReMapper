@@ -109,7 +109,7 @@ export async function debugFitObjectToUnitCube(
     ])
 
     const scene = modelScene.static(model)
-    scene.setDefaultGroup(input, transform)
+    scene.setDefaultObjectGroup(input, transform)
     scene.setObjectGroup('debugCubeX', geometry('Cube', 'debugCubeX'))
     scene.setObjectGroup('debugCubeY', geometry('Cube', 'debugCubeY'))
     scene.setObjectGroup('debugCubeZ', geometry('Cube', 'debugCubeZ'))
