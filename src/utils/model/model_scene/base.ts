@@ -288,7 +288,7 @@ export abstract class ModelScene<I, O> {
             }
 
             if (!group.object) {
-                if (trackGroups.has(groupKey)) throw `Track group '${groupKey}' has multiple model objects, when track groups should only have one!`
+                if (trackGroups.has(groupKey)) throw `Track group '${groupKey}' was referenced by multiple model objects in a model, when track groups should only represent one!`
                 trackGroups.add(groupKey)
             }
 
@@ -374,7 +374,7 @@ export abstract class ModelScene<I, O> {
             }
 
             if (!group.object) {
-                if (trackGroups.has(groupKey)) throw `Track group '${groupKey}' has multiple model objects, when track groups should only have one!`
+                if (trackGroups.has(groupKey)) throw `Track group '${groupKey}' was referenced by multiple model objects in a model, when track groups should only represent one!`
                 trackGroups.add(groupKey)
             }
 
