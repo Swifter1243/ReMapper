@@ -45,6 +45,12 @@ export abstract class ModelScene<I, O> {
     /** If the scene is instantiated with `animate` and the first switch is not at a time of 0, `initializePositions` determines whether the first switch will be initialized at beat 0 and held in place until it is animated. */
     initializeObjects = true
 
+    /** 
+     * When registering groups with geometry objects, don't set their default material. 
+     * WARNING: Only do this if you know what you're doing, because this means each geometry object instantiated from this group will have it's own draw call.
+     * */
+    allowUniqueMaterials = false
+
     /** Whether this scene has been instantiated. */
     private instantiated = false
 
@@ -105,7 +111,7 @@ export abstract class ModelScene<I, O> {
         }
 
         if (object instanceof Environment) object.duplicate = 1
-        else if (typeof object.material !== 'string') {
+        else if (typeof object.material !== 'string' && this.allowUniqueMaterials) {
             group.defaultMaterial = object.material
         }
 
@@ -202,19 +208,6 @@ export abstract class ModelScene<I, O> {
             transform,
             disappearWhenAbsent,
         }
-    }
-
-    /**
-     * Spawn every object in a group with a unique material.
-     * Allows colors from models to be applied to geometry.
-     * Should be used with caution as it creates a unique material per object.
-     * @param group The group to enable unique materials on. Leave undefined to effect base group.
-     */
-    enableModelColors(group?: string) {
-        const groupObj = this.groups[group as string]
-        if (!groupObj && !group) throw `There are no groups on this scene!`
-        if (!groupObj) throw `The group ${group} doesn't exist!`
-        this.groups[group as string].defaultMaterial = undefined
     }
 
     private static makeModelObjectStatic(obj: ModelObject) {
