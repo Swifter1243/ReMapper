@@ -1,9 +1,9 @@
-import {AnimatedObjectInput} from './input.ts'
+import {AnimatedModelInput} from './input.ts'
 
 /** A scene switch used in a ModelScene */
 export type SceneSwitch = {
     /** Input for the model properties. */
-    model: AnimatedObjectInput
+    model: AnimatedModelInput
     /** When the switch happens. */
     beat: number
     /** How long the animation in the input objects happen. */

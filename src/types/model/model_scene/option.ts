@@ -1,11 +1,11 @@
 import { ModelObject, ReadonlyModel } from '../object.ts'
 
-import {ObjectInput} from "./input.ts";
+import {ModelInput} from "./input.ts";
 
 /** Input options for the "static" method in a ModelScene. */
 export type StaticOptions = {
     /** The input of objects. Can be an array of objects or a path to a model. */
-    input: ObjectInput
+    input: ModelInput
     /** Function to run on model objects when they're being cached. Only works for path input. */
     onCache?: (objs: ModelObject[]) => void
     /** Function to run on model objects that are about to be instantiated. */

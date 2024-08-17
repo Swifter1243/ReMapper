@@ -3,7 +3,7 @@ import { GroupObjectTypes, ModelGroup } from '../../../types/model/model_scene/g
 import { AnimationSettings, optimizeKeyframes } from '../../animation/optimizer.ts'
 import { Vec3 } from '../../../types/math/vector.ts'
 import { Environment } from '../../../internals/beatmap/object/environment/environment.ts'
-import { AnimatedObjectInput, ObjectInput } from '../../../types/model/model_scene/input.ts'
+import { AnimatedModelInput, ModelInput } from '../../../types/model/model_scene/input.ts'
 import { AnimatedOptions } from '../../../types/model/model_scene/option.ts'
 import { ModelObject, ReadonlyModel } from '../../../types/model/object.ts'
 import { InnerKeyframeVec3, RawKeyframesVec3 } from '../../../types/animation/keyframe/vec3.ts'
@@ -247,19 +247,19 @@ export abstract class ModelScene<I, O> {
         this.instantiated = true
     }
 
-    protected async getObjects(input: AnimatedObjectInput) {
+    protected async getObjects(input: AnimatedModelInput) {
         const isNested = typeof input === 'object' && !Array.isArray(input)
         if (isNested) {
             const animatedOptions = input as AnimatedOptions
             return await this.getObjectsFromInput(animatedOptions.input, animatedOptions)
         } else {
-            const objectInput = input as ObjectInput
+            const objectInput = input as ModelInput
             return await this.getObjectsFromInput(objectInput, {} as AnimatedOptions)
         }
     }
 
     private async getObjectsFromInput(
-        objectInput: ObjectInput,
+        objectInput: ModelInput,
         options: AnimatedOptions,
     ) {
         if (typeof objectInput === 'string') {

@@ -1,5 +1,5 @@
 import { ModelScene } from './base.ts'
-import { StaticObjectInput } from '../../../types/model/model_scene/input.ts'
+import { StaticModelInput } from '../../../types/model/model_scene/input.ts'
 import { getActiveDifficulty } from '../../../data/active_difficulty.ts'
 import { copy } from '../../object/copy.ts'
 import { Geometry } from '../../../internals/beatmap/object/environment/geometry.ts'
@@ -8,7 +8,7 @@ import { animateTrack } from '../../../builder_functions/beatmap/object/custom_e
 import { RuntimeRawKeyframesVec3 } from '../../../types/animation/keyframe/runtime/vec3.ts'
 import { StaticSceneInfo } from '../../../types/model/model_scene/scene info.ts'
 
-export class StaticModelScene extends ModelScene<StaticObjectInput, StaticSceneInfo> {
+export class StaticModelScene extends ModelScene<StaticModelInput, StaticSceneInfo> {
     private initializeSceneInfo() {
         const sceneInfo: StaticSceneInfo = {
             trackGroupInfo: {},
