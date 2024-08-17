@@ -10,19 +10,18 @@ import { Transform } from '../../types/math/transform.ts'
 import { fromType } from '../../builder_functions/beatmap/object/basic_event/light_event.ts'
 import { vec } from '../array/tuple.ts'
 import { getBaseEnvironment } from '../beatmap/object/environment/base_environment.ts'
-import { generateArray } from '../array/generate.ts'
 
 /**
  * Debug the transformations necessary to fit an object to a cube.
  * Use the axis indicators to guide the process.
  * @param input Object to spawn.
- * @param resolution The scale of the object for each axis.
  * @param transform The transform to apply to each object.
+ * @param zoom Scales the object on each axis to inspect finer details.
  */
 export async function debugFitObjectToUnitCube(
     input: GroupObjectTypes,
-    resolution: number,
-    transform?: Transform,
+    transform: Transform,
+    zoom = 1,
 ) {
     const diff = getActiveDifficulty()
     diff.clear(['Geometry Materials'])
@@ -101,12 +100,12 @@ export async function debugFitObjectToUnitCube(
 
     // Object
     addObjects([
-        [[0, resolution / 2 + planeDistance, 0], [1, resolution, 1]],
-        [[0, -resolution / 2 - planeDistance, 0], [1, resolution, 1]],
-        [[resolution / 2 + planeDistance, 0, 0], [resolution, 1, 1]],
-        [[-resolution / 2 - planeDistance, 0, 0], [resolution, 1, 1]],
-        [[0, 0, resolution / 2 + planeDistance], [1, 1, resolution]],
-        [[0, 0, -resolution / 2 - planeDistance], [1, 1, resolution]],
+        [[0, zoom / 2 + planeDistance, 0], [1, zoom, 1]],
+        [[0, -zoom / 2 - planeDistance, 0], [1, zoom, 1]],
+        [[zoom / 2 + planeDistance, 0, 0], [zoom, 1, 1]],
+        [[-zoom / 2 - planeDistance, 0, 0], [zoom, 1, 1]],
+        [[0, 0, zoom / 2 + planeDistance], [1, 1, zoom]],
+        [[0, 0, -zoom / 2 - planeDistance], [1, 1, zoom]],
     ])
 
     const scene = modelScene.static(model)
