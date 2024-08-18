@@ -12,6 +12,7 @@ import {Material} from "./material.ts";
 function applyCRCsToInfo(bundleInfo: BundleInfo) {
     const info = getActiveInfo()
     info._customData ??= {}
+    info._customData._assetBundle = {}
     Object.assign(info._customData._assetBundle, bundleInfo.default.bundleCRCs)
 }
 
