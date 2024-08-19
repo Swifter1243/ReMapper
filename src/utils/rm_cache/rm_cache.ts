@@ -17,5 +17,10 @@ export class ReMapperCache {
             }),
         )
     }
+
+    /** Empty existing data in the cache. */
+    empty() {
+        this.cachedData = {}
+    }
 }
 
