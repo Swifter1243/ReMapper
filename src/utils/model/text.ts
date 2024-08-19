@@ -1,4 +1,3 @@
-import {Wall} from '../../internals/beatmap/object/gameplay_object/wall.ts'
 import {modelToWall} from './wall.ts'
 import {AnimationSettings} from '../animation/mod.ts'
 import {getBoxBounds} from "../math/box.ts";
@@ -128,25 +127,21 @@ export class Text implements TextInfo {
      * @param text The string of text to generate.
      * @param start Wall's lifespan start.
      * @param end Wall's lifespan end.
-     * @param wall A callback for each wall being spawned.
      * @param distribution Beats to spread spawning of walls out.
      * Animations are adjusted, but keep in mind path animation events for these walls might be messed up.
      * @param animationSettings Settings used to process the animation.
      */
-    async toWalls(
+    toWalls(
         text: string,
         start: number,
         end: number,
-        wall?: (wall: Wall) => void,
         distribution = 1,
         animationSettings = new AnimationSettings()
     ) {
-        const model = this.toObjects(text)
-        await modelToWall(
-            model,
+        return modelToWall(
+            this.toObjects(text),
             start,
             end,
-            wall,
             distribution,
             animationSettings
         )
