@@ -19,15 +19,17 @@ function applyCRCsToInfo(bundleInfo: BundleInfo) {
 function initializeMaterials(materials: Material[]) {
     materials.forEach(material => {
         const keys = Object.keys(material.propertyTypes)
-        if (keys.length === 0) {
-            return
-        }
-
         const properties: MaterialPropertyValues = {}
+
         keys.forEach((property) => {
             if (material.propertyTypes[property] === 'Texture') return // TODO: Proper Texture default values
             properties[property] = material.defaults[property] as MATERIAL_PROP_TYPE
         })
+
+        if (Object.values(properties).length === 0) {
+            return
+        }
+
         material.set(properties)
     })
 }
