@@ -6,7 +6,7 @@ import {
     RawKeyframesAbstract,
     RuntimePointDefinitionBoundless
 } from "../../../types/mod.ts";
-import {getKeyframeTime, getKeyframeValues} from "./get.ts";
+import {getKeyframeTimeIndex} from "./get.ts";
 import {ComplexKeyframesAbstract} from "../../../types/animation/keyframe/abstract.ts";
 
 /**
@@ -44,9 +44,10 @@ export function simplifyKeyframes<T extends NumberTuple>(
 ): RawKeyframesAbstract<T> {
     if (array.length <= 1 && !areKeyframesSimple(array)) {
         const keyframe = array[0] as InnerKeyframeBoundless
-        const keyframeTime = getKeyframeTime(keyframe)
+        const keyframeTimeIndex = getKeyframeTimeIndex(keyframe)
+        const keyframeTime = keyframe[keyframeTimeIndex]
         if (keyframeTime === 0) {
-            return getKeyframeValues(keyframe) as RawKeyframesAbstract<T>
+            return keyframe.slice(0, keyframeTimeIndex) as RawKeyframesAbstract<T>
         }
     }
     return array
