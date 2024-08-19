@@ -506,7 +506,7 @@ export function optimizeKeyframes<T extends NumberTuple>(
     const keyframes = complexifyKeyframes<T>(animation)
 
     if (keyframes.length === 1) {
-        return animation
+        return simplifyKeyframes(animation)
     }
 
     // not enough points to optimize
