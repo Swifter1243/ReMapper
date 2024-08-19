@@ -14,7 +14,6 @@ import { Transform } from '../../types/math/transform.ts'
 import { ComplexKeyframesVec3 } from '../../types/animation/keyframe/vec3.ts'
 import { ModelObject, ReadonlyModel } from '../../types/model/object.ts'
 import { Wall } from '../../internals/beatmap/object/gameplay_object/wall.ts'
-import { DeepReadonly } from '../../types/util/mutability.ts'
 import {ComplexKeyframesBoundless} from "../../types/animation/keyframe/boundless.ts";
 
 let modelToWallCount = 0
@@ -109,7 +108,7 @@ export async function modelToWall(
             }, animationSettings!.toData() + distribution!.toString())
         }
 
-        async function getObjectsFromArray(input: readonly DeepReadonly<ModelObject>[]): Promise<ReadonlyModel> {
+        async function getObjectsFromArray(input: ReadonlyModel): Promise<ReadonlyModel> {
             return input.map((x) => {
                 const o = copy(x) as ModelObject
                 const objectIsAnimated = isAnimated(o)
