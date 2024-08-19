@@ -3,7 +3,7 @@
 import { AnimationSettings, optimizeKeyframes } from '../animation/optimizer.ts'
 import { wall } from '../../builder_functions/beatmap/object/gameplay_object/wall.ts'
 import { getModel } from './file.ts'
-import {areKeyframesSimple, complexifyKeyframes, simplifyKeyframes} from '../animation/keyframe/complexity.ts'
+import { areKeyframesSimple, complexifyKeyframes, simplifyKeyframes } from '../animation/keyframe/complexity.ts'
 import { getKeyframeTimeIndex } from '../animation/keyframe/get.ts'
 import { bakeAnimation } from '../animation/bake.ts'
 import { worldToWall } from '../beatmap/object/wall/world_to_wall.ts'
@@ -14,7 +14,7 @@ import { Transform } from '../../types/math/transform.ts'
 import { ComplexKeyframesVec3 } from '../../types/animation/keyframe/vec3.ts'
 import { ModelObject, ReadonlyModel } from '../../types/model/object.ts'
 import { Wall } from '../../internals/beatmap/object/gameplay_object/wall.ts'
-import {ComplexKeyframesBoundless} from "../../types/animation/keyframe/boundless.ts";
+import { ComplexKeyframesBoundless } from '../../types/animation/keyframe/boundless.ts'
 
 let modelToWallCount = 0
 
@@ -113,18 +113,11 @@ export async function modelToWall(
                 const o = copy(x) as ModelObject
                 const objectIsAnimated = isAnimated(o)
 
-                const anim = bakeAnimation(
-                    {
-                        position: x.position,
-                        rotation: x.rotation,
-                        scale: x.scale,
-                    },
-                    (k) => {
-                        const wtw = worldToWall(k, objectIsAnimated)
-                        k.position = wtw.position
-                        k.scale = wtw.scale
-                    },
-                )
+                const anim = bakeAnimation(x, (k) => {
+                    const wtw = worldToWall(k, objectIsAnimated)
+                    k.position = wtw.position
+                    k.scale = wtw.scale
+                })
 
                 o.position = simplifyKeyframes(anim.position)
                 o.rotation = simplifyKeyframes(anim.rotation)
@@ -167,7 +160,7 @@ export async function modelToWall(
                     const keyframes = wall.animation[key]!
                     if (typeof keyframes === 'string') continue
 
-                    const complexKeyframes = (typeof keyframes[0] === 'object' ? keyframes : [[...keyframes, 0]] as ComplexKeyframesBoundless)
+                    const complexKeyframes = typeof keyframes[0] === 'object' ? keyframes : [[...keyframes, 0]] as ComplexKeyframesBoundless
                     complexKeyframes.forEach((k) => {
                         const timeIndex = getKeyframeTimeIndex(k)
                         k[timeIndex] = (k[timeIndex] as number) * squish + animationOffset
