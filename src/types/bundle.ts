@@ -23,7 +23,9 @@ export type BundleInfo = {
     default: {
         materials: MaterialInfo
         prefabs: PrefabInfo
+        bundleFiles: string[]
         bundleCRCs: Record<string, number>
+        isCompressed: boolean
     }
 }
 

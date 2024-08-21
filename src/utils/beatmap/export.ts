@@ -6,21 +6,22 @@ import { currentTransfer } from './transfer.ts'
 import {copy} from "../object/copy.ts";
 import {getActiveDifficulty} from "../../data/active_difficulty.ts";
 import {getWorkingDirectory} from "../../data/working_directory.ts";
-import {BUNDLE_VERSIONS, QUEST_WIP_PATH} from "../../data/constants/file.ts";
-import {RMLog} from "../rm_log.ts";
+import {QUEST_WIP_PATH} from "../../data/constants/file.ts";
+import {RMError, RMLog} from "../rm_log.ts";
 import {parseFilePath} from "../file.ts";
 import {DIFFICULTY_NAME, FILENAME} from "../../types/beatmap/file.ts";
+import {BundleInfo} from "../../types/bundle.ts";
 
 /**
  * Create a temporary directory with all the relevant files for the beatmap.
  * Returns all the files that are in the directory.
  * @param excludeDiffs Difficulties to exclude.
- * @param includeBundles Whether to include vivify bundles in the beatmap collection.
+ * @param bundleInfo Include information about a bundle build in order to collect the corresponding bundles.
  * @param awaitSave Whether to await the active difficulty's saving action.
  */
 export async function collectBeatmapFiles(
     excludeDiffs: FILENAME<DIFFICULTY_NAME>[] = [],
-    includeBundles = false,
+    bundleInfo?: BundleInfo,
     awaitSave = true,
 ) {
     const info = getActiveInfo()
@@ -40,8 +41,8 @@ export async function collectBeatmapFiles(
         'BPMInfo.dat',
     ]
 
-    if (includeBundles) {
-        unsanitizedFiles.push(...BUNDLE_VERSIONS.map((x) => `bundle${x}`))
+    if (bundleInfo) {
+        unsanitizedFiles.push(...bundleInfo.default.bundleFiles)
     }
 
     for (let s = 0; s < exportInfo._difficultyBeatmapSets.length; s++) {
@@ -72,8 +73,8 @@ export async function collectBeatmapFiles(
 
     const workingDir = getWorkingDirectory()
     const filesPromise: [string, Promise<boolean>][] = unsanitizedFiles
-        .filter((v) => v) // check not undefined or null
-        .map((v) => path.join(workingDir, v!)) // prepend workspace dir
+        .filter((v) => v !== undefined && v != null) // check not undefined or null
+        .map((v) => path.isAbsolute(v) ? v : path.join(workingDir, v)) // prepend workspace dir
         .map((v) => [v, fs.exists(v)]) // ensure file exists
 
     const files: string[] = (await Promise.all(filesPromise
@@ -94,12 +95,12 @@ export async function collectBeatmapFiles(
  * Automatically zip the map, including only necessary files.
  * @param excludeDiffs Difficulties to exclude.
  * @param zipName Name of the zip (don't include ".zip"). Uses folder name if undefined.
- * @param includeBundles Whether to include vivify bundles in the zip.
+ * @param bundleInfo Include information about a bundle build in order to add the corresponding bundles to the zip. Only do this if you're distributing to friends, don't include these files in a BeatSaver upload.
  */
 export async function exportZip(
     excludeDiffs: FILENAME<DIFFICULTY_NAME>[] = [],
     zipName?: string,
-    includeBundles = false,
+    bundleInfo?: BundleInfo,
 ) {
     await currentTransfer
 
@@ -109,25 +110,12 @@ export async function exportZip(
     zipName = zipName.replaceAll(' ', '_')
     zipName = encodeURI(zipName)
 
-    const files = (await collectBeatmapFiles(excludeDiffs, includeBundles))
-        .map((v) => `"${v}"`) // surround with quotes for safety
+    if (bundleInfo && !bundleInfo.default.isCompressed) {
+        RMError("Warning: You are trying to distribute uncompressed bundles. It is recommended that you export these bundles as compressed if you plan to distribute them.")
+    }
 
-    // Check file lock
-    // this is broken?
-    // if (files.some(async x => {
-    //     try {
-    //         console.log(x)
-    //         await Deno.open(x, { read: true, write: false, create: false })
-    //         return false
-    //     }
-    //     catch (err) {
-    //         console.log(err)
-    //         return err instanceof Deno.errors.PermissionDenied
-    //     }
-    // })) {
-    //     RMError(`"${zipName}" could not be zipped. Some files are locked.`)
-    //     return
-    // }
+    const files = (await collectBeatmapFiles(excludeDiffs, bundleInfo))
+        .map((v) => `"${v}"`) // surround with quotes for safety
 
     if (workingDir !== Deno.cwd()) {
         // Compress function doesn't seem to have an option for destination..
