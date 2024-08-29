@@ -1,12 +1,5 @@
 import { Track } from '../../../../utils/animation/track.ts'
 import { getActiveDifficulty } from '../../../../data/active_difficulty.ts'
-import {
-    getJumps,
-    getOffsetFromHalfJumpDuration,
-    getOffsetFromJumpDistance,
-    getOffsetFromReactionTime,
-    getReactionTime,
-} from '../../../../utils/math/beatmap.ts'
 import { getActiveInfo } from '../../../../data/active_info.ts'
 import { animationV2ToV3 } from '../../../../utils/animation/json.ts'
 import { BeatmapObject } from '../object.ts'
@@ -25,6 +18,12 @@ import { copy } from '../../../../utils/object/copy.ts'
 import { AnimationPropertiesV3 } from '../../../../types/animation/properties/properties.ts'
 import { settings } from '../../../../data/settings.ts'
 import { BeatmapObjectConstructor } from '../../../../types/beatmap/object/object.ts'
+import {
+    getJumps,
+    getOffsetFromHalfJumpDuration,
+    getOffsetFromJumpDistance,
+    getOffsetFromReactionTime, getReactionTime
+} from "../../../../utils/beatmap/object/jumps.ts";
 
 export abstract class BeatmapGameplayObject<
     TV2 extends IV2GameplayObject = IV2GameplayObject,
