@@ -43,7 +43,7 @@ export abstract class ModelScene<I, O> {
     readonly ID: number
 
     /** If the scene is instantiated with `animate` and the first switch is not at a time of 0, `initializePositions` determines whether the first switch will be initialized at beat 0 and held in place until it is animated. */
-    initializeObjects = true
+    shouldInitializeObjects = true
 
     /** 
      * When registering groups with geometry objects, don't set their default material. 

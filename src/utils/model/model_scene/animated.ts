@@ -116,7 +116,7 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], MultiSceneInfo
         // This determines whether objects are initialized at beat 0, and this is the first switch.
         // When this is true, assigned objects need to be set in place at beat 0
         // It's wasteful to animate spawned objects into place since we can just set their transforms in the environment statement.
-        const firstInitializing = this.initializeObjects && switchIndex === 0
+        const firstInitializing = this.shouldInitializeObjects && switchIndex === 0
 
         // If the animation has any sort of delay, we need to put the objects into place.
         // Though if we're already initializing, we can ignore this.
