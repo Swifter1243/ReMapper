@@ -1,4 +1,5 @@
 import {
+    CAMERA_CLEAR_FLAGS,
     COLOR_FORMAT,
     DEPTH_TEX_MODE, LOAD_MODE,
     RENDER_SETTING,
@@ -6,7 +7,7 @@ import {
 } from '../../vivify/setting.ts'
 import {TrackValue} from "../../animation/track.ts";
 import {EASE} from "../../animation/easing.ts";
-import {Vec3} from "../../math/vector.ts";
+import {ColorVec, Vec3} from "../../math/vector.ts";
 import {MaterialProperty} from "../../vivify/material.ts";
 import {AnimatorProperty} from "../../vivify/animator.ts";
 
@@ -127,7 +128,9 @@ export interface ISetCameraProperty {
     b: number
     t: 'SetCameraProperty'
     d: {
-        depthTextureMode: DEPTH_TEX_MODE[]
+        depthTextureMode?: DEPTH_TEX_MODE[]
+        clearFlags?: CAMERA_CLEAR_FLAGS
+        backgroundColor?: ColorVec
     }
 }
 

@@ -1,24 +1,23 @@
-import {DEPTH_TEX_MODE, RENDER_SETTING,} from '../../../../types/vivify/setting.ts'
+import { CAMERA_CLEAR_FLAGS, DEPTH_TEX_MODE, RENDER_SETTING } from '../../../../types/vivify/setting.ts'
 
-import {EASE} from "../../../../types/animation/easing.ts";
-import {TrackValue} from "../../../../types/animation/track.ts";
-import {FILEPATH} from "../../../../types/beatmap/file.ts";
-import {MaterialProperty} from "../../../../types/vivify/material.ts";
-import {AnimatorProperty} from "../../../../types/vivify/animator.ts";
-import {SetMaterialProperty} from "../../../../internals/beatmap/object/custom_event/vivify/set_material_property.ts";
-import {SetGlobalProperty} from "../../../../internals/beatmap/object/custom_event/vivify/set_global_property.ts";
-import {Blit} from "../../../../internals/beatmap/object/custom_event/vivify/blit.ts";
-import {
-    DeclareCullingTexture
-} from "../../../../internals/beatmap/object/custom_event/vivify/declare_culling_texture.ts";
-import {DeclareRenderTexture} from "../../../../internals/beatmap/object/custom_event/vivify/declare_render_texture.ts";
-import {DestroyTexture} from "../../../../internals/beatmap/object/custom_event/vivify/destroy_texture.ts";
-import {InstantiatePrefab} from "../../../../internals/beatmap/object/custom_event/vivify/instantiate_prefab.ts";
-import {DestroyPrefab} from "../../../../internals/beatmap/object/custom_event/vivify/destroy_prefab.ts";
-import {SetAnimatorProperty} from "../../../../internals/beatmap/object/custom_event/vivify/set_animator_property.ts";
-import {SetCameraProperty} from "../../../../internals/beatmap/object/custom_event/vivify/set_camera_property.ts";
-import {AssignObjectPrefab} from "../../../../internals/beatmap/object/custom_event/vivify/assign_object_prefab.ts";
-import {SetRenderSetting} from "../../../../internals/beatmap/object/custom_event/vivify/set_render_setting.ts";
+import { EASE } from '../../../../types/animation/easing.ts'
+import { TrackValue } from '../../../../types/animation/track.ts'
+import { FILEPATH } from '../../../../types/beatmap/file.ts'
+import { MaterialProperty } from '../../../../types/vivify/material.ts'
+import { AnimatorProperty } from '../../../../types/vivify/animator.ts'
+import { SetMaterialProperty } from '../../../../internals/beatmap/object/custom_event/vivify/set_material_property.ts'
+import { SetGlobalProperty } from '../../../../internals/beatmap/object/custom_event/vivify/set_global_property.ts'
+import { Blit } from '../../../../internals/beatmap/object/custom_event/vivify/blit.ts'
+import { DeclareCullingTexture } from '../../../../internals/beatmap/object/custom_event/vivify/declare_culling_texture.ts'
+import { DeclareRenderTexture } from '../../../../internals/beatmap/object/custom_event/vivify/declare_render_texture.ts'
+import { DestroyTexture } from '../../../../internals/beatmap/object/custom_event/vivify/destroy_texture.ts'
+import { InstantiatePrefab } from '../../../../internals/beatmap/object/custom_event/vivify/instantiate_prefab.ts'
+import { DestroyPrefab } from '../../../../internals/beatmap/object/custom_event/vivify/destroy_prefab.ts'
+import { SetAnimatorProperty } from '../../../../internals/beatmap/object/custom_event/vivify/set_animator_property.ts'
+import { SetCameraProperty } from '../../../../internals/beatmap/object/custom_event/vivify/set_camera_property.ts'
+import { AssignObjectPrefab } from '../../../../internals/beatmap/object/custom_event/vivify/assign_object_prefab.ts'
+import { SetRenderSetting } from '../../../../internals/beatmap/object/custom_event/vivify/set_render_setting.ts'
+import { ColorVec } from '../../../../types/math/vector.ts'
 
 /**
  * Set properties on a material.
@@ -333,7 +332,9 @@ export function setCameraProperty(
         | ConstructorParameters<typeof SetCameraProperty>
         | [
             beat: number,
-            depthTextureMode: DEPTH_TEX_MODE[],
+            depthTextureMode?: DEPTH_TEX_MODE[],
+            clearFlags?: CAMERA_CLEAR_FLAGS,
+            backgroundColor?: ColorVec,
         ]
 ) {
     if (typeof params[0] === 'object') {
@@ -344,12 +345,14 @@ export function setCameraProperty(
         )
     }
 
-    const [beat, depthTextureMode] = params
+    const [beat, depthTextureMode, clearFlags, backgroundColor] = params
 
     return new SetCameraProperty(
         {
             beat,
             depthTextureMode,
+            clearFlags,
+            backgroundColor,
         },
     )
 }

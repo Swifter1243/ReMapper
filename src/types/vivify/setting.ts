@@ -47,6 +47,13 @@ export type DEPTH_TEX_MODE =
     | 'DepthNormals'
     | 'MotionVectors'
 
+/** Determines what to clear when rendering a camera. */
+export type CAMERA_CLEAR_FLAGS =
+    | 'Skybox'
+    | 'SolidColor'
+    | 'Depth'
+    | 'Nothing'
+
 /** https://docs.unity3d.com/ScriptReference/RenderSettings.html */
 export enum AMBIENT_MODE {
     Skybox = 0,
@@ -93,7 +100,9 @@ export type RENDER_SETTING = {
     'haloStrength': RuntimeRawKeyframesLinear
     'reflectionBounces': RuntimeRawKeyframesLinear
     'reflectionIntensity': RuntimeRawKeyframesLinear
+    "skybox": string
     'subtractiveShadowColor': RuntimeRawKeyframesVec4 | ColorVec
+    "sun": string
 }
 
 /** https://docs.unity3d.com/ScriptReference/QualitySettings.html */
