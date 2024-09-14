@@ -38,7 +38,6 @@ export async function collectBeatmapFiles(
         exportInfo._songFilename,
         exportInfo._coverImageFilename,
         'cinema-video.object',
-        'BPMInfo.dat',
     ]
 
     if (bundleInfo) {
