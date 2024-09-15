@@ -117,7 +117,7 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
                 coordinates: this.coordinates,
                 tailCoordinates: this.tailCoordinates,
                 flip: this.flip,
-                noteJumpMovementSpeed: this.noteJumpSpeed,
+                noteJumpMovementSpeed: this.getForcedNJS(),
                 noteJumpStartBeatOffset: this.getForcedOffset(),
                 uninteractable: this.uninteractable,
                 localRotation: this.localRotation,

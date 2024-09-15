@@ -121,7 +121,7 @@ export class Wall extends BeatmapGameplayObject<bsmap.v2.IObstacle, bsmap.v3.IOb
             customData: {
                 animation: this.animation as bsmap.v3.IAnimation['animation'],
                 size: this.size,
-                noteJumpMovementSpeed: this.noteJumpSpeed,
+                noteJumpMovementSpeed: this.getForcedNJS(),
                 noteJumpStartBeatOffset: this.getForcedOffset(),
                 localRotation: this.localRotation,
                 coordinates: this.coordinates,
@@ -146,7 +146,7 @@ export class Wall extends BeatmapGameplayObject<bsmap.v2.IObstacle, bsmap.v3.IOb
             _customData: {
                 _animation: animationV3toV2(this.animation),
                 _scale: this.size,
-                _noteJumpMovementSpeed: this.noteJumpSpeed,
+                _noteJumpMovementSpeed: this.getForcedNJS(),
                 _noteJumpStartBeatOffset: this.getForcedOffset(),
                 _localRotation: this.localRotation,
                 _position: this.coordinates,

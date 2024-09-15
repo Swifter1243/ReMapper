@@ -212,10 +212,18 @@ export abstract class BeatmapGameplayObject<
     }
 
     protected getForcedOffset() {
-        if (settings.forceJumpsForNoodle && this.isGameplayModded) {
+        if (settings.forceNoteJumpOffset) {
             return this.noteJumpOffset ?? getActiveDifficulty().noteJumpOffset
         } else {
             return this.noteJumpOffset
+        }
+    }
+
+    protected getForcedNJS() {
+        if (settings.forceNoteJumpSpeed) {
+            return this.noteJumpSpeed ?? getActiveDifficulty().noteJumpSpeed
+        } else {
+            return this.noteJumpSpeed
         }
     }
 

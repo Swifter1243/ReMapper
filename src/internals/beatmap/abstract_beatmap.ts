@@ -43,6 +43,8 @@ import { Chain } from './object/gameplay_object/chain.ts'
 import { clearPropertyMap } from '../../data/constants/beatmap.ts'
 import { AnimateTrack } from './object/custom_event/heck/animate_track.ts'
 import { convertRotationEventsToObjectRotation } from '../../utils/beatmap/convert.ts'
+import { animateTrack } from '../../builder_functions/beatmap/object/custom_event/heck.ts'
+import { DEFAULT_SCALED_TRACK } from '../../data/constants/settings.ts'
 
 /** A remapper difficulty, version agnostic */
 export abstract class AbstractDifficulty<
@@ -233,23 +235,33 @@ export abstract class AbstractDifficulty<
      */
     async save(diffName?: DIFFICULTY_PATH, pretty = false) {
         async function thisProcess(self: AbstractDifficulty) {
-            if (diffName) {
-                diffName = (await parseFilePath(diffName, '.dat'))
-                    .name as DIFFICULTY_PATH
-            } else diffName = self.fileName as DIFFICULTY_FILENAME
-
+            diffName = (diffName ? (await parseFilePath(diffName, '.dat')).name : self.fileName) as DIFFICULTY_PATH
             await self.awaitAllAsync()
 
+            // Apply Settings
+            if (settings.forceDefaultScale) {
+                animateTrack({
+                    track: DEFAULT_SCALED_TRACK,
+                    animation: {
+                        scale: [1, 1, 1],
+                    },
+                }).push()
+
+                const identityScaledObjects = [
+                    ...self.colorNotes,
+                    ...self.chains,
+                    ...self.bombs,
+                ]
+                identityScaledObjects.forEach((o) => {
+                    o.track.add(DEFAULT_SCALED_TRACK)
+                })
+            }
             if (settings.convertRotationEventsToObjectRotation) {
                 convertRotationEventsToObjectRotation(self)
             }
 
             const outputJSON = self.toJSON()
-
-            // this.doPostProcess(undefined, outputJSON)
-
             const promise1 = getActiveCache().then((rm) => rm.save())
-
             const sortedProcess = [...self.postProcesses.entries()]
                 // ascending
                 .sort(([a], [b]) => a - b)
