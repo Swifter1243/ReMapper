@@ -239,22 +239,23 @@ export abstract class AbstractDifficulty<
             await self.awaitAllAsync()
 
             // Apply Settings
-            if (settings.forceDefaultScale) {
+            const identityScaledObjects = [
+                ...self.colorNotes,
+                ...self.chains,
+                ...self.bombs,
+            ]
+
+            if (settings.forceDefaultScale && identityScaledObjects.length > 0) {
+                identityScaledObjects.forEach((o) => {
+                    o.track.add(DEFAULT_SCALED_TRACK)
+                })
+
                 animateTrack({
                     track: DEFAULT_SCALED_TRACK,
                     animation: {
                         scale: [1, 1, 1],
                     },
                 }).push()
-
-                const identityScaledObjects = [
-                    ...self.colorNotes,
-                    ...self.chains,
-                    ...self.bombs,
-                ]
-                identityScaledObjects.forEach((o) => {
-                    o.track.add(DEFAULT_SCALED_TRACK)
-                })
             }
             if (settings.convertRotationEventsToObjectRotation) {
                 convertRotationEventsToObjectRotation(self)
