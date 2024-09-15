@@ -5,6 +5,8 @@ export type RuntimePropertiesLinear = never
 export type RuntimePropertiesVec3 =
     | 'baseHeadLocalPosition'
     | 'baseHeadLocalRotation'
+    | 'baseHeadPosition'
+    | 'baseHeadRotation'
     | 'baseLeftHandLocalPosition'
     | 'baseRightHandLocalPosition'
     | 'baseLeftHandLocalRotation'
