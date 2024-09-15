@@ -1,5 +1,5 @@
 import { OnlyNumbersOptional } from '../../types/util/object.ts'
-import { EPSILON } from '../../data/constants/math.ts'
+import { EPSILON } from '../../constants/math.ts'
 
 /**
  * Allows you to filter through an array of objects with a min and max property.

@@ -1,6 +1,6 @@
 import {RingZoomEvent} from "../../../../internals/beatmap/object/basic_event/ring_zoom.ts";
 import {RingSpinEvent} from "../../../../internals/beatmap/object/basic_event/ring_spin.ts";
-import {SpinDirection} from "../../../../data/constants/basic_event.ts";
+import {SpinDirection} from "../../../../constants/basic_event.ts";
 
 /**
  * Spin the rings of an environment.

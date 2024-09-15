@@ -1,6 +1,6 @@
 import { BaseLightEvent } from '../light_event/base.ts'
 import { JsonWrapper } from '../../../../../../types/beatmap/json_wrapper.ts'
-import { DistributionType, RotationEase } from '../../../../../../data/constants/v3_event.ts'
+import { DistributionType, RotationEase } from '../../../../../../constants/v3_event.ts'
 import { bsmap } from '../../../../../../deps.ts'
 import { JsonObjectConstructor, JsonObjectDefaults } from '../../../../../../types/beatmap/object/object.ts'
 import { copy } from '../../../../../../utils/object/copy.ts'

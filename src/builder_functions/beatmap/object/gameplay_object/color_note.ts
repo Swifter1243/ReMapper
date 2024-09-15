@@ -1,6 +1,6 @@
 import { ColorNote } from '../../../../internals/beatmap/object/gameplay_object/color_note.ts'
 
-import {NoteColor, NoteCut} from "../../../../data/constants/note.ts";
+import {NoteColor, NoteCut} from "../../../../constants/note.ts";
 
 /** Create a standard color note. */
 export function colorNote(

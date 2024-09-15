@@ -1,6 +1,6 @@
 import { BaseLightEvent } from './base.ts'
 import { bsmap } from '../../../../../../deps.ts'
-import { LightColor, LightTransition } from '../../../../../../data/constants/v3_event.ts'
+import { LightColor, LightTransition } from '../../../../../../constants/v3_event.ts'
 import { objectPrune } from '../../../../../../utils/object/prune.ts'
 import { BeatmapObjectConstructor, BeatmapObjectDefaults } from '../../../../../../types/beatmap/object/object.ts'
 

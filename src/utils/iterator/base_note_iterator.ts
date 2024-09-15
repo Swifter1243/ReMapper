@@ -1,5 +1,5 @@
 import {getActiveDifficulty} from '../../data/active_difficulty.ts'
-import {NoteCut} from '../../data/constants/note.ts'
+import {NoteCut} from '../../constants/note.ts'
 import {ColorNote} from "../../internals/beatmap/object/gameplay_object/color_note.ts";
 import {Chain} from "../../internals/beatmap/object/gameplay_object/chain.ts";
 import {CutName, NoteCondition, NoteProcess} from "../../types/iterator.ts";

@@ -6,7 +6,7 @@ import { currentTransfer } from './transfer.ts'
 import {copy} from "../object/copy.ts";
 import {getActiveDifficulty} from "../../data/active_difficulty.ts";
 import {getWorkingDirectory} from "../../data/working_directory.ts";
-import {QUEST_WIP_PATH} from "../../data/constants/file.ts";
+import {QUEST_WIP_PATH} from "../../constants/file.ts";
 import {RMError, RMLog} from "../rm_log.ts";
 import {parseFilePath} from "../file.ts";
 import {DIFFICULTY_NAME, FILENAME} from "../../types/beatmap/file.ts";

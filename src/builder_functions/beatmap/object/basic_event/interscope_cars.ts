@@ -1,4 +1,4 @@
-import { EventGroup, InterscopeGroup } from '../../../../data/constants/basic_event.ts'
+import { EventGroup, InterscopeGroup } from '../../../../constants/basic_event.ts'
 import { LightEvent } from '../../../../internals/beatmap/object/basic_event/light_event.ts'
 
 import { RingSpinEvent } from '../../../../internals/beatmap/object/basic_event/ring_spin.ts'

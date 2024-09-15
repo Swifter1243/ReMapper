@@ -2,7 +2,7 @@ import { bsmap } from '../../../../deps.ts'
 import { ComplexKeyframesLinear } from '../../../../types/animation/keyframe/linear.ts'
 import { BloomFogEnvironment } from '../../../../types/beatmap/object/environment.ts'
 import { objectPrune } from '../../../../utils/object/prune.ts'
-import {FOG_TRACK} from "../../../../data/constants/fog.ts";
+import {FOG_TRACK} from "../../../../constants/fog.ts";
 
 // TODO: Maybe make this a difficulty based thing?
 export type AnyFog = BloomFogEnvironment<

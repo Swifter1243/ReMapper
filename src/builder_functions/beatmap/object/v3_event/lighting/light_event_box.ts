@@ -1,6 +1,6 @@
 import {bsmap} from '../../../../../deps.ts'
 import {BaseLightEvent} from "../../../../../internals/beatmap/object/v3_event/lighting/light_event/base.ts";
-import {DistributionType, RotationEase} from "../../../../../data/constants/v3_event.ts";
+import {DistributionType, RotationEase} from "../../../../../constants/v3_event.ts";
 import {LightEventBox} from "../../../../../internals/beatmap/object/v3_event/lighting/light_event_box/base.ts";
 import {LightColorEvent} from "../../../../../internals/beatmap/object/v3_event/lighting/light_event/color.ts";
 import {LightColorEventBox} from "../../../../../internals/beatmap/object/v3_event/lighting/light_event_box/color.ts";

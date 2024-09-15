@@ -43,7 +43,7 @@ import { chain } from '../../builder_functions/beatmap/object/gameplay_object/ch
 import { arc } from '../../builder_functions/beatmap/object/gameplay_object/arc.ts'
 import { abstractCustomEvent } from '../../builder_functions/beatmap/object/custom_event/base.ts'
 import { shallowPrune } from '../../utils/object/prune.ts'
-import { EventGroup } from '../../data/constants/basic_event.ts'
+import { EventGroup } from '../../constants/basic_event.ts'
 import { officialBpmEvent } from '../../builder_functions/beatmap/object/v3_event/bpm.ts'
 import { RMDifficulty } from '../../types/beatmap/rm_difficulty.ts'
 import { arraySplit } from '../../utils/array/split.ts'

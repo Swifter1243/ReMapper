@@ -40,11 +40,11 @@ import { ColorNote } from './object/gameplay_object/color_note.ts'
 import { Bomb } from './object/gameplay_object/bomb.ts'
 import { Arc } from './object/gameplay_object/arc.ts'
 import { Chain } from './object/gameplay_object/chain.ts'
-import { clearPropertyMap } from '../../data/constants/beatmap.ts'
+import { clearPropertyMap } from '../../constants/beatmap.ts'
 import { AnimateTrack } from './object/custom_event/heck/animate_track.ts'
 import { convertRotationEventsToObjectRotation } from '../../utils/beatmap/convert.ts'
 import { animateTrack } from '../../builder_functions/beatmap/object/custom_event/heck.ts'
-import { DEFAULT_SCALED_TRACK } from '../../data/constants/settings.ts'
+import { DEFAULT_SCALED_TRACK } from '../../constants/settings.ts'
 
 /** A remapper difficulty, version agnostic */
 export abstract class AbstractDifficulty<

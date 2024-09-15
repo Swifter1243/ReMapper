@@ -1,6 +1,6 @@
 import { Chain } from '../../../../internals/beatmap/object/gameplay_object/chain.ts'
 
-import {NoteColor, NoteCut} from "../../../../data/constants/note.ts";
+import {NoteColor, NoteCut} from "../../../../constants/note.ts";
 
 /** Create a chain. */
 export function chain(

@@ -1,6 +1,6 @@
 import { LightColorEvent } from '../light_event/color.ts'
 import { LightEventBox } from './base.ts'
-import { DistributionType } from '../../../../../../data/constants/v3_event.ts'
+import { DistributionType } from '../../../../../../constants/v3_event.ts'
 import { lightColorEvent } from '../../../../../../builder_functions/beatmap/object/v3_event/lighting/light_event.ts'
 import { bsmap } from '../../../../../../deps.ts'
 import { objectPrune } from '../../../../../../utils/object/prune.ts'

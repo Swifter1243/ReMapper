@@ -1,4 +1,4 @@
-import { NoteColor, NoteCut } from '../../../../data/constants/note.ts'
+import { NoteColor, NoteCut } from '../../../../constants/note.ts'
 import { BeatmapGameplayObject } from './gameplay_object.ts'
 import { bsmap } from '../../../../deps.ts'
 import {Vec2} from "../../../../types/math/vector.ts";

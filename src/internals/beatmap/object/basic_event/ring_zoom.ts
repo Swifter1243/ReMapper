@@ -1,4 +1,4 @@
-import { EventGroup } from '../../../../data/constants/basic_event.ts'
+import { EventGroup } from '../../../../constants/basic_event.ts'
 import { getActiveDifficulty } from '../../../../data/active_difficulty.ts'
 import { copy } from '../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../utils/object/prune.ts'

@@ -1,4 +1,4 @@
-import {EventGroup, SpinDirection} from '../../../../data/constants/basic_event.ts'
+import {EventGroup, SpinDirection} from '../../../../constants/basic_event.ts'
 import { LaserSpeedEvent } from '../../../../internals/beatmap/object/basic_event/laser_speed.ts'
 
 type LeftLaserSpeedParams = [Omit<ConstructorParameters<typeof LaserSpeedEvent>[0], 'type'>]

@@ -1,7 +1,7 @@
-import {Regex} from '../../utils/beatmap/object/environment/regex.ts'
-import {regex} from '../../builder_functions/beatmap/object/environment/regex.ts'
+import {Regex} from '../utils/beatmap/object/environment/regex.ts'
+import {regex} from '../builder_functions/beatmap/object/environment/regex.ts'
 
-import {EnvironmentModelPiece} from "../../types/model/model_scene/piece.ts";
+import {EnvironmentModelPiece} from "../types/model/model_scene/piece.ts";
 
 /**
  * Known transforms for objects with ModelScene.

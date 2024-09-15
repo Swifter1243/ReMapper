@@ -1,6 +1,6 @@
 import { Arc } from '../../../../internals/beatmap/object/gameplay_object/arc.ts'
 
-import {NoteColor, NoteCut} from "../../../../data/constants/note.ts";
+import {NoteColor, NoteCut} from "../../../../constants/note.ts";
 
 /** Create an arc. */
 export function arc(

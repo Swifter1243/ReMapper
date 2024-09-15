@@ -1,5 +1,5 @@
 import { BasicEvent } from './basic_event.ts'
-import {EventGroup, SpinDirection} from '../../../../data/constants/basic_event.ts'
+import {EventGroup, SpinDirection} from '../../../../constants/basic_event.ts'
 import { getActiveDifficulty } from '../../../../data/active_difficulty.ts'
 import { copy } from '../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../utils/object/prune.ts'

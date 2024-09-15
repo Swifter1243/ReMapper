@@ -1,5 +1,5 @@
 import { LightID } from '../../../../types/beatmap/object/environment.ts'
-import { EventAction } from '../../../../data/constants/basic_event.ts'
+import { EventAction } from '../../../../constants/basic_event.ts'
 import { getActiveDifficulty } from '../../../../data/active_difficulty.ts'
 import { copy } from '../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../utils/object/prune.ts'

@@ -1,5 +1,5 @@
 import { BeatmapObject } from '../../../object.ts'
-import { RotationEase } from '../../../../../../data/constants/v3_event.ts'
+import { RotationEase } from '../../../../../../constants/v3_event.ts'
 import { bsmap } from '../../../../../../deps.ts'
 import { objectPrune } from '../../../../../../utils/object/prune.ts'
 import { BeatmapObjectConstructor, BeatmapObjectDefaults } from '../../../../../../types/beatmap/object/object.ts'

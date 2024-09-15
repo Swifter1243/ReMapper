@@ -1,4 +1,4 @@
-import { clearPropertyMap } from '../../data/constants/beatmap.ts'
+import { clearPropertyMap } from '../../constants/beatmap.ts'
 
 /** All mods that can be suggested. */
 export type SUGGEST_MODS =

@@ -2,7 +2,7 @@ import { ConvertableEvent } from '../../../../../types/beatmap/object/v3_event.t
 import { BPMEvent } from './bpm.ts'
 import { bsmap } from '../../../../../deps.ts'
 import {objectPrune} from "../../../../../utils/object/prune.ts";
-import {EventGroup} from "../../../../../data/constants/basic_event.ts";
+import {EventGroup} from "../../../../../constants/basic_event.ts";
 import {JsonObjectConstructor, JsonObjectDefaults} from "../../../../../types/beatmap/object/object.ts";
 
 export class OfficialBPMEvent extends BPMEvent<

@@ -1,4 +1,4 @@
-import {LightColor, LightTransition, RotationDirection, RotationEase} from "../../../../../data/constants/v3_event.ts";
+import {LightColor, LightTransition, RotationDirection, RotationEase} from "../../../../../constants/v3_event.ts";
 import {LightColorEvent} from "../../../../../internals/beatmap/object/v3_event/lighting/light_event/color.ts";
 import {LightRotationEvent} from "../../../../../internals/beatmap/object/v3_event/lighting/light_event/rotation.ts";
 import {

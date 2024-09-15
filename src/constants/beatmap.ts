@@ -1,4 +1,4 @@
-import {RMDifficulty} from "../../types/beatmap/rm_difficulty.ts";
+import {RMDifficulty} from "../types/beatmap/rm_difficulty.ts";
 
 export const clearPropertyMap = {
     arcs: 'Arcs',

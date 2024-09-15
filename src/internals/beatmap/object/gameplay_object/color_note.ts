@@ -2,7 +2,7 @@ import { bsmap } from '../../../../deps.ts'
 
 import { getActiveDifficulty } from '../../../../data/active_difficulty.ts'
 import { animationV3toV2 } from '../../../../utils/animation/json.ts'
-import { NoteColor, NoteCut } from '../../../../data/constants/note.ts'
+import { NoteColor, NoteCut } from '../../../../constants/note.ts'
 import { BaseNote } from './base_note.ts'
 import { copy } from '../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../utils/object/prune.ts'
