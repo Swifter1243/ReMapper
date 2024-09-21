@@ -1,5 +1,5 @@
 import {lerp} from "./lerp.ts";
-import {round} from "./rounding.ts";
+import {roundTo} from "./rounding.ts";
 
 /**
  * Gives a random number in the given range.
@@ -9,7 +9,7 @@ import {round} from "./rounding.ts";
  */
 export function random(start: number, end: number, roundResult?: number) {
     const result = Math.random() * (end - start) + start
-    return roundResult ? round(result, roundResult) : result
+    return roundResult ? roundTo(result, roundResult) : result
 }
 
 // https://stackoverflow.com/questions/521295/seeding-the-random-number-generator-in-javascript

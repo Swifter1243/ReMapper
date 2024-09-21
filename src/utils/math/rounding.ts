@@ -14,7 +14,7 @@ export function positiveMod(a: number, b: number) {
  * @param input Number to round.
  * @param step Number to round to.
  */
-export function round(input: number, step: number) {
+export function roundTo(input: number, step: number) {
     return Math.round(input / step) * step
 }
 /**
