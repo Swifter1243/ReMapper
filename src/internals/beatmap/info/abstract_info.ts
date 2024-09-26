@@ -1,5 +1,7 @@
 import {bsmap} from "../../../deps.ts"
-import {IColorScheme, IAudioInfo, IDifficultyInfo, ISongInfo, RMInfo} from "../../../types/beatmap/rm_info.ts";
+import {IColorScheme, ISongInfo, RMInfo} from "../../../types/beatmap/info/rm_info.ts";
+import {IAudioInfo} from "../../../types/beatmap/info/audio_info.ts";
+import {IDifficultyInfo} from "../../../types/beatmap/info/difficulty_info.ts";
 
 export abstract class AbstractInfo<
     TD extends bsmap.v2.IInfo

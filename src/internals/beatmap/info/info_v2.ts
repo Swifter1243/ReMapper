@@ -1,11 +1,13 @@
 import { AbstractInfo } from './abstract_info.ts'
 import { bsmap } from '../../../deps.ts'
-import { IAudioInfoV2, IColorScheme, IDifficultyInfoV2 } from '../../../types/beatmap/rm_info.ts'
+import { IColorScheme } from '../../../types/beatmap/info/rm_info.ts'
 import { ColorVec } from '../../../types/math/vector.ts'
 import { getCDProp } from '../../../utils/beatmap/json.ts'
 import { REQUIRE_MODS, SUGGEST_MODS } from '../../../types/beatmap/beatmap.ts'
 import { objectPrune } from '../../../utils/object/prune.ts'
 import { DIFFICULTY_TO_RANK } from '../../../constants/info.ts'
+import {IAudioInfoV2} from "../../../types/beatmap/info/audio_info.ts";
+import {IDifficultyInfoV2} from "../../../types/beatmap/info/difficulty_info.ts";
 
 export class V2Info extends AbstractInfo<bsmap.v2.IInfo> {
     levelAuthorName: string
