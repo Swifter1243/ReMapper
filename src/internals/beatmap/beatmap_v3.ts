@@ -14,7 +14,7 @@ import {
     setCameraProperty,
     setGlobalProperty,
     setMaterialProperty,
-    setRenderSetting,
+    setRenderingSetting,
 } from '../../builder_functions/beatmap/object/custom_event/vivify.ts'
 import { animateTrack } from '../../builder_functions/beatmap/object/custom_event/heck.ts'
 import {
@@ -51,7 +51,7 @@ import { Track } from '../../utils/animation/track.ts'
 import { OfficialBPMEvent } from './object/v3_event/bpm/official_bpm.ts'
 
 import { BeatmapCustomEvents } from '../../types/beatmap/object/custom_event.ts'
-import { IInfoSet, IInfoSetDifficulty } from '../../types/beatmap/info.ts'
+import { IInfoSet } from '../../types/beatmap/info.ts'
 import { ColorNote } from './object/gameplay_object/color_note.ts'
 import { Bomb } from './object/gameplay_object/bomb.ts'
 import { Arc } from './object/gameplay_object/arc.ts'
@@ -66,7 +66,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
     useNormalEventsAsCompatibleEvents: bsmap.v3.IDifficulty['useNormalEventsAsCompatibleEvents']
 
     constructor(
-        info: IInfoSetDifficulty,
+        info: bsmap.v2.IInfoSetDifficulty,
         setInfo: IInfoSet,
         json: bsmap.v3.IDifficulty,
         process?: (keyof bsmap.v3.IDifficulty)[],
@@ -338,7 +338,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         extractCustomEvents(setAnimatorProperty, 'setAnimatorPropertyEvents')
         extractCustomEvents(setCameraProperty, 'setCameraPropertyEvents')
         extractCustomEvents(assignObjectPrefab, 'assignObjectPrefabEvents')
-        extractCustomEvents(setRenderSetting, 'setRenderSettingEvents')
+        extractCustomEvents(setRenderingSetting, 'setRenderingSettingEvents')
 
         diffCustomEvents.abstractCustomEvents = customEvents.map((x) => abstractCustomEvent({}).fromJsonV3(x))
 

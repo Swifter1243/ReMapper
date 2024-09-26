@@ -1,6 +1,6 @@
 import { bsmap } from '../../deps.ts'
 import { RMDifficulty } from '../../types/beatmap/rm_difficulty.ts'
-import { IInfoSet, IInfoSetDifficulty } from '../../types/beatmap/info.ts'
+import { IInfoSet } from '../../types/beatmap/info.ts'
 import { ClearProperty, PostProcessFn, REQUIRE_MODS, SUGGEST_MODS } from '../../types/beatmap/beatmap.ts'
 import { LightEvent } from './object/basic_event/light_event.ts'
 import { LaserSpeedEvent } from './object/basic_event/laser_speed.ts'
@@ -57,7 +57,7 @@ export abstract class AbstractDifficulty<
     /** The Json of the difficulty set
      * (e.g. Standard) that this difficulty is contained in inside of the Info.dat.
      */
-    info: IInfoSetDifficulty
+    info: bsmap.v2.IInfoSetDifficulty
     /** The Json of the difficulty set map
      * (e.g. Hard) that this difficulty is contained in inside of the Info.dat.
      */
@@ -113,7 +113,7 @@ export abstract class AbstractDifficulty<
      */
     constructor(
         json: TD,
-        info: IInfoSetDifficulty,
+        info: bsmap.v2.IInfoSetDifficulty,
         setInfo: IInfoSet,
         inner: RMDifficulty,
     ) {

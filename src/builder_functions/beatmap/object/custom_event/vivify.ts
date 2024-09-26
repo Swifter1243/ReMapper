@@ -1,4 +1,4 @@
-import { CAMERA_CLEAR_FLAGS, DEPTH_TEX_MODE, RENDER_SETTING } from '../../../../types/vivify/setting.ts'
+import { CAMERA_CLEAR_FLAGS, DEPTH_TEX_MODE, QUALITY_SETTINGS, RENDERING_SETTINGS, XR_SETTINGS } from '../../../../types/vivify/setting.ts'
 
 import { EASE } from '../../../../types/animation/easing.ts'
 import { TrackValue } from '../../../../types/animation/track.ts'
@@ -16,7 +16,7 @@ import { DestroyPrefab } from '../../../../internals/beatmap/object/custom_event
 import { SetAnimatorProperty } from '../../../../internals/beatmap/object/custom_event/vivify/set_animator_property.ts'
 import { SetCameraProperty } from '../../../../internals/beatmap/object/custom_event/vivify/set_camera_property.ts'
 import { AssignObjectPrefab } from '../../../../internals/beatmap/object/custom_event/vivify/assign_object_prefab.ts'
-import { SetRenderSetting } from '../../../../internals/beatmap/object/custom_event/vivify/set_render_setting.ts'
+import { SetRenderingSetting } from '../../../../internals/beatmap/object/custom_event/vivify/set_rendering_setting.ts'
 import { ColorVec } from '../../../../types/math/vector.ts'
 
 /**
@@ -369,30 +369,34 @@ export function assignObjectPrefab(
 }
 
 /** Set settings for the rendering. */
-export function setRenderSetting(
+export function setRenderingSetting(
     ...params:
-        | ConstructorParameters<typeof SetRenderSetting>
+        | ConstructorParameters<typeof SetRenderingSetting>
         | [
             beat: number,
-            settings: Partial<RENDER_SETTING>,
+            renderSettings?: Partial<RENDERING_SETTINGS>,
+            qualitySettings?: Partial<QUALITY_SETTINGS>,
+            xrSettings?: Partial<XR_SETTINGS>,
             duration?: number,
             easing?: EASE,
         ]
 ) {
     if (typeof params[0] === 'object') {
-        return new SetRenderSetting(
+        return new SetRenderingSetting(
             ...params as ConstructorParameters<
-                typeof SetRenderSetting
+                typeof SetRenderingSetting
             >,
         )
     }
 
-    const [beat, settings, duration, easing] = params
+    const [beat, renderSettings, qualitySettings, xrSettings, duration, easing] = params
 
-    return new SetRenderSetting(
+    return new SetRenderingSetting(
         {
             beat,
-            settings,
+            renderSettings,
+            qualitySettings,
+            xrSettings,
             duration,
             easing,
         },

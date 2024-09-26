@@ -1,9 +1,9 @@
 import {
     CAMERA_CLEAR_FLAGS,
     COLOR_FORMAT,
-    DEPTH_TEX_MODE, LOAD_MODE,
-    RENDER_SETTING,
-    TEX_FILTER_MODE
+    DEPTH_TEX_MODE, LOAD_MODE, QUALITY_SETTINGS,
+    RENDERING_SETTINGS,
+    TEX_FILTER_MODE, XR_SETTINGS
 } from '../../vivify/setting.ts'
 import {TrackValue} from "../../animation/track.ts";
 import {EASE} from "../../animation/easing.ts";
@@ -193,12 +193,15 @@ export interface IAssignObjectPrefab {
     }
 }
 
-/** JSON properties for SetRenderSetting events */
-export interface ISetRenderSetting {
+/** JSON properties for SetRenderingSetting events */
+export interface ISetRenderingSetting {
     b: number
-    t: 'SetRenderSetting'
+    t: 'SetRenderingSetting'
     d: {
         duration?: number
-        easing?: EASE
-    } & Partial<RENDER_SETTING>
+        easing?: EASE,
+        renderSettings?: Partial<RENDERING_SETTINGS>,
+        qualitySettings?: Partial<QUALITY_SETTINGS>,
+        xrSettings?: Partial<XR_SETTINGS>
+    }
 }

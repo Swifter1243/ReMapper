@@ -31,7 +31,7 @@ import { OfficialBPMEvent } from './object/v3_event/bpm/official_bpm.ts'
 import { CommunityBPMEvent } from './object/v3_event/bpm/community_bpm.ts'
 import { ColorVec } from '../../types/math/vector.ts'
 import { BeatmapCustomEvents } from '../../types/beatmap/object/custom_event.ts'
-import { IInfoSet, IInfoSetDifficulty } from '../../types/beatmap/info.ts'
+import { IInfoSet } from '../../types/beatmap/info.ts'
 import { ColorNote } from './object/gameplay_object/color_note.ts'
 import { Bomb } from './object/gameplay_object/bomb.ts'
 import { RuntimeRawKeyframesAny } from '../../types/animation/keyframe/runtime/any.ts'
@@ -44,7 +44,7 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
     specialEventsKeywordFilters: bsmap.v2.IDifficulty['_specialEventsKeywordFilters']
 
     constructor(
-        info: IInfoSetDifficulty,
+        info: bsmap.v2.IInfoSetDifficulty,
         setInfo: IInfoSet,
         json: bsmap.v2.IDifficulty,
         process?: (keyof bsmap.v2.IDifficulty)[],

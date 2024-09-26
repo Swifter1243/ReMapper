@@ -75,10 +75,10 @@ export enum FOG_MODE {
     ExponentialSquared,
 }
 
-/** Changeable render settings with SetRenderSetting events.
+/** Changeable render settings with SetRenderingSetting events.
  * https://docs.unity3d.com/ScriptReference/RenderSettings.html
  */
-export type RENDER_SETTING = {
+export type RENDERING_SETTINGS = {
     'ambientEquatorColor': RuntimeRawKeyframesVec4 | ColorVec
     'ambientGroundColor': RuntimeRawKeyframesVec4 | ColorVec
     'ambientIntensity': RuntimeRawKeyframesLinear
@@ -103,6 +103,31 @@ export type RENDER_SETTING = {
     "skybox": string
     'subtractiveShadowColor': RuntimeRawKeyframesVec4 | ColorVec
     "sun": string
+}
+
+/** Changeable quality settings with SetRenderingSetting events.
+ * https://docs.unity3d.com/ScriptReference/QualitySettings.html
+ */
+export type QUALITY_SETTINGS = {
+    anisotropicFiltering?: ANISOTROPIC_FILTERING
+    antiAliasing?: 0 | 2 | 4 | 8
+    pixelLightCount?: number
+    realtimeReflectionProbes?: boolean
+    shadowCascades?: 0 | 2 | 4
+    shadowDistance?: number
+    shadowMaskMode?: SHADOW_MASK_MODE
+    shadowNearPlaneOffset?: number
+    shadowProjection?: SHADOW_PROJECTION
+    shadowResolution?: SHADOW_RESOLUTION
+    shadows?: SHADOWS
+    softParticles?: boolean
+}
+
+/** Changeable XR settings with SetRenderingSetting events.
+ * https://docs.unity3d.com/ScriptReference/XR.XRSettings.html
+ */
+export type XR_SETTINGS = {
+    useOcclusionMesh?: boolean
 }
 
 /** https://docs.unity3d.com/ScriptReference/QualitySettings.html */
