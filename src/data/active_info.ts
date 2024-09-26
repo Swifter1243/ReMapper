@@ -1,8 +1,8 @@
 import {RMLog} from "../utils/rm_log.ts";
 import {getInfoLocation} from "../utils/beatmap/info/location.ts";
-import {IInfo} from "../types/beatmap/info.ts";
+import { bsmap } from "../deps.ts"
 
-let activeInfo: IInfo
+let activeInfo: bsmap.v2.IInfo
 
 export function saveActiveInfo() {
     if (!activeInfo) return

@@ -1,6 +1,5 @@
 import { bsmap } from '../../deps.ts'
 import { RMDifficulty } from '../../types/beatmap/rm_difficulty.ts'
-import { IInfoSet } from '../../types/beatmap/info.ts'
 import { ClearProperty, PostProcessFn, REQUIRE_MODS, SUGGEST_MODS } from '../../types/beatmap/beatmap.ts'
 import { LightEvent } from './object/basic_event/light_event.ts'
 import { LaserSpeedEvent } from './object/basic_event/laser_speed.ts'
@@ -61,7 +60,7 @@ export abstract class AbstractDifficulty<
     /** The Json of the difficulty set map
      * (e.g. Hard) that this difficulty is contained in inside of the Info.dat.
      */
-    setInfo: IInfoSet
+    setInfo: bsmap.v2.IInfoSet
     private postProcesses = new Map<number, PostProcessFn[]>()
     /** Tasks to complete before the difficulty is saved. */
     awaitingCompletion = new Set<Promise<unknown>>()
@@ -114,7 +113,7 @@ export abstract class AbstractDifficulty<
     constructor(
         json: TD,
         info: bsmap.v2.IInfoSetDifficulty,
-        setInfo: IInfoSet,
+        setInfo: bsmap.v2.IInfoSet,
         inner: RMDifficulty,
     ) {
         this.version = inner.version

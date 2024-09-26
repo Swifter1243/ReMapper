@@ -51,7 +51,6 @@ import { Track } from '../../utils/animation/track.ts'
 import { OfficialBPMEvent } from './object/v3_event/bpm/official_bpm.ts'
 
 import { BeatmapCustomEvents } from '../../types/beatmap/object/custom_event.ts'
-import { IInfoSet } from '../../types/beatmap/info.ts'
 import { ColorNote } from './object/gameplay_object/color_note.ts'
 import { Bomb } from './object/gameplay_object/bomb.ts'
 import { Arc } from './object/gameplay_object/arc.ts'
@@ -67,7 +66,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
 
     constructor(
         info: bsmap.v2.IInfoSetDifficulty,
-        setInfo: IInfoSet,
+        setInfo: bsmap.v2.IInfoSet,
         json: bsmap.v3.IDifficulty,
         process?: (keyof bsmap.v3.IDifficulty)[],
     ) {
