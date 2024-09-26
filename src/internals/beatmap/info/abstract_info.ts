@@ -7,28 +7,23 @@ export abstract class AbstractInfo<
     readonly json: Readonly<TD>
 
     assetBundle: Record<string, number> | undefined
-    customEnvironmentHash: string | undefined
-    customEnvironment: string | undefined
     contributors: bsmap.ICustomDataInfo['_contributors']
     editors: bsmap.IEditor | undefined
-    customData: bsmap.ICustomDataBase | undefined
+    customData: bsmap.ICustomDataBase
     difficultyBeatmaps: Partial<Record<bsmap.GenericFileName, IDifficultyInfo>>
     colorSchemes: IColorScheme[]
     environmentNames: bsmap.EnvironmentAllName[]
     coverImageFilename: string
-    songPreviewFilename: string
     audio: IAudioInfo
     song: ISongInfo
 
-    constructor(
+    protected constructor(
         json: TD,
         inner: RMInfo
     ) {
         this.json = json
 
         this.assetBundle = inner.assetBundle
-        this.customEnvironmentHash = inner.customEnvironmentHash
-        this.customEnvironment = inner.customEnvironment
         this.contributors = inner.contributors
         this.editors = inner.editors
         this.customData = inner.customData
@@ -36,8 +31,9 @@ export abstract class AbstractInfo<
         this.colorSchemes = inner.colorSchemes
         this.environmentNames = inner.environmentNames
         this.coverImageFilename = inner.coverImageFilename
-        this.songPreviewFilename = inner.songPreviewFilename
         this.audio = inner.audio
         this.song = inner.song
     }
+
+    abstract toJSON(): TD;
 }

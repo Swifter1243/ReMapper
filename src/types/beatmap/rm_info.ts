@@ -5,27 +5,30 @@ import { REQUIRE_MODS, SUGGEST_MODS } from './beatmap.ts'
 export interface RMInfo {
     song: ISongInfo
     audio: IAudioInfo
-    songPreviewFilename: string
     coverImageFilename: string
     environmentNames: bsmap.EnvironmentAllName[]
     colorSchemes: IColorScheme[]
     difficultyBeatmaps: Partial<Record<bsmap.GenericFileName, IDifficultyInfo>>
-    customData: bsmap.ICustomDataBase | undefined
+
+    customData: bsmap.ICustomDataBase
     editors: bsmap.IEditor | undefined
     contributors: bsmap.ICustomDataInfo['contributors'] | undefined
-    customEnvironment: string | undefined
-    customEnvironmentHash: string | undefined
     assetBundle: Record<string, number> | undefined
 }
 
-export type IAudioInfo = {
+export type IAudioInfo = IAudioInfoV2 | IAudioInfoV4
+
+export type IAudioInfoV2 = {
     songFilename: string
-    songDuration: number | undefined
-    audioDataFilename: string | undefined
     bpm: number
-    lufs: number | undefined
     previewStartTime: number
     previewDuration: number
+}
+
+export type IAudioInfoV4 = IAudioInfoV2 & {
+    songDuration: number
+    audioDataFilename: string
+    lufs: number
 }
 
 export type ISongInfo = {
@@ -46,21 +49,29 @@ export type IColorScheme = {
     environmentColor1Boost: ColorVec
 }
 
-export type IDifficultyInfo = {
+export type IDifficultyInfo = IDifficultyInfoV2 | IDifficultyInfoV4
+
+export type IDifficultyInfoV2 = {
     characteristic: bsmap.CharacteristicName
     difficulty: bsmap.DifficultyName
-    beatmapAuthors: {
-        mappers: string[]
-        lighters: string[]
-    } | undefined
     noteJumpMovementSpeed: number
     noteJumpStartBeatOffset: number
     beatmapColorSchemeIdx: number
     environmentNameIdx: number
     beatmapDataFilename: bsmap.GenericFileName
-    lightshowDataFilename: string | undefined
+
     customData: bsmap.ICustomDataInfoDifficulty | undefined
     requirements: REQUIRE_MODS[] | undefined
     suggestions: SUGGEST_MODS[] | undefined
-    label: string | undefined
+    difficultyLabel: string | undefined
+    information: string[] | undefined
+    warnings: string[] | undefined
+}
+
+export type IDifficultyInfoV4 = IDifficultyInfoV2 & {
+    beatmapAuthors: {
+        mappers: string[]
+        lighters: string[]
+    }
+    lightshowDataFilename: string
 }
