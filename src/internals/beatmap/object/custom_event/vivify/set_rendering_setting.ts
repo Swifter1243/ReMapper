@@ -80,6 +80,7 @@ export class SetRenderingSetting extends CustomEvent<
                 easing: this.easing,
                 renderSettings: this.renderSettings,
                 qualitySettings: this.qualitySettings,
+                xrSettings: this.xrSettings,
                 ...this.data,
             },
             t: 'SetRenderingSetting',
