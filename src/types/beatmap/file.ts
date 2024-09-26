@@ -1,19 +1,21 @@
-type DiffNameBase<T extends string> =
-    | `Easy${T}`
-    | `Normal${T}`
-    | `Hard${T}`
-    | `Expert${T}`
-    | `ExpertPlus${T}`
+type DiffNameBase =
+    | 'Easy'
+    | 'Normal'
+    | 'Hard'
+    | 'Expert'
+    | 'ExpertPlus'
+
+type DiffNameCharacteristic =
+    | 'Standard'
+    | 'NoArrows'
+    | 'OneSaber'
+    | '360Degree'
+    | '90Degree'
+    | 'Lightshow'
+    | 'Lawless'
 
 /** All difficulty names. */
-export type DIFFICULTY_NAME =
-    | DiffNameBase<'Standard'>
-    | DiffNameBase<'NoArrows'>
-    | DiffNameBase<'OneSaber'>
-    | DiffNameBase<'360Degree'>
-    | DiffNameBase<'90Degree'>
-    | DiffNameBase<'Lightshow'>
-    | DiffNameBase<'Lawless'>
+export type DIFFICULTY_NAME = `${DiffNameBase}${DiffNameCharacteristic}`
 
 // TODO: If possible, try to figure out a way to default to a string with no extension or path
 /** File name. `file.ext` */
