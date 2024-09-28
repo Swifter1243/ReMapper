@@ -1,12 +1,13 @@
 import {bsmap} from "../../../deps.ts"
-import {IColorScheme, ISongInfo, RMInfo} from "../../../types/beatmap/info/rm_info.ts";
+import {IColorScheme, InfoJson, ISongInfo, RMInfo} from "../../../types/beatmap/info/rm_info.ts";
 import {IAudioInfo} from "../../../types/beatmap/info/audio_info.ts";
 import {IDifficultyInfo} from "../../../types/beatmap/info/difficulty_info.ts";
+import {DeepReadonly} from "../../../types/util/mutability.ts";
 
 export abstract class AbstractInfo<
-    TD extends bsmap.v2.IInfo
+    TD extends InfoJson = InfoJson
 > implements RMInfo {
-    readonly json: Readonly<TD>
+    readonly json: DeepReadonly<TD>
 
     song: ISongInfo
     audio: IAudioInfo

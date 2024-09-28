@@ -6,13 +6,13 @@ import { bsmap, path, semver } from '../../deps.ts'
 import {setActiveDifficulty} from "../../data/active_difficulty.ts";
 import {attachWorkingDirectory, setWorkingDirectory, workingDirectoryExists} from "../../data/working_directory.ts";
 import {parseFilePath} from "../../utils/file.ts";
-import {getInfoDifficultySets} from "../../utils/beatmap/info/difficulty_set.ts";
-import {DIFFICULTY_FILENAME, DIFFICULTY_PATH} from "../../types/beatmap/file.ts";
+import {tryGetDifficultyInfo} from "../../utils/beatmap/info/difficulty_set.ts";
+import {DIFFICULTY_PATH} from "../../types/beatmap/file.ts";
 
 /** Asynchronous function to read a difficulty. Not concerned with version. */
 export async function readDifficulty(
     input: DIFFICULTY_PATH,
-    output?: DIFFICULTY_PATH,
+    output: DIFFICULTY_PATH,
 ): Promise<AbstractDifficulty> {
     if (
         workingDirectoryExists() && (
@@ -24,7 +24,7 @@ export async function readDifficulty(
     }
 
     input = attachWorkingDirectory(input) as DIFFICULTY_PATH
-    output = attachWorkingDirectory(output ?? input) as DIFFICULTY_PATH
+    output = attachWorkingDirectory(output) as DIFFICULTY_PATH
 
     const parsedInput = await parseFilePath(input, '.dat')
     const parsedOutput = await parseFilePath(output, '.dat', false)
@@ -52,7 +52,7 @@ export async function readDifficulty(
     const jsonPromise = Deno.readTextFile(parsedInput.path)
 
     await loadActiveInfo()
-    const infoData = getInfoDifficultySets(parsedOutput.name as DIFFICULTY_FILENAME)
+    const infoData = tryGetDifficultyInfo(parsedOutput.name as bsmap.GenericFileName)
     const json = JSON.parse(await jsonPromise) as
         | bsmap.v2.IDifficulty
         | bsmap.v3.IDifficulty
@@ -67,14 +67,12 @@ export async function readDifficulty(
     if (v3) {
         // TODO: Uncomment, breaks benchmark
         diff = new V3Difficulty(
-            infoData.diffSet,
-            infoData.diffSetMap,
+            infoData.difficultyInfo,
             json as bsmap.v3.IDifficulty,
         )
     } else {
         diff = new V2Difficulty(
-            infoData.diffSet,
-            infoData.diffSetMap,
+            infoData.difficultyInfo,
             json as bsmap.v2.IDifficulty,
         )
     }

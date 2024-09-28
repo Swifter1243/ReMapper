@@ -57,6 +57,7 @@ import { Arc } from './object/gameplay_object/arc.ts'
 import { Chain } from './object/gameplay_object/chain.ts'
 import { RawGeometryMaterial } from '../../types/beatmap/object/environment.ts'
 import { CustomEvent } from './object/custom_event/base/custom_event.ts'
+import { IDifficultyInfo } from '../../types/beatmap/info/difficulty_info.ts'
 
 export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
     declare version: bsmap.v3.IDifficulty['version']
@@ -65,8 +66,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
     useNormalEventsAsCompatibleEvents: bsmap.v3.IDifficulty['useNormalEventsAsCompatibleEvents']
 
     constructor(
-        info: bsmap.v2.IInfoSetDifficulty,
-        setInfo: bsmap.v2.IInfoSet,
+        difficultyInfo: IDifficultyInfo,
         json: bsmap.v3.IDifficulty,
         process?: (keyof bsmap.v3.IDifficulty)[],
     ) {
@@ -371,8 +371,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
 
         super(
             json,
-            info,
-            setInfo,
+            difficultyInfo,
             {
                 version: json.version,
                 v3: true,

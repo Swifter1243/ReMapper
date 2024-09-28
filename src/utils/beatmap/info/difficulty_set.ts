@@ -1,27 +1,18 @@
 import { getActiveInfo } from '../../../data/active_info.ts'
 import { bsmap } from '../../../deps.ts'
-import {DIFFICULTY_FILENAME} from "../../../types/beatmap/file.ts";
 
-/** The info set of a given difficulty name.
+/** From the active Info.dat, try to get info about {@link difficultyName}.
  * Contains difficulty, difficulty rank, among other information.
  */
-export function getInfoDifficultySets(difficultyName: DIFFICULTY_FILENAME) {
+export function tryGetDifficultyInfo(difficultyName: bsmap.GenericFileName) {
     const info = getActiveInfo()
-    let diffSet: bsmap.v2.IInfoSetDifficulty | undefined
 
-    const diffSetMap = info._difficultyBeatmapSets.find((e) => {
-        diffSet = e._difficultyBeatmaps.find((s) => s._beatmapFilename === difficultyName)
-
-        return diffSet
-    })
-
-    if (!diffSetMap || !diffSet) {
-        throw `The difficulty ${difficultyName} does not exist in your Info.dat`
-    }
-
-    return {
-        diffSetMap,
-        diffSet,
-        info,
+    if (info.difficultyBeatmaps[difficultyName]) {
+        return {
+            difficultyInfo: info.difficultyBeatmaps[difficultyName],
+            info,
+        }
+    } else {
+        throw `The difficulty ${difficultyName} does not exist in the Info.dat`
     }
 }

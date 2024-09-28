@@ -35,6 +35,7 @@ import { ColorNote } from './object/gameplay_object/color_note.ts'
 import { Bomb } from './object/gameplay_object/bomb.ts'
 import { RuntimeRawKeyframesAny } from '../../types/animation/keyframe/runtime/any.ts'
 import { CustomEvent } from './object/custom_event/base/custom_event.ts'
+import {IDifficultyInfo} from "../../types/beatmap/info/difficulty_info.ts";
 
 /** Difficulty V2 beatmap. */
 export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
@@ -43,8 +44,7 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
     specialEventsKeywordFilters: bsmap.v2.IDifficulty['_specialEventsKeywordFilters']
 
     constructor(
-        info: bsmap.v2.IInfoSetDifficulty,
-        setInfo: bsmap.v2.IInfoSet,
+        difficultyInfo: IDifficultyInfo,
         json: bsmap.v2.IDifficulty,
         process?: (keyof bsmap.v2.IDifficulty)[],
     ) {
@@ -262,8 +262,7 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
 
         super(
             json,
-            info,
-            setInfo,
+            difficultyInfo,
             {
                 version: json._version,
                 v3: false,

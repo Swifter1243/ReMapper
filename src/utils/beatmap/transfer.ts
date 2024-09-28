@@ -1,7 +1,5 @@
 import { AbstractDifficulty } from '../../internals/beatmap/abstract_beatmap.ts'
 
-import {isEmptyObject} from "../object/check.ts";
-
 import {readDifficulty} from "../../builder_functions/beatmap/difficulty.ts";
 import {getActiveDifficulty, setActiveDifficulty} from "../../data/active_difficulty.ts";
 import {DIFFICULTY_PATH} from "../../types/beatmap/file.ts";
@@ -29,80 +27,56 @@ export async function transferVisuals(
     await currentTransfer
 
     async function thisFunction() {
-        const currentDiff = getActiveDifficulty()
+        const activeDiff = getActiveDifficulty()
 
         async function process(x: DIFFICULTY_PATH) {
-            const workingDiff = await readDifficulty(x)
+            const processingDiff = await readDifficulty(x, x)
 
-            workingDiff.colorNotes = workingDiff.colorNotes
+            processingDiff.colorNotes = processingDiff.colorNotes
                 .filter((x) => !(x.fake ?? false))
-                .concat(currentDiff.colorNotes.filter((x) => (x.fake ?? false)))
+                .concat(activeDiff.colorNotes.filter((x) => (x.fake ?? false)))
 
-            workingDiff.bombs = workingDiff.bombs
+            processingDiff.bombs = processingDiff.bombs
                 .filter((x) => !(x.fake ?? false))
-                .concat(currentDiff.bombs.filter((x) => (x.fake ?? false)))
+                .concat(activeDiff.bombs.filter((x) => (x.fake ?? false)))
 
-            workingDiff.chains = workingDiff.chains
+            processingDiff.chains = processingDiff.chains
                 .filter((x) => !(x.fake ?? false))
-                .concat(currentDiff.chains.filter((x) => (x.fake ?? false)))
+                .concat(activeDiff.chains.filter((x) => (x.fake ?? false)))
 
-            if (arcs) workingDiff.arcs = currentDiff.arcs
+            if (arcs) processingDiff.arcs = activeDiff.arcs
 
             // TODO: V3 lighting_v3, note colors, fog
 
-            workingDiff.lightEvents = currentDiff.lightEvents
-            workingDiff.laserSpeedEvents = currentDiff.laserSpeedEvents
-            workingDiff.ringZoomEvents = currentDiff.ringZoomEvents
-            workingDiff.ringSpinEvents = currentDiff.ringSpinEvents
-            workingDiff.rotationEvents = currentDiff.rotationEvents
-            workingDiff.boostEvents = currentDiff.boostEvents
-            workingDiff.abstractBasicEvents = currentDiff.abstractBasicEvents
+            processingDiff.lightEvents = activeDiff.lightEvents
+            processingDiff.laserSpeedEvents = activeDiff.laserSpeedEvents
+            processingDiff.ringZoomEvents = activeDiff.ringZoomEvents
+            processingDiff.ringSpinEvents = activeDiff.ringSpinEvents
+            processingDiff.rotationEvents = activeDiff.rotationEvents
+            processingDiff.boostEvents = activeDiff.boostEvents
+            processingDiff.abstractBasicEvents = activeDiff.abstractBasicEvents
 
-            workingDiff.customEvents = currentDiff.customEvents
+            processingDiff.customEvents = activeDiff.customEvents
 
-            workingDiff.pointDefinitions = currentDiff.pointDefinitions
-            workingDiff.environment = currentDiff.environment
-            workingDiff.geometry = currentDiff.geometry
-            workingDiff.geometryMaterials = currentDiff.geometryMaterials
+            processingDiff.pointDefinitions = activeDiff.pointDefinitions
+            processingDiff.environment = activeDiff.environment
+            processingDiff.geometry = activeDiff.geometry
+            processingDiff.geometryMaterials = activeDiff.geometryMaterials
 
             if (colorSchemes) {
-                workingDiff.info._customData ??= {}
-                workingDiff.info._customData._colorLeft = currentDiff.info
-                    ._customData?._colorLeft
-                workingDiff.info._customData._colorRight = currentDiff.info
-                    ._customData?._colorRight
-                workingDiff.info._customData._envColorLeft = currentDiff.info
-                    ._customData?._envColorLeft
-                workingDiff.info._customData._envColorRight = currentDiff.info
-                    ._customData?._envColorRight
-                workingDiff.info._customData._envColorLeftBoost = currentDiff
-                    .info
-                    ._customData?._envColorLeftBoost
-                workingDiff.info._customData._envColorRightBoost = currentDiff
-                    .info
-                    ._customData?._envColorRightBoost
-                workingDiff.info._customData._envColorWhite = currentDiff.info
-                    ._customData?._envColorWhite
-                workingDiff.info._customData._envColorWhiteBoost = currentDiff
-                    .info
-                    ._customData?._envColorWhiteBoost
-                workingDiff.info._customData._obstacleColor = currentDiff.info
-                    ._customData?._obstacleColor
-                if (isEmptyObject(workingDiff.info._customData)) {
-                    delete workingDiff.info._customData
-                }
+                processingDiff.difficultyInfo.beatmapColorSchemeIdx = activeDiff.difficultyInfo.beatmapColorSchemeIdx
             }
 
             if (walls) {
-                workingDiff.walls = workingDiff.walls
+                processingDiff.walls = processingDiff.walls
                     .filter((x) => !x.isGameplayModded)
                     .concat(
-                        currentDiff.walls.filter((x) => x.isGameplayModded),
+                        activeDiff.walls.filter((x) => x.isGameplayModded),
                     )
             }
 
-            if (forDiff !== undefined) forDiff(workingDiff)
-            await workingDiff.save()
+            if (forDiff !== undefined) forDiff(processingDiff)
+            await processingDiff.save()
         }
 
         const promises: Promise<void>[] = []
@@ -114,7 +88,7 @@ export async function transferVisuals(
 
         await Promise.all(promises)
 
-        setActiveDifficulty(currentDiff)
+        setActiveDifficulty(activeDiff)
     }
 
     currentTransfer = thisFunction()

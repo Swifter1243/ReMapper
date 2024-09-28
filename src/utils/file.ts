@@ -1,6 +1,6 @@
-import {fs, path} from '../deps.ts'
-import {getWorkingDirectory} from "../data/working_directory.ts";
-import {FILENAME, FILEPATH} from "../types/beatmap/file.ts";
+import { fs, path } from '../deps.ts'
+import { getWorkingDirectory } from '../data/working_directory.ts'
+import {FILENAME, FILENAME_WITH_EXTENSION, FILEPATH} from '../types/beatmap/file.ts'
 
 /**
  * Parse a file path, allowing extension forcing and getting useful information.
@@ -28,6 +28,20 @@ export async function parseFilePath(
     if (dir !== '.') output.dir = dir
 
     return output
+}
+
+/** Force a filename with a potentially implicit extension (see: {@link FILENAME}) to have an extension. */
+export function forceFileNameExtension(input: FILENAME, ext: string): FILENAME_WITH_EXTENSION {
+    if (input.length <= ext.length) {
+        return input + `.${ext}` as FILENAME_WITH_EXTENSION
+    }
+
+    const inputExt = input.substring(input.length - ext.length, input.length)
+    if (inputExt === ext) {
+        return input as FILENAME_WITH_EXTENSION
+    } else {
+        return input as FILENAME_WITH_EXTENSION
+    }
 }
 
 /** Tries to get the CRC value of a given bundle file name. */

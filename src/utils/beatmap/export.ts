@@ -1,16 +1,16 @@
 import { getActiveInfo } from '../../data/active_info.ts'
-import { arrayRemove } from '../array/mutate.ts'
 import { compress } from 'https://deno.land/x/zip@v1.2.5/compress.ts'
 import { adbDeno, fs, path } from '../../deps.ts'
 import { currentTransfer } from './transfer.ts'
-import {copy} from "../object/copy.ts";
-import {getActiveDifficulty} from "../../data/active_difficulty.ts";
-import {getWorkingDirectory} from "../../data/working_directory.ts";
-import {QUEST_WIP_PATH} from "../../constants/file.ts";
-import {RMError, RMLog} from "../rm_log.ts";
-import {parseFilePath} from "../file.ts";
-import {DIFFICULTY_NAME, FILENAME} from "../../types/beatmap/file.ts";
-import {BundleInfo} from "../../types/bundle.ts";
+import { copy } from '../object/copy.ts'
+import { getActiveDifficulty } from '../../data/active_difficulty.ts'
+import { getWorkingDirectory } from '../../data/working_directory.ts'
+import { QUEST_WIP_PATH } from '../../constants/file.ts'
+import { RMError, RMLog } from '../rm_log.ts'
+import { DIFFICULTY_NAME, FILENAME } from '../../types/beatmap/file.ts'
+import { BundleInfo } from '../../types/bundle.ts'
+import { bsmap } from '../../deps.ts'
+import {forceFileNameExtension} from "../file.ts";
 
 /**
  * Create a temporary directory with all the relevant files for the beatmap.
@@ -33,10 +33,10 @@ export async function collectBeatmapFiles(
 
     const makeTempDir = Deno.makeTempDir()
 
-    const exportInfo = copy(info)
+    const tempInfo = copy(info)
     const unsanitizedFiles: (string | undefined)[] = [
-        exportInfo._songFilename,
-        exportInfo._coverImageFilename,
+        tempInfo.audio.songFilename,
+        tempInfo.coverImageFilename,
         'cinema-video.object',
     ]
 
@@ -44,31 +44,10 @@ export async function collectBeatmapFiles(
         unsanitizedFiles.push(...bundleInfo.default.bundleFiles)
     }
 
-    for (let s = 0; s < exportInfo._difficultyBeatmapSets.length; s++) {
-        const set = exportInfo._difficultyBeatmapSets[s]
-        for (let m = 0; m < set._difficultyBeatmaps.length; m++) {
-            const map = set._difficultyBeatmaps[m]
-            let passed = true
-
-            await Promise.all(excludeDiffs.map(async (d) => {
-                if (
-                    map._beatmapFilename ===
-                        (await parseFilePath(d, '.dat')).name
-                ) {
-                    arrayRemove(set._difficultyBeatmaps, m)
-                    m--
-                    passed = false
-                }
-            }))
-
-            if (passed) unsanitizedFiles.push(map._beatmapFilename)
-        }
-
-        if (set._difficultyBeatmaps.length === 0) {
-            arrayRemove(exportInfo._difficultyBeatmapSets, s)
-            s--
-        }
-    }
+    excludeDiffs.forEach((excludeDiff) => {
+        const diffFileName = forceFileNameExtension(excludeDiff, '.dat') as bsmap.GenericFileName
+        delete tempInfo.difficultyBeatmaps[diffFileName]
+    })
 
     const workingDir = getWorkingDirectory()
     const filesPromise: [string, Promise<boolean>][] = unsanitizedFiles
@@ -82,10 +61,10 @@ export async function collectBeatmapFiles(
         .map((v) => v[0]) as string[] // export as string array
 
     const tempDir = await makeTempDir
-    const tempInfo = tempDir + `\\Info.dat`
-    await Deno.writeTextFile(tempInfo, JSON.stringify(exportInfo, null, 0))
+    const tempInfoDir = tempDir + `\\Info.dat`
+    await Deno.writeTextFile(tempInfoDir, JSON.stringify(tempInfo.toJSON()))
 
-    files.push(tempInfo) // add temp info
+    files.push(tempInfoDir) // add temp info
 
     return files
 }
@@ -110,7 +89,9 @@ export async function exportZip(
     zipName = encodeURI(zipName)
 
     if (bundleInfo && !bundleInfo.default.isCompressed) {
-        RMError("Warning: You are trying to distribute uncompressed bundles. It is recommended that you export these bundles as compressed if you plan to distribute them.")
+        RMError(
+            'Warning: You are trying to distribute uncompressed bundles. It is recommended that you export these bundles as compressed if you plan to distribute them.',
+        )
     }
 
     const files = (await collectBeatmapFiles(excludeDiffs, bundleInfo))
@@ -158,7 +139,7 @@ export async function exportToQuest(
     const files = await collectBeatmapFiles(excludeDiffs) // surround with quotes for safety
     const cwd = getWorkingDirectory()
 
-    const questSongFolder = `${QUEST_WIP_PATH}/${info._songName}`
+    const questSongFolder = `${QUEST_WIP_PATH}/${info.song.title}`
 
     await adbPromise
     await adbDeno.mkdir(questSongFolder)

@@ -35,3 +35,4 @@ export type IColorScheme = {
     environmentColor1Boost: ColorVec
 }
 
+export type InfoJson = bsmap.v2.IInfo

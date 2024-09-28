@@ -23,15 +23,11 @@ import { AnimationPropertiesV3 } from '../../types/animation/properties/properti
 import { areKeyframesRuntime } from '../../utils/animation/keyframe/runtime.ts'
 import { RawKeyframesLinear } from '../../types/animation/keyframe/linear.ts'
 import { parseFilePath } from '../../utils/file.ts'
-import { DIFFICULTY_FILENAME, DIFFICULTY_PATH } from '../../types/beatmap/file.ts'
 import { getActiveCache } from '../../data/active_cache.ts'
 import { attachWorkingDirectory } from '../../data/working_directory.ts'
 import { RMLog } from '../../utils/rm_log.ts'
-import { TJson } from '../../types/util/json.ts'
 import { BasicEvent } from './object/basic_event/basic_event.ts'
 import { AnyNote } from '../../types/beatmap/object/note.ts'
-import { SettingsHandler } from './settings_handler.ts'
-import { objectSafeGet, objectSafeSet } from '../../utils/object/safe.ts'
 import { settings } from '../../data/settings.ts'
 import { setDecimals } from '../../utils/math/rounding.ts'
 import { Wall } from './object/gameplay_object/wall.ts'
@@ -44,6 +40,9 @@ import { AnimateTrack } from './object/custom_event/heck/animate_track.ts'
 import { convertRotationEventsToObjectRotation } from '../../utils/beatmap/convert.ts'
 import { animateTrack } from '../../builder_functions/beatmap/object/custom_event/heck.ts'
 import { DEFAULT_SCALED_TRACK } from '../../constants/settings.ts'
+import { IDifficultyInfo } from '../../types/beatmap/info/difficulty_info.ts'
+import { arrayEnsureValue } from '../../utils/array/mutate.ts'
+import { DIFFICULTY_PATH } from '../../types/beatmap/file.ts'
 
 /** A remapper difficulty, version agnostic */
 export abstract class AbstractDifficulty<
@@ -53,19 +52,14 @@ export abstract class AbstractDifficulty<
 > implements RMDifficulty {
     /** The Json of the entire difficulty. Readonly since it is not outputted in the resulting diff */
     readonly json: Readonly<TD>
-    /** The Json of the difficulty set
-     * (e.g. Standard) that this difficulty is contained in inside of the Info.dat.
-     */
-    info: bsmap.v2.IInfoSetDifficulty
-    /** The Json of the difficulty set map
-     * (e.g. Hard) that this difficulty is contained in inside of the Info.dat.
-     */
-    setInfo: bsmap.v2.IInfoSet
-    private postProcesses = new Map<number, PostProcessFn[]>()
+    /** The info relating to this difficulty on the Info.dat */
+    difficultyInfo: IDifficultyInfo
     /** Tasks to complete before the difficulty is saved. */
     awaitingCompletion = new Set<Promise<unknown>>()
     /** The current promise of the difficulty being saved. */
     savePromise?: Promise<void>
+
+    private postProcesses = new Map<number, PostProcessFn[]>()
 
     // Initialized by constructor using Object.assign
     /** Semver beatmap version. */
@@ -110,10 +104,9 @@ export abstract class AbstractDifficulty<
      * Creates a difficulty. Can be used to access various information and the map properties.
      * Will set the active difficulty to this.
      */
-    constructor(
+    protected constructor(
         json: TD,
-        info: bsmap.v2.IInfoSetDifficulty,
-        setInfo: bsmap.v2.IInfoSet,
+        difficultyInfo: IDifficultyInfo,
         inner: RMDifficulty,
     ) {
         this.version = inner.version
@@ -121,8 +114,7 @@ export abstract class AbstractDifficulty<
         this.waypoints = inner.waypoints
 
         this.json = json
-        this.info = info
-        this.setInfo = setInfo
+        this.difficultyInfo = difficultyInfo
 
         this.colorNotes = inner.colorNotes
         this.bombs = inner.bombs
@@ -234,7 +226,8 @@ export abstract class AbstractDifficulty<
      */
     async save(diffName?: DIFFICULTY_PATH, pretty = false) {
         async function thisProcess(self: AbstractDifficulty) {
-            diffName = (diffName ? (await parseFilePath(diffName, '.dat')).name : self.fileName) as DIFFICULTY_PATH
+            diffName =
+                (diffName ? (await parseFilePath(diffName, '.dat')).name : self.difficultyInfo.beatmapDataFilename) as DIFFICULTY_PATH
             await self.awaitAllAsync()
 
             // Apply Settings
@@ -341,20 +334,8 @@ export abstract class AbstractDifficulty<
      * @param required True by default, set to false to remove the requirement.
      */
     require(requirement: REQUIRE_MODS, required = true) {
-        const requirements: TJson = {}
-
-        let requirementsArr = this.requirements
-        if (requirementsArr === undefined) requirementsArr = []
-        requirementsArr.forEach((x) => {
-            requirements[x] = true
-        })
-        requirements[requirement] = required
-
-        requirementsArr = []
-        for (const key in requirements) {
-            if (requirements[key] === true) requirementsArr.push(key)
-        }
-        this.requirements = requirementsArr
+        const requirements = this.difficultyInfo.requirements ??= []
+        arrayEnsureValue(requirements, requirement, required)
     }
 
     /**
@@ -363,20 +344,8 @@ export abstract class AbstractDifficulty<
      * @param suggested True by default, set to false to remove the suggestion.
      */
     suggest(suggestion: SUGGEST_MODS, suggested = true) {
-        const suggestions: TJson = {}
-
-        let suggestionsArr = this.suggestions
-        if (suggestionsArr === undefined) suggestionsArr = []
-        suggestionsArr.forEach((x) => {
-            suggestions[x] = true
-        })
-        suggestions[suggestion] = suggested
-
-        suggestionsArr = []
-        for (const key in suggestions) {
-            if (suggestions[key] === true) suggestionsArr.push(key)
-        }
-        this.suggestions = suggestionsArr
+        const suggestions = this.difficultyInfo.suggestions ??= []
+        arrayEnsureValue(suggestions, suggestion, suggested)
     }
 
     /** Array opf both geometry and environment. */
@@ -412,141 +381,6 @@ export abstract class AbstractDifficulty<
             ...this.arcs,
             ...this.chains,
         ] as readonly AnyNote[]
-    }
-
-    // Info.dat
-    /** The note jump speed for this difficulty. */
-    get noteJumpSpeed() {
-        return this.info._noteJumpMovementSpeed
-    }
-    set noteJumpSpeed(value: number) {
-        this.info._noteJumpMovementSpeed = value
-    }
-
-    /** The note offset for this difficulty. */
-    get noteJumpOffset() {
-        return this.info._noteJumpStartBeatOffset
-    }
-    set noteJumpOffset(value: number) {
-        this.info._noteJumpStartBeatOffset = value
-    }
-
-    /** The filename for this difficulty. */
-    get fileName() {
-        return this.info._beatmapFilename as DIFFICULTY_FILENAME
-    }
-    set fileName(value: string) {
-        this.info._beatmapFilename = value
-    }
-
-    /** The name of the difficulty set. E.g. Standard */
-    get diffSetName() {
-        return this.setInfo._beatmapCharacteristicName
-    }
-    set diffSetName(value: bsmap.CharacteristicName) {
-        this.setInfo._beatmapCharacteristicName = value
-    }
-
-    /** The name of the difficulty. E.g. Hard */
-    get name() {
-        return this.info._difficulty
-    }
-    set name(value: bsmap.DifficultyName) {
-        this.info._difficulty = value
-    }
-
-    /** The difficulty rank. */
-    get diffRank() {
-        return this.info._difficultyRank
-    }
-    set diffRank(value: bsmap.DifficultyRank) {
-        this.info._difficultyRank = value
-    }
-
-    /** The mod requirements for this difficulty. */
-    get requirements() {
-        return this.info._customData?._requirements
-    }
-    set requirements(value: string[] | undefined) {
-        this.info._customData ??= {}
-        this.info._customData._requirements = value
-    }
-
-    /** The mod suggestions for this difficulty. */
-    get suggestions() {
-        return this.info._customData?._suggestions
-    }
-    set suggestions(value: string[] | undefined) {
-        this.info._customData ??= {}
-        this.info._customData._suggestions = value
-    }
-
-    /** An aliased settings object. This controls the heck settings setter. */
-    readonly settings = new Proxy(new SettingsHandler(this), {
-        get(handler, property) {
-            const objValue = handler[property as keyof typeof handler]
-            const path = (
-                typeof objValue === 'object' ? objValue[0] : objValue
-            ) as string
-            const diff = handler['diff']
-
-            if (!diff.rawSettings) {
-                return undefined
-            }
-            return objectSafeGet(diff.rawSettings as TJson, path)
-        },
-
-        set(handler, property, value) {
-            const objValue = handler[property as keyof typeof handler]
-            const path = (
-                typeof objValue === 'object' ? objValue[0] : objValue
-            ) as string
-            const diff = handler['diff']
-
-            if (typeof objValue !== 'string') {
-                value = (objValue as unknown as TJson[])[1][value]
-            }
-
-            objectSafeSet(diff.rawSettings as TJson, path, value)
-
-            return true
-        },
-    })
-
-    /** The unaliased settings object. This controls the heck settings setter. */
-    get rawSettings() {
-        return this.info._customData?._settings
-    }
-    set rawSettings(value: bsmap.IChromaInfoCustomData['_settings']) {
-        this.info._customData ??= {}
-        this.info._customData._settings = value
-    }
-
-    /** Warnings to display in the info button. */
-    get warnings() {
-        return this.info._customData?._warnings
-    }
-    set warnings(value: string[] | undefined) {
-        this.info._customData ??= {}
-        this.info._customData._warnings = value
-    }
-
-    /** Information to display in the info button. */
-    get buttonInfo() {
-        return this.info._customData?._information
-    }
-    set buttonInfo(value: string[] | undefined) {
-        this.info._customData ??= {}
-        this.info._customData._information = value
-    }
-
-    /** The custom difficulty name. */
-    get label() {
-        return this.info._customData?._difficultyLabel
-    }
-    set label(value: string | undefined) {
-        this.info._customData ??= {}
-        this.info._customData._difficultyLabel = value
     }
 }
 

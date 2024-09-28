@@ -17,9 +17,12 @@ type DiffNameCharacteristic =
 /** All difficulty names. */
 export type DIFFICULTY_NAME = `${DiffNameBase}${DiffNameCharacteristic}`
 
+/** File name with extension. `file.ext`  */
+export type FILENAME_WITH_EXTENSION<T extends string = string> = `${T}.${string}`
+
 // TODO: If possible, try to figure out a way to default to a string with no extension or path
-/** File name. `file.ext` */
-export type FILENAME<T extends string = string> = T | `${T}.${string}`
+/** File name. `file.ext` or `file` */
+export type FILENAME<T extends string = string> = T | FILENAME_WITH_EXTENSION<T>
 
 /** File path, relative or absolute. `file.ext`, `src/file.ext`, or `C:/file.ext` */
 export type FILEPATH<T extends string = string> =

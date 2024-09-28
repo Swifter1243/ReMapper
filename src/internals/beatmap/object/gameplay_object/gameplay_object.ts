@@ -98,13 +98,13 @@ export abstract class BeatmapGameplayObject<
     /** The speed of this object in units (meters) per second.
      * Refers to the difficulty if undefined. */
     get implicitNoteJumpSpeed() {
-        return this.noteJumpSpeed ?? getActiveDifficulty().noteJumpSpeed
+        return this.noteJumpSpeed ?? getActiveDifficulty().difficultyInfo.noteJumpMovementSpeed
     }
 
     /** The offset added to the position where this object "jumps" in.
      * Refers to the difficulty if undefined. */
     get implicitNoteJumpOffset() {
-        return this.noteJumpOffset ?? getActiveDifficulty().noteJumpOffset
+        return this.noteJumpOffset ?? getActiveDifficulty().difficultyInfo.noteJumpStartBeatOffset
     }
 
     /**
@@ -116,14 +116,14 @@ export abstract class BeatmapGameplayObject<
         return getJumps(
             this.implicitNoteJumpSpeed,
             this.implicitNoteJumpOffset,
-            getActiveInfo()._beatsPerMinute,
+            getActiveInfo().audio.bpm,
         ).halfDuration
     }
     set halfJumpDuration(value: number) {
         this.noteJumpOffset = getOffsetFromHalfJumpDuration(
             value,
             this.implicitNoteJumpSpeed,
-            getActiveInfo()._beatsPerMinute,
+            getActiveInfo().audio.bpm,
         )
     }
 
@@ -135,14 +135,14 @@ export abstract class BeatmapGameplayObject<
         return getJumps(
             this.implicitNoteJumpSpeed,
             this.implicitNoteJumpOffset,
-            getActiveInfo()._beatsPerMinute,
+            getActiveInfo().audio.bpm,
         ).jumpDistance
     }
     set jumpDistance(value: number) {
         this.noteJumpOffset = getOffsetFromJumpDistance(
             value,
             this.implicitNoteJumpSpeed,
-            getActiveInfo()._beatsPerMinute,
+            getActiveInfo().audio.bpm,
         )
     }
 
@@ -151,14 +151,14 @@ export abstract class BeatmapGameplayObject<
         return getReactionTime(
             this.implicitNoteJumpSpeed,
             this.implicitNoteJumpOffset,
-            getActiveInfo()._beatsPerMinute,
+            getActiveInfo().audio.bpm,
         )
     }
     set reactionTime(value: number) {
         this.noteJumpOffset = getOffsetFromReactionTime(
             value,
             this.implicitNoteJumpSpeed,
-            getActiveInfo()._beatsPerMinute,
+            getActiveInfo().audio.bpm,
         )
     }
 
@@ -187,7 +187,7 @@ export abstract class BeatmapGameplayObject<
         this.noteJumpOffset = getOffsetFromHalfJumpDuration(
             value / 2,
             this.implicitNoteJumpSpeed,
-            getActiveInfo()._beatsPerMinute,
+            getActiveInfo().audio.bpm,
         )
     }
 
@@ -213,7 +213,7 @@ export abstract class BeatmapGameplayObject<
 
     protected getForcedOffset() {
         if (settings.forceNoteJumpOffset) {
-            return this.noteJumpOffset ?? getActiveDifficulty().noteJumpOffset
+            return this.noteJumpOffset ?? getActiveDifficulty().difficultyInfo.noteJumpStartBeatOffset
         } else {
             return this.noteJumpOffset
         }
@@ -221,7 +221,7 @@ export abstract class BeatmapGameplayObject<
 
     protected getForcedNJS() {
         if (settings.forceNoteJumpSpeed) {
-            return this.noteJumpSpeed ?? getActiveDifficulty().noteJumpSpeed
+            return this.noteJumpOffset ?? getActiveDifficulty().difficultyInfo.noteJumpMovementSpeed
         } else {
             return this.noteJumpSpeed
         }
