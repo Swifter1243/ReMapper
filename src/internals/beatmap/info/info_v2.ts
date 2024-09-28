@@ -6,8 +6,11 @@ import { getCDProp } from '../../../utils/beatmap/json.ts'
 import { REQUIRE_MODS, SUGGEST_MODS } from '../../../types/beatmap/beatmap.ts'
 import { objectPrune } from '../../../utils/object/prune.ts'
 import { DIFFICULTY_TO_RANK } from '../../../constants/info.ts'
-import {IAudioInfoV2} from "../../../types/beatmap/info/audio_info.ts";
-import {IDifficultyInfoV2} from "../../../types/beatmap/info/difficulty_info.ts";
+import { IAudioInfoV2 } from '../../../types/beatmap/info/audio_info.ts'
+import { IDifficultyInfoV2 } from '../../../types/beatmap/info/difficulty_info.ts'
+import { SettingsSetter } from '../../../types/beatmap/info/settings_setter.ts'
+
+type RawSettingsSetter = (bsmap.IHeckInfoCustomData & bsmap.IChromaInfoCustomData)['_settings']
 
 export class V2Info extends AbstractInfo<bsmap.v2.IInfo> {
     levelAuthorName: string
@@ -91,6 +94,7 @@ export class V2Info extends AbstractInfo<bsmap.v2.IInfo> {
                     suggestions: getCDProp(beatmap, '_suggestions') as SUGGEST_MODS[],
                     warnings: getCDProp(beatmap, '_warnings'),
                     information: getCDProp(beatmap, '_information'),
+                    settingsSetter: V2Info.loadSettingsSetter(getCDProp(beatmap, '_settings')),
                     customData: beatmap._customData,
                 }
             })
@@ -123,12 +127,217 @@ export class V2Info extends AbstractInfo<bsmap.v2.IInfo> {
                     _difficultyLabel: beatmap.difficultyLabel,
                     _information: beatmap.information,
                     _warnings: beatmap.warnings,
+                    _settings: V2Info.saveSettingsSetter(beatmap.settingsSetter),
                     ...beatmap.customData,
                 }),
             })
         })
 
         return Object.values(characteristics)
+    }
+
+    private static loadMirrorGraphicsSettings(
+        _mirrorGraphicsSettings?: 0 | 1 | 2 | 3,
+    ): SettingsSetter['graphics']['mirrorGraphicsSettings'] {
+        switch (_mirrorGraphicsSettings) {
+            case 0:
+                return 'Off'
+            case 1:
+                return 'Low'
+            case 2:
+                return 'Medium'
+            case 3:
+                return 'High'
+            default:
+                return undefined
+        }
+    }
+
+    private static saveMirrorGraphicsSettings(
+        mirrorGraphicsSettings?: SettingsSetter['graphics']['mirrorGraphicsSettings'],
+    ): 0 | 1 | 2 | 3 | undefined {
+        switch (mirrorGraphicsSettings) {
+            case 'Off':
+                return 0
+            case 'Low':
+                return 1
+            case 'Medium':
+                return 1
+            case 'High':
+                return 2
+            default:
+                return undefined
+        }
+    }
+
+    private static loadBoolean(_json?: 0 | 1 | boolean): 'On' | 'Off' | undefined {
+        switch (_json) {
+            case false:
+            case 0:
+                return 'Off'
+            case true:
+            case 1:
+                return 'On'
+            default:
+                return undefined
+        }
+    }
+
+    private static saveBoolean(json?: 'On' | 'Off'): 0 | 1 | undefined {
+        switch (json) {
+            case 'On':
+                return 1
+            case 'Off':
+                return 0
+            default:
+                return undefined
+        }
+    }
+
+    private static loadSettingsSetter(json: RawSettingsSetter): SettingsSetter {
+        const chroma = json?._chroma
+        const environments = json?._environments
+        const colors = json?._colors
+        const graphics = json?._graphics
+        const modifiers = json?._modifiers
+        const playerOptions = json?._playerOptions
+
+        return {
+            chroma: {
+                disableChromaEvents: chroma?._disableChromaEvents,
+                disableEnvironmentEnhancements: chroma?._disableEnvironmentEnhancements,
+                disableNoteColoring: chroma?._disableNoteColoring,
+                // TODO: bsmap got this wrong
+                // @ts-ignore 2322
+                forceZenModeWalls: chroma?._forceZenModeWalls,
+            },
+            environments: {
+                overrideEnvironments: environments?._overrideEnvironments,
+            },
+            colors: {
+                overrideDefaultColors: colors?._overrideDefaultColors,
+            },
+            graphics: {
+                mirrorGraphicsSettings: V2Info.loadMirrorGraphicsSettings(graphics?._mirrorGraphicsSettings),
+                bloomGraphicsSettings: V2Info.loadBoolean(graphics?._mainEffectGraphicsSettings),
+                smokeGraphicsSettings: V2Info.loadBoolean(graphics?._smokeGraphicsSettings),
+                burnMarkTrailsEnabled: graphics?._burnMarkTrailsEnabled,
+                screenDisplacementEffectsEnabled: graphics?._screenDisplacementEffectsEnabled,
+                maxShockwaveParticles: graphics?._maxShockwaveParticles,
+            },
+            modifiers: {
+                energyType: modifiers?._energyType,
+                noFailOn0Energy: modifiers?._noFailOn0Energy,
+                instaFail: modifiers?._instaFail,
+                failOnSaberClash: modifiers?._failOnSaberClash,
+                enabledObstacleType: modifiers?._enabledObstacleType,
+                fastNotes: modifiers?._fastNotes,
+                strictAngles: modifiers?._strictAngles,
+                disappearingArrows: modifiers?._disappearingArrows,
+                ghostNotes: modifiers?._ghostNotes,
+                noBombs: modifiers?._noBombs,
+                songSpeed: modifiers?._songSpeed,
+                noArrows: modifiers?._noArrows,
+                proMode: modifiers?._proMode,
+                zenMode: modifiers?._zenMode,
+                smallCubes: modifiers?._smallCubes,
+            },
+            playerOptions: {
+                leftHanded: playerOptions?._leftHanded,
+                playerHeight: playerOptions?._playerHeight,
+                automaticPlayerHeight: playerOptions?._automaticPlayerHeight,
+                sfxVolume: playerOptions?._sfxVolume,
+                reduceDebris: playerOptions?._reduceDebris,
+                noTextsAndHuds: playerOptions?._noTextsAndHuds,
+                noFailEffects: playerOptions?._noFailEffects,
+                advancedHud: playerOptions?._advancedHud,
+                autoRestart: playerOptions?._autoRestart,
+                saberTrailIntensity: playerOptions?._saberTrailIntensity,
+                noteJumpDurationTypeSettings: playerOptions?._noteJumpDurationTypeSettings,
+                noteJumpFixedDuration: playerOptions?._noteJumpFixedDuration,
+                noteJumpStartBeatOffset: playerOptions?._noteJumpStartBeatOffset,
+                hideNoteSpawnEffect: playerOptions?._hideNoteSpawnEffect,
+                // TODO: bsmap also got this wrong
+                // @ts-ignore 2322
+                adaptiveSfx: playerOptions?._adaptiveSfx,
+                // TODO: bsmap ALSO got THIS wrong
+                // @ts-ignore 2322
+                environmentEffectsFilterDefaultPreset: playerOptions?._environmentEffectsFilterDefaultPreset,
+                // @ts-ignore 2322
+                environmentEffectsFilterExpertPlusPreset: playerOptions?._environmentEffectsFilterExpertPlusPreset,
+            },
+        }
+    }
+
+    private static saveSettingsSetter(json: SettingsSetter): RawSettingsSetter {
+        const chroma = json.chroma
+        const graphics = json.graphics
+        const modifiers = json.modifiers
+        const colors = json.colors
+        const environments = json.environments
+        const playerOptions = json.playerOptions
+
+        return {
+            _chroma: {
+                _disableEnvironmentEnhancements: chroma.disableEnvironmentEnhancements,
+                _disableChromaEvents: chroma.disableChromaEvents,
+                _disableNoteColoring: chroma.disableNoteColoring,
+                _forceZenModeWall: chroma.forceZenModeWalls,
+            },
+            _graphics: {
+                _mainEffectGraphicsSettings: V2Info.saveBoolean(graphics.bloomGraphicsSettings),
+                _burnMarkTrailsEnabled: graphics.burnMarkTrailsEnabled,
+                _maxShockwaveParticles: graphics.maxShockwaveParticles,
+                _mirrorGraphicsSettings: V2Info.saveMirrorGraphicsSettings(graphics.mirrorGraphicsSettings),
+                _screenDisplacementEffectsEnabled: graphics.screenDisplacementEffectsEnabled,
+                _smokeGraphicsSettings: V2Info.saveBoolean(graphics.smokeGraphicsSettings),
+            },
+            _modifiers: {
+                _energyType: modifiers?.energyType,
+                _noFailOn0Energy: modifiers?.noFailOn0Energy,
+                _instaFail: modifiers?.instaFail,
+                _failOnSaberClash: modifiers?.failOnSaberClash,
+                _enabledObstacleType: modifiers?.enabledObstacleType,
+                _fastNotes: modifiers?.fastNotes,
+                _strictAngles: modifiers?.strictAngles,
+                _disappearingArrows: modifiers?.disappearingArrows,
+                _ghostNotes: modifiers?.ghostNotes,
+                _noBombs: modifiers?.noBombs,
+                _songSpeed: modifiers?.songSpeed,
+                _noArrows: modifiers?.noArrows,
+                _proMode: modifiers?.proMode,
+                _zenMode: modifiers?.zenMode,
+                _smallCubes: modifiers?.smallCubes
+            },
+            _colors: {
+                _overrideDefaultColors: colors.overrideDefaultColors
+            },
+            _environments: {
+                _overrideEnvironments: environments.overrideEnvironments,
+            },
+            _playerOptions: {
+                _leftHanded: playerOptions?.leftHanded,
+                _playerHeight: playerOptions?.playerHeight,
+                _automaticPlayerHeight: playerOptions?.automaticPlayerHeight,
+                _sfxVolume: playerOptions?.sfxVolume,
+                _reduceDebris: playerOptions?.reduceDebris,
+                _noTextsAndHuds: playerOptions?.noTextsAndHuds,
+                _noFailEffects: playerOptions?.noFailEffects,
+                _advancedHud: playerOptions?.advancedHud,
+                _autoRestart: playerOptions?.autoRestart,
+                _saberTrailIntensity: playerOptions?.saberTrailIntensity,
+                _noteJumpDurationTypeSettings: playerOptions?.noteJumpDurationTypeSettings,
+                _noteJumpFixedDuration: playerOptions?.noteJumpFixedDuration,
+                _noteJumpStartBeatOffset: playerOptions?.noteJumpStartBeatOffset,
+                _hideNoteSpawnEffect: playerOptions?.hideNoteSpawnEffect,
+                // @ts-ignore 2322
+                _adaptiveSfx: playerOptions?.adaptiveSfx,
+                // @ts-ignore 2322
+                _environmentEffectsFilterDefaultPreset: playerOptions?.environmentEffectsFilterDefaultPreset,
+                // @ts-ignore 2322
+                _environmentEffectsFilterExpertPlusPreset: playerOptions?.environmentEffectsFilterExpertPlusPreset,
+            }
+        }
     }
 
     constructor(json: bsmap.v2.IInfo) {

@@ -8,16 +8,17 @@ export abstract class AbstractInfo<
 > implements RMInfo {
     readonly json: Readonly<TD>
 
+    song: ISongInfo
+    audio: IAudioInfo
+    coverImageFilename: string
+    environmentNames: bsmap.EnvironmentAllName[]
+    colorSchemes: IColorScheme[]
+    difficultyBeatmaps: Partial<Record<bsmap.GenericFileName, IDifficultyInfo>>
+
     assetBundle: Record<string, number> | undefined
     contributors: bsmap.ICustomDataInfo['_contributors']
     editors: bsmap.IEditor | undefined
     customData: bsmap.ICustomDataBase
-    difficultyBeatmaps: Partial<Record<bsmap.GenericFileName, IDifficultyInfo>>
-    colorSchemes: IColorScheme[]
-    environmentNames: bsmap.EnvironmentAllName[]
-    coverImageFilename: string
-    audio: IAudioInfo
-    song: ISongInfo
 
     protected constructor(
         json: TD,
@@ -25,16 +26,17 @@ export abstract class AbstractInfo<
     ) {
         this.json = json
 
+        this.song = inner.song
+        this.audio = inner.audio
+        this.coverImageFilename = inner.coverImageFilename
+        this.environmentNames = inner.environmentNames
+        this.colorSchemes = inner.colorSchemes
+        this.difficultyBeatmaps = inner.difficultyBeatmaps
+
         this.assetBundle = inner.assetBundle
         this.contributors = inner.contributors
         this.editors = inner.editors
         this.customData = inner.customData
-        this.difficultyBeatmaps = inner.difficultyBeatmaps
-        this.colorSchemes = inner.colorSchemes
-        this.environmentNames = inner.environmentNames
-        this.coverImageFilename = inner.coverImageFilename
-        this.audio = inner.audio
-        this.song = inner.song
     }
 
     abstract toJSON(): TD;

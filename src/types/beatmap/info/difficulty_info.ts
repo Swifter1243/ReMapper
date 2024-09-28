@@ -1,5 +1,6 @@
 import { REQUIRE_MODS, SUGGEST_MODS } from '../beatmap.ts'
 import { bsmap } from '../../../deps.ts'
+import {SettingsSetter} from "./settings_setter.ts";
 
 export type IDifficultyInfo = IDifficultyInfoV2 | IDifficultyInfoV4
 export type IDifficultyInfoV2 = {
@@ -17,7 +18,9 @@ export type IDifficultyInfoV2 = {
     difficultyLabel: string | undefined
     information: string[] | undefined
     warnings: string[] | undefined
+    settingsSetter: SettingsSetter
 }
+
 export type IDifficultyInfoV4 = IDifficultyInfoV2 & {
     beatmapAuthors: {
         mappers: string[]
