@@ -38,37 +38,37 @@ export class V2Info extends AbstractInfo<bsmap.v2.IInfo> {
         return {
             useOverride: json.useOverride,
             colorSchemeName: json.colorScheme.colorSchemeId,
-            environmentColor0: this.loadColor(json.colorScheme.environmentColor0),
-            environmentColor1: this.loadColor(json.colorScheme.environmentColor1),
-            environmentColor0Boost: this.loadColor(json.colorScheme.environmentColor0Boost),
-            environmentColor1Boost: this.loadColor(json.colorScheme.environmentColor1Boost),
-            obstaclesColor: this.loadColor(json.colorScheme.obstaclesColor),
-            saberAColor: this.loadColor(json.colorScheme.saberAColor),
-            saberBColor: this.loadColor(json.colorScheme.saberBColor),
+            environmentColor0: V2Info.loadColor(json.colorScheme.environmentColor0),
+            environmentColor1: V2Info.loadColor(json.colorScheme.environmentColor1),
+            environmentColor0Boost: V2Info.loadColor(json.colorScheme.environmentColor0Boost),
+            environmentColor1Boost: V2Info.loadColor(json.colorScheme.environmentColor1Boost),
+            obstaclesColor: V2Info.loadColor(json.colorScheme.obstaclesColor),
+            saberAColor: V2Info.loadColor(json.colorScheme.saberAColor),
+            saberBColor: V2Info.loadColor(json.colorScheme.saberBColor),
         }
     }
 
-    private static saveColor(json: ColorVec) {
+    private static saveColor(color: ColorVec) {
         return {
-            r: json[0],
-            g: json[1],
-            b: json[2],
-            a: json[3] ?? 1,
+            r: color[0],
+            g: color[1],
+            b: color[2],
+            a: color[3] ?? 1,
         }
     }
 
-    private static saveColorScheme(json: IColorScheme): bsmap.v2.IInfoColorScheme {
+    private static saveColorScheme(colorScheme: IColorScheme): bsmap.v2.IInfoColorScheme {
         return {
-            useOverride: json.useOverride,
+            useOverride: colorScheme.useOverride,
             colorScheme: {
-                colorSchemeId: json.colorSchemeName,
-                environmentColor0: this.saveColor(json.environmentColor0),
-                environmentColor1: this.saveColor(json.environmentColor1),
-                environmentColor0Boost: this.saveColor(json.environmentColor0Boost),
-                environmentColor1Boost: this.saveColor(json.environmentColor1Boost),
-                obstaclesColor: this.saveColor(json.obstaclesColor),
-                saberAColor: this.saveColor(json.saberAColor),
-                saberBColor: this.saveColor(json.saberBColor),
+                colorSchemeId: colorScheme.colorSchemeName,
+                environmentColor0: V2Info.saveColor(colorScheme.environmentColor0),
+                environmentColor1: V2Info.saveColor(colorScheme.environmentColor1),
+                environmentColor0Boost: V2Info.saveColor(colorScheme.environmentColor0Boost),
+                environmentColor1Boost: V2Info.saveColor(colorScheme.environmentColor1Boost),
+                obstaclesColor: V2Info.saveColor(colorScheme.obstaclesColor),
+                saberAColor: V2Info.saveColor(colorScheme.saberAColor),
+                saberBColor: V2Info.saveColor(colorScheme.saberBColor),
             },
         }
     }
