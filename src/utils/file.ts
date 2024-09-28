@@ -31,17 +31,9 @@ export async function parseFilePath(
 }
 
 /** Force a filename with a potentially implicit extension (see: {@link FILENAME}) to have an extension. */
-export function forceFileNameExtension(input: FILENAME, ext: string): FILENAME_WITH_EXTENSION {
-    if (input.length <= ext.length) {
-        return input + `.${ext}` as FILENAME_WITH_EXTENSION
-    }
-
-    const inputExt = input.substring(input.length - ext.length, input.length)
-    if (inputExt === ext) {
-        return input as FILENAME_WITH_EXTENSION
-    } else {
-        return input as FILENAME_WITH_EXTENSION
-    }
+export function forceFileNameExtension(input: FILENAME, ext: `.${string}`): FILENAME_WITH_EXTENSION {
+    const split = input.split('.')
+    return split[0] + ext as FILENAME_WITH_EXTENSION
 }
 
 /** Tries to get the CRC value of a given bundle file name. */
