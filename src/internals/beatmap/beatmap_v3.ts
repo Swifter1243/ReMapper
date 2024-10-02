@@ -14,7 +14,7 @@ import {
     setCameraProperty,
     setGlobalProperty,
     setMaterialProperty,
-    setRenderingSetting,
+    setRenderingSettings,
 } from '../../builder_functions/beatmap/object/custom_event/vivify.ts'
 import { animateTrack } from '../../builder_functions/beatmap/object/custom_event/heck.ts'
 import {
@@ -337,7 +337,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         extractCustomEvents(setAnimatorProperty, 'setAnimatorPropertyEvents')
         extractCustomEvents(setCameraProperty, 'setCameraPropertyEvents')
         extractCustomEvents(assignObjectPrefab, 'assignObjectPrefabEvents')
-        extractCustomEvents(setRenderingSetting, 'setRenderingSettingEvents')
+        extractCustomEvents(setRenderingSettings, 'setRenderingSettingEvents')
 
         diffCustomEvents.abstractCustomEvents = customEvents.map((x) => abstractCustomEvent({}).fromJsonV3(x))
 

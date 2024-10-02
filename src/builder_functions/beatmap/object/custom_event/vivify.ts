@@ -16,7 +16,7 @@ import { DestroyPrefab } from '../../../../internals/beatmap/object/custom_event
 import { SetAnimatorProperty } from '../../../../internals/beatmap/object/custom_event/vivify/set_animator_property.ts'
 import { SetCameraProperty } from '../../../../internals/beatmap/object/custom_event/vivify/set_camera_property.ts'
 import { AssignObjectPrefab } from '../../../../internals/beatmap/object/custom_event/vivify/assign_object_prefab.ts'
-import { SetRenderingSetting } from '../../../../internals/beatmap/object/custom_event/vivify/set_rendering_setting.ts'
+import { SetRenderingSettings } from '../../../../internals/beatmap/object/custom_event/vivify/set_rendering_setting.ts'
 import { ColorVec } from '../../../../types/math/vector.ts'
 
 /**
@@ -369,9 +369,9 @@ export function assignObjectPrefab(
 }
 
 /** Set settings for the rendering. */
-export function setRenderingSetting(
+export function setRenderingSettings(
     ...params:
-        | ConstructorParameters<typeof SetRenderingSetting>
+        | ConstructorParameters<typeof SetRenderingSettings>
         | [
             beat: number,
             renderSettings?: Partial<RENDERING_SETTINGS>,
@@ -382,16 +382,16 @@ export function setRenderingSetting(
         ]
 ) {
     if (typeof params[0] === 'object') {
-        return new SetRenderingSetting(
+        return new SetRenderingSettings(
             ...params as ConstructorParameters<
-                typeof SetRenderingSetting
+                typeof SetRenderingSettings
             >,
         )
     }
 
     const [beat, renderSettings, qualitySettings, xrSettings, duration, easing] = params
 
-    return new SetRenderingSetting(
+    return new SetRenderingSettings(
         {
             beat,
             renderSettings,

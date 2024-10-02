@@ -9,7 +9,7 @@ import { DestroyPrefab } from '../../../internals/beatmap/object/custom_event/vi
 import { SetAnimatorProperty } from '../../../internals/beatmap/object/custom_event/vivify/set_animator_property.ts'
 import { SetCameraProperty } from '../../../internals/beatmap/object/custom_event/vivify/set_camera_property.ts'
 import { AssignObjectPrefab } from '../../../internals/beatmap/object/custom_event/vivify/assign_object_prefab.ts'
-import { SetRenderingSetting } from '../../../internals/beatmap/object/custom_event/vivify/set_rendering_setting.ts'
+import { SetRenderingSettings } from '../../../internals/beatmap/object/custom_event/vivify/set_rendering_setting.ts'
 import {
     IAssignObjectPrefab,
     IBlit,
@@ -22,7 +22,7 @@ import {
     ISetCameraProperty,
     ISetGlobalProperty,
     ISetMaterialProperty,
-    ISetRenderingSetting,
+    ISetRenderingSettings,
 } from './vivify_event_interfaces.ts'
 import { bsmap } from '../../../deps.ts'
 import { Fields, SubclassExclusiveProps } from '../../util/class.ts'
@@ -55,7 +55,7 @@ export interface BeatmapCustomEvents {
     setAnimatorPropertyEvents: SetAnimatorProperty[]
     setCameraPropertyEvents: SetCameraProperty[]
     assignObjectPrefabEvents: AssignObjectPrefab[]
-    setRenderingSettingEvents: SetRenderingSetting[]
+    setRenderingSettingEvents: SetRenderingSettings[]
 
     abstractCustomEvents: AbstractCustomEvent[]
 }
@@ -73,7 +73,7 @@ export type IV3CustomEvent =
     | ISetCameraProperty
     | ISetGlobalProperty
     | ISetMaterialProperty
-    | ISetRenderingSetting
+    | ISetRenderingSettings
 
 export type CustomEventExclusions = {
     type: never

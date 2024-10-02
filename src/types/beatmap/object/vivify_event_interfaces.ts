@@ -193,10 +193,10 @@ export interface IAssignObjectPrefab {
     }
 }
 
-/** JSON properties for SetRenderingSetting events */
-export interface ISetRenderingSetting {
+/** JSON properties for SetRenderingSettings events */
+export interface ISetRenderingSettings {
     b: number
-    t: 'SetRenderingSetting'
+    t: 'SetRenderingSettings'
     d: {
         duration?: number
         easing?: EASE,

@@ -95,7 +95,7 @@ export enum SHADOW_CASCADES {
     FOUR = 4,
 }
 
-/** Changeable render settings with SetRenderingSetting events.
+/** Changeable render settings with SetRenderingSettings events.
  * https://docs.unity3d.com/ScriptReference/RenderSettings.html
  */
 export type RENDERING_SETTINGS = {
@@ -122,7 +122,7 @@ export type RENDERING_SETTINGS = {
     'sun': string
 }
 
-/** Changeable quality settings with SetRenderingSetting events.
+/** Changeable quality settings with SetRenderingSettings events.
  * https://docs.unity3d.com/ScriptReference/QualitySettings.html
  */
 export type QUALITY_SETTINGS = {
@@ -140,7 +140,7 @@ export type QUALITY_SETTINGS = {
     softParticles?: RawKeyframesAbstract<[BOOLEAN]> | BOOLEAN
 }
 
-/** Changeable XR settings with SetRenderingSetting events.
+/** Changeable XR settings with SetRenderingSettings events.
  * https://docs.unity3d.com/ScriptReference/XR.XRSettings.html
  */
 export type XR_SETTINGS = {
