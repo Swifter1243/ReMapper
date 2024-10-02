@@ -221,7 +221,7 @@ export abstract class BeatmapGameplayObject<
 
     protected getForcedNJS() {
         if (settings.forceNoteJumpSpeed) {
-            return this.noteJumpOffset ?? getActiveDifficulty().difficultyInfo.noteJumpMovementSpeed
+            return this.noteJumpSpeed ?? getActiveDifficulty().difficultyInfo.noteJumpMovementSpeed
         } else {
             return this.noteJumpSpeed
         }
