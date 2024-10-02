@@ -67,7 +67,7 @@ export enum DEFAULT_REFLECTION_MODE {
     Custom,
 }
 
-/** How attenuation builds up in Beat Saber's fog. */
+/** How attenuation builds up in Unity's fog. */
 export enum FOG_MODE {
     Linear = 1,
     Exponential,
@@ -96,6 +96,7 @@ export enum SHADOW_CASCADES {
 }
 
 /** Changeable render settings with SetRenderingSettings events.
+ * All of these settings relate to Unity.
  * https://docs.unity3d.com/ScriptReference/RenderSettings.html
  */
 export type RENDERING_SETTINGS = {
