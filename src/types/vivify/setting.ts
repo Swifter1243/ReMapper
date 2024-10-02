@@ -1,8 +1,7 @@
 import { ColorVec } from '../math/vector.ts'
-
-import { RuntimeRawKeyframesAbstract } from '../animation/keyframe/runtime/abstract.ts'
 import { RuntimeRawKeyframesLinear } from '../animation/keyframe/runtime/linear.ts'
 import { RuntimeRawKeyframesVec4 } from '../animation/keyframe/runtime/vec4.ts'
+import { RawKeyframesAbstract } from '../animation/keyframe/abstract.ts'
 
 /** Color format types for textures. */
 export type COLOR_FORMAT =
@@ -75,59 +74,77 @@ export enum FOG_MODE {
     ExponentialSquared,
 }
 
+/** What level of antialiasing to use for the camera. */
+export enum ANTI_ALIASING {
+    None = 0,
+    MSAA2 = 2,
+    MSAA4 = 4,
+    MSAA8 = 8,
+}
+
+/** An integer representation of a boolean. */
+export enum BOOLEAN {
+    False = 0,
+    True = 1,
+}
+
+/** https://docs.unity3d.com/ScriptReference/RenderSettings.html */
+export enum SHADOW_CASCADES {
+    ZERO = 0,
+    TWO = 2,
+    FOUR = 4,
+}
+
 /** Changeable render settings with SetRenderingSetting events.
  * https://docs.unity3d.com/ScriptReference/RenderSettings.html
  */
 export type RENDERING_SETTINGS = {
     'ambientEquatorColor': RuntimeRawKeyframesVec4 | ColorVec
     'ambientGroundColor': RuntimeRawKeyframesVec4 | ColorVec
-    'ambientIntensity': RuntimeRawKeyframesLinear
+    'ambientIntensity': RuntimeRawKeyframesLinear | number
     'ambientLight': RuntimeRawKeyframesVec4 | ColorVec
-    'ambientMode': RuntimeRawKeyframesAbstract<[AMBIENT_MODE], never>
+    'ambientMode': RawKeyframesAbstract<[AMBIENT_MODE]> | AMBIENT_MODE
     'ambientSkyColor': RuntimeRawKeyframesVec4 | ColorVec
-    'defaultReflectionMode': RuntimeRawKeyframesAbstract<
-        [DEFAULT_REFLECTION_MODE],
-        never
-    >
-    'defaultReflectionResolution': RuntimeRawKeyframesLinear
-    'flareFadeSpeed': RuntimeRawKeyframesLinear
-    'flareStrength': RuntimeRawKeyframesLinear
-    'fog': boolean | RuntimeRawKeyframesLinear
+    'defaultReflectionMode': RawKeyframesAbstract<[DEFAULT_REFLECTION_MODE]> | DEFAULT_REFLECTION_MODE
+    'defaultReflectionResolution': RuntimeRawKeyframesLinear | number
+    'flareFadeSpeed': RuntimeRawKeyframesLinear | number
+    'flareStrength': RuntimeRawKeyframesLinear | number
+    'fog': RawKeyframesAbstract<[BOOLEAN]> | BOOLEAN
     'fogColor': RuntimeRawKeyframesVec4 | ColorVec
-    'fogDensity': RuntimeRawKeyframesLinear
-    'fogEndDistance': RuntimeRawKeyframesLinear
-    'fogMode': RuntimeRawKeyframesAbstract<[FOG_MODE], never>
-    'haloStrength': RuntimeRawKeyframesLinear
-    'reflectionBounces': RuntimeRawKeyframesLinear
-    'reflectionIntensity': RuntimeRawKeyframesLinear
-    "skybox": string
+    'fogDensity': RuntimeRawKeyframesLinear | number
+    'fogEndDistance': RuntimeRawKeyframesLinear | number
+    'fogMode': RawKeyframesAbstract<[FOG_MODE]> | FOG_MODE
+    'haloStrength': RuntimeRawKeyframesLinear | number
+    'reflectionBounces': RuntimeRawKeyframesLinear | number
+    'reflectionIntensity': RuntimeRawKeyframesLinear | number
+    'skybox': string
     'subtractiveShadowColor': RuntimeRawKeyframesVec4 | ColorVec
-    "sun": string
+    'sun': string
 }
 
 /** Changeable quality settings with SetRenderingSetting events.
  * https://docs.unity3d.com/ScriptReference/QualitySettings.html
  */
 export type QUALITY_SETTINGS = {
-    anisotropicFiltering?: ANISOTROPIC_FILTERING
-    antiAliasing?: 0 | 2 | 4 | 8
-    pixelLightCount?: number
-    realtimeReflectionProbes?: boolean
-    shadowCascades?: 0 | 2 | 4
-    shadowDistance?: number
-    shadowMaskMode?: SHADOW_MASK_MODE
-    shadowNearPlaneOffset?: number
-    shadowProjection?: SHADOW_PROJECTION
-    shadowResolution?: SHADOW_RESOLUTION
-    shadows?: SHADOWS
-    softParticles?: boolean
+    anisotropicFiltering?: RawKeyframesAbstract<[ANISOTROPIC_FILTERING]> | ANISOTROPIC_FILTERING
+    antiAliasing?: RawKeyframesAbstract<[ANTI_ALIASING]> | ANTI_ALIASING
+    pixelLightCount?: RuntimeRawKeyframesLinear | number
+    realtimeReflectionProbes?: RawKeyframesAbstract<[BOOLEAN]> | BOOLEAN
+    shadowCascades?: RawKeyframesAbstract<[SHADOW_CASCADES]> | SHADOW_CASCADES
+    shadowDistance?: RuntimeRawKeyframesLinear | number
+    shadowMaskMode?: RawKeyframesAbstract<[SHADOW_MASK_MODE]> | SHADOW_MASK_MODE
+    shadowNearPlaneOffset?: RuntimeRawKeyframesLinear | number
+    shadowProjection?: RawKeyframesAbstract<[SHADOW_PROJECTION]> | SHADOW_PROJECTION
+    shadowResolution?: RawKeyframesAbstract<[SHADOW_RESOLUTION]> | SHADOW_RESOLUTION
+    shadows?: RawKeyframesAbstract<[SHADOWS]> | SHADOWS
+    softParticles?: RawKeyframesAbstract<[BOOLEAN]> | BOOLEAN
 }
 
 /** Changeable XR settings with SetRenderingSetting events.
  * https://docs.unity3d.com/ScriptReference/XR.XRSettings.html
  */
 export type XR_SETTINGS = {
-    useOcclusionMesh?: boolean
+    useOcclusionMesh?: RawKeyframesAbstract<[BOOLEAN]> | BOOLEAN
 }
 
 /** https://docs.unity3d.com/ScriptReference/QualitySettings.html */
