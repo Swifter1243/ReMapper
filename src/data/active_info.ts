@@ -27,6 +27,11 @@ export async function loadActiveInfo() {
 
 function createInfo(json: InfoJson): AbstractInfo {
     if (json._version) {
+        if (json._version === '2.0.0') {
+            json._colorSchemes = []
+            json._environmentNames = []
+        }
+
         return new V2Info(json)
     } else {
         throw 'Version of Info.dat not recognized!'
