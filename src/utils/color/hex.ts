@@ -5,10 +5,21 @@ function componentToHex(c: number) {
     return hex.length == 1 ? '0' + hex : hex
 }
 
+function _RGBToHEX(color: ColorVec) {
+    return '#' + componentToHex(color[0]) + componentToHex(color[1]) + componentToHex(color[2])
+}
+
 /** Converts a color from RGB (red, green, blue) to HEX (e.g. #000000) */
-export function RGBtoHEX(color: ColorVec) {
-    return '#' + componentToHex(color[0]) + componentToHex(color[1]) +
-        componentToHex(color[2])
+export function RGBtoHEX(color: ColorVec): string
+export function RGBtoHEX(r: number, g: number, b: number): string
+export function RGBtoHEX(...params: [ColorVec] | Vec3): string {
+    if (params.length === 1) {
+        const [color] = params
+        return _RGBToHEX(color)
+    } else {
+        const [r, g, b] = params
+        return _RGBToHEX([r, g, b])
+    }
 }
 
 /** Converts a color from HEX (e.g. #000000) to RGB (red, green, blue) */

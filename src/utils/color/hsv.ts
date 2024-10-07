@@ -1,8 +1,7 @@
 import { positiveMod } from '../math/rounding.ts'
-import {ColorVec} from "../../types/math/vector.ts";
+import {ColorVec, Vec3} from "../../types/math/vector.ts";
 
-/** Converts a color from HSV (hue, saturation, value) to RGB (red, green, blue) */
-export function HSVtoRGB<T extends ColorVec>(color: T) {
+export function _HSVtoRGB<T extends ColorVec>(color: T) {
     const h = positiveMod(color[0], 1)
     const s = color[1]
     const v = color[2]
@@ -42,8 +41,20 @@ export function HSVtoRGB<T extends ColorVec>(color: T) {
     return output as T
 }
 
-/** Converts a color from RGB (red, green, blue) to HSV (hue, saturation, value) */
-export function RGBtoHSV<T extends ColorVec>(color: T) {
+/** Converts a color from HSV (hue, saturation, value) to RGB (red, green, blue) */
+export function HSVtoRGB<T extends ColorVec>(color: T): T
+export function HSVtoRGB(r: number, g: number, b: number): Vec3
+export function HSVtoRGB<T extends ColorVec>(...params: [T] | Vec3): T {
+    if (params.length === 1) {
+        const [color] = params
+        return _HSVtoRGB(color)
+    } else {
+        const [r, g, b] = params
+        return _HSVtoRGB([r, g, b]) as T
+    }
+}
+
+export function _RGBtoHSV<T extends ColorVec>(color: T) {
     const r = color[0]
     const g = color[1]
     const b = color[2]
@@ -77,3 +88,17 @@ export function RGBtoHSV<T extends ColorVec>(color: T) {
 
     return output as T
 }
+
+/** Converts a color from RGB (red, green, blue) to HSV (hue, saturation, value) */
+export function RGBtoHSV<T extends ColorVec>(color: T): T
+export function RGBtoHSV(r: number, g: number, b: number): Vec3
+export function RGBtoHSV<T extends ColorVec>(...params: [T] | Vec3): T {
+    if (params.length === 1) {
+        const [color] = params
+        return _RGBtoHSV(color)
+    } else {
+        const [r, g, b] = params
+        return _RGBtoHSV([r, g, b]) as T
+    }
+}
+
