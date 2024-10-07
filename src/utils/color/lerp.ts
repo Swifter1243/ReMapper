@@ -4,6 +4,7 @@ import { arrayLerp } from '../array/operation.ts'
 import {ColorVec} from "../../types/math/vector.ts";
 
 import {EASE} from "../../types/animation/easing.ts";
+import {HSVtoRGB, RGBtoHSV} from "./hsv.ts";
 
 /** Lerps an RGB (red, green, blue) color with another RGB color */
 export function lerpRGB(
@@ -20,7 +21,7 @@ export function lerpRGB(
     return arrayLerp(start, end, fraction, easing) as ColorVec
 }
 
-/** Lerps an HSV (hue, saturation, value) color with another HSV color */
+/** Converts colors to HSV space, lerps them, and then converts them back to RGB. */
 export function lerpHSV(
     start: ColorVec,
     end: ColorVec,
@@ -29,20 +30,19 @@ export function lerpHSV(
 ) {
     if (easing !== undefined) fraction = applyEasing(easing, fraction)
 
+    const startHSV = RGBtoHSV(start)
+    const endHSV = RGBtoHSV(end)
+
     const output = [
-        lerpWrap(start[0], end[0], fraction),
-        lerp(start[1], end[1], fraction),
-        lerp(start[2], end[2], fraction),
-    ]
+        lerpWrap(startHSV[0], endHSV[0], fraction),
+        lerp(startHSV[1], endHSV[1], fraction),
+        lerp(startHSV[2], endHSV[2], fraction),
+    ] as ColorVec
 
-    if (start.length != end.length) {
-        start[3] ??= 1
-        end[3] ??= 1
+    if (startHSV[3] || endHSV[3]) {
+        const outputAlpha = lerp(startHSV[3] ?? 1, endHSV[3] ?? 1, fraction)
+        output.push(outputAlpha)
     }
 
-    if (start[3] !== undefined) {
-        output.push(lerp(start[3], end[3] as number, fraction))
-    }
-
-    return output as ColorVec
+    return HSVtoRGB(output)
 }
