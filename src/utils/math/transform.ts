@@ -3,7 +3,7 @@ import {arrayAdd, arraySubtract} from '../array/operation.ts'
 import {getMatrixFromTransform, getTransformFromMatrix} from './matrix.ts'
 import {AnimationSettings} from '../animation/optimizer.ts'
 import {areKeyframesSimple} from '../animation/keyframe/complexity.ts'
-import {areArraysEqual} from '../array/check.ts'
+import {areVectorsEqual} from '../array/check.ts'
 import {bakeAnimation, getAnimatedObjectDomain, getKeyframeValuesAtTime,} from '../animation/mod.ts'
 import {iterateKeyframes} from "../animation/keyframe/iterate.ts";
 import {Vec3} from "../../types/math/vector.ts";
@@ -81,7 +81,7 @@ export function emulateParent(
         defaultVal: DeepReadonly<Vec3>,
     ) {
         if (!areKeyframesSimple(prop)) return Complexity.ANIMATED
-        const isDefault = areArraysEqual(prop as DeepReadonly<Vec3>, defaultVal)
+        const isDefault = areVectorsEqual(prop as DeepReadonly<Vec3>, defaultVal)
         return isDefault ? Complexity.DEFAULT : Complexity.SIMPLE
     }
 
