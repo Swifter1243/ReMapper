@@ -19,7 +19,7 @@ export function arrayRemove<T>(arr: T[], index: number) {
  * @param arr Array to add values to.
  * @param arr2 Values to add.
  */
-export function appendArray<T>(arr: T[], arr2: readonly T[]) {
+export function arrayAppend<T>(arr: T[], arr2: readonly T[]) {
     return arr.push(...arr2)
 }
 
