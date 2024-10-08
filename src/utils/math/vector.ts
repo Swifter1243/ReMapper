@@ -9,7 +9,7 @@ import {Vec3} from "../../types/math/vector.ts";
  * @param A First point.
  * @param B Second point.
  */
-export function getDistance<T extends readonly [] | readonly number[]>(
+export function distance<T extends readonly [] | readonly number[]>(
     A: T,
     B: { readonly [K in keyof T]: number },
 ) {

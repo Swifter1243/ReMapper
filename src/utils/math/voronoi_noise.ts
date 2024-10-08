@@ -1,6 +1,6 @@
 import { hashString } from './random.ts'
 import { arrayAdd } from '../array/operation.ts'
-import { getDistance } from './vector.ts'
+import { distance } from './vector.ts'
 
 function getVoronoiPoint<T extends number[]>(point: Readonly<T>, seed: number) {
     const hash = hashString(seed + `${point}`)
@@ -39,7 +39,7 @@ export function voronoi<T extends number>(dimensions: T, seed: number) {
             const addedPoint = arrayAdd(origin, o)
             const point = getVoronoiPoint(addedPoint, seed)
 
-            const dist = getDistance(point, coordinates)
+            const dist = distance(point, coordinates)
             if (dist < minDistance) minDistance = dist
         })
 
