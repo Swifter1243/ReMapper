@@ -1,4 +1,3 @@
-import {findIndexLastFirst} from "../../array/find.ts";
 import {
     SPLINE
 } from "../../../types/animation/keyframe/components.ts";
@@ -59,15 +58,11 @@ export function getKeyframeFlagIndex(
     exact = true,
 ) {
     if (exact) {
-        return findIndexLastFirst(
-            data,
-            (x) => typeof x === 'string' && x === flag,
-        )
+        return data.findLastIndex((x) => typeof x === 'string' && x === flag)
     }
-    return findIndexLastFirst(
-        data,
-        (x) => typeof x === 'string' && x.includes(flag),
-    )
+    else {
+        return data.findLastIndex((x) => typeof x === 'string' && x.includes(flag))
+    }
 }
 
 /** Whether this keyframe has the "lerpHSV" flag. */
