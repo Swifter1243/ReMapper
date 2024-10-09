@@ -60,8 +60,8 @@ export function combineTransforms(
 
 /** Applies a transformation to a point. */
 export function applyTransformToPoint(
-    transform: DeepReadonly<Transform>,
     point: Readonly<Vec3>,
+    transform: DeepReadonly<Transform>,
     anchor?: Readonly<Vec3>
 ) {
     return combineTransforms({
