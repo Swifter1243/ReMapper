@@ -28,18 +28,18 @@ export function combineRotations(
 
 /**
  * Applies 2 transformations to each other.
- * @param target Input transformation.
- * @param transform Transformation to apply.
+ * @param child Input transformation.
+ * @param parent Transformation to apply to the child.
  * @param anchor
  * @returns
  */
 export function combineTransforms(
-    target: DeepReadonly<Transform>,
-    transform: DeepReadonly<Transform>,
+    child: DeepReadonly<Transform>,
+    parent: DeepReadonly<Transform>,
     anchor?: Readonly<Vec3>,
 ): FullTransform {
-    const newTarget = copy(target) as Transform
-    const newTransform = copy(transform) as Transform
+    const newTarget = copy(child) as Transform
+    const newTransform = copy(parent) as Transform
 
     newTarget.position ??= [0, 0, 0]
     newTarget.position = anchor ? arraySubtract(newTarget.position, anchor) : newTarget.position
