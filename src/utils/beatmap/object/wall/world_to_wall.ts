@@ -9,11 +9,11 @@ import {vec} from "../../../array/tuple.ts";
  * Calculate the correct position for a wall to line up with a position in the world.
  * Assumes that `coordinates` are set to [0,0].
  * @param transform The desired transformation.
- * @param animated Corrects for animated scale. If you are using this, plug [1,1,1] into static scale.
+ * @param scaleIsAnimated Corrects for animated scale. If you are using this, plug [1,1,1] into static scale.
  */
 export function worldToWall(
     transform: DeepReadonly<Transform>,
-    animated = false,
+    scaleIsAnimated = false,
 ) {
     const position = transform.position ?? [0, 0, 0]
     const rotation = transform.rotation ?? [0, 0, 0]
@@ -40,7 +40,7 @@ export function worldToWall(
 
     // Move by half of the base width
     // In the case of animated, this is implicitly 1
-    resizedPos[0] -= animated ? 0.5 : resizedScale[0] / 2
+    resizedPos[0] -= scaleIsAnimated ? 0.5 : resizedScale[0] / 2
 
     return {
         position: resizedPos,
