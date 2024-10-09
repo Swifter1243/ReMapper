@@ -8,6 +8,7 @@ import {ComplexKeyframesVec3} from "../../types/animation/keyframe/vec3.ts";
 import {TransformKeyframe} from "../../types/animation/bake.ts";
 import {ModelObject} from "../../types/model/object.ts";
 import {DeepReadonly} from "../../types/util/mutability.ts";
+import { EPSILON } from '../../constants/math.ts'
 
 /**
  * Generate keyframes from an animation.
@@ -42,7 +43,7 @@ export function bakeAnimation(
 
     for (
         let i = totalMin;
-        i <= totalMax;
+        i <= totalMax + EPSILON;
         i += invBakeFreq
     ) {
         const keyframe = {
