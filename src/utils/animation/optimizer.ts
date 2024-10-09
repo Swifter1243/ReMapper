@@ -343,14 +343,14 @@ export class OptimizeSimilarPointsSlopeSettings {
 
 /** Describes settings for functions to handle animations that need to be baked/optimized. */
 export class AnimationSettings {
-    /** If animation should be baked, how many keyframes should be baked excluding the enclosing keyframe. */
-    bakeFrequency = 32
+    /** If animation should be baked, how many keyframes to sample. */
+    bakeSampleFrequency = 32
     /** Settings to optimize the animation if it gets optimized. */
     optimizeSettings = new OptimizeSettings()
 
     toData() {
         return [
-            this.bakeFrequency,
+            this.bakeSampleFrequency,
             this.optimizeSettings.toData(),
         ]
     }

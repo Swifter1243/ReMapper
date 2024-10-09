@@ -34,7 +34,7 @@ export function bakeAnimation(
         rotation: <ComplexKeyframesVec3> [],
         scale: <ComplexKeyframesVec3> [],
     }
-    const invBakeFreq = 1 / animationSettings.bakeFrequency
+    const invBakeFreq = 1 / (animationSettings.bakeSampleFrequency - 1)
 
     domain ??= getAnimatedObjectDomain(animation)
     const totalMin = floorTo(domain.min, invBakeFreq)
