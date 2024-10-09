@@ -1,12 +1,12 @@
+import { Vec3 } from '../../types/math/vector.ts'
+
 /**
  * Convert an array of numbers from degrees to radians.
  * @param values Input array of numbers.
  */
 export function toRadians(values: number): number
-export function toRadians<T extends [] | number[]>(values: Readonly<T>): T
-export function toRadians<T extends [] | number[]>(
-    values: Readonly<T> | number,
-) {
+export function toRadians(values: Readonly<Vec3>): Vec3
+export function toRadians(values: Readonly<Vec3> | number) {
     function toRadNum(x: number) {
         return x * (Math.PI / 180)
     }
@@ -15,7 +15,7 @@ export function toRadians<T extends [] | number[]>(
         return toRadNum(values) as number
     }
 
-    return values.map(toRadNum) as T
+    return values.map(toRadNum) as Vec3
 }
 
 /**
@@ -23,10 +23,8 @@ export function toRadians<T extends [] | number[]>(
  * @param values Input array of numbers.
  */
 export function toDegrees(values: number): number
-export function toDegrees<T extends [] | number[]>(values: Readonly<T>): T
-export function toDegrees<T extends [] | number[]>(
-    values: Readonly<T> | number,
-) {
+export function toDegrees(values: Readonly<Vec3>): Vec3
+export function toDegrees(values: Readonly<Vec3> | number) {
     function toDegreesNum(x: number) {
         return x * (180 / Math.PI)
     }
@@ -35,5 +33,5 @@ export function toDegrees<T extends [] | number[]>(
         return toDegreesNum(values) as number
     }
 
-    return values.map(toDegreesNum) as T
+    return values.map(toDegreesNum) as Vec3
 }
