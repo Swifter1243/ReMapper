@@ -34,7 +34,7 @@ export class SetMaterialProperty extends CustomEvent<
     /** An easing for the animation to follow. */
     easing?: EASE
 
-    static defaults: JsonObjectDefaults<SetMaterialProperty> = {
+    static override defaults: JsonObjectDefaults<SetMaterialProperty> = {
         asset: '',
         properties: [],
         ...super.defaults,
@@ -47,7 +47,7 @@ export class SetMaterialProperty extends CustomEvent<
         return this
     }
 
-    fromJsonV3(json: ISetMaterialProperty): this {
+    override fromJsonV3(json: ISetMaterialProperty): this {
         this.asset = getDataProp(json.d, 'asset') ?? SetMaterialProperty.defaults.asset
         this.properties = getDataProp(json.d, 'properties') ?? copy<MaterialProperty[]>(SetMaterialProperty.defaults.properties)
         this.duration = getDataProp(json.d, 'duration')
@@ -55,7 +55,7 @@ export class SetMaterialProperty extends CustomEvent<
         return super.fromJsonV3(json)
     }
 
-    fromJsonV2(_json: never): this {
+    override fromJsonV2(_json: never): this {
         throw 'SetMaterialProperty is only supported in V3!'
     }
 

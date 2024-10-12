@@ -17,7 +17,7 @@ export abstract class LightEventBoxGroup<T extends bsmap.v3.IEventBox = bsmap.v3
     /** The event boxes in this group.  */
     boxes: LightEventBox<T>[]
 
-    static defaults: BeatmapObjectDefaults<LightEventBoxGroup> = {
+    static override defaults: BeatmapObjectDefaults<LightEventBoxGroup> = {
         groupID: 0,
         boxes: [],
         ...super.defaults,

@@ -34,7 +34,7 @@ export class SetAnimatorProperty extends CustomEvent<
     /** Properties to set. */
     properties: AnimatorProperty[]
 
-    static defaults: JsonObjectDefaults<SetAnimatorProperty> = {
+    static override defaults: JsonObjectDefaults<SetAnimatorProperty> = {
         id: '',
         properties: [],
         ...super.defaults,
@@ -47,7 +47,7 @@ export class SetAnimatorProperty extends CustomEvent<
         return this
     }
 
-    fromJsonV3(json: ISetAnimatorProperty): this {
+    override fromJsonV3(json: ISetAnimatorProperty): this {
         this.id = getDataProp(json.d, 'id') ?? SetAnimatorProperty.defaults.id
         this.properties = getDataProp(json.d, 'properties') ??
             copy<typeof this.properties>(SetAnimatorProperty.defaults.properties)
@@ -56,7 +56,7 @@ export class SetAnimatorProperty extends CustomEvent<
         return super.fromJsonV3(json)
     }
 
-    fromJsonV2(_json: never): this {
+    override fromJsonV2(_json: never): this {
         throw 'SetAnimatorProperty is only supported in V3!'
     }
 

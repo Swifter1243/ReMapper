@@ -34,7 +34,7 @@ export class LightEvent extends BasicEvent<bsmap.v2.IEventLight, bsmap.v3.IBasic
     /** The color interpolation for transition events. Goes on start event. */
     lerpType?: 'RGB' | 'HSV'
 
-    static defaults: BeatmapObjectDefaults<LightEvent> = {
+    static override defaults: BeatmapObjectDefaults<LightEvent> = {
         ...super.defaults,
     }
 
@@ -114,7 +114,7 @@ export class LightEvent extends BasicEvent<bsmap.v2.IEventLight, bsmap.v3.IBasic
         return this
     }
 
-    fromJsonV3(json: bsmap.v3.IBasicEventLight): this {
+    override fromJsonV3(json: bsmap.v3.IBasicEventLight): this {
         this.chromaColor = getCDProp(json, 'color') as ColorVec | undefined
         this.easing = getCDProp(json, 'easing')
         this.lerpType = getCDProp(json, 'lerpType')
@@ -122,7 +122,7 @@ export class LightEvent extends BasicEvent<bsmap.v2.IEventLight, bsmap.v3.IBasic
         return super.fromJsonV3(json)
     }
 
-    fromJsonV2(json: bsmap.v2.IEventLight): this {
+    override fromJsonV2(json: bsmap.v2.IEventLight): this {
         this.chromaColor = getCDProp(json, '_color') as ColorVec | undefined
         this.easing = getCDProp(json, '_easing')
         this.lerpType = getCDProp(json, '_lerpType')

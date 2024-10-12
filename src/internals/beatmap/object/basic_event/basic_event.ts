@@ -25,21 +25,21 @@ export abstract class BasicEvent<
     /** The value of the event, but allowing decimals. */
     floatValue: number
 
-    static defaults: BeatmapObjectDefaults<BasicEvent> = {
+    static override defaults: BeatmapObjectDefaults<BasicEvent> = {
         type: 0,
         value: 0,
         floatValue: 1,
         ...super.defaults,
     }
 
-    fromJsonV3(json: TV3): this {
+    override fromJsonV3(json: TV3): this {
         this.type = json.et ?? BasicEvent.defaults.type
         this.value = json.i ?? BasicEvent.defaults.value
         this.floatValue = json.f ?? BasicEvent.defaults.floatValue
         return super.fromJsonV3(json)
     }
 
-    fromJsonV2(json: TV2): this {
+    override fromJsonV2(json: TV2): this {
         this.type = json._type ?? BasicEvent.defaults.type
         this.value = json._value ?? BasicEvent.defaults.value
         this.floatValue = json._floatValue ?? BasicEvent.defaults.floatValue

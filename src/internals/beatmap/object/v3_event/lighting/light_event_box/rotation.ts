@@ -28,7 +28,7 @@ export class LightRotationEventBox extends LightEventBox<bsmap.v3.ILightRotation
     /** A binary integer value (0 or 1) which determines whether the distribution should affect the first event in the sequence. */
     rotationDistributionFirst: boolean
 
-    static defaults: JsonObjectDefaults<LightRotationEventBox> = {
+    static override defaults: JsonObjectDefaults<LightRotationEventBox> = {
         rotationDistribution: 0,
         rotationDistributionType: DistributionType.STEP,
         rotationAxis: LightAxis.X,

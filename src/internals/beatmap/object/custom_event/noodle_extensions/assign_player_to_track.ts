@@ -25,7 +25,7 @@ export class AssignPlayerToTrack extends CustomEvent<
     /** Which component of the player to target. */
     target?: bsmap.PlayerObject
 
-    static defaults: JsonObjectDefaults<AssignPlayerToTrack> = {
+    static override defaults: JsonObjectDefaults<AssignPlayerToTrack> = {
         track: '',
         ...super.defaults,
     }
@@ -35,13 +35,13 @@ export class AssignPlayerToTrack extends CustomEvent<
         return this
     }
 
-    fromJsonV3(json: bsmap.v3.ICustomEventAssignPlayerToTrack): this {
+    override fromJsonV3(json: bsmap.v3.ICustomEventAssignPlayerToTrack): this {
         this.track = getDataProp(json.d, 'track') as string ?? AssignPlayerToTrack.defaults.track
         this.target = getDataProp(json.d, 'target')
         return super.fromJsonV3(json)
     }
 
-    fromJsonV2(json: bsmap.v2.ICustomEventAssignPlayerToTrack): this {
+    override fromJsonV2(json: bsmap.v2.ICustomEventAssignPlayerToTrack): this {
         this.track = getDataProp(json._data, '_track') as string ?? AssignPlayerToTrack.defaults.track
         this.target = getDataProp(json._data, '_target')
         return super.fromJsonV2(json)

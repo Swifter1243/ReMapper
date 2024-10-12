@@ -87,7 +87,7 @@ export abstract class BeatmapGameplayObject<
     /** The chroma color of the object. */
     chromaColor?: ColorVec
 
-    static defaults: GameplayObjectDefaults<BeatmapGameplayObject> = {
+    static override defaults: GameplayObjectDefaults<BeatmapGameplayObject> = {
         x: 0,
         y: 0,
         animation: {},
@@ -227,7 +227,7 @@ export abstract class BeatmapGameplayObject<
         }
     }
 
-    fromJsonV3(json: TV3): this {
+    override fromJsonV3(json: TV3): this {
         this.x = json.x ?? BeatmapGameplayObject.defaults.x
         this.y = json.y ?? BeatmapGameplayObject.defaults.y
         this.animation = getCDProp(json, 'animation') as AnimationPropertiesV3 | undefined ?? copy(BeatmapGameplayObject.defaults.animation)
@@ -244,7 +244,7 @@ export abstract class BeatmapGameplayObject<
         return super.fromJsonV3(json)
     }
 
-    fromJsonV2(json: TV2): this {
+    override fromJsonV2(json: TV2): this {
         this.x = json._lineIndex ?? BeatmapGameplayObject.defaults.x
         const animationProp = getCDProp(json, '_animation')
         this.animation = animationProp ? animationV2ToV3(animationProp) : copy(BeatmapGameplayObject.defaults.animation)

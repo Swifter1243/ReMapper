@@ -16,7 +16,7 @@ export class BoostEvent extends BeatmapObject<bsmap.v2.IEvent, bsmap.v3.IColorBo
     /** Whether to use the boost color palette or not. */
     boost: boolean
 
-    static defaults: BeatmapObjectDefaults<BoostEvent> = {
+    static override defaults: BeatmapObjectDefaults<BoostEvent> = {
         boost: false,
         ...super.defaults,
     }
@@ -33,12 +33,12 @@ export class BoostEvent extends BeatmapObject<bsmap.v2.IEvent, bsmap.v3.IColorBo
         return this
     }
 
-    fromJsonV3(json: bsmap.v3.IColorBoostEvent): this {
+    override fromJsonV3(json: bsmap.v3.IColorBoostEvent): this {
         this.boost = json.o ?? BoostEvent.defaults.boost
         return super.fromJsonV3(json)
     }
 
-    fromJsonV2(json: bsmap.v2.IEvent): this {
+    override fromJsonV2(json: bsmap.v2.IEvent): this {
         this.boost = json._value !== undefined ? json._value === 1 : BoostEvent.defaults.boost
         return super.fromJsonV2(json)
     }

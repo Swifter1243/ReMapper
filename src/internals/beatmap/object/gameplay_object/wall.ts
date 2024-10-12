@@ -43,7 +43,7 @@ export class Wall extends BeatmapGameplayObject<bsmap.v2.IObstacle, bsmap.v3.IOb
     /** Moves the note to the separate fake note array on save. */
     fake?: boolean
 
-    static defaults: GameplayObjectDefaults<Wall> = {
+    static override defaults: GameplayObjectDefaults<Wall> = {
         duration: 1,
         height: 1,
         width: 1,
@@ -67,10 +67,10 @@ export class Wall extends BeatmapGameplayObject<bsmap.v2.IObstacle, bsmap.v3.IOb
         setWallWorldTransform(this, transform, animationSettings)
     }
 
-    get life() {
+    override get life() {
         return this.halfJumpDuration * 2 + this.duration
     }
-    set life(value: number) {
+    override set life(value: number) {
         const life = value - this.duration
 
         if (life < 0.25) {
@@ -81,20 +81,20 @@ export class Wall extends BeatmapGameplayObject<bsmap.v2.IObstacle, bsmap.v3.IOb
         }
     }
 
-    get lifeStart() {
+    override get lifeStart() {
         return this.beat - this.halfJumpDuration
     }
-    set lifeStart(value: number) {
+    override set lifeStart(value: number) {
         this.beat = value + this.halfJumpDuration
     }
 
-    get isGameplayModded() {
+    override get isGameplayModded() {
         if (this.size) return true
         if (this.fake) return true
         return super.isGameplayModded
     }
 
-    fromJsonV3(json: bsmap.v3.IObstacle): this {
+    override fromJsonV3(json: bsmap.v3.IObstacle): this {
         this.duration = json.d ?? Wall.defaults.duration
         this.height = json.h ?? Wall.defaults.height
         this.width = json.w ?? Wall.defaults.width
@@ -102,7 +102,7 @@ export class Wall extends BeatmapGameplayObject<bsmap.v2.IObstacle, bsmap.v3.IOb
         return super.fromJsonV3(json)
     }
 
-    fromJsonV2(json: bsmap.v2.IObstacle): this {
+    override fromJsonV2(json: bsmap.v2.IObstacle): this {
         this.duration = json._duration ?? Wall.defaults.duration
         this.width = json._width ?? Wall.defaults.width
         this.size = getCDProp(json, '_scale') as Vec3 | undefined

@@ -37,7 +37,7 @@ export class AnimateComponent extends CustomEvent<never, bsmap.v3.ICustomEventAn
     /** The easing on this event's animation. */
     easing?: EASE
 
-    static defaults: JsonObjectDefaults<AnimateComponent> = {
+    static override defaults: JsonObjectDefaults<AnimateComponent> = {
         lightMultiplier: {},
         fog: {},
         track: new Track(),
@@ -54,7 +54,7 @@ export class AnimateComponent extends CustomEvent<never, bsmap.v3.ICustomEventAn
         return this
     }
 
-    fromJsonV3(json: bsmap.v3.ICustomEventAnimateComponent): this {
+    override fromJsonV3(json: bsmap.v3.ICustomEventAnimateComponent): this {
         this.track = new Track(getDataProp(json.d, 'track'))
         this.duration = getDataProp(json.d, 'duration') ?? AnimateComponent.defaults.duration
         this.easing = (getDataProp(json.d, 'easing') ?? AnimateComponent.defaults.easing) as EASE | undefined
@@ -64,7 +64,7 @@ export class AnimateComponent extends CustomEvent<never, bsmap.v3.ICustomEventAn
         return super.fromJsonV3(json)
     }
 
-    fromJsonV2(_json: never): this {
+    override fromJsonV2(_json: never): this {
         throw 'V2 not supported for animating components'
     }
 

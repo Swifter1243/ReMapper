@@ -35,7 +35,7 @@ export abstract class BaseSliderObject<TV3 extends bsmap.v3.IBaseSlider = bsmap.
     /** The position of the tail. */
     tailCoordinates?: Vec2
 
-    static defaults: GameplayObjectDefaults<BaseSliderObject> = {
+    static override defaults: GameplayObjectDefaults<BaseSliderObject> = {
         color: NoteColor.RED,
         cutDirection: 0,
         tailBeat: 0,
@@ -44,12 +44,12 @@ export abstract class BaseSliderObject<TV3 extends bsmap.v3.IBaseSlider = bsmap.
         ...super.defaults
     }
 
-    get isGameplayModded() {
+    override get isGameplayModded() {
         if (this.tailCoordinates) return true
         return super.isGameplayModded
     }
 
-    fromJsonV3(json: TV3): this {
+    override fromJsonV3(json: TV3): this {
         this.color = json.c ?? BaseSliderObject.defaults.color
         this.cutDirection = json.d ?? BaseSliderObject.defaults.cutDirection
         this.tailBeat = json.tb ?? BaseSliderObject.defaults.tailBeat
@@ -59,7 +59,7 @@ export abstract class BaseSliderObject<TV3 extends bsmap.v3.IBaseSlider = bsmap.
         return super.fromJsonV3(json);
     }
 
-    fromJsonV2(_json: never): this {
+    override fromJsonV2(_json: never): this {
         throw 'V2 is not supported for slider notes'
     }
 }

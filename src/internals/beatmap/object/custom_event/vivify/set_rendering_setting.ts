@@ -37,7 +37,7 @@ export class SetRenderingSettings extends CustomEvent<
     /** https://docs.unity3d.com/ScriptReference/XR.XRSettings.html */
     xrSettings?: Partial<XR_SETTINGS>
 
-    static defaults: JsonObjectDefaults<SetRenderingSettings> = {
+    static override defaults: JsonObjectDefaults<SetRenderingSettings> = {
         ...super.defaults,
     }
 
@@ -46,7 +46,7 @@ export class SetRenderingSettings extends CustomEvent<
         return this
     }
 
-    fromJsonV3(json: ISetRenderingSettings): this {
+    override fromJsonV3(json: ISetRenderingSettings): this {
         this.duration = getDataProp(json.d, 'duration')
         this.easing = getDataProp(json.d, 'easing')
         this.renderSettings = getDataProp(json.d, 'renderSettings')
@@ -55,7 +55,7 @@ export class SetRenderingSettings extends CustomEvent<
         return super.fromJsonV3(json)
     }
 
-    fromJsonV2(_json: never): this {
+    override fromJsonV2(_json: never): this {
         throw 'SetRenderingSettings is only supported in V3!'
     }
 

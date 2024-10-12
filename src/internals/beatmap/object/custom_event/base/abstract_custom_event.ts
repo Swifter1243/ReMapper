@@ -15,12 +15,12 @@ export class AbstractCustomEvent extends CustomEvent<
         return this
     }
 
-    fromJsonV2(json: bsmap.v2.ICustomEvent): this {
+    override fromJsonV2(json: bsmap.v2.ICustomEvent): this {
         this.type = json._type ?? CustomEvent.defaults.type
         return super.fromJsonV2(json)
     }
 
-    fromJsonV3(json: bsmap.v3.ICustomEvent): this {
+    override fromJsonV3(json: bsmap.v3.ICustomEvent): this {
         this.type = json.t ?? CustomEvent.defaults.type
         return super.fromJsonV3(json)
     }

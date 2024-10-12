@@ -31,7 +31,7 @@ export class SetCameraProperty extends CustomEvent<
     /** Color to clear the screen with. Only used with the `SolidColor` clear flag. */
     backgroundColor?: ColorVec
 
-    static defaults: JsonObjectDefaults<SetCameraProperty> = {
+    static override defaults: JsonObjectDefaults<SetCameraProperty> = {
         ...super.defaults
     }
 
@@ -42,14 +42,14 @@ export class SetCameraProperty extends CustomEvent<
         return this
     }
 
-    fromJsonV3(json: ISetCameraProperty): this {
+    override fromJsonV3(json: ISetCameraProperty): this {
         this.depthTextureMode = getDataProp(json.d, 'depthTextureMode')
         this.clearFlags = getDataProp(json.d, 'clearFlags')
         this.backgroundColor = getDataProp(json.d, 'backgroundColor')
         return super.fromJsonV3(json);
     }
 
-    fromJsonV2(_json: never): this {
+    override fromJsonV2(_json: never): this {
         throw 'SetCameraProperty is only supported in V3!'
     }
 

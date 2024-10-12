@@ -21,7 +21,7 @@ export class LightColorEventBox extends LightEventBox<bsmap.v3.ILightColorEventB
     /** A binary integer value (0 or 1) which determines whether the distribution should affect the first event in the sequence. */
     brightnessDistributionFirst: boolean
 
-    static defaults: JsonObjectDefaults<LightColorEventBox> = {
+    static override defaults: JsonObjectDefaults<LightColorEventBox> = {
         brightnessDistribution: 1,
         brightnessDistributionType: DistributionType.STEP,
         brightnessDistributionFirst: true,

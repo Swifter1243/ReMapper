@@ -24,7 +24,7 @@ export class CommunityBPMEvent extends BPMEvent<
     /** ??? */
     metronomeOffset: number
 
-    static defaults: JsonObjectDefaults<CommunityBPMEvent> = {
+    static override defaults: JsonObjectDefaults<CommunityBPMEvent> = {
         bpm: 120,
         mediocreMapper: false,
         beatsPerBar: 4,
@@ -32,7 +32,7 @@ export class CommunityBPMEvent extends BPMEvent<
         ...super.defaults
     }
 
-    fromJsonV3(json: bsmap.v3.IBPMChange): this {
+    override fromJsonV3(json: bsmap.v3.IBPMChange): this {
         this.mediocreMapper = false
         this.bpm = json.m ?? CommunityBPMEvent.defaults.bpm
         this.beatsPerBar = json.p ?? CommunityBPMEvent.defaults.beatsPerBar
@@ -40,7 +40,7 @@ export class CommunityBPMEvent extends BPMEvent<
         return super.fromJsonV3(json);
     }
 
-    fromJsonV2(json: bsmap.v2.IBPMChange | bsmap.v2.IBPMChangeOld): this {
+    override fromJsonV2(json: bsmap.v2.IBPMChange | bsmap.v2.IBPMChangeOld): this {
         this.mediocreMapper = json._bpm !== undefined
         this.bpm = (this.mediocreMapper ? json._bpm : json._BPM) ?? CommunityBPMEvent.defaults.bpm
         this.beatsPerBar = json._beatsPerBar ?? CommunityBPMEvent.defaults.beatsPerBar

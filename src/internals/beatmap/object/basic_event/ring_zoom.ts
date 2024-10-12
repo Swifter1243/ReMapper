@@ -22,7 +22,7 @@ export class RingZoomEvent extends BasicEvent<bsmap.v2.IEventZoom, bsmap.v3.IBas
     /** The speed of the zoom. */
     speed?: number
 
-    static defaults: BeatmapObjectDefaults<RingZoomEvent> = {
+    static override defaults: BeatmapObjectDefaults<RingZoomEvent> = {
         ...super.defaults,
     }
 
@@ -33,13 +33,13 @@ export class RingZoomEvent extends BasicEvent<bsmap.v2.IEventZoom, bsmap.v3.IBas
         return this
     }
 
-    fromJsonV3(json: bsmap.v3.IBasicEventRing): this {
+    override fromJsonV3(json: bsmap.v3.IBasicEventRing): this {
         this.speed = getCDProp(json, 'speed')
         this.step = getCDProp(json, 'step')
         return super.fromJsonV3(json)
     }
 
-    fromJsonV2(json: bsmap.v2.IEventZoom): this {
+    override fromJsonV2(json: bsmap.v2.IEventZoom): this {
         this.speed = getCDProp(json, '_speed')
         this.step = getCDProp(json, '_step')
         return super.fromJsonV2(json)

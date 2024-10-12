@@ -43,7 +43,7 @@ export class AnimateTrack extends CustomEvent<
     /** The amount of times to repeat this event. */
     repeat?: number
 
-    static defaults: JsonObjectDefaults<AnimateTrack> = {
+    static override defaults: JsonObjectDefaults<AnimateTrack> = {
         animation: {},
         track: new Track(),
         ...super.defaults,
@@ -56,7 +56,7 @@ export class AnimateTrack extends CustomEvent<
         return this
     }
 
-    fromJsonV3(json: bsmap.v3.ICustomEventAnimateTrack): this {
+    override fromJsonV3(json: bsmap.v3.ICustomEventAnimateTrack): this {
         this.track = new Track(getDataProp(json.d, 'track'))
         this.duration = getDataProp(json.d, 'duration')
         this.easing = getDataProp(json.d, 'easing')
@@ -65,7 +65,7 @@ export class AnimateTrack extends CustomEvent<
         return super.fromJsonV3(json)
     }
 
-    fromJsonV2(json: bsmap.v2.ICustomEventAnimateTrack): this {
+    override fromJsonV2(json: bsmap.v2.ICustomEventAnimateTrack): this {
         this.track = new Track(getDataProp(json._data, '_track'))
         this.duration = getDataProp(json._data, '_duration')
         this.easing = getDataProp(json._data, '_easing')

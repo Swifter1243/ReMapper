@@ -19,21 +19,21 @@ export class LightTranslationEvent extends BeatmapObject<never, bsmap.v3.ILightT
     /** The magnitude of the translation. */
     magnitude: number
 
-    static defaults: BeatmapObjectDefaults<LightTranslationEvent> = {
+    static override defaults: BeatmapObjectDefaults<LightTranslationEvent> = {
         usePreviousEventTranslation: true,
         easing: RotationEase.None,
         magnitude: 0,
         ...super.defaults,
     }
 
-    fromJsonV3(json: bsmap.v3.ILightTranslationBase): this {
+    override fromJsonV3(json: bsmap.v3.ILightTranslationBase): this {
         this.usePreviousEventTranslation = json.p !== undefined ? json.p === 1 : LightTranslationEvent.defaults.usePreviousEventTranslation
         this.easing = json.e ?? LightTranslationEvent.defaults.easing
         this.magnitude = json.t ?? LightTranslationEvent.defaults.magnitude
         return super.fromJsonV3(json)
     }
 
-    fromJsonV2(_json: never): this {
+    override fromJsonV2(_json: never): this {
         throw 'Event box groups are not supported in V2!'
     }
 

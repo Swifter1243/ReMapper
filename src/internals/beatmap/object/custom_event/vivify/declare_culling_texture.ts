@@ -36,7 +36,7 @@ export class DeclareCullingTexture extends CustomEvent<
     /** When true, write depth texture to "'name'_Depth". Default = false. */
     depthTexture?: boolean
 
-    static defaults: JsonObjectDefaults<DeclareCullingTexture> = {
+    static override defaults: JsonObjectDefaults<DeclareCullingTexture> = {
         id: '',
         track: new Track(),
         ...super.defaults
@@ -49,7 +49,7 @@ export class DeclareCullingTexture extends CustomEvent<
         return this
     }
 
-    fromJsonV3(json: IDeclareCullingTexture): this {
+    override fromJsonV3(json: IDeclareCullingTexture): this {
         this.id = getDataProp(json.d, 'id') ?? DeclareCullingTexture.defaults.id
         this.track = new Track(getDataProp(json.d, 'track'))
         this.whitelist = getDataProp(json.d, 'whitelist')
@@ -57,7 +57,7 @@ export class DeclareCullingTexture extends CustomEvent<
         return super.fromJsonV3(json);
     }
 
-    fromJsonV2(_json: never): this {
+    override fromJsonV2(_json: never): this {
         throw 'DeclareCullingTexture is only supported in V3!'
     }
 

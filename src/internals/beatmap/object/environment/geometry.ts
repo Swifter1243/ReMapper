@@ -27,7 +27,7 @@ export class Geometry extends BaseEnvironmentEnhancement<
     /** Whether this geometry object has collision. */
     collision?: boolean
 
-    static defaults: JsonObjectDefaults<Geometry> = {
+    static override defaults: JsonObjectDefaults<Geometry> = {
         type: 'Cube',
         material: {
             shader: 'Standard',
@@ -35,14 +35,14 @@ export class Geometry extends BaseEnvironmentEnhancement<
         ...super.defaults,
     }
 
-    fromJsonV3(json: bsmap.v3.IChromaEnvironmentGeometry): this {
+    override fromJsonV3(json: bsmap.v3.IChromaEnvironmentGeometry): this {
         this.type = (json.geometry.type ?? Geometry.defaults.type) as GeoType
         this.material = json.geometry.material as GeometryMaterial | undefined ?? copy(Geometry.defaults.material)
         this.collision = json.geometry.collision
         return super.fromJsonV3(json);
     }
 
-    fromJsonV2(json: bsmap.v2.IChromaEnvironmentGeometry): this {
+    override fromJsonV2(json: bsmap.v2.IChromaEnvironmentGeometry): this {
         this.type = (json._geometry._type ?? Geometry.defaults.type) as GeoType
         this.material = json._geometry._material as GeometryMaterial | undefined ?? copy(Geometry.defaults.material)
         this.collision = json._geometry._collision

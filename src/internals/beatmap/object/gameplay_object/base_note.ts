@@ -48,7 +48,7 @@ export abstract class BaseNote<
     /** Whether debris from this note should be disabled. */
     disableDebris?: boolean
 
-    static defaults: GameplayObjectDefaults<BaseNote> = {
+    static override defaults: GameplayObjectDefaults<BaseNote> = {
         ...super.defaults,
     }
 
@@ -58,7 +58,7 @@ export abstract class BaseNote<
      */
     abstract push(clone: boolean): void
 
-    get isGameplayModded() {
+    override get isGameplayModded() {
         if (this.fake) return true
         if (this.flip) return true
         if (this.disableNoteGravity) return true
@@ -71,7 +71,7 @@ export abstract class BaseNote<
         return super.isGameplayModded
     }
 
-    fromJsonV3(json: TV3): this {
+    override fromJsonV3(json: TV3): this {
         this.flip = getCDProp(json, 'flip')
         this.disableNoteLook = getCDProp(json, 'disableNoteLook')
         this.disableNoteGravity = getCDProp(json, 'disableNoteGravity')
@@ -84,7 +84,7 @@ export abstract class BaseNote<
         return super.fromJsonV3(json)
     }
 
-    fromJsonV2(json: bsmap.v2.INote): this {
+    override fromJsonV2(json: bsmap.v2.INote): this {
         this.flip = getCDProp(json, '_flip')
         this.disableNoteLook = getCDProp(json, '_disableNoteLook')
         this.disableNoteGravity = getCDProp(json, '_disableNoteGravity')

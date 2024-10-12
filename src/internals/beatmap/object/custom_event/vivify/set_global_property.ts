@@ -31,7 +31,7 @@ export class SetGlobalProperty extends CustomEvent<
     /** An easing for the animation to follow. */
     easing?: EASE
 
-    static defaults: JsonObjectDefaults<SetGlobalProperty> = {
+    static override defaults: JsonObjectDefaults<SetGlobalProperty> = {
         properties: [],
         ...super.defaults
     }
@@ -41,14 +41,14 @@ export class SetGlobalProperty extends CustomEvent<
         return this
     }
 
-    fromJsonV3(json: ISetGlobalProperty): this {
+    override fromJsonV3(json: ISetGlobalProperty): this {
         this.properties = getDataProp(json.d, 'properties') ?? copy<MaterialProperty[]>(SetGlobalProperty.defaults.properties)
         this.duration = getDataProp(json.d, 'duration')
         this.easing = getDataProp(json.d, 'easing')
         return super.fromJsonV3(json);
     }
 
-    fromJsonV2(_json: never): this {
+    override fromJsonV2(_json: never): this {
         throw 'SetGlobalProperty is only supported in V3!'
     }
 

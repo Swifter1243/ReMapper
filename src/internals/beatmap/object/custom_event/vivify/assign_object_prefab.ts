@@ -39,7 +39,7 @@ export class AssignObjectPrefab extends CustomEvent<
     /** The desired prefab/material to replace sabers */
     saber?: IAssignObjectPrefab['d']['saber']
 
-    static defaults: JsonObjectDefaults<AssignObjectPrefab> = {
+    static override defaults: JsonObjectDefaults<AssignObjectPrefab> = {
         ...super.defaults,
     }
 
@@ -50,7 +50,7 @@ export class AssignObjectPrefab extends CustomEvent<
         return this
     }
 
-    fromJsonV3(json: IAssignObjectPrefab): this {
+    override fromJsonV3(json: IAssignObjectPrefab): this {
         this.loadMode = getDataProp(json.d, 'loadMode')
         this.colorNotes = getDataProp(json.d, 'colorNotes')
         this.chainLinks = getDataProp(json.d, 'burstSliderElements')
@@ -60,7 +60,7 @@ export class AssignObjectPrefab extends CustomEvent<
         return super.fromJsonV3(json)
     }
 
-    fromJsonV2(_json: never): this {
+    override fromJsonV2(_json: never): this {
         throw 'AssignObjectPrefab is only supported in V3!'
     }
 

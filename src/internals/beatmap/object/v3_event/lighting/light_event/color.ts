@@ -22,7 +22,7 @@ export class LightColorEvent extends BaseLightEvent<bsmap.v3.ILightColorBase> {
     /** Blinking frequency in beat time of the event, 0 is static. */
     blinkingFrequency: number
 
-    static defaults: BeatmapObjectDefaults<LightColorEvent> = {
+    static override defaults: BeatmapObjectDefaults<LightColorEvent> = {
         transitionType: LightTransition.INSTANT,
         color: LightColor.RED,
         brightness: 1,
@@ -30,7 +30,7 @@ export class LightColorEvent extends BaseLightEvent<bsmap.v3.ILightColorBase> {
         ...super.defaults,
     }
 
-    fromJsonV3(json: bsmap.v3.ILightColorBase): this {
+    override fromJsonV3(json: bsmap.v3.ILightColorBase): this {
         this.transitionType = json.i ?? LightColorEvent.defaults.transitionType
         this.color = json.c ?? LightColorEvent.defaults.color
         this.brightness = json.s ?? LightColorEvent.defaults.brightness
@@ -38,7 +38,7 @@ export class LightColorEvent extends BaseLightEvent<bsmap.v3.ILightColorBase> {
         return super.fromJsonV3(json)
     }
 
-    fromJsonV2(_json: never): this {
+    override fromJsonV2(_json: never): this {
         throw 'Event box groups are not supported in V2!'
     }
 

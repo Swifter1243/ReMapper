@@ -37,7 +37,7 @@ export class RingSpinEvent extends BasicEvent<bsmap.v2.IEventRing, bsmap.v3.IBas
      */
     prop?: number
 
-    static defaults: BeatmapObjectDefaults<RingSpinEvent> = {
+    static override defaults: BeatmapObjectDefaults<RingSpinEvent> = {
         ...super.defaults,
     }
 
@@ -48,7 +48,7 @@ export class RingSpinEvent extends BasicEvent<bsmap.v2.IEventRing, bsmap.v3.IBas
         return this
     }
 
-    fromJsonV3(json: bsmap.v3.IBasicEventRing): this {
+    override fromJsonV3(json: bsmap.v3.IBasicEventRing): this {
         this.direction = getCDProp(json, 'direction')
         this.nameFilter = getCDProp(json, 'nameFilter')
         this.prop = getCDProp(json, 'prop')
@@ -58,7 +58,7 @@ export class RingSpinEvent extends BasicEvent<bsmap.v2.IEventRing, bsmap.v3.IBas
         return super.fromJsonV3(json)
     }
 
-    fromJsonV2(json: bsmap.v2.IEventRing): this {
+    override fromJsonV2(json: bsmap.v2.IEventRing): this {
         this.direction = getCDProp(json, '_direction')
         this.nameFilter = getCDProp(json, '_nameFilter')
         this.prop = getCDProp(json, '_prop')

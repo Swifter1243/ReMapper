@@ -46,7 +46,7 @@ export class DeclareRenderTexture extends CustomEvent<
     /** https://docs.unity3d.com/ScriptReference/FilterMode.html */
     filterMode?: TEX_FILTER_MODE
 
-    static defaults: JsonObjectDefaults<DeclareRenderTexture> = {
+    static override defaults: JsonObjectDefaults<DeclareRenderTexture> = {
         id: '',
         ...super.defaults
     }
@@ -58,7 +58,7 @@ export class DeclareRenderTexture extends CustomEvent<
         return this
     }
 
-    fromJsonV3(json: IDeclareRenderTexture): this {
+    override fromJsonV3(json: IDeclareRenderTexture): this {
         this.id = getDataProp(json.d, 'id') ?? DeclareCullingTexture.defaults.id
         this.xRatio = getDataProp(json.d, 'xRatio')
         this.yRatio = getDataProp(json.d, 'yRatio')
@@ -69,7 +69,7 @@ export class DeclareRenderTexture extends CustomEvent<
         return super.fromJsonV3(json);
     }
 
-    fromJsonV2(_json: never): this {
+    override fromJsonV2(_json: never): this {
         throw 'DeclareRenderTexture is only supported in V3!'
     }
 

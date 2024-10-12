@@ -32,7 +32,7 @@ export class LightTranslationEventBox extends LightEventBox<
     /** A binary integer value (0 or 1) which determines whether the distribution should affect the first event in the sequence. */
     translationDistributionFirst: boolean
 
-    static defaults: JsonObjectDefaults<LightTranslationEventBox> = {
+    static override defaults: JsonObjectDefaults<LightTranslationEventBox> = {
         translationDistribution: 0,
         translationDistributionType: DistributionType.STEP,
         translationAxis: LightAxis.X,

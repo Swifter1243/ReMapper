@@ -26,7 +26,7 @@ export class ColorNote extends BaseNote<bsmap.v3.IColorNote> {
     /** The angle added to the note's rotation. */
     angleOffset: number
 
-    static defaults: GameplayObjectDefaults<ColorNote> = {
+    static override defaults: GameplayObjectDefaults<ColorNote> = {
         color: NoteColor.RED,
         cutDirection: NoteCut.DOWN,
         angleOffset: 0,
@@ -38,14 +38,14 @@ export class ColorNote extends BaseNote<bsmap.v3.IColorNote> {
         return this
     }
 
-    fromJsonV3(json: bsmap.v3.IColorNote): this {
+    override fromJsonV3(json: bsmap.v3.IColorNote): this {
         this.color = json.c ?? ColorNote.defaults.color
         this.cutDirection = json.d ?? ColorNote.defaults.cutDirection
         this.angleOffset = json.a ?? ColorNote.defaults.angleOffset
         return super.fromJsonV3(json)
     }
 
-    fromJsonV2(json: bsmap.v2.INote): this {
+    override fromJsonV2(json: bsmap.v2.INote): this {
         this.color = json._type as NoteColor | undefined ?? ColorNote.defaults.color
         this.cutDirection = json._cutDirection ?? ColorNote.defaults.cutDirection
         return super.fromJsonV2(json)

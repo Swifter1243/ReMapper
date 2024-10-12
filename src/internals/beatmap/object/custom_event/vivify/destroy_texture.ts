@@ -28,7 +28,7 @@ export class DestroyTexture extends CustomEvent<
     /** Names(s) of textures to destroy. */
     id: Track
 
-    static defaults: JsonObjectDefaults<DestroyTexture> = {
+    static override defaults: JsonObjectDefaults<DestroyTexture> = {
         id: new Track(),
         ...super.defaults
     }
@@ -40,12 +40,12 @@ export class DestroyTexture extends CustomEvent<
         return this
     }
 
-    fromJsonV3(json: IDestroyTexture): this {
+    override fromJsonV3(json: IDestroyTexture): this {
         this.id = new Track(getDataProp(json.d, 'id'))
         return super.fromJsonV3(json);
     }
 
-    fromJsonV2(_json: never): this {
+    override fromJsonV2(_json: never): this {
         throw 'DestroyTexture is only supported in V3!'
     }
 

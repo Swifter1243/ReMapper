@@ -31,7 +31,7 @@ export class AssignTrackParent extends CustomEvent<
     /** Modifies the transform of children objects to remain in the same place relative to world space. */
     worldPositionStays?: boolean
 
-    static defaults: JsonObjectDefaults<AssignTrackParent> = {
+    static override defaults: JsonObjectDefaults<AssignTrackParent> = {
         childrenTracks: [],
         parentTrack: '',
         ...super.defaults,
@@ -44,7 +44,7 @@ export class AssignTrackParent extends CustomEvent<
         return this
     }
 
-    fromJsonV3(json: bsmap.v3.ICustomEventAssignTrackParent): this {
+    override fromJsonV3(json: bsmap.v3.ICustomEventAssignTrackParent): this {
         this.childrenTracks = getDataProp(json.d, 'childrenTracks') as string[] | undefined ??
             copy(AssignTrackParent.defaults.childrenTracks)
         this.parentTrack = getDataProp(json.d, 'parentTrack') ?? AssignTrackParent.defaults.parentTrack
@@ -52,7 +52,7 @@ export class AssignTrackParent extends CustomEvent<
         return super.fromJsonV3(json)
     }
 
-    fromJsonV2(json: bsmap.v2.ICustomEventAssignTrackParent): this {
+    override fromJsonV2(json: bsmap.v2.ICustomEventAssignTrackParent): this {
         this.childrenTracks = getDataProp(json._data, '_childrenTracks') as string[] | undefined ??
             copy(AssignTrackParent.defaults.childrenTracks)
         this.parentTrack = getDataProp(json._data, '_parentTrack') ?? AssignTrackParent.defaults.parentTrack

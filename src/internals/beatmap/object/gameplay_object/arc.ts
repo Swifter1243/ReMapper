@@ -43,7 +43,7 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
     /** Whether note gravity (the effect where notes move to their vertical row from the bottom row) is disabled. */
     disableNoteGravity?: boolean
 
-    static defaults: GameplayObjectDefaults<Arc> = {
+    static override defaults: GameplayObjectDefaults<Arc> = {
         tailDirection: NoteCut.DOT,
         headLength: 0,
         tailLength: 0,
@@ -52,13 +52,13 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
     }
 
     /** Determines whether this note uses Noodle Extensions features. */
-    get isGameplayModded() {
+    override get isGameplayModded() {
         if (this.flip) return true
         if (this.disableNoteGravity) return true
         return super.isGameplayModded
     }
 
-    fromJsonV3(json: bsmap.v3.IArc): this {
+    override fromJsonV3(json: bsmap.v3.IArc): this {
         this.tailDirection = json.tc ?? Arc.defaults.tailDirection
         this.headLength = json.mu ?? Arc.defaults.headLength
         this.tailLength = json.tmu ?? Arc.defaults.tailLength
@@ -68,7 +68,7 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
         return super.fromJsonV3(json)
     }
 
-    fromJsonV2(_json: never): this {
+    override fromJsonV2(_json: never): this {
         throw 'V2 is not supported for arcs'
     }
 

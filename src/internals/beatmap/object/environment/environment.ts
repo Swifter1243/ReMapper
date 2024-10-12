@@ -24,19 +24,19 @@ export class Environment extends BaseEnvironmentEnhancement<
     /** The method of looking up the object name in the environment. */
     lookupMethod: LookupMethod
 
-    static defaults: JsonObjectDefaults<Environment> = {
+    static override defaults: JsonObjectDefaults<Environment> = {
         id: '',
         lookupMethod: 'Contains',
         ...super.defaults
     }
 
-    fromJsonV3(json: bsmap.v3.IChromaEnvironmentID): this {
+    override fromJsonV3(json: bsmap.v3.IChromaEnvironmentID): this {
         this.id = json.id ?? Environment.defaults.id
         this.lookupMethod = json.lookupMethod ?? Environment.defaults.lookupMethod
         return super.fromJsonV3(json);
     }
 
-    fromJsonV2(json: bsmap.v2.IChromaEnvironmentID): this {
+    override fromJsonV2(json: bsmap.v2.IChromaEnvironmentID): this {
         this.id = json._id ?? Environment.defaults.id
         this.lookupMethod = json._lookupMethod ?? Environment.defaults.lookupMethod
         return super.fromJsonV2(json);

@@ -45,7 +45,7 @@ export class InstantiatePrefab extends CustomEvent<
     /** Set scale. */
     scale?: Vec3
 
-    static defaults: JsonObjectDefaults<InstantiatePrefab> = {
+    static override defaults: JsonObjectDefaults<InstantiatePrefab> = {
         asset: '',
         ...super.defaults
     }
@@ -57,7 +57,7 @@ export class InstantiatePrefab extends CustomEvent<
         return this
     }
 
-    fromJsonV3(json: IInstantiatePrefab): this {
+    override fromJsonV3(json: IInstantiatePrefab): this {
         this.asset = getDataProp(json.d, 'asset') ?? InstantiatePrefab.defaults.asset
         this.id = getDataProp(json.d, 'id')
         this.track = getDataProp(json.d, 'track')
@@ -69,7 +69,7 @@ export class InstantiatePrefab extends CustomEvent<
         return super.fromJsonV3(json);
     }
 
-    fromJsonV2(_json: never): this {
+    override fromJsonV2(_json: never): this {
         throw 'InstantiatePrefab is only supported in V3!'
     }
 

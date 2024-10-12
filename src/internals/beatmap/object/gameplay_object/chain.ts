@@ -61,13 +61,13 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
     /** Whether debris from this note should be disabled. */
     disableDebris?: boolean
 
-    static defaults: GameplayObjectDefaults<Chain> = {
+    static override defaults: GameplayObjectDefaults<Chain> = {
         links: 4,
         squish: 0,
         ...super.defaults,
     }
 
-    get isGameplayModded() {
+    override get isGameplayModded() {
         if (this.fake) return true
         if (this.flip) return true
         if (this.disableNoteGravity) return true
@@ -80,7 +80,7 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
         return super.isGameplayModded
     }
 
-    fromJsonV3(json: bsmap.v3.IChain): this {
+    override fromJsonV3(json: bsmap.v3.IChain): this {
         this.links = json.sc ?? Chain.defaults.links
         this.squish = json.s ?? Chain.defaults.squish
         this.link = getCDProp(json, 'link')
@@ -95,7 +95,7 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
         return super.fromJsonV3(json)
     }
 
-    fromJsonV2(_json: never): this {
+    override fromJsonV2(_json: never): this {
         throw 'V2 is not supported for chains'
     }
 

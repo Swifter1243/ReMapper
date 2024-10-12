@@ -45,7 +45,7 @@ export class Blit extends CustomEvent<
     /** Properties to set. */
     properties?: MaterialProperty[]
 
-    static defaults: JsonObjectDefaults<Blit> = {
+    static override defaults: JsonObjectDefaults<Blit> = {
         asset: '',
         ...super.defaults,
     }
@@ -57,7 +57,7 @@ export class Blit extends CustomEvent<
         return this
     }
 
-    fromJsonV3(json: IBlit): this {
+    override fromJsonV3(json: IBlit): this {
         this.asset = getDataProp(json.d, 'asset') ?? Blit.defaults.asset
         this.destination = getDataProp(json.d, 'destination')
         this.duration = getDataProp(json.d, 'duration')
@@ -69,7 +69,7 @@ export class Blit extends CustomEvent<
         return super.fromJsonV3(json)
     }
 
-    fromJsonV2(_json: never): this {
+    override fromJsonV2(_json: never): this {
         throw 'Blit is only supported in V3!'
     }
 

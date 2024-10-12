@@ -20,7 +20,7 @@ export class RotationEvent extends BeatmapObject<bsmap.v2.IEventLaneRotation, bs
     /** The rotation in degrees. V2 will only allow -60 to 60 in multiples of 15. */
     rotation: number
 
-    static defaults: BeatmapObjectDefaults<RotationEvent> = {
+    static override defaults: BeatmapObjectDefaults<RotationEvent> = {
         early: true,
         rotation: 0,
         ...super.defaults,
@@ -48,13 +48,13 @@ export class RotationEvent extends BeatmapObject<bsmap.v2.IEventLaneRotation, bs
         return this
     }
 
-    fromJsonV3(json: bsmap.v3.IRotationEvent): this {
+    override fromJsonV3(json: bsmap.v3.IRotationEvent): this {
         this.early = json.e !== undefined ? json.e === 0 : RotationEvent.defaults.early
         this.rotation = json.r ?? RotationEvent.defaults.rotation
         return super.fromJsonV3(json);
     }
 
-    fromJsonV2(json: bsmap.v2.IEventLaneRotation): this {
+    override fromJsonV2(json: bsmap.v2.IEventLaneRotation): this {
         this.early = json._type !== undefined ? json._type === EventGroup.EARLY_ROTATION : RotationEvent.defaults.early
         this.rotation = getCDProp(json, '_rotation') ?? this.tryInverseRotation(json._value) ?? RotationEvent.defaults.rotation
         return super.fromJsonV2(json);

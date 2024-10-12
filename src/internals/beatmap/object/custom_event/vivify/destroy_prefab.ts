@@ -28,7 +28,7 @@ export class DestroyPrefab extends CustomEvent<
     /** ID(s) of prefab to destroy. */
     id: Track
 
-    static defaults: JsonObjectDefaults<DestroyPrefab> = {
+    static override defaults: JsonObjectDefaults<DestroyPrefab> = {
         id: new Track(),
         ...super.defaults,
     }
@@ -40,12 +40,12 @@ export class DestroyPrefab extends CustomEvent<
         return this
     }
 
-    fromJsonV3(json: IDestroyPrefab): this {
+    override fromJsonV3(json: IDestroyPrefab): this {
         this.id = new Track(getDataProp(json.d, 'id'))
         return super.fromJsonV3(json)
     }
 
-    fromJsonV2(_json: never): this {
+    override fromJsonV2(_json: never): this {
         throw 'DestroyPrefab is only supported in V3!'
     }
 

@@ -25,7 +25,7 @@ export class LightRotationEvent extends BeatmapObject<never, bsmap.v3.ILightRota
     /** The direction to rotate. */
     rotationDirection: RotationDirection
 
-    static defaults: BeatmapObjectDefaults<LightRotationEvent> = {
+    static override defaults: BeatmapObjectDefaults<LightRotationEvent> = {
         usePreviousEventRotation: true,
         easing: RotationEase.None,
         loopCount: 1,
@@ -34,7 +34,7 @@ export class LightRotationEvent extends BeatmapObject<never, bsmap.v3.ILightRota
         ...super.defaults,
     }
 
-    fromJsonV3(json: bsmap.v3.ILightRotationBase): this {
+    override fromJsonV3(json: bsmap.v3.ILightRotationBase): this {
         this.usePreviousEventRotation = json.p !== undefined ? json.p === 1 : LightRotationEvent.defaults.usePreviousEventRotation
         this.easing = json.e ?? LightRotationEvent.defaults.easing
         this.loopCount = json.l ?? LightRotationEvent.defaults.loopCount
@@ -43,7 +43,7 @@ export class LightRotationEvent extends BeatmapObject<never, bsmap.v3.ILightRota
         return super.fromJsonV3(json)
     }
 
-    fromJsonV2(_json: never): this {
+    override fromJsonV2(_json: never): this {
         throw 'Event box groups are not supported in V2!'
     }
 

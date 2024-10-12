@@ -18,7 +18,7 @@ export class OfficialBPMEvent extends BPMEvent<
     bpm: number
 
     /** The values to initialize fields in this class. */
-    static defaults: JsonObjectDefaults<OfficialBPMEvent> = {
+    static override defaults: JsonObjectDefaults<OfficialBPMEvent> = {
         bpm: 120,
         ...super.defaults
     }
@@ -29,12 +29,12 @@ export class OfficialBPMEvent extends BPMEvent<
         return this
     }
 
-    fromJsonV3(json: bsmap.v3.IBPMEvent): this {
+    override fromJsonV3(json: bsmap.v3.IBPMEvent): this {
         this.bpm = json.m ?? OfficialBPMEvent.defaults.bpm
         return super.fromJsonV3(json);
     }
 
-    fromJsonV2(json: bsmap.v2.IEvent): this {
+    override fromJsonV2(json: bsmap.v2.IEvent): this {
         this.bpm = json._floatValue ?? OfficialBPMEvent.defaults.bpm
         return super.fromJsonV2(json);
     }
