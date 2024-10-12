@@ -8,7 +8,7 @@ import {roundTo} from "./rounding.ts";
  * @param roundResult If defined, result will be rounded to nearest multiple of this number.
  */
 export function random(start: number, end: number, roundResult?: number) {
-    const result = Math.random() * (end - start) + start
+    const result = lerp(start, end, Math.random())
     return roundResult ? roundTo(result, roundResult) : result
 }
 
