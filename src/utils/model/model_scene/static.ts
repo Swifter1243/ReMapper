@@ -6,16 +6,18 @@ import { Geometry } from '../../../internals/beatmap/object/environment/geometry
 import { ColorVec } from '../../../types/math/vector.ts'
 import { animateTrack } from '../../../builder_functions/beatmap/object/custom_event/heck.ts'
 import { RuntimeRawKeyframesVec3 } from '../../../types/animation/keyframe/runtime/vec3.ts'
-import { StaticSceneInfo } from '../../../types/model/model_scene/scene info.ts'
+import { StaticSceneInfo } from '../../../types/model/model_scene/scene_info.ts'
+import {ReadonlyModel, type ModelObject} from "../../../types/model/object.ts";
+import type { DeepReadonly } from '../../../types/util/mutability.ts'
 
-export class StaticModelScene extends ModelScene<StaticModelInput, StaticSceneInfo> {
+export class StaticModelScene extends ModelScene<StaticModelInput, Promise<ReadonlyModel>, StaticSceneInfo> {
     private initializeSceneInfo() {
         const sceneInfo: StaticSceneInfo = {
             trackGroupInfo: {},
             objectGroupInfo: {},
         }
 
-        Object.entries(this.groups).forEach(([key, group]) => {
+        Object.entries(this.settings.groups).forEach(([key, group]) => {
             if (group.object) {
                 sceneInfo.objectGroupInfo[key] = {
                     group,
@@ -34,15 +36,19 @@ export class StaticModelScene extends ModelScene<StaticModelInput, StaticSceneIn
         return sceneInfo
     }
 
+    protected override _createModelPromise(input: StaticModelInput): Promise<readonly DeepReadonly<ModelObject>[]> {
+        return this.getObjects(input)
+    }
+
     protected async _instantiate() {
         // Initialize info
         const sceneInfo = this.initializeSceneInfo()
 
-        const data = await this.getObjects(this.modelInput)
+        const data = await this.modelPromise
         data.forEach((modelObject, index) => {
             // Getting info about group
             const groupKey = modelObject.group ?? ModelScene.defaultGroupKey
-            const group = this.groups[groupKey]
+            const group = this.settings.groups[groupKey]
             if (!group) return
             const track = this.getPieceTrack(group.object, groupKey, index)
 
@@ -97,7 +103,7 @@ export class StaticModelScene extends ModelScene<StaticModelInput, StaticSceneIn
         })
 
         // Hide track groups if they aren't present
-        Object.entries(this.groups).forEach(([groupKey, group]) => {
+        Object.entries(this.settings.groups).forEach(([groupKey, group]) => {
             if (group.object) return
 
             const groupInfo = sceneInfo.trackGroupInfo[groupKey]

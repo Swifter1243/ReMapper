@@ -1,8 +1,7 @@
 import { getActiveDifficulty } from '../../../data/active_difficulty.ts'
-import { GroupObjectTypes, ModelGroup } from '../../../types/model/model_scene/group.ts'
-import { AnimationSettings, optimizeKeyframes } from '../../animation/optimizer.ts'
+import { GroupObjectTypes } from '../../../types/model/model_scene/group.ts'
+import { optimizeKeyframes } from '../../animation/optimizer.ts'
 import { Vec3 } from '../../../types/math/vector.ts'
-import { Environment } from '../../../internals/beatmap/object/environment/environment.ts'
 import { AnimatedModelInput, ModelInput } from '../../../types/model/model_scene/input.ts'
 import { AnimatedOptions } from '../../../types/model/model_scene/option.ts'
 import { ModelObject, ReadonlyModel } from '../../../types/model/object.ts'
@@ -17,66 +16,40 @@ import { getModel } from '../file.ts'
 import { TransformKeyframe } from '../../../types/animation/bake.ts'
 import { bakeAnimation } from '../../animation/bake.ts'
 import { DeepReadonly } from '../../../types/util/mutability.ts'
-import { Transform } from '../../../types/math/transform.ts'
-import { EnvironmentModelPiece } from '../../../types/model/model_scene/piece.ts'
-import { environment } from '../../../builder_functions/beatmap/object/environment/environment.ts'
-import {BaseEnvironmentEnhancement} from "../../../internals/beatmap/object/environment/base_environment.ts";
+import { ModelSceneSettings } from './settings.ts'
 
-export abstract class ModelScene<I, O> {
+export abstract class ModelScene<I, M, O> {
     protected static modelSceneCount = 0
     static defaultGroupKey = 'default_group'
 
     // hash -> name
     private static cachedModels: Record<string, string> = {}
 
-    protected groups = <Record<string, ModelGroup>> {}
-
-    /** Settings for the optimizer on each animation event.
-     * The animations will attempt to be optimized, removing visually redundant points.
-     * This controls various parameters about how harshly the algorithm will target changes.
-     */
-    animationSettings = new AnimationSettings()
-
     /** The unique ID of this model scene, used for tracks.
      * If multiple model scenes are used, this ID is used so the track names don't conflict.
      */
     readonly ID: number
 
-    /** If the scene is instantiated with `animate` and the first switch is not at a time of 0, `initializePositions` determines whether the first switch will be initialized at beat 0 and held in place until it is animated. */
-    shouldInitializeObjects = true
+    protected readonly modelPromise: M
+    protected readonly settings: ModelSceneSettings
 
-    /** 
-     * When registering groups with geometry objects, don't set their default material. 
-     * WARNING: Only do this if you know what you're doing, because this means each geometry object instantiated from this group will have it's own draw call.
-     * */
-    allowUniqueMaterials = false
-
-    /** Throw when a model has groups that aren't represented. */
-    throwOnMissingGroup = true
-
-    /** Whether this scene has been instantiated. */
-    private instantiated = false
-
-    protected readonly modelInput: I
-
-    constructor(input: I) {
-        this.modelInput = input
-        this.ID = ModelScene.modelSceneCount
-        ModelScene.modelSceneCount++
+    constructor(settings: ModelSceneSettings, input: I) {
+        this.ID = ModelScene.modelSceneCount++
+        this.settings = settings
+        this.modelPromise = this._createModelPromise(input)
     }
+
+    protected abstract _createModelPromise(input: I): M
+    protected abstract _instantiate(): Promise<O>
 
     /** Instantiate the model scene given object inputs. Your difficulty will await this process before saving. */
     async instantiate() {
-        this.ensureNotInstantiated()
-
-        if (Object.values(this.groups).length === 0) {
+        if (Object.values(this.settings.groups).length === 0) {
             throw 'ModelScene has no groups, which is redundant as no objects will be represented.'
         }
 
         return await getActiveDifficulty().runAsync(async () => await this._instantiate())
     }
-
-    protected abstract _instantiate(): Promise<O>
 
     protected static createYeetDef() {
         getActiveDifficulty().pointDefinitions.yeet = [0, -69420, 0]
@@ -91,128 +64,6 @@ export abstract class ModelScene<I, O> {
         const name = `model_scene_model_${length}`
         this.cachedModels[hash] = name
         return name
-    }
-
-    /** Get a group from this ModelScene's internal group collection */
-    getGroup(key: string): DeepReadonly<ModelGroup> {
-        return this.groups[key]
-    }
-
-    /** Get the default group from this ModelScene */
-    getDefaultGroup(): DeepReadonly<ModelGroup> {
-        return this.groups[ModelScene.defaultGroupKey]
-    }
-
-    private pushObjectGroup(
-        key: string,
-        object: GroupObjectTypes,
-        transform?: DeepReadonly<Transform>,
-    ) {
-        const group: ModelGroup = {
-            object,
-            transform,
-        }
-
-        if (object instanceof Environment) object.duplicate = 1
-        else if (typeof object.material !== 'string' && this.allowUniqueMaterials) {
-            group.defaultMaterial = object.material
-        }
-
-        this.groups[key as string] = group
-    }
-
-    /**
-     * When the model is instantiated, model objects with no "group" key will invoke this object to represent it
-     * @param object The object to spawn.
-     * @param transform The transform applied to the spawned object.
-     * @see groups
-     */
-    setDefaultObjectGroup(
-        object: GroupObjectTypes,
-        transform?: DeepReadonly<Transform>,
-    ): void
-    setDefaultObjectGroup(
-        modelPiece: EnvironmentModelPiece,
-    ): void
-    setDefaultObjectGroup(
-        ...params: [
-            object: GroupObjectTypes,
-            transform?: DeepReadonly<Transform>,
-        ] | [
-            modelPiece: EnvironmentModelPiece
-        ]
-    ): void {
-        if (params[0] instanceof BaseEnvironmentEnhancement) {
-            const [object, transform] = params
-
-            this.pushObjectGroup(ModelScene.defaultGroupKey, object, transform)
-        } else {
-            const [modelPiece] = params
-
-            const object = environment({
-                id: modelPiece.id,
-                lookupMethod: modelPiece.lookupMethod,
-            })
-            this.pushObjectGroup(ModelScene.defaultGroupKey, object, modelPiece.transform)
-        }
-    }
-
-    /**
-     * When the model is instantiated, model objects with the matching "group" key will invoke this object to represent it
-     * @param group The group key for objects to identify they are part of this group.
-     * @param object The object to spawn.
-     * @param transform The transform applied to the spawned object.
-     */
-    setObjectGroup(
-        group: string,
-        object: GroupObjectTypes,
-        transform?: DeepReadonly<Transform>,
-    ): void
-    setObjectGroup(
-        group: string,
-        modelPiece: EnvironmentModelPiece,
-    ): void
-    setObjectGroup(
-        ...params: [
-            group: string,
-            object: GroupObjectTypes,
-            transform?: DeepReadonly<Transform>,
-        ] | [
-            group: string,
-            modelPiece: EnvironmentModelPiece,
-        ]
-    ): void {
-        if (params[1] instanceof BaseEnvironmentEnhancement) {
-            const [group, object, transform] = params
-
-            this.pushObjectGroup(group, object, transform)
-        } else {
-            const [group, modelPiece] = params
-
-            const object = environment({
-                id: modelPiece.id,
-                lookupMethod: modelPiece.lookupMethod,
-            })
-            this.pushObjectGroup(group, object, modelPiece.transform)
-        }
-    }
-
-    /**
-     * When the model is instantiated, model objects with a "group" key matching this track will invoke an AnimateTrack event with the same track name to represent it.
-     * @param track Track to target for and animate, also the group key.
-     * @param transform The transform applied to the object.
-     * @param disappearWhenAbsent Make the object on this track disappear when no ModelObject with the corresponding track exists.
-     */
-    setTrackGroup(
-        track: string,
-        transform?: DeepReadonly<Transform>,
-        disappearWhenAbsent = true,
-    ) {
-        this.groups[track] = {
-            object: undefined,
-            transform,
-            disappearWhenAbsent,
-        }
     }
 
     private static makeModelObjectStatic(obj: ModelObject) {
@@ -239,13 +90,6 @@ export abstract class ModelScene<I, O> {
         track: string,
         index: number,
     ) => object ? `modelScene${this.ID}_${track}_${index}` : track
-
-    protected ensureNotInstantiated() {
-        if (this.instantiated) {
-            throw "You can't instantiate a scene using the same ModelScene multiple times."
-        }
-        this.instantiated = true
-    }
 
     protected async getObjects(input: AnimatedModelInput) {
         const isNested = typeof input === 'object' && !Array.isArray(input)
@@ -280,15 +124,19 @@ export abstract class ModelScene<I, O> {
 
         objects.forEach((x) => {
             const groupKey = x.group ?? ModelScene.defaultGroupKey
-            const group = this.groups[groupKey]
+            const group = this.settings.groups[groupKey]
 
             if (!group) {
-                if (this.throwOnMissingGroup) throw `Group '${groupKey}' is in model object, but ModelScene has no corresponding group!`
+                if (this.settings.throwOnMissingGroup) {
+                    throw `Group '${groupKey}' is in model object, but ModelScene has no corresponding group!`
+                }
                 return
             }
 
             if (!group.object) {
-                if (trackGroups.has(groupKey)) throw `Track group '${groupKey}' was referenced by multiple model objects in a model, when track groups should only represent one!`
+                if (trackGroups.has(groupKey)) {
+                    throw `Track group '${groupKey}' was referenced by multiple model objects in a model, when track groups should only represent one!`
+                }
                 trackGroups.add(groupKey)
             }
 
@@ -308,7 +156,11 @@ export abstract class ModelScene<I, O> {
             const shouldBake = (group.transform && options.bake !== false) || options.bake
             if (shouldBake) {
                 // Baking animation
-                const bakedCube: ModelObject = bakeAnimation(x, group.transform ? applyGroupTransform : undefined, this.animationSettings)
+                const bakedCube: ModelObject = bakeAnimation(
+                    x,
+                    group.transform ? applyGroupTransform : undefined,
+                    this.settings.animationSettings,
+                )
 
                 o.position = bakedCube.position
                 o.rotation = bakedCube.rotation
@@ -345,8 +197,8 @@ export abstract class ModelScene<I, O> {
         const hash = JSON.stringify([
             options,
             onCache,
-            this.groups,
-            this.animationSettings.toData(),
+            this.settings.groups,
+            this.settings.animationSettings.toData(),
             getActiveDifficulty().v3,
         ]).replaceAll('"', '')
 
@@ -366,15 +218,19 @@ export abstract class ModelScene<I, O> {
 
         objects.forEach((x) => {
             const groupKey = x.group ?? ModelScene.defaultGroupKey
-            const group = this.groups[groupKey]
+            const group = this.settings.groups[groupKey]
 
             if (!group) {
-                if (this.throwOnMissingGroup) throw `Group '${groupKey}' is in model object, but ModelScene has no corresponding group!`
+                if (this.settings.throwOnMissingGroup) {
+                    throw `Group '${groupKey}' is in model object, but ModelScene has no corresponding group!`
+                }
                 return
             }
 
             if (!group.object) {
-                if (trackGroups.has(groupKey)) throw `Track group '${groupKey}' was referenced by multiple model objects in a model, when track groups should only represent one!`
+                if (trackGroups.has(groupKey)) {
+                    throw `Track group '${groupKey}' was referenced by multiple model objects in a model, when track groups should only represent one!`
+                }
                 trackGroups.add(groupKey)
             }
 
@@ -417,9 +273,9 @@ export abstract class ModelScene<I, O> {
             }
 
             // Optimizing object (also simplifies it)
-            x.position = optimizeKeyframes(position, this.animationSettings.optimizeSettings)
-            x.rotation = optimizeKeyframes(rotation, this.animationSettings.optimizeSettings)
-            x.scale = optimizeKeyframes(scale, this.animationSettings.optimizeSettings)
+            x.position = optimizeKeyframes(position, this.settings.animationSettings.optimizeSettings)
+            x.rotation = optimizeKeyframes(rotation, this.settings.animationSettings.optimizeSettings)
+            x.scale = optimizeKeyframes(scale, this.settings.animationSettings.optimizeSettings)
 
             // Reverse animation
             if (options.reverse) {

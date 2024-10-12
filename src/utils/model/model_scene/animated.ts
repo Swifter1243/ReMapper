@@ -11,9 +11,23 @@ import { copy } from '../../object/copy.ts'
 import { RawGeometryMaterial } from '../../../types/beatmap/object/environment.ts'
 import { DeepReadonly } from '../../../types/util/mutability.ts'
 import { ModelObject } from '../../../types/model/object.ts'
-import { MultiSceneInfo, SceneSwitchInfo } from '../../../types/model/model_scene/scene info.ts'
+import { MultiSceneInfo, SceneSwitchInfo } from '../../../types/model/model_scene/scene_info.ts'
+import {ScenePromises} from "../../../types/model/model_scene/animated.ts";
 
-export class AnimatedModelScene extends ModelScene<SceneSwitch[], MultiSceneInfo> {
+export class AnimatedModelScene extends ModelScene<SceneSwitch[], ScenePromises, MultiSceneInfo> {
+
+    protected override _createModelPromise(input: SceneSwitch[]): ScenePromises {
+        return input
+            .sort((a, b) => a.beat - b.beat)
+            .map((sceneSwitch) => {
+                return {
+                    sceneSwitch,
+                    model: this.getObjects(sceneSwitch.model)
+                }
+            })
+    }
+
+
     private static getFirstTransform(obj: DeepReadonly<ModelObject>) {
         return {
             position: ModelScene.getFirstValues(obj.position),
@@ -30,7 +44,7 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], MultiSceneInfo
             sceneSwitches: [],
         }
 
-        Object.entries(this.groups).forEach(([key, group]) => {
+        Object.entries(this.settings.groups).forEach(([key, group]) => {
             sceneInfo.groupInfo[key] = {
                 group,
                 count: 0,
@@ -48,7 +62,7 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], MultiSceneInfo
             groupInfo: {},
         }
 
-        Object.entries(this.groups).forEach(([key, group]) => {
+        Object.entries(this.settings.groups).forEach(([key, group]) => {
             sceneSwitchInfo.groupInfo[key] = {
                 group,
                 count: 0,
@@ -62,16 +76,14 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], MultiSceneInfo
     protected async _instantiate() {
         ModelScene.createYeetDef()
 
-        this.modelInput.sort((a, b) => a.beat - b.beat)
-
         // Initialize info
         const animatedMaterials: string[] = []
         const sceneInfo = this.initializeSceneInfo()
 
         // Object animation
-        const promises = this.modelInput.map(async (sceneSwitch, switchIndex) =>
+        const promises = this.modelPromise.map(async (scenePromise, switchIndex) =>
             await this.processSwitch(
-                sceneSwitch,
+                scenePromise.sceneSwitch,
                 switchIndex,
                 animatedMaterials,
                 sceneInfo,
@@ -89,7 +101,7 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], MultiSceneInfo
         // Process groups (add yeet events, spawn objects)
         const yeetEvents: Record<number, AnimateTrack> = {}
 
-        Object.keys(this.groups).forEach((groupKey) =>
+        Object.keys(this.settings.groups).forEach((groupKey) =>
             this.processGroup(
                 groupKey,
                 animatedMaterials,
@@ -116,30 +128,29 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], MultiSceneInfo
         // This determines whether objects are initialized at beat 0, and this is the first switch.
         // When this is true, assigned objects need to be set in place at beat 0
         // It's wasteful to animate spawned objects into place since we can just set their transforms in the environment statement.
-        const firstInitializing = this.shouldInitializeObjects && switchIndex === 0
+        const firstInitializing = this.settings.shouldInitializeObjects && switchIndex === 0
 
         // If the animation has any sort of delay, we need to put the objects into place.
         // Though if we're already initializing, we can ignore this.
         const delaying = !firstInitializing && sceneSwitch.animationOffset > 0
 
         // If the animation offset ends up being past the next switch, ignore it
-        const finalSwitch = switchIndex === this.modelInput.length - 1
-        const nextSwitch = finalSwitch ? undefined : this.modelInput[switchIndex + 1]
-        const ignoreAnimation = nextSwitch ? sceneSwitch.beat + sceneSwitch.animationOffset > nextSwitch.beat : false
+        const nextScenePromise = this.modelPromise[switchIndex + 1]
+        const ignoreAnimation = nextScenePromise ? sceneSwitch.beat + sceneSwitch.animationOffset > nextScenePromise.sceneSwitch.beat : false
 
         // Initializing the switch properties of each group.
         const sceneSwitchInfo = this.initializeSceneSwitchInfo(sceneSwitch, firstInitializing)
         sceneInfo.sceneSwitches.push(sceneSwitchInfo)
         const groupInitialStates: Record<string, ModelObject[]> | undefined = firstInitializing ? {} : undefined
 
-        Object.keys(this.groups).forEach((groupKey) => {
+        Object.keys(this.settings.groups).forEach((groupKey) => {
             sceneSwitchInfo.groupInfo[groupKey].count = 0
             if (firstInitializing) {
                 groupInitialStates![groupKey] = []
             }
         })
 
-        const objects = await this.getObjects(sceneSwitch.model)
+        const objects = await this.modelPromise[switchIndex].model
         objects.forEach((modelObject) => {
             const objectIsStatic = complexifyKeyframes(modelObject.position).length === 1 &&
                 complexifyKeyframes(modelObject.rotation).length === 1 &&
@@ -147,7 +158,7 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], MultiSceneInfo
 
             // Getting info about group
             const groupKey = modelObject.group ?? ModelScene.defaultGroupKey
-            const group = this.groups[groupKey]
+            const group = this.settings.groups[groupKey]
             if (!group) return // continue if object isn't present
 
             // Registering properties about object amounts
@@ -249,7 +260,7 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], MultiSceneInfo
         yeetEvents: Record<number, AnimateTrack>,
         groupInitialStates: Record<string, ModelObject[]> | undefined,
     ) {
-        const group = this.groups[groupKey]
+        const group = this.settings.groups[groupKey]
         const groupInfo = sceneInfo.groupInfo[groupKey]
 
         // Yeeting objects

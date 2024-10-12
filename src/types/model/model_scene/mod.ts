@@ -1,6 +1,7 @@
 export * from './group.ts'
 export * from './input.ts'
 export * from './option.ts'
-export * from './scene info.ts'
+export * from './scene_info.ts'
 export * from './scene_switch.ts'
 export * from './piece.ts'
+export * from './animated.ts'

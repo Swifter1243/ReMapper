@@ -12,5 +12,8 @@
             "proseWrap": "preserve",
             "semiColons": false
         }
+    },
+    "compilerOptions": {
+      "strict": true
     }
 }
