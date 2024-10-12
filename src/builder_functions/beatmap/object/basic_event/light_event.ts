@@ -1,23 +1,24 @@
 import { EventGroup } from '../../../../constants/basic_event.ts'
 import { LightEvent } from '../../../../internals/beatmap/object/basic_event/light_event.ts'
 import { LightParameters } from '../../../../types/beatmap/object/basic_event.ts'
+import {AbstractDifficulty} from "../../../../internals/beatmap/abstract_beatmap.ts";
 
 function fixupParams<TG extends LightEvent['type']>(
     group: TG,
     ...params: LightParameters
 ): ConstructorParameters<typeof LightEvent> {
-    if (typeof params[0] === 'object') {
-        const obj = params[0]
-        return [obj]
+    if (typeof params[1] === 'object') {
+        const [diff, obj] = params
+        return [diff, obj]
     }
 
-    const [beat, value, floatValue] = params
+    const [parentDifficulty, beat, value, floatValue] = params
 
-    return [{
-        beat: beat ?? 0,
+    return [parentDifficulty, {
+        beat: beat,
         customData: {},
-        floatValue: floatValue ?? 1,
-        value: value ?? 1,
+        floatValue,
+        value,
         type: group,
     }] satisfies ConstructorParameters<typeof LightEvent>
 }
@@ -25,24 +26,25 @@ function fixupParams<TG extends LightEvent['type']>(
 /** The bare minimum light event */
 export function lightEvent(
     ...params: [
+        parentDifficulty: AbstractDifficulty,
         beat: number,
         type?: number,
         value?: number,
         floatValue?: number,
     ] | ConstructorParameters<typeof LightEvent>
 ): LightEvent {
-    if (typeof params[0] === 'object') {
-        const obj = params[0]
-        return new LightEvent({
+    if (typeof params[1] === 'object') {
+        const [diff, obj] = params
+        return new LightEvent(diff,{
             ...obj,
         })
     }
-    const [beat, type, value, floatValue] = params
+    const [parentDifficulty, beat, type, value, floatValue] = params
 
-    return new LightEvent({
+    return new LightEvent(parentDifficulty, {
         beat,
-        type: type ?? 0,
-        value: value ?? 0,
+        type,
+        value,
         floatValue,
     })
 }

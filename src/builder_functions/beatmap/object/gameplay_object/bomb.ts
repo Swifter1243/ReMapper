@@ -1,23 +1,25 @@
 import { Bomb } from '../../../../internals/beatmap/object/gameplay_object/bomb.ts'
+import { AbstractDifficulty } from '../../../../internals/beatmap/abstract_beatmap.ts'
 
 /** Create a bomb. */
 export function bomb(
     ...params: ConstructorParameters<typeof Bomb> | [
+        parentDifficulty: AbstractDifficulty,
         beat?: number,
         x?: number,
         y?: number,
     ]
 ): Bomb {
-    const [first] = params
-    if (typeof first === 'object') {
-        return new Bomb(first)
+    if (typeof params[1] === 'object') {
+        const [diff, obj] = params
+        return new Bomb(diff, obj)
     }
 
-    const [beat, x, y] = params
+    const [parentDifficulty, beat, x, y] = params
 
-    return new Bomb({
-        beat: beat as number ?? 0,
-        x: x ?? 0,
-        y: y ?? 0,
+    return new Bomb(parentDifficulty, {
+        beat,
+        x,
+        y,
     })
 }

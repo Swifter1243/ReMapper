@@ -1,4 +1,5 @@
 import {OfficialBPMEvent} from "../../../../internals/beatmap/object/v3_event/bpm/official_bpm.ts";
+import {AbstractDifficulty} from "../../../../internals/beatmap/abstract_beatmap.ts";
 
 
 /** Creates an official BPM event, which changes the actual time between object beats.
@@ -6,19 +7,20 @@ import {OfficialBPMEvent} from "../../../../internals/beatmap/object/v3_event/bp
  */
 export function officialBpmEvent(
     ...params: [
+        parentDifficulty: AbstractDifficulty,
         beat: number,
         bpm: number,
     ] | ConstructorParameters<typeof OfficialBPMEvent>
 ): OfficialBPMEvent {
-    if (typeof params[0] === 'object') {
-        const obj = params[0]
-        return new OfficialBPMEvent({
+    if (typeof params[1] === 'object') {
+        const [parentDifficulty, obj] = params
+        return new OfficialBPMEvent(parentDifficulty, {
             ...obj,
         })
     }
-    const [beat, bpm] = params
+    const [parentDifficulty, beat, bpm] = params
 
-    return new OfficialBPMEvent({
+    return new OfficialBPMEvent(parentDifficulty, {
         beat,
         bpm,
     })

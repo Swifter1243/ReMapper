@@ -13,7 +13,7 @@ export class LightColorEventBoxGroup extends LightEventBoxGroup<bsmap.v3.ILightC
 
     override fromJsonV3(json: bsmap.v3.IEventBoxGroup<bsmap.v3.ILightColorEventBox>): this {
         this.groupID = json.g ?? LightColorEventBoxGroup.defaults.groupID
-        this.boxes = json.e.map((x) => lightColorEventBox().fromJsonV3(x))
+        this.boxes = json.e.map((x) => lightColorEventBox(this).fromJsonV3(x))
         return super.fromJsonV3(json);
     }
 

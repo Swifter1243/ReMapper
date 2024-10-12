@@ -18,6 +18,7 @@ import { SetCameraProperty } from '../../../../internals/beatmap/object/custom_e
 import { AssignObjectPrefab } from '../../../../internals/beatmap/object/custom_event/vivify/assign_object_prefab.ts'
 import { SetRenderingSettings } from '../../../../internals/beatmap/object/custom_event/vivify/set_rendering_setting.ts'
 import { ColorVec } from '../../../../types/math/vector.ts'
+import { AbstractDifficulty } from '../../../../internals/beatmap/abstract_beatmap.ts'
 
 /**
  * Set properties on a material.
@@ -26,6 +27,7 @@ export function setMaterialProperty(
     ...params:
         | ConstructorParameters<typeof SetMaterialProperty>
         | [
+            parentDifficulty: AbstractDifficulty,
             beat: number,
             asset: string,
             properties: MaterialProperty[],
@@ -33,7 +35,7 @@ export function setMaterialProperty(
             easing?: EASE,
         ]
 ) {
-    if (typeof params[0] === 'object') {
+    if (typeof params[1] === 'object') {
         return new SetMaterialProperty(
             ...params as ConstructorParameters<
                 typeof SetMaterialProperty
@@ -41,17 +43,15 @@ export function setMaterialProperty(
         )
     }
 
-    const [beat, asset, properties, duration, easing] = params
+    const [parentDifficulty, beat, asset, properties, duration, easing] = params
 
-    return new SetMaterialProperty(
-        {
-            beat,
-            asset,
-            properties,
-            duration,
-            easing,
-        },
-    )
+    return new SetMaterialProperty(parentDifficulty, {
+        beat,
+        asset,
+        properties,
+        duration,
+        easing,
+    })
 }
 
 /**
@@ -61,13 +61,14 @@ export function setGlobalProperty(
     ...params:
         | ConstructorParameters<typeof SetGlobalProperty>
         | [
+            parentDifficulty: AbstractDifficulty,
             beat: number,
             properties: MaterialProperty[],
             duration?: number,
             easing?: EASE,
         ]
 ) {
-    if (typeof params[0] === 'object') {
+    if (typeof params[1] === 'object') {
         return new SetGlobalProperty(
             ...params as ConstructorParameters<
                 typeof SetGlobalProperty
@@ -75,16 +76,14 @@ export function setGlobalProperty(
         )
     }
 
-    const [beat, properties, duration, easing] = params
+    const [parentDifficulty, beat, properties, duration, easing] = params
 
-    return new SetGlobalProperty(
-        {
-            beat,
-            properties,
-            duration,
-            easing,
-        },
-    )
+    return new SetGlobalProperty(parentDifficulty, {
+        beat,
+        properties,
+        duration,
+        easing,
+    })
 }
 
 /**
@@ -94,6 +93,7 @@ export function blit(
     ...params:
         | ConstructorParameters<typeof Blit>
         | [
+            parentDifficulty: AbstractDifficulty,
             beat: number,
             asset?: string,
             duration?: number,
@@ -101,7 +101,7 @@ export function blit(
             easing?: EASE,
         ]
 ) {
-    if (typeof params[0] === 'object') {
+    if (typeof params[1] === 'object') {
         return new Blit(
             ...params as ConstructorParameters<
                 typeof Blit
@@ -109,17 +109,15 @@ export function blit(
         )
     }
 
-    const [beat, asset, duration, properties, easing] = params
+    const [parentDifficulty, beat, asset, duration, properties, easing] = params
 
-    return new Blit(
-        {
-            beat,
-            asset,
-            duration,
-            properties,
-            easing,
-        },
-    )
+    return new Blit(parentDifficulty, {
+        beat,
+        asset,
+        duration,
+        properties,
+        easing,
+    })
 }
 
 /**
@@ -132,13 +130,14 @@ export function declareCullingTexture(
             typeof DeclareCullingTexture
         >
         | [
+            parentDifficulty: AbstractDifficulty,
             beat: number,
             id: string,
             track: TrackValue,
             whitelist?: boolean,
         ]
 ) {
-    if (typeof params[0] === 'object') {
+    if (typeof params[1] === 'object') {
         return new DeclareCullingTexture(
             ...params as ConstructorParameters<
                 typeof DeclareCullingTexture
@@ -146,16 +145,14 @@ export function declareCullingTexture(
         )
     }
 
-    const [beat, id, track, whitelist] = params
+    const [parentDifficulty, beat, id, track, whitelist] = params
 
-    return new DeclareCullingTexture(
-        {
-            beat,
-            id,
-            track,
-            whitelist,
-        },
-    )
+    return new DeclareCullingTexture(parentDifficulty, {
+        beat,
+        id,
+        track,
+        whitelist,
+    })
 }
 
 /**
@@ -169,13 +166,14 @@ export function declareRenderTexture(
             typeof DeclareRenderTexture
         >
         | [
+            parentDifficulty: AbstractDifficulty,
             beat: number,
             id: string,
             width?: number,
             height?: number,
         ]
 ) {
-    if (typeof params[0] === 'object') {
+    if (typeof params[1] === 'object') {
         return new DeclareRenderTexture(
             ...params as ConstructorParameters<
                 typeof DeclareRenderTexture
@@ -183,16 +181,14 @@ export function declareRenderTexture(
         )
     }
 
-    const [beat, id, width, height] = params
+    const [parentDifficulty, beat, id, width, height] = params
 
-    return new DeclareRenderTexture(
-        {
-            beat,
-            id,
-            width,
-            height,
-        },
-    )
+    return new DeclareRenderTexture(parentDifficulty, {
+        beat,
+        id,
+        width,
+        height,
+    })
 }
 
 /**
@@ -205,11 +201,12 @@ export function destroyTexture(
             typeof DestroyTexture
         >
         | [
+            parentDifficulty: AbstractDifficulty,
             beat: number,
             id: TrackValue,
         ]
 ) {
-    if (typeof params[0] === 'object') {
+    if (typeof params[1] === 'object') {
         return new DestroyTexture(
             ...params as ConstructorParameters<
                 typeof DestroyTexture
@@ -217,9 +214,10 @@ export function destroyTexture(
         )
     }
 
-    const [beat, id] = params
+    const [parentDifficulty, beat, id] = params
 
     return new DestroyTexture(
+        parentDifficulty,
         {
             beat,
             id: id as TrackValue,
@@ -236,13 +234,14 @@ export function instantiatePrefab(
             typeof InstantiatePrefab
         >
         | [
+            parentDifficulty: AbstractDifficulty,
             beat: number,
             asset: FILEPATH,
             id?: string,
             track?: string,
         ]
 ) {
-    if (typeof params[0] === 'object') {
+    if (typeof params[1] === 'object') {
         return new InstantiatePrefab(
             ...params as ConstructorParameters<
                 typeof InstantiatePrefab
@@ -250,16 +249,14 @@ export function instantiatePrefab(
         )
     }
 
-    const [beat, asset, id, track] = params
+    const [parentDifficulty, beat, asset, id, track] = params
 
-    return new InstantiatePrefab(
-        {
-            beat,
-            asset,
-            id,
-            track,
-        },
-    )
+    return new InstantiatePrefab(parentDifficulty, {
+        beat,
+        asset,
+        id,
+        track,
+    })
 }
 
 /** Destroys a prefab or multiple prefabs in the scene. */
@@ -269,11 +266,12 @@ export function destroyPrefab(
             typeof DestroyPrefab
         >
         | [
+            parentDifficulty: AbstractDifficulty,
             beat: number,
             id: TrackValue,
         ]
 ) {
-    if (typeof params[0] === 'object') {
+    if (typeof params[1] === 'object') {
         return new DestroyPrefab(
             ...params as ConstructorParameters<
                 typeof DestroyPrefab
@@ -281,14 +279,12 @@ export function destroyPrefab(
         )
     }
 
-    const [beat, id] = params
+    const [parentDifficulty, beat, id] = params
 
-    return new DestroyPrefab(
-        {
-            beat,
-            id: id as TrackValue,
-        },
-    )
+    return new DestroyPrefab(parentDifficulty, {
+        beat,
+        id,
+    })
 }
 
 /**
@@ -298,6 +294,7 @@ export function setAnimatorProperty(
     ...params:
         | ConstructorParameters<typeof SetAnimatorProperty>
         | [
+            parentDifficulty: AbstractDifficulty,
             beat: number,
             id: string,
             properties: AnimatorProperty[],
@@ -305,7 +302,7 @@ export function setAnimatorProperty(
             easing?: EASE,
         ]
 ) {
-    if (typeof params[0] === 'object') {
+    if (typeof params[1] === 'object') {
         return new SetAnimatorProperty(
             ...params as ConstructorParameters<
                 typeof SetAnimatorProperty
@@ -313,17 +310,15 @@ export function setAnimatorProperty(
         )
     }
 
-    const [beat, id, properties, duration, easing] = params
+    const [parentDifficulty, beat, id, properties, duration, easing] = params
 
-    return new SetAnimatorProperty(
-        {
-            beat,
-            id,
-            properties,
-            duration,
-            easing,
-        },
-    )
+    return new SetAnimatorProperty(parentDifficulty, {
+        beat,
+        id,
+        properties,
+        duration,
+        easing,
+    })
 }
 
 /** Set properties on the camera. */
@@ -331,13 +326,14 @@ export function setCameraProperty(
     ...params:
         | ConstructorParameters<typeof SetCameraProperty>
         | [
+            parentDifficulty: AbstractDifficulty,
             beat: number,
             depthTextureMode?: DEPTH_TEX_MODE[],
             clearFlags?: CAMERA_CLEAR_FLAGS,
             backgroundColor?: ColorVec,
         ]
 ) {
-    if (typeof params[0] === 'object') {
+    if (typeof params[1] === 'object') {
         return new SetCameraProperty(
             ...params as ConstructorParameters<
                 typeof SetCameraProperty
@@ -345,16 +341,14 @@ export function setCameraProperty(
         )
     }
 
-    const [beat, depthTextureMode, clearFlags, backgroundColor] = params
+    const [parentDifficulty, beat, depthTextureMode, clearFlags, backgroundColor] = params
 
-    return new SetCameraProperty(
-        {
-            beat,
-            depthTextureMode,
-            clearFlags,
-            backgroundColor,
-        },
-    )
+    return new SetCameraProperty(parentDifficulty, {
+        beat,
+        depthTextureMode,
+        clearFlags,
+        backgroundColor,
+    })
 }
 
 /** Replaces objects in the map with prefabs. */
@@ -373,6 +367,7 @@ export function setRenderingSettings(
     ...params:
         | ConstructorParameters<typeof SetRenderingSettings>
         | [
+            parentDifficulty: AbstractDifficulty,
             beat: number,
             renderSettings?: Partial<RENDERING_SETTINGS>,
             qualitySettings?: Partial<QUALITY_SETTINGS>,
@@ -381,7 +376,7 @@ export function setRenderingSettings(
             easing?: EASE,
         ]
 ) {
-    if (typeof params[0] === 'object') {
+    if (typeof params[1] === 'object') {
         return new SetRenderingSettings(
             ...params as ConstructorParameters<
                 typeof SetRenderingSettings
@@ -389,16 +384,14 @@ export function setRenderingSettings(
         )
     }
 
-    const [beat, renderSettings, qualitySettings, xrSettings, duration, easing] = params
+    const [parentDifficulty, beat, renderSettings, qualitySettings, xrSettings, duration, easing] = params
 
-    return new SetRenderingSettings(
-        {
-            beat,
-            renderSettings,
-            qualitySettings,
-            xrSettings,
-            duration,
-            easing,
-        },
-    )
+    return new SetRenderingSettings(parentDifficulty, {
+        beat,
+        renderSettings,
+        qualitySettings,
+        xrSettings,
+        duration,
+        easing,
+    })
 }

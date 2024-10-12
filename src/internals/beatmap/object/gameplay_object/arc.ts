@@ -13,9 +13,10 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
      * Arc object for ease of creation.
      */
     constructor(
+        parentDifficulty: AbstractDifficulty,
         fields: GameplayObjectConstructor<Arc>,
     ) {
-        super(fields)
+        super(parentDifficulty, fields)
         this.tailDirection = fields.tailDirection ?? Arc.defaults.tailDirection
         this.headLength = fields.headLength ?? Arc.defaults.headLength
         this.tailLength = fields.tailLength ?? Arc.defaults.tailLength

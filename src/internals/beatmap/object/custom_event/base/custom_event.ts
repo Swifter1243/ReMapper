@@ -9,7 +9,7 @@ import type { AbstractDifficulty } from '../../../abstract_beatmap.ts'
 export abstract class CustomEvent<
     TV2 extends bsmap.v2.ICustomEvent = bsmap.v2.ICustomEvent,
     TV3 extends IV3CustomEvent = IV3CustomEvent,
-> extends BeatmapArrayMember implements JsonWrapper<TV2, TV3> {
+> extends BeatmapArrayMember<AbstractDifficulty> implements JsonWrapper<TV2, TV3> {
     constructor(difficulty: AbstractDifficulty, fields: JsonObjectConstructor<CustomEvent<TV2, TV3>>) {
         super(difficulty)
 

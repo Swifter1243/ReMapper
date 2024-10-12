@@ -1,6 +1,7 @@
-import {EASE} from "../../../../types/animation/easing.ts";
-import {TrackValue} from "../../../../types/animation/track.ts";
-import {AnimateTrack} from "../../../../internals/beatmap/object/custom_event/heck/animate_track.ts";
+import { EASE } from '../../../../types/animation/easing.ts'
+import { TrackValue } from '../../../../types/animation/track.ts'
+import { AnimateTrack } from '../../../../internals/beatmap/object/custom_event/heck/animate_track.ts'
+import type { AbstractDifficulty } from '../../../../internals/beatmap/abstract_beatmap.ts'
 
 /**
  * Animate a track.
@@ -9,6 +10,7 @@ export function animateTrack(
     ...params:
         | ConstructorParameters<typeof AnimateTrack>
         | [
+            parentDifficulty: AbstractDifficulty,
             beat: number,
             track: TrackValue,
             duration?: number,
@@ -16,7 +18,7 @@ export function animateTrack(
             easing?: EASE,
         ]
 ) {
-    if (typeof params[0] === 'object') {
+    if (typeof params[1] === 'object') {
         return new AnimateTrack(
             ...params as ConstructorParameters<
                 typeof AnimateTrack
@@ -24,15 +26,13 @@ export function animateTrack(
         )
     }
 
-    const [beat, track, duration, animation, easing] = params
+    const [parentDifficulty, beat, track, duration, animation, easing] = params
 
-    return new AnimateTrack(
-        {
-            beat: beat as number,
-            track: track as TrackValue,
-            duration,
-            animation,
-            easing,
-        },
-    )
+    return new AnimateTrack(parentDifficulty, {
+        beat,
+        track,
+        duration,
+        animation,
+        easing,
+    })
 }

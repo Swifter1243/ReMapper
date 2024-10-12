@@ -43,7 +43,7 @@ export class LightColorEventBox extends LightEventBox<bsmap.v3.ILightColorEventB
         this.brightnessDistributionType = json.t ?? LightColorEventBox.defaults.brightnessDistribution
         this.distributionEasing = json.i ?? LightColorEventBox.defaults.distributionEasing
         this.customData = json.customData ?? LightColorEventBox.defaults.customData
-        this.events = json.e.map((x) => lightColorEvent().fromJsonV3(x))
+        this.events = json.e.map((x) => lightColorEvent(this).fromJsonV3(x))
         this.filter = json.f ?? LightColorEventBox.defaults.brightnessDistributionFirst
         return this
     }

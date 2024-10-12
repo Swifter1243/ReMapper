@@ -14,9 +14,10 @@ import type {AbstractDifficulty} from "../../abstract_beatmap.ts";
 
 export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
     constructor(
+        parentDifficulty: AbstractDifficulty,
         fields: GameplayObjectConstructor<Chain>,
     ) {
-        super(fields)
+        super(parentDifficulty, fields)
         this.links = fields.links ?? Chain.defaults.links
         this.squish = fields.squish ?? Chain.defaults.squish
         this.fake = fields.fake

@@ -1,14 +1,16 @@
 import { Chain } from '../../../../internals/beatmap/object/gameplay_object/chain.ts'
 
-import {NoteColor, NoteCut} from "../../../../constants/note.ts";
+import { NoteColor, NoteCut } from '../../../../constants/note.ts'
+import { AbstractDifficulty } from '../../../../internals/beatmap/abstract_beatmap.ts'
 
 /** Create a chain. */
 export function chain(
     ...params: ConstructorParameters<typeof Chain> | [
+        parentDifficulty: AbstractDifficulty,
         beat?: number,
         tailBeat?: number,
         type?: NoteColor,
-        headDirection?: NoteCut,
+        cutDirection?: NoteCut,
         tailDirection?: NoteCut,
         x?: number,
         y?: number,
@@ -16,22 +18,22 @@ export function chain(
         tailY?: number,
     ]
 ): Chain {
-    const [first] = params
-    if (typeof first === 'object') {
-        return new Chain(first)
+    if (typeof params[1] === 'object') {
+        const [diff, obj] = params
+        return new Chain(diff, obj)
     }
 
-    const [beat, tailBeat, type, direction, x, y, tailX, tailY, links] = params
+    const [parentDifficulty, beat, tailBeat, type, cutDirection, x, y, tailX, tailY, links] = params
 
-    return new Chain({
-        beat: beat as number ?? 0,
-        tailBeat: tailBeat ?? 0,
-        color: type ?? NoteColor.BLUE,
-        cutDirection: direction ?? NoteCut.DOWN,
-        x: x ?? 0,
-        y: y ?? 0,
-        tailX: tailX ?? 0,
-        tailY: tailY ?? 0,
-        links: links ?? 4,
+    return new Chain(parentDifficulty, {
+        beat,
+        tailBeat,
+        color: type,
+        cutDirection,
+        x,
+        y,
+        tailX,
+        tailY,
+        links,
     })
 }

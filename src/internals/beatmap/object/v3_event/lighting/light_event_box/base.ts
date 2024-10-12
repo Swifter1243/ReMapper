@@ -10,8 +10,8 @@ import {LightEventBoxGroup} from "../light_event_box_group/base.ts";
 export abstract class LightEventBox<
     T extends bsmap.v3.IEventBox = bsmap.v3.IEventBox,
     E extends BaseLightEvent = BaseLightEvent,
-> extends BeatmapArrayMember<LightEventBoxGroup> implements JsonWrapper<never, T> {
-    constructor(parent: LightEventBoxGroup, obj: JsonObjectConstructor<LightEventBox<T, E>>) {
+> extends BeatmapArrayMember<LightEventBoxGroup<T>> implements JsonWrapper<never, T> {
+    constructor(parent: LightEventBoxGroup<T>, obj: JsonObjectConstructor<LightEventBox<T, E>>) {
         super(parent)
 
         this.filter = obj.filter ?? copy(LightEventBox.defaults.filter)
@@ -55,14 +55,15 @@ export abstract class LightEventBox<
         events: [],
     }
 
-    /** Add a light event to this box's events. */
-    add(event: E) {
-        this.events.push(event)
-    }
-
     abstract fromJsonV2(json: never): this
     abstract fromJsonV3(json: T): this
 
     abstract toJsonV2(prune?: boolean): never
     abstract toJsonV3(prune?: boolean): T
+
+    protected override _copy(): this {
+        const newObject = super._copy()
+        newObject.events = this.events.map(o => o.copyInto(newObject))
+        return newObject
+    }
 }

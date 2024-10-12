@@ -17,7 +17,7 @@ export abstract class BeatmapObject<
         super(parentDifficulty)
 
         this.parent = parentDifficulty
-        this.beat = (obj.beat as number | undefined) ?? BeatmapObject.defaults.beat
+        this.beat = obj.beat ?? BeatmapObject.defaults.beat
         // gotta do this funky shit cause obj.customData is generic
         this.customData = (obj as Record<string, unknown>).customData ?? copy(BeatmapObject.defaults.customData)
     }

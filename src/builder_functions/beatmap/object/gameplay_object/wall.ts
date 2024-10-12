@@ -1,8 +1,10 @@
 // deno-lint-ignore-file
-import {Wall} from "../../../../internals/beatmap/object/gameplay_object/wall.ts";
+import type { AbstractDifficulty } from '../../../../internals/beatmap/abstract_beatmap.ts'
+import { Wall } from '../../../../internals/beatmap/object/gameplay_object/wall.ts'
 
 /**
  * Wall object for ease of creation.
+ * @param parentDifficulty The difficulty to push this wall to.
  * @param beat The time this wall will arrive at the player.
  * @param duration The duration of the wall.
  * @param x The lane of the wall.
@@ -11,6 +13,7 @@ import {Wall} from "../../../../internals/beatmap/object/gameplay_object/wall.ts
  * @param width The width of the wall.
  */
 export function wall(
+    parentDifficulty: AbstractDifficulty,
     beat?: number,
     duration?: number,
     x?: number,
@@ -23,6 +26,7 @@ export function wall(
 ): Wall
 export function wall(
     ...params: ConstructorParameters<typeof Wall> | [
+        parentDifficulty: AbstractDifficulty,
         beat?: number,
         duration?: number,
         x?: number,
@@ -31,19 +35,19 @@ export function wall(
         width?: number,
     ]
 ): Wall {
-    const [first] = params
-    if (typeof first === 'object') {
-        return new Wall(first)
+    if (typeof params[1] === 'object') {
+        const [diff, obj] = params
+        return new Wall(diff, obj)
     }
 
-    const [beat, duration, x, y, height, width] = params
+    const [parentDifficulty, beat, duration, x, y, height, width] = params
 
-    return new Wall({
-        beat: beat as number ?? 0,
-        duration: duration ?? 1,
-        x: x ?? 0,
-        y: y ?? 0,
-        height: height,
-        width: width,
+    return new Wall(parentDifficulty, {
+        beat,
+        duration,
+        x,
+        y,
+        height,
+        width,
     })
 }

@@ -13,35 +13,31 @@ import {
 import {
     LightTranslationEventBoxGroup
 } from "../../../../../internals/beatmap/object/v3_event/lighting/light_event_box_group/translation.ts";
+import {AbstractDifficulty} from "../../../../../internals/beatmap/abstract_beatmap.ts";
 
 type BoxGroupParameters<T extends bsmap.v3.IEventBox> = [
+    parentDifficulty: AbstractDifficulty,
     beat?: number,
     groupID?: number,
     boxes?: LightEventBox<T>[],
-] | [
-    ...obj: [
-        ConstructorParameters<
-            typeof LightEventBoxGroup<T>
-        >[0],
-    ],
-]
+] | ConstructorParameters<
+    typeof LightEventBoxGroup<T>
+>
 
 function createBoxGroup<T extends bsmap.v3.IEventBox>(
     ...params: BoxGroupParameters<T>
-): ConstructorParameters<
-    typeof LightEventBoxGroup<T>
-> {
-    if (typeof params[0] === 'object') {
-        const obj = params[0]
-        return [obj]
+): ConstructorParameters<typeof LightEventBoxGroup<T>> {
+    if (typeof params[1] === 'object') {
+        const [parentDifficulty, obj] = params
+        return [parentDifficulty, obj]
     }
 
-    const [beat, groupID, boxes] = params
+    const [parentDifficulty, beat, groupID, boxes] = params
 
-    return [{
-        beat: beat,
-        groupID: groupID,
-        boxes: boxes ?? [],
+    return [parentDifficulty, {
+        beat,
+        groupID,
+        boxes,
     }]
 }
 

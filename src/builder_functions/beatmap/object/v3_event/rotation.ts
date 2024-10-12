@@ -1,11 +1,14 @@
-import {RotationEvent} from "../../../../internals/beatmap/object/v3_event/rotation.ts";
+import { RotationEvent } from '../../../../internals/beatmap/object/v3_event/rotation.ts'
+import { AbstractDifficulty } from '../../../../internals/beatmap/abstract_beatmap.ts'
 
 /**
  * Used for 360 mode, rotates future objects and active objects.
+ * @param parentDifficulty What difficulty to push this event to.
  * @param beat The beat of the event.
  * @param rotation The rotation of the event.
  */
 export function earlyRotation(
+    parentDifficulty: AbstractDifficulty,
     beat: number,
     rotation?: number,
 ): RotationEvent
@@ -14,19 +17,18 @@ export function earlyRotation(
 ): RotationEvent
 export function earlyRotation(
     ...params: [
+        parentDifficulty: AbstractDifficulty,
         beat: number,
         rotation?: number,
     ] | ConstructorParameters<typeof RotationEvent>
 ): RotationEvent {
-    if (typeof params[0] === 'object') {
-        const obj = params[0]
-        return new RotationEvent({
-            ...obj,
-        })
+    if (typeof params[1] === 'object') {
+        const [parentDifficulty, obj] = params
+        return new RotationEvent(parentDifficulty, obj)
     }
-    const [beat, rotation] = params
+    const [parentDifficulty, beat, rotation] = params
 
-    return new RotationEvent({
+    return new RotationEvent(parentDifficulty, {
         beat,
         rotation,
         early: true,
@@ -35,10 +37,12 @@ export function earlyRotation(
 
 /**
  * Used for 360 mode, rotates future objects only.
+ * @param parentDifficulty What difficulty to push this event to.
  * @param beat The beat of the event.
  * @param rotation The rotation of the event.
  */
 export function lateRotation(
+    parentDifficulty: AbstractDifficulty,
     beat: number,
     rotation?: number,
 ): RotationEvent
@@ -47,19 +51,20 @@ export function lateRotation(
 ): RotationEvent
 export function lateRotation(
     ...params: [
+        parentDifficulty: AbstractDifficulty,
         beat: number,
         rotation?: number,
     ] | ConstructorParameters<typeof RotationEvent>
 ): RotationEvent {
-    if (typeof params[0] === 'object') {
-        const obj = params[0]
-        return new RotationEvent({
+    if (typeof params[1] === 'object') {
+        const [parentDifficulty, obj] = params
+        return new RotationEvent(parentDifficulty, {
             ...obj,
         })
     }
-    const [beat, rotation] = params
+    const [parentDifficulty, beat, rotation] = params
 
-    return new RotationEvent({
+    return new RotationEvent(parentDifficulty, {
         beat,
         rotation,
         early: false,

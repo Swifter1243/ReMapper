@@ -24,11 +24,6 @@ export abstract class LightEventBoxGroup<T extends bsmap.v3.IEventBox = bsmap.v3
         ...super.defaults,
     }
 
-    /** Add a box to this group's boxes. */
-    add(box: LightEventBox<T>) {
-        this.boxes.push(box)
-    }
-
     toJsonV3(prune?: boolean): bsmap.v3.IEventBoxGroup<T> {
         const output = {
             b: this.beat,
@@ -41,5 +36,11 @@ export abstract class LightEventBoxGroup<T extends bsmap.v3.IEventBox = bsmap.v3
 
     toJsonV2(_prune?: boolean): never {
         throw 'Event box groups are not supported in V2!'
+    }
+
+    protected override _copy(): this {
+        const newObject = super._copy()
+        newObject.boxes = this.boxes.map(o => o.copyInto(newObject))
+        return newObject
     }
 }

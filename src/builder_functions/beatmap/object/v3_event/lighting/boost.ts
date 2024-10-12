@@ -1,22 +1,21 @@
-import {BoostEvent} from "../../../../../internals/beatmap/object/v3_event/lighting/boost.ts";
-
+import { BoostEvent } from '../../../../../internals/beatmap/object/v3_event/lighting/boost.ts'
+import { AbstractDifficulty } from '../../../../../internals/beatmap/abstract_beatmap.ts'
 
 /** Switches the color palette in the lighting. */
 export function boost(
     ...params: [
+        parentDifficulty: AbstractDifficulty,
         beat: number,
         boost: boolean,
     ] | ConstructorParameters<typeof BoostEvent>
 ): BoostEvent {
-    if (typeof params[0] === 'object') {
-        const obj = params[0]
-        return new BoostEvent({
-            ...obj,
-        })
+    if (typeof params[1] === 'object') {
+        const [diff, obj] = params
+        return new BoostEvent(diff, obj)
     }
-    const [beat, boost] = params
+    const [parentDifficulty, beat, boost] = params
 
-    return new BoostEvent({
+    return new BoostEvent(parentDifficulty, {
         beat,
         boost,
     })

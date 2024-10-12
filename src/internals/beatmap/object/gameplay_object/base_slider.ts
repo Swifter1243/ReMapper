@@ -5,14 +5,16 @@ import {Vec2} from "../../../../types/math/vector.ts";
 import {NoteAnimationData} from "../../../../types/animation/properties/note.ts";
 import {getCDProp} from "../../../../utils/beatmap/json.ts";
 import {GameplayObjectDefaults, GameplayObjectConstructor} from "../../../../types/beatmap/object/gameplay_object.ts";
+import {AbstractDifficulty} from "../../abstract_beatmap.ts";
 
 export abstract class BaseSliderObject<TV3 extends bsmap.v3.IBaseSlider = bsmap.v3.IBaseSlider>
     extends BeatmapGameplayObject<never, TV3> {
 
     constructor(
+        parentDifficulty: AbstractDifficulty,
         obj: GameplayObjectConstructor<BaseSliderObject<TV3>>,
     ) {
-        super(obj)
+        super(parentDifficulty, obj)
         this.color = obj.color ?? BaseSliderObject.defaults.color
         this.cutDirection = obj.cutDirection ?? BaseSliderObject.defaults.cutDirection
         this.tailBeat = obj.tailBeat ?? BaseSliderObject.defaults.tailBeat

@@ -1,10 +1,12 @@
 import { ColorNote } from '../../../../internals/beatmap/object/gameplay_object/color_note.ts'
 
 import {NoteColor, NoteCut} from "../../../../constants/note.ts";
+import {AbstractDifficulty} from "../../../../internals/beatmap/abstract_beatmap.ts";
 
 /** Create a standard color note. */
 export function colorNote(
     ...params: ConstructorParameters<typeof ColorNote> | [
+        parentDifficulty: AbstractDifficulty,
         beat?: number,
         type?: NoteColor,
         direction?: NoteCut,
@@ -12,18 +14,18 @@ export function colorNote(
         y?: number,
     ]
 ): ColorNote {
-    const [first] = params
-    if (typeof first === 'object') {
-        return new ColorNote(first)
+    if (typeof params[1] === 'object') {
+        const [diff, obj] = params
+        return new ColorNote(diff, obj)
     }
 
-    const [beat, type, direction, x, y] = params
+    const [parentDifficulty, beat, type, cutDirection, x, y] = params
 
-    return new ColorNote({
-        beat: beat as number ?? 0,
-        color: type ?? NoteColor.BLUE,
-        cutDirection: direction ?? NoteCut.DOWN,
-        x: x ?? 0,
-        y: y ?? 0,
+    return new ColorNote(parentDifficulty, {
+        beat,
+        color: type,
+        cutDirection,
+        x,
+        y,
     })
 }

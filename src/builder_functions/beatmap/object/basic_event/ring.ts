@@ -1,9 +1,11 @@
 import {RingZoomEvent} from "../../../../internals/beatmap/object/basic_event/ring_zoom.ts";
 import {RingSpinEvent} from "../../../../internals/beatmap/object/basic_event/ring_spin.ts";
 import {SpinDirection} from "../../../../constants/basic_event.ts";
+import type { AbstractDifficulty } from '../../../../internals/beatmap/abstract_beatmap.ts'
 
 /**
  * Spin the rings of an environment.
+ * @param parentDifficulty The difficulty to push this event to
  * @param beat The beat of the event spin.
  * @param rotation Degrees of the spin.
  * @param direction Direction of the spin.
@@ -14,6 +16,7 @@ import {SpinDirection} from "../../../../constants/basic_event.ts";
  * @param nameFilter The ring object name to target.
  */
 export function ringSpin(
+    parentDifficulty: AbstractDifficulty,
     beat: number,
     rotation?: number,
     direction?: SpinDirection,
@@ -25,6 +28,7 @@ export function ringSpin(
 export function ringSpin(...params: ConstructorParameters<typeof RingSpinEvent>): RingSpinEvent
 export function ringSpin(
     ...params: [
+        parentDifficulty: AbstractDifficulty,
         beat: number,
         rotation?: number,
         direction?: SpinDirection,
@@ -34,13 +38,13 @@ export function ringSpin(
         nameFilter?: string,
     ] | ConstructorParameters<typeof RingSpinEvent>
 ): RingSpinEvent {
-    if (typeof params[0] === 'object') {
-        const obj = params[0]
-        return new RingSpinEvent(obj)
+    if (typeof params[1] === 'object') {
+        const [diff, obj] = params
+        return new RingSpinEvent(diff, obj)
     }
-    const [beat, rotation, direction, step, speed, prop, nameFilter] = params
+    const [parentDifficulty, beat, rotation, direction, step, speed, prop, nameFilter] = params
 
-    return new RingSpinEvent({
+    return new RingSpinEvent(parentDifficulty, {
         beat,
         value: rotation ?? 0,
         rotation,
@@ -54,11 +58,13 @@ export function ringSpin(
 
 /**
  * Controls ring zoom.
+ * @param parentDifficulty The difficulty to push this event to
  * @param beat The beat of the event.
  * @param step The position offset between each ring.
  * @param speed The speed of the zoom.
  */
 export function ringZoom(
+    parentDifficulty: AbstractDifficulty,
     beat: number,
     step?: number,
     speed?: number,
@@ -68,18 +74,19 @@ export function ringZoom(
 ): RingZoomEvent
 export function ringZoom(
     ...params: [
+        parentDifficulty: AbstractDifficulty,
         beat: number,
         step?: number,
         speed?: number,
     ] | ConstructorParameters<typeof RingZoomEvent>
 ): RingZoomEvent {
-    if (typeof params[0] === 'object') {
-        const obj = params[0]
-        return new RingZoomEvent(obj)
+    if (typeof params[1] === 'object') {
+        const [diff, obj] = params
+        return new RingZoomEvent(diff, obj)
     }
-    const [beat, step, speed] = params
+    const [parentDifficulty, beat, step, speed] = params
 
-    return new RingZoomEvent({
+    return new RingZoomEvent(parentDifficulty, {
         beat,
         step,
         speed,

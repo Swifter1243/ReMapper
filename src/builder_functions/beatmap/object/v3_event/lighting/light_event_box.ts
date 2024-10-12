@@ -14,54 +14,45 @@ import {
 import {
     LightTranslationEventBox
 } from "../../../../../internals/beatmap/object/v3_event/lighting/light_event_box/translation.ts";
+import {
+    LightEventBoxGroup
+} from "../../../../../internals/beatmap/object/v3_event/lighting/light_event_box_group/base.ts";
 
 type BoxParameters<
-    T extends bsmap.v3.IEventBox,
-    E extends BaseLightEvent,
+    T extends typeof LightEventBox<E>,
+    E extends bsmap.v3.IEventBox = bsmap.v3.IEventBox
 > = [
+    parent: LightEventBoxGroup<E>,
     beatDistributionType?: DistributionType,
     beatDistribution?: number,
     filter?: bsmap.v3.IIndexFilter,
     distributionEasing?: RotationEase,
-] | [
-    ...obj: [
-        ConstructorParameters<
-            typeof LightEventBox<T, E>
-        >[0],
-    ],
-]
+] | ConstructorParameters<T>
 
 function createBox<
-    T extends bsmap.v3.IEventBox,
-    E extends BaseLightEvent,
+    T extends typeof LightEventBox<E>,
+    E extends bsmap.v3.IEventBox = bsmap.v3.IEventBox
 >(
     ...params: BoxParameters<T, E>
-): ConstructorParameters<
-    typeof LightEventBox<T, E>
-> {
-    if (typeof params[0] === 'object') {
-        const obj = params[0]
-        return [obj]
+): ConstructorParameters<T> {
+    if (typeof params[1] === 'object') {
+        const [parent, obj] = params
+        return [parent, obj] as ConstructorParameters<T>
     }
 
-    const [beatDistributionType, beatDistribution, filter, distributionEasing] = params
+    const [parent, beatDistributionType, beatDistribution, filter, distributionEasing] = params
 
-    return [{
+    return [parent, {
         beatDistributionType,
         beatDistribution,
         filter,
         distributionEasing,
-    }] as ConstructorParameters<
-        typeof LightEventBox<T, E>
-    >
+    }] as ConstructorParameters<T>
 }
 
 /** Create an event box of `LightColorEvent`s */
 export function lightColorEventBox(
-    ...params: BoxParameters<
-        bsmap.v3.ILightColorEventBox,
-        LightColorEvent
-    >
+    ...params: BoxParameters<typeof LightColorEventBox>
 ) {
     return new LightColorEventBox(
         ...createBox(...params),
@@ -70,10 +61,7 @@ export function lightColorEventBox(
 
 /** Create an event box of `LightRotationEvent`s */
 export function lightRotationEventBox(
-    ...params: BoxParameters<
-        bsmap.v3.ILightRotationEventBox,
-        LightRotationEvent
-    >
+    ...params: BoxParameters<typeof LightRotationEventBox>
 ) {
     return new LightRotationEventBox(
         ...createBox(...params),
@@ -82,10 +70,7 @@ export function lightRotationEventBox(
 
 /** Create an event box of `LightTranslationEvent`s */
 export function lightTranslationEventBox(
-    ...params: BoxParameters<
-        bsmap.v3.ILightTranslationEventBox,
-        LightTranslationEvent
-    >
+    ...params: BoxParameters<typeof LightTranslationEventBox>
 ) {
     return new LightTranslationEventBox(
         ...createBox(...params),

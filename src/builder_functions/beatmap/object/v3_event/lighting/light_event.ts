@@ -1,34 +1,35 @@
-import {LightColor, LightTransition, RotationDirection, RotationEase} from "../../../../../constants/v3_event.ts";
-import {LightColorEvent} from "../../../../../internals/beatmap/object/v3_event/lighting/light_event/color.ts";
-import {LightRotationEvent} from "../../../../../internals/beatmap/object/v3_event/lighting/light_event/rotation.ts";
-import {
-    LightTranslationEvent
-} from "../../../../../internals/beatmap/object/v3_event/lighting/light_event/translation.ts";
+import { LightColor, LightTransition, RotationDirection, RotationEase } from '../../../../../constants/v3_event.ts'
+import { LightColorEvent } from '../../../../../internals/beatmap/object/v3_event/lighting/light_event/color.ts'
+import { LightRotationEvent } from '../../../../../internals/beatmap/object/v3_event/lighting/light_event/rotation.ts'
+import { LightTranslationEvent } from '../../../../../internals/beatmap/object/v3_event/lighting/light_event/translation.ts'
+import { AbstractDifficulty } from '../../../../../internals/beatmap/abstract_beatmap.ts'
+import { LightColorEventBox } from '../../../../../internals/beatmap/object/v3_event/lighting/light_event_box/color.ts'
+import { LightRotationEventBox } from '../../../../../internals/beatmap/object/v3_event/lighting/light_event_box/rotation.ts'
+import { LightTranslationEventBox } from '../../../../../internals/beatmap/object/v3_event/lighting/light_event_box/translation.ts'
 
 /** Make a light color event that goes into a LightColorEventBox */
 export function lightColorEvent(
-    ...params: [
-        beat?: number,
-        color?: LightColor,
-        brightness?: number,
-        transitionType?: LightTransition,
-        blinkingFrequency?: number,
-    ] | [
-        ...obj: [
-            ConstructorParameters<
-                typeof LightColorEvent
-            >[0],
-        ],
-    ]
+    ...params:
+        | [
+            parent: LightColorEventBox,
+            beat?: number,
+            color?: LightColor,
+            brightness?: number,
+            transitionType?: LightTransition,
+            blinkingFrequency?: number,
+        ]
+        | ConstructorParameters<
+            typeof LightColorEvent
+        >
 ): LightColorEvent {
-    if (typeof params[0] === 'object') {
-        const obj = params[0]
-        return new LightColorEvent(obj)
+    if (typeof params[1] === 'object') {
+        const [parent, obj] = params
+        return new LightColorEvent(parent, obj)
     }
 
-    const [beat, color, brightness, transitionType, blinkingFrequency] = params
+    const [parent, beat, color, brightness, transitionType, blinkingFrequency] = params
 
-    return new LightColorEvent({
+    return new LightColorEvent(parent, {
         beat,
         color,
         brightness,
@@ -39,27 +40,27 @@ export function lightColorEvent(
 
 /** Make a light rotation event that goes into a LightRotationEventBox */
 export function lightRotationEvent(
-    ...params: [
-        beat?: number,
-        rotationDegrees?: number,
-        rotationDirection?: RotationDirection,
-        loopCount?: number,
-        easing?: RotationEase,
-        usePreviousEventRotation?: boolean,
-    ] | [
-        ...obj: [
-            ConstructorParameters<
-                typeof LightRotationEvent
-            >[0],
-        ],
-    ]
+    ...params:
+        | [
+            parent: LightRotationEventBox,
+            beat?: number,
+            rotationDegrees?: number,
+            rotationDirection?: RotationDirection,
+            loopCount?: number,
+            easing?: RotationEase,
+            usePreviousEventRotation?: boolean,
+        ]
+        | ConstructorParameters<
+            typeof LightRotationEvent
+        >
 ): LightRotationEvent {
-    if (typeof params[0] === 'object') {
-        const obj = params[0]
-        return new LightRotationEvent(obj)
+    if (typeof params[1] === 'object') {
+        const [parent, obj] = params
+        return new LightRotationEvent(parent, obj)
     }
 
     const [
+        parent,
         beat,
         rotationDegrees,
         rotationDirection,
@@ -68,7 +69,7 @@ export function lightRotationEvent(
         usePreviousEventRotation,
     ] = params
 
-    return new LightRotationEvent({
+    return new LightRotationEvent(parent, {
         beat,
         rotationDegrees,
         rotationDirection,
@@ -80,32 +81,32 @@ export function lightRotationEvent(
 
 /** Make a light translation event that goes into a LightTranslationEventBox */
 export function lightTranslationEvent(
-    ...params: [
-        beat?: number,
-        magnitude?: number,
-        easing?: RotationEase,
-        usePreviousEventTranslation?: boolean,
-    ] | [
-        ...obj: [
-            ConstructorParameters<
-                typeof LightTranslationEvent
-            >[0],
-        ],
-    ]
+    ...params:
+        | [
+            parent: LightTranslationEventBox,
+            beat?: number,
+            magnitude?: number,
+            easing?: RotationEase,
+            usePreviousEventTranslation?: boolean,
+        ]
+        | ConstructorParameters<
+            typeof LightTranslationEvent
+        >
 ): LightTranslationEvent {
-    if (typeof params[0] === 'object') {
-        const obj = params[0]
-        return new LightTranslationEvent(obj)
+    if (typeof params[1] === 'object') {
+        const [parent, obj] = params
+        return new LightTranslationEvent(parent, obj)
     }
 
     const [
+        parent,
         beat,
         magnitude,
         easing,
         usePreviousEventTranslation,
     ] = params
 
-    return new LightTranslationEvent({
+    return new LightTranslationEvent(parent, {
         beat,
         magnitude,
         easing,
