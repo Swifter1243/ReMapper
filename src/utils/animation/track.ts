@@ -1,94 +1,62 @@
 import {TrackValue} from "../../types/animation/track.ts";
 
 export class Track {
-    /** The value of the track. */
-    value?: TrackValue
+    private _value: Set<string>
 
     constructor(value?: TrackValue) {
-        this.value = value
+        this._value = new Set(value)
     }
 
-    private expandArray(array?: TrackValue) {
-        if (!array) return []
+    set value(value: TrackValue | undefined) {
+        this._value = new Set(value)
+    }
+    get value() {
+        const result = this._value.values().toArray()
 
-        return typeof array === 'string' ? [array] : array
+        if (result.length === 0) {
+            return undefined
+        }
+        else if (result.length === 1) {
+            return result[0]
+        }
+        else {
+            return result
+        }
     }
 
-    private simplifyArray(array?: TrackValue) {
-        if (!array || array.length === 0) return undefined
-
-        if (typeof array === 'string') return array
-
-        return array.length === 1 ? array[0] : array
+    private static complexifyValue(value: TrackValue) {
+        if (typeof value === 'string') {
+            return [value]
+        } else {
+            return value
+        }
     }
 
     /**
-     * Safely check if the track contains this value.
+     * Check if the track contains this value.
      * @param value
      */
     has(value: TrackValue) {
-        if (!this.value) return false
-
-        if (typeof this.value === 'string') {
-            if (typeof value === 'string') {
-                return this.value === value
-            }
-            return value.some((x) => x === this.value)
-        }
-
-        if (typeof value === 'string') {
-            return this.value.some((x) => x === value)
-        }
-        return this.value.some((x) => value.some((y) => y === x))
+        const other = new Set(value)
+        return this._value.intersection(other).size > 0
     }
 
     /**
-     * Safely add tracks.
+     * Add tracks.
      * @param value Can be one track or multiple.
      */
     add(value: TrackValue) {
-        if (!this.value) {
-            this.value = this.simplifyArray(value)
-            return this
-        }
-
-        const arrValue = this.expandArray(this.value).concat(
-            this.expandArray(value),
-        )
-        this.value = this.simplifyArray(arrValue)
-        return this
+        const other = Track.complexifyValue(value)
+        other.forEach(t => this._value.add(t))
     }
 
     /**
-     * Remove tracks.
+     * Delete tracks.
      * @param value Can be one track or multiple.
      */
-    remove(value: TrackValue) {
-        if (!this.value) return
-
-        const removeValues = this.expandArray(value)
-        const thisValue = this.expandArray(this.value)
-        const removed: Record<number, boolean> = {}
-
-        removeValues.forEach((x) => {
-            thisValue.forEach((y, i) => {
-                if (y === x) removed[i] = true
-            })
-        })
-
-        const returnArr = thisValue.filter((_x, i) => !removed[i])
-
-        if (returnArr.length === 0) {
-            return
-        }
-        this.value = this.simplifyArray(returnArr)
-
-        return this
-    }
-
-    /** Get the track value as an array. */
-    array() {
-        return this.expandArray(this.value)
+    delete(value: TrackValue) {
+        const other = Track.complexifyValue(value)
+        other.forEach(t => this._value.delete(t))
     }
 
     /**
@@ -96,10 +64,16 @@ export class Track {
      * @param condition Function to run for each track, must return boolean
      */
     some(condition: (track: string) => boolean) {
-        if (!this.value) return false
+        return this._value.values().toArray().some(condition)
+    }
 
-        return this.expandArray(this.value).some((x) => {
-            return condition(x)
-        })
+    /** Get the track value as an array. */
+    array() {
+        return this._value.values().toArray()
+    }
+
+    /** Get the track value as a set. */
+    set() {
+        return this._value
     }
 }
