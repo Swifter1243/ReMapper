@@ -20,7 +20,7 @@ import { ModelSceneSettings } from './settings.ts'
 
 export abstract class ModelScene<I, M, O> {
     protected static modelSceneCount = 0
-    static defaultGroupKey = 'default_group'
+    static readonly defaultGroupKey = 'default_group'
 
     // hash -> name
     private static cachedModels: Record<string, string> = {}
