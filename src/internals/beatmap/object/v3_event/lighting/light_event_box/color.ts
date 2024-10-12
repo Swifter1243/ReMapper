@@ -5,10 +5,12 @@ import { lightColorEvent } from '../../../../../../builder_functions/beatmap/obj
 import { bsmap } from '../../../../../../deps.ts'
 import { objectPrune } from '../../../../../../utils/object/prune.ts'
 import { JsonObjectConstructor, JsonObjectDefaults } from '../../../../../../types/beatmap/object/object.ts'
+import {LightColorEventBoxGroup} from "../light_event_box_group/color.ts";
+import {LightEventBoxGroup} from "../light_event_box_group/base.ts";
 
 export class LightColorEventBox extends LightEventBox<bsmap.v3.ILightColorEventBox, LightColorEvent> {
-    constructor(obj: JsonObjectConstructor<LightColorEventBox>) {
-        super(obj)
+    constructor(parent: LightColorEventBoxGroup,  obj: JsonObjectConstructor<LightColorEventBox>) {
+        super(parent, obj)
         this.brightnessDistribution = obj.brightnessDistribution ?? LightColorEventBox.defaults.brightnessDistribution
         this.brightnessDistributionType = obj.brightnessDistributionType ?? LightColorEventBox.defaults.brightnessDistributionType
         this.brightnessDistributionFirst = obj.brightnessDistributionFirst ?? LightColorEventBox.defaults.brightnessDistributionFirst
@@ -29,6 +31,10 @@ export class LightColorEventBox extends LightEventBox<bsmap.v3.ILightColorEventB
         events: [],
     }
 
+    protected override getArray(parent: LightEventBoxGroup): this[] {
+        return parent.boxes as this[]
+    }
+
     fromJsonV3(json: bsmap.v3.ILightColorEventBox): this {
         this.beatDistribution = json.w ?? LightColorEventBox.defaults.beatDistribution
         this.beatDistributionType = json.d ?? LightColorEventBox.defaults.beatDistribution
@@ -37,7 +43,7 @@ export class LightColorEventBox extends LightEventBox<bsmap.v3.ILightColorEventB
         this.brightnessDistributionType = json.t ?? LightColorEventBox.defaults.brightnessDistribution
         this.distributionEasing = json.i ?? LightColorEventBox.defaults.distributionEasing
         this.customData = json.customData ?? LightColorEventBox.defaults.customData
-        this.events = json.e.map((x) => lightColorEvent({}).fromJsonV3(x))
+        this.events = json.e.map((x) => lightColorEvent().fromJsonV3(x))
         this.filter = json.f ?? LightColorEventBox.defaults.brightnessDistributionFirst
         return this
     }

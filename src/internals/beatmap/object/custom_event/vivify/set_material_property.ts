@@ -1,6 +1,5 @@
 import { ISetMaterialProperty } from '../../../../../types/beatmap/object/vivify_event_interfaces.ts'
 import { MaterialProperty } from '../../../../../types/vivify/material.ts'
-import { getActiveDifficulty } from '../../../../../data/active_difficulty.ts'
 import { copy } from '../../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import { EASE } from '../../../../../types/animation/easing.ts'
@@ -9,15 +8,17 @@ import { CustomEventConstructor } from '../../../../../types/beatmap/object/cust
 import { getDataProp } from '../../../../../utils/beatmap/json.ts'
 import { CustomEvent } from '../base/custom_event.ts'
 import { JsonObjectDefaults } from '../../../../../types/beatmap/object/object.ts'
+import {AbstractDifficulty} from "../../../abstract_beatmap.ts";
 
 export class SetMaterialProperty extends CustomEvent<
     never,
     ISetMaterialProperty
 > {
     constructor(
+        difficulty: AbstractDifficulty,
         params: CustomEventConstructor<SetMaterialProperty>,
     ) {
-        super(params)
+        super(difficulty, params)
         this.type = 'SetMaterialProperty'
         this.asset = params.asset ?? SetMaterialProperty.defaults.asset
         this.properties = params.properties ?? copy<MaterialProperty[]>(SetMaterialProperty.defaults.properties)
@@ -40,11 +41,8 @@ export class SetMaterialProperty extends CustomEvent<
         ...super.defaults,
     }
 
-    push(clone = true) {
-        getActiveDifficulty().customEvents.setMaterialPropertyEvents.push(
-            clone ? copy(this) : this,
-        )
-        return this
+    protected override getArray(difficulty: AbstractDifficulty): this[] {
+        return difficulty.customEvents.setMaterialPropertyEvents as this[]
     }
 
     override fromJsonV3(json: ISetMaterialProperty): this {

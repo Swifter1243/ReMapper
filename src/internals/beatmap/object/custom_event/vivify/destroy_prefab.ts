@@ -1,6 +1,5 @@
 import { TrackValue } from '../../../../../types/animation/track.ts'
 import { Track } from '../../../../../utils/animation/track.ts'
-import { getActiveDifficulty } from '../../../../../data/active_difficulty.ts'
 import { copy } from '../../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import { IDestroyPrefab } from '../../../../../types/beatmap/object/vivify_event_interfaces.ts'
@@ -9,18 +8,20 @@ import { CustomEventConstructorTrack } from '../../../../../types/beatmap/object
 import { getDataProp } from '../../../../../utils/beatmap/json.ts'
 import { CustomEvent } from '../base/custom_event.ts'
 import {JsonObjectDefaults} from "../../../../../types/beatmap/object/object.ts";
+import {AbstractDifficulty} from "../../../abstract_beatmap.ts";
 
 export class DestroyPrefab extends CustomEvent<
     never,
     IDestroyPrefab
 > {
     constructor(
+        difficulty: AbstractDifficulty,
         params: CustomEventConstructorTrack<
             DestroyPrefab,
             { id?: TrackValue | Track }
         >,
     ) {
-        super(params)
+        super(difficulty, params)
         this.type = 'DestroyPrefab'
         this.id = params.id instanceof Track ? params.id : new Track(params.id)
     }
@@ -33,11 +34,8 @@ export class DestroyPrefab extends CustomEvent<
         ...super.defaults,
     }
 
-    push(clone = true) {
-        getActiveDifficulty().customEvents.destroyPrefabEvents.push(
-            clone ? copy(this) : this,
-        )
-        return this
+    protected override getArray(difficulty: AbstractDifficulty): this[] {
+        return difficulty.customEvents.destroyPrefabEvents as this[]
     }
 
     override fromJsonV3(json: IDestroyPrefab): this {

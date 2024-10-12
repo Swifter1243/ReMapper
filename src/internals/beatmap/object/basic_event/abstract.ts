@@ -1,15 +1,11 @@
-import { getActiveDifficulty } from '../../../../data/active_difficulty.ts'
 import { bsmap } from '../../../../deps.ts'
-import { copy } from '../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../utils/object/prune.ts'
 import { BasicEvent } from './basic_event.ts'
+import type {AbstractDifficulty} from "../../abstract_beatmap.ts";
 
 export class AbstractBasicEvent extends BasicEvent {
-    push(
-        clone?: boolean,
-    ) {
-        getActiveDifficulty().abstractBasicEvents.push(clone ? copy(this) : this)
-        return this
+    protected override getArray(difficulty: AbstractDifficulty): this[] {
+        return difficulty.abstractBasicEvents as this[]
     }
 
     toJsonV3(prune?: boolean): bsmap.v3.IBasicEvent {

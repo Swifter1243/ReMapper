@@ -1,4 +1,3 @@
-import { getActiveDifficulty } from '../../../../../data/active_difficulty.ts'
 import { copy } from '../../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import { IAssignObjectPrefab } from '../../../../../types/beatmap/object/vivify_event_interfaces.ts'
@@ -8,15 +7,17 @@ import {getDataProp} from "../../../../../utils/beatmap/json.ts";
 import {CustomEvent} from "../base/custom_event.ts";
 import {JsonObjectDefaults} from "../../../../../types/beatmap/object/object.ts";
 import {LOAD_MODE} from "../../../../../types/vivify/setting.ts";
+import {AbstractDifficulty} from "../../../abstract_beatmap.ts";
 
 export class AssignObjectPrefab extends CustomEvent<
     never,
     IAssignObjectPrefab
 > {
     constructor(
+        difficulty: AbstractDifficulty,
         params: CustomEventConstructor<AssignObjectPrefab>,
     ) {
-        super(params)
+        super(difficulty, params)
         this.type = 'AssignObjectPrefab'
         this.loadMode = params.loadMode
         this.colorNotes = params.colorNotes
@@ -43,11 +44,8 @@ export class AssignObjectPrefab extends CustomEvent<
         ...super.defaults,
     }
 
-    push(clone = true) {
-        getActiveDifficulty().customEvents.assignObjectPrefabEvents.push(
-            clone ? copy(this) : this,
-        )
-        return this
+    protected override getArray(difficulty: AbstractDifficulty): this[] {
+        return difficulty.customEvents.assignObjectPrefabEvents as this[]
     }
 
     override fromJsonV3(json: IAssignObjectPrefab): this {

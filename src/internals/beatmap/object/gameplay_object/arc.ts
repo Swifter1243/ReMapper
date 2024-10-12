@@ -1,13 +1,12 @@
 import { AnchorMode } from '../../../../constants/arc.ts'
 import { bsmap } from '../../../../deps.ts'
-import { copy } from '../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../utils/object/prune.ts'
-import { getActiveDifficulty } from '../../../../data/active_difficulty.ts'
 import { NoteCut } from '../../../../constants/note.ts'
 import { BaseSliderObject } from './base_slider.ts'
 import { Vec2 } from '../../../../types/math/vector.ts'
 import {defaultBoolean, getCDProp, simplifyWorldRotation} from '../../../../utils/beatmap/json.ts'
 import { GameplayObjectDefaults, GameplayObjectConstructor } from '../../../../types/beatmap/object/gameplay_object.ts'
+import type { AbstractDifficulty } from '../../abstract_beatmap.ts'
 
 export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
     /**
@@ -23,11 +22,6 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
         this.anchorMode = fields.anchorMode ?? Arc.defaults.anchorMode
         this.flip = fields.flip
         this.disableNoteGravity = fields.disableNoteGravity
-    }
-
-    push(clone = true) {
-        getActiveDifficulty().arcs.push(clone ? copy(this) : this)
-        return this
     }
 
     /** The cut direction of the tail of the arc. */
@@ -49,6 +43,10 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
         tailLength: 0,
         anchorMode: AnchorMode.STRAIGHT,
         ...super.defaults,
+    }
+
+    protected override getArray(difficulty: AbstractDifficulty): this[] {
+        return difficulty.arcs as this[]
     }
 
     /** Determines whether this note uses Noodle Extensions features. */

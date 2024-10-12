@@ -1,9 +1,7 @@
 import { getActiveInfo } from '../../data/active_info.ts'
 import { compress } from 'https://deno.land/x/zip@v1.2.5/compress.ts'
 import { adbDeno, fs, path } from '../../deps.ts'
-import { currentTransfer } from './transfer.ts'
 import { copy } from '../object/copy.ts'
-import { getActiveDifficulty } from '../../data/active_difficulty.ts'
 import { getWorkingDirectory } from '../../data/working_directory.ts'
 import { QUEST_WIP_PATH } from '../../constants/file.ts'
 import { RMError, RMLog } from '../rm_log.ts'
@@ -17,19 +15,12 @@ import {forceFileNameExtension} from "../file.ts";
  * Returns all the files that are in the directory.
  * @param excludeDiffs Difficulties to exclude.
  * @param bundleInfo Include information about a bundle build in order to collect the corresponding bundles.
- * @param awaitSave Whether to await the active difficulty's saving action.
  */
 export async function collectBeatmapFiles(
     excludeDiffs: FILENAME<DIFFICULTY_NAME>[] = [],
     bundleInfo?: BundleInfo,
-    awaitSave = true,
 ) {
     const info = getActiveInfo()
-
-    if (awaitSave) {
-        const diff = getActiveDifficulty()
-        await diff.savePromise
-    }
 
     const makeTempDir = Deno.makeTempDir()
 
@@ -80,8 +71,6 @@ export async function exportZip(
     zipName?: string,
     bundleInfo?: BundleInfo,
 ) {
-    await currentTransfer
-
     const workingDir = getWorkingDirectory()
     zipName ??= `${path.parse(workingDir).name}`
     zipName = `${zipName}.zip`
@@ -123,8 +112,6 @@ export async function exportToQuest(
     excludeDiffs: FILENAME<DIFFICULTY_NAME>[] = [],
     options?: adbDeno.InvokeADBOptions,
 ) {
-    await currentTransfer
-
     const adbBinary = adbDeno.getADBBinary(adbDeno.defaultADBPath())
     const info = getActiveInfo()
 

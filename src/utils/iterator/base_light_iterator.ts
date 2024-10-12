@@ -1,7 +1,7 @@
-import {getActiveDifficulty} from "../../data/active_difficulty.ts";
 import {LightEvent} from "../../internals/beatmap/object/basic_event/light_event.ts";
 import {LightEventCondition, LightEventProcess} from "../../types/iterator.ts";
 import {lightEvent} from "../../builder_functions/beatmap/object/basic_event/light_event.ts";
+import {AbstractDifficulty} from "../../internals/beatmap/abstract_beatmap.ts";
 
 /*
  * Class used to iterate through every event in the map.
@@ -80,10 +80,11 @@ export class BaseLightIterator {
 
     /**
      * Run the iterator on light events in the active difficulty.
+     * @param difficulty Difficulty to run this light iterator on.
      * @param log Log the output JSON of each event.
      */
-    run(log = false) {
-        return this.processEvents(getActiveDifficulty().lightEvents, log)
+    run(difficulty: AbstractDifficulty, log = false) {
+        return this.processEvents(difficulty.lightEvents, log)
     }
 
     /**

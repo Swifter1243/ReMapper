@@ -3,10 +3,11 @@ import { bsmap } from '../../../../../../deps.ts'
 import { LightColor, LightTransition } from '../../../../../../constants/v3_event.ts'
 import { objectPrune } from '../../../../../../utils/object/prune.ts'
 import { BeatmapObjectConstructor, BeatmapObjectDefaults } from '../../../../../../types/beatmap/object/object.ts'
+import {LightColorEventBox} from "../light_event_box/color.ts";
 
 export class LightColorEvent extends BaseLightEvent<bsmap.v3.ILightColorBase> {
-    constructor(obj: BeatmapObjectConstructor<LightColorEvent>) {
-        super(obj)
+    constructor(parent: LightColorEventBox, obj: BeatmapObjectConstructor<LightColorEvent>) {
+        super(parent, obj)
         this.transitionType = obj.transitionType ?? LightColorEvent.defaults.transitionType
         this.color = obj.color ?? LightColorEvent.defaults.color
         this.brightness = obj.brightness ?? LightColorEvent.defaults.brightness
@@ -30,16 +31,16 @@ export class LightColorEvent extends BaseLightEvent<bsmap.v3.ILightColorBase> {
         ...super.defaults,
     }
 
+    protected override getArray(parent: LightColorEventBox): this[] {
+        return parent.events as this[]
+    }
+
     override fromJsonV3(json: bsmap.v3.ILightColorBase): this {
         this.transitionType = json.i ?? LightColorEvent.defaults.transitionType
         this.color = json.c ?? LightColorEvent.defaults.color
         this.brightness = json.s ?? LightColorEvent.defaults.brightness
         this.blinkingFrequency = json.f ?? LightColorEvent.defaults.blinkingFrequency
         return super.fromJsonV3(json)
-    }
-
-    override fromJsonV2(_json: never): this {
-        throw 'Event box groups are not supported in V2!'
     }
 
     toJsonV3(prune?: boolean): bsmap.v3.ILightColorBase {
@@ -52,9 +53,5 @@ export class LightColorEvent extends BaseLightEvent<bsmap.v3.ILightColorBase> {
             customData: this.customData,
         } satisfies bsmap.v3.ILightColorBase
         return prune ? objectPrune(output) : output
-    }
-
-    toJsonV2(_prune?: boolean): never {
-        throw 'Event box groups are not supported in V2!'
     }
 }

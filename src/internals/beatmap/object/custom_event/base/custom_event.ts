@@ -2,13 +2,17 @@ import { IV3CustomEvent } from '../../../../../types/beatmap/object/custom_event
 import { JsonWrapper } from '../../../../../types/beatmap/json_wrapper.ts'
 import { TJson } from '../../../../../types/util/json.ts'
 import { bsmap } from '../../../../../deps.ts'
-import {JsonObjectConstructor, JsonObjectDefaults} from "../../../../../types/beatmap/object/object.ts";
+import { JsonObjectConstructor, JsonObjectDefaults } from '../../../../../types/beatmap/object/object.ts'
+import { BeatmapArrayMember } from '../../../../../types/beatmap/beatmap_member.ts'
+import type { AbstractDifficulty } from '../../../abstract_beatmap.ts'
 
 export abstract class CustomEvent<
     TV2 extends bsmap.v2.ICustomEvent = bsmap.v2.ICustomEvent,
     TV3 extends IV3CustomEvent = IV3CustomEvent,
-> implements JsonWrapper<TV2, TV3> {
-    constructor(fields: JsonObjectConstructor<CustomEvent<TV2, TV3>>) {
+> extends BeatmapArrayMember implements JsonWrapper<TV2, TV3> {
+    constructor(difficulty: AbstractDifficulty, fields: JsonObjectConstructor<CustomEvent<TV2, TV3>>) {
+        super(difficulty)
+
         this.beat = fields.beat ?? CustomEvent.defaults.beat
         this.type = fields.type ?? CustomEvent.defaults.type
         this.data = fields.data ?? CustomEvent.defaults.data
@@ -44,9 +48,4 @@ export abstract class CustomEvent<
 
     abstract toJsonV3(prune?: boolean | undefined): TV3
     abstract toJsonV2(prune?: boolean | undefined): TV2
-
-    /** Push this event to the difficulty.
-     * @param clone Whether this object will be copied before being pushed.
-     */
-    abstract push(clone: boolean): CustomEvent<TV2, TV3>
 }

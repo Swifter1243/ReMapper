@@ -3,7 +3,6 @@ import { loadActiveInfo } from '../../data/active_info.ts'
 import { V3Difficulty } from '../../internals/beatmap/beatmap_v3.ts'
 import { V2Difficulty } from '../../internals/beatmap/beatmap_v2.ts'
 import { bsmap, path, semver } from '../../deps.ts'
-import {setActiveDifficulty} from "../../data/active_difficulty.ts";
 import {attachWorkingDirectory, setWorkingDirectory, workingDirectoryExists} from "../../data/working_directory.ts";
 import {parseFilePath} from "../../utils/file.ts";
 import {tryGetDifficultyInfo} from "../../utils/beatmap/info/difficulty_set.ts";
@@ -76,8 +75,6 @@ export async function readDifficulty(
             json as bsmap.v2.IDifficulty,
         )
     }
-
-    setActiveDifficulty(diff)
 
     return diff
 }

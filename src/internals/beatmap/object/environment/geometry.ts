@@ -1,20 +1,20 @@
-import {BaseEnvironmentEnhancement} from './base_environment.ts'
-import {ExcludedEnvironmentFields, GeometryMaterial, GeoType} from '../../../../types/beatmap/object/environment.ts'
+import { BaseEnvironmentEnhancement } from './base_environment.ts'
+import { ExcludedEnvironmentFields, GeometryMaterial, GeoType } from '../../../../types/beatmap/object/environment.ts'
 import { bsmap } from '../../../../deps.ts'
-import {copy} from "../../../../utils/object/copy.ts";
-import {objectPrune} from "../../../../utils/object/prune.ts";
-import {getActiveDifficulty} from "../../../../data/active_difficulty.ts";
-import {JsonObjectDefaults} from "../../../../types/beatmap/object/object.ts";
+import { copy } from '../../../../utils/object/copy.ts'
+import { objectPrune } from '../../../../utils/object/prune.ts'
+import { JsonObjectDefaults } from '../../../../types/beatmap/object/object.ts'
+import type { AbstractDifficulty } from '../../abstract_beatmap.ts'
 
 export class Geometry extends BaseEnvironmentEnhancement<
     bsmap.v2.IChromaEnvironmentGeometry,
     bsmap.v3.IChromaEnvironmentGeometry
 > {
-
     constructor(
+        parentDifficulty: AbstractDifficulty,
         fields: ExcludedEnvironmentFields<Geometry>,
     ) {
-        super(fields)
+        super(parentDifficulty, fields)
         this.type = fields.type ?? Geometry.defaults.type
         this.material = fields.material ?? copy(Geometry.defaults.material)
         this.collision = fields.collision
@@ -35,18 +35,22 @@ export class Geometry extends BaseEnvironmentEnhancement<
         ...super.defaults,
     }
 
+    protected override getArray(difficulty: AbstractDifficulty): this[] {
+        return difficulty.geometry as this[]
+    }
+
     override fromJsonV3(json: bsmap.v3.IChromaEnvironmentGeometry): this {
         this.type = (json.geometry.type ?? Geometry.defaults.type) as GeoType
         this.material = json.geometry.material as GeometryMaterial | undefined ?? copy(Geometry.defaults.material)
         this.collision = json.geometry.collision
-        return super.fromJsonV3(json);
+        return super.fromJsonV3(json)
     }
 
     override fromJsonV2(json: bsmap.v2.IChromaEnvironmentGeometry): this {
         this.type = (json._geometry._type ?? Geometry.defaults.type) as GeoType
         this.material = json._geometry._material as GeometryMaterial | undefined ?? copy(Geometry.defaults.material)
         this.collision = json._geometry._collision
-        return super.fromJsonV2(json);
+        return super.fromJsonV2(json)
     }
 
     toJsonV3(prune?: boolean): bsmap.v3.IChromaEnvironmentGeometry {
@@ -97,9 +101,5 @@ export class Geometry extends BaseEnvironmentEnhancement<
             _track: this.track.value as string,
         } satisfies bsmap.v2.IChromaEnvironmentGeometry
         return prune ? objectPrune(output) : output
-    }
-
-    push(clone = true): void {
-        getActiveDifficulty().geometry.push(clone ? copy(this) : this)
     }
 }

@@ -1,6 +1,5 @@
 import { LightID } from '../../../../types/beatmap/object/environment.ts'
 import { EventAction } from '../../../../constants/basic_event.ts'
-import { getActiveDifficulty } from '../../../../data/active_difficulty.ts'
 import { copy } from '../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../utils/object/prune.ts'
 import { BasicEvent } from './basic_event.ts'
@@ -10,6 +9,7 @@ import { ColorVec } from '../../../../types/math/vector.ts'
 import { EASE } from '../../../../types/animation/easing.ts'
 import { getCDProp } from '../../../../utils/beatmap/json.ts'
 import { BeatmapObjectConstructor, BeatmapObjectDefaults } from '../../../../types/beatmap/object/object.ts'
+import type {AbstractDifficulty} from "../../abstract_beatmap.ts";
 
 type ActionFunction = [
     color?: ColorVec | LightColorLiteral,
@@ -17,8 +17,11 @@ type ActionFunction = [
 ]
 
 export class LightEvent extends BasicEvent<bsmap.v2.IEventLight, bsmap.v3.IBasicEventLight> {
-    constructor(obj: BeatmapObjectConstructor<LightEvent>) {
-        super(obj)
+    constructor(
+        difficulty: AbstractDifficulty,
+        obj: BeatmapObjectConstructor<LightEvent>
+    ) {
+        super(difficulty, obj)
         this.lightID = obj.lightID
         this.chromaColor = obj.chromaColor
         this.easing = obj.easing
@@ -36,6 +39,10 @@ export class LightEvent extends BasicEvent<bsmap.v2.IEventLight, bsmap.v3.IBasic
 
     static override defaults: BeatmapObjectDefaults<LightEvent> = {
         ...super.defaults,
+    }
+
+    protected override getArray(difficulty: AbstractDifficulty): this[] {
+        return difficulty.lightEvents as this[]
     }
 
     /** Create an event that turns lights off
@@ -107,11 +114,6 @@ export class LightEvent extends BasicEvent<bsmap.v2.IEventLight, bsmap.v3.IBasic
             Red: EventAction.RED_TRANSITION,
             White: EventAction.WHITE_TRANSITION,
         })
-    }
-
-    push(clone = true): this {
-        getActiveDifficulty().lightEvents.push(clone ? copy(this) : this)
-        return this
     }
 
     override fromJsonV3(json: bsmap.v3.IBasicEventLight): this {

@@ -4,18 +4,19 @@ import { Track } from '../../../../../utils/animation/track.ts'
 import { EASE } from '../../../../../types/animation/easing.ts'
 import { BloomFogEnvironment, TubeBloomPrePassLight } from '../../../../../types/beatmap/object/environment.ts'
 import { PointDefinitionLinear } from '../../../../../types/animation/keyframe/linear.ts'
-import { getActiveDifficulty } from '../../../../../data/active_difficulty.ts'
 import { copy } from '../../../../../utils/object/copy.ts'
 import { getDataProp } from '../../../../../utils/beatmap/json.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import { bsmap } from '../../../../../deps.ts'
 import { JsonObjectDefaults } from '../../../../../types/beatmap/object/object.ts'
+import {AbstractDifficulty} from "../../../abstract_beatmap.ts";
 
 export class AnimateComponent extends CustomEvent<never, bsmap.v3.ICustomEventAnimateComponent> {
     constructor(
+        difficulty: AbstractDifficulty,
         params: CustomEventConstructorTrack<AnimateComponent>,
     ) {
-        super(params)
+        super(difficulty, params)
         this.type = 'AnimateComponent'
         this.track = new Track(params.track)
         this.duration = params.duration
@@ -44,14 +45,8 @@ export class AnimateComponent extends CustomEvent<never, bsmap.v3.ICustomEventAn
         ...super.defaults,
     }
 
-    /** Push this event to the difficulty.
-     * @param clone Whether this object will be copied before being pushed.
-     */
-    push(clone = true) {
-        getActiveDifficulty().customEvents.abstractCustomEvents.push(
-            clone ? copy(this) : this,
-        )
-        return this
+    protected override getArray(difficulty: AbstractDifficulty): this[] {
+        return difficulty.customEvents.animateComponentEvents as this[]
     }
 
     override fromJsonV3(json: bsmap.v3.ICustomEventAnimateComponent): this {

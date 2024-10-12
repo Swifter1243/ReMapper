@@ -1,6 +1,5 @@
 import { ModelScene } from './base.ts'
 import { StaticModelInput } from '../../../types/model/model_scene/input.ts'
-import { getActiveDifficulty } from '../../../data/active_difficulty.ts'
 import { copy } from '../../object/copy.ts'
 import { Geometry } from '../../../internals/beatmap/object/environment/geometry.ts'
 import { ColorVec } from '../../../types/math/vector.ts'
@@ -9,6 +8,7 @@ import { RuntimeRawKeyframesVec3 } from '../../../types/animation/keyframe/runti
 import { StaticSceneInfo } from '../../../types/model/model_scene/scene_info.ts'
 import {ReadonlyModel, type ModelObject} from "../../../types/model/object.ts";
 import type { DeepReadonly } from '../../../types/util/mutability.ts'
+import {AbstractDifficulty} from "../../../internals/beatmap/abstract_beatmap.ts";
 
 export class StaticModelScene extends ModelScene<StaticModelInput, Promise<ReadonlyModel>, StaticSceneInfo> {
     private initializeSceneInfo() {
@@ -40,7 +40,7 @@ export class StaticModelScene extends ModelScene<StaticModelInput, Promise<Reado
         return this.getObjects(input)
     }
 
-    protected async _instantiate() {
+    protected async _instantiate(difficulty: AbstractDifficulty) {
         // Initialize info
         const sceneInfo = this.initializeSceneInfo()
 
@@ -63,7 +63,7 @@ export class StaticModelScene extends ModelScene<StaticModelInput, Promise<Reado
 
                 if (group.defaultMaterial && object instanceof Geometry) {
                     const materialName = `modelScene${this.ID}_${groupKey}_material`
-                    getActiveDifficulty().geometryMaterials[materialName] = group.defaultMaterial
+                    difficulty.geometryMaterials[materialName] = group.defaultMaterial
                     object.material = materialName
                 }
 
@@ -84,8 +84,6 @@ export class StaticModelScene extends ModelScene<StaticModelInput, Promise<Reado
                 groupInfo.count++
                 groupInfo.group = group
                 groupInfo.objects.push(object)
-
-                object.push(false)
             }
             else {
                 const event = animateTrack(0, track)
@@ -97,8 +95,6 @@ export class StaticModelScene extends ModelScene<StaticModelInput, Promise<Reado
                 groupInfo.count++
                 groupInfo.group = group
                 groupInfo.events.push(event)
-
-                getActiveDifficulty().customEvents.animateTrackEvents.push(event)
             }
         })
 
@@ -108,13 +104,13 @@ export class StaticModelScene extends ModelScene<StaticModelInput, Promise<Reado
 
             const groupInfo = sceneInfo.trackGroupInfo[groupKey]
             if (groupInfo.count === 0 && group.disappearWhenAbsent) {
-                ModelScene.createYeetDef()
+                ModelScene.createYeetDef(difficulty)
                 animateTrack({
                     track: groupKey,
                     animation: {
                         position: 'yeet'
                     }
-                }).push(false)
+                })
             }
         })
 

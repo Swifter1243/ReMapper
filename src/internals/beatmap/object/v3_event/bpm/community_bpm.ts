@@ -2,13 +2,14 @@ import {BPMEvent} from "./bpm.ts";
 import { bsmap } from '../../../../../deps.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import {JsonObjectConstructor, JsonObjectDefaults} from "../../../../../types/beatmap/object/object.ts";
+import {AbstractDifficulty} from "../../../abstract_beatmap.ts";
 
 export class CommunityBPMEvent extends BPMEvent<
     bsmap.v2.IBPMChange | bsmap.v2.IBPMChangeOld,
     bsmap.v3.IBPMChange
 > {
-    constructor(obj: JsonObjectConstructor<CommunityBPMEvent>) {
-        super(obj)
+    constructor(parentDifficulty: AbstractDifficulty, obj: JsonObjectConstructor<CommunityBPMEvent>) {
+        super(parentDifficulty, obj)
         this.bpm = obj.bpm ?? CommunityBPMEvent.defaults.bpm
         this.mediocreMapper = obj.mediocreMapper ?? CommunityBPMEvent.defaults.mediocreMapper
         this.beatsPerBar = obj.beatsPerBar ?? CommunityBPMEvent.defaults.beatsPerBar
@@ -30,6 +31,10 @@ export class CommunityBPMEvent extends BPMEvent<
         beatsPerBar: 4,
         metronomeOffset: 0,
         ...super.defaults
+    }
+
+    protected override getArray(difficulty: AbstractDifficulty): this[] {
+        return difficulty.bpmEvents as this[]
     }
 
     override fromJsonV3(json: bsmap.v3.IBPMChange): this {

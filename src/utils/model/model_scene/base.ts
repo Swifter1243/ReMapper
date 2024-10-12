@@ -1,4 +1,3 @@
-import { getActiveDifficulty } from '../../../data/active_difficulty.ts'
 import { GroupObjectTypes } from '../../../types/model/model_scene/group.ts'
 import { optimizeKeyframes } from '../../animation/optimizer.ts'
 import { Vec3 } from '../../../types/math/vector.ts'
@@ -17,6 +16,7 @@ import { TransformKeyframe } from '../../../types/animation/bake.ts'
 import { bakeAnimation } from '../../animation/bake.ts'
 import { DeepReadonly } from '../../../types/util/mutability.ts'
 import { ModelSceneSettings } from './settings.ts'
+import {AbstractDifficulty} from "../../../internals/beatmap/abstract_beatmap.ts";
 
 export abstract class ModelScene<I, M, O> {
     protected static modelSceneCount = 0
@@ -40,19 +40,19 @@ export abstract class ModelScene<I, M, O> {
     }
 
     protected abstract _createModelPromise(input: I): M
-    protected abstract _instantiate(): Promise<O>
+    protected abstract _instantiate(difficulty: AbstractDifficulty): Promise<O>
 
     /** Instantiate the model scene given object inputs. Your difficulty will await this process before saving. */
-    async instantiate() {
+    async instantiate(difficulty: AbstractDifficulty) {
         if (Object.values(this.settings.groups).length === 0) {
             throw 'ModelScene has no groups, which is redundant as no objects will be represented.'
         }
 
-        return await getActiveDifficulty().runAsync(async () => await this._instantiate())
+        return await difficulty.runAsync(async () => await this._instantiate(difficulty))
     }
 
-    protected static createYeetDef() {
-        getActiveDifficulty().pointDefinitions.yeet = [0, -69420, 0]
+    protected static createYeetDef(difficulty: AbstractDifficulty) {
+        difficulty.pointDefinitions.yeet = [0, -69420, 0]
     }
 
     protected static getModelNameFromHash(hash: string) {
@@ -119,7 +119,6 @@ export abstract class ModelScene<I, M, O> {
     ): ReadonlyModel {
         if (options.objects) options.objects(objects)
         const outputObjects: ModelObject[] = []
-        const v3 = getActiveDifficulty().v3
         const trackGroups = new Set<string>()
 
         objects.forEach((x) => {
@@ -167,7 +166,7 @@ export abstract class ModelScene<I, M, O> {
                 o.scale = bakedCube.scale
             }
 
-            if (!v3) {
+            if (group.useNoodleUnits) {
                 positionUnityToNoodle(o.position)
             }
 
@@ -199,7 +198,6 @@ export abstract class ModelScene<I, M, O> {
             onCache,
             this.settings.groups,
             this.settings.animationSettings.toData(),
-            getActiveDifficulty().v3,
         ]).replaceAll('"', '')
 
         const name = ModelScene.getModelNameFromHash(hash)
@@ -212,7 +210,6 @@ export abstract class ModelScene<I, M, O> {
         objects: ModelObject[],
         options: AnimatedOptions,
     ) {
-        const v3 = getActiveDifficulty().v3
         if (options.onCache) options.onCache(objects)
         const trackGroups = new Set<string>()
 
@@ -263,7 +260,7 @@ export abstract class ModelScene<I, M, O> {
                     transform = combineTransforms(group.transform, transform)
                 }
 
-                if (!v3) {
+                if (group.useNoodleUnits) {
                     positionUnityToNoodle(transform.position)
                 }
 

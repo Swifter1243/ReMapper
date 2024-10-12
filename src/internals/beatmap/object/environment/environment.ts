@@ -1,10 +1,9 @@
 import {bsmap} from '../../../../deps.ts'
 import {BaseEnvironmentEnhancement} from "./base_environment.ts";
-import {copy} from "../../../../utils/object/copy.ts";
 import {objectPrune} from "../../../../utils/object/prune.ts";
-import {getActiveDifficulty} from "../../../../data/active_difficulty.ts";
 import {ExcludedEnvironmentFields, LookupMethod} from "../../../../types/beatmap/object/environment.ts";
 import {JsonObjectDefaults} from "../../../../types/beatmap/object/object.ts";
+import {AbstractDifficulty} from "../../abstract_beatmap.ts";
 
 export class Environment extends BaseEnvironmentEnhancement<
     bsmap.v2.IChromaEnvironmentID,
@@ -12,9 +11,10 @@ export class Environment extends BaseEnvironmentEnhancement<
 > {
 
     constructor(
+        parentDifficulty: AbstractDifficulty,
         fields: ExcludedEnvironmentFields<Environment>,
     ) {
-        super(fields)
+        super(parentDifficulty, fields)
         this.id = fields.id ?? Environment.defaults.id
         this.lookupMethod = fields.lookupMethod ?? Environment.defaults.lookupMethod
     }
@@ -28,6 +28,10 @@ export class Environment extends BaseEnvironmentEnhancement<
         id: '',
         lookupMethod: 'Contains',
         ...super.defaults
+    }
+
+    protected override getArray(difficulty: AbstractDifficulty): this[] {
+        return difficulty.environment as this[]
     }
 
     override fromJsonV3(json: bsmap.v3.IChromaEnvironmentID): this {
@@ -85,10 +89,6 @@ export class Environment extends BaseEnvironmentEnhancement<
             _track: this.track.value as string,
         } satisfies bsmap.v2.IChromaEnvironmentID
         return prune ? objectPrune(output) : output
-    }
-
-    push(clone = true): void {
-        getActiveDifficulty().environment.push(clone ? copy(this) : this)
     }
 }
 

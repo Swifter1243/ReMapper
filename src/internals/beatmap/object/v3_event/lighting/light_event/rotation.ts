@@ -1,12 +1,13 @@
-import { BeatmapObject } from '../../../object.ts'
 import { RotationDirection, RotationEase } from '../../../../../../constants/v3_event.ts'
 import { bsmap } from '../../../../../../deps.ts'
 import { objectPrune } from '../../../../../../utils/object/prune.ts'
 import { BeatmapObjectConstructor, BeatmapObjectDefaults } from '../../../../../../types/beatmap/object/object.ts'
+import {BaseLightEvent} from "./base.ts";
+import {LightRotationEventBox} from "../light_event_box/rotation.ts";
 
-export class LightRotationEvent extends BeatmapObject<never, bsmap.v3.ILightRotationBase> {
-    constructor(obj: BeatmapObjectConstructor<LightRotationEvent>) {
-        super(obj)
+export class LightRotationEvent extends BaseLightEvent<bsmap.v3.ILightRotationBase> {
+    constructor(parent: LightRotationEventBox, obj: BeatmapObjectConstructor<LightRotationEvent>) {
+        super(parent, obj)
         this.usePreviousEventRotation = obj.usePreviousEventRotation ?? LightRotationEvent.defaults.usePreviousEventRotation
         this.easing = obj.easing ?? LightRotationEvent.defaults.easing
         this.loopCount = obj.loopCount ?? LightRotationEvent.defaults.loopCount
@@ -34,6 +35,10 @@ export class LightRotationEvent extends BeatmapObject<never, bsmap.v3.ILightRota
         ...super.defaults,
     }
 
+    protected override getArray(parent: LightRotationEventBox): this[] {
+        return parent.events as this[]
+    }
+
     override fromJsonV3(json: bsmap.v3.ILightRotationBase): this {
         this.usePreviousEventRotation = json.p !== undefined ? json.p === 1 : LightRotationEvent.defaults.usePreviousEventRotation
         this.easing = json.e ?? LightRotationEvent.defaults.easing
@@ -58,9 +63,5 @@ export class LightRotationEvent extends BeatmapObject<never, bsmap.v3.ILightRota
             customData: this.customData,
         } satisfies bsmap.v3.ILightRotationBase
         return prune ? objectPrune(output) : output
-    }
-
-    toJsonV2(_prune?: boolean): never {
-        throw 'Event box groups are not supported in V2!'
     }
 }

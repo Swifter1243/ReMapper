@@ -3,16 +3,21 @@ import {isEmptyObject} from "../../../utils/object/check.ts";
 import {JsonWrapper} from "../../../types/beatmap/json_wrapper.ts";
 import {copy} from "../../../utils/object/copy.ts";
 import {BeatmapObjectConstructor, BeatmapObjectDefaults} from "../../../types/beatmap/object/object.ts";
+import {BeatmapArrayMember} from "../../../types/beatmap/beatmap_member.ts";
+import type { AbstractDifficulty } from '../abstract_beatmap.ts'
 
 export abstract class BeatmapObject<
     TV2 extends bsmap.v2.IBaseObject = bsmap.v2.IBaseObject,
     TV3 extends bsmap.v3.IBaseObject = bsmap.v3.IBaseObject,
-> implements JsonWrapper<TV2, TV3> {
+> extends BeatmapArrayMember<AbstractDifficulty> implements JsonWrapper<TV2, TV3> {
     constructor(
+        parentDifficulty: AbstractDifficulty,
         obj: BeatmapObjectConstructor<BeatmapObject<TV2, TV3>>,
     ) {
-        this.beat = (obj.beat as number | undefined) ?? BeatmapObject.defaults.beat
+        super(parentDifficulty)
 
+        this.parent = parentDifficulty
+        this.beat = (obj.beat as number | undefined) ?? BeatmapObject.defaults.beat
         // gotta do this funky shit cause obj.customData is generic
         this.customData = (obj as Record<string, unknown>).customData ?? copy(BeatmapObject.defaults.customData)
     }

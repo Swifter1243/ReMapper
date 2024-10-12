@@ -1,7 +1,6 @@
 import { bsmap } from '../../../../deps.ts'
 import { copy } from '../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../utils/object/prune.ts'
-import { getActiveDifficulty } from '../../../../data/active_difficulty.ts'
 import { BaseSliderObject } from './base_slider.ts'
 import { Vec2 } from '../../../../types/math/vector.ts'
 import {
@@ -11,6 +10,7 @@ import {
     simplifyWorldRotation
 } from '../../../../utils/beatmap/json.ts'
 import { GameplayObjectDefaults, GameplayObjectConstructor } from '../../../../types/beatmap/object/gameplay_object.ts'
+import type {AbstractDifficulty} from "../../abstract_beatmap.ts";
 
 export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
     constructor(
@@ -29,11 +29,6 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
         this.disableBadCutSpeed = fields.disableBadCutSpeed
         this.disableBadCutSaberType = fields.disableBadCutSaberType
         this.disableDebris = fields.disableDebris
-    }
-
-    push(clone = true) {
-        getActiveDifficulty().chains.push(clone ? copy(this) : this)
-        return this
     }
 
     /** The amount of links in the chain. */
@@ -65,6 +60,10 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
         links: 4,
         squish: 0,
         ...super.defaults,
+    }
+
+    protected override getArray(difficulty: AbstractDifficulty): this[] {
+        return difficulty.chains as this[]
     }
 
     override get isGameplayModded() {

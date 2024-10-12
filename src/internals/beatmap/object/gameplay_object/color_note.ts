@@ -1,19 +1,19 @@
 import { bsmap } from '../../../../deps.ts'
 
-import { getActiveDifficulty } from '../../../../data/active_difficulty.ts'
 import { animationV3toV2 } from '../../../../utils/animation/json.ts'
 import { NoteColor, NoteCut } from '../../../../constants/note.ts'
 import { BaseNote } from './base_note.ts'
-import { copy } from '../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../utils/object/prune.ts'
 import {exportInvertedBoolean, simplifyWorldRotation} from '../../../../utils/beatmap/json.ts'
 import { GameplayObjectDefaults, GameplayObjectConstructor } from '../../../../types/beatmap/object/gameplay_object.ts'
+import type { AbstractDifficulty } from '../../abstract_beatmap.ts'
 
 export class ColorNote extends BaseNote<bsmap.v3.IColorNote> {
     constructor(
+        parentDifficulty: AbstractDifficulty,
         fields: GameplayObjectConstructor<ColorNote>,
     ) {
-        super(fields)
+        super(parentDifficulty, fields)
         this.color = fields.color ?? 0
         this.cutDirection = fields.cutDirection ?? 0
         this.angleOffset = fields.angleOffset ?? 0
@@ -33,9 +33,8 @@ export class ColorNote extends BaseNote<bsmap.v3.IColorNote> {
         ...super.defaults,
     }
 
-    push(clone = true) {
-        getActiveDifficulty().colorNotes.push(clone ? copy(this) : this)
-        return this
+    protected override getArray(difficulty: AbstractDifficulty): this[] {
+        return difficulty.colorNotes as this[]
     }
 
     override fromJsonV3(json: bsmap.v3.IColorNote): this {

@@ -1,18 +1,14 @@
 import { CustomEvent } from './custom_event.ts'
-import { getActiveDifficulty } from '../../../../../data/active_difficulty.ts'
-import { copy } from '../../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import { bsmap } from '../../../../../deps.ts'
+import type { AbstractDifficulty } from '../../../abstract_beatmap.ts'
 
 export class AbstractCustomEvent extends CustomEvent<
     bsmap.v2.ICustomEvent,
     bsmap.v3.ICustomEvent
 > {
-    push(clone = true) {
-        getActiveDifficulty().customEvents.abstractCustomEvents.push(
-            clone ? copy(this) : this,
-        )
-        return this
+    protected override getArray(difficulty: AbstractDifficulty): this[] {
+        return difficulty.customEvents.abstractCustomEvents as this[]
     }
 
     override fromJsonV2(json: bsmap.v2.ICustomEvent): this {

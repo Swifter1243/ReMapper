@@ -4,19 +4,24 @@ import { Track } from '../../../../utils/animation/track.ts'
 import { Vec3 } from '../../../../types/math/vector.ts'
 import { JsonWrapper } from '../../../../types/beatmap/json_wrapper.ts'
 import {JsonObjectDefaults} from "../../../../types/beatmap/object/object.ts";
+import {BeatmapArrayMember} from "../../../../types/beatmap/beatmap_member.ts";
+import {AbstractDifficulty} from "../../abstract_beatmap.ts";
 
 /** The base abstract Environment Enhancement class which is inherited by Environment and Geometry. */
 export abstract class BaseEnvironmentEnhancement<
     TV2 extends bsmap.v2.IChromaEnvironmentBase,
     TV3 extends bsmap.v3.IChromaEnvironmentBase,
-> implements JsonWrapper<TV2, TV3> {
+> extends BeatmapArrayMember<AbstractDifficulty> implements JsonWrapper<TV2, TV3> {
     protected constructor(
+        parentDifficulty: AbstractDifficulty,
         fields:
             & ExcludedEnvironmentFields<BaseEnvironmentEnhancement<TV2, TV3>>
             & {
                 components?: TV3['components']
             },
     ) {
+        super(parentDifficulty)
+
         this.duplicate = fields.duplicate
         this.active = fields.active
         this.scale = fields.scale
@@ -91,9 +96,4 @@ export abstract class BaseEnvironmentEnhancement<
 
     abstract toJsonV2(prune?: boolean): TV2
     abstract toJsonV3(prune?: boolean): TV3
-
-    /** Push this environment/geometry object to the difficulty.
-     * @param clone Whether this object will be copied before being pushed.
-     */
-    abstract push(clone: boolean): void
 }

@@ -1,15 +1,15 @@
 import { EventGroup } from '../../../../constants/basic_event.ts'
-import { getActiveDifficulty } from '../../../../data/active_difficulty.ts'
 import { copy } from '../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../utils/object/prune.ts'
 import { BasicEvent } from './basic_event.ts'
 import { bsmap } from '../../../../deps.ts'
 import { getCDProp } from '../../../../utils/beatmap/json.ts'
 import {BeatmapObjectDefaults, BeatmapObjectFields} from "../../../../types/beatmap/object/object.ts";
+import type { AbstractDifficulty } from '../../abstract_beatmap.ts'
 
 export class RingZoomEvent extends BasicEvent<bsmap.v2.IEventZoom, bsmap.v3.IBasicEventRing> {
-    constructor(obj: Partial<Omit<BeatmapObjectFields<RingZoomEvent>, 'type'>>) {
-        super({
+    constructor(difficulty: AbstractDifficulty,obj: Partial<Omit<BeatmapObjectFields<RingZoomEvent>, 'type'>>) {
+        super(difficulty,{
             ...obj,
             type: EventGroup.RING_ZOOM,
         })
@@ -26,11 +26,8 @@ export class RingZoomEvent extends BasicEvent<bsmap.v2.IEventZoom, bsmap.v3.IBas
         ...super.defaults,
     }
 
-    push(
-        clone = true,
-    ): RingZoomEvent {
-        getActiveDifficulty().ringZoomEvents.push(clone ? copy(this) : this)
-        return this
+    protected override getArray(difficulty: AbstractDifficulty): this[] {
+        return difficulty.ringZoomEvents as this[]
     }
 
     override fromJsonV3(json: bsmap.v3.IBasicEventRing): this {

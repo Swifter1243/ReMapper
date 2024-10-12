@@ -1,14 +1,19 @@
 import { IV2BPM, IV3BPM } from '../../../../../types/beatmap/object/v3_event.ts'
 import { JsonWrapper } from '../../../../../types/beatmap/json_wrapper.ts'
-import { getActiveDifficulty } from '../../../../../data/active_difficulty.ts'
-import { copy } from '../../../../../utils/object/copy.ts'
 import { JsonObjectConstructor, JsonObjectDefaults } from '../../../../../types/beatmap/object/object.ts'
+import {BeatmapArrayMember} from "../../../../../types/beatmap/beatmap_member.ts";
+import type { AbstractDifficulty } from '../../../abstract_beatmap.ts'
 
 export abstract class BPMEvent<
     TV2 extends IV2BPM = IV2BPM,
     TV3 extends IV3BPM = IV3BPM,
-> implements JsonWrapper<TV2, TV3> {
-    protected constructor(obj: JsonObjectConstructor<BPMEvent>) {
+> extends BeatmapArrayMember<AbstractDifficulty> implements JsonWrapper<TV2, TV3> {
+    protected constructor(
+        parentDifficulty: AbstractDifficulty,
+        obj: JsonObjectConstructor<BPMEvent>
+    ) {
+        super(parentDifficulty)
+
         this.beat = obj.beat ?? BPMEvent.defaults.beat
     }
 
@@ -18,11 +23,6 @@ export abstract class BPMEvent<
     /** The values to initialize fields in this class. */
     static defaults: JsonObjectDefaults<BPMEvent> = {
         beat: 0,
-    }
-
-    push(clone = true) {
-        getActiveDifficulty().bpmEvents.push(clone ? copy<BPMEvent>(this) : this)
-        return this
     }
 
     fromJsonV3(json: TV3): this {

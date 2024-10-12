@@ -1,20 +1,21 @@
 import { CustomEvent } from '../base/custom_event.ts'
 import { JsonObjectDefaults } from '../../../../../types/beatmap/object/object.ts'
 import { CustomEventConstructorTrack } from '../../../../../types/beatmap/object/custom_event.ts'
-import { getActiveDifficulty } from '../../../../../data/active_difficulty.ts'
 import { copy } from '../../../../../utils/object/copy.ts'
 import { getDataProp } from '../../../../../utils/beatmap/json.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import { bsmap } from '../../../../../deps.ts'
+import {AbstractDifficulty} from "../../../abstract_beatmap.ts";
 
 export class AssignPlayerToTrack extends CustomEvent<
     bsmap.v2.ICustomEventAssignPlayerToTrack,
     bsmap.v3.ICustomEventAssignPlayerToTrack
 > {
     constructor(
+        difficulty: AbstractDifficulty,
         params: CustomEventConstructorTrack<AssignPlayerToTrack, { track: string }>,
     ) {
-        super(params)
+        super(difficulty, params)
         this.type = 'AssignPlayerToTrack'
         this.track = params.track ?? AssignPlayerToTrack.defaults.track
         this.target = params.target
@@ -30,9 +31,8 @@ export class AssignPlayerToTrack extends CustomEvent<
         ...super.defaults,
     }
 
-    push(clone = true) {
-        getActiveDifficulty().customEvents.assignPlayerTrackEvents.push(clone ? copy(this) : this)
-        return this
+    protected override getArray(difficulty: AbstractDifficulty): this[] {
+        return difficulty.customEvents.assignPlayerTrackEvents as this[]
     }
 
     override fromJsonV3(json: bsmap.v3.ICustomEventAssignPlayerToTrack): this {

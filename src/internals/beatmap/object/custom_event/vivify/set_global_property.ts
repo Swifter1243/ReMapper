@@ -1,5 +1,4 @@
 import { MaterialProperty } from '../../../../../types/vivify/material.ts'
-import { getActiveDifficulty } from '../../../../../data/active_difficulty.ts'
 import { copy } from '../../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import { EASE } from '../../../../../types/animation/easing.ts'
@@ -9,15 +8,17 @@ import {CustomEventConstructor} from "../../../../../types/beatmap/object/custom
 import {getDataProp} from "../../../../../utils/beatmap/json.ts";
 import {CustomEvent} from "../base/custom_event.ts";
 import {JsonObjectDefaults} from "../../../../../types/beatmap/object/object.ts";
+import {AbstractDifficulty} from "../../../abstract_beatmap.ts";
 
 export class SetGlobalProperty extends CustomEvent<
     never,
     ISetGlobalProperty
 > {
     constructor(
+        difficulty: AbstractDifficulty,
         params: CustomEventConstructor<SetGlobalProperty>,
     ) {
-        super(params)
+        super(difficulty, params)
         this.type = 'SetGlobalProperty'
         this.properties = params.properties ?? copy<MaterialProperty[]>(SetGlobalProperty.defaults.properties)
         this.duration = params.duration
@@ -36,9 +37,8 @@ export class SetGlobalProperty extends CustomEvent<
         ...super.defaults
     }
 
-    push(clone = true) {
-        getActiveDifficulty().customEvents.setGlobalPropertyEvents.push(clone ? copy(this) : this)
-        return this
+    protected override getArray(difficulty: AbstractDifficulty): this[] {
+        return difficulty.customEvents.setGlobalPropertyEvents as this[]
     }
 
     override fromJsonV3(json: ISetGlobalProperty): this {

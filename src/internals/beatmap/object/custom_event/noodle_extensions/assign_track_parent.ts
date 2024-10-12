@@ -1,11 +1,11 @@
 import { CustomEvent } from '../base/custom_event.ts'
 import { CustomEventConstructorTrack } from '../../../../../types/beatmap/object/custom_event.ts'
-import { getActiveDifficulty } from '../../../../../data/active_difficulty.ts'
 import { copy } from '../../../../../utils/object/copy.ts'
 import { getDataProp } from '../../../../../utils/beatmap/json.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import { bsmap } from '../../../../../deps.ts'
 import { JsonObjectDefaults } from '../../../../../types/beatmap/object/object.ts'
+import {AbstractDifficulty} from "../../../abstract_beatmap.ts";
 
 export class AssignTrackParent extends CustomEvent<
     bsmap.v2.ICustomEventAssignTrackParent,
@@ -15,9 +15,10 @@ export class AssignTrackParent extends CustomEvent<
      * Assign tracks to a parent track.
      */
     constructor(
+        difficulty: AbstractDifficulty,
         params: CustomEventConstructorTrack<AssignTrackParent>,
     ) {
-        super(params)
+        super(difficulty, params)
         this.type = 'AssignTrackParent'
         this.childrenTracks = params.childrenTracks ?? copy(AssignTrackParent.defaults.childrenTracks)
         this.parentTrack = params.parentTrack ?? AssignTrackParent.defaults.parentTrack
@@ -37,11 +38,8 @@ export class AssignTrackParent extends CustomEvent<
         ...super.defaults,
     }
 
-    push(clone = true) {
-        getActiveDifficulty().customEvents.assignTrackParentEvents.push(
-            clone ? copy(this) : this,
-        )
-        return this
+    protected override getArray(difficulty: AbstractDifficulty): this[] {
+        return difficulty.customEvents.assignTrackParentEvents as this[]
     }
 
     override fromJsonV3(json: bsmap.v3.ICustomEventAssignTrackParent): this {

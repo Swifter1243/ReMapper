@@ -1,5 +1,4 @@
 import { Track } from '../../../../utils/animation/track.ts'
-import { getActiveDifficulty } from '../../../../data/active_difficulty.ts'
 import { getActiveInfo } from '../../../../data/active_info.ts'
 import { animationV2ToV3 } from '../../../../utils/animation/json.ts'
 import { BeatmapObject } from '../object.ts'
@@ -24,15 +23,17 @@ import {
     getOffsetFromJumpDistance,
     getOffsetFromReactionTime, getReactionTime
 } from "../../../../utils/beatmap/object/jumps.ts";
+import {AbstractDifficulty} from "../../abstract_beatmap.ts";
 
 export abstract class BeatmapGameplayObject<
     TV2 extends IV2GameplayObject = IV2GameplayObject,
     TV3 extends IV3GameplayObject = IV3GameplayObject,
 > extends BeatmapObject<TV2, TV3> implements GameplayObjectSetters, GameplayObjectGetters {
     constructor(
+        parentDifficulty: AbstractDifficulty,
         obj: GameplayObjectConstructor<BeatmapGameplayObject<TV2, TV3>>,
     ) {
-        super(obj as BeatmapObjectConstructor<BeatmapGameplayObject<TV2, TV3>>)
+        super(parentDifficulty, obj as BeatmapObjectConstructor<BeatmapGameplayObject<TV2, TV3>>)
         this.animation = obj.animation ?? copy(BeatmapGameplayObject.defaults.animation)
         this.x = obj.x ?? BeatmapGameplayObject.defaults.x
         this.y = obj.y ?? BeatmapGameplayObject.defaults.y
@@ -98,13 +99,13 @@ export abstract class BeatmapGameplayObject<
     /** The speed of this object in units (meters) per second.
      * Refers to the difficulty if undefined. */
     get implicitNoteJumpSpeed() {
-        return this.noteJumpSpeed ?? getActiveDifficulty().difficultyInfo.noteJumpMovementSpeed
+        return this.noteJumpSpeed ?? this.parent.difficultyInfo.noteJumpMovementSpeed
     }
 
     /** The offset added to the position where this object "jumps" in.
      * Refers to the difficulty if undefined. */
     get implicitNoteJumpOffset() {
-        return this.noteJumpOffset ?? getActiveDifficulty().difficultyInfo.noteJumpStartBeatOffset
+        return this.noteJumpOffset ?? this.parent.difficultyInfo.noteJumpStartBeatOffset
     }
 
     /**
@@ -213,7 +214,7 @@ export abstract class BeatmapGameplayObject<
 
     protected getForcedOffset() {
         if (settings.forceNoteJumpOffset) {
-            return this.noteJumpOffset ?? getActiveDifficulty().difficultyInfo.noteJumpStartBeatOffset
+            return this.noteJumpOffset ?? this.parent.difficultyInfo.noteJumpStartBeatOffset
         } else {
             return this.noteJumpOffset
         }
@@ -221,7 +222,7 @@ export abstract class BeatmapGameplayObject<
 
     protected getForcedNJS() {
         if (settings.forceNoteJumpSpeed) {
-            return this.noteJumpSpeed ?? getActiveDifficulty().difficultyInfo.noteJumpMovementSpeed
+            return this.noteJumpSpeed ?? this.parent.difficultyInfo.noteJumpMovementSpeed
         } else {
             return this.noteJumpSpeed
         }

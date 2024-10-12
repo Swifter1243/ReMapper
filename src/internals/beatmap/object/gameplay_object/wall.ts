@@ -2,7 +2,6 @@ import { bsmap } from '../../../../deps.ts'
 
 import { copy } from '../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../utils/object/prune.ts'
-import { getActiveDifficulty } from '../../../../data/active_difficulty.ts'
 import { animationV3toV2 } from '../../../../utils/animation/json.ts'
 import { BeatmapGameplayObject } from './gameplay_object.ts'
 import { AnimationSettings } from '../../../../utils/animation/optimizer.ts'
@@ -11,12 +10,14 @@ import { AnimatedTransform } from '../../../../types/math/transform.ts'
 import {exportInvertedBoolean, getCDProp, simplifyWorldRotation} from '../../../../utils/beatmap/json.ts'
 import { setWallWorldTransform } from '../../../../utils/beatmap/object/wall/transform.ts'
 import { GameplayObjectDefaults, GameplayObjectConstructor } from '../../../../types/beatmap/object/gameplay_object.ts'
+import {AbstractDifficulty} from "../../abstract_beatmap.ts";
 
 export class Wall extends BeatmapGameplayObject<bsmap.v2.IObstacle, bsmap.v3.IObstacle> {
     constructor(
+        parentDifficulty: AbstractDifficulty,
         fields: GameplayObjectConstructor<Wall>,
     ) {
-        super(fields)
+        super(parentDifficulty, fields)
 
         this.duration = fields.duration ?? Wall.defaults.duration
         this.height = fields.height ?? Wall.defaults.height
@@ -50,13 +51,8 @@ export class Wall extends BeatmapGameplayObject<bsmap.v2.IObstacle, bsmap.v3.IOb
         ...super.defaults,
     }
 
-    /**
-     * Push this wall to the difficulty.
-     * @param clone Whether this object will be copied before being pushed.
-     */
-    push(clone = true) {
-        getActiveDifficulty().walls.push(clone ? copy(this) : this)
-        return this
+    protected override getArray(difficulty: AbstractDifficulty): this[] {
+        return difficulty.walls as this[]
     }
 
     /** Set the transform of this wall in world space. */

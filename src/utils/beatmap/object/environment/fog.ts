@@ -1,5 +1,5 @@
 import { AnyFog, FogEvent } from '../../../../internals/beatmap/object/environment/fog.ts'
-import {getActiveDifficulty} from "../../../../data/active_difficulty.ts";
+import {AbstractDifficulty} from "../../../../internals/beatmap/abstract_beatmap.ts";
 
 type Overload1 = [
     AnyFog & {
@@ -21,15 +21,19 @@ type Overload3 = [
 
 /** Adjust fog, agnostic of version. */
 export function adjustFog(
+    difficulty: AbstractDifficulty,
     ...params: Overload1
 ): void
 export function adjustFog(
+    difficulty: AbstractDifficulty,
     ...params: Overload2
 ): void
 export function adjustFog(
+    difficulty: AbstractDifficulty,
     ...params: Overload3
 ): void
 export function adjustFog(
+    difficulty: AbstractDifficulty,
     ...params:
         | Overload1
         | Overload2
@@ -38,7 +42,7 @@ export function adjustFog(
     if (typeof params[0] === 'object') {
         const obj = (params as Overload1)[0]
 
-        getActiveDifficulty().fogEvents.push(
+        difficulty.fogEvents.push(
             new FogEvent(obj, obj.beat, obj.duration),
         )
 
@@ -47,7 +51,7 @@ export function adjustFog(
     } else if (params.length === 2) {
         const obj = params as Overload2
 
-        getActiveDifficulty().fogEvents.push(
+        difficulty.fogEvents.push(
             new FogEvent(obj[1], obj[0]),
         )
 
@@ -55,7 +59,7 @@ export function adjustFog(
     } else {
         const obj = params as Overload3
 
-        getActiveDifficulty().fogEvents.push(
+        difficulty.fogEvents.push(
             new FogEvent(obj[2], obj[0], obj[1]),
         )
     }

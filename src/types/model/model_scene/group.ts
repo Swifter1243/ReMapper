@@ -28,4 +28,6 @@ export type ModelGroup = {
      * Though, beware of the fact each geometry object will create it's own draw call, which is bad for performance. If you want colored objects with lots of common colors, making multiple groups is advised.
      */
     defaultMaterial?: RawGeometryMaterial
+    /** Whether to position in noodle units or unity units. */
+    useNoodleUnits?: boolean
 }

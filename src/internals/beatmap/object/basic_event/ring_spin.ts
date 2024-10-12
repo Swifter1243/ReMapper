@@ -1,16 +1,15 @@
 import { BasicEvent } from './basic_event.ts'
 import {EventGroup, SpinDirection} from '../../../../constants/basic_event.ts'
-import { getActiveDifficulty } from '../../../../data/active_difficulty.ts'
-import { copy } from '../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../utils/object/prune.ts'
 import { bsmap } from '../../../../deps.ts'
 import { getCDProp } from '../../../../utils/beatmap/json.ts'
 
 import {BeatmapObjectDefaults, BeatmapObjectFields} from "../../../../types/beatmap/object/object.ts";
+import {AbstractDifficulty} from "../../abstract_beatmap.ts";
 
 export class RingSpinEvent extends BasicEvent<bsmap.v2.IEventRing, bsmap.v3.IBasicEventRing> {
-    constructor(obj: Partial<Omit<BeatmapObjectFields<RingSpinEvent>, 'type'>>) {
-        super({
+    constructor(difficulty: AbstractDifficulty, obj: Partial<Omit<BeatmapObjectFields<RingSpinEvent>, 'type'>>) {
+        super(difficulty,{
             ...obj,
             type: EventGroup.RING_SPIN,
         })
@@ -41,11 +40,8 @@ export class RingSpinEvent extends BasicEvent<bsmap.v2.IEventRing, bsmap.v3.IBas
         ...super.defaults,
     }
 
-    push(
-        clone = true,
-    ): RingSpinEvent {
-        getActiveDifficulty().ringSpinEvents.push(clone ? copy(this) : this)
-        return this
+    protected override getArray(difficulty: AbstractDifficulty): this[] {
+        return difficulty.ringSpinEvents as this[]
     }
 
     override fromJsonV3(json: bsmap.v3.IBasicEventRing): this {

@@ -1,23 +1,22 @@
 import { bsmap } from "../../../../deps.ts";
-import {copy} from "../../../../utils/object/copy.ts";
 import {objectPrune} from "../../../../utils/object/prune.ts";
-import {getActiveDifficulty} from "../../../../data/active_difficulty.ts";
 import {animationV3toV2} from "../../../../utils/animation/json.ts";
 
 import {BaseNote} from "./base_note.ts";
 import {exportInvertedBoolean, simplifyWorldRotation} from "../../../../utils/beatmap/json.ts";
 import {GameplayObjectConstructor} from "../../../../types/beatmap/object/gameplay_object.ts";
+import {AbstractDifficulty} from "../../abstract_beatmap.ts";
 
 export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
     constructor(
+        parentDifficulty: AbstractDifficulty,
         fields: GameplayObjectConstructor<Bomb>,
     ) {
-        super(fields)
+        super(parentDifficulty, fields)
     }
 
-    push(clone = true) {
-        getActiveDifficulty().bombs.push(clone ? copy(this) : this)
-        return this
+    protected override getArray(difficulty: AbstractDifficulty): this[] {
+        return difficulty.bombs as this[]
     }
 
     toJsonV3(prune?: boolean): bsmap.v3.IBombNote {

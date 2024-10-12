@@ -5,14 +5,16 @@ import { NoteAnimationData } from '../../../../types/animation/properties/note.t
 import { getCDProp, importInvertedBoolean } from '../../../../utils/beatmap/json.ts'
 import { GameplayObjectDefaults, GameplayObjectConstructor } from '../../../../types/beatmap/object/gameplay_object.ts'
 import { IV3Note } from '../../../../types/beatmap/object/note.ts'
+import type {AbstractDifficulty} from "../../abstract_beatmap.ts";
 
 export abstract class BaseNote<
     TV3 extends IV3Note = IV3Note,
 > extends BeatmapGameplayObject<bsmap.v2.INote, TV3> {
     constructor(
+        parentDifficulty: AbstractDifficulty,
         fields: GameplayObjectConstructor<BaseNote<TV3>>,
     ) {
-        super(fields)
+        super(parentDifficulty, fields);
         this.fake = fields.fake
         this.flip = fields.flip
         this.disableNoteGravity = fields.disableNoteGravity
@@ -51,12 +53,6 @@ export abstract class BaseNote<
     static override defaults: GameplayObjectDefaults<BaseNote> = {
         ...super.defaults,
     }
-
-    /**
-     * Push this note to the difficulty.
-     * @param clone Whether this object will be copied before being pushed.
-     */
-    abstract push(clone: boolean): void
 
     override get isGameplayModded() {
         if (this.fake) return true

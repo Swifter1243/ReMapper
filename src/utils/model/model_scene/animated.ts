@@ -1,6 +1,5 @@
 import { ModelScene } from './base.ts'
 import { SceneSwitch } from '../../../types/model/model_scene/scene_switch.ts'
-import { getActiveDifficulty } from '../../../data/active_difficulty.ts'
 import { AnimateTrack } from '../../../internals/beatmap/object/custom_event/heck/animate_track.ts'
 import { complexifyKeyframes } from '../../animation/keyframe/complexity.ts'
 import { animateTrack } from '../../../builder_functions/beatmap/object/custom_event/heck.ts'
@@ -13,6 +12,7 @@ import { DeepReadonly } from '../../../types/util/mutability.ts'
 import { ModelObject } from '../../../types/model/object.ts'
 import { MultiSceneInfo, SceneSwitchInfo } from '../../../types/model/model_scene/scene_info.ts'
 import {ScenePromises} from "../../../types/model/model_scene/animated.ts";
+import {AbstractDifficulty} from "../../../internals/beatmap/abstract_beatmap.ts";
 
 export class AnimatedModelScene extends ModelScene<SceneSwitch[], ScenePromises, MultiSceneInfo> {
 
@@ -73,7 +73,7 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], ScenePromises,
         return sceneSwitchInfo
     }
 
-    protected async _instantiate() {
+    protected async _instantiate(difficulty: AbstractDifficulty) {
         ModelScene.createYeetDef()
 
         // Initialize info
@@ -83,6 +83,7 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], ScenePromises,
         // Object animation
         const promises = this.modelPromise.map(async (scenePromise, switchIndex) =>
             await this.processSwitch(
+                difficulty,
                 scenePromise.sceneSwitch,
                 switchIndex,
                 animatedMaterials,
@@ -103,6 +104,7 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], ScenePromises,
 
         Object.keys(this.settings.groups).forEach((groupKey) =>
             this.processGroup(
+                difficulty,
                 groupKey,
                 animatedMaterials,
                 sceneInfo,
@@ -111,12 +113,14 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], ScenePromises,
             )
         )
 
-        Object.values(yeetEvents).forEach((x) => x.push(false))
+        // TODO: undo
+        Object.values(yeetEvents).forEach((x) => difficulty.customEvents.animateTrackEvents.push(x))
         sceneInfo.yeetEvents = Object.values(yeetEvents)
         return sceneInfo
     }
 
     private async processSwitch(
+        difficulty: AbstractDifficulty,
         sceneSwitch: SceneSwitch,
         switchIndex: number,
         animatedMaterials: string[],
@@ -183,7 +187,8 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], ScenePromises,
                     event.animation.scale = initialState.scale
                     sceneGroupInfo.moveEvents.push(event)
                     groupInfo.moveEvents.push(event)
-                    event.push(false)
+                    // TODO: undo
+                    difficulty.customEvents.animateTrackEvents.push(event)
                 }
             }
 
@@ -205,7 +210,8 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], ScenePromises,
                 } else {
                     const event = animateTrack(sceneSwitch.beat, track + '_material')
                     event.animation.color = color
-                    event.push(false)
+                    // TODO: undo
+                    difficulty.customEvents.animateTrackEvents.push(event)
                 }
             }
 
@@ -224,7 +230,8 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], ScenePromises,
                 event.animation.scale = ModelScene.getFirstValues(modelObject.scale)
                 sceneGroupInfo.moveEvents.push(event)
                 groupInfo.moveEvents.push(event)
-                event.push()
+                // TODO: undo
+                difficulty.customEvents.animateTrackEvents.push(event)
             }
 
             // If ignoring animation, don't make animation events
@@ -247,13 +254,15 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], ScenePromises,
             // Push event
             sceneGroupInfo.moveEvents.push(event)
             groupInfo.moveEvents.push(event)
-            event.push(false)
+            // TODO: undo
+            difficulty.customEvents.animateTrackEvents.push(event)
         })
 
         return groupInitialStates
     }
 
     private processGroup(
+        difficulty: AbstractDifficulty,
         groupKey: string,
         animatedMaterials: string[],
         sceneInfo: MultiSceneInfo,
@@ -300,7 +309,7 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], ScenePromises,
             // Add default material to the beatmap if it is present
             if (group.defaultMaterial) {
                 materialName = `modelScene${this.ID}_${groupKey}_material`
-                getActiveDifficulty().geometryMaterials[materialName] = group.defaultMaterial
+                difficulty.geometryMaterials[materialName] = group.defaultMaterial
             }
 
             for (let i = 0; i < groupInfo.count; i++) {

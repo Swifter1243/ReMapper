@@ -4,13 +4,14 @@ import { bsmap } from '../../../../../deps.ts'
 import {objectPrune} from "../../../../../utils/object/prune.ts";
 import {EventGroup} from "../../../../../constants/basic_event.ts";
 import {JsonObjectConstructor, JsonObjectDefaults} from "../../../../../types/beatmap/object/object.ts";
+import {AbstractDifficulty} from "../../../abstract_beatmap.ts";
 
 export class OfficialBPMEvent extends BPMEvent<
     bsmap.v2.IEvent,
     bsmap.v3.IBPMEvent
 > implements ConvertableEvent {
-    constructor(obj: JsonObjectConstructor<OfficialBPMEvent>) {
-        super(obj)
+    constructor(parentDifficulty: AbstractDifficulty,obj: JsonObjectConstructor<OfficialBPMEvent>) {
+        super(parentDifficulty, obj)
         this.bpm = obj.bpm ?? OfficialBPMEvent.defaults.bpm
     }
 
@@ -21,6 +22,10 @@ export class OfficialBPMEvent extends BPMEvent<
     static override defaults: JsonObjectDefaults<OfficialBPMEvent> = {
         bpm: 120,
         ...super.defaults
+    }
+
+    protected override getArray(difficulty: AbstractDifficulty): this[] {
+        return difficulty.bpmEvents as this[]
     }
 
     fromBasicEvent(json: bsmap.v3.IBasicEvent) {

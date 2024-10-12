@@ -1,22 +1,21 @@
 import { bsmap } from '../../../../deps.ts'
 import { BeatmapObject } from '../object.ts'
 import { BeatmapObjectConstructor, BeatmapObjectDefaults } from '../../../../types/beatmap/object/object.ts'
+import {AbstractDifficulty} from "../../abstract_beatmap.ts";
 
 export abstract class BasicEvent<
     TV2 extends bsmap.v2.IEvent = bsmap.v2.IEvent,
     TV3 extends bsmap.v3.IBasicEvent = bsmap.v3.IBasicEvent,
 > extends BeatmapObject<TV2, TV3> {
-    constructor(obj: BeatmapObjectConstructor<BasicEvent<TV2, TV3>>) {
-        super(obj)
+    constructor(
+        parentDifficulty: AbstractDifficulty,
+        obj: BeatmapObjectConstructor<BasicEvent<TV2, TV3>>
+    ) {
+        super(parentDifficulty, obj)
         this.type = obj.type ?? BasicEvent.defaults.type
         this.value = obj.value ?? BasicEvent.defaults.value
         this.floatValue = obj.floatValue ?? BasicEvent.defaults.floatValue
     }
-
-    /** Push this event to the difficulty
-     * @param clone Whether this object will be copied before being pushed.
-     */
-    abstract push(clone: boolean): BasicEvent<TV2, TV3>
 
     /** The type of the event. */
     type: number

@@ -6,10 +6,11 @@ import { LightRotationEvent } from '../light_event/rotation.ts'
 import { lightRotationEvent } from '../../../../../../builder_functions/beatmap/object/v3_event/lighting/light_event.ts'
 import { JsonObjectConstructor, JsonObjectDefaults } from '../../../../../../types/beatmap/object/object.ts'
 import { LightColorEventBox } from './color.ts'
+import {LightRotationEventBoxGroup} from "../light_event_box_group/rotation.ts";
 
 export class LightRotationEventBox extends LightEventBox<bsmap.v3.ILightRotationEventBox, LightRotationEvent> {
-    constructor(obj: JsonObjectConstructor<LightRotationEventBox>) {
-        super(obj)
+    constructor(parent: LightRotationEventBoxGroup, obj: JsonObjectConstructor<LightRotationEventBox>) {
+        super(parent, obj)
         this.rotationDistribution = obj.rotationDistribution ?? LightRotationEventBox.defaults.rotationDistribution
         this.rotationDistributionType = obj.rotationDistributionType ?? LightRotationEventBox.defaults.rotationDistributionType
         this.rotationAxis = obj.rotationAxis ?? LightRotationEventBox.defaults.rotationAxis
@@ -38,6 +39,10 @@ export class LightRotationEventBox extends LightEventBox<bsmap.v3.ILightRotation
         events: [],
     }
 
+    protected override getArray(parent: LightRotationEventBoxGroup): this[] {
+        return parent.boxes as this[]
+    }
+
     fromJsonV3(json: bsmap.v3.ILightRotationEventBox): this {
         this.filter = json.f ?? LightRotationEventBox.defaults.filter
         this.beatDistribution = json.w ?? LightRotationEventBox.defaults.beatDistribution
@@ -48,7 +53,7 @@ export class LightRotationEventBox extends LightEventBox<bsmap.v3.ILightRotation
         this.rotationDistribution = json.s ?? LightRotationEventBox.defaults.rotationDistribution
         this.rotationDistributionFirst = json.b !== undefined ? json.b === 1 : LightRotationEventBox.defaults.rotationDistributionFirst
         this.rotationDistributionType = json.t ?? LightRotationEventBox.defaults.rotationDistributionType
-        this.events = json.l.map((x) => lightRotationEvent({}).fromJsonV3(x))
+        this.events = json.l.map((x) => lightRotationEvent().fromJsonV3(x))
         this.customData = json.customData ?? LightColorEventBox.defaults.customData
         return this
     }

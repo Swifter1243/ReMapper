@@ -1,5 +1,4 @@
 import { MaterialProperty } from '../../../../../types/vivify/material.ts'
-import { getActiveDifficulty } from '../../../../../data/active_difficulty.ts'
 import { copy } from '../../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import { IBlit } from '../../../../../types/beatmap/object/vivify_event_interfaces.ts'
@@ -9,15 +8,17 @@ import {CustomEventConstructor} from "../../../../../types/beatmap/object/custom
 import {getDataProp} from "../../../../../utils/beatmap/json.ts";
 import {CustomEvent} from "../base/custom_event.ts";
 import {JsonObjectDefaults} from "../../../../../types/beatmap/object/object.ts";
+import {AbstractDifficulty} from "../../../abstract_beatmap.ts";
 
 export class Blit extends CustomEvent<
     never,
     IBlit
 > {
     constructor(
+        difficulty: AbstractDifficulty,
         params: CustomEventConstructor<Blit>,
     ) {
-        super(params)
+        super(difficulty, params)
         this.type = 'Blit'
         this.asset = params.asset ?? Blit.defaults.asset
         this.pass = params.pass
@@ -50,11 +51,8 @@ export class Blit extends CustomEvent<
         ...super.defaults,
     }
 
-    push(clone = true) {
-        getActiveDifficulty().customEvents.blitEvents.push(
-            clone ? copy(this) : this,
-        )
-        return this
+    protected override getArray(difficulty: AbstractDifficulty): this[] {
+        return difficulty.customEvents.blitEvents as this[]
     }
 
     override fromJsonV3(json: IBlit): this {

@@ -1,4 +1,3 @@
-import { getActiveDifficulty } from '../../../../../data/active_difficulty.ts'
 import { copy } from '../../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import { ISetCameraProperty } from '../../../../../types/beatmap/object/vivify_event_interfaces.ts'
@@ -9,15 +8,17 @@ import {getDataProp} from "../../../../../utils/beatmap/json.ts";
 import {CustomEvent} from "../base/custom_event.ts";
 import {JsonObjectDefaults} from "../../../../../types/beatmap/object/object.ts";
 import {ColorVec} from "../../../../../types/math/vector.ts";
+import {AbstractDifficulty} from "../../../abstract_beatmap.ts";
 
 export class SetCameraProperty extends CustomEvent<
     never,
     ISetCameraProperty
 > {
     constructor(
+        difficulty: AbstractDifficulty,
         params: CustomEventConstructor<SetCameraProperty>,
     ) {
-        super(params)
+        super(difficulty, params)
         this.type = 'SetCameraProperty'
         this.depthTextureMode = params.depthTextureMode
         this.clearFlags = params.clearFlags
@@ -35,11 +36,8 @@ export class SetCameraProperty extends CustomEvent<
         ...super.defaults
     }
 
-    push(clone = true) {
-        getActiveDifficulty().customEvents.setCameraPropertyEvents.push(
-            clone ? copy(this) : this,
-        )
-        return this
+    protected override getArray(difficulty: AbstractDifficulty): this[] {
+        return difficulty.customEvents.setCameraPropertyEvents as this[]
     }
 
     override fromJsonV3(json: ISetCameraProperty): this {

@@ -1,15 +1,15 @@
 import { bsmap } from '../../../../../deps.ts'
 import { BeatmapObject } from '../../object.ts'
 import { ConvertableEvent } from '../../../../../types/beatmap/object/v3_event.ts'
-import { getActiveDifficulty } from '../../../../../data/active_difficulty.ts'
 import { copy } from '../../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import { EventGroup } from '../../../../../constants/basic_event.ts'
 import { BeatmapObjectConstructor, BeatmapObjectDefaults } from '../../../../../types/beatmap/object/object.ts'
+import {AbstractDifficulty} from "../../../abstract_beatmap.ts";
 
 export class BoostEvent extends BeatmapObject<bsmap.v2.IEvent, bsmap.v3.IColorBoostEvent> implements ConvertableEvent {
-    constructor(obj: BeatmapObjectConstructor<BoostEvent>) {
-        super(obj)
+    constructor(parentDifficulty: AbstractDifficulty, obj: BeatmapObjectConstructor<BoostEvent>) {
+        super(parentDifficulty, obj)
         this.boost = obj.boost ?? BoostEvent.defaults.boost
     }
 
@@ -21,9 +21,8 @@ export class BoostEvent extends BeatmapObject<bsmap.v2.IEvent, bsmap.v3.IColorBo
         ...super.defaults,
     }
 
-    push(clone = true) {
-        getActiveDifficulty().boostEvents.push(clone ? copy(this) : this)
-        return this
+    protected getArray(difficulty: AbstractDifficulty): this[] {
+        return difficulty.boostEvents as this[]
     }
 
     fromBasicEvent(json: bsmap.v3.IBasicEventBoost) {

@@ -1,16 +1,18 @@
 import { bsmap } from '../../../../deps.ts'
 import { BeatmapObject } from '../object.ts'
 import { ConvertableEvent } from '../../../../types/beatmap/object/v3_event.ts'
-import { getActiveDifficulty } from '../../../../data/active_difficulty.ts'
-import { copy } from '../../../../utils/object/copy.ts'
 import { EventGroup, InverseRotationAction, RotationAction } from '../../../../constants/basic_event.ts'
 import { getCDProp } from '../../../../utils/beatmap/json.ts'
 import { objectPrune } from '../../../../utils/object/prune.ts'
 import { BeatmapObjectConstructor, BeatmapObjectDefaults } from '../../../../types/beatmap/object/object.ts'
+import {AbstractDifficulty} from "../../abstract_beatmap.ts";
 
 export class RotationEvent extends BeatmapObject<bsmap.v2.IEventLaneRotation, bsmap.v3.IRotationEvent> implements ConvertableEvent {
-    constructor(obj: BeatmapObjectConstructor<RotationEvent>) {
-        super(obj)
+    constructor(
+        parentDifficulty: AbstractDifficulty,
+        obj: BeatmapObjectConstructor<RotationEvent>
+    ) {
+        super(parentDifficulty, obj)
         this.early = obj.early ?? RotationEvent.defaults.early
         this.rotation = obj.rotation ?? RotationEvent.defaults.rotation
     }
@@ -26,9 +28,8 @@ export class RotationEvent extends BeatmapObject<bsmap.v2.IEventLaneRotation, bs
         ...super.defaults,
     }
 
-    push(clone = true) {
-        getActiveDifficulty().rotationEvents.push(clone ? copy(this) : this)
-        return this
+    protected getArray(difficulty: AbstractDifficulty): this[] {
+        return difficulty.rotationEvents as this[]
     }
 
     private tryInverseRotation(value: number) {

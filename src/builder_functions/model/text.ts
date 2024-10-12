@@ -1,4 +1,3 @@
-import {getActiveDifficulty} from "../../data/active_difficulty.ts";
 import {ReadonlyText} from "../../types/model/text.ts";
 import {getModel} from "../../utils/model/file.ts";
 import { Text } from '../../utils/model/text.ts'
@@ -10,8 +9,6 @@ import { Text } from '../../utils/model/text.ts'
 export async function text(
     input: string | ReadonlyText,
 ) {
-    return await getActiveDifficulty().runAsync(async () => {
-        const model = typeof input === 'string' ? await getModel(input) : input
-        return new Text(model as ReadonlyText)
-    })
+    const model = typeof input === 'string' ? await getModel(input) : input
+    return new Text(model as ReadonlyText)
 }

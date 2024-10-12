@@ -2,23 +2,30 @@ import { bsmap } from '../../../../deps.ts'
 import { ComplexKeyframesLinear } from '../../../../types/animation/keyframe/linear.ts'
 import { BloomFogEnvironment } from '../../../../types/beatmap/object/environment.ts'
 import { objectPrune } from '../../../../utils/object/prune.ts'
-import {FOG_TRACK} from "../../../../constants/fog.ts";
+import { FOG_TRACK } from '../../../../constants/fog.ts'
+import { BeatmapArrayMember } from '../../../../types/beatmap/beatmap_member.ts'
+import { AbstractDifficulty } from '../../abstract_beatmap.ts'
 
 // TODO: Maybe make this a difficulty based thing?
 export type AnyFog = BloomFogEnvironment<
     number | ComplexKeyframesLinear | string
 >
 
-export class FogEvent {
+export class FogEvent extends BeatmapArrayMember {
     fog: AnyFog
     beat?: number
     duration?: number
 
     /** Abstracted fog event. */
-    constructor(animation: AnyFog, beat?: number, duration?: number) {
+    constructor(difficulty: AbstractDifficulty, animation: AnyFog, beat?: number, duration?: number) {
+        super(difficulty)
         this.fog = animation
         if (beat) this.beat = beat
         if (duration) this.duration = duration
+    }
+
+    protected override getArray(difficulty: AbstractDifficulty): this[] {
+        return difficulty.fogEvents as this[]
     }
 
     /** Turns the internal fog component that can use single numbers for static keyframes and turns it into the version read by the beatmap, which only accepts point definitions or arrays. */

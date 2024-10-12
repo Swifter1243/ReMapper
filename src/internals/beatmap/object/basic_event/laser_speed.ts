@@ -1,4 +1,3 @@
-import { getActiveDifficulty } from '../../../../data/active_difficulty.ts'
 import { copy } from '../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../utils/object/prune.ts'
 import { BasicEvent } from './basic_event.ts'
@@ -6,10 +5,14 @@ import { bsmap } from '../../../../deps.ts'
 import { getCDProp } from '../../../../utils/beatmap/json.ts'
 import { BeatmapObjectConstructor, BeatmapObjectDefaults } from '../../../../types/beatmap/object/object.ts'
 import {SpinDirection} from "../../../../constants/basic_event.ts";
+import type {AbstractDifficulty} from "../../abstract_beatmap.ts";
 
 export class LaserSpeedEvent extends BasicEvent<bsmap.v2.IEventLaser, bsmap.v3.IBasicEventLaserRotation> {
-    constructor(obj: BeatmapObjectConstructor<LaserSpeedEvent>) {
-        super(obj)
+    constructor(
+        difficulty: AbstractDifficulty,
+        obj: BeatmapObjectConstructor<LaserSpeedEvent>
+    ) {
+        super(difficulty, obj)
         this.lockRotation = obj.lockRotation
         this.speed = obj.speed
         this.direction = obj.direction
@@ -26,11 +29,8 @@ export class LaserSpeedEvent extends BasicEvent<bsmap.v2.IEventLaser, bsmap.v3.I
         ...super.defaults,
     }
 
-    push(
-        clone = true,
-    ): LaserSpeedEvent {
-        getActiveDifficulty().laserSpeedEvents.push(clone ? copy(this) : this)
-        return this
+    protected override getArray(difficulty: AbstractDifficulty): this[] {
+        return difficulty.laserSpeedEvents as this[]
     }
 
     override fromJsonV3(json: bsmap.v3.IBasicEventLaserRotation): this {

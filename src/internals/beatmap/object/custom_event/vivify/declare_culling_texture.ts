@@ -1,5 +1,4 @@
 import { Track } from '../../../../../utils/animation/track.ts'
-import { getActiveDifficulty } from '../../../../../data/active_difficulty.ts'
 import { copy } from '../../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import { IDeclareCullingTexture } from '../../../../../types/beatmap/object/vivify_event_interfaces.ts'
@@ -8,6 +7,7 @@ import {CustomEventConstructorTrack} from "../../../../../types/beatmap/object/c
 import {getDataProp} from "../../../../../utils/beatmap/json.ts";
 import {CustomEvent} from "../base/custom_event.ts";
 import {JsonObjectDefaults} from "../../../../../types/beatmap/object/object.ts";
+import type { AbstractDifficulty } from '../../../abstract_beatmap.ts'
 
 export class DeclareCullingTexture extends CustomEvent<
     never,
@@ -17,9 +17,10 @@ export class DeclareCullingTexture extends CustomEvent<
      * Animate objects on a track across their lifespan.
      */
     constructor(
+        difficulty: AbstractDifficulty,
         params: CustomEventConstructorTrack<DeclareCullingTexture>,
     ) {
-        super(params)
+        super(difficulty, params)
         this.type = 'DeclareCullingTexture'
         this.id = params.id ?? DeclareCullingTexture.defaults.id
         this.track = new Track(params.track)
@@ -42,11 +43,8 @@ export class DeclareCullingTexture extends CustomEvent<
         ...super.defaults
     }
 
-    push(clone = true) {
-        getActiveDifficulty().customEvents.declareCullingTextureEvents.push(
-            clone ? copy(this) : this,
-        )
-        return this
+    protected override getArray(difficulty: AbstractDifficulty): this[] {
+        return difficulty.customEvents.declareCullingTextureEvents as this[]
     }
 
     override fromJsonV3(json: IDeclareCullingTexture): this {

@@ -3,11 +3,12 @@ import { BeatmapObject } from '../../../object.ts'
 import { bsmap } from '../../../../../../deps.ts'
 import { objectPrune } from '../../../../../../utils/object/prune.ts'
 import { BeatmapObjectConstructor, BeatmapObjectDefaults } from '../../../../../../types/beatmap/object/object.ts'
+import {AbstractDifficulty} from "../../../../abstract_beatmap.ts";
 
 export abstract class LightEventBoxGroup<T extends bsmap.v3.IEventBox = bsmap.v3.IEventBox>
     extends BeatmapObject<never, bsmap.v3.IEventBoxGroup<T>> {
-    constructor(obj: BeatmapObjectConstructor<LightEventBoxGroup<T>>) {
-        super(obj)
+    constructor(parentDifficulty: AbstractDifficulty, obj: BeatmapObjectConstructor<LightEventBoxGroup<T>>) {
+        super(parentDifficulty, obj)
         this.groupID = obj.groupID ?? 0
         this.boxes = obj.boxes ?? []
     }

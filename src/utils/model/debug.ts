@@ -1,4 +1,3 @@
-import { getActiveDifficulty } from '../../data/active_difficulty.ts'
 import { adjustFog } from '../beatmap/object/environment/fog.ts'
 import { arrayAdd } from '../array/operation.ts'
 import { geometry } from '../../builder_functions/beatmap/object/environment/geometry.ts'
@@ -10,28 +9,31 @@ import { Transform } from '../../types/math/transform.ts'
 import { fromType } from '../../builder_functions/beatmap/object/basic_event/light_event.ts'
 import { vec } from '../array/tuple.ts'
 import { getBaseEnvironment } from '../beatmap/object/environment/base_environment.ts'
+import {AbstractDifficulty} from "../../internals/beatmap/abstract_beatmap.ts";
+import {ModelSceneSettings} from "./model_scene/settings.ts";
 
 /**
  * Debug the transformations necessary to fit an object to a cube.
  * Use the axis indicators to guide the process.
+ * @param difficulty Difficulty to run the debug on.
  * @param input Object to spawn.
  * @param transform The transform to apply to each object.
  * @param zoom Scales the object on each axis to inspect finer details.
  */
 export async function debugFitObjectToUnitCube(
+    difficulty: AbstractDifficulty,
     input: GroupObjectTypes,
     transform: Transform,
     zoom = 1,
 ) {
-    const diff = getActiveDifficulty()
-    diff.clear(['Geometry Materials'])
+    difficulty.clear(['Geometry Materials'])
 
     const center = vec(0, 10, 0)
     const planeDistance = 5
     const planeThickness = 0.0001
     const model: ModelObject[] = []
 
-    getBaseEnvironment((env) => {
+    getBaseEnvironment(difficulty, (env) => {
         env.position = [0, -69420, 0]
     })
 
@@ -54,19 +56,19 @@ export async function debugFitObjectToUnitCube(
         startY: -69420,
     })
 
-    diff.geometryMaterials.debugCubeX = {
+    difficulty.geometryMaterials.debugCubeX = {
         shader: 'Standard',
         color: [1, 0, 0],
         shaderKeywords: [],
     }
 
-    diff.geometryMaterials.debugCubeY = {
+    difficulty.geometryMaterials.debugCubeY = {
         shader: 'Standard',
         color: [0, 1, 0],
         shaderKeywords: [],
     }
 
-    diff.geometryMaterials.debugCubeZ = {
+    difficulty.geometryMaterials.debugCubeZ = {
         shader: 'Standard',
         color: [0, 0, 1],
         shaderKeywords: [],
@@ -108,10 +110,10 @@ export async function debugFitObjectToUnitCube(
         [[0, 0, -zoom / 2 - planeDistance], [1, 1, zoom]],
     ])
 
-    const scene = modelScene.static(model)
-    scene.setDefaultObjectGroup(input, transform)
-    scene.setObjectGroup('debugCubeX', geometry('Cube', 'debugCubeX'))
-    scene.setObjectGroup('debugCubeY', geometry('Cube', 'debugCubeY'))
-    scene.setObjectGroup('debugCubeZ', geometry('Cube', 'debugCubeZ'))
-    await scene.instantiate()
+    const sceneSettings = new ModelSceneSettings()
+    sceneSettings.setDefaultObjectGroup(input, transform)
+    sceneSettings.setObjectGroup('debugCubeX', geometry('Cube', 'debugCubeX'))
+    sceneSettings.setObjectGroup('debugCubeY', geometry('Cube', 'debugCubeY'))
+    sceneSettings.setObjectGroup('debugCubeZ', geometry('Cube', 'debugCubeZ'))
+    await modelScene.static(sceneSettings, model).instantiate(difficulty)
 }

@@ -5,13 +5,15 @@ import { objectPrune } from '../../../../../../utils/object/prune.ts'
 import { LightTranslationEvent } from '../light_event/translation.ts'
 import { lightTranslationEvent } from '../../../../../../builder_functions/beatmap/object/v3_event/lighting/light_event.ts'
 import { JsonObjectConstructor, JsonObjectDefaults } from '../../../../../../types/beatmap/object/object.ts'
+import {LightRotationEventBoxGroup} from "../light_event_box_group/rotation.ts";
+import {LightTranslationEventBoxGroup} from "../light_event_box_group/translation.ts";
 
 export class LightTranslationEventBox extends LightEventBox<
     bsmap.v3.ILightTranslationEventBox,
     LightTranslationEvent
 > {
-    constructor(obj: JsonObjectConstructor<LightTranslationEventBox>) {
-        super(obj)
+    constructor(parent: LightTranslationEventBoxGroup, obj: JsonObjectConstructor<LightTranslationEventBox>) {
+        super(parent, obj)
         this.translationDistribution = obj.translationDistribution ?? 0
         this.translationDistributionType = obj.translationDistributionType ??
             DistributionType.STEP
@@ -42,6 +44,10 @@ export class LightTranslationEventBox extends LightEventBox<
         events: [],
     }
 
+    protected override getArray(parent: LightTranslationEventBoxGroup): this[] {
+        return parent.boxes as this[]
+    }
+
     fromJsonV3(json: bsmap.v3.ILightTranslationEventBox): this {
         this.filter = json.f ?? LightTranslationEventBox.defaults.filter
         this.beatDistribution = json.w ?? LightTranslationEventBox.defaults.beatDistribution
@@ -54,7 +60,7 @@ export class LightTranslationEventBox extends LightEventBox<
             ? json.b === 1
             : LightTranslationEventBox.defaults.translationDistributionFirst
         this.translationDistributionType = json.t ?? LightTranslationEventBox.defaults.translationDistributionType
-        this.events = json.l.map((x) => lightTranslationEvent({}).fromJsonV3(x))
+        this.events = json.l.map((x) => lightTranslationEvent().fromJsonV3(x))
         this.customData = json.customData ?? LightTranslationEventBox.defaults.customData
         return this
     }

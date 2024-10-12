@@ -3,13 +3,13 @@ import { CustomEventConstructorTrack } from '../../../../../types/beatmap/object
 import { Track } from '../../../../../utils/animation/track.ts'
 import { AnimationPropertiesV3 } from '../../../../../types/animation/properties/properties.ts'
 import { EASE } from '../../../../../types/animation/easing.ts'
-import { getActiveDifficulty } from '../../../../../data/active_difficulty.ts'
 import { copy } from '../../../../../utils/object/copy.ts'
 import { getDataProp } from '../../../../../utils/beatmap/json.ts'
 import { animationV2ToV3, animationV3toV2 } from '../../../../../utils/animation/json.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import { bsmap } from '../../../../../deps.ts'
 import { JsonObjectDefaults } from '../../../../../types/beatmap/object/object.ts'
+import type { AbstractDifficulty } from '../../../abstract_beatmap.ts'
 
 export class AnimateTrack extends CustomEvent<
     bsmap.v2.ICustomEventAnimateTrack,
@@ -19,9 +19,10 @@ export class AnimateTrack extends CustomEvent<
      * Animate a track.
      */
     constructor(
+        difficulty: AbstractDifficulty,
         params: CustomEventConstructorTrack<AnimateTrack>,
     ) {
-        super(params)
+        super(difficulty, params)
         this.type = 'AnimateTrack'
         this.track = new Track(params.track)
         this.animation = params.animation ?? copy(AnimateTrack.defaults.animation)
@@ -49,11 +50,8 @@ export class AnimateTrack extends CustomEvent<
         ...super.defaults,
     }
 
-    push(clone = true) {
-        getActiveDifficulty().customEvents.animateTrackEvents.push(
-            clone ? copy(this) : this,
-        )
-        return this
+    protected override getArray(difficulty: AbstractDifficulty): this[] {
+        return difficulty.customEvents.animateTrackEvents as this[]
     }
 
     override fromJsonV3(json: bsmap.v3.ICustomEventAnimateTrack): this {

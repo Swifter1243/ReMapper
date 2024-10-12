@@ -4,12 +4,16 @@ import { DistributionType, RotationEase } from '../../../../../../constants/v3_e
 import { bsmap } from '../../../../../../deps.ts'
 import { JsonObjectConstructor, JsonObjectDefaults } from '../../../../../../types/beatmap/object/object.ts'
 import { copy } from '../../../../../../utils/object/copy.ts'
+import {BeatmapArrayMember} from "../../../../../../types/beatmap/beatmap_member.ts";
+import {LightEventBoxGroup} from "../light_event_box_group/base.ts";
 
 export abstract class LightEventBox<
     T extends bsmap.v3.IEventBox = bsmap.v3.IEventBox,
     E extends BaseLightEvent = BaseLightEvent,
-> implements JsonWrapper<never, T> {
-    constructor(obj: JsonObjectConstructor<LightEventBox<T, E>>) {
+> extends BeatmapArrayMember<LightEventBoxGroup> implements JsonWrapper<never, T> {
+    constructor(parent: LightEventBoxGroup, obj: JsonObjectConstructor<LightEventBox<T, E>>) {
+        super(parent)
+
         this.filter = obj.filter ?? copy(LightEventBox.defaults.filter)
         this.beatDistribution = obj.beatDistribution ?? LightEventBox.defaults.beatDistribution
         this.beatDistributionType = obj.beatDistributionType ?? LightEventBox.defaults.beatDistributionType

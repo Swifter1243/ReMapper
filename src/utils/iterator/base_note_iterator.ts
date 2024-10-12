@@ -1,10 +1,10 @@
-import {getActiveDifficulty} from '../../data/active_difficulty.ts'
 import {NoteCut} from '../../constants/note.ts'
 import {ColorNote} from "../../internals/beatmap/object/gameplay_object/color_note.ts";
 import {Chain} from "../../internals/beatmap/object/gameplay_object/chain.ts";
 import {CutName, NoteCondition, NoteProcess} from "../../types/iterator.ts";
 import {TrackValue} from "../../types/animation/track.ts";
 import {AnyNote, AnyNoteLiteral} from "../../types/beatmap/object/note.ts";
+import {AbstractDifficulty} from "../../internals/beatmap/abstract_beatmap.ts";
 
 const directionsLiteral: Record<NoteCut, CutName> = {
     [NoteCut.DOT]: 'dot',
@@ -46,15 +46,15 @@ export class BaseNoteIterator<T extends AnyNote> {
 
     /**
      * Run the iterator on notes in the active difficulty.
+     * @param difficulty Difficulty to run this note iterator on.
      * @param log Log the output JSON of each note.
      */
-    run(log = false) {
+    run(difficulty: AbstractDifficulty, log = false) {
         const notes: T[] = []
-        const diff = getActiveDifficulty()
-        if (this.typeFilter.has('ColorNote')) notes.push(...diff.colorNotes as T[])
-        if (this.typeFilter.has('Bomb')) notes.push(...diff.bombs as T[])
-        if (this.typeFilter.has('Chain')) notes.push(...diff.chains as T[])
-        if (this.typeFilter.has('Arc')) notes.push(...diff.arcs as T[])
+        if (this.typeFilter.has('ColorNote')) notes.push(...difficulty.colorNotes as T[])
+        if (this.typeFilter.has('Bomb')) notes.push(...difficulty.bombs as T[])
+        if (this.typeFilter.has('Chain')) notes.push(...difficulty.chains as T[])
+        if (this.typeFilter.has('Arc')) notes.push(...difficulty.arcs as T[])
         this.processNotes(notes, log)
     }
 

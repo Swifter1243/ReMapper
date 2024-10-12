@@ -1,4 +1,3 @@
-import { getActiveDifficulty } from '../../../../../data/active_difficulty.ts'
 import { copy } from '../../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import { ISetAnimatorProperty } from '../../../../../types/beatmap/object/vivify_event_interfaces.ts'
@@ -9,15 +8,17 @@ import { CustomEventConstructor } from '../../../../../types/beatmap/object/cust
 import { getDataProp } from '../../../../../utils/beatmap/json.ts'
 import { CustomEvent } from '../base/custom_event.ts'
 import { JsonObjectDefaults } from '../../../../../types/beatmap/object/object.ts'
+import {AbstractDifficulty} from "../../../abstract_beatmap.ts";
 
 export class SetAnimatorProperty extends CustomEvent<
     never,
     ISetAnimatorProperty
 > {
     constructor(
+        difficulty: AbstractDifficulty,
         params: CustomEventConstructor<SetAnimatorProperty>,
     ) {
-        super(params)
+        super(difficulty, params)
         this.type = 'SetAnimatorProperty'
         this.id = params.id ?? SetAnimatorProperty.defaults.id
         this.properties = params.properties ?? copy<typeof this.properties>(SetAnimatorProperty.defaults.properties)
@@ -40,11 +41,8 @@ export class SetAnimatorProperty extends CustomEvent<
         ...super.defaults,
     }
 
-    push(clone = true) {
-        getActiveDifficulty().customEvents.setAnimatorPropertyEvents.push(
-            clone ? copy(this) : this,
-        )
-        return this
+    protected override getArray(difficulty: AbstractDifficulty): this[] {
+        return difficulty.customEvents.setAnimatorPropertyEvents as this[]
     }
 
     override fromJsonV3(json: ISetAnimatorProperty): this {

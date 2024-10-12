@@ -7,7 +7,6 @@ import { areKeyframesSimple, complexifyKeyframes, simplifyKeyframes } from '../a
 import { getKeyframeTimeIndex } from '../animation/keyframe/get.ts'
 import { bakeAnimation } from '../animation/bake.ts'
 import { worldToWall } from '../beatmap/object/wall/world_to_wall.ts'
-import { getActiveDifficulty } from '../../data/active_difficulty.ts'
 import { copy } from '../object/copy.ts'
 import { ColorVec, Vec3 } from '../../types/math/vector.ts'
 import { Transform } from '../../types/math/transform.ts'
@@ -15,11 +14,13 @@ import { ComplexKeyframesVec3 } from '../../types/animation/keyframe/vec3.ts'
 import { ModelObject, ReadonlyModel } from '../../types/model/object.ts'
 import { Wall } from '../../internals/beatmap/object/gameplay_object/wall.ts'
 import { ComplexKeyframesBoundless } from '../../types/animation/keyframe/boundless.ts'
+import {AbstractDifficulty} from "../../internals/beatmap/abstract_beatmap.ts";
 
 let modelToWallCount = 0
 
 /**
  * Represents model objects as walls, supporting animations. Returns the walls spawned.
+ * @param difficulty The difficulty to push the walls to.
  * @param input Can be a path to a model or an array of objects.
  * @param start Wall's lifespan start.
  * @param end Wall's lifespan end.
@@ -28,6 +29,7 @@ let modelToWallCount = 0
  * @param animationSettings Settings for processing the animation, if there is any.
  */
 export async function modelToWall(
+    difficulty: AbstractDifficulty,
     input: string | ReadonlyModel,
     start: number,
     end: number,
@@ -37,8 +39,7 @@ export async function modelToWall(
     animationSettings ??= new AnimationSettings()
     distribution ??= 0.3
 
-    const diff = getActiveDifficulty()
-    return await diff.runAsync(async () => {
+    return await difficulty.runAsync(async () => {
         modelToWallCount++
 
         function isAnimated(obj: ModelObject) {
@@ -174,7 +175,6 @@ export async function modelToWall(
                 wall.lifeStart = start
             }
 
-            wall.push(false)
             return wall
         })
     })

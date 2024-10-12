@@ -1,11 +1,16 @@
 import { bsmap } from '../../../../../../deps.ts'
 import { LightEventBoxGroup } from './base.ts'
 import { lightRotationEventBox } from '../../../../../../builder_functions/beatmap/object/v3_event/lighting/light_event_box.ts'
+import {AbstractDifficulty} from "../../../../abstract_beatmap.ts";
 
 export class LightRotationEventBoxGroup extends LightEventBoxGroup<bsmap.v3.ILightRotationEventBox> {
+    protected getArray(difficulty: AbstractDifficulty): this[] {
+        return difficulty.lightRotationEventBoxGroups as this[]
+    }
+
     override fromJsonV3(json: bsmap.v3.IEventBoxGroup<bsmap.v3.ILightRotationEventBox>): this {
         this.groupID = json.g ?? LightRotationEventBoxGroup.defaults.groupID
-        this.boxes = json.e.map((x) => lightRotationEventBox({}).fromJsonV3(x))
+        this.boxes = json.e.map((x) => lightRotationEventBox().fromJsonV3(x))
         return super.fromJsonV3(json)
     }
 
