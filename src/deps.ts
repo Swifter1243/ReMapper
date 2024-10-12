@@ -6,8 +6,7 @@ export * as asserts from "https://deno.land/std@0.189.0/testing/asserts.ts";
 export { compress } from "https://deno.land/x/zip@v1.2.5/mod.ts";
 export * as adbDeno from "https://deno.land/x/adb_deno@0.1.4/lib.ts";
 
-// @deno-types="npm:@types/three@*"
-export * as three from "npm:three@^0.154";
+export * as three from "jsr:@3d/three";
 
 // Temporary measure
 export * as bsmap from 'https://raw.githubusercontent.com/Fernthedev/BeatSaber-Deno/593c942ee8f5eac21b8fa1fc70e03a0d2ea07036/types/beatmap/mod.ts'
