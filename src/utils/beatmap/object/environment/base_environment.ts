@@ -11,8 +11,7 @@ export function getBaseEnvironment(difficulty: AbstractDifficulty, callback: (en
     if (search.length > 0) {
         callback(search[0])
     } else {
-        const env = environment('[0]Environment', 'EndsWith')
-        env.push(false)
+        const env = environment(difficulty,'[0]Environment', 'EndsWith')
         callback(env)
     }
 }

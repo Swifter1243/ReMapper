@@ -8,13 +8,14 @@ import {
 import {MATERIAL_PROP_TYPE} from "../../types/vivify/material.ts";
 import { getActiveInfo } from '../../data/active_info.ts'
 import {Material} from "./material.ts";
+import {AbstractDifficulty} from "../../internals/beatmap/abstract_beatmap.ts";
 
 function applyCRCsToInfo(bundleInfo: BundleInfo) {
     const info = getActiveInfo()
     Object.assign(info.assetBundle ??= {}, bundleInfo.default.bundleCRCs)
 }
 
-function initializeMaterials(materials: Material[]) {
+function initializeMaterials(difficulty: AbstractDifficulty, materials: Material[]) {
     materials.forEach(material => {
         const keys = Object.keys(material.propertyTypes)
         const properties: MaterialPropertyValues = {}
@@ -28,16 +29,18 @@ function initializeMaterials(materials: Material[]) {
             return
         }
 
-        material.set(properties)
+        material.set(difficulty, properties)
     })
 }
 
 /** Generate a typed list of assets from JSON.
+ * @param difficulty The difficulty to load this bundle in.
  * @param bundleInfo The `bundleinfo.json` to import.
  * @param initialize Whether to set the default value of all materials at the start of the map. This is redundancy in case material values are externally altered.
  * @param applyToInfo Whether to apply CRC data from `bundleInfo` to the Info.dat
  */
 export function loadBundle<T extends BundleInfo>(
+    difficulty: AbstractDifficulty,
     bundleInfo: T,
     initialize = true,
     applyToInfo = true
@@ -49,7 +52,7 @@ export function loadBundle<T extends BundleInfo>(
     const prefabs = makePrefabMap(bundleInfo.default.prefabs)
 
     if (initialize) {
-        initializeMaterials(Object.values(materials))
+        initializeMaterials(difficulty, Object.values(materials))
     }
 
     if (applyToInfo) {

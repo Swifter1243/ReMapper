@@ -59,7 +59,7 @@ export class StaticModelScene extends ModelScene<StaticModelInput, Promise<Reado
 
             // Creating objects/events
             if (group.object) {
-                const object = copy(group.object)
+                const object = group.object.copy()
 
                 if (group.defaultMaterial && object instanceof Geometry) {
                     const materialName = `modelScene${this.ID}_${groupKey}_material`
@@ -86,7 +86,7 @@ export class StaticModelScene extends ModelScene<StaticModelInput, Promise<Reado
                 groupInfo.objects.push(object)
             }
             else {
-                const event = animateTrack(0, track)
+                const event = animateTrack(difficulty, 0, track)
                 event.animation.position = modelObject.position as RuntimeRawKeyframesVec3
                 event.animation.rotation = modelObject.rotation as RuntimeRawKeyframesVec3
                 event.animation.scale = modelObject.scale as RuntimeRawKeyframesVec3
@@ -105,7 +105,7 @@ export class StaticModelScene extends ModelScene<StaticModelInput, Promise<Reado
             const groupInfo = sceneInfo.trackGroupInfo[groupKey]
             if (groupInfo.count === 0 && group.disappearWhenAbsent) {
                 ModelScene.createYeetDef(difficulty)
-                animateTrack({
+                animateTrack(difficulty, {
                     track: groupKey,
                     animation: {
                         position: 'yeet'

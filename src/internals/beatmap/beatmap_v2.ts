@@ -63,17 +63,17 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
         // Notes
         const colorNotes: ColorNote[] = runProcess(
             '_notes',
-            (notes) => notes.filter((n) => n._type !== 3).map((o) => colorNote().fromJsonV2(o)),
+            (notes) => notes.filter((n) => n._type !== 3).map((o) => colorNote(this).fromJsonV2(o)),
         ) ?? []
         const bombs: Bomb[] = runProcess(
             '_notes',
-            (notes) => notes.filter((n) => n._type === 3).map((o) => bomb().fromJsonV2(o)),
+            (notes) => notes.filter((n) => n._type === 3).map((o) => bomb(this).fromJsonV2(o)),
         ) ?? []
 
         // Walls
         const obstacles: Wall[] = runProcess(
             '_obstacles',
-            (obstacles) => obstacles.map((o) => wall().fromJsonV2(o)),
+            (obstacles) => obstacles.map((o) => wall(this).fromJsonV2(o)),
         ) ?? []
 
         // Events
@@ -130,25 +130,25 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
         })
         json._events = bpmEventsFilter.fail
 
-        const lightEvents = lightEventsFilter.success.map((o) => backLasers().fromJsonV2(o as bsmap.v2.IEventLight))
-        const laserSpeedEvents = laserSpeedEventsFilter.success.map((o) => leftLaserSpeed({}).fromJsonV2(o as bsmap.v2.IEventLaser))
-        const ringZoomEvents = ringZoomEventsFilter.success.map((o) => ringZoom(0).fromJsonV2(o as bsmap.v2.IEventZoom))
-        const ringSpinEvents = ringSpinEventsFilter.success.map((o) => ringSpin({}).fromJsonV2(o as bsmap.v2.IEventRing))
+        const lightEvents = lightEventsFilter.success.map((o) => backLasers(this).fromJsonV2(o as bsmap.v2.IEventLight))
+        const laserSpeedEvents = laserSpeedEventsFilter.success.map((o) => leftLaserSpeed(this,{}).fromJsonV2(o as bsmap.v2.IEventLaser))
+        const ringZoomEvents = ringZoomEventsFilter.success.map((o) => ringZoom(this,0).fromJsonV2(o as bsmap.v2.IEventZoom))
+        const ringSpinEvents = ringSpinEventsFilter.success.map((o) => ringSpin(this,{}).fromJsonV2(o as bsmap.v2.IEventRing))
         const rotationEvents = rotationEventsFilter.success.map((o) => {
             if (o._type === EventGroup.EARLY_ROTATION) {
-                return earlyRotation({}).fromJsonV2(o as bsmap.v2.IEventLaneRotation)
+                return earlyRotation(this,{}).fromJsonV2(o as bsmap.v2.IEventLaneRotation)
             } else {
-                return lateRotation({}).fromJsonV2(o as bsmap.v2.IEventLaneRotation)
+                return lateRotation(this,{}).fromJsonV2(o as bsmap.v2.IEventLaneRotation)
             }
         })
-        const boostEvents = boostEventsFilter.success.map((o) => boost({}).fromJsonV2(o))
-        const baseBasicEvents = json._events.map((o) => abstract({}).fromJsonV2(o))
+        const boostEvents = boostEventsFilter.success.map((o) => boost(this,{}).fromJsonV2(o))
+        const baseBasicEvents = json._events.map((o) => abstract(this,{}).fromJsonV2(o))
         const bpmEvents = [
-            ...bpmEventsFilter.success.map((o) => officialBpmEvent({}).fromJsonV2(o)),
+            ...bpmEventsFilter.success.map((o) => officialBpmEvent(this,{}).fromJsonV2(o)),
             ...[
                 ...json._customData?._BPMChanges ?? [],
                 ...json._customData?._bpmChanges ?? [],
-            ].map((o) => communityBpmEvent({}).fromJsonV2(o)),
+            ].map((o) => communityBpmEvent(this,{}).fromJsonV2(o)),
         ]
         delete json._customData?._BPMChanges
         delete json._customData?._bpmChanges
@@ -185,7 +185,7 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
                         startY: x._data._startY,
                     }
 
-                    fogEvents.push(new FogEvent(fog, x._time, x._data._duration))
+                    fogEvents.push(new FogEvent(this, fog, x._time, x._data._duration))
                     return false
                 },
             )
@@ -197,14 +197,14 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
 
         const diffCustomEvents: Partial<BeatmapCustomEvents> = {}
 
-        function extractCustomEvents<
+        const extractCustomEvents = <
             T extends CustomEvent,
             K extends keyof BeatmapCustomEvents,
         >(
-            obj: (a: object) => T,
+            obj: (difficulty: AbstractDifficulty, a: object) => T,
             property: K,
-        ) {
-            const type = obj({}).type
+        ) => {
+            const type = obj(this,{}).type
 
             const filter = arraySplit(
                 customEvents,
@@ -213,7 +213,7 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
 
             customEvents = filter.fail
 
-            const result = filter.success.map((x) => obj({}).fromJsonV2(x as bsmap.v2.ICustomEventAnimateTrack))
+            const result = filter.success.map((x) => obj(this,{}).fromJsonV2(x as bsmap.v2.ICustomEventAnimateTrack))
             diffCustomEvents[property] = result as unknown as BeatmapCustomEvents[K]
         }
 
@@ -222,17 +222,17 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
         extractCustomEvents(assignPlayerToTrack, 'assignPlayerTrackEvents')
         extractCustomEvents(assignTrackParent, 'assignTrackParentEvents')
 
-        diffCustomEvents.abstractCustomEvents = customEvents.map((x) => abstractCustomEvent({}).fromJsonV2(x))
+        diffCustomEvents.abstractCustomEvents = customEvents.map((x) => abstractCustomEvent(this, {}).fromJsonV2(x))
 
         // Environment
         const environmentArr =
             json._customData?._environment?.filter((x) => x._geometry === undefined).map((x) =>
-                environment().fromJsonV2(x as bsmap.v2.IChromaEnvironmentID)
+                environment(this).fromJsonV2(x as bsmap.v2.IChromaEnvironmentID)
             ) ?? []
 
         const geometryArr =
             json._customData?._environment?.filter((x) => x._geometry !== undefined).map((x) =>
-                geometry().fromJsonV2(x as bsmap.v2.IChromaEnvironmentGeometry)
+                geometry(this).fromJsonV2(x as bsmap.v2.IChromaEnvironmentGeometry)
             ) ?? []
 
         delete json._customData?._environment

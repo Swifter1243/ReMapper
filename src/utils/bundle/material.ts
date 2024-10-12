@@ -11,6 +11,7 @@ import {DeepReadonly} from "../../types/util/mutability.ts";
 import {MATERIAL_PROP_TYPE, MaterialProperty} from "../../types/vivify/material.ts";
 import {SetMaterialProperty} from "../../internals/beatmap/object/custom_event/vivify/set_material_property.ts";
 import {Blit} from "../../internals/beatmap/object/custom_event/vivify/blit.ts";
+import {AbstractDifficulty} from "../../internals/beatmap/abstract_beatmap.ts";
 
 type MaterialSetParameters0<
     T extends MaterialProperties,
@@ -64,6 +65,7 @@ export class Material<T extends MaterialProperties = MaterialProperties> {
 
     /** Apply this material to the post processing stack. */
     blit(
+        difficulty: AbstractDifficulty,
         ...params:
             | [
                 beat?: number,
@@ -79,41 +81,46 @@ export class Material<T extends MaterialProperties = MaterialProperties> {
             ]
     ) {
         if (typeof params[0] === 'object') {
-            return blit({
+            return blit(difficulty, {
                 ...params[0],
                 asset: this.path,
-            }).push()
+            })
         }
 
         const [beat, duration, properties, easing] = params
 
-        return blit({
+        return blit(difficulty, {
             beat: beat as number,
             duration,
             properties,
             easing,
             asset: this.path,
-        }).push()
+        })
     }
 
     /** Set a property on this material. Also allows for animations. */
     set(
+        difficulty: AbstractDifficulty,
         ...params: MaterialSetParameters0<T>
     ): void
     set<K extends keyof T>(
+        difficulty: AbstractDifficulty,
         ...params: MaterialSetParameters1<T, K>
     ): void
     set<K extends keyof T>(
+        difficulty: AbstractDifficulty,
         ...params: MaterialSetParameters<T, K>
     ) {
         if (typeof params[0] === 'object') {
-            this.doSet(...params as Parameters<typeof this.doSet>)
+            const setParams = [difficulty, ...params] as Parameters<typeof this.doSet>
+            this.doSet(...setParams)
             return
         }
 
         const [prop, value, beat, duration, easing, callback] = params
 
         this.doSet(
+            difficulty,
             { [prop]: value } as MaterialProperties,
             beat,
             duration as number,
@@ -123,6 +130,7 @@ export class Material<T extends MaterialProperties = MaterialProperties> {
     }
 
     private doSet(
+        difficulty: AbstractDifficulty,
         values: MaterialProperties,
         beat?: number,
         duration?: number,
@@ -144,6 +152,7 @@ export class Material<T extends MaterialProperties = MaterialProperties> {
         })
 
         const event = setMaterialProperty(
+            difficulty,
             beat,
             this.path,
             fixedValues,
@@ -151,6 +160,5 @@ export class Material<T extends MaterialProperties = MaterialProperties> {
             easing,
         )
         if (callback) callback(event)
-        event.push(false)
     }
 }

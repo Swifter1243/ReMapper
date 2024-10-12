@@ -11,7 +11,7 @@ export type AnyFog = BloomFogEnvironment<
     number | ComplexKeyframesLinear | string
 >
 
-export class FogEvent extends BeatmapArrayMember {
+export class FogEvent extends BeatmapArrayMember<AbstractDifficulty> {
     fog: AnyFog
     beat?: number
     duration?: number

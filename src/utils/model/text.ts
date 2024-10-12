@@ -7,6 +7,7 @@ import {Vec3} from "../../types/math/vector.ts";
 import {Transform} from "../../types/math/transform.ts";
 import {Bounds} from "../../types/math/bounds.ts";
 import {ReadonlyText, TextInfo, TextObject} from "../../types/model/text.ts";
+import {AbstractDifficulty} from "../../internals/beatmap/abstract_beatmap.ts";
 
 export class Text implements TextInfo {
     horizontalAnchor: 'Left' | 'Center' | 'Right' = 'Center'
@@ -124,6 +125,7 @@ export class Text implements TextInfo {
 
     /**
      * Generate walls from a string of text.
+     * @param difficulty The difficulty to add the walls to.
      * @param text The string of text to generate.
      * @param start Wall's lifespan start.
      * @param end Wall's lifespan end.
@@ -132,6 +134,7 @@ export class Text implements TextInfo {
      * @param animationSettings Settings used to process the animation.
      */
     toWalls(
+        difficulty: AbstractDifficulty,
         text: string,
         start: number,
         end: number,
@@ -139,6 +142,7 @@ export class Text implements TextInfo {
         animationSettings = new AnimationSettings()
     ) {
         return modelToWall(
+            difficulty,
             this.toObjects(text),
             start,
             end,

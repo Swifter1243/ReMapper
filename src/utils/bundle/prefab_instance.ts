@@ -2,9 +2,12 @@ import {destroyPrefab} from "../../builder_functions/beatmap/object/custom_event
 
 import {InstantiatePrefab} from "../../internals/beatmap/object/custom_event/vivify/instantiate_prefab.ts";
 import {Vec3} from "../../types/math/vector.ts";
+import {AbstractDifficulty} from "../../internals/beatmap/abstract_beatmap.ts";
 
 /** An instance of a prefab. */
 export class PrefabInstance {
+    private _parentDifficulty: AbstractDifficulty
+
     /** The id/track of this instance. */
     readonly id: string
     /** The event used to push this instance. */
@@ -52,7 +55,8 @@ export class PrefabInstance {
         this.event.scale = scale
     }
 
-    constructor(id: string, event: InstantiatePrefab) {
+    constructor(difficulty: AbstractDifficulty, id: string, event: InstantiatePrefab) {
+        this._parentDifficulty = difficulty
         this.id = id
         this.event = event
     }
@@ -61,13 +65,13 @@ export class PrefabInstance {
     destroy(beat = 0) {
         if (this.destroyed) throw `Prefab ${this.id} is already destroyed.`
 
-        destroyPrefab(beat, this.id).push()
+        destroyPrefab(this._parentDifficulty, beat, this.id)
         this.destroyed = true
     }
 }
 
 /** Destroy multiple prefab instances in one event. */
-export function destroyPrefabInstances(prefabs: PrefabInstance[], beat = 0) {
+export function destroyPrefabInstances(difficulty: AbstractDifficulty, prefabs: PrefabInstance[], beat = 0) {
     const ids: string[] = []
 
     prefabs.forEach((x) => {
@@ -76,5 +80,5 @@ export function destroyPrefabInstances(prefabs: PrefabInstance[], beat = 0) {
         x.destroyed = true
     })
 
-    destroyPrefab(beat, ids).push()
+    destroyPrefab(difficulty, beat, ids)
 }

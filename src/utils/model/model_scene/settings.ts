@@ -1,18 +1,19 @@
-import {AnimationSettings} from "../../animation/optimizer.ts";
-import {GroupObjectTypes, ModelGroup} from "../../../types/model/model_scene/group.ts";
-import {DeepReadonly} from "../../../types/util/mutability.ts";
-import {Transform} from "../../../types/math/transform.ts";
-import {Environment} from "../../../internals/beatmap/object/environment/environment.ts";
-import {EnvironmentModelPiece} from "../../../types/model/model_scene/piece.ts";
-import {BaseEnvironmentEnhancement} from "../../../internals/beatmap/object/environment/base_environment.ts";
-import {environment} from "../../../builder_functions/beatmap/object/environment/environment.ts";
-import {ModelScene} from "./base.ts";
+import { AnimationSettings } from '../../animation/optimizer.ts'
+import { GroupObjectTypes, ModelGroup } from '../../../types/model/model_scene/group.ts'
+import { DeepReadonly } from '../../../types/util/mutability.ts'
+import { Transform } from '../../../types/math/transform.ts'
+import { Environment } from '../../../internals/beatmap/object/environment/environment.ts'
+import { EnvironmentModelPiece } from '../../../types/model/model_scene/piece.ts'
+import { BaseEnvironmentEnhancement } from '../../../internals/beatmap/object/environment/base_environment.ts'
+import { environment } from '../../../builder_functions/beatmap/object/environment/environment.ts'
+import { ModelScene } from './base.ts'
+import { AbstractDifficulty } from '../../../internals/beatmap/abstract_beatmap.ts'
 
 export class ModelSceneSettings {
     /**
      * When registering groups with geometry objects, don't set their default material.
      * WARNING: Only do this if you know what you're doing, because this means each geometry object instantiated from this group will have it's own draw call.
-     * */
+     */
     allowUniqueMaterials = false
 
     /** Throw when a model has groups that aren't represented. */
@@ -69,23 +70,25 @@ export class ModelSceneSettings {
     ): void
     setDefaultObjectGroup(
         modelPiece: EnvironmentModelPiece,
+        difficulty: AbstractDifficulty,
     ): void
     setDefaultObjectGroup(
         ...params: [
             object: GroupObjectTypes,
             transform?: DeepReadonly<Transform>,
         ] | [
-            modelPiece: EnvironmentModelPiece
+            modelPiece: EnvironmentModelPiece,
+            difficulty: AbstractDifficulty,
         ]
     ): void {
         if (params[0] instanceof BaseEnvironmentEnhancement) {
             const [object, transform] = params
 
-            this.pushObjectGroup(ModelScene.defaultGroupKey, object, transform)
+            this.pushObjectGroup(ModelScene.defaultGroupKey, object, transform as DeepReadonly<Transform>)
         } else {
-            const [modelPiece] = params
+            const [modelPiece, difficulty] = params
 
-            const object = environment({
+            const object = environment(difficulty as AbstractDifficulty, {
                 id: modelPiece.id,
                 lookupMethod: modelPiece.lookupMethod,
             })
@@ -107,6 +110,7 @@ export class ModelSceneSettings {
     setObjectGroup(
         group: string,
         modelPiece: EnvironmentModelPiece,
+        difficulty: AbstractDifficulty,
     ): void
     setObjectGroup(
         ...params: [
@@ -116,16 +120,17 @@ export class ModelSceneSettings {
         ] | [
             group: string,
             modelPiece: EnvironmentModelPiece,
+            difficulty: AbstractDifficulty,
         ]
     ): void {
         if (params[1] instanceof BaseEnvironmentEnhancement) {
             const [group, object, transform] = params
 
-            this.pushObjectGroup(group, object, transform)
+            this.pushObjectGroup(group, object, transform as DeepReadonly<Transform>)
         } else {
-            const [group, modelPiece] = params
+            const [group, modelPiece, difficulty] = params
 
-            const object = environment({
+            const object = environment(difficulty as AbstractDifficulty, {
                 id: modelPiece.id,
                 lookupMethod: modelPiece.lookupMethod,
             })

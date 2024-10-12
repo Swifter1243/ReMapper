@@ -67,12 +67,13 @@ export class BaseLightIterator {
 
     /**
      * Test processes only on light IDs. IDs before and after will be logged.
+     * @param difficulty Difficulty to test on.
      * @param ids IDs to test.
      */
-    testOnIDs(ids: number[]) {
+    testOnIDs(difficulty: AbstractDifficulty, ids: number[]) {
         this.conditions = []
 
-        const event = lightEvent({}).on('Red', ids)
+        const event = lightEvent(difficulty, {}).on('Red', ids)
         console.log('Input IDs: ' + ids)
         this.processEvents([event])
         console.log('Output IDs: ' + event.lightID)

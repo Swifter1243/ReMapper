@@ -1,17 +1,19 @@
 import { LookupMethod } from '../../../../types/beatmap/object/environment.ts'
 import { environment } from '../../../../builder_functions/beatmap/object/environment/environment.ts'
+import {AbstractDifficulty} from "../../../../internals/beatmap/abstract_beatmap.ts";
 
 /** Remove a list of IDs from the environment */
 export function environmentRemoval(
+    difficulty: AbstractDifficulty,
     ids: string[],
     lookupMethod: LookupMethod = 'Contains',
 ) {
-    const env = environment(undefined, lookupMethod)
-    env.active = false
-
     ids.forEach((x) => {
-        env.id = x
-        env.push()
+        environment(difficulty, {
+            id: x,
+            lookupMethod,
+            active: false,
+        })
     })
 }
 

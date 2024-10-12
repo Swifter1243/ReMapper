@@ -6,11 +6,11 @@ import { ModelObject } from '../../types/model/object.ts'
 import { GroupObjectTypes } from '../../types/model/model_scene/group.ts'
 import { modelScene } from '../../builder_functions/model/model_scene.ts'
 import { Transform } from '../../types/math/transform.ts'
-import { fromType } from '../../builder_functions/beatmap/object/basic_event/light_event.ts'
 import { vec } from '../array/tuple.ts'
 import { getBaseEnvironment } from '../beatmap/object/environment/base_environment.ts'
 import {AbstractDifficulty} from "../../internals/beatmap/abstract_beatmap.ts";
 import {ModelSceneSettings} from "./model_scene/settings.ts";
+import {lightEvent} from "../../builder_functions/beatmap/object/basic_event/light_event.ts";
 
 /**
  * Debug the transformations necessary to fit an object to a cube.
@@ -39,9 +39,9 @@ export async function debugFitObjectToUnitCube(
 
     const lightType = 0
     const lightID = 1000
-    fromType(lightType).on([300, 300, 300, 1], lightID).push(false)
+    lightEvent(difficulty, 0, lightType).on([300, 300, 300, 1], lightID)
 
-    geometry({
+    geometry(difficulty,{
         lightID,
         lightType,
         position: center,
@@ -49,9 +49,9 @@ export async function debugFitObjectToUnitCube(
         material: {
             shader: 'TransparentLight',
         },
-    }).push()
+    })
 
-    adjustFog({
+    adjustFog(difficulty,{
         attenuation: 0.000001,
         startY: -69420,
     })
@@ -112,8 +112,8 @@ export async function debugFitObjectToUnitCube(
 
     const sceneSettings = new ModelSceneSettings()
     sceneSettings.setDefaultObjectGroup(input, transform)
-    sceneSettings.setObjectGroup('debugCubeX', geometry('Cube', 'debugCubeX'))
-    sceneSettings.setObjectGroup('debugCubeY', geometry('Cube', 'debugCubeY'))
-    sceneSettings.setObjectGroup('debugCubeZ', geometry('Cube', 'debugCubeZ'))
+    sceneSettings.setObjectGroup('debugCubeX', geometry(difficulty,'Cube', 'debugCubeX'))
+    sceneSettings.setObjectGroup('debugCubeY', geometry(difficulty,'Cube', 'debugCubeY'))
+    sceneSettings.setObjectGroup('debugCubeZ', geometry(difficulty,'Cube', 'debugCubeZ'))
     await modelScene.static(sceneSettings, model).instantiate(difficulty)
 }

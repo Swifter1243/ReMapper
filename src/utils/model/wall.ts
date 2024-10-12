@@ -51,7 +51,7 @@ export async function modelToWall(
         }
 
         const duration = end - start
-        const spawnedWall = wall()
+        const spawnedWall = wall(difficulty)
         spawnedWall.animation.dissolve = [[0, 0], [1, 0]]
         spawnedWall.coordinates = [0, 0]
         spawnedWall.uninteractable = false
@@ -130,7 +130,7 @@ export async function modelToWall(
 
         const objects = await getObjectsFromInput()
         return objects.map((x, i) => {
-            const wall = copy(spawnedWall)
+            const wall = spawnedWall.copy()
 
             // Copy position
             wall.animation.definitePosition = copy(x.position)

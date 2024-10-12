@@ -11,22 +11,20 @@ import { RawGeometryMaterial } from '../../../types/beatmap/object/environment.t
 import { DeepReadonly } from '../../../types/util/mutability.ts'
 import { ModelObject } from '../../../types/model/object.ts'
 import { MultiSceneInfo, SceneSwitchInfo } from '../../../types/model/model_scene/scene_info.ts'
-import {ScenePromises} from "../../../types/model/model_scene/animated.ts";
-import {AbstractDifficulty} from "../../../internals/beatmap/abstract_beatmap.ts";
+import { ScenePromises } from '../../../types/model/model_scene/animated.ts'
+import { AbstractDifficulty } from '../../../internals/beatmap/abstract_beatmap.ts'
 
 export class AnimatedModelScene extends ModelScene<SceneSwitch[], ScenePromises, MultiSceneInfo> {
-
     protected override _createModelPromise(input: SceneSwitch[]): ScenePromises {
         return input
             .sort((a, b) => a.beat - b.beat)
             .map((sceneSwitch) => {
                 return {
                     sceneSwitch,
-                    model: this.getObjects(sceneSwitch.model)
+                    model: this.getObjects(sceneSwitch.model),
                 }
             })
     }
-
 
     private static getFirstTransform(obj: DeepReadonly<ModelObject>) {
         return {
@@ -74,7 +72,7 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], ScenePromises,
     }
 
     protected async _instantiate(difficulty: AbstractDifficulty) {
-        ModelScene.createYeetDef()
+        ModelScene.createYeetDef(difficulty)
 
         // Initialize info
         const animatedMaterials: string[] = []
@@ -113,8 +111,6 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], ScenePromises,
             )
         )
 
-        // TODO: undo
-        Object.values(yeetEvents).forEach((x) => difficulty.customEvents.animateTrackEvents.push(x))
         sceneInfo.yeetEvents = Object.values(yeetEvents)
         return sceneInfo
     }
@@ -140,7 +136,9 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], ScenePromises,
 
         // If the animation offset ends up being past the next switch, ignore it
         const nextScenePromise = this.modelPromise[switchIndex + 1]
-        const ignoreAnimation = nextScenePromise ? sceneSwitch.beat + sceneSwitch.animationOffset > nextScenePromise.sceneSwitch.beat : false
+        const ignoreAnimation = nextScenePromise
+            ? sceneSwitch.beat + sceneSwitch.animationOffset > nextScenePromise.sceneSwitch.beat
+            : false
 
         // Initializing the switch properties of each group.
         const sceneSwitchInfo = this.initializeSceneSwitchInfo(sceneSwitch, firstInitializing)
@@ -181,14 +179,12 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], ScenePromises,
 
                 // If assigned object and initializing, set their position at beat 0
                 if (!group.object) {
-                    const event = animateTrack(0, track)
+                    const event = animateTrack(difficulty, 0, track)
                     event.animation.position = initialState.position
                     event.animation.rotation = initialState.rotation
                     event.animation.scale = initialState.scale
                     sceneGroupInfo.moveEvents.push(event)
                     groupInfo.moveEvents.push(event)
-                    // TODO: undo
-                    difficulty.customEvents.animateTrackEvents.push(event)
                 }
             }
 
@@ -208,10 +204,8 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], ScenePromises,
                 if (firstInitializing) {
                     groupInitialStates![groupKey][index].color = color
                 } else {
-                    const event = animateTrack(sceneSwitch.beat, track + '_material')
+                    const event = animateTrack(difficulty, sceneSwitch.beat, track + '_material')
                     event.animation.color = color
-                    // TODO: undo
-                    difficulty.customEvents.animateTrackEvents.push(event)
                 }
             }
 
@@ -222,7 +216,7 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], ScenePromises,
             }
 
             // If delaying, position objects at time of switch
-            const event = animateTrack(sceneSwitch.beat, track, sceneSwitch.animationDuration)
+            const event = animateTrack(difficulty, sceneSwitch.beat, track, sceneSwitch.animationDuration)
 
             if (delaying) {
                 event.animation.position = ModelScene.getFirstValues(modelObject.position)
@@ -230,8 +224,6 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], ScenePromises,
                 event.animation.scale = ModelScene.getFirstValues(modelObject.scale)
                 sceneGroupInfo.moveEvents.push(event)
                 groupInfo.moveEvents.push(event)
-                // TODO: undo
-                difficulty.customEvents.animateTrackEvents.push(event)
             }
 
             // If ignoring animation, don't make animation events
@@ -254,8 +246,6 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], ScenePromises,
             // Push event
             sceneGroupInfo.moveEvents.push(event)
             groupInfo.moveEvents.push(event)
-            // TODO: undo
-            difficulty.customEvents.animateTrackEvents.push(event)
         })
 
         return groupInitialStates
@@ -284,7 +274,7 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], ScenePromises,
 
                 // Initialize the yeet event for this switch if not present
                 if (!yeetEvents[switchBeat]) {
-                    yeetEvents[switchBeat] = animateTrack({
+                    yeetEvents[switchBeat] = animateTrack(difficulty, {
                         beat: eventTime,
                         track: [],
                         animation: {
@@ -313,7 +303,7 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], ScenePromises,
             }
 
             for (let i = 0; i < groupInfo.count; i++) {
-                const object = copy(group.object)
+                const object = group.object.copy()
 
                 // Apply track to the object
                 object.track.value = this.getPieceTrack(group.object, groupKey, i)
@@ -349,7 +339,6 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], ScenePromises,
 
                 // Run callback and push object
                 sceneInfo.objects.push(object)
-                object.push(false)
             }
         }
     }

@@ -242,12 +242,12 @@ export abstract class AbstractDifficulty<
                     o.track.add(DEFAULT_SCALED_TRACK)
                 })
 
-                animateTrack({
+                animateTrack(self, {
                     track: DEFAULT_SCALED_TRACK,
                     animation: {
                         scale: [1, 1, 1],
                     },
-                }).push()
+                })
             }
             if (settings.convertRotationEventsToObjectRotation) {
                 convertRotationEventsToObjectRotation(self)
