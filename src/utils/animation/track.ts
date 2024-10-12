@@ -4,11 +4,11 @@ export class Track {
     private _value: Set<string>
 
     constructor(value?: TrackValue) {
-        this._value = new Set(value)
+        this._value = new Set(Track.complexifyValue(value))
     }
 
     set value(value: TrackValue | undefined) {
-        this._value = new Set(value)
+        this._value = new Set(Track.complexifyValue(value))
     }
     get value() {
         const result = this._value.values().toArray()
@@ -24,11 +24,11 @@ export class Track {
         }
     }
 
-    private static complexifyValue(value: TrackValue) {
+    private static complexifyValue(value: TrackValue | undefined) {
         if (typeof value === 'string') {
             return [value]
         } else {
-            return value
+            return value ?? []
         }
     }
 
@@ -64,12 +64,12 @@ export class Track {
      * @param condition Function to run for each track, must return boolean
      */
     some(condition: (track: string) => boolean) {
-        return this._value.values().toArray().some(condition)
+        return [...this._value].some(condition)
     }
 
     /** Get the track value as an array. */
     array() {
-        return this._value.values().toArray()
+        return [...this._value]
     }
 
     /** Get the track value as a set. */

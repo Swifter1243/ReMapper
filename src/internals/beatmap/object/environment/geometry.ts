@@ -70,7 +70,7 @@ export class Geometry extends BaseEnvironmentEnhancement<
             position: this.position,
             rotation: this.rotation,
             scale: this.scale,
-            track: this.track?.value as string,
+            track: this.track.value as string,
         } satisfies bsmap.v3.IChromaEnvironmentGeometry
         return prune ? objectPrune(output) : output
     }
@@ -94,7 +94,7 @@ export class Geometry extends BaseEnvironmentEnhancement<
             _position: this.position,
             _rotation: this.rotation,
             _scale: this.scale,
-            _track: this.track?.value as string,
+            _track: this.track.value as string,
         } satisfies bsmap.v2.IChromaEnvironmentGeometry
         return prune ? objectPrune(output) : output
     }

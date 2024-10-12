@@ -62,7 +62,7 @@ export class Environment extends BaseEnvironmentEnhancement<
             position: this.position,
             rotation: this.rotation,
             scale: this.scale,
-            track: this.track?.value as string,
+            track: this.track.value as string,
         } satisfies bsmap.v3.IChromaEnvironmentID
         return prune ? objectPrune(output) : output
     }
@@ -82,7 +82,7 @@ export class Environment extends BaseEnvironmentEnhancement<
             _position: this.position,
             _rotation: this.rotation,
             _scale: this.scale,
-            _track: this.track?.value as string,
+            _track: this.track.value as string,
         } satisfies bsmap.v2.IChromaEnvironmentID
         return prune ? objectPrune(output) : output
     }

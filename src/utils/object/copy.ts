@@ -31,6 +31,10 @@ export function copy<T>(obj: T): T
 export function copy<T>(obj: T): T {
     if (obj === null || obj === undefined || typeof obj !== 'object') return obj
 
+    if (obj instanceof Set) {
+        return new Set([...obj]) as T
+    }
+
     const newObj = Array.isArray(obj) ? new Array(obj.length) : Object.create(obj)
 
     const entries = Object.entries(obj)
