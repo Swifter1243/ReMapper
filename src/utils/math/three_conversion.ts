@@ -8,12 +8,9 @@ import {Vec3} from "../../types/math/vector.ts";
  * @param q Input quaternion.
  */
 export function eulerFromQuaternion(q: three.Quaternion) {
-    let euler = new three.Euler(0, 0, 0, 'YXZ').setFromQuaternion(q)
-        .toArray() as number[]
-    euler.pop()
-    euler = euler.map((x) => isNegativeZero(x) ? 0 : x)
-    euler = toDegrees(euler)
-    return euler as Vec3
+    const euler = new three.Euler(0, 0, 0, 'YXZ').setFromQuaternion(q).toArray()
+    const vector = [euler[0], euler[1], euler[2]].map((x) => isNegativeZero(x) ? 0 : x) as Vec3
+    return toDegrees(vector)
 }
 
 /**
