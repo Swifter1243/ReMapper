@@ -57,27 +57,20 @@ import { Arc } from './object/gameplay_object/arc.ts'
 import { Chain } from './object/gameplay_object/chain.ts'
 import { RawGeometryMaterial } from '../../types/beatmap/object/environment.ts'
 import { CustomEvent } from './object/custom_event/base/custom_event.ts'
-import { IDifficultyInfo } from '../../types/beatmap/info/difficulty_info.ts'
 
 export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
     declare version: bsmap.v3.IDifficulty['version']
     declare waypoints: bsmap.v3.IWaypoint[]
-    basicEventTypesWithKeywords: bsmap.v3.IDifficulty['basicEventTypesWithKeywords']
-    useNormalEventsAsCompatibleEvents: bsmap.v3.IDifficulty['useNormalEventsAsCompatibleEvents']
+    basicEventTypesWithKeywords!: bsmap.v3.IDifficulty['basicEventTypesWithKeywords']
+    useNormalEventsAsCompatibleEvents!: bsmap.v3.IDifficulty['useNormalEventsAsCompatibleEvents']
 
-    constructor(
-        difficultyInfo: IDifficultyInfo,
-        json: bsmap.v3.IDifficulty,
-        process?: (keyof bsmap.v3.IDifficulty)[],
-    ) {
+    protected fromJSON(json: bsmap.v3.IDifficulty): RMDifficulty {
         // run only if explicitly allowed
         function runProcess<K extends keyof bsmap.v3.IDifficulty, V>(
             key: K,
             callback: (v: bsmap.v3.IDifficulty[K]) => V,
         ) {
             if (!json[key]) throw `"${key}" is not defined in the beatmap!`
-
-            if (process && !process.some((s) => s === key)) return
 
             return callback(json[key])
         }
@@ -370,49 +363,46 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         const lightTranslationEventBoxGroups = (json.lightTranslationEventBoxGroups ?? [])
             .map((x) => lightTranslationEventBoxGroup(this).fromJsonV3(x))
 
-        super(
-            json,
-            difficultyInfo,
-            {
-                version: json.version,
-                v3: true,
-                waypoints: json.waypoints,
-
-                colorNotes,
-                bombs,
-                arcs: arcs,
-                chains: chains,
-                walls: obstacles,
-
-                lightEvents: lightEvents,
-                laserSpeedEvents: laserSpeedEvents,
-                ringSpinEvents: ringSpinEvents,
-                ringZoomEvents: ringZoomEvents,
-                rotationEvents: rotationEvents,
-                boostEvents: boostEvents,
-                abstractBasicEvents: baseBasicEvents,
-                bpmEvents: bpmEvents,
-
-                lightColorEventBoxGroups: lightColorEventBoxGroups,
-                lightRotationEventBoxGroups: lightRotationEventBoxGroups,
-                lightTranslationEventBoxGroups: lightTranslationEventBoxGroups,
-
-                customEvents: diffCustomEvents as BeatmapCustomEvents,
-
-                pointDefinitions: json.customData
-                    ?.pointDefinitions as RMDifficulty['pointDefinitions'] ??
-                    {},
-                customData: json.customData ?? {},
-                environment: environmentArr,
-                geometry: geometryArr,
-                geometryMaterials: materials,
-                fogEvents: fogEvents,
-            },
-        )
 
         // Extra
         this.basicEventTypesWithKeywords = json.basicEventTypesWithKeywords
         this.useNormalEventsAsCompatibleEvents = json.useNormalEventsAsCompatibleEvents
+
+        return {
+            version: json.version,
+            v3: true,
+            waypoints: json.waypoints,
+
+            colorNotes,
+            bombs,
+            arcs: arcs,
+            chains: chains,
+            walls: obstacles,
+
+            lightEvents: lightEvents,
+            laserSpeedEvents: laserSpeedEvents,
+            ringSpinEvents: ringSpinEvents,
+            ringZoomEvents: ringZoomEvents,
+            rotationEvents: rotationEvents,
+            boostEvents: boostEvents,
+            abstractBasicEvents: baseBasicEvents,
+            bpmEvents: bpmEvents,
+
+            lightColorEventBoxGroups: lightColorEventBoxGroups,
+            lightRotationEventBoxGroups: lightRotationEventBoxGroups,
+            lightTranslationEventBoxGroups: lightTranslationEventBoxGroups,
+
+            customEvents: diffCustomEvents as BeatmapCustomEvents,
+
+            pointDefinitions: json.customData
+                    ?.pointDefinitions as RMDifficulty['pointDefinitions'] ??
+                {},
+            customData: json.customData ?? {},
+            environment: environmentArr,
+            geometry: geometryArr,
+            geometryMaterials: materials,
+            fogEvents: fogEvents,
+        }
     }
 
     toJSON(): bsmap.v3.IDifficulty {

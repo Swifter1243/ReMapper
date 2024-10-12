@@ -66,13 +66,13 @@ export async function readDifficulty(
     if (v3) {
         // TODO: Uncomment, breaks benchmark
         diff = new V3Difficulty(
-            infoData.difficultyInfo,
             json as bsmap.v3.IDifficulty,
+            infoData.difficultyInfo,
         )
     } else {
         diff = new V2Difficulty(
-            infoData.difficultyInfo,
             json as bsmap.v2.IDifficulty,
+            infoData.difficultyInfo,
         )
     }
 

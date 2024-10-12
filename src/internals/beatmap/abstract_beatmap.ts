@@ -104,11 +104,12 @@ export abstract class AbstractDifficulty<
      * Creates a difficulty. Can be used to access various information and the map properties.
      * Will set the active difficulty to this.
      */
-    protected constructor(
+    constructor(
         json: TD,
         difficultyInfo: IDifficultyInfo,
-        inner: RMDifficulty,
     ) {
+        const inner = this.fromJSON(json)
+
         this.version = inner.version
         this.v3 = inner.v3
         this.waypoints = inner.waypoints
@@ -214,6 +215,8 @@ export abstract class AbstractDifficulty<
 
         arr.push(process)
     }
+
+    protected abstract fromJSON(json: TD): RMDifficulty
 
     /** Convert this difficulty to the JSON outputted into the .dat file. */
     abstract toJSON(): TD
