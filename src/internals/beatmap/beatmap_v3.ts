@@ -288,11 +288,8 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         delete json.customData?.materials
 
         // V3 Lighting
-        json.lightColorEventBoxGroups ??= []
         json.lightColorEventBoxGroups.forEach((x) => lightColorEventBoxGroup(this).fromJsonV3(x))
-        json.lightRotationEventBoxGroups ??= []
         json.lightRotationEventBoxGroups.forEach((x) => lightRotationEventBoxGroup(this).fromJsonV3(x))
-        json.lightTranslationEventBoxGroups ??= []
         json.lightTranslationEventBoxGroups.forEach((x) => lightTranslationEventBoxGroup(this).fromJsonV3(x))
 
         // Extra
