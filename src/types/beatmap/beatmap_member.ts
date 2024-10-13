@@ -1,4 +1,3 @@
-import {AbstractDifficulty} from "../../internals/beatmap/abstract_beatmap.ts";
 import { copy } from '../../utils/object/copy.ts'
 import {arrayRemove} from "../../utils/array/mutate.ts";
 
@@ -7,9 +6,10 @@ export abstract class BeatmapArrayMember<T> {
 
     protected constructor(parent: T) {
         this.parent = parent
+        this.getArray(this.parent).push(this)
     }
 
-    protected abstract getArray(difficulty: T): this[]
+    protected abstract getArray(parent: T): this[]
     protected _copy(): this {
         return copy(this)
     }

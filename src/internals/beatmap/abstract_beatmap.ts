@@ -63,42 +63,63 @@ export abstract class AbstractDifficulty<
 
     // Initialized by constructor using Object.assign
     /** Semver beatmap version. */
-    version: bsmap.v2.IDifficulty['_version'] | bsmap.v3.IDifficulty['version']
+    version!: bsmap.v2.IDifficulty['_version'] | bsmap.v3.IDifficulty['version']
     /** Whether this difficulty is V3 or not. */
-    v3: boolean
+    v3!: boolean
     /** Nobody really knows what these do lol */
-    waypoints: bsmap.v2.IWaypoint[] | bsmap.v3.IWaypoint[]
+    waypoints!: bsmap.v2.IWaypoint[] | bsmap.v3.IWaypoint[]
 
     /** All standard color notes. */
-    colorNotes: ColorNote[]
-    bombs: Bomb[]
-    arcs: Arc[]
-    chains: Chain[]
-    walls: Wall[]
+    colorNotes: ColorNote[] = []
+    bombs: Bomb[] = []
+    arcs: Arc[] = []
+    chains: Chain[] = []
+    walls: Wall[] = []
 
-    lightEvents: LightEvent[]
+    lightEvents: LightEvent[] = []
 
-    laserSpeedEvents: LaserSpeedEvent[]
-    ringZoomEvents: RingZoomEvent[]
-    ringSpinEvents: RingSpinEvent[]
-    rotationEvents: RotationEvent[]
-    boostEvents: BoostEvent[]
-    abstractBasicEvents: AbstractBasicEvent[]
-    bpmEvents: BPMEvent[]
+    laserSpeedEvents: LaserSpeedEvent[] = []
+    ringZoomEvents: RingZoomEvent[] = []
+    ringSpinEvents: RingSpinEvent[] = []
+    rotationEvents: RotationEvent[] = []
+    boostEvents: BoostEvent[] = []
+    abstractBasicEvents: AbstractBasicEvent[] = []
+    bpmEvents: BPMEvent[] = []
 
-    lightColorEventBoxGroups: LightColorEventBoxGroup[]
-    lightRotationEventBoxGroups: LightRotationEventBoxGroup[]
-    lightTranslationEventBoxGroups: LightTranslationEventBoxGroup[]
+    lightColorEventBoxGroups: LightColorEventBoxGroup[] = []
+    lightRotationEventBoxGroups: LightRotationEventBoxGroup[] = []
+    lightTranslationEventBoxGroups: LightTranslationEventBoxGroup[] = []
 
-    customEvents: BeatmapCustomEvents
+    customEvents: BeatmapCustomEvents = {
+        animateComponentEvents: [],
+        animateTrackEvents: [],
+        assignPathAnimationEvents: [],
+        assignPlayerTrackEvents: [],
+        assignTrackParentEvents: [],
 
-    pointDefinitions: Record<string, RuntimeRawKeyframesAny>
-    customData: Record<string, unknown>
-    environment: Environment[]
-    geometry: Geometry[]
-    geometryMaterials: Record<string, RawGeometryMaterial>
+        setMaterialPropertyEvents: [],
+        setGlobalPropertyEvents: [],
+        blitEvents: [],
+        declareCullingTextureEvents: [],
+        declareRenderTextureEvents: [],
+        destroyTextureEvents: [],
+        instantiatePrefabEvents:  [],
+        destroyPrefabEvents:  [],
+        setAnimatorPropertyEvents: [],
+        setCameraPropertyEvents: [],
+        assignObjectPrefabEvents: [],
+        setRenderingSettingEvents: [],
+
+        abstractCustomEvents: []
+    }
+
+    pointDefinitions: Record<string, RuntimeRawKeyframesAny> = {}
+    customData!: Record<string, unknown>
+    environment: Environment[] = []
+    geometry: Geometry[] = []
+    geometryMaterials: Record<string, RawGeometryMaterial> = {}
     /** All of the fog related things that happen in this difficulty. */
-    fogEvents: FogEvent[]
+    fogEvents: FogEvent[] = []
 
     /**
      * Creates a difficulty. Can be used to access various information and the map properties.
@@ -108,43 +129,9 @@ export abstract class AbstractDifficulty<
         json: TD,
         difficultyInfo: IDifficultyInfo,
     ) {
-        const inner = this.fromJSON(json)
-
-        this.version = inner.version
-        this.v3 = inner.v3
-        this.waypoints = inner.waypoints
-
-        this.json = json
         this.difficultyInfo = difficultyInfo
-
-        this.colorNotes = inner.colorNotes
-        this.bombs = inner.bombs
-        this.arcs = inner.arcs
-        this.chains = inner.chains
-        this.walls = inner.walls
-
-        this.lightEvents = inner.lightEvents
-        this.laserSpeedEvents = inner.laserSpeedEvents
-        this.ringZoomEvents = inner.ringZoomEvents
-        this.ringSpinEvents = inner.ringSpinEvents
-        this.rotationEvents = inner.rotationEvents
-        this.boostEvents = inner.boostEvents
-        this.abstractBasicEvents = inner.abstractBasicEvents
-        this.bpmEvents = inner.bpmEvents
-
-        this.lightColorEventBoxGroups = inner.lightColorEventBoxGroups
-        this.lightRotationEventBoxGroups = inner.lightRotationEventBoxGroups
-        this.lightTranslationEventBoxGroups = inner.lightTranslationEventBoxGroups
-
-        this.customEvents = inner.customEvents
-
-        this.pointDefinitions = inner.pointDefinitions
-        this.customData = inner.customData
-        this.environment = inner.environment
-        this.geometry = inner.geometry
-        this.geometryMaterials = inner.geometryMaterials
-        this.fogEvents = inner.fogEvents
-
+        this.loadJSON(json)
+        this.json = json
         this.registerProcessors()
     }
 
@@ -171,35 +158,6 @@ export abstract class AbstractDifficulty<
     }
 
     /**
-     * Go through every animation in this difficulty and optimize it.
-     * Warning, this is an expensive action and may be redundant based on what has already been optimized.
-     * @param optimize Settings for the optimization.
-     */
-    optimize(optimize: OptimizeSettings = new OptimizeSettings()) {
-        function optimizeAnimation(
-            animation: AnimationPropertiesV3,
-        ) {
-            Object.entries(animation).forEach(([key, keyframes]) => {
-                if (typeof keyframes === 'string') return
-                if (areKeyframesRuntime(keyframes!)) {
-                    return
-                }
-
-                animation[key] = optimizeKeyframes(
-                    keyframes as RawKeyframesLinear,
-                    optimize,
-                ) as RuntimePointDefinitionAny
-            })
-        }
-
-        this.colorNotes.forEach((e) => optimizeAnimation(e.animation))
-        this.walls.forEach((e) => optimizeAnimation(e.animation))
-        this.customEvents.animateTrackEvents.forEach((e) => optimizeAnimation((e as AnimateTrack).animation))
-
-        // TODO: Optimize point definitions
-    }
-
-    /**
      * Allows you to add a function to be run on save of this difficulty.
      * @param process The function to be added.
      * @param priority Default 0. Higher priority means first
@@ -216,7 +174,7 @@ export abstract class AbstractDifficulty<
         arr.push(process)
     }
 
-    protected abstract fromJSON(json: TD): RMDifficulty
+    protected abstract loadJSON(json: TD): void
 
     /** Convert this difficulty to the JSON outputted into the .dat file. */
     abstract toJSON(): TD
