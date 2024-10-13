@@ -22,7 +22,7 @@ export type AnimatedOptions = StaticOptions & {
     /** If this input is animated, use the only first frame. */
     static?: boolean
     /** Whether to mirror the animation. */
-    mirror?: boolean
+    mirrorAnimation?: boolean
     /** Whether to reverse the animation. */
-    reverse?: boolean
+    reverseAnimation?: boolean
 }

@@ -194,14 +194,14 @@ export abstract class ModelScene<I, M, O> {
             }
 
             // Reverse animation
-            if (options.reverse) {
+            if (options.reverseAnimation) {
                 o.position = reverseAnimation(o.position)
                 o.rotation = reverseAnimation(o.rotation)
                 o.scale = reverseAnimation(o.scale)
             }
 
             // Loop animation
-            if (options.mirror) {
+            if (options.mirrorAnimation) {
                 o.position = mirrorAnimation(o.position)
                 o.rotation = mirrorAnimation(o.rotation)
                 o.scale = mirrorAnimation(o.scale)
@@ -299,14 +299,14 @@ export abstract class ModelScene<I, M, O> {
             x.scale = optimizeKeyframes(scale, this.settings.animationSettings.optimizeSettings)
 
             // Reverse animation
-            if (options.reverse) {
+            if (options.reverseAnimation) {
                 x.position = reverseAnimation(x.position)
                 x.rotation = reverseAnimation(x.rotation)
                 x.scale = reverseAnimation(x.scale)
             }
 
             // Loop animation
-            if (options.mirror) {
+            if (options.mirrorAnimation) {
                 x.position = mirrorAnimation(x.position)
                 x.rotation = mirrorAnimation(x.rotation)
                 x.scale = mirrorAnimation(x.scale)
