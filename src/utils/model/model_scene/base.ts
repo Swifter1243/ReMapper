@@ -1,4 +1,4 @@
-import {GroupObjectTypes, ModelGroup, ModelGroupObjectFactory} from '../../../types/model/model_scene/group.ts'
+import { ModelGroup, ModelGroupObjectFactory } from '../../../types/model/model_scene/group.ts'
 import { optimizeKeyframes } from '../../animation/optimizer.ts'
 import { Vec3 } from '../../../types/math/vector.ts'
 import { AnimatedModelInput, ModelInput } from '../../../types/model/model_scene/input.ts'
@@ -16,9 +16,8 @@ import { TransformKeyframe } from '../../../types/animation/bake.ts'
 import { bakeAnimation } from '../../animation/bake.ts'
 import { DeepReadonly } from '../../../types/util/mutability.ts'
 import { ModelSceneSettings } from './settings.ts'
-import {AbstractDifficulty} from "../../../internals/beatmap/abstract_beatmap.ts";
+import { AbstractDifficulty } from '../../../internals/beatmap/abstract_beatmap.ts'
 import { Environment } from '../../../internals/beatmap/object/environment/environment.ts'
-import {Geometry} from "../../../internals/beatmap/object/environment/geometry.ts";
 
 export abstract class ModelScene<I, M, O> {
     protected static modelSceneCount = 0
@@ -37,6 +36,11 @@ export abstract class ModelScene<I, M, O> {
 
     constructor(settings: ModelSceneSettings, input: I) {
         this.ID = ModelScene.modelSceneCount++
+
+        if (Object.values(settings.groups).length === 0) {
+            throw 'ModelScene has no groups, which is redundant as no objects will be represented.'
+        }
+
         this.settings = settings
         this.modelPromise = this._createModelPromise(input)
     }
@@ -46,10 +50,6 @@ export abstract class ModelScene<I, M, O> {
 
     /** Instantiate the model scene given object inputs. Your difficulty will await this process before saving. */
     async instantiate(difficulty: AbstractDifficulty) {
-        if (Object.values(this.settings.groups).length === 0) {
-            throw 'ModelScene has no groups, which is redundant as no objects will be represented.'
-        }
-
         return await difficulty.runAsync(async () => await this._instantiate(difficulty))
     }
 
@@ -92,8 +92,7 @@ export abstract class ModelScene<I, M, O> {
 
         if (object instanceof Environment) { // Environment
             object.duplicate = 1
-        }
-        else { // Geometry
+        } else { // Geometry
             if (typeof object.material !== 'string' && !this.settings.allowUniqueMaterials) {
                 group.defaultMaterial ??= object.material
             }
