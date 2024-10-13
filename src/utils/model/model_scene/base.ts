@@ -100,11 +100,7 @@ export abstract class ModelScene<I, M, O> {
             const defaultMaterial = this.settings.groups[groupKey].defaultMaterial
             if (defaultMaterial) {
                 const materialKey = this.getGroupDefaultMaterialKey(groupKey)
-
-                if (!Object.hasOwn(difficulty.geometryMaterials, materialKey)) {
-                    difficulty.geometryMaterials[materialKey] = defaultMaterial
-                }
-
+                difficulty.geometryMaterials[materialKey] = defaultMaterial
                 object.material = materialKey
             }
         }

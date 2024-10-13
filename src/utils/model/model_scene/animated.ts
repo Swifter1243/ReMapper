@@ -3,14 +3,14 @@ import { SceneSwitch } from '../../../types/model/model_scene/scene_switch.ts'
 import { AnimateTrack } from '../../../internals/beatmap/object/custom_event/heck/animate_track.ts'
 import { complexifyKeyframes } from '../../animation/keyframe/complexity.ts'
 import { animateTrack } from '../../../builder_functions/beatmap/object/custom_event/heck.ts'
-import { Vec3, Vec4 } from '../../../types/math/vector.ts'
+import {ColorVec, Vec3, Vec4} from '../../../types/math/vector.ts'
 import { Geometry } from '../../../internals/beatmap/object/environment/geometry.ts'
 import { RuntimeRawKeyframesVec3 } from '../../../types/animation/keyframe/runtime/vec3.ts'
 import { RawGeometryMaterial } from '../../../types/beatmap/object/environment.ts'
 import { DeepReadonly } from '../../../types/util/mutability.ts'
 import { ModelObject } from '../../../types/model/object.ts'
 import { MultiSceneInfo, SceneSwitchInfo } from '../../../types/model/model_scene/scene_info.ts'
-import { ScenePromises } from '../../../types/model/model_scene/animated.ts'
+import {AnimatedSceneMaterial, ScenePromises} from '../../../types/model/model_scene/animated.ts'
 import { AbstractDifficulty } from '../../../internals/beatmap/abstract_beatmap.ts'
 
 export class AnimatedModelScene extends ModelScene<SceneSwitch[], ScenePromises, MultiSceneInfo> {
@@ -74,7 +74,7 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], ScenePromises,
         ModelScene.createYeetDef(difficulty)
 
         // Initialize info
-        const animatedMaterials: string[] = []
+        const animatedMaterials: Record<string, AnimatedSceneMaterial[]> = {}
         const sceneInfo = this.initializeSceneInfo()
 
         // Object animation
@@ -118,7 +118,7 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], ScenePromises,
         difficulty: AbstractDifficulty,
         sceneSwitch: SceneSwitch,
         switchIndex: number,
-        animatedMaterials: string[],
+        animatedMaterials: Record<string, AnimatedSceneMaterial[]>,
         sceneInfo: MultiSceneInfo,
     ) {
         sceneSwitch.animationDuration ??= 0
@@ -188,23 +188,22 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], ScenePromises,
             }
 
             // Animate color if the object has unique colors
-            if (
-                group.object &&
-                group.object instanceof Geometry &&
-                !group.defaultMaterial &&
-                typeof group.object.material !== 'string' &&
-                !group.object.material.color &&
-                modelObject.color
-            ) {
-                const color = modelObject.color as Vec4
-                color[3] ??= 1
-                animatedMaterials.push(track)
+            if (modelObject.color && !group.defaultMaterial) {
+                const color = modelObject.color as ColorVec
 
                 if (firstInitializing) {
                     groupInitialStates![groupKey][index].color = color
                 } else {
-                    const event = animateTrack(difficulty, sceneSwitch.beat, track + '_material')
-                    event.animation.color = color
+                    const animatedMaterial: AnimatedSceneMaterial = {
+                        beat: sceneSwitch.beat,
+                        color
+                    }
+
+                    if (!animatedMaterials[track]) {
+                        animatedMaterials[track] = [animatedMaterial]
+                    } else {
+                        animatedMaterials[track].push(animatedMaterial)
+                    }
                 }
             }
 
@@ -215,9 +214,8 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], ScenePromises,
             }
 
             // If delaying, position objects at time of switch
-            const event = animateTrack(difficulty, sceneSwitch.beat, track, sceneSwitch.animationDuration)
-
             if (delaying) {
+                const event = animateTrack(difficulty, sceneSwitch.beat, track, sceneSwitch.animationDuration)
                 event.animation.position = ModelScene.getFirstValues(modelObject.position)
                 event.animation.rotation = ModelScene.getFirstValues(modelObject.rotation)
                 event.animation.scale = ModelScene.getFirstValues(modelObject.scale)
@@ -231,7 +229,8 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], ScenePromises,
             }
 
             // Make animation event
-            event.beat = sceneSwitch.beat + sceneSwitch.animationOffset!
+            const animationStart = sceneSwitch.beat + sceneSwitch.animationOffset!
+            const event = animateTrack(difficulty, animationStart, track, sceneSwitch.animationDuration)
             event.animation.position = modelObject.position as RuntimeRawKeyframesVec3
             event.animation.rotation = modelObject.rotation as RuntimeRawKeyframesVec3
             event.animation.scale = modelObject.scale as RuntimeRawKeyframesVec3
@@ -253,7 +252,7 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], ScenePromises,
     private processGroup(
         difficulty: AbstractDifficulty,
         groupKey: string,
-        animatedMaterials: string[],
+        animatedMaterials: Record<string, AnimatedSceneMaterial[]>,
         sceneInfo: MultiSceneInfo,
         yeetEvents: Record<number, AnimateTrack>,
         groupInitialStates: Record<string, ModelObject[]> | undefined,
@@ -298,7 +297,8 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], ScenePromises,
                 const object = this.instantiateGroupObject(difficulty, group.object, groupKey)
 
                 // Apply track to the object
-                object.track.value = this.getPieceTrack(group, groupKey, i)
+                const pieceTrack  = this.getPieceTrack(group, groupKey, i)
+                object.track.value = pieceTrack
 
                 // Apply initializing position if necessary
                 if (initializing) {
@@ -316,10 +316,21 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], ScenePromises,
                     }
                 }
 
-                // If object's material is supposed to be animated, add a track to it
-                if (object.track.has(animatedMaterials)) {
-                    const material = (object as Geometry).material as RawGeometryMaterial
-                    material.track = object.track.value + '_material'
+                // If object's material is supposed to be animated, make the color animation event and set the track.
+                const trackAnimatedMaterials = animatedMaterials[pieceTrack]
+                if (
+                    trackAnimatedMaterials &&
+                    object instanceof Geometry &&
+                    typeof object.material !== 'string'
+                ) {
+                    const materialTrack = pieceTrack + '_material'
+                    object.material.track = materialTrack
+
+                    trackAnimatedMaterials.forEach(e => {
+                        const event = animateTrack(difficulty, e.beat, materialTrack)
+                        e.color[3] ??= 1
+                        event.animation.color = e.color as Vec4
+                    })
                 }
 
                 // Run callback and push object
