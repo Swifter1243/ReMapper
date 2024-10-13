@@ -238,9 +238,8 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
             T extends CustomEvent,
         >(
             obj: (difficulty: AbstractDifficulty, a: object) => T,
+            type: string,
         ) => {
-            const type = obj(this, {}).type
-
             const filter = arraySplit(
                 customEvents,
                 (x) => x.t === type,
@@ -251,24 +250,24 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
             filter.success.forEach((x) => obj(this, {}).fromJsonV3(x as bsmap.v3.ICustomEventAnimateTrack))
         }
 
-        extractCustomEvents(animateComponent)
-        extractCustomEvents(animateTrack)
-        extractCustomEvents(assignPathAnimation)
-        extractCustomEvents(assignPlayerToTrack)
-        extractCustomEvents(assignTrackParent)
+        extractCustomEvents(animateComponent, 'AnimateComponent')
+        extractCustomEvents(animateTrack, 'AnimateTrack')
+        extractCustomEvents(assignPathAnimation, 'AssignPathAnimation')
+        extractCustomEvents(assignPlayerToTrack, 'AssignPlayerToTrack')
+        extractCustomEvents(assignTrackParent, 'AssignTrackParent')
 
-        extractCustomEvents(setMaterialProperty)
-        extractCustomEvents(setGlobalProperty)
-        extractCustomEvents(blit)
-        extractCustomEvents(declareCullingTexture)
-        extractCustomEvents(declareRenderTexture)
-        extractCustomEvents(destroyTexture)
-        extractCustomEvents(instantiatePrefab)
-        extractCustomEvents(destroyPrefab)
-        extractCustomEvents(setAnimatorProperty)
-        extractCustomEvents(setCameraProperty)
-        extractCustomEvents(assignObjectPrefab)
-        extractCustomEvents(setRenderingSettings)
+        extractCustomEvents(setMaterialProperty, 'SetMaterialProperty')
+        extractCustomEvents(setGlobalProperty, 'SetGlobalProperty')
+        extractCustomEvents(blit, 'Blit')
+        extractCustomEvents(declareCullingTexture, 'DeclareCullingTexture')
+        extractCustomEvents(declareRenderTexture, 'DeclareRenderTexture')
+        extractCustomEvents(destroyTexture, 'DestroyTexture')
+        extractCustomEvents(instantiatePrefab, 'InstantiatePrefab')
+        extractCustomEvents(destroyPrefab, 'DestroyPrefab')
+        extractCustomEvents(setAnimatorProperty, 'SetAnimatorPrefab')
+        extractCustomEvents(setCameraProperty, 'SetCameraProperty')
+        extractCustomEvents(assignObjectPrefab, 'AssignObjectPrefab')
+        extractCustomEvents(setRenderingSettings, 'SetRenderingSettings')
 
         customEvents.forEach((x) => abstractCustomEvent(this, {}).fromJsonV3(x))
 

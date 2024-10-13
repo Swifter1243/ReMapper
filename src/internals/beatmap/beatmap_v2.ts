@@ -135,38 +135,33 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
 
         // Fog
         if (json._customData?._customEvents) {
-            json._customData._customEvents = json._customData._customEvents.filter(
-                (x) => {
-                    const hasFogFields =
-                        // @ts-ignore 2322
-                        x._data._attenuation !== undefined |
-                        // @ts-ignore 2322
-                        x._data._height !== undefined |
-                        // @ts-ignore 2322
-                        x._data._offset !== undefined |
-                        // @ts-ignore 2322
-                        x._data._startY !== undefined
+            const fogEvent = json._customData._customEvents
+                .find((o) => o._type === 'AssignFogTrack')
 
-                    const isFogEvent = x._type === 'AnimateTrack' && hasFogFields
-                    if (!isFogEvent) {
+            if (fogEvent) {
+                const fogTrack = fogEvent._data._track as string
+
+                json._customData._customEvents = json._customData._customEvents.filter((x) => {
+                    const isFogRelated = x._type === 'AssignFogTrack' || x._type === 'AnimateTrack'
+
+                    if (isFogRelated && x._data._track && x._data._track === fogTrack) {
+                        const fog: AnyFog = {
+                            // @ts-ignore 2322
+                            attenuation: x._data._attenuation,
+                            // @ts-ignore 2322
+                            height: x._data._height,
+                            // @ts-ignore 2322
+                            offset: x._data._offset,
+                            // @ts-ignore 2322
+                            startY: x._data._startY,
+                        }
+
+                        new FogEvent(this, fog, x._time, x._data._duration)
                         return true
                     }
-
-                    const fog: AnyFog = {
-                        // @ts-ignore 2322
-                        attenuation: x._data._attenuation,
-                        // @ts-ignore 2322
-                        height: x._data._height,
-                        // @ts-ignore 2322
-                        offset: x._data._offset,
-                        // @ts-ignore 2322
-                        startY: x._data._startY,
-                    }
-
-                    new FogEvent(this, fog, x._time, x._data._duration)
                     return false
-                },
-            )
+                })
+            }
         }
 
         // Custom events
@@ -177,9 +172,8 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
             T extends CustomEvent,
         >(
             obj: (difficulty: AbstractDifficulty, a: object) => T,
+            type: bsmap.v2.ICustomEvent['_type'],
         ) => {
-            const type = obj(this, {}).type
-
             const filter = arraySplit(
                 customEvents,
                 (x) => x._type === type,
@@ -189,10 +183,10 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
             filter.success.forEach((x) => obj(this, {}).fromJsonV2(x as bsmap.v2.ICustomEventAnimateTrack))
         }
 
-        extractCustomEvents(animateTrack)
-        extractCustomEvents(assignPathAnimation)
-        extractCustomEvents(assignPlayerToTrack)
-        extractCustomEvents(assignTrackParent)
+        extractCustomEvents(animateTrack, 'AnimateTrack')
+        extractCustomEvents(assignPathAnimation, 'AssignPathAnimation')
+        extractCustomEvents(assignPlayerToTrack, 'AssignPlayerToTrack')
+        extractCustomEvents(assignTrackParent, 'AssignTrackParent')
 
         customEvents.forEach((x) => abstractCustomEvent(this, {}).fromJsonV2(x))
 
