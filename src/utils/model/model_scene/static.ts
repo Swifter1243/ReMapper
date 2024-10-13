@@ -59,13 +59,7 @@ export class StaticModelScene extends ModelScene<StaticModelInput, Promise<Reado
 
             // Creating objects/events
             if (group.object) {
-                const object = this.instantiateGroupObject(difficulty, group, group.object)
-
-                if (group.defaultMaterial && object instanceof Geometry) {
-                    const materialName = `modelScene${this.ID}_${groupKey}_material`
-                    difficulty.geometryMaterials[materialName] = group.defaultMaterial
-                    object.material = materialName
-                }
+                const object = this.instantiateGroupObject(difficulty, group.object, groupKey)
 
                 if (
                     object instanceof Geometry &&

@@ -87,14 +87,25 @@ export abstract class ModelScene<I, M, O> {
         ] as Vec3
     }
 
-    protected instantiateGroupObject(difficulty: AbstractDifficulty, group: ModelGroup, factory: ModelGroupObjectFactory) {
+    protected getGroupDefaultMaterialKey(groupKey: string) {
+        return `modelScene${this.ID}_${groupKey}_material`
+    }
+
+    protected instantiateGroupObject(difficulty: AbstractDifficulty, factory: ModelGroupObjectFactory, groupKey: string) {
         const object = factory(difficulty)
 
         if (object instanceof Environment) { // Environment
             object.duplicate = 1
         } else { // Geometry
-            if (typeof object.material !== 'string' && !this.settings.allowUniqueMaterials) {
-                group.defaultMaterial ??= object.material
+            const defaultMaterial = this.settings.groups[groupKey].defaultMaterial
+            if (defaultMaterial) {
+                const materialKey = this.getGroupDefaultMaterialKey(groupKey)
+
+                if (!Object.hasOwn(difficulty.geometryMaterials, materialKey)) {
+                    difficulty.geometryMaterials[materialKey] = defaultMaterial
+                }
+
+                object.material = materialKey
             }
         }
 

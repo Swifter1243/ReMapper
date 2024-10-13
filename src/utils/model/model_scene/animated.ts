@@ -294,16 +294,9 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], ScenePromises,
         // Spawning objects
         if (group.object) { // Only spawn if group has object
             const initializing = groupInitialStates !== undefined
-            let materialName: string | undefined = undefined
-
-            // Add default material to the beatmap if it is present
-            if (group.defaultMaterial) {
-                materialName = `modelScene${this.ID}_${groupKey}_material`
-                difficulty.geometryMaterials[materialName] = group.defaultMaterial
-            }
 
             for (let i = 0; i < groupInfo.count; i++) {
-                const object = this.instantiateGroupObject(difficulty, group, group.object)
+                const object = this.instantiateGroupObject(difficulty, group.object, groupKey)
 
                 // Apply track to the object
                 object.track.value = this.getPieceTrack(group, groupKey, i)
@@ -324,15 +317,8 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], ScenePromises,
                     }
                 }
 
-                // If there is a default material, apply it to the object
-                if (group.defaultMaterial) {
-                    ;(object as Geometry).material = materialName!
-                }
-
                 // If object's material is supposed to be animated, add a track to it
-                if (
-                    animatedMaterials.some((x) => x === object.track.value)
-                ) {
+                if (object.track.has(animatedMaterials)) {
                     const material = (object as Geometry).material as RawGeometryMaterial
                     material.track = object.track.value + '_material'
                 }
