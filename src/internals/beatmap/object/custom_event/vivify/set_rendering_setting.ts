@@ -1,5 +1,4 @@
 import {QUALITY_SETTINGS, RENDERING_SETTINGS, XR_SETTINGS} from '../../../../../types/vivify/setting.ts'
-import { copy } from '../../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import { ISetRenderingSettings } from '../../../../../types/beatmap/object/vivify_event_interfaces.ts'
 import { EASE } from '../../../../../types/animation/easing.ts'

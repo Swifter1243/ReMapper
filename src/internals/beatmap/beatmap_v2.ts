@@ -1,8 +1,7 @@
 import { wall } from '../../builder_functions/beatmap/object/gameplay_object/wall.ts'
 import { bsmap } from '../../deps.ts'
 import { AbstractDifficulty } from './abstract_beatmap.ts'
-import { Wall } from './object/gameplay_object/wall.ts'
-import { GeoShader, RawGeometryMaterial } from '../../types/beatmap/object/environment.ts'
+import { GeoShader } from '../../types/beatmap/object/environment.ts'
 import { animateTrack } from '../../builder_functions/beatmap/object/custom_event/heck.ts'
 import {
     assignPathAnimation,

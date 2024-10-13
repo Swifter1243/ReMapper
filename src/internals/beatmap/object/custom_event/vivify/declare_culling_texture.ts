@@ -1,5 +1,4 @@
 import { Track } from '../../../../../utils/animation/track.ts'
-import { copy } from '../../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import { IDeclareCullingTexture } from '../../../../../types/beatmap/object/vivify_event_interfaces.ts'
 import {CustomEventConstructorTrack} from "../../../../../types/beatmap/object/custom_event.ts";

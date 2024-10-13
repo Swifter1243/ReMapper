@@ -1,6 +1,5 @@
 import { bsmap } from '../../../../deps.ts'
 
-import { copy } from '../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../utils/object/prune.ts'
 import { animationV3toV2 } from '../../../../utils/animation/json.ts'
 import { BeatmapGameplayObject } from './gameplay_object.ts'

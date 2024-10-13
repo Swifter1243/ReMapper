@@ -1,4 +1,3 @@
-import { copy } from '../../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import { IAssignObjectPrefab } from '../../../../../types/beatmap/object/vivify_event_interfaces.ts'
 import {CustomEventConstructor} from "../../../../../types/beatmap/object/custom_event.ts";

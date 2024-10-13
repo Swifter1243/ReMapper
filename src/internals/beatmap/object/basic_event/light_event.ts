@@ -1,6 +1,5 @@
 import { LightID } from '../../../../types/beatmap/object/environment.ts'
 import { EventAction } from '../../../../constants/basic_event.ts'
-import { copy } from '../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../utils/object/prune.ts'
 import { BasicEvent } from './basic_event.ts'
 import { bsmap } from '../../../../deps.ts'

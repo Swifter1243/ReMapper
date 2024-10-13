@@ -1,4 +1,3 @@
-import { copy } from '../../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import {IInstantiatePrefab} from "../../../../../types/beatmap/object/vivify_event_interfaces.ts";
 import {Vec3} from "../../../../../types/math/vector.ts";

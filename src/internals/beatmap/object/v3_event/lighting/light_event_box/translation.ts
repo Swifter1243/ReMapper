@@ -5,7 +5,6 @@ import { objectPrune } from '../../../../../../utils/object/prune.ts'
 import { LightTranslationEvent } from '../light_event/translation.ts'
 import { lightTranslationEvent } from '../../../../../../builder_functions/beatmap/object/v3_event/lighting/light_event.ts'
 import { JsonObjectConstructor, JsonObjectDefaults } from '../../../../../../types/beatmap/object/object.ts'
-import {LightRotationEventBoxGroup} from "../light_event_box_group/rotation.ts";
 import {LightTranslationEventBoxGroup} from "../light_event_box_group/translation.ts";
 
 export class LightTranslationEventBox extends LightEventBox<

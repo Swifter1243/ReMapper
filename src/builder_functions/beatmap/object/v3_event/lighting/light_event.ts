@@ -2,7 +2,6 @@ import { LightColor, LightTransition, RotationDirection, RotationEase } from '..
 import { LightColorEvent } from '../../../../../internals/beatmap/object/v3_event/lighting/light_event/color.ts'
 import { LightRotationEvent } from '../../../../../internals/beatmap/object/v3_event/lighting/light_event/rotation.ts'
 import { LightTranslationEvent } from '../../../../../internals/beatmap/object/v3_event/lighting/light_event/translation.ts'
-import { AbstractDifficulty } from '../../../../../internals/beatmap/abstract_beatmap.ts'
 import { LightColorEventBox } from '../../../../../internals/beatmap/object/v3_event/lighting/light_event_box/color.ts'
 import { LightRotationEventBox } from '../../../../../internals/beatmap/object/v3_event/lighting/light_event_box/rotation.ts'
 import { LightTranslationEventBox } from '../../../../../internals/beatmap/object/v3_event/lighting/light_event_box/translation.ts'

@@ -1,7 +1,6 @@
 import { CustomEvent } from '../base/custom_event.ts'
 import { JsonObjectDefaults } from '../../../../../types/beatmap/object/object.ts'
 import { CustomEventConstructorTrack } from '../../../../../types/beatmap/object/custom_event.ts'
-import { copy } from '../../../../../utils/object/copy.ts'
 import { getDataProp } from '../../../../../utils/beatmap/json.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import { bsmap } from '../../../../../deps.ts'
