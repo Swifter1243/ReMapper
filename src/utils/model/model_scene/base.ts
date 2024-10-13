@@ -221,6 +221,7 @@ export abstract class ModelScene<I, M, O> {
         const inputPath = (await parseFilePath(objectInput, '.rmmodel')).path
         const onCache = options.onCache ? options.onCache.toString() : undefined
         const hash = JSON.stringify([
+            inputPath,
             options,
             onCache,
             this.settings.groups,
