@@ -1,5 +1,5 @@
 import { AnimationSettings } from '../../animation/optimizer.ts'
-import { GroupObjectTypes, ModelGroup } from '../../../types/model/model_scene/group.ts'
+import { GroupObjectTypes, ModelGroup, ModelGroupObjectFactory } from '../../../types/model/model_scene/group.ts'
 import { DeepReadonly } from '../../../types/util/mutability.ts'
 import { Transform } from '../../../types/math/transform.ts'
 import { Environment } from '../../../internals/beatmap/object/environment/environment.ts'
@@ -42,20 +42,13 @@ export class ModelSceneSettings {
 
     private pushObjectGroup(
         key: string,
-        object: GroupObjectTypes,
+        object: ModelGroupObjectFactory,
         transform?: DeepReadonly<Transform>,
     ) {
-        const group: ModelGroup = {
+        this.groups[key as string] = {
             object,
             transform,
         }
-
-        if (object instanceof Environment) object.duplicate = 1
-        else if (typeof object.material !== 'string' && this.allowUniqueMaterials) {
-            group.defaultMaterial = object.material
-        }
-
-        this.groups[key as string] = group
     }
 
     /**
@@ -65,34 +58,32 @@ export class ModelSceneSettings {
      * @see groups
      */
     setDefaultObjectGroup(
-        object: GroupObjectTypes,
+        object: ModelGroupObjectFactory,
         transform?: DeepReadonly<Transform>,
     ): void
     setDefaultObjectGroup(
         modelPiece: EnvironmentModelPiece,
-        difficulty: AbstractDifficulty,
     ): void
     setDefaultObjectGroup(
         ...params: [
-            object: GroupObjectTypes,
+            object: ModelGroupObjectFactory,
             transform?: DeepReadonly<Transform>,
         ] | [
             modelPiece: EnvironmentModelPiece,
-            difficulty: AbstractDifficulty,
         ]
     ): void {
-        if (params[0] instanceof BaseEnvironmentEnhancement) {
+        if (typeof params[0] === 'function') {
             const [object, transform] = params
 
             this.pushObjectGroup(ModelScene.defaultGroupKey, object, transform as DeepReadonly<Transform>)
         } else {
-            const [modelPiece, difficulty] = params
+            const [modelPiece] = params
 
-            const object = environment(difficulty as AbstractDifficulty, {
-                id: modelPiece.id,
-                lookupMethod: modelPiece.lookupMethod,
-            })
-            this.pushObjectGroup(ModelScene.defaultGroupKey, object, modelPiece.transform)
+            this.pushObjectGroup(ModelScene.defaultGroupKey, (difficulty) =>
+                environment(difficulty as AbstractDifficulty, {
+                    id: modelPiece.id,
+                    lookupMethod: modelPiece.lookupMethod,
+                }), modelPiece.transform)
         }
     }
 
@@ -104,37 +95,35 @@ export class ModelSceneSettings {
      */
     setObjectGroup(
         group: string,
-        object: GroupObjectTypes,
+        object: ModelGroupObjectFactory,
         transform?: DeepReadonly<Transform>,
     ): void
     setObjectGroup(
         group: string,
-        modelPiece: EnvironmentModelPiece,
-        difficulty: AbstractDifficulty,
+        modelPiece: EnvironmentModelPiece
     ): void
     setObjectGroup(
         ...params: [
             group: string,
-            object: GroupObjectTypes,
+            object: ModelGroupObjectFactory,
             transform?: DeepReadonly<Transform>,
         ] | [
             group: string,
             modelPiece: EnvironmentModelPiece,
-            difficulty: AbstractDifficulty,
         ]
     ): void {
-        if (params[1] instanceof BaseEnvironmentEnhancement) {
+        if (typeof params[1] === 'function') {
             const [group, object, transform] = params
 
             this.pushObjectGroup(group, object, transform as DeepReadonly<Transform>)
         } else {
-            const [group, modelPiece, difficulty] = params
+            const [group, modelPiece] = params
 
-            const object = environment(difficulty as AbstractDifficulty, {
-                id: modelPiece.id,
-                lookupMethod: modelPiece.lookupMethod,
-            })
-            this.pushObjectGroup(group, object, modelPiece.transform)
+            this.pushObjectGroup(group, (difficulty) =>
+                environment(difficulty as AbstractDifficulty, {
+                    id: modelPiece.id,
+                    lookupMethod: modelPiece.lookupMethod,
+                }), modelPiece.transform)
         }
     }
 

@@ -50,7 +50,7 @@ export class StaticModelScene extends ModelScene<StaticModelInput, Promise<Reado
             const groupKey = modelObject.group ?? ModelScene.defaultGroupKey
             const group = this.settings.groups[groupKey]
             if (!group) return
-            const track = this.getPieceTrack(group.object, groupKey, index)
+            const track = this.getPieceTrack(group, groupKey, index)
 
             // Get transforms
             const position = StaticModelScene.getFirstValues(modelObject.position)
@@ -59,7 +59,7 @@ export class StaticModelScene extends ModelScene<StaticModelInput, Promise<Reado
 
             // Creating objects/events
             if (group.object) {
-                const object = group.object.copy()
+                const object = this.instantiateGroupObject(difficulty, group, group.object)
 
                 if (group.defaultMaterial && object instanceof Geometry) {
                     const materialName = `modelScene${this.ID}_${groupKey}_material`

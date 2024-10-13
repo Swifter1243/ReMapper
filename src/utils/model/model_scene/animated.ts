@@ -170,7 +170,7 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], ScenePromises,
             sceneGroupInfo.count = Math.max(groupInfo.count, sceneGroupInfo.count)
 
             const index = groupInfo.count - 1
-            const track = this.getPieceTrack(group.object, groupKey, index)
+            const track = this.getPieceTrack(group, groupKey, index)
 
             // Set initializing positions
             if (firstInitializing) {
@@ -285,7 +285,7 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], ScenePromises,
 
                 // Add unused objects for this switch to the yeet event
                 for (let i = count; i < groupInfo.count; i++) {
-                    const track = this.getPieceTrack(group.object, groupKey, i)
+                    const track = this.getPieceTrack(group, groupKey, i)
                     yeetEvents[switchBeat].track.add(track)
                 }
             })
@@ -303,10 +303,10 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], ScenePromises,
             }
 
             for (let i = 0; i < groupInfo.count; i++) {
-                const object = group.object.copy()
+                const object = this.instantiateGroupObject(difficulty, group, group.object)
 
                 // Apply track to the object
-                object.track.value = this.getPieceTrack(group.object, groupKey, i)
+                object.track.value = this.getPieceTrack(group, groupKey, i)
 
                 // Apply initializing position if necessary
                 if (initializing) {

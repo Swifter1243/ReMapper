@@ -1,4 +1,4 @@
-import { GroupObjectTypes } from '../../../types/model/model_scene/group.ts'
+import {GroupObjectTypes, ModelGroup, ModelGroupObjectFactory} from '../../../types/model/model_scene/group.ts'
 import { optimizeKeyframes } from '../../animation/optimizer.ts'
 import { Vec3 } from '../../../types/math/vector.ts'
 import { AnimatedModelInput, ModelInput } from '../../../types/model/model_scene/input.ts'
@@ -17,6 +17,8 @@ import { bakeAnimation } from '../../animation/bake.ts'
 import { DeepReadonly } from '../../../types/util/mutability.ts'
 import { ModelSceneSettings } from './settings.ts'
 import {AbstractDifficulty} from "../../../internals/beatmap/abstract_beatmap.ts";
+import { Environment } from '../../../internals/beatmap/object/environment/environment.ts'
+import {Geometry} from "../../../internals/beatmap/object/environment/geometry.ts";
 
 export abstract class ModelScene<I, M, O> {
     protected static modelSceneCount = 0
@@ -85,11 +87,26 @@ export abstract class ModelScene<I, M, O> {
         ] as Vec3
     }
 
+    protected instantiateGroupObject(difficulty: AbstractDifficulty, group: ModelGroup, factory: ModelGroupObjectFactory) {
+        const object = factory(difficulty)
+
+        if (object instanceof Environment) { // Environment
+            object.duplicate = 1
+        }
+        else { // Geometry
+            if (typeof object.material !== 'string' && !this.settings.allowUniqueMaterials) {
+                group.defaultMaterial ??= object.material
+            }
+        }
+
+        return object
+    }
+
     protected getPieceTrack = (
-        object: undefined | GroupObjectTypes,
+        group: ModelGroup,
         track: string,
         index: number,
-    ) => object ? `modelScene${this.ID}_${track}_${index}` : track
+    ) => group.object ? `modelScene${this.ID}_${track}_${index}` : track
 
     protected async getObjects(input: AnimatedModelInput) {
         const isNested = typeof input === 'object' && !Array.isArray(input)

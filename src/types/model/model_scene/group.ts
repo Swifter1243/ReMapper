@@ -3,11 +3,14 @@ import type * as EnvironmentInternals from '../../../internals/beatmap/object/en
 import { Geometry } from '../../../internals/beatmap/object/environment/geometry.ts'
 import {Transform} from "../../math/transform.ts";
 import {DeepReadonly} from "../../util/mutability.ts";
+import {AbstractDifficulty} from "../../../internals/beatmap/abstract_beatmap.ts";
 
 /** Objects that are allowed to be spawned with a ModelScene. */
 export type GroupObjectTypes =
     | EnvironmentInternals.Environment
     | Geometry
+
+export type ModelGroupObjectFactory = (difficulty: AbstractDifficulty) => GroupObjectTypes
 
 /** A group in a ModelScene.
  * When the model properties is passed, if any model objects have a track that match the name of this group, an animation event will be placed for them.
@@ -16,7 +19,7 @@ export type ModelGroup = {
     /** What objects to spawn for each object in this group.
      * If undefined, an existing object with the same track is assumed to exist and will be animated.
      */
-    object?: GroupObjectTypes
+    object?: ModelGroupObjectFactory
     /** The transformation applied to objects in this group before positioning it. */
     transform?: DeepReadonly<Transform>
     /** Whether remaining pooled objects in a switch should be moved out of the way.
