@@ -40,27 +40,35 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
     specialEventsKeywordFilters: bsmap.v2.IDifficulty['_specialEventsKeywordFilters']
 
     protected loadJSON(json: bsmap.v2.IDifficulty) {
+        function assertAndGet<K extends keyof typeof json>(
+            key: K
+        ): (typeof json)[K] {
+            if (!Object.hasOwn(json, key)) {
+                throw `Beatmap incomplete. Expected key '${key}' in beatmap but it wasn't there.`
+            }
+
+            return json[key]
+        }
+
         // Header
-        this.version = json._version
+        this.version = assertAndGet('_version')
         this.v3 = false
-        this.waypoints = json._waypoints
+        this.waypoints = assertAndGet('_waypoints')
 
         // Notes
-        json._notes
+        assertAndGet('_notes')
             .filter((n) => n._type === NoteColor.RED || n._type === NoteColor.BLUE)
             .forEach((o) => colorNote(this).fromJsonV2(o))
-        json._notes
+        assertAndGet('_notes')
             .filter((n) => n._type === 3)
             .forEach((o) => bomb(this).fromJsonV2(o))
 
         // Walls
-        json._obstacles.forEach((o) => wall(this).fromJsonV2(o))
+        assertAndGet('_obstacles').forEach((o) => wall(this).fromJsonV2(o))
 
         // Events
-        if (!json._events) {
-            throw `"_events" does not exist in the beatmap!`
-        }
-        const lightEventsFilter = arraySplit(json._events, (x) => {
+        let events = assertAndGet('_events')
+        const lightEventsFilter = arraySplit(events, (x) => {
             return x._type === EventGroup.BACK_LASERS ||
                 x._type === EventGroup.RING_LIGHTS ||
                 x._type === EventGroup.LEFT_LASERS ||
@@ -74,31 +82,31 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
                 x._type === EventGroup.GAGA_RIGHT
         })
         lightEventsFilter.success.forEach((o) => backLasers(this).fromJsonV2(o as bsmap.v2.IEventLight))
-        json._events = lightEventsFilter.fail
+        events = lightEventsFilter.fail
 
         const laserSpeedEventsFilter = arraySplit(
-            json._events,
+            events,
             (x) => {
                 return x._type === EventGroup.LEFT_ROTATING_LASERS ||
                     x._type === EventGroup.RIGHT_ROTATING_LASERS
             },
         )
         laserSpeedEventsFilter.success.forEach((o) => leftLaserSpeed(this, {}).fromJsonV2(o as bsmap.v2.IEventLaser))
-        json._events = laserSpeedEventsFilter.fail
+        events = laserSpeedEventsFilter.fail
 
-        const ringZoomEventsFilter = arraySplit(json._events, (x) => {
+        const ringZoomEventsFilter = arraySplit(events, (x) => {
             return x._type === EventGroup.RING_ZOOM
         })
         ringZoomEventsFilter.success.forEach((o) => ringZoom(this, 0).fromJsonV2(o as bsmap.v2.IEventZoom))
-        json._events = ringZoomEventsFilter.fail
+        events = ringZoomEventsFilter.fail
 
-        const ringSpinEventsFilter = arraySplit(json._events, (x) => {
+        const ringSpinEventsFilter = arraySplit(events, (x) => {
             return x._type === EventGroup.RING_SPIN
         })
         ringSpinEventsFilter.success.forEach((o) => ringSpin(this, {}).fromJsonV2(o as bsmap.v2.IEventRing))
-        json._events = ringSpinEventsFilter.fail
+        events = ringSpinEventsFilter.fail
 
-        const rotationEventsFilter = arraySplit(json._events, (x) => {
+        const rotationEventsFilter = arraySplit(events, (x) => {
             return x._type === EventGroup.EARLY_ROTATION ||
                 x._type === EventGroup.LATE_ROTATION
         })
@@ -109,21 +117,21 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
                 return lateRotation(this, {}).fromJsonV2(o as bsmap.v2.IEventLaneRotation)
             }
         })
-        json._events = rotationEventsFilter.fail
+        events = rotationEventsFilter.fail
 
-        const boostEventsFilter = arraySplit(json._events, (x) => {
+        const boostEventsFilter = arraySplit(events, (x) => {
             return x._type === EventGroup.BOOST
         })
         boostEventsFilter.success.forEach((o) => boost(this, {}).fromJsonV2(o))
-        json._events = boostEventsFilter.fail
+        events = boostEventsFilter.fail
 
-        const bpmEventsFilter = arraySplit(json._events, (x) => {
+        const bpmEventsFilter = arraySplit(events, (x) => {
             return x._type === EventGroup.BPM
         })
         bpmEventsFilter.success.forEach((o) => officialBpmEvent(this, {}).fromJsonV2(o))
-        json._events = bpmEventsFilter.fail
+        events = bpmEventsFilter.fail
 
-        json._events.forEach((o) => abstract(this, {}).fromJsonV2(o))
+        events.forEach((o) => abstract(this, {}).fromJsonV2(o))
 
         const bpmChanges = [
             ...json._customData?._BPMChanges ?? [],
@@ -221,7 +229,7 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
         delete json._customData?._materials
 
         // Extra
-        this.specialEventsKeywordFilters = json._specialEventsKeywordFilters
+        this.specialEventsKeywordFilters = assertAndGet('_specialEventsKeywordFilters')
         this.customData = json._customData ?? {}
     }
 

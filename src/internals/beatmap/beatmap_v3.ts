@@ -50,6 +50,7 @@ import { Track } from '../../utils/animation/track.ts'
 import { OfficialBPMEvent } from './object/v3_event/bpm/official_bpm.ts'
 import { RawGeometryMaterial } from '../../types/beatmap/object/environment.ts'
 import { CustomEvent } from './object/custom_event/base/custom_event.ts'
+import {RotationEvent} from "./object/v3_event/rotation.ts";
 
 export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
     declare version: bsmap.v3.IDifficulty['version']
@@ -58,17 +59,27 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
     useNormalEventsAsCompatibleEvents!: bsmap.v3.IDifficulty['useNormalEventsAsCompatibleEvents']
 
     protected loadJSON(json: bsmap.v3.IDifficulty) {
-        // Header
-        this.version = json.version
-        this.v3 = true
-        this.waypoints = json.waypoints
+        function assertAndGet<K extends keyof typeof json>(
+            key: K
+        ): (typeof json)[K] {
+            if (!Object.hasOwn(json, key)) {
+                throw `Beatmap incomplete. Expected key '${key}' in beatmap but it wasn't there.`
+            }
 
-        // Notes
-        json.colorNotes.forEach((o) => colorNote(this).fromJsonV3(o))
-        json.bombNotes.forEach((o) => bomb(this).fromJsonV3(o))
-        json.sliders.forEach((o) => arc(this).fromJsonV3(o))
-        json.burstSliders.forEach((o) => chain(this).fromJsonV3(o))
-        json.obstacles.forEach((o) => wall(this).fromJsonV3(o))
+            return json[key]
+        }
+
+        // Header
+        this.version = assertAndGet('version')
+        this.v3 = true
+        this.waypoints = assertAndGet('waypoints')
+
+        // Beatmap Objects
+        assertAndGet('colorNotes').forEach((o) => colorNote(this).fromJsonV3(o))
+        assertAndGet('bombNotes').forEach((o) => bomb(this).fromJsonV3(o))
+        assertAndGet('sliders').forEach((o) => arc(this).fromJsonV3(o))
+        assertAndGet('burstSliders').forEach((o) => chain(this).fromJsonV3(o))
+        assertAndGet('obstacles').forEach((o) => wall(this).fromJsonV3(o))
 
         // Fake stuff
         if (json.customData?.fakeColorNotes) {
@@ -92,7 +103,9 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         }
 
         // Events
-        const lightEventsFilter = arraySplit(json.basicBeatmapEvents, (x) => {
+        let basicEvents = assertAndGet('basicBeatmapEvents')
+
+        const lightEventsFilter = arraySplit(basicEvents, (x) => {
             return x.et === EventGroup.BACK_LASERS ||
                 x.et === EventGroup.RING_LIGHTS ||
                 x.et === EventGroup.LEFT_LASERS ||
@@ -106,38 +119,38 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
                 x.et === EventGroup.GAGA_RIGHT
         })
         lightEventsFilter.success.forEach((o) => backLasers(this).fromJsonV3(o as bsmap.v3.IBasicEventLight))
-        json.basicBeatmapEvents = lightEventsFilter.fail
+        basicEvents = lightEventsFilter.fail
 
         const laserSpeedEventsFilter = arraySplit(
-            json.basicBeatmapEvents,
+            basicEvents,
             (x) => {
                 return x.et === EventGroup.LEFT_ROTATING_LASERS ||
                     x.et === EventGroup.RIGHT_ROTATING_LASERS
             },
         )
         laserSpeedEventsFilter.success.forEach((o) => leftLaserSpeed(this, {}).fromJsonV3(o as bsmap.v3.IBasicEventLaserRotation))
-        json.basicBeatmapEvents = laserSpeedEventsFilter.fail
+        basicEvents = laserSpeedEventsFilter.fail
 
         const ringZoomEventsFilter = arraySplit(
-            json.basicBeatmapEvents,
+            basicEvents,
             (x) => {
                 return x.et === EventGroup.RING_ZOOM
             },
         )
         ringZoomEventsFilter.success.forEach((o) => ringZoom(this, {}).fromJsonV3(o as bsmap.v3.IBasicEventRing))
-        json.basicBeatmapEvents = ringZoomEventsFilter.fail
+        basicEvents = ringZoomEventsFilter.fail
 
         const ringSpinEventsFilter = arraySplit(
-            json.basicBeatmapEvents,
+            basicEvents,
             (x) => {
                 return x.et === EventGroup.RING_SPIN
             },
         )
         ringSpinEventsFilter.success.forEach((o) => ringSpin(this, {}).fromJsonV3(o as bsmap.v3.IBasicEventRing))
-        json.basicBeatmapEvents = ringSpinEventsFilter.fail
+        basicEvents = ringSpinEventsFilter.fail
 
         const rotationEventsFilter = arraySplit(
-            json.basicBeatmapEvents,
+            basicEvents,
             (x) => {
                 return x.et === EventGroup.EARLY_ROTATION ||
                     x.et === EventGroup.LATE_ROTATION
@@ -154,9 +167,10 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
                 )
             }
         })
-        json.rotationEvents.forEach((o) => lateRotation(this, {}).fromJsonV3(o)), json.basicBeatmapEvents = rotationEventsFilter.fail
+        assertAndGet('rotationEvents').forEach((o) => new RotationEvent(this, {}).fromJsonV3(o))
+        basicEvents = rotationEventsFilter.fail
 
-        const boostEventsFilter = arraySplit(json.basicBeatmapEvents, (x) => {
+        const boostEventsFilter = arraySplit(basicEvents, (x) => {
             return x.et === EventGroup.BOOST
         })
         boostEventsFilter.success.forEach((o) =>
@@ -164,19 +178,19 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
                 o as bsmap.v3.IBasicEventBoost,
             )
         )
-        json.colorBoostBeatmapEvents.forEach((o) => boost(this, {}).fromJsonV3(o))
-        json.basicBeatmapEvents = boostEventsFilter.fail
+        assertAndGet('colorBoostBeatmapEvents').forEach((o) => boost(this, {}).fromJsonV3(o))
+        basicEvents = boostEventsFilter.fail
 
-        const bpmEventsFilter = arraySplit(json.basicBeatmapEvents, (x) => {
+        const bpmEventsFilter = arraySplit(basicEvents, (x) => {
             return x.et === EventGroup.BPM
         })
-        json.basicBeatmapEvents = bpmEventsFilter.fail
+        basicEvents = bpmEventsFilter.fail
 
-        json.basicBeatmapEvents.forEach((o) => abstract(this, {}).fromJsonV3(o))
+        basicEvents.forEach((o) => abstract(this, {}).fromJsonV3(o))
 
         bpmEventsFilter.success.forEach((o) => officialBpmEvent(this, {}).fromBasicEvent(o))
         ;(json.customData?.BPMChanges ?? []).forEach((o) => communityBpmEvent(this, {}).fromJsonV3(o))
-        json.bpmEvents.forEach((o) => officialBpmEvent(this, {}).fromJsonV3(o))
+        assertAndGet('bpmEvents').forEach((o) => officialBpmEvent(this, {}).fromJsonV3(o))
 
         delete json.customData?.BPMChanges
 
@@ -288,13 +302,13 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         delete json.customData?.materials
 
         // V3 Lighting
-        json.lightColorEventBoxGroups.forEach((x) => lightColorEventBoxGroup(this).fromJsonV3(x))
-        json.lightRotationEventBoxGroups.forEach((x) => lightRotationEventBoxGroup(this).fromJsonV3(x))
-        json.lightTranslationEventBoxGroups.forEach((x) => lightTranslationEventBoxGroup(this).fromJsonV3(x))
+        assertAndGet('lightColorEventBoxGroups').forEach((x) => lightColorEventBoxGroup(this).fromJsonV3(x))
+        assertAndGet('lightRotationEventBoxGroups').forEach((x) => lightRotationEventBoxGroup(this).fromJsonV3(x))
+        assertAndGet('lightTranslationEventBoxGroups').forEach((x) => lightTranslationEventBoxGroup(this).fromJsonV3(x))
 
         // Extra
-        this.basicEventTypesWithKeywords = json.basicEventTypesWithKeywords
-        this.useNormalEventsAsCompatibleEvents = json.useNormalEventsAsCompatibleEvents
+        this.basicEventTypesWithKeywords = assertAndGet('basicEventTypesWithKeywords')
+        this.useNormalEventsAsCompatibleEvents = assertAndGet('useNormalEventsAsCompatibleEvents')
         this.customData = json.customData ?? {}
     }
 
