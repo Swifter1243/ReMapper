@@ -75,14 +75,16 @@ export class Material<T extends MaterialProperties = MaterialProperties> {
             ]
             | [
                 Omit<
-                    ConstructorParameters<typeof Blit>[0],
+                    ConstructorParameters<typeof Blit>[1],
                     'asset'
                 >,
             ]
     ) {
         if (typeof params[0] === 'object') {
+            const obj = params[0]
+
             return blit(difficulty, {
-                ...params[0],
+                ...obj,
                 asset: this.path,
             })
         }
