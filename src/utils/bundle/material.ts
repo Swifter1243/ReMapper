@@ -1,17 +1,12 @@
-import {blit, setMaterialProperty} from '../../builder_functions/beatmap/object/custom_event/vivify.ts'
-import {
-    MaterialProperties,
-    MaterialPropertyValues,
-    StaticMaterialPropertyValues
-} from "../../types/bundle.ts";
+import { blit, setMaterialProperty } from '../../builder_functions/beatmap/object/custom_event/vivify.ts'
+import { MaterialProperties, MaterialPropertyValues, StaticMaterialPropertyValues } from '../../types/bundle.ts'
 
-import {EASE} from "../../types/animation/easing.ts";
-import {DeepReadonly} from "../../types/util/mutability.ts";
-import {MATERIAL_PROP_TYPE, MaterialProperty} from "../../types/vivify/material.ts";
-import {SetMaterialProperty} from "../../internals/beatmap/object/custom_event/vivify/set_material_property.ts";
-import {Blit} from "../../internals/beatmap/object/custom_event/vivify/blit.ts";
-import {AbstractDifficulty} from "../../internals/beatmap/abstract_beatmap.ts";
-
+import { EASE } from '../../types/animation/easing.ts'
+import { DeepReadonly } from '../../types/util/mutability.ts'
+import { MATERIAL_PROP_TYPE, MaterialProperty } from '../../types/vivify/material.ts'
+import { SetMaterialProperty } from '../../internals/beatmap/object/custom_event/vivify/set_material_property.ts'
+import { Blit } from '../../internals/beatmap/object/custom_event/vivify/blit.ts'
+import { AbstractDifficulty } from '../../internals/beatmap/abstract_beatmap.ts'
 
 /** Used to load type safe materials. See `loadAssets` */
 export class Material<T extends MaterialProperties = MaterialProperties> {
@@ -81,16 +76,12 @@ export class Material<T extends MaterialProperties = MaterialProperties> {
     ) {
         beat ??= 0
 
-        const fixedValues: MaterialProperty[] = []
-
-        Object.entries(values).forEach(([k, v]) => {
-            const fixedValue = typeof v === 'number' ? [v] : v
-
-            fixedValues.push({
-                id: k,
-                type: this.propertyTypes[k] as MATERIAL_PROP_TYPE,
-                value: fixedValue,
-            })
+        const fixedValues: MaterialProperty[] = Object.entries(values).map(([id, value]) => {
+            return {
+                id,
+                type: this.propertyTypes[id] as MATERIAL_PROP_TYPE,
+                value,
+            }
         })
 
         const event = setMaterialProperty(

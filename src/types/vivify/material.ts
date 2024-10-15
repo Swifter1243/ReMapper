@@ -3,6 +3,7 @@ import { RuntimePointDefinitionLinear } from '../animation/keyframe/runtime/line
 import { RuntimePointDefinitionVec4 } from '../animation/keyframe/runtime/vec4.ts'
 
 import {Property} from "./property.ts";
+import { Vec4 } from '../math/vector.ts'
 
 /** Types allowed for material properties. */
 export type MATERIAL_PROP_TYPE =
@@ -14,7 +15,9 @@ export type MATERIAL_PROP_TYPE =
 /** A valid value for material properties. */
 export type MaterialPropertyValue =
     | FILEPATH
+    | number
     | RuntimePointDefinitionLinear
+    | Vec4
     | RuntimePointDefinitionVec4
 
 /** A property for a material. */
