@@ -57,7 +57,7 @@ export abstract class BaseSliderObject<TV3 extends bsmap.v3.IBaseSlider = bsmap.
         this.tailBeat = json.tb ?? BaseSliderObject.defaults.tailBeat
         this.tailX = json.tx ?? BaseSliderObject.defaults.tailX
         this.tailY = json.ty ?? BaseSliderObject.defaults.tailY
-        this.tailCoordinates = getCDProp(json, 'tailCoordinates') ?? BaseSliderObject.defaults.tailBeat
+        this.tailCoordinates = getCDProp(json, 'tailCoordinates')
         return super.fromJsonV3(json);
     }
 
