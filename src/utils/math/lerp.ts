@@ -84,3 +84,9 @@ export function inverseLerp(beginning: number, end: number, time: number) {
     if (length === 0) return 0
     return (time - beginning) / length
 }
+
+/** Given a number {@link x} that ranges from {@link a1} to {@link a2}, remap it to the range {@link b1} to {@link b2} */
+export function remap(x: number, a1: number, b1: number, a2: number, b2: number) {
+    const t = inverseLerp(a1, b1, x);
+    return lerp(a2, b2, t)
+}
