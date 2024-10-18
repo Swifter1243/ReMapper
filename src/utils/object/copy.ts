@@ -1,4 +1,5 @@
 import {DeepReadonly} from "../../types/util/mutability.ts";
+import {BeatmapArrayMember} from "../../types/beatmap/beatmap_array_member.ts";
 
 /**
  * Copies @param obj with the new properties in @param overwrite
@@ -42,6 +43,29 @@ export function copy<T>(obj: T): T {
         // This causes a big speed boost, reaching 50%
         // the JIT can just skip primitives with this
         // keep in mind that's practically 6ms -> 3ms, but still
+        if (typeof v !== 'object') {
+            newObj[k] = v
+            return
+        }
+
+        newObj[k] = copy(v)
+    })
+
+    return newObj
+}
+
+/** Copy something inheriting BeatmapArrayMember, ignoring the "parent" property. */
+export function copyBeatmapMember<T extends BeatmapArrayMember<K>, K>(obj: T): T {
+    if (obj === null || obj === undefined || typeof obj !== 'object') return obj
+
+    const newObj = Array.isArray(obj) ? new Array(obj.length) : Object.create(obj)
+
+    const entries = Object.entries(obj)
+    entries.forEach(([k, v]) => {
+        if (k === 'parent') {
+            return
+        }
+
         if (typeof v !== 'object') {
             newObj[k] = v
             return

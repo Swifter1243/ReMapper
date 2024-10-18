@@ -1,7 +1,7 @@
 //! Events
 import { bsmap } from '../../../../../../deps.ts'
 import {BeatmapObject} from "../../../object.ts";
-import {BeatmapArrayMember} from "../../../../../../types/beatmap/beatmap_member.ts";
+import {BeatmapArrayMember} from "../../../../../../types/beatmap/beatmap_array_member.ts";
 import {LightEventBox} from "../light_event_box/base.ts";
 import {copy} from "../../../../../../utils/object/copy.ts";
 import {JsonWrapper} from "../../../../../../types/beatmap/json_wrapper.ts";

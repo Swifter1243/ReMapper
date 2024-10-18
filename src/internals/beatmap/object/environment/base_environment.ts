@@ -4,7 +4,7 @@ import { Track } from '../../../../utils/animation/track.ts'
 import { Vec3 } from '../../../../types/math/vector.ts'
 import { JsonWrapper } from '../../../../types/beatmap/json_wrapper.ts'
 import {JsonObjectDefaults} from "../../../../types/beatmap/object/object.ts";
-import {BeatmapArrayMember} from "../../../../types/beatmap/beatmap_member.ts";
+import {BeatmapArrayMember} from "../../../../types/beatmap/beatmap_array_member.ts";
 import {AbstractDifficulty} from "../../abstract_beatmap.ts";
 
 /** The base abstract Environment Enhancement class which is inherited by Environment and Geometry. */

@@ -3,7 +3,7 @@ import { JsonWrapper } from '../../../../../types/beatmap/json_wrapper.ts'
 import { TJson } from '../../../../../types/util/json.ts'
 import { bsmap } from '../../../../../deps.ts'
 import { JsonObjectConstructor, JsonObjectDefaults } from '../../../../../types/beatmap/object/object.ts'
-import { BeatmapArrayMember } from '../../../../../types/beatmap/beatmap_member.ts'
+import { BeatmapArrayMember } from '../../../../../types/beatmap/beatmap_array_member.ts'
 import type { AbstractDifficulty } from '../../../abstract_beatmap.ts'
 
 export abstract class CustomEvent<

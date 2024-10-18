@@ -1,5 +1,5 @@
-import { copy } from '../../utils/object/copy.ts'
-import {arrayRemove} from "../../utils/array/mutate.ts";
+import { copyBeatmapMember } from '../../utils/object/copy.ts'
+import { arrayRemove } from '../../utils/array/mutate.ts'
 
 export abstract class BeatmapArrayMember<T> {
     protected parent: T
@@ -11,11 +11,12 @@ export abstract class BeatmapArrayMember<T> {
 
     protected abstract getArray(parent: T): this[]
     protected _copy(): this {
-        return copy(this)
+        return copyBeatmapMember(this)
     }
 
     copy(): this {
         const newObject = this._copy()
+        newObject.parent = this.parent
         this.getArray(this.parent).push(newObject)
         return this
     }
@@ -32,8 +33,7 @@ export abstract class BeatmapArrayMember<T> {
 
         if (thisIndex !== -1) {
             arrayRemove(difficultyArray, thisIndex)
-        }
-        else {
+        } else {
             throw `You tried to destroy an element that wasn't present in a difficulty!`
         }
     }
