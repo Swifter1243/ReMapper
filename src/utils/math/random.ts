@@ -14,7 +14,7 @@ export function random(start: number, end: number, roundResult?: number) {
 
 // https://stackoverflow.com/questions/521295/seeding-the-random-number-generator-in-javascript
 /**
- * Returns a unique random function per seed
+ * Returns a unique random function per integer seed
  */
 export function seededRandom(seed: number) {
     return (min: number, max: number) => {
