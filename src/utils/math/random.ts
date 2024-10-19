@@ -18,15 +18,15 @@ export function random(start: number, end: number, roundResult?: number) {
  */
 export function seededRandom(seed: number) {
     return (min: number, max: number) => {
-        const r = hash1D(seed)
+        const r = hashInteger(seed)
         return lerp(min, max, r)
     }
 }
 
 /**
- * Returns a random number given an input seed number.
+ * Returns a random number between 0 and 1 given an input seed integer.
  */
-export function hash1D(seed: number) {
+export function hashInteger(seed: number) {
     let t = seed + 0x6D2B79F5
     t = Math.imul(t ^ t >>> 15, t | 1)
     t ^= t + Math.imul(t ^ t >>> 7, t | 61)
