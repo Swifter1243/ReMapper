@@ -26,7 +26,7 @@ function getVoronoiOffsets<T extends number>(dimensions: T) {
 }
 
 /** Create a voronoi function for any dimension given a seed. */
-export function voronoi<T extends number>(dimensions: T, seed: number) {
+export function voronoiNoise<T extends number>(dimensions: T, seed: number) {
     type Vec = number[] & { length: T }
 
     const offsets = getVoronoiOffsets(dimensions)
@@ -48,14 +48,14 @@ export function voronoi<T extends number>(dimensions: T, seed: number) {
 }
 
 /** Create a 1D voronoi function given a seed. */
-export function voronoi1D(seed: number) {
-    return voronoi(1, seed)
+export function voronoiNoise1D(seed: number) {
+    return voronoiNoise(1, seed)
 }
 /** Create a 2D voronoi function given a seed. */
-export function voronoi2D(seed: number) {
-    return voronoi(2, seed)
+export function voronoiNoise2D(seed: number) {
+    return voronoiNoise(2, seed)
 }
 /** Create a 3D voronoi function given a seed. */
-export function voronoi3D(seed: number) {
-    return voronoi(3, seed)
+export function voronoiNoise3D(seed: number) {
+    return voronoiNoise(3, seed)
 }
