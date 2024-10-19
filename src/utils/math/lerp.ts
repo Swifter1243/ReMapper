@@ -30,7 +30,7 @@ export function lerp(
  * @param fraction Value to find in between start and end.
  * @param easing Optional easing.
  */
-export function lerpWrap(
+export function slerp1D(
     start: number,
     end: number,
     fraction: number,

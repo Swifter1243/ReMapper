@@ -1,5 +1,5 @@
 import { applyEasing } from '../animation/interpolate.ts'
-import { lerp, lerpWrap } from '../math/lerp.ts'
+import { lerp, slerp1D } from '../math/lerp.ts'
 import { arrayLerp } from '../array/operation.ts'
 import {ColorVec} from "../../types/math/vector.ts";
 
@@ -34,7 +34,7 @@ export function lerpHSV(
     const endHSV = RGBtoHSV(end)
 
     const output = [
-        lerpWrap(startHSV[0], endHSV[0], fraction),
+        slerp1D(startHSV[0], endHSV[0], fraction),
         lerp(startHSV[1], endHSV[1], fraction),
         lerp(startHSV[2], endHSV[2], fraction),
     ] as ColorVec
