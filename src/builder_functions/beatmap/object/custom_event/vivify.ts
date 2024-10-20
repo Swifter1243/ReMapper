@@ -220,7 +220,7 @@ export function destroyTexture(
         parentDifficulty,
         {
             beat,
-            id: id as TrackValue,
+            id,
         },
     )
 }
@@ -238,7 +238,7 @@ export function instantiatePrefab(
             beat: number,
             asset: FILEPATH,
             id?: string,
-            track?: string,
+            track?: TrackValue,
         ]
 ) {
     if (typeof params[1] === 'object') {
