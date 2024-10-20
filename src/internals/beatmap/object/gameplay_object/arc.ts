@@ -17,7 +17,7 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
         fields: GameplayObjectConstructor<Arc>,
     ) {
         super(parentDifficulty, fields)
-        this.tailDirection = fields.tailDirection ?? Arc.defaults.tailDirection
+        this.tailCutDirection = fields.tailCutDirection ?? Arc.defaults.tailCutDirection
         this.headLength = fields.headLength ?? Arc.defaults.headLength
         this.tailLength = fields.tailLength ?? Arc.defaults.tailLength
         this.anchorMode = fields.anchorMode ?? Arc.defaults.anchorMode
@@ -26,7 +26,7 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
     }
 
     /** The cut direction of the tail of the arc. */
-    tailDirection: NoteCut
+    tailCutDirection: NoteCut
     /** Multiplier for the distance the start of the arc shoots outward. */
     headLength: number
     /** Multiplier for the distance the end of the arc shoots outward. */
@@ -39,7 +39,7 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
     disableNoteGravity?: boolean
 
     static override defaults: GameplayObjectDefaults<Arc> = {
-        tailDirection: NoteCut.DOT,
+        tailCutDirection: NoteCut.DOT,
         headLength: 0,
         tailLength: 0,
         anchorMode: AnchorMode.STRAIGHT,
@@ -58,7 +58,7 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
     }
 
     override fromJsonV3(json: bsmap.v3.IArc): this {
-        this.tailDirection = json.tc ?? Arc.defaults.tailDirection
+        this.tailCutDirection = json.tc ?? Arc.defaults.tailCutDirection
         this.headLength = json.mu ?? Arc.defaults.headLength
         this.tailLength = json.tmu ?? Arc.defaults.tailLength
         this.anchorMode = json.m ?? Arc.defaults.anchorMode
@@ -80,7 +80,7 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
             m: this.anchorMode,
             mu: this.headLength,
             tmu: this.tailLength,
-            tc: this.tailDirection,
+            tc: this.tailCutDirection,
 
             tb: this.tailBeat,
             tx: this.tailX,

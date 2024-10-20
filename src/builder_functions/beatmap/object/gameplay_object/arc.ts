@@ -41,7 +41,7 @@ export function arc(
         color: type,
         tailBeat,
         cutDirection,
-        tailDirection,
+        tailCutDirection,
         x,
         y,
         tailX,
