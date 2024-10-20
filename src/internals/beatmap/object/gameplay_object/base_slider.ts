@@ -51,6 +51,29 @@ export abstract class BaseSliderObject<TV3 extends bsmap.v3.IBaseSlider = bsmap.
         return super.isGameplayModded
     }
 
+    override get life() {
+        const duration = this.beat + this.tailBeat
+        return this.halfJumpDuration * 2 + duration
+    }
+    override set life(value: number) {
+        const duration = this.beat + this.tailBeat
+        super.life = value - duration
+    }
+
+    override get lifeStart() {
+        return this.beat - this.halfJumpDuration
+    }
+    override set lifeStart(value: number) {
+        this.beat = value + this.halfJumpDuration
+    }
+
+    override get lifeEnd() {
+        return this.tailBeat + this.halfJumpDuration
+    }
+    override set lifeEnd(value: number) {
+        this.tailBeat = value - this.halfJumpDuration
+    }
+
     override fromJsonV3(json: TV3): this {
         this.color = json.c ?? BaseSliderObject.defaults.color
         this.cutDirection = json.d ?? BaseSliderObject.defaults.cutDirection

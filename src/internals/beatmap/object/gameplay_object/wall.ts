@@ -84,10 +84,10 @@ export class Wall extends BeatmapGameplayObject<bsmap.v2.IObstacle, bsmap.v3.IOb
     }
 
     override get lifeEnd() {
-        return this.beat + this.halfJumpDuration
+        return this.beat + this.duration + this.halfJumpDuration
     }
     override set lifeEnd(value: number) {
-        this.beat = value - this.halfJumpDuration
+        this.beat = value - this.duration - this.halfJumpDuration
     }
 
     override get isGameplayModded() {
