@@ -39,7 +39,7 @@ export abstract class BaseSliderObject<TV3 extends bsmap.v3.IBaseSlider = bsmap.
 
     static override defaults: GameplayObjectDefaults<BaseSliderObject> = {
         color: NoteColor.RED,
-        cutDirection: 0,
+        cutDirection: NoteCut.DOWN,
         tailBeat: 0,
         tailX: 0,
         tailY: 0,

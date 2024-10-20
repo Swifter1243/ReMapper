@@ -14,9 +14,9 @@ export class ColorNote extends BaseNote<bsmap.v3.IColorNote> {
         fields: GameplayObjectConstructor<ColorNote>,
     ) {
         super(parentDifficulty, fields)
-        this.color = fields.color ?? 0
-        this.cutDirection = fields.cutDirection ?? 0
-        this.angleOffset = fields.angleOffset ?? 0
+        this.color = fields.color ?? ColorNote.defaults.color
+        this.cutDirection = fields.cutDirection ?? ColorNote.defaults.cutDirection
+        this.angleOffset = fields.angleOffset ?? ColorNote.defaults.angleOffset
     }
 
     /** The color of the note. */
