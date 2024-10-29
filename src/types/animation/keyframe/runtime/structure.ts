@@ -8,7 +8,7 @@ export type RuntimeKeyframeValues<
     T extends number[],
     R extends string,
 > =
-    [...T, ...(Modifier<T>[])] |
-    [R, ...(Modifier<T>[])]
+    [...T, ...Modifier<T>[]] |
+    [R, ...Modifier<T>[]]
 
 type Modifier<T extends number[]> = [...T, PointModifier]
