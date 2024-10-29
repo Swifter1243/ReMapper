@@ -4,7 +4,7 @@ import { DistributionType, RotationEase } from '../../../../../../constants/v3_e
 import { bsmap } from '../../../../../../deps.ts'
 import { JsonObjectConstructor, JsonObjectDefaults } from '../../../../../../types/beatmap/object/object.ts'
 import { copy } from '../../../../../../utils/object/copy.ts'
-import {BeatmapArrayMember} from "../../../../../../types/beatmap/beatmap_member.ts";
+import {BeatmapArrayMember} from "../../../../../../types/beatmap/beatmap_array_member.ts";
 import {LightEventBoxGroup} from "../light_event_box_group/base.ts";
 
 export abstract class LightEventBox<

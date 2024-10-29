@@ -1,49 +1,12 @@
-import {blit, setMaterialProperty} from '../../builder_functions/beatmap/object/custom_event/vivify.ts'
-import {
-    MaterialProperties,
-    MaterialPropertyMap,
-    MaterialPropertyValues,
-    StaticMaterialPropertyValues
-} from "../../types/bundle.ts";
+import { blit, setMaterialProperty } from '../../builder_functions/beatmap/object/custom_event/vivify.ts'
+import { MaterialProperties, MaterialPropertyValues, StaticMaterialPropertyValues } from '../../types/bundle.ts'
 
-import {EASE} from "../../types/animation/easing.ts";
-import {DeepReadonly} from "../../types/util/mutability.ts";
-import {MATERIAL_PROP_TYPE, MaterialProperty} from "../../types/vivify/material.ts";
-import {SetMaterialProperty} from "../../internals/beatmap/object/custom_event/vivify/set_material_property.ts";
-import {Blit} from "../../internals/beatmap/object/custom_event/vivify/blit.ts";
-import {AbstractDifficulty} from "../../internals/beatmap/abstract_beatmap.ts";
-
-type MaterialSetParameters0<
-    T extends MaterialProperties,
-> = [
-    values: Partial<MaterialPropertyValues<T>>,
-    beat?: number,
-    duration?: number,
-    easing?: EASE,
-    callback?: (
-        event: SetMaterialProperty,
-    ) => void,
-]
-
-type MaterialSetParameters1<
-    T extends MaterialProperties,
-    K extends keyof T,
-> = [
-    prop: K,
-    value: MaterialPropertyMap[T[K]],
-    beat?: number,
-    duration?: number,
-    easing?: EASE,
-    callback?: (
-        event: SetMaterialProperty,
-    ) => void,
-]
-
-type MaterialSetParameters<
-    T extends MaterialProperties,
-    K2 extends keyof T,
-> = MaterialSetParameters0<T> | MaterialSetParameters1<T, K2>
-
+import { EASE } from '../../types/animation/easing.ts'
+import { DeepReadonly } from '../../types/util/mutability.ts'
+import { MATERIAL_PROP_TYPE, MaterialProperty } from '../../types/vivify/material.ts'
+import { SetMaterialProperty } from '../../internals/beatmap/object/custom_event/vivify/set_material_property.ts'
+import { Blit } from '../../internals/beatmap/object/custom_event/vivify/blit.ts'
+import { AbstractDifficulty } from '../../internals/beatmap/abstract_beatmap.ts'
 
 /** Used to load type safe materials. See `loadAssets` */
 export class Material<T extends MaterialProperties = MaterialProperties> {
@@ -75,14 +38,16 @@ export class Material<T extends MaterialProperties = MaterialProperties> {
             ]
             | [
                 Omit<
-                    ConstructorParameters<typeof Blit>[0],
+                    ConstructorParameters<typeof Blit>[1],
                     'asset'
                 >,
             ]
     ) {
         if (typeof params[0] === 'object') {
+            const obj = params[0]
+
             return blit(difficulty, {
-                ...params[0],
+                ...obj,
                 asset: this.path,
             })
         }
@@ -99,56 +64,24 @@ export class Material<T extends MaterialProperties = MaterialProperties> {
     }
 
     /** Set a property on this material. Also allows for animations. */
-    set(
-        difficulty: AbstractDifficulty,
-        ...params: MaterialSetParameters0<T>
-    ): void
     set<K extends keyof T>(
         difficulty: AbstractDifficulty,
-        ...params: MaterialSetParameters1<T, K>
-    ): void
-    set<K extends keyof T>(
-        difficulty: AbstractDifficulty,
-        ...params: MaterialSetParameters<T, K>
-    ) {
-        if (typeof params[0] === 'object') {
-            const setParams = [difficulty, ...params] as Parameters<typeof this.doSet>
-            this.doSet(...setParams)
-            return
-        }
-
-        const [prop, value, beat, duration, easing, callback] = params
-
-        this.doSet(
-            difficulty,
-            { [prop]: value } as MaterialProperties,
-            beat,
-            duration as number,
-            easing as EASE,
-            callback,
-        )
-    }
-
-    private doSet(
-        difficulty: AbstractDifficulty,
-        values: MaterialProperties,
+        values: Partial<MaterialPropertyValues<T>>,
         beat?: number,
         duration?: number,
         easing?: EASE,
-        callback?: (event: SetMaterialProperty) => void,
+        callback?: (
+            event: SetMaterialProperty,
+        ) => void,
     ) {
         beat ??= 0
 
-        const fixedValues: MaterialProperty[] = []
-
-        Object.entries(values).forEach(([k, v]) => {
-            const fixedValue = typeof v === 'number' ? [v] : v
-
-            fixedValues.push({
-                id: k,
-                type: this.propertyTypes[k] as MATERIAL_PROP_TYPE,
-                value: fixedValue,
-            })
+        const fixedValues: MaterialProperty[] = Object.entries(values).map(([id, value]) => {
+            return {
+                id,
+                type: this.propertyTypes[id] as MATERIAL_PROP_TYPE,
+                value,
+            }
         })
 
         const event = setMaterialProperty(

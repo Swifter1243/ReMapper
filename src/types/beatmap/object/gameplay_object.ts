@@ -27,6 +27,7 @@ export interface GameplayObjectSetters {
     set reactionTime(value: number)
     set life(value: number)
     set lifeStart(value: number)
+    set lifeEnd(value: number)
 }
 
 export interface GameplayObjectGetters {
@@ -39,5 +40,6 @@ export interface GameplayObjectGetters {
     get despawnPositionZ(): number
     get life(): number
     get lifeStart(): number
+    get lifeEnd(): number
     get isGameplayModded(): boolean
 }

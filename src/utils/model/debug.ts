@@ -3,7 +3,7 @@ import { arrayAdd } from '../array/operation.ts'
 import { geometry } from '../../builder_functions/beatmap/object/environment/geometry.ts'
 import { Vec3 } from '../../types/math/vector.ts'
 import { ModelObject } from '../../types/model/object.ts'
-import { GroupObjectTypes } from '../../types/model/model_scene/group.ts'
+import { ModelGroupObjectFactory } from '../../types/model/model_scene/group.ts'
 import { modelScene } from '../../builder_functions/model/model_scene.ts'
 import { Transform } from '../../types/math/transform.ts'
 import { vec } from '../array/tuple.ts'
@@ -22,7 +22,7 @@ import {lightEvent} from "../../builder_functions/beatmap/object/basic_event/lig
  */
 export async function debugFitObjectToUnitCube(
     difficulty: AbstractDifficulty,
-    input: GroupObjectTypes,
+    input: ModelGroupObjectFactory,
     transform: Transform,
     zoom = 1,
 ) {
@@ -112,8 +112,8 @@ export async function debugFitObjectToUnitCube(
 
     const sceneSettings = new ModelSceneSettings()
     sceneSettings.setDefaultObjectGroup(input, transform)
-    sceneSettings.setObjectGroup('debugCubeX', geometry(difficulty,'Cube', 'debugCubeX'))
-    sceneSettings.setObjectGroup('debugCubeY', geometry(difficulty,'Cube', 'debugCubeY'))
-    sceneSettings.setObjectGroup('debugCubeZ', geometry(difficulty,'Cube', 'debugCubeZ'))
+    sceneSettings.setObjectGroup('debugCubeX', d => geometry(d,'Cube', 'debugCubeX'))
+    sceneSettings.setObjectGroup('debugCubeY',  d => geometry(d,'Cube', 'debugCubeY'))
+    sceneSettings.setObjectGroup('debugCubeZ',  d => geometry(d,'Cube', 'debugCubeZ'))
     await modelScene.static(sceneSettings, model).instantiate(difficulty)
 }

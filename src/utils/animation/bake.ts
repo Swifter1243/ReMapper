@@ -2,11 +2,10 @@ import { AnimationSettings, optimizeKeyframes } from './optimizer.ts'
 import { getAnimatedObjectDomain } from './domain.ts'
 import { getKeyframeValuesAtTime } from './interpolate.ts'
 import {ceilTo, floorTo} from "../math/rounding.ts";
-import {AnimatedTransform} from "../../types/math/transform.ts";
+import {AnimatedTransform, type FullAnimatedTransform} from "../../types/math/transform.ts";
 
 import {ComplexKeyframesVec3} from "../../types/animation/keyframe/vec3.ts";
 import {TransformKeyframe} from "../../types/animation/bake.ts";
-import {ModelObject} from "../../types/model/object.ts";
 import {DeepReadonly} from "../../types/util/mutability.ts";
 import { EPSILON } from '../../constants/math.ts'
 
@@ -23,7 +22,7 @@ export function bakeAnimation(
     forKeyframe?: (transform: TransformKeyframe) => void,
     animationSettings?: AnimationSettings,
     domain?: { min: number; max: number },
-): ModelObject {
+): FullAnimatedTransform {
     animationSettings ??= new AnimationSettings()
 
     const position = animation.position ?? [0, 0, 0]

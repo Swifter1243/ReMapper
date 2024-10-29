@@ -1,12 +1,13 @@
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import {IInstantiatePrefab} from "../../../../../types/beatmap/object/vivify_event_interfaces.ts";
 import {Vec3} from "../../../../../types/math/vector.ts";
-import {CustomEventConstructor} from "../../../../../types/beatmap/object/custom_event.ts";
+import {CustomEventConstructorTrack} from "../../../../../types/beatmap/object/custom_event.ts";
 
 import {getDataProp} from "../../../../../utils/beatmap/json.ts";
 import {CustomEvent} from "../base/custom_event.ts";
 import {JsonObjectDefaults} from "../../../../../types/beatmap/object/object.ts";
 import {AbstractDifficulty} from "../../../abstract_beatmap.ts";
+import {Track} from "../../../../../utils/animation/track.ts";
 
 export class InstantiatePrefab extends CustomEvent<
     never,
@@ -14,13 +15,13 @@ export class InstantiatePrefab extends CustomEvent<
 > {
     constructor(
         difficulty: AbstractDifficulty,
-        params: CustomEventConstructor<InstantiatePrefab>,
+        params: CustomEventConstructorTrack<InstantiatePrefab>,
     ) {
         super(difficulty, params)
         this.type = 'InstantiatePrefab'
         this.asset = params.asset ?? InstantiatePrefab.defaults.asset
         this.id = params.id
-        this.track = params.track
+        this.track = new Track(params.track)
         this.position = params.position
         this.localPosition = params.localPosition
         this.rotation = params.rotation
@@ -28,12 +29,12 @@ export class InstantiatePrefab extends CustomEvent<
         this.scale = params.scale
     }
 
+    /** Track to animate prefab transform. */
+    track: Track
     /** File path to the desired prefab. */
     asset: string
     /** Unique id for referencing prefab later. Random id will be given by default. */
     id?: string
-    /** Track to animate prefab transform. */
-    track?: string
     /** Set position. */
     position?: Vec3
     /** Set localPosition. */
@@ -47,6 +48,7 @@ export class InstantiatePrefab extends CustomEvent<
 
     static override defaults: JsonObjectDefaults<InstantiatePrefab> = {
         asset: '',
+        track: new Track(),
         ...super.defaults
     }
 
@@ -57,7 +59,7 @@ export class InstantiatePrefab extends CustomEvent<
     override fromJsonV3(json: IInstantiatePrefab): this {
         this.asset = getDataProp(json.d, 'asset') ?? InstantiatePrefab.defaults.asset
         this.id = getDataProp(json.d, 'id')
-        this.track = getDataProp(json.d, 'track')
+        this.track = new Track(getDataProp(json.d, 'track'))
         this.position = getDataProp(json.d, 'position')
         this.localPosition = getDataProp(json.d, 'localPosition')
         this.rotation = getDataProp(json.d, 'rotation')
@@ -81,7 +83,7 @@ export class InstantiatePrefab extends CustomEvent<
                 position: this.position,
                 rotation: this.rotation,
                 scale: this.scale,
-                track: this.track,
+                track: this.track.value,
                 ...this.data,
             },
             t: 'InstantiatePrefab',

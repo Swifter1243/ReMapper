@@ -202,6 +202,16 @@ export abstract class BeatmapGameplayObject<
         this.beat = value + this.life / 2
     }
 
+    /** The time of the end of the object's lifespan.
+     * Calculated based on the beats per minute, and the note jump speed.
+     */
+    get lifeEnd() {
+        return this.beat + this.life / 2
+    }
+    set lifeEnd(value: number) {
+        this.beat = value - this.life / 2
+    }
+
     /** Determines whether this object uses Noodle Extensions features. */
     get isGameplayModded() {
         if (this.coordinates) return true

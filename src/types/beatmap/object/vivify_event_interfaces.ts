@@ -93,7 +93,7 @@ export interface IInstantiatePrefab {
     d: {
         asset: string
         id?: string
-        track?: string
+        track?: TrackValue
         position?: Vec3
         localPosition?: Vec3
         rotation?: Vec3

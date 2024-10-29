@@ -3,7 +3,7 @@ import {isEmptyObject} from "../../../utils/object/check.ts";
 import {JsonWrapper} from "../../../types/beatmap/json_wrapper.ts";
 import {copy} from "../../../utils/object/copy.ts";
 import {BeatmapObjectConstructor, BeatmapObjectDefaults} from "../../../types/beatmap/object/object.ts";
-import {BeatmapArrayMember} from "../../../types/beatmap/beatmap_member.ts";
+import {BeatmapArrayMember} from "../../../types/beatmap/beatmap_array_member.ts";
 import type { AbstractDifficulty } from '../abstract_beatmap.ts'
 
 export abstract class BeatmapObject<

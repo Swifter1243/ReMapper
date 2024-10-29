@@ -39,7 +39,7 @@ export abstract class BaseSliderObject<TV3 extends bsmap.v3.IBaseSlider = bsmap.
 
     static override defaults: GameplayObjectDefaults<BaseSliderObject> = {
         color: NoteColor.RED,
-        cutDirection: 0,
+        cutDirection: NoteCut.DOWN,
         tailBeat: 0,
         tailX: 0,
         tailY: 0,
@@ -51,13 +51,36 @@ export abstract class BaseSliderObject<TV3 extends bsmap.v3.IBaseSlider = bsmap.
         return super.isGameplayModded
     }
 
+    override get life() {
+        const duration = this.beat + this.tailBeat
+        return this.halfJumpDuration * 2 + duration
+    }
+    override set life(value: number) {
+        const duration = this.beat + this.tailBeat
+        super.life = value - duration
+    }
+
+    override get lifeStart() {
+        return this.beat - this.halfJumpDuration
+    }
+    override set lifeStart(value: number) {
+        this.beat = value + this.halfJumpDuration
+    }
+
+    override get lifeEnd() {
+        return this.tailBeat + this.halfJumpDuration
+    }
+    override set lifeEnd(value: number) {
+        this.tailBeat = value - this.halfJumpDuration
+    }
+
     override fromJsonV3(json: TV3): this {
         this.color = json.c ?? BaseSliderObject.defaults.color
         this.cutDirection = json.d ?? BaseSliderObject.defaults.cutDirection
         this.tailBeat = json.tb ?? BaseSliderObject.defaults.tailBeat
         this.tailX = json.tx ?? BaseSliderObject.defaults.tailX
         this.tailY = json.ty ?? BaseSliderObject.defaults.tailY
-        this.tailCoordinates = getCDProp(json, 'tailCoordinates') ?? BaseSliderObject.defaults.tailBeat
+        this.tailCoordinates = getCDProp(json, 'tailCoordinates')
         return super.fromJsonV3(json);
     }
 

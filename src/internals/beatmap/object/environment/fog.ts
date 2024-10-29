@@ -3,7 +3,7 @@ import { ComplexKeyframesLinear } from '../../../../types/animation/keyframe/lin
 import { BloomFogEnvironment } from '../../../../types/beatmap/object/environment.ts'
 import { objectPrune } from '../../../../utils/object/prune.ts'
 import { FOG_TRACK } from '../../../../constants/fog.ts'
-import { BeatmapArrayMember } from '../../../../types/beatmap/beatmap_member.ts'
+import { BeatmapArrayMember } from '../../../../types/beatmap/beatmap_array_member.ts'
 import { AbstractDifficulty } from '../../abstract_beatmap.ts'
 
 // TODO: Maybe make this a difficulty based thing?

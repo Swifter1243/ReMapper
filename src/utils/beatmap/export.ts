@@ -1,6 +1,5 @@
 import { getActiveInfo } from '../../data/active_info.ts'
-import { compress } from 'https://deno.land/x/zip@v1.2.5/compress.ts'
-import { adbDeno, fs, path } from '../../deps.ts'
+import { adbDeno, compress, fs, path } from '../../deps.ts'
 import { copy } from '../object/copy.ts'
 import { getWorkingDirectory } from '../../data/working_directory.ts'
 import { QUEST_WIP_PATH } from '../../constants/file.ts'
@@ -39,6 +38,8 @@ export async function collectBeatmapFiles(
         const diffFileName = forceFileNameExtension(excludeDiff, '.dat') as bsmap.GenericFileName
         delete tempInfo.difficultyBeatmaps[diffFileName]
     })
+
+    unsanitizedFiles.push(...Object.keys(tempInfo.difficultyBeatmaps))
 
     const workingDir = getWorkingDirectory()
     const filesPromise: [string, Promise<boolean>][] = unsanitizedFiles
