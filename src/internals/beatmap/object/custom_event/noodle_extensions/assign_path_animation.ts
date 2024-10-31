@@ -1,7 +1,6 @@
 import { CustomEvent } from '../base/custom_event.ts'
 import { CustomEventConstructorTrack } from '../../../../../types/beatmap/object/custom_event.ts'
 import { Track } from '../../../../../utils/animation/track.ts'
-import { AnimationPropertiesV3 } from '../../../../../types/animation/properties/properties.ts'
 import { EASE } from '../../../../../types/animation/easing.ts'
 import { copy } from '../../../../../utils/object/copy.ts'
 import { getDataProp } from '../../../../../utils/beatmap/json.ts'
@@ -10,6 +9,7 @@ import { objectPrune } from '../../../../../utils/object/prune.ts'
 import { bsmap } from '../../../../../deps.ts'
 import { JsonObjectDefaults } from '../../../../../types/beatmap/object/object.ts'
 import type { AbstractDifficulty } from '../../../abstract_beatmap.ts'
+import {GameplayObjectAnimationData} from "../../../../../types/animation/properties/gameplay_object.ts";
 
 export class AssignPathAnimation extends CustomEvent<
     bsmap.v2.ICustomEventAssignPathAnimation,
@@ -28,7 +28,7 @@ export class AssignPathAnimation extends CustomEvent<
     }
 
     /** The animation of this event. */
-    animation: AnimationPropertiesV3
+    animation: GameplayObjectAnimationData
     /** The track of this event.
      * Uses a wrapper that simplifies single strings and arrays.
      */
@@ -53,7 +53,7 @@ export class AssignPathAnimation extends CustomEvent<
         // @ts-ignore 2322
         this.duration = getDataProp(json.d, 'duration')
         this.easing = getDataProp(json.d, 'easing')
-        this.animation = { ...json.d } as unknown as AnimationPropertiesV3
+        this.animation = { ...json.d } as unknown as GameplayObjectAnimationData
         return super.fromJsonV3(json)
     }
 

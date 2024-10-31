@@ -1,7 +1,6 @@
 import { CustomEvent } from '../base/custom_event.ts'
 import { CustomEventConstructorTrack } from '../../../../../types/beatmap/object/custom_event.ts'
 import { Track } from '../../../../../utils/animation/track.ts'
-import {AnimateTrackProperties, AnimationPropertiesV3} from '../../../../../types/animation/properties/properties.ts'
 import { EASE } from '../../../../../types/animation/easing.ts'
 import { copy } from '../../../../../utils/object/copy.ts'
 import { getDataProp } from '../../../../../utils/beatmap/json.ts'
@@ -10,6 +9,7 @@ import { objectPrune } from '../../../../../utils/object/prune.ts'
 import { bsmap } from '../../../../../deps.ts'
 import { JsonObjectDefaults } from '../../../../../types/beatmap/object/object.ts'
 import type { AbstractDifficulty } from '../../../abstract_beatmap.ts'
+import {AnyAnimationData} from "../../../../../types/animation/properties/any.ts";
 
 export class AnimateTrack extends CustomEvent<
     bsmap.v2.ICustomEventAnimateTrack,
@@ -36,7 +36,7 @@ export class AnimateTrack extends CustomEvent<
      */
     track: Track
     /** The animation of this event. */
-    animation: AnimateTrackProperties
+    animation: AnyAnimationData
     /** Duration of the animation. */
     duration?: number
     /** The easing on this event's animation. */
@@ -59,7 +59,7 @@ export class AnimateTrack extends CustomEvent<
         this.duration = getDataProp(json.d, 'duration')
         this.easing = getDataProp(json.d, 'easing')
         this.repeat = getDataProp(json.d, 'repeat')
-        this.animation = { ...json.d } as unknown as AnimationPropertiesV3
+        this.animation = { ...json.d } as unknown as AnyAnimationData
         return super.fromJsonV3(json)
     }
 

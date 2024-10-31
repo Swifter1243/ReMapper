@@ -1,12 +1,11 @@
 import { bsmap } from '../../deps.ts'
-
-import {AnimationPropertiesV3} from "../../types/animation/properties/properties.ts";
+import {AnyAnimationData} from "../../types/animation/properties/any.ts";
 
 type AnimateV2Scuffed =
     & bsmap.v2.INEAnimation
     & bsmap.v2.IChromaAnimation
 
-export function animationV3toV2(obj: AnimationPropertiesV3): AnimateV2Scuffed {
+export function animationV3toV2(obj: AnyAnimationData): AnimateV2Scuffed {
     return {
         _color: obj.color,
         _definitePosition: obj.definitePosition,
@@ -24,7 +23,7 @@ export function animationV3toV2(obj: AnimationPropertiesV3): AnimateV2Scuffed {
 
 export function animationV2ToV3(
     animation: AnimateV2Scuffed,
-): AnimationPropertiesV3 {
+): AnyAnimationData {
     return {
         color: animation._color,
         definitePosition: animation._definitePosition,
@@ -39,5 +38,5 @@ export function animationV2ToV3(
         rotation: animation._rotation,
         scale: animation._scale,
         time: animation._time,
-    } as AnimationPropertiesV3
+    } as AnyAnimationData
 }
