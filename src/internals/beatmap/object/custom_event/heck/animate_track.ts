@@ -1,7 +1,7 @@
 import { CustomEvent } from '../base/custom_event.ts'
 import { CustomEventConstructorTrack } from '../../../../../types/beatmap/object/custom_event.ts'
 import { Track } from '../../../../../utils/animation/track.ts'
-import { AnimationPropertiesV3 } from '../../../../../types/animation/properties/properties.ts'
+import {AnimateTrackProperties, AnimationPropertiesV3} from '../../../../../types/animation/properties/properties.ts'
 import { EASE } from '../../../../../types/animation/easing.ts'
 import { copy } from '../../../../../utils/object/copy.ts'
 import { getDataProp } from '../../../../../utils/beatmap/json.ts'
@@ -36,7 +36,7 @@ export class AnimateTrack extends CustomEvent<
      */
     track: Track
     /** The animation of this event. */
-    animation: AnimationPropertiesV3
+    animation: AnimateTrackProperties
     /** Duration of the animation. */
     duration?: number
     /** The easing on this event's animation. */

@@ -14,7 +14,6 @@ export type AnimationPropertiesV2 = {
     _dissolveArrow?: RuntimePointDefinitionLinear
     _interactable?: RuntimePointDefinitionLinear
     _definitePosition?: RuntimePointDefinitionVec3
-    _time?: RuntimePointDefinitionLinear
     _localPosition?: RuntimePointDefinitionVec3
     [key: string]: RuntimePointDefinitionAny | undefined
 }
@@ -29,10 +28,13 @@ export type AnimationPropertiesV3 = {
     dissolveArrow?: RuntimePointDefinitionLinear
     interactable?: RuntimePointDefinitionLinear
     definitePosition?: RuntimePointDefinitionVec3
-    time?: RuntimePointDefinitionLinear
     color?: RuntimePointDefinitionVec4
     position?: RuntimePointDefinitionVec3
     rotation?: RuntimePointDefinitionVec3
     localPosition?: RuntimePointDefinitionVec3
     [key: string]: RuntimePointDefinitionAny | undefined
+}
+
+export type AnimateTrackProperties = AnimationPropertiesV3 & {
+    time?: RuntimePointDefinitionLinear
 }

@@ -23,8 +23,6 @@ export interface ObjectAnimationData {
     /** This property controls whether or not the player can interact with the note/wall.
      * "interactable" either is or isn't, there is no inbetween. When great than or equal to 1, the object can fully be interacted with. When less than 1, the object cannot be interacted with at all. */
     interactable?: RuntimePointDefinitionLinear
-    /** "time" is relatively advanced so make sure to have a solid understanding of Heck animations before delving into time. time can only be used in AnimateTrack as it lets you control what point in the note's "lifespan" it is at a given time. */
-    time?: RuntimePointDefinitionLinear
     /** Describes the color of an object. Will override any other color the object may have had. */
     color?: RuntimePointDefinitionVec4
 
