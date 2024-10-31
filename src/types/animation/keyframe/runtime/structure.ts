@@ -8,46 +8,7 @@ export type RuntimeKeyframeValues<
     T extends number[],
     R extends string,
 > =
-    | RuntimeValues<T, R>
-    | [R]
-    | T
+    [...T, ...Modifier<T>[]] |
+    [R, ...Modifier<T>[]]
 
-type RuntimeRecurse<
-    A extends unknown[],
-    G extends unknown,
-> =
-    | [
-        ...A,
-        PointModifier,
-    ]
-    | [
-        ...A,
-        G,
-        PointModifier,
-    ]
-
-/** A term to be evaluated in a runtime expression.
- */
-export type RuntimeValues<
-    T extends number[],
-    R extends string,
-> = [
-    ...T | [R],
-    RuntimeRecurse<
-        T | [R],
-        RuntimeRecurse<
-            T | [R],
-            RuntimeRecurse<
-                T | [R],
-                RuntimeRecurse<
-                    T | [R],
-                    [
-                        ...T | [R],
-                        PointModifier,
-                    ]
-                >
-            >
-        >
-    >,
-]
-
+type Modifier<T extends number[]> = [...T, PointModifier]
