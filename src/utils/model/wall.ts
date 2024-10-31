@@ -13,8 +13,8 @@ import { Transform } from '../../types/math/transform.ts'
 import { ComplexKeyframesVec3 } from '../../types/animation/keyframe/vec3.ts'
 import { ModelObject, ReadonlyModel } from '../../types/model/object.ts'
 import { Wall } from '../../internals/beatmap/object/gameplay_object/wall.ts'
-import { ComplexKeyframesBoundless } from '../../types/animation/keyframe/boundless.ts'
 import {AbstractDifficulty} from "../../internals/beatmap/abstract_beatmap.ts";
+import {RawKeyframesAny} from "../../types/animation/keyframe/any.ts";
 
 let modelToWallCount = 0
 
@@ -161,7 +161,7 @@ export async function modelToWall(
                     const keyframes = wall.animation[key]!
                     if (typeof keyframes === 'string') continue
 
-                    const complexKeyframes = typeof keyframes[0] === 'object' ? keyframes : [[...keyframes, 0]] as ComplexKeyframesBoundless
+                    const complexKeyframes = complexifyKeyframes(keyframes as RawKeyframesAny)
                     complexKeyframes.forEach((k) => {
                         const timeIndex = getKeyframeTimeIndex(k)
                         k[timeIndex] = (k[timeIndex] as number) * squish + animationOffset

@@ -4,11 +4,11 @@ import { copy } from '../../object/copy.ts'
 import { Geometry } from '../../../internals/beatmap/object/environment/geometry.ts'
 import { ColorVec } from '../../../types/math/vector.ts'
 import { animateTrack } from '../../../builder_functions/beatmap/object/custom_event/heck.ts'
-import { RuntimeRawKeyframesVec3 } from '../../../types/animation/keyframe/runtime/vec3.ts'
 import { StaticSceneInfo } from '../../../types/model/model_scene/scene_info.ts'
 import {ReadonlyModel, type ModelObject} from "../../../types/model/object.ts";
 import type { DeepReadonly } from '../../../types/util/mutability.ts'
 import {AbstractDifficulty} from "../../../internals/beatmap/abstract_beatmap.ts";
+import {RawKeyframesVec3} from "../../../types/animation/keyframe/vec3.ts";
 
 export class StaticModelScene extends ModelScene<StaticModelInput, Promise<ReadonlyModel>, StaticSceneInfo> {
     private initializeSceneInfo() {
@@ -81,9 +81,9 @@ export class StaticModelScene extends ModelScene<StaticModelInput, Promise<Reado
             }
             else {
                 const event = animateTrack(difficulty, 0, track)
-                event.animation.position = modelObject.position as RuntimeRawKeyframesVec3
-                event.animation.rotation = modelObject.rotation as RuntimeRawKeyframesVec3
-                event.animation.scale = modelObject.scale as RuntimeRawKeyframesVec3
+                event.animation.position = modelObject.position as RawKeyframesVec3
+                event.animation.rotation = modelObject.rotation as RawKeyframesVec3
+                event.animation.scale = modelObject.scale as RawKeyframesVec3
 
                 const groupInfo = sceneInfo.trackGroupInfo[groupKey]
                 groupInfo.count++
