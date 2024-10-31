@@ -18,6 +18,7 @@ export function random(start: number, end: number, roundResult?: number) {
  */
 export function seededRandom(seed: number) {
     return (min: number, max: number) => {
+        seed += 0x6D2B79F5
         const r = hashInteger(seed)
         return lerp(min, max, r)
     }
