@@ -9,7 +9,7 @@ import { objectPrune } from '../../../../../utils/object/prune.ts'
 import { bsmap } from '../../../../../deps.ts'
 import { JsonObjectDefaults } from '../../../../../types/beatmap/object/object.ts'
 import type { AbstractDifficulty } from '../../../abstract_beatmap.ts'
-import {AnyAnimationData} from "../../../../../types/animation/properties/any.ts";
+import {AnimateTrackAnimationData} from "../../../../../types/animation/properties/animate_track.ts";
 
 export class AnimateTrack extends CustomEvent<
     bsmap.v2.ICustomEventAnimateTrack,
@@ -36,7 +36,7 @@ export class AnimateTrack extends CustomEvent<
      */
     track: Track
     /** The animation of this event. */
-    animation: AnyAnimationData
+    animation: AnimateTrackAnimationData
     /** Duration of the animation. */
     duration?: number
     /** The easing on this event's animation. */
@@ -59,7 +59,7 @@ export class AnimateTrack extends CustomEvent<
         this.duration = getDataProp(json.d, 'duration')
         this.easing = getDataProp(json.d, 'easing')
         this.repeat = getDataProp(json.d, 'repeat')
-        this.animation = { ...json.d } as unknown as AnyAnimationData
+        this.animation = { ...json.d } as unknown as AnimateTrackAnimationData
         return super.fromJsonV3(json)
     }
 

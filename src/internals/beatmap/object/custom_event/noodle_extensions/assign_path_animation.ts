@@ -10,6 +10,7 @@ import { bsmap } from '../../../../../deps.ts'
 import { JsonObjectDefaults } from '../../../../../types/beatmap/object/object.ts'
 import type { AbstractDifficulty } from '../../../abstract_beatmap.ts'
 import {GameplayObjectAnimationData} from "../../../../../types/animation/properties/gameplay_object.ts";
+import {AssignPathAnimationData} from "../../../../../types/animation/properties/assign_path.ts";
 
 export class AssignPathAnimation extends CustomEvent<
     bsmap.v2.ICustomEventAssignPathAnimation,
@@ -28,7 +29,7 @@ export class AssignPathAnimation extends CustomEvent<
     }
 
     /** The animation of this event. */
-    animation: GameplayObjectAnimationData
+    animation: AssignPathAnimationData
     /** The track of this event.
      * Uses a wrapper that simplifies single strings and arrays.
      */

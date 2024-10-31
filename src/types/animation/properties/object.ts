@@ -7,11 +7,6 @@ import { RuntimePointDefinitionAny } from '../keyframe/runtime/any.ts'
 export interface ObjectAnimationData {
     /** Describes the position offset of an object. It will continue any normal movement and have this stacked on top of it. */
     offsetPosition?: RuntimePointDefinitionVec3
-    /** Describes the definite position of an object.
-     * Will completely overwrite the object's default movement.
-     * However, this does take into account lineIndex/lineLayer and world rotation.
-     * Only available on AssignPathAnimation. */
-    definitePosition?: RuntimePointDefinitionVec3
     /** This property describes the world rotation offset of an object. This means it is rotated with the world as the origin. Uses euler values. Think of 360 mode. */
     offsetWorldRotation?: RuntimePointDefinitionVec3
     /** This property describes the local rotation offset of an object. This means it is rotated with itself as the origin. Uses euler values. Do note that the note spawn effect will be rotated accordlingly. Notes attempting to look towards the player may look strange, you can disable their look by setting noteLook to false. */
@@ -25,6 +20,5 @@ export interface ObjectAnimationData {
     interactable?: RuntimePointDefinitionLinear
     /** Describes the color of an object. Will override any other color the object may have had. */
     color?: RuntimePointDefinitionVec4
-
     [key: string]: RuntimePointDefinitionAny | undefined
 }
