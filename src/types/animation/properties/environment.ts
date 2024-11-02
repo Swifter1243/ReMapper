@@ -1,16 +1,16 @@
-import {RuntimePointDefinitionVec3} from "../keyframe/runtime/vec3.ts";
+import {RuntimeDifficultyPointsVec3} from "../points/runtime/vec3.ts";
 
 /** Animation properties for environment enhancements */
 export interface EnvironmentAnimationData {
     /** The position of the object in world space. */
-    position?: RuntimePointDefinitionVec3
+    position?: RuntimeDifficultyPointsVec3
     /** The position of the object relative to it's parent. */
-    localPosition?: RuntimePointDefinitionVec3
+    localPosition?: RuntimeDifficultyPointsVec3
     /** The rotation of the object in world space. */
-    rotation?: RuntimePointDefinitionVec3
+    rotation?: RuntimeDifficultyPointsVec3
     /** The rotation of the object relative to it's parent. */
-    localRotation?: RuntimePointDefinitionVec3
+    localRotation?: RuntimeDifficultyPointsVec3
     /** The scale of the object. */
-    scale?: RuntimePointDefinitionVec3
+    scale?: RuntimeDifficultyPointsVec3
 }
 

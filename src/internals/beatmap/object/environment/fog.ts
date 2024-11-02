@@ -1,5 +1,5 @@
 import { bsmap } from '../../../../deps.ts'
-import { ComplexKeyframesLinear } from '../../../../types/animation/keyframe/linear.ts'
+import { ComplexPointsLinear } from '../../../../types/animation/points/linear.ts'
 import { BloomFogEnvironment } from '../../../../types/beatmap/object/environment.ts'
 import { objectPrune } from '../../../../utils/object/prune.ts'
 import { FOG_TRACK } from '../../../../constants/fog.ts'
@@ -8,7 +8,7 @@ import { AbstractDifficulty } from '../../abstract_beatmap.ts'
 
 // TODO: Maybe make this a difficulty based thing?
 export type AnyFog = BloomFogEnvironment<
-    number | ComplexKeyframesLinear | string
+    number | ComplexPointsLinear | string
 >
 
 export class FogEvent extends BeatmapArrayMember<AbstractDifficulty> {
@@ -28,7 +28,7 @@ export class FogEvent extends BeatmapArrayMember<AbstractDifficulty> {
         return difficulty.fogEvents as this[]
     }
 
-    /** Turns the internal fog component that can use single numbers for static keyframes and turns it into the version read by the beatmap, which only accepts point definitions or arrays. */
+    /** Turns the internal fog component that can use single numbers for static points and turns it into the version read by the beatmap, which only accepts point definitions or arrays. */
     complexifyFog(v3 = true) {
         const obj = {} as Record<string, unknown>
 
@@ -36,7 +36,7 @@ export class FogEvent extends BeatmapArrayMember<AbstractDifficulty> {
             obj[v3 ? key : `_${key}`] = typeof value === 'number' ? [value] : value
         })
 
-        return obj as BloomFogEnvironment<ComplexKeyframesLinear | string>
+        return obj as BloomFogEnvironment<ComplexPointsLinear | string>
     }
 
     /** Export for V3.

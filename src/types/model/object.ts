@@ -1,13 +1,13 @@
-import { RawKeyframesVec3 } from '../animation/keyframe/vec3.ts'
+import { RawPointsVec3 } from '../animation/points/vec3.ts'
 import { ColorVec } from '../math/vector.ts'
 
 import {DeepReadonly} from "../util/mutability.ts";
 
 /** The properties type used by ModelScene to define model objects. */
 export interface ModelObject {
-    position: RawKeyframesVec3
-    rotation: RawKeyframesVec3
-    scale: RawKeyframesVec3
+    position: RawPointsVec3
+    rotation: RawPointsVec3
+    scale: RawPointsVec3
     color?: ColorVec
     group?: string
 }

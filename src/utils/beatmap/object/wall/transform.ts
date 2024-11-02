@@ -1,7 +1,7 @@
 import { Wall } from '../../../../internals/beatmap/object/gameplay_object/wall.ts'
 import { AnimationSettings } from '../../../animation/optimizer.ts'
 import { bakeAnimation } from '../../../animation/bake.ts'
-import { areKeyframesSimple } from '../../../animation/keyframe/complexity.ts'
+import { arePointsSimple } from '../../../animation/points/complexity.ts'
 import {worldToWall} from "./world_to_wall.ts";
 import {copy} from "../../../object/copy.ts";
 import {Vec3} from "../../../../types/math/vector.ts";
@@ -14,11 +14,11 @@ export function setWallWorldTransform(
     transform: DeepReadonly<AnimatedTransform>,
     animationSettings = new AnimationSettings(),
 ) {
-    const animatedScale = !areKeyframesSimple(transform.scale ?? [1, 1, 1])
-    const animatedRotation = !areKeyframesSimple(
+    const animatedScale = !arePointsSimple(transform.scale ?? [1, 1, 1])
+    const animatedRotation = !arePointsSimple(
         transform.position ?? [0, 0, 0],
     )
-    const animatedPosition = !areKeyframesSimple(
+    const animatedPosition = !arePointsSimple(
         transform.position ?? [0, 0, 0],
     )
     const needsBake = animatedRotation || animatedPosition || animatedScale

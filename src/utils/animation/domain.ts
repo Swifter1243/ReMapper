@@ -1,20 +1,20 @@
-import { complexifyKeyframes } from './keyframe/complexity.ts'
-import { getKeyframeTime } from './keyframe/get.ts'
+import { complexifyPoints } from './points/complexity.ts'
+import { getPointTime } from './points/get.ts'
 import {Vec3, Vec4} from "../../types/math/vector.ts";
 import {AnimatedTransform} from "../../types/math/transform.ts";
 
-import {RawKeyframesAny} from "../../types/animation/keyframe/any.ts";
+import {RawPointsAny} from "../../types/animation/points/any.ts";
 import {DeepReadonly} from "../../types/util/mutability.ts";
 
 /** Gets the minimum and maximum times of an animation. */
-export function getAnimationDomain(arr: DeepReadonly<RawKeyframesAny>) {
-    const newArr = complexifyKeyframes<[number] | Vec3 | Vec4>(arr)
+export function getAnimationDomain(arr: DeepReadonly<RawPointsAny>) {
+    const newArr = complexifyPoints<[number] | Vec3 | Vec4>(arr)
 
     let min = 1
     let max = 0
 
     newArr.forEach((x) => {
-        const time = getKeyframeTime(x)
+        const time = getPointTime(x)
         if (time < min) min = time
         if (time > max) max = time
     })

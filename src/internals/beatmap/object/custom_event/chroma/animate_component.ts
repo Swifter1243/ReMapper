@@ -3,7 +3,7 @@ import { CustomEventConstructorTrack } from '../../../../../types/beatmap/object
 import { Track } from '../../../../../utils/animation/track.ts'
 import { EASE } from '../../../../../types/animation/easing.ts'
 import { BloomFogEnvironment, TubeBloomPrePassLight } from '../../../../../types/beatmap/object/environment.ts'
-import { PointDefinitionLinear } from '../../../../../types/animation/keyframe/linear.ts'
+import { DifficultyPointsLinear } from '../../../../../types/animation/points/linear.ts'
 import { copy } from '../../../../../utils/object/copy.ts'
 import { getDataProp } from '../../../../../utils/beatmap/json.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
@@ -30,9 +30,9 @@ export class AnimateComponent extends CustomEvent<never, bsmap.v3.ICustomEventAn
      */
     track: Track
     /** The "TubeBloomPrePassLight component to animate." */
-    lightMultiplier: TubeBloomPrePassLight<PointDefinitionLinear>
+    lightMultiplier: TubeBloomPrePassLight<DifficultyPointsLinear>
     /** The "BloomFogEnvironment component to animate." */
-    fog: BloomFogEnvironment<PointDefinitionLinear>
+    fog: BloomFogEnvironment<DifficultyPointsLinear>
     /** Duration of the animation. */
     duration?: number
     /** The easing on this event's animation. */

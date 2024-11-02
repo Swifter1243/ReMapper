@@ -6,7 +6,7 @@ export type SPLINE = 'splineCatmullRom'
 export type Interpolation = EASE | SPLINE
 /** Modifiers */
 export type PointModifier = `op${'None' | 'Add' | 'Sub' | 'Mul' | 'Div'}`
-/** Any flag that could be in a keyframe. E.g. easings, splines */
-export type KeyframeFlag = Interpolation | 'lerpHSV'
-/** Time value in a keyframe. */
+/** Any flag that could be in a points. E.g. easings, splines */
+export type PointFlag = Interpolation | 'lerpHSV'
+/** Time value in a points. */
 export type TimeValue = number

@@ -1,9 +1,9 @@
-import { getKeyframeTimeIndex } from './keyframe/get.ts'
-import { complexifyKeyframes, simplifyKeyframes } from './keyframe/complexity.ts'
-import { RawKeyframesAbstract } from '../../types/animation/keyframe/abstract.ts'
-import { ComplexKeyframesBoundless, InnerKeyframeBoundless } from '../../types/animation/keyframe/boundless.ts'
+import { getPointTimeIndex } from './points/get.ts'
+import { complexifyPoints, simplifyPoints } from './points/complexity.ts'
+import { RawPointsAbstract } from '../../types/animation/points/abstract.ts'
+import { ComplexPointsBoundless, InnerPointBoundless } from '../../types/animation/points/boundless.ts'
 import { NumberTuple } from '../../types/util/tuple.ts'
-import { KeyframeInfo, OptimizeFunction } from '../../types/animation/keyframe/optimizer.ts'
+import { PointInfo, OptimizeFunction } from '../../types/animation/points/optimizer.ts'
 
 function areArrayElementsIdentical<T>(
     enumerable1: readonly T[],
@@ -53,8 +53,8 @@ function areFloatsSimilar(
 }
 
 function arePointSimilar(
-    a: KeyframeInfo,
-    b: KeyframeInfo,
+    a: PointInfo,
+    b: PointInfo,
     differenceThreshold: number,
     timeDifferenceThreshold: number,
 ) {
@@ -66,9 +66,9 @@ function arePointSimilar(
 }
 
 function ComparePointsSlope(
-    startPoint: KeyframeInfo,
-    middlePoint: KeyframeInfo,
-    endPoint: KeyframeInfo,
+    startPoint: PointInfo,
+    middlePoint: PointInfo,
+    endPoint: PointInfo,
     // pass in array to reuse and avoid allocations
     middleSlope: number[],
     endSlope: number[],
@@ -99,7 +99,7 @@ function ComparePointsSlope(
     // }
 
     // Skip points that are identical with large time differences
-    // used for keyframe pause
+    // used for points pause
     if (
         Math.abs(endPoint.time - middlePoint.time) > differenceThreshold &&
         areFloatsSimilar(
@@ -147,7 +147,7 @@ function ComparePointsSlope(
 }
 
 function GetYIntercept(
-    pointData: KeyframeInfo,
+    pointData: PointInfo,
     slopeArray: number[],
     yIntercepts: number[],
 ) {
@@ -162,8 +162,8 @@ function GetYIntercept(
 }
 
 function SlopeOfPoint(
-    a: KeyframeInfo,
-    b: KeyframeInfo,
+    a: PointInfo,
+    b: PointInfo,
     slopes: number[],
 ) {
     const yDiff = b.time - a.time
@@ -180,10 +180,10 @@ function SlopeOfPoint(
 
 // https://github.com/ErisApps/OhHeck/blob/ae8d02bf6bf2ec8545c2a07546c6844185b97f1c/OhHeck.Core/Analyzer/Lints/Animation/DuplicatePointData.cs
 function optimizeDuplicates(
-    pointA: KeyframeInfo,
-    pointB: KeyframeInfo,
-    pointC: KeyframeInfo | undefined,
-): KeyframeInfo | undefined {
+    pointA: PointInfo,
+    pointB: PointInfo,
+    pointC: PointInfo | undefined,
+): PointInfo | undefined {
     if (pointC === undefined) {
         // array is size 2
         return areArrayElementsIdentical(pointA.values, pointB.values) ? pointA : undefined
@@ -201,11 +201,11 @@ function optimizeDuplicates(
 // TODO: Configure threshold
 // https://github.com/ErisApps/OhHeck/blob/ae8d02bf6bf2ec8545c2a07546c6844185b97f1c/OhHeck.Core/Analyzer/Lints/Animation/SimilarPointData.cs
 function optimizeSimilarPoints(
-    pointA: KeyframeInfo,
-    pointB: KeyframeInfo,
-    pointC: KeyframeInfo | undefined,
+    pointA: PointInfo,
+    pointB: PointInfo,
+    pointC: PointInfo | undefined,
     settings: OptimizeSimilarPointsSettings,
-): KeyframeInfo | undefined {
+): PointInfo | undefined {
     // The minimum difference for considering not similar
     const differenceThreshold = settings.differenceThreshold
     const timeDifferenceThreshold = settings.timeDifferenceThreshold
@@ -251,11 +251,11 @@ function optimizeSimilarPoints(
 // TODO: Configure threshold
 // https://github.com/ErisApps/OhHeck/blob/ae8d02bf6bf2ec8545c2a07546c6844185b97f1c/OhHeck.Core/Analyzer/Lints/Animation/SimilarPointDataSlope.cs
 function optimizeSimilarPointsSlope(
-    pointA: KeyframeInfo,
-    pointB: KeyframeInfo,
-    pointC: KeyframeInfo | undefined,
+    pointA: PointInfo,
+    pointB: PointInfo,
+    pointC: PointInfo | undefined,
     settings: OptimizeSimilarPointsSlopeSettings,
-): KeyframeInfo | undefined {
+): PointInfo | undefined {
     if (pointC === undefined) {
         // array is size 2
         return undefined
@@ -343,7 +343,7 @@ export class OptimizeSimilarPointsSlopeSettings {
 
 /** Describes settings for functions to handle animations that need to be baked/optimized. */
 export class AnimationSettings {
-    /** If animation should be baked, how many keyframes to sample. */
+    /** If animation should be baked, how many points to sample. */
     bakeSampleFrequency = 32
     /** Settings to optimize the animation if it gets optimized. */
     optimizeSettings = new OptimizeSettings()
@@ -388,27 +388,27 @@ export class OptimizeSettings {
     }
 }
 
-function getKeyframeInfo(keyframe: InnerKeyframeBoundless) {
-    const timeIndex = getKeyframeTimeIndex(keyframe)
-    const values = keyframe.slice(0, timeIndex) as number[]
-    const time = keyframe[timeIndex] as number
-    const hasFlags = keyframe.length > timeIndex + 1
+function getPointInfo(point: InnerPointBoundless) {
+    const timeIndex = getPointTimeIndex(point)
+    const values = point.slice(0, timeIndex) as number[]
+    const time = point[timeIndex] as number
+    const hasFlags = point.length > timeIndex + 1
     return {
         values,
         time,
         hasFlags,
-        original: keyframe,
-    } satisfies KeyframeInfo
+        original: point,
+    } satisfies PointInfo
 }
 
-function optimizeKeyframesInternal(
-    keyframes: ComplexKeyframesBoundless,
+function optimizePointsInternal(
+    points: ComplexPointsBoundless,
     optimizeSettings: OptimizeSettings,
-): ComplexKeyframesBoundless {
-    if (optimizeSettings.disabled) return keyframes
+): ComplexPointsBoundless {
+    if (optimizeSettings.disabled) return points
 
-    const sortedKeyframes = keyframes
-        .map((x) => getKeyframeInfo(x))
+    const sortedPoints = points
+        .map((x) => getPointInfo(x))
         .sort((a, b) => a.time - b.time)
 
     const optimizers: OptimizeFunction[] = [...optimizeSettings.additionalOptimizers]
@@ -436,32 +436,32 @@ function optimizeKeyframesInternal(
     }
 
     if (optimizeSettings.performanceLog) {
-        console.log(`Optimizing ${keyframes.length} points`)
+        console.log(`Optimizing ${points.length} points`)
     }
 
     // TODO: Log each optimizer's point removal
 
-    let optimizedKeyframes = [...sortedKeyframes]
+    let optimizedPoints = [...sortedPoints]
 
     for (let pass = 0; pass < optimizeSettings.passes; pass++) {
-        const toRemove: (KeyframeInfo | undefined)[] = []
+        const toRemove: (PointInfo | undefined)[] = []
 
-        if (optimizedKeyframes.length === 2) {
+        if (optimizedPoints.length === 2) {
             toRemove.push(
                 ...optimizers.map((optimizerFn) =>
                     optimizerFn(
-                        optimizedKeyframes[0],
-                        optimizedKeyframes[1],
+                        optimizedPoints[0],
+                        optimizedPoints[1],
                         undefined,
                     )
                 ),
             )
         }
 
-        for (let i = 1; i < optimizedKeyframes.length - 1; i++) {
-            const pointA = optimizedKeyframes[i - 1]
-            const pointB = optimizedKeyframes[i]
-            const pointC = optimizedKeyframes[i + 1]
+        for (let i = 1; i < optimizedPoints.length - 1; i++) {
+            const pointA = optimizedPoints[i - 1]
+            const pointB = optimizedPoints[i]
+            const pointC = optimizedPoints[i + 1]
 
             toRemove.push(
                 ...optimizers.map((optimizerFn) => optimizerFn(pointA, pointB, pointC)),
@@ -469,7 +469,7 @@ function optimizeKeyframesInternal(
         }
 
         // get unique redundant points and none undefined
-        const toRemoveUnique: KeyframeInfo[] = []
+        const toRemoveUnique: PointInfo[] = []
         toRemove.forEach((e) => {
             // only add items that are not undefined and not in the array already
             if (
@@ -481,38 +481,38 @@ function optimizeKeyframesInternal(
         })
 
         // probably slow but JS is weird for removing items at specific indexes, oh well
-        optimizedKeyframes = sortedKeyframes.filter((p) => !toRemoveUnique.some((otherP) => p === otherP))
+        optimizedPoints = sortedPoints.filter((p) => !toRemoveUnique.some((otherP) => p === otherP))
     }
 
     if (optimizeSettings.performanceLog) {
         console.log(
-            `Optimized to ${optimizedKeyframes.length} (${optimizedKeyframes.length / keyframes.length * 100}%) points`,
+            `Optimized to ${optimizedPoints.length} (${optimizedPoints.length / points.length * 100}%) points`,
         )
     }
 
-    return optimizedKeyframes.map((x) => x.original)
+    return optimizedPoints.map((x) => x.original)
 }
 
 /**
  * Optimizes animations, removing unnecessary points.
- * @param animation keyframe or array of keyframes to optimize.
+ * @param animation points or array of points to optimize.
  * @param settings settings for the optimizer.
  * @returns
  */
-export function optimizeKeyframes<T extends NumberTuple>(
-    animation: RawKeyframesAbstract<T>,
+export function optimizePoints<T extends NumberTuple>(
+    animation: RawPointsAbstract<T>,
     settings: OptimizeSettings,
-): RawKeyframesAbstract<T> {    
-    const keyframes = complexifyKeyframes<T>(animation)
+): RawPointsAbstract<T> {
+    const points = complexifyPoints<T>(animation)
 
-    if (keyframes.length === 1) {
-        return simplifyKeyframes(animation)
+    if (points.length === 1) {
+        return simplifyPoints(animation)
     }
 
     // not enough points to optimize
-    if (keyframes.length <= 2) {
-        return keyframes
+    if (points.length <= 2) {
+        return points
     }
 
-    return simplifyKeyframes<T>(optimizeKeyframesInternal(keyframes, settings) as RawKeyframesAbstract<T>)
+    return simplifyPoints<T>(optimizePointsInternal(points, settings) as RawPointsAbstract<T>)
 }

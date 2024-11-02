@@ -1,6 +1,6 @@
 import { FILEPATH } from '../beatmap/file.ts'
-import { RuntimePointDefinitionLinear } from '../animation/keyframe/runtime/linear.ts'
-import { RuntimePointDefinitionVec4 } from '../animation/keyframe/runtime/vec4.ts'
+import { RuntimeDifficultyPointsLinear } from '../animation/points/runtime/linear.ts'
+import { RuntimeDifficultyPointsVec4 } from '../animation/points/runtime/vec4.ts'
 
 import {Property} from "./property.ts";
 import { Vec4 } from '../math/vector.ts'
@@ -16,9 +16,9 @@ export type MATERIAL_PROP_TYPE =
 export type MaterialPropertyValue =
     | FILEPATH
     | number
-    | RuntimePointDefinitionLinear
+    | RuntimeDifficultyPointsLinear
     | Vec4
-    | RuntimePointDefinitionVec4
+    | RuntimeDifficultyPointsVec4
 
 /** A property for a material. */
 export type MaterialProperty = Property<

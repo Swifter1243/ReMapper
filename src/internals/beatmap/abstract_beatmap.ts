@@ -13,7 +13,7 @@ import { LightColorEventBoxGroup } from './object/v3_event/lighting/light_event_
 import { LightRotationEventBoxGroup } from './object/v3_event/lighting/light_event_box_group/rotation.ts'
 import { LightTranslationEventBoxGroup } from './object/v3_event/lighting/light_event_box_group/translation.ts'
 import { BeatmapCustomEvents } from '../../types/beatmap/object/custom_event.ts'
-import { RuntimeRawKeyframesAny } from '../../types/animation/keyframe/runtime/any.ts'
+import { RuntimeRawPointsAny } from '../../types/animation/points/runtime/any.ts'
 import { Environment } from './object/environment/environment.ts'
 import { Geometry } from './object/environment/geometry.ts'
 import { AbstractEnvironment, RawGeometryMaterial } from '../../types/beatmap/object/environment.ts'
@@ -108,7 +108,7 @@ export abstract class AbstractDifficulty<
         abstractCustomEvents: []
     }
 
-    pointDefinitions: Record<string, RuntimeRawKeyframesAny> = {}
+    pointDefinitions: Record<string, RuntimeRawPointsAny> = {}
     customData!: Record<string, unknown>
     environment: Environment[] = []
     geometry: Geometry[] = []

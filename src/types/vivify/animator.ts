@@ -1,4 +1,4 @@
-import { RuntimePointDefinitionLinear } from '../animation/keyframe/runtime/linear.ts'
+import { RuntimeDifficultyPointsLinear } from '../animation/points/runtime/linear.ts'
 
 import {Property} from "./property.ts";
 
@@ -9,7 +9,7 @@ export type ANIMATOR_PROP_TYPE =
     | 'Trigger'
 
 /** A valid value for animator properties. */
-export type AnimatorPropertyValue = boolean | RuntimePointDefinitionLinear | number
+export type AnimatorPropertyValue = boolean | RuntimeDifficultyPointsLinear | number
 
 /** A property for an animator. */
 export type AnimatorProperty = Property<

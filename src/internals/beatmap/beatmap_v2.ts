@@ -28,7 +28,7 @@ import { officialBpmEvent } from '../../builder_functions/beatmap/object/v3_even
 import { OfficialBPMEvent } from './object/v3_event/bpm/official_bpm.ts'
 import { CommunityBPMEvent } from './object/v3_event/bpm/community_bpm.ts'
 import { ColorVec } from '../../types/math/vector.ts'
-import { RuntimeRawKeyframesAny } from '../../types/animation/keyframe/runtime/any.ts'
+import { RuntimeRawPointsAny } from '../../types/animation/points/runtime/any.ts'
 import { CustomEvent } from './object/custom_event/base/custom_event.ts'
 import { NoteColor } from '../../constants/note.ts'
 
@@ -210,7 +210,7 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
 
         // Point definitions
         json._customData?._pointDefinitions?.forEach((x) => {
-            this.pointDefinitions[x._name] = x._points as RuntimeRawKeyframesAny
+            this.pointDefinitions[x._name] = x._points as RuntimeRawPointsAny
         })
         delete json._customData?._pointDefinitions
 

@@ -1,11 +1,11 @@
 import { ModelGroup, ModelGroupObjectFactory } from '../../../types/model/model_scene/group.ts'
-import { optimizeKeyframes } from '../../animation/optimizer.ts'
+import { optimizePoints } from '../../animation/optimizer.ts'
 import { Vec3 } from '../../../types/math/vector.ts'
 import { AnimatedModelInput, ModelInput } from '../../../types/model/model_scene/input.ts'
 import { AnimatedOptions } from '../../../types/model/model_scene/option.ts'
 import { ModelObject, ReadonlyModel } from '../../../types/model/object.ts'
-import { InnerKeyframeVec3, RawKeyframesVec3 } from '../../../types/animation/keyframe/vec3.ts'
-import { complexifyKeyframes } from '../../animation/keyframe/complexity.ts'
+import { InnerPointVec3, RawPointsVec3 } from '../../../types/animation/points/vec3.ts'
+import { complexifyPoints } from '../../animation/points/complexity.ts'
 import { copy } from '../../object/copy.ts'
 import { combineTransforms } from '../../math/transform.ts'
 import { positionUnityToNoodle } from '../../beatmap/object/environment/unit_conversion.ts'
@@ -69,7 +69,7 @@ export abstract class ModelScene<I, M, O> {
     }
 
     private static makeModelObjectStatic(obj: ModelObject) {
-        function doStatic(k: RawKeyframesVec3): Vec3 {
+        function doStatic(k: RawPointsVec3): Vec3 {
             return typeof k[0] === 'object' ? [k[0][0], k[0][1], k[0][2]] : k as Vec3
         }
 
@@ -78,8 +78,8 @@ export abstract class ModelScene<I, M, O> {
         obj.scale = doStatic(obj.scale)
     }
 
-    protected static getFirstValues(keyframes: DeepReadonly<RawKeyframesVec3>) {
-        const complexTransform = complexifyKeyframes(copy(keyframes))[0]
+    protected static getFirstValues(points: DeepReadonly<RawPointsVec3>) {
+        const complexTransform = complexifyPoints(copy(points))[0]
         return [
             complexTransform[0],
             complexTransform[1],
@@ -259,14 +259,14 @@ export abstract class ModelScene<I, M, O> {
                 ModelScene.makeModelObjectStatic(x)
             }
 
-            // Making keyframes a consistent array format
-            const position = complexifyKeyframes(x.position)
-            const rotation = complexifyKeyframes(x.rotation)
-            const scale = complexifyKeyframes(x.scale)
+            // Making points a consistent array format
+            const position = complexifyPoints(x.position)
+            const rotation = complexifyPoints(x.rotation)
+            const scale = complexifyPoints(x.scale)
 
-            // Applying transformation to each keyframe
-            function getVec3(keyframe: InnerKeyframeVec3): Vec3 {
-                return [keyframe[0], keyframe[1], keyframe[2]]
+            // Applying transformation to each points
+            function getVec3(point: InnerPointVec3): Vec3 {
+                return [point[0], point[1], point[2]]
             }
 
             if (position.length !== rotation.length || rotation.length !== scale.length) {
@@ -294,9 +294,9 @@ export abstract class ModelScene<I, M, O> {
             }
 
             // Optimizing object (also simplifies it)
-            x.position = optimizeKeyframes(position, this.settings.animationSettings.optimizeSettings)
-            x.rotation = optimizeKeyframes(rotation, this.settings.animationSettings.optimizeSettings)
-            x.scale = optimizeKeyframes(scale, this.settings.animationSettings.optimizeSettings)
+            x.position = optimizePoints(position, this.settings.animationSettings.optimizeSettings)
+            x.rotation = optimizePoints(rotation, this.settings.animationSettings.optimizeSettings)
+            x.scale = optimizePoints(scale, this.settings.animationSettings.optimizeSettings)
 
             // Reverse animation
             if (options.reverseAnimation) {

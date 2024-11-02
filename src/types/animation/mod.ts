@@ -1,4 +1,4 @@
-export * from './keyframe/mod.ts'
+export * from './points/mod.ts'
 export * from './properties/mod.ts'
 export * from './bake.ts'
 export * from './easing.ts'

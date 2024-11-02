@@ -1,10 +1,10 @@
-import {InnerKeyframeBoundless} from './boundless.ts'
+import {InnerPointBoundless} from './boundless.ts'
 
-export type KeyframeInfo = {
+export type PointInfo = {
     readonly values: ReadonlyArray<number>
     readonly time: number
     readonly hasFlags: boolean
-    readonly original: InnerKeyframeBoundless
+    readonly original: InnerPointBoundless
 }
 
 // pointC is undefined if array is size 2
@@ -13,7 +13,7 @@ export type KeyframeInfo = {
  * Function for an Optimizer.
  */
 export type OptimizeFunction = (
-    pointA: KeyframeInfo,
-    pointB: KeyframeInfo,
-    pointC: KeyframeInfo | undefined,
-) => KeyframeInfo | undefined
+    pointA: PointInfo,
+    pointB: PointInfo,
+    pointC: PointInfo | undefined,
+) => PointInfo | undefined

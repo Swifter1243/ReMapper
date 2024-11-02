@@ -1,17 +1,17 @@
 import {DeepReadonly} from "../../../types/util/mutability.ts";
-import {RuntimePointDefinitionBoundless} from "../../../types/animation/keyframe/runtime/boundless.ts";
+import {RuntimeDifficultyPointsBoundless} from "../../../types/animation/points/runtime/boundless.ts";
 
-/** Determine if keyframes are considered "runtime",
+/** Determine if points are considered "runtime",
  * e.g. it contains properties such as "baseHeadLocalPosition" which are only evaluated at runtime. */
-export function areKeyframesRuntime(
-    keyframes: DeepReadonly<RuntimePointDefinitionBoundless>,
+export function arePointsRuntime(
+    points: DeepReadonly<RuntimeDifficultyPointsBoundless>,
 ) {
-    if (typeof keyframes === 'string') return false
+    if (typeof points === 'string') return false
 
     // ["runtime"]
-    if (typeof keyframes === 'object' && typeof keyframes[0] === 'string') return true
+    if (typeof points === 'object' && typeof points[0] === 'string') return true
 
-    return keyframes.some((inner) => {
+    return points.some((inner) => {
         if (typeof inner === 'object') {
             // [["runtime", 0]]
             if (typeof inner[0] === 'string') return true

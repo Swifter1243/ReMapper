@@ -1,10 +1,10 @@
 import {PointModifier} from '../components.ts'
 
-/** Values for runtime keyframes.
+/** Values for runtime points.
  * [[...], [...], [...]] where [...] is [...x, time]
  * This type represents the "x".
  */
-export type RuntimeKeyframeValues<
+export type RuntimePointValues<
     T extends number[],
     R extends string,
 > =

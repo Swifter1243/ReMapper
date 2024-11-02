@@ -2,14 +2,14 @@ import {copy} from '../object/copy.ts'
 import {arrayAdd, arraySubtract} from '../array/operation.ts'
 import {getMatrixFromTransform, getTransformFromMatrix} from './matrix.ts'
 import {AnimationSettings} from '../animation/optimizer.ts'
-import {areKeyframesSimple} from '../animation/keyframe/complexity.ts'
+import {arePointsSimple} from '../animation/points/complexity.ts'
 import {areVectorsEqual} from '../array/check.ts'
-import {bakeAnimation, getAnimatedObjectDomain, getKeyframeValuesAtTime,} from '../animation/mod.ts'
-import {iterateKeyframes} from "../animation/keyframe/iterate.ts";
+import {bakeAnimation, getAnimatedObjectDomain, getPointValuesAtTime,} from '../animation/mod.ts'
+import {iteratePoints} from "../animation/points/iterate.ts";
 import {Vec3} from "../../types/math/vector.ts";
 import {AnimatedTransform, FullAnimatedTransform, FullTransform, Transform} from "../../types/math/transform.ts";
 
-import {RawKeyframesVec3} from "../../types/animation/keyframe/vec3.ts";
+import {RawPointsVec3} from "../../types/animation/points/vec3.ts";
 import {DeepReadonly} from "../../types/util/mutability.ts";
 import {eulerFromQuaternion, toThreeQuaternion} from "./three_conversion.ts";
 
@@ -87,11 +87,11 @@ export function emulateParent(
         ANIMATED,
     }
 
-    function getKeyframeComplexity(
-        prop: DeepReadonly<RawKeyframesVec3>,
+    function setPointComplexity(
+        prop: DeepReadonly<RawPointsVec3>,
         defaultVal: DeepReadonly<Vec3>,
     ) {
-        if (!areKeyframesSimple(prop)) return Complexity.ANIMATED
+        if (!arePointsSimple(prop)) return Complexity.ANIMATED
         const isDefault = areVectorsEqual(prop as DeepReadonly<Vec3>, defaultVal)
         return isDefault ? Complexity.DEFAULT : Complexity.SIMPLE
     }
@@ -100,9 +100,9 @@ export function emulateParent(
         obj: DeepReadonly<FullAnimatedTransform>,
     ) {
         return {
-            position: getKeyframeComplexity(obj.position, [0, 0, 0]),
-            rotation: getKeyframeComplexity(obj.rotation, [0, 0, 0]),
-            scale: getKeyframeComplexity(obj.scale, [1, 1, 1]),
+            position: setPointComplexity(obj.position, [0, 0, 0]),
+            rotation: setPointComplexity(obj.rotation, [0, 0, 0]),
+            scale: setPointComplexity(obj.scale, [1, 1, 1]),
         }
     }
 
@@ -143,10 +143,10 @@ export function emulateParent(
         parentComplexity.rotation === Complexity.DEFAULT &&
         parentComplexity.scale === Complexity.DEFAULT
     ) {
-        const childPos = copy(childObj.position) as RawKeyframesVec3
+        const childPos = copy(childObj.position) as RawPointsVec3
         const parentPos = parentObj.position as Vec3
 
-        iterateKeyframes(childPos, (x) => {
+        iteratePoints(childPos, (x) => {
             x[0] += parentPos[0]
             x[1] += parentPos[1]
             x[2] += parentPos[2]
@@ -154,8 +154,8 @@ export function emulateParent(
 
         return {
             position: childPos,
-            rotation: copy(childObj.rotation) as RawKeyframesVec3,
-            scale: copy(childObj.scale) as RawKeyframesVec3,
+            rotation: copy(childObj.rotation) as RawPointsVec3,
+            scale: copy(childObj.scale) as RawPointsVec3,
         }
     }
 
@@ -167,9 +167,9 @@ export function emulateParent(
         parentComplexity.scale === Complexity.DEFAULT
     ) {
         const childPos = childObj.position as Vec3
-        const parentPos = copy(parentObj.position) as RawKeyframesVec3
+        const parentPos = copy(parentObj.position) as RawPointsVec3
 
-        iterateKeyframes(parentPos, (x) => {
+        iteratePoints(parentPos, (x) => {
             x[0] += childPos[0]
             x[1] += childPos[1]
             x[2] += childPos[2]
@@ -177,8 +177,8 @@ export function emulateParent(
 
         return {
             position: parentPos,
-            rotation: copy(childObj.rotation) as RawKeyframesVec3,
-            scale: copy(childObj.scale) as RawKeyframesVec3,
+            rotation: copy(childObj.rotation) as RawPointsVec3,
+            scale: copy(childObj.scale) as RawPointsVec3,
         }
     }
 
@@ -194,19 +194,19 @@ export function emulateParent(
     return bakeAnimation(
         childObj,
         (k) => {
-            const parentPos = getKeyframeValuesAtTime(
+            const parentPos = getPointValuesAtTime(
                 'position',
                 parentObj.position,
                 k.time,
             )
 
-            const parentRot = getKeyframeValuesAtTime(
+            const parentRot = getPointValuesAtTime(
                 'rotation',
                 parentObj.rotation,
                 k.time,
             )
 
-            const parentScale = getKeyframeValuesAtTime(
+            const parentScale = getPointValuesAtTime(
                 'scale',
                 parentObj.scale,
                 k.time,

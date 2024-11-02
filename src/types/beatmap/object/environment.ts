@@ -4,13 +4,13 @@ import {bsmap} from '../../../deps.ts'
 import {Track} from "../../../utils/animation/track.ts";
 import {ColorVec} from "../../math/vector.ts";
 
-import {PointDefinitionLinear} from "../../animation/keyframe/linear.ts";
+import {DifficultyPointsLinear} from "../../animation/points/linear.ts";
 import {TrackValue} from "../../animation/track.ts";
 import {Fields} from "../../util/class.ts";
 
 /** The "BloomFogEnvironment" environment component.
  * Allows both animated and non animated variants. */
-export type BloomFogEnvironment<T extends number | PointDefinitionLinear> = {
+export type BloomFogEnvironment<T extends number | DifficultyPointsLinear> = {
     attenuation?: T
     offset?: T
     startY?: T
@@ -19,7 +19,7 @@ export type BloomFogEnvironment<T extends number | PointDefinitionLinear> = {
 
 /** The "TubeBloomPrePassLight" environment component.
  * Allows both animated and non animated variants. */
-export type TubeBloomPrePassLight<T extends number | PointDefinitionLinear> = {
+export type TubeBloomPrePassLight<T extends number | DifficultyPointsLinear> = {
     colorAlphaMultiplier?: T
     bloomFogIntensityMultiplier?: T
 }
@@ -70,14 +70,14 @@ export type RawGeometryMaterial = {
 }
 
 /** All components on environment objects. */
-export type Components<N extends number | PointDefinitionLinear = number> = {
+export type Components<N extends number | DifficultyPointsLinear = number> = {
     ILightWithId?: ILightWithId<N>
     TubeBloomPrePassLight?: TubeBloomPrePassLight<N>
 }
 
 /** The "ILightWithId" environment component.
  * Allows both animated and non animated variants. */
-export type ILightWithId<T extends number | PointDefinitionLinear> = {
+export type ILightWithId<T extends number | DifficultyPointsLinear> = {
     lightID?: T
     type?: T
 }

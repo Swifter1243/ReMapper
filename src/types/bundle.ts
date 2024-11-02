@@ -2,8 +2,8 @@ import { Material } from '../utils/bundle/material.ts'
 import { Prefab } from '../utils/bundle/prefab.ts'
 
 import { ColorVec, Vec4 } from './math/vector.ts'
-import { RuntimePointDefinitionLinear } from './animation/keyframe/runtime/linear.ts'
-import { RuntimePointDefinitionVec4 } from './animation/keyframe/runtime/vec4.ts'
+import { RuntimeDifficultyPointsLinear } from './animation/points/runtime/linear.ts'
+import { RuntimeDifficultyPointsVec4 } from './animation/points/runtime/vec4.ts'
 import { FILEPATH } from './beatmap/file.ts'
 import { MATERIAL_PROP_TYPE } from './vivify/material.ts'
 
@@ -60,9 +60,9 @@ export type MaterialPropertyValues<T extends MaterialProperties = MaterialProper
 /** Converts a `MATERIAL_PROP_TYPE` to it's corresponding value. */
 export type MaterialPropertyMap = {
     'Texture': FILEPATH
-    'Float': number | RuntimePointDefinitionLinear
-    'Color': ColorVec | RuntimePointDefinitionVec4
-    'Vector': Vec4 | RuntimePointDefinitionVec4
+    'Float': number | RuntimeDifficultyPointsLinear
+    'Color': ColorVec | RuntimeDifficultyPointsVec4
+    'Vector': Vec4 | RuntimeDifficultyPointsVec4
 }
 
 

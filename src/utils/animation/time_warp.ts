@@ -1,12 +1,12 @@
-import { areKeyframesSimple, complexifyKeyframes } from './keyframe/complexity.ts'
-import { getKeyframeEasing, getKeyframeFlagIndex, getKeyframeTimeIndex } from './keyframe/get.ts'
-import { setKeyframeEasing } from './keyframe/set.ts'
+import { arePointsSimple, complexifyPoints } from './points/complexity.ts'
+import { getPointEasing, getPointFlagIndex, getPointTimeIndex } from './points/get.ts'
+import { setPointEasing } from './points/set.ts'
 
-import {iterateKeyframes} from "./keyframe/iterate.ts";
+import {iteratePoints} from "./points/iterate.ts";
 import {arrayRemove} from "../array/mutate.ts";
 import {copy} from "../object/copy.ts";
 import {EASE} from "../../types/animation/easing.ts";
-import {ComplexKeyframesAbstract, RawKeyframesAbstract} from "../../types/animation/keyframe/abstract.ts";
+import {ComplexPointsAbstract, RawPointsAbstract} from "../../types/animation/points/abstract.ts";
 import {NumberTuple} from "../../types/util/tuple.ts";
 
 /**
@@ -14,43 +14,43 @@ import {NumberTuple} from "../../types/util/tuple.ts";
  * @param animation Animation to reverse.
  */
 export function reverseAnimation<T extends NumberTuple>(
-    animation: RawKeyframesAbstract<T>,
+    animation: RawPointsAbstract<T>,
 ) {
-    if (areKeyframesSimple(animation)) return animation
-    const keyframes: ComplexKeyframesAbstract<T> = []
-    ;(animation as ComplexKeyframesAbstract<T>).forEach((x, i) => {
+    if (arePointsSimple(animation)) return animation
+    const points: ComplexPointsAbstract<T> = []
+    ;(animation as ComplexPointsAbstract<T>).forEach((x, i) => {
         const k = copy<typeof x>(x)
-        const timeIndex = getKeyframeTimeIndex(k)
+        const timeIndex = getPointTimeIndex(k)
         k[timeIndex] = 1 - (k as number[])[timeIndex]
-        keyframes[animation.length - 1 - i] = k
+        points[animation.length - 1 - i] = k
     })
 
-    for (let i = keyframes.length - 1; i >= 0; i--) {
-        const current = keyframes[i]
-        const currentEasing = getKeyframeEasing(current)
+    for (let i = points.length - 1; i >= 0; i--) {
+        const current = points[i]
+        const currentEasing = getPointEasing(current)
 
         if (currentEasing) {
             if (currentEasing && !currentEasing.includes('InOut')) {
                 if (currentEasing.includes('In')) {
-                    setKeyframeEasing(
+                    setPointEasing(
                         current,
                         currentEasing.replace('In', 'Out') as EASE,
                     )
                 } else if (currentEasing.includes('Out')) {
-                    setKeyframeEasing(
+                    setPointEasing(
                         current,
                         currentEasing.replace('Out', 'In') as EASE,
                     )
                 }
             }
 
-            const last = keyframes[i + 1]
-            setKeyframeEasing(last, getKeyframeEasing(current))
-            arrayRemove(current, getKeyframeFlagIndex(current, 'ease', false))
+            const last = points[i + 1]
+            setPointEasing(last, getPointEasing(current))
+            arrayRemove(current, getPointFlagIndex(current, 'ease', false))
         }
     }
 
-    return keyframes
+    return points
 }
 
 /**
@@ -58,23 +58,23 @@ export function reverseAnimation<T extends NumberTuple>(
  * @param animation Animation to mirror.
  */
 export function mirrorAnimation<T extends NumberTuple>(
-    animation: RawKeyframesAbstract<T>,
+    animation: RawPointsAbstract<T>,
 ) {
-    if (complexifyKeyframes(animation).length === 1) return animation
+    if (complexifyPoints(animation).length === 1) return animation
 
     const reversedAnim = reverseAnimation(animation)
-    const output: ComplexKeyframesAbstract<T> = []
+    const output: ComplexPointsAbstract<T> = []
 
-    iterateKeyframes(animation, (x) => {
+    iteratePoints(animation, (x) => {
         const k = copy<typeof x>(x)
-        const timeIndex = getKeyframeTimeIndex(k)
+        const timeIndex = getPointTimeIndex(k)
         k[timeIndex] = (k as number[])[timeIndex] / 2
         output.push(k)
     })
 
-    iterateKeyframes(reversedAnim, (x) => {
+    iteratePoints(reversedAnim, (x) => {
         const k = copy<typeof x>(x)
-        const timeIndex = getKeyframeTimeIndex(k)
+        const timeIndex = getPointTimeIndex(k)
         k[timeIndex] = (k as number[])[timeIndex] / 2 + 0.5
         output.push(k)
     })

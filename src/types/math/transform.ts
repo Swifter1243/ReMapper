@@ -1,7 +1,7 @@
 import {Vec3} from './vector.ts'
 
 
-import {RawKeyframesVec3} from "../animation/keyframe/vec3.ts";
+import {RawPointsVec3} from "../animation/points/vec3.ts";
 
 /** Describes a transformation. Full information of the transformation is required. */
 export type FullTransform = {
@@ -22,9 +22,9 @@ export type Transform = Partial<FullTransform>
 
 /** Describes a transformation, animated. Full information of the transformation is required. */
 export type FullAnimatedTransform = {
-    position: RawKeyframesVec3
-    rotation: RawKeyframesVec3
-    scale: RawKeyframesVec3
+    position: RawPointsVec3
+    rotation: RawPointsVec3
+    scale: RawPointsVec3
 }
 
 /** Describes a transformation, animated.

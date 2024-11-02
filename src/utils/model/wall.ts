@@ -1,20 +1,20 @@
 // deno-lint-ignore-file
 
-import { AnimationSettings, optimizeKeyframes } from '../animation/optimizer.ts'
+import { AnimationSettings, optimizePoints } from '../animation/optimizer.ts'
 import { wall } from '../../builder_functions/beatmap/object/gameplay_object/wall.ts'
 import { getModel } from './file.ts'
-import { areKeyframesSimple, complexifyKeyframes, simplifyKeyframes } from '../animation/keyframe/complexity.ts'
-import { getKeyframeTimeIndex } from '../animation/keyframe/get.ts'
+import { arePointsSimple, complexifyPoints, simplifyPoints } from '../animation/points/complexity.ts'
+import { getPointTimeIndex } from '../animation/points/get.ts'
 import { bakeAnimation } from '../animation/bake.ts'
 import { worldToWall } from '../beatmap/object/wall/world_to_wall.ts'
 import { copy } from '../object/copy.ts'
 import { ColorVec, Vec3 } from '../../types/math/vector.ts'
 import { Transform } from '../../types/math/transform.ts'
-import { ComplexKeyframesVec3 } from '../../types/animation/keyframe/vec3.ts'
+import { ComplexPointsVec3 } from '../../types/animation/points/vec3.ts'
 import { ModelObject, ReadonlyModel } from '../../types/model/object.ts'
 import { Wall } from '../../internals/beatmap/object/gameplay_object/wall.ts'
 import {AbstractDifficulty} from "../../internals/beatmap/abstract_beatmap.ts";
-import {RawKeyframesAny} from "../../types/animation/keyframe/any.ts";
+import {RawPointsAny} from "../../types/animation/points/any.ts";
 
 let modelToWallCount = 0
 
@@ -44,9 +44,9 @@ export async function modelToWall(
 
         function isAnimated(obj: ModelObject) {
             return (
-                !areKeyframesSimple(obj.position) ||
-                !areKeyframesSimple(obj.rotation) ||
-                !areKeyframesSimple(obj.scale)
+                !arePointsSimple(obj.position) ||
+                !arePointsSimple(obj.rotation) ||
+                !arePointsSimple(obj.scale)
             )
         }
 
@@ -68,18 +68,18 @@ export async function modelToWall(
             function processFileObject(x: ModelObject) {
                 const objectIsAnimated = isAnimated(x)
 
-                const position = complexifyKeyframes(x.position)
-                const rotation = complexifyKeyframes(x.rotation)
-                const scale = complexifyKeyframes(x.scale)
+                const position = complexifyPoints(x.position)
+                const rotation = complexifyPoints(x.rotation)
+                const scale = complexifyPoints(x.scale)
 
                 function getVec3(
-                    keyframes: ComplexKeyframesVec3,
+                    points: ComplexPointsVec3,
                     index: number,
                 ): Vec3 {
                     return [
-                        keyframes[index][0],
-                        keyframes[index][1],
-                        keyframes[index][2],
+                        points[index][0],
+                        points[index][1],
+                        points[index][2],
                     ]
                 }
 
@@ -99,9 +99,9 @@ export async function modelToWall(
                     scale[i] = [...wtw.scale, scale[i][3]]
                 }
 
-                x.position = optimizeKeyframes(position, animationSettings!.optimizeSettings)
-                x.rotation = optimizeKeyframes(rotation, animationSettings!.optimizeSettings)
-                x.scale = optimizeKeyframes(scale, animationSettings!.optimizeSettings)
+                x.position = optimizePoints(position, animationSettings!.optimizeSettings)
+                x.rotation = optimizePoints(rotation, animationSettings!.optimizeSettings)
+                x.scale = optimizePoints(scale, animationSettings!.optimizeSettings)
             }
 
             return await getModel(input, `modelToWall_${modelToWallCount}`, (o) => {
@@ -120,9 +120,9 @@ export async function modelToWall(
                     k.scale = wtw.scale
                 })
 
-                o.position = simplifyKeyframes(anim.position)
-                o.rotation = simplifyKeyframes(anim.rotation)
-                o.scale = simplifyKeyframes(anim.scale)
+                o.position = simplifyPoints(anim.position)
+                o.rotation = simplifyPoints(anim.rotation)
+                o.scale = simplifyPoints(anim.scale)
 
                 return o
             })
@@ -137,14 +137,14 @@ export async function modelToWall(
             if (x.color) wall.chromaColor = copy(x.color) as ColorVec
 
             // Copy rotation
-            if (areKeyframesSimple(x.rotation)) {
+            if (arePointsSimple(x.rotation)) {
                 wall.localRotation = copy(x.rotation) as Vec3
             } else {
                 wall.animation.localRotation = copy(x.rotation)
             }
 
             // Copy scale
-            if (areKeyframesSimple(x.scale)) wall.size = copy(x.scale) as Vec3
+            if (arePointsSimple(x.scale)) wall.size = copy(x.scale) as Vec3
             else {
                 wall.size = [1, 1, 1]
                 wall.animation.scale = copy(x.scale)
@@ -158,12 +158,12 @@ export async function modelToWall(
                 const animationOffset = 1 - squish
 
                 for (const key in wall.animation) {
-                    const keyframes = wall.animation[key]!
-                    if (typeof keyframes === 'string') continue
+                    const points = wall.animation[key]!
+                    if (typeof points === 'string') continue
 
-                    const complexKeyframes = complexifyKeyframes(keyframes as RawKeyframesAny)
-                    complexKeyframes.forEach((k) => {
-                        const timeIndex = getKeyframeTimeIndex(k)
+                    const complexPoints = complexifyPoints(points as RawPointsAny)
+                    complexPoints.forEach((k) => {
+                        const timeIndex = getPointTimeIndex(k)
                         k[timeIndex] = (k[timeIndex] as number) * squish + animationOffset
                     })
                 }

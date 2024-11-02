@@ -1,7 +1,7 @@
 import {parseFilePath} from "../file.ts";
 import {attachWorkingDirectory} from "../../data/working_directory.ts";
 
-import {RawKeyframesVec3} from "../../types/animation/keyframe/vec3.ts";
+import {RawPointsVec3} from "../../types/animation/points/vec3.ts";
 import {FILEPATH} from "../../types/beatmap/file.ts";
 import {ModelObject, ReadonlyModel} from "../../types/model/object.ts";
 import {cacheData} from "../rm_cache/write.ts";
@@ -29,8 +29,8 @@ export async function getModel(
 
     type OldModelObject = ModelObject & {
         track?: string
-        pos?: RawKeyframesVec3
-        rot?: RawKeyframesVec3
+        pos?: RawPointsVec3
+        rot?: RawPointsVec3
     }
 
     return cacheData(name, async () => {

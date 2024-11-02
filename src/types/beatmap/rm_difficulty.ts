@@ -24,7 +24,7 @@ import {ColorNote} from "../../internals/beatmap/object/gameplay_object/color_no
 import {Bomb} from "../../internals/beatmap/object/gameplay_object/bomb.ts";
 import {Arc} from "../../internals/beatmap/object/gameplay_object/arc.ts";
 
-import {RuntimeRawKeyframesAny} from "../animation/keyframe/runtime/any.ts";
+import {RuntimeRawPointsAny} from "../animation/points/runtime/any.ts";
 import {BeatmapCustomEvents} from "./object/custom_event.ts";
 
 /** Everything that should be in a difficulty class */
@@ -54,7 +54,7 @@ export interface RMDifficulty {
 
     customEvents: BeatmapCustomEvents
 
-    pointDefinitions: Record<string, RuntimeRawKeyframesAny>
+    pointDefinitions: Record<string, RuntimeRawPointsAny>
     customData: Record<string, unknown>
     environment: Environment[]
     geometry: Geometry[]

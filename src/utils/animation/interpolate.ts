@@ -1,11 +1,11 @@
 import {
-    getKeyframeEasing,
-    getKeyframeHSVLerp,
-    getKeyframeSpline,
-    getKeyframeTime,
-    getKeyframeValues,
-} from './keyframe/get.ts'
-import {areKeyframesSimple} from './keyframe/complexity.ts'
+    getPointEasing,
+    getPointHSVLerp,
+    getPointSpline,
+    getPointTime,
+    getPointValues,
+} from './points/get.ts'
+import {arePointsSimple} from './points/complexity.ts'
 import {arrayAdd, arrayLerp, arrayMultiply} from "../array/operation.ts";
 import {arrayLastElement} from "../array/find.ts";
 import {inverseLerp, lerpRotation} from "../math/lerp.ts";
@@ -13,38 +13,38 @@ import * as easings from "../math/easing_functions.ts";
 import {lerpHSV} from "../color/lerp.ts";
 import {Vec3, Vec4} from "../../types/math/vector.ts";
 import {EASE} from "../../types/animation/easing.ts";
-import {RawKeyframesAbstract} from "../../types/animation/keyframe/abstract.ts";
-import {ComplexKeyframesAny} from "../../types/animation/keyframe/any.ts";
-import {ComplexKeyframesBoundless, InnerKeyframeBoundless} from "../../types/animation/keyframe/boundless.ts";
+import {RawPointsAbstract} from "../../types/animation/points/abstract.ts";
+import {ComplexPointsAny} from "../../types/animation/points/any.ts";
+import {ComplexPointsBoundless, InnerPointBoundless} from "../../types/animation/points/boundless.ts";
 import {AnimationKeys} from "../../types/animation/properties/keys.ts";
 import {DeepReadonly} from "../../types/util/mutability.ts";
 
 /**
- * Get the value of keyframes at a given time.
+ * Get the value of points at a given time.
  * @param property The property this animation came from.
- * @param animation The keyframes.
+ * @param animation The points.
  * @param time The time to get the value at.
  */
-export function getKeyframeValuesAtTime<
+export function getPointValuesAtTime<
     T extends number[],
     K extends string = AnimationKeys,
 >(
     property: K,
-    animation: DeepReadonly<RawKeyframesAbstract<T>>,
+    animation: DeepReadonly<RawPointsAbstract<T>>,
     time: number,
 ): T {
-    if (areKeyframesSimple(animation as RawKeyframesAbstract<T>)) {
+    if (arePointsSimple(animation as RawPointsAbstract<T>)) {
         return animation as T
     }
 
-    const complexAnimation = animation as ComplexKeyframesAny
+    const complexAnimation = animation as ComplexPointsAny
 
-    const timeInfo = timeInKeyframes(time, complexAnimation)
+    const timeInfo = timeInPoints(time, complexAnimation)
     if (timeInfo.interpolate && timeInfo.r && timeInfo.l) {
-        const lValues = getKeyframeValues(timeInfo.l)
-        const rValues = getKeyframeValues(timeInfo.r)
-        const rHSVLerp = getKeyframeHSVLerp(timeInfo.r)
-        const rSpline = getKeyframeSpline(timeInfo.r)
+        const lValues = getPointValues(timeInfo.l)
+        const rValues = getPointValues(timeInfo.r)
+        const rHSVLerp = getPointHSVLerp(timeInfo.r)
+        const rSpline = getPointSpline(timeInfo.r)
 
         if (
             property === 'rotation' ||
@@ -75,24 +75,24 @@ export function getKeyframeValuesAtTime<
             ) as T
         }
     }
-    return getKeyframeValues(
+    return getPointValues(
         timeInfo.l!,
     ) as T
 }
 
 function splineCatmullRomLerp(
-    timeInfo: Required<ReturnType<typeof timeInKeyframes>>,
-    animation: ComplexKeyframesAny,
+    timeInfo: Required<ReturnType<typeof timeInPoints>>,
+    animation: ComplexPointsAny,
 ) {
-    const p1 = getKeyframeValues(timeInfo.l)
-    const p2 = getKeyframeValues(timeInfo.r)
+    const p1 = getPointValues(timeInfo.l)
+    const p2 = getPointValues(timeInfo.r)
 
     const p0 = timeInfo.leftIndex - 1 < 0
         ? p1
-        : getKeyframeValues(animation[timeInfo.leftIndex - 1])
+        : getPointValues(animation[timeInfo.leftIndex - 1])
     const p3 = timeInfo.rightIndex + 1 > animation.length - 1
         ? p2
-        : getKeyframeValues(animation[timeInfo.rightIndex + 1])
+        : getPointValues(animation[timeInfo.rightIndex + 1])
 
     const t = timeInfo.normalTime
     const tt = t * t
@@ -111,14 +111,14 @@ function splineCatmullRomLerp(
     return arrayMultiply(arrayAdd(arrayAdd(o0, o1), arrayAdd(o2, o3)), 0.5)
 }
 
-function timeInKeyframes(time: number, animation: ComplexKeyframesBoundless) {
-    let l: InnerKeyframeBoundless
+function timeInPoints(time: number, animation: ComplexPointsBoundless) {
+    let l: InnerPointBoundless
     let normalTime = 0
 
     if (animation.length === 0) return { interpolate: false }
 
     const first = animation[0]
-    const firstTime = getKeyframeTime(first)
+    const firstTime = getPointTime(first)
 
     if (firstTime >= time) {
         l = first
@@ -126,7 +126,7 @@ function timeInKeyframes(time: number, animation: ComplexKeyframesBoundless) {
     }
 
     const last = arrayLastElement(animation)
-    const lastTime = getKeyframeTime(last)
+    const lastTime = getPointTime(last)
 
     if (lastTime <= time) {
         l = last
@@ -138,17 +138,17 @@ function timeInKeyframes(time: number, animation: ComplexKeyframesBoundless) {
 
     while (leftIndex < rightIndex - 1) {
         const m = Math.floor((leftIndex + rightIndex) / 2)
-        const pointTime = getKeyframeTime(animation[m])
+        const pointTime = getPointTime(animation[m])
 
         if (pointTime < time) leftIndex = m
         else rightIndex = m
     }
 
     l = animation[leftIndex]
-    const lTime = getKeyframeTime(l)
+    const lTime = getPointTime(l)
     const r = animation[rightIndex]
-    const rTime = getKeyframeTime(r)
-    const rEasing = getKeyframeEasing(r)
+    const rTime = getPointTime(r)
+    const rEasing = getPointEasing(r)
 
     normalTime = inverseLerp(lTime, rTime, time)
     if (rEasing) normalTime = applyEasing(rEasing, normalTime)

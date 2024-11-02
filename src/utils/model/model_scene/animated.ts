@@ -1,7 +1,7 @@
 import { ModelScene } from './base.ts'
 import { SceneSwitch } from '../../../types/model/model_scene/scene_switch.ts'
 import { AnimateTrack } from '../../../internals/beatmap/object/custom_event/heck/animate_track.ts'
-import { complexifyKeyframes } from '../../animation/keyframe/complexity.ts'
+import { complexifyPoints } from '../../animation/points/complexity.ts'
 import { animateTrack } from '../../../builder_functions/beatmap/object/custom_event/heck.ts'
 import {ColorVec, Vec3, Vec4} from '../../../types/math/vector.ts'
 import { Geometry } from '../../../internals/beatmap/object/environment/geometry.ts'
@@ -11,7 +11,7 @@ import { ModelObject } from '../../../types/model/object.ts'
 import { MultiSceneInfo, SceneSwitchInfo } from '../../../types/model/model_scene/scene_info.ts'
 import {AnimatedSceneMaterial, ScenePromises} from '../../../types/model/model_scene/animated.ts'
 import { AbstractDifficulty } from '../../../internals/beatmap/abstract_beatmap.ts'
-import {RawKeyframesVec3} from "../../../types/animation/keyframe/vec3.ts";
+import {RawPointsVec3} from "../../../types/animation/points/vec3.ts";
 
 export class AnimatedModelScene extends ModelScene<SceneSwitch[], ScenePromises, MultiSceneInfo> {
     protected override _createModelPromise(input: SceneSwitch[]): ScenePromises {
@@ -153,9 +153,9 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], ScenePromises,
 
         const objects = await this.modelPromise[switchIndex].model
         objects.forEach((modelObject) => {
-            const objectIsStatic = complexifyKeyframes(modelObject.position).length === 1 &&
-                complexifyKeyframes(modelObject.rotation).length === 1 &&
-                complexifyKeyframes(modelObject.scale).length === 1
+            const objectIsStatic = complexifyPoints(modelObject.position).length === 1 &&
+                complexifyPoints(modelObject.rotation).length === 1 &&
+                complexifyPoints(modelObject.scale).length === 1
 
             // Getting info about group
             const groupKey = modelObject.group ?? ModelScene.defaultGroupKey
@@ -231,9 +231,9 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], ScenePromises,
             // Make animation event
             const animationStart = sceneSwitch.beat + sceneSwitch.animationOffset!
             const event = animateTrack(difficulty, animationStart, track, sceneSwitch.animationDuration)
-            event.animation.position = modelObject.position as RawKeyframesVec3
-            event.animation.rotation = modelObject.rotation as RawKeyframesVec3
-            event.animation.scale = modelObject.scale as RawKeyframesVec3
+            event.animation.position = modelObject.position as RawPointsVec3
+            event.animation.rotation = modelObject.rotation as RawPointsVec3
+            event.animation.scale = modelObject.scale as RawPointsVec3
 
             // Apply loops if necessary
             if (sceneSwitch.loop && sceneSwitch.loop > 1 && !objectIsStatic) {

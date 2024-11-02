@@ -1,25 +1,25 @@
-import { AnimationSettings, optimizeKeyframes } from './optimizer.ts'
+import { AnimationSettings, optimizePoints } from './optimizer.ts'
 import { getAnimatedObjectDomain } from './domain.ts'
-import { getKeyframeValuesAtTime } from './interpolate.ts'
+import { getPointValuesAtTime } from './interpolate.ts'
 import {ceilTo, floorTo} from "../math/rounding.ts";
 import {AnimatedTransform, type FullAnimatedTransform} from "../../types/math/transform.ts";
 
-import {ComplexKeyframesVec3} from "../../types/animation/keyframe/vec3.ts";
+import {ComplexPointsVec3} from "../../types/animation/points/vec3.ts";
 import {TransformKeyframe} from "../../types/animation/bake.ts";
 import {DeepReadonly} from "../../types/util/mutability.ts";
 import { EPSILON } from '../../constants/math.ts'
 
 /**
- * Generate keyframes from an animation.
+ * Generate points from an animation.
  * Useful for doing things such as having objects rotate around points other than their anchor.
- * @param animation The keyframes for various transforms.
- * @param forKeyframe Runs for each generated keyframe.
+ * @param animation The points for various transforms.
+ * @param forPoint Runs for each generated points.
  * @param animationSettings Settings to process the animation.
  * @param domain Precalculated minimum and maximum times for the animation to be baked.
  */
 export function bakeAnimation(
     animation: DeepReadonly<AnimatedTransform>,
-    forKeyframe?: (transform: TransformKeyframe) => void,
+    forPoint?: (transform: TransformKeyframe) => void,
     animationSettings?: AnimationSettings,
     domain?: { min: number; max: number },
 ): FullAnimatedTransform {
@@ -30,9 +30,9 @@ export function bakeAnimation(
     const scale = animation.scale ?? [1, 1, 1]
 
     const data = {
-        position: <ComplexKeyframesVec3> [],
-        rotation: <ComplexKeyframesVec3> [],
-        scale: <ComplexKeyframesVec3> [],
+        position: <ComplexPointsVec3> [],
+        rotation: <ComplexPointsVec3> [],
+        scale: <ComplexPointsVec3> [],
     }
     const invBakeFreq = 1 / (animationSettings.bakeSampleFrequency - 1)
 
@@ -45,30 +45,30 @@ export function bakeAnimation(
         i <= totalMax + EPSILON;
         i += invBakeFreq
     ) {
-        const keyframe = {
-            position: getKeyframeValuesAtTime('position', position, i),
-            rotation: getKeyframeValuesAtTime('rotation', rotation, i),
-            scale: getKeyframeValuesAtTime('scale', scale, i),
+        const point = {
+            position: getPointValuesAtTime('position', position, i),
+            rotation: getPointValuesAtTime('rotation', rotation, i),
+            scale: getPointValuesAtTime('scale', scale, i),
             time: i,
         } satisfies TransformKeyframe
 
-        if (forKeyframe) forKeyframe(keyframe)
+        if (forPoint) forPoint(point)
 
-        data.position.push([...keyframe.position, keyframe.time])
-        data.rotation.push([...keyframe.rotation, keyframe.time])
-        data.scale.push([...keyframe.scale, keyframe.time])
+        data.position.push([...point.position, point.time])
+        data.rotation.push([...point.rotation, point.time])
+        data.scale.push([...point.scale, point.time])
     }
 
     return {
-        position: optimizeKeyframes(
+        position: optimizePoints(
             data.position,
             animationSettings.optimizeSettings,
         ),
-        rotation: optimizeKeyframes(
+        rotation: optimizePoints(
             data.rotation,
             animationSettings.optimizeSettings,
         ),
-        scale: optimizeKeyframes(
+        scale: optimizePoints(
             data.scale,
             animationSettings.optimizeSettings,
         ),
