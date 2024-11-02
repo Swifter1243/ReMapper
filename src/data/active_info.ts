@@ -3,11 +3,18 @@ import {getInfoLocation} from "../utils/beatmap/info/location.ts";
 import {AbstractInfo} from "../internals/beatmap/info/abstract_info.ts";
 import {V2Info} from "../internals/beatmap/info/info_v2.ts";
 import {InfoJson} from "../types/beatmap/info/rm_info.ts";
+import {REMAPPER_VERSION} from "../constants/package.ts";
 
 let activeInfo: AbstractInfo
 
 export function saveActiveInfo() {
     if (!activeInfo) return
+
+    activeInfo.editors ??= {}
+    activeInfo.editors._lastEditedBy = "ReMapper"
+    activeInfo.editors["ReMapper"] = {
+        version: REMAPPER_VERSION
+    }
 
     Deno.writeTextFileSync(getInfoLocation(), JSON.stringify(activeInfo.toJSON(), null, 4))
     RMLog('Info.dat successfully saved!')
