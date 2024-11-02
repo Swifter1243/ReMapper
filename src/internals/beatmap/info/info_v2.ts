@@ -13,13 +13,21 @@ import { SettingsSetter } from '../../../types/beatmap/info/settings_setter.ts'
 type RawSettingsSetter = (bsmap.IHeckInfoCustomData & bsmap.IChromaInfoCustomData)['_settings']
 
 export class V2Info extends AbstractInfo<bsmap.v2.IInfo> {
+    /** The mapper's name. */
     levelAuthorName: string
+    /** Deprecated. */
     shuffle: number
+    /** Deprecated. */
     shufflePeriod: number
+    /** The environment used for 360 maps. */
     allDirectionEnvironmentName: bsmap.Environment360Name
+    /** The environment name used. */
     environmentName: bsmap.EnvironmentName | bsmap.EnvironmentV3Name
+    /** Deprecated. */
     songTimeOffset: number
+    /** Deprecated. */
     customEnvironment: string | undefined
+    /** Deprecated. */
     customEnvironmentHash: string | undefined
 
     declare audio: IAudioInfoV2
@@ -86,8 +94,8 @@ export class V2Info extends AbstractInfo<bsmap.v2.IInfo> {
                     beatmapColorSchemeIdx: beatmap._beatmapColorSchemeIdx,
                     characteristic: infoSet._beatmapCharacteristicName,
                     environmentNameIdx: beatmap._environmentNameIdx,
-                    noteJumpMovementSpeed: beatmap._noteJumpMovementSpeed,
-                    noteJumpStartBeatOffset: beatmap._noteJumpStartBeatOffset,
+                    noteJumpSpeed: beatmap._noteJumpMovementSpeed,
+                    noteJumpOffset: beatmap._noteJumpStartBeatOffset,
 
                     difficultyLabel: getCDProp(beatmap, '_difficultyLabel'),
                     requirements: getCDProp(beatmap, '_requirements') as REQUIRE_MODS[],
@@ -118,8 +126,8 @@ export class V2Info extends AbstractInfo<bsmap.v2.IInfo> {
                 _beatmapFilename: beatmap.beatmapDataFilename,
                 _difficultyRank: DIFFICULTY_TO_RANK[beatmap.difficulty],
                 _beatmapColorSchemeIdx: beatmap.beatmapColorSchemeIdx,
-                _noteJumpMovementSpeed: beatmap.noteJumpMovementSpeed,
-                _noteJumpStartBeatOffset: beatmap.noteJumpStartBeatOffset,
+                _noteJumpMovementSpeed: beatmap.noteJumpSpeed,
+                _noteJumpStartBeatOffset: beatmap.noteJumpOffset,
                 _environmentNameIdx: beatmap.environmentNameIdx,
                 _customData: objectPrune({
                     _requirements: beatmap.requirements,

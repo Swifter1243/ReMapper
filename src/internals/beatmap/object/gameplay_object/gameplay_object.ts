@@ -98,13 +98,13 @@ export abstract class BeatmapGameplayObject<
     /** The speed of this object in units (meters) per second.
      * Refers to the difficulty if undefined. */
     get implicitNoteJumpSpeed() {
-        return this.noteJumpSpeed ?? this.parent.difficultyInfo.noteJumpMovementSpeed
+        return this.noteJumpSpeed ?? this.parent.difficultyInfo.noteJumpSpeed
     }
 
     /** The offset added to the position where this object "jumps" in.
      * Refers to the difficulty if undefined. */
     get implicitNoteJumpOffset() {
-        return this.noteJumpOffset ?? this.parent.difficultyInfo.noteJumpStartBeatOffset
+        return this.noteJumpOffset ?? this.parent.difficultyInfo.noteJumpOffset
     }
 
     /**
@@ -223,7 +223,7 @@ export abstract class BeatmapGameplayObject<
 
     protected getForcedOffset() {
         if (settings.forceNoteJumpOffset) {
-            return this.noteJumpOffset ?? this.parent.difficultyInfo.noteJumpStartBeatOffset
+            return this.noteJumpOffset ?? this.parent.difficultyInfo.noteJumpOffset
         } else {
             return this.noteJumpOffset
         }
@@ -231,7 +231,7 @@ export abstract class BeatmapGameplayObject<
 
     protected getForcedNJS() {
         if (settings.forceNoteJumpSpeed) {
-            return this.noteJumpSpeed ?? this.parent.difficultyInfo.noteJumpMovementSpeed
+            return this.noteJumpSpeed ?? this.parent.difficultyInfo.noteJumpSpeed
         } else {
             return this.noteJumpSpeed
         }
