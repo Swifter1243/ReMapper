@@ -39,7 +39,7 @@ export function communityBpmEvent(
 
     return new CommunityBPMEvent(parentDifficulty, {
         beat,
-        bpm,
+        beatsPerMinute: bpm,
         mediocreMapper,
         beatsPerBar,
         metronomeOffset,

@@ -1,7 +1,7 @@
 export type IAudioInfo = IAudioInfoV2 | IAudioInfoV4
 export type IAudioInfoV2 = {
     songFilename: string
-    bpm: number
+    beatsPerMinute: number
     previewStartTime: number
     previewDuration: number
 }

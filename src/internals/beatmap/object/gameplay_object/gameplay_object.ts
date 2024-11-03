@@ -116,14 +116,14 @@ export abstract class BeatmapGameplayObject<
         return getJumps(
             this.implicitNoteJumpSpeed,
             this.implicitNoteJumpOffset,
-            getActiveInfo().audio.bpm,
+            getActiveInfo().audio.beatsPerMinute,
         ).halfDuration
     }
     set halfJumpDuration(value: number) {
         this.noteJumpOffset = getOffsetFromHalfJumpDuration(
             value,
             this.implicitNoteJumpSpeed,
-            getActiveInfo().audio.bpm,
+            getActiveInfo().audio.beatsPerMinute,
         )
     }
 
@@ -135,14 +135,14 @@ export abstract class BeatmapGameplayObject<
         return getJumps(
             this.implicitNoteJumpSpeed,
             this.implicitNoteJumpOffset,
-            getActiveInfo().audio.bpm,
+            getActiveInfo().audio.beatsPerMinute,
         ).jumpDistance
     }
     set jumpDistance(value: number) {
         this.noteJumpOffset = getOffsetFromJumpDistance(
             value,
             this.implicitNoteJumpSpeed,
-            getActiveInfo().audio.bpm,
+            getActiveInfo().audio.beatsPerMinute,
         )
     }
 
@@ -151,14 +151,14 @@ export abstract class BeatmapGameplayObject<
         return getReactionTime(
             this.implicitNoteJumpSpeed,
             this.implicitNoteJumpOffset,
-            getActiveInfo().audio.bpm,
+            getActiveInfo().audio.beatsPerMinute,
         )
     }
     set reactionTime(value: number) {
         this.noteJumpOffset = getOffsetFromReactionTime(
             value,
             this.implicitNoteJumpSpeed,
-            getActiveInfo().audio.bpm,
+            getActiveInfo().audio.beatsPerMinute,
         )
     }
 
@@ -187,7 +187,7 @@ export abstract class BeatmapGameplayObject<
         this.noteJumpOffset = getOffsetFromHalfJumpDuration(
             value / 2,
             this.implicitNoteJumpSpeed,
-            getActiveInfo().audio.bpm,
+            getActiveInfo().audio.beatsPerMinute,
         )
     }
 

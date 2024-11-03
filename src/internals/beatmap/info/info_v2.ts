@@ -356,7 +356,7 @@ export class V2Info extends AbstractInfo<bsmap.v2.IInfo> {
 
         super(json, {
             audio: {
-                bpm: json._beatsPerMinute,
+                beatsPerMinute: json._beatsPerMinute,
                 previewDuration: json._previewDuration,
                 previewStartTime: json._previewStartTime,
                 songFilename: json._songFilename,
@@ -397,7 +397,7 @@ export class V2Info extends AbstractInfo<bsmap.v2.IInfo> {
             _songSubName: this.song.subTitle,
             _songAuthorName: this.song.author,
             _levelAuthorName: this.json._levelAuthorName,
-            _beatsPerMinute: this.audio.bpm,
+            _beatsPerMinute: this.audio.beatsPerMinute,
             _songFilename: this.audio.songFilename,
             _environmentNames: this.environmentNames,
             _coverImageFilename: this.coverImageFilename,
