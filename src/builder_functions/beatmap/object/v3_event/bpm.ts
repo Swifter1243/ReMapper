@@ -22,6 +22,6 @@ export function officialBpmEvent(
 
     return new OfficialBPMEvent(parentDifficulty, {
         beat,
-        bpm,
+        beatsPerMinute: bpm,
     })
 }

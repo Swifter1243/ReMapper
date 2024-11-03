@@ -12,15 +12,15 @@ export class OfficialBPMEvent extends BPMEvent<
 > implements ConvertableEvent {
     constructor(parentDifficulty: AbstractDifficulty,obj: JsonObjectConstructor<OfficialBPMEvent>) {
         super(parentDifficulty, obj)
-        this.bpm = obj.bpm ?? OfficialBPMEvent.defaults.bpm
+        this.beatsPerMinute = obj.beatsPerMinute ?? OfficialBPMEvent.defaults.beatsPerMinute
     }
 
     /** What BPM this event changes the map to. */
-    bpm: number
+    beatsPerMinute: number
 
     /** The values to initialize fields in this class. */
     static override defaults: JsonObjectDefaults<OfficialBPMEvent> = {
-        bpm: 120,
+        beatsPerMinute: 120,
         ...super.defaults
     }
 
@@ -30,24 +30,24 @@ export class OfficialBPMEvent extends BPMEvent<
 
     fromBasicEvent(json: bsmap.v3.IBasicEvent) {
         this.beat = json.b ?? OfficialBPMEvent.defaults.beat
-        this.bpm = json.f ?? OfficialBPMEvent.defaults.bpm
+        this.beatsPerMinute = json.f ?? OfficialBPMEvent.defaults.beatsPerMinute
         return this
     }
 
     override fromJsonV3(json: bsmap.v3.IBPMEvent): this {
-        this.bpm = json.m ?? OfficialBPMEvent.defaults.bpm
+        this.beatsPerMinute = json.m ?? OfficialBPMEvent.defaults.beatsPerMinute
         return super.fromJsonV3(json);
     }
 
     override fromJsonV2(json: bsmap.v2.IEvent): this {
-        this.bpm = json._floatValue ?? OfficialBPMEvent.defaults.bpm
+        this.beatsPerMinute = json._floatValue ?? OfficialBPMEvent.defaults.beatsPerMinute
         return super.fromJsonV2(json);
     }
 
     toJsonV3(prune?: boolean): bsmap.v3.IBPMEvent {
         const output = {
             b: this.beat,
-            m: this.bpm,
+            m: this.beatsPerMinute,
             customData: undefined,
         } satisfies bsmap.v3.IBPMEvent
         return prune ? objectPrune(output) : output
@@ -56,7 +56,7 @@ export class OfficialBPMEvent extends BPMEvent<
     toJsonV2(prune?: boolean): bsmap.v2.IEvent {
         const output = {
             _time: this.beat,
-            _floatValue: this.bpm,
+            _floatValue: this.beatsPerMinute,
             _type: EventGroup.BPM,
             _value: 0,
             _customData: undefined,
