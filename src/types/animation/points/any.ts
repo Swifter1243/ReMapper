@@ -2,7 +2,7 @@ import {
     ComplexPointsLinear,
     InnerPointLinear,
     DifficultyPointsLinear,
-    RawPointLinear,
+    RawPointsLinear,
 } from './linear.ts'
 import {
     ComplexPointsVec3,
@@ -35,7 +35,7 @@ export type ComplexPointsAny =
  * `[...] | [[..., 0, 'easeInOutExpo']]`
  */
 export type RawPointsAny =
-    | RawPointLinear
+    | RawPointsLinear
     | RawPointsVec3
     | RawPointsVec4
 /** Point or array of points with any amount of values. Allows point definitions.

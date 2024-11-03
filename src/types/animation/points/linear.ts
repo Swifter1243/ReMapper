@@ -15,4 +15,4 @@ export type InnerPointLinear = ComplexPointsLinear[0]
 /** Point or array of points with 1 value.
  * `[[x,time]...]` or `[x]`
  */
-export type RawPointLinear = RawPointsAbstract<[number]>
+export type RawPointsLinear = RawPointsAbstract<[number]>
