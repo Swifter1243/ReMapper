@@ -7,7 +7,7 @@ export const clearPropertyMap = {
     boostEvents: 'Boost Events',
     bpmEvents: 'BPM Events',
     chains: 'Chains',
-    customData: 'Custom Data',
+    unsafeCustomData: 'Custom Data',
     environment: 'Environment',
     fogEvents: 'Fog Events',
     geometry: 'Geometry',

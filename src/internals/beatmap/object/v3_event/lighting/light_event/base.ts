@@ -20,19 +20,19 @@ export abstract class BaseLightEvent<T extends LightBase = LightBase> extends Be
         super(parent)
 
         this.parent = parent
-        this.customData = obj.customData ?? copy(BeatmapObject.defaults.customData)
+        this.unsafeCustomData = obj.unsafeCustomData ?? copy(BeatmapObject.defaults.unsafeCustomData)
         this.beat = (obj.beat as number | undefined) ?? BeatmapObject.defaults.beat
     }
 
     /** The time that this object is scheduled for. */
     beat: number
     /** Any community made properties on this object. */
-    customData: T['customData']
+    unsafeCustomData: T['customData']
 
     /** Default values for initializing class fields */
     static defaults: JsonObjectDefaults<BaseLightEvent> = {
         beat: 0,
-        customData: {}
+        unsafeCustomData: {}
     }
 
     fromJsonV2(_json: never): this {

@@ -103,7 +103,7 @@ export class V2Info extends AbstractInfo<bsmap.v2.IInfo> {
                     warnings: getCDProp(beatmap, '_warnings'),
                     information: getCDProp(beatmap, '_information'),
                     settingsSetter: V2Info.loadSettingsSetter(getCDProp(beatmap, '_settings')),
-                    customData: beatmap._customData,
+                    unsafeCustomData: beatmap._customData,
                 }
             })
         })
@@ -136,7 +136,7 @@ export class V2Info extends AbstractInfo<bsmap.v2.IInfo> {
                     _information: beatmap.information,
                     _warnings: beatmap.warnings,
                     _settings: V2Info.saveSettingsSetter(beatmap.settingsSetter),
-                    ...beatmap.customData,
+                    ...beatmap.unsafeCustomData,
                 }),
             })
         })
@@ -374,7 +374,7 @@ export class V2Info extends AbstractInfo<bsmap.v2.IInfo> {
             assetBundle: getCDProp(json, '_assetBundle'),
             contributors: getCDProp(json, '_contributors'),
             editors: getCDProp(json, '_editors'),
-            customData: json._customData ?? {},
+            unsafeCustomData: json._customData ?? {},
         })
 
         this.levelAuthorName = json._levelAuthorName
@@ -416,7 +416,7 @@ export class V2Info extends AbstractInfo<bsmap.v2.IInfo> {
                 _customEnvironment: this.customEnvironment,
                 _customEnvironmentHash: this.customEnvironmentHash,
                 _assetBundle: this.assetBundle,
-                ...this.customData,
+                ...this.unsafeCustomData,
             }),
         }
     }

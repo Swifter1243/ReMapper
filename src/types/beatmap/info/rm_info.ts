@@ -25,7 +25,7 @@ export interface RMInfo {
     /** Information about the editors used to edit this beatmap. */
     editors: bsmap.IEditor | undefined
     /** Custom data for the entire beatmap. Some properties (e.g. {@link contributors}, {@link editors}, ...etc.) are already extracted. */
-    customData: bsmap.ICustomDataBase
+    unsafeCustomData: bsmap.ICustomDataBase
 }
 
 export type ISongInfo = {

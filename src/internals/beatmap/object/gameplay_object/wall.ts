@@ -132,7 +132,7 @@ export class Wall extends BeatmapGameplayObject<bsmap.v2.IObstacle, bsmap.v3.IOb
                 color: this.chromaColor,
                 uninteractable: this.uninteractable,
                 fake: this.fake,
-                ...this.customData,
+                ...this.unsafeCustomData,
             },
         } satisfies bsmap.v3.IObstacle
         return prune ? objectPrune(output) : output
@@ -157,7 +157,7 @@ export class Wall extends BeatmapGameplayObject<bsmap.v2.IObstacle, bsmap.v3.IOb
                 _color: this.chromaColor,
                 _interactable: exportInvertedBoolean(this.uninteractable, true),
                 _fake: this.fake,
-                ...this.customData,
+                ...this.unsafeCustomData,
             },
         } satisfies bsmap.v2.IObstacle
         return prune ? objectPrune(output) : output

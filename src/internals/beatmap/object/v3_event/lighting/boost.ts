@@ -28,7 +28,7 @@ export class BoostEvent extends BeatmapObject<bsmap.v2.IEvent, bsmap.v3.IColorBo
     fromBasicEvent(json: bsmap.v3.IBasicEventBoost) {
         this.beat = json.b ?? BoostEvent.defaults.beat
         this.boost = json.i !== undefined ? json.i === 1 : BoostEvent.defaults.boost
-        this.customData = json.customData ?? copy(BoostEvent.defaults.customData)
+        this.unsafeCustomData = json.customData ?? copy(BoostEvent.defaults.unsafeCustomData)
         return this
     }
 
@@ -46,7 +46,7 @@ export class BoostEvent extends BeatmapObject<bsmap.v2.IEvent, bsmap.v3.IColorBo
         const output = {
             b: this.beat,
             o: this.boost,
-            customData: this.customData,
+            customData: this.unsafeCustomData,
         } satisfies bsmap.v3.IColorBoostEvent
         return prune ? objectPrune(output) : output
     }
@@ -57,7 +57,7 @@ export class BoostEvent extends BeatmapObject<bsmap.v2.IEvent, bsmap.v3.IColorBo
             _floatValue: 0,
             _type: EventGroup.BOOST,
             _value: this.boost ? 1 : 0,
-            _customData: this.customData,
+            _customData: this.unsafeCustomData,
         } satisfies bsmap.v2.IEvent
         return prune ? objectPrune(output) : output
     }

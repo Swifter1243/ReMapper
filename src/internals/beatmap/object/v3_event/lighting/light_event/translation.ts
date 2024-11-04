@@ -48,7 +48,7 @@ export class LightTranslationEvent extends BaseLightEvent<bsmap.v3.ILightTransla
             e: this.easing as bsmap.v3.ILightTranslationBase['e'],
             p: this.usePreviousEventTranslation ? 1 : 0,
             t: this.magnitude,
-            customData: this.customData,
+            customData: this.unsafeCustomData,
         } satisfies bsmap.v3.ILightTranslationBase
         return prune ? objectPrune(output) : output
     }

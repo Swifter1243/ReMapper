@@ -14,7 +14,7 @@ export class AbstractBasicEvent extends BasicEvent {
             et: this.type,
             f: this.floatValue,
             i: this.value,
-            customData: this.customData,
+            customData: this.unsafeCustomData,
         } satisfies bsmap.v3.IBasicEvent
         return prune ? objectPrune(output) : output
     }
@@ -25,7 +25,7 @@ export class AbstractBasicEvent extends BasicEvent {
             _time: this.beat,
             _type: this.type,
             _value: this.value,
-            _customData: this.customData,
+            _customData: this.unsafeCustomData,
         } satisfies bsmap.v2.IEvent
         return prune ? objectPrune(output) : output
     }

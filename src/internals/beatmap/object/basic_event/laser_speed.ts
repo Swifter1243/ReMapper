@@ -56,7 +56,7 @@ export class LaserSpeedEvent extends BasicEvent<bsmap.v2.IEventLaser, bsmap.v3.I
                 direction: this.direction,
                 lockRotation: this.lockRotation,
                 speed: this.speed,
-                ...this.customData,
+                ...this.unsafeCustomData,
             },
         } satisfies bsmap.v3.IBasicEventLaserRotation
         return prune ? objectPrune(output) : output
@@ -73,7 +73,7 @@ export class LaserSpeedEvent extends BasicEvent<bsmap.v2.IEventLaser, bsmap.v3.I
                 _lockPosition: this.lockRotation,
                 _preciseSpeed: this.speed,
                 _speed: this.speed,
-                ...this.customData,
+                ...this.unsafeCustomData,
             },
         } satisfies bsmap.v2.IEventLaser
         return prune ? objectPrune(output) : output

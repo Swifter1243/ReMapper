@@ -77,7 +77,7 @@ export class ColorNote extends BaseNote<bsmap.v3.IColorNote> {
                 disableBadCutSpeed: this.disableBadCutSpeed,
                 disableBadCutSaberType: this.disableBadCutSaberType,
                 disableDebris: this.disableDebris,
-                ...this.customData,
+                ...this.unsafeCustomData,
             },
         } satisfies bsmap.v3.IColorNote
         return prune ? objectPrune(output) : output
@@ -106,7 +106,7 @@ export class ColorNote extends BaseNote<bsmap.v3.IColorNote> {
                 _rotation: simplifyWorldRotation(this.worldRotation),
                 _fake: this.fake,
                 _cutDirection: this.angleOffset !== 0 ? this.angleOffset : undefined,
-                ...this.customData,
+                ...this.unsafeCustomData,
             },
         } satisfies bsmap.v2.INote
         return prune ? objectPrune(output) : output

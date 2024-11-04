@@ -309,7 +309,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         // Extra
         this.basicEventTypesWithKeywords = assertAndGet('basicEventTypesWithKeywords')
         this.useNormalEventsAsCompatibleEvents = assertAndGet('useNormalEventsAsCompatibleEvents')
-        this.customData = json.customData ?? {}
+        this.unsafeCustomData = json.customData ?? {}
     }
 
     toJSON(): bsmap.v3.IDifficulty {
@@ -436,7 +436,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
             sliders: arcs,
             waypoints: this.waypoints,
             customData: shallowPrune({
-                ...this.customData,
+                ...this.unsafeCustomData,
                 fakeColorNotes: this.colorNotes.filter((e) => e.fake)
                     .map((e) => e.toJsonV3(true))
                     .sort(sortItems),

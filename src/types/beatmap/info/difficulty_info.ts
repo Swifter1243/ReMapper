@@ -20,7 +20,7 @@ export type IDifficultyInfoV2 = {
     beatmapDataFilename: bsmap.GenericFileName
 
     /** Custom data for this difficulty. Some properties (e.g. `requirements`, `suggestions`, ...etc.) have already been extracted */
-    customData: bsmap.ICustomDataInfoDifficulty | undefined
+    unsafeCustomData: bsmap.ICustomDataInfoDifficulty | undefined
     /** The required mods for this difficulty. */
     requirements: REQUIRE_MODS[] | undefined
     /** The suggested mods for this difficulty. */

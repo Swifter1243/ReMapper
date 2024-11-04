@@ -55,7 +55,7 @@ export interface RMDifficulty {
     customEvents: BeatmapCustomEvents
 
     pointDefinitions: Record<string, RuntimeRawPointsAny>
-    customData: Record<string, unknown>
+    unsafeCustomData: Record<string, unknown>
     environment: Environment[]
     geometry: Geometry[]
     geometryMaterials: Record<string, RawGeometryMaterial>

@@ -142,7 +142,7 @@ export class LightEvent extends BasicEvent<bsmap.v2.IEventLight, bsmap.v3.IBasic
                 easing: this.easing,
                 lerpType: this.lerpType,
                 lightID: this.lightID,
-                ...this.customData,
+                ...this.unsafeCustomData,
             },
         } satisfies bsmap.v3.IBasicEventLight
         return prune ? objectPrune(output) : output
@@ -159,7 +159,7 @@ export class LightEvent extends BasicEvent<bsmap.v2.IEventLight, bsmap.v3.IBasic
                 _easing: this.easing,
                 _lerpType: this.lerpType,
                 _lightID: this.lightID,
-                ...this.customData,
+                ...this.unsafeCustomData,
             },
         } satisfies bsmap.v2.IEventLight
         return prune ? objectPrune(output) : output

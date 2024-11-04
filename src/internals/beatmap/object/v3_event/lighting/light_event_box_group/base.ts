@@ -29,7 +29,7 @@ export abstract class LightEventBoxGroup<T extends bsmap.v3.IEventBox = bsmap.v3
             b: this.beat,
             e: this.boxes.map((x) => x.toJsonV3(prune)),
             g: this.groupID,
-            customData: this.customData,
+            customData: this.unsafeCustomData,
         } satisfies bsmap.v3.IEventBoxGroup<T>
         return prune ? objectPrune(output) : output
     }

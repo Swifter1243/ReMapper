@@ -50,7 +50,7 @@ export class LightColorEvent extends BaseLightEvent<bsmap.v3.ILightColorBase> {
             f: this.blinkingFrequency,
             i: this.transitionType,
             s: this.brightness,
-            customData: this.customData,
+            customData: this.unsafeCustomData,
         } satisfies bsmap.v3.ILightColorBase
         return prune ? objectPrune(output) : output
     }

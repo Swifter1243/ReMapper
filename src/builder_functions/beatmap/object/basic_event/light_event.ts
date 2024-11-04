@@ -16,7 +16,7 @@ function fixupParams<TG extends LightEvent['type']>(
 
     return [parentDifficulty, {
         beat: beat,
-        customData: {},
+        unsafeCustomData: {},
         floatValue,
         value,
         type: group,

@@ -45,7 +45,7 @@ export class RotationEvent extends BeatmapObject<bsmap.v2.IEventLaneRotation, bs
         this.early = json.et !== undefined ? json.et === EventGroup.EARLY_ROTATION : RotationEvent.defaults.early
         this.rotation = json.customData?.rotation ?? this.tryInverseRotation(json.i) ?? RotationEvent.defaults.rotation
         this.beat = json.b ?? RotationEvent.defaults.beat
-        this.customData = json.customData ?? RotationEvent.defaults.customData
+        this.unsafeCustomData = json.customData ?? RotationEvent.defaults.unsafeCustomData
         return this
     }
 
@@ -66,7 +66,7 @@ export class RotationEvent extends BeatmapObject<bsmap.v2.IEventLaneRotation, bs
             b: this.beat,
             e: this.early ? 0 : 1,
             r: this.rotation,
-            customData: this.customData,
+            customData: this.unsafeCustomData,
         } satisfies bsmap.v3.IRotationEvent
         return prune ? objectPrune(output) : output
     }

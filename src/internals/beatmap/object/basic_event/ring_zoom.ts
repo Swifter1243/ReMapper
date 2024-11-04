@@ -50,7 +50,7 @@ export class RingZoomEvent extends BasicEvent<bsmap.v2.IEventZoom, bsmap.v3.IBas
             customData: {
                 speed: this.speed,
                 step: this.step,
-                ...this.customData,
+                ...this.unsafeCustomData,
             },
         } satisfies bsmap.v3.IBasicEventRing
         return prune ? objectPrune(output) : output
@@ -65,7 +65,7 @@ export class RingZoomEvent extends BasicEvent<bsmap.v2.IEventZoom, bsmap.v3.IBas
             _customData: {
                 _speed: this.speed,
                 _step: this.step,
-                ...this.customData,
+                ...this.unsafeCustomData,
             },
         } satisfies bsmap.v2.IEventZoom
         return prune ? objectPrune(output) : output

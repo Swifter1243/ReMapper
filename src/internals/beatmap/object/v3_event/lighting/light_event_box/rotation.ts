@@ -54,7 +54,7 @@ export class LightRotationEventBox extends LightEventBox<bsmap.v3.ILightRotation
         this.rotationDistributionFirst = json.b !== undefined ? json.b === 1 : LightRotationEventBox.defaults.rotationDistributionFirst
         this.rotationDistributionType = json.t ?? LightRotationEventBox.defaults.rotationDistributionType
         this.events = json.l.map((x) => lightRotationEvent(this).fromJsonV3(x))
-        this.customData = json.customData ?? LightColorEventBox.defaults.customData
+        this.unsafeCustomData = json.customData ?? LightColorEventBox.defaults.unsafeCustomData
         return this
     }
 
@@ -74,7 +74,7 @@ export class LightRotationEventBox extends LightEventBox<bsmap.v3.ILightRotation
             s: this.rotationDistribution,
             t: this.rotationDistributionType,
             w: this.beatDistribution,
-            customData: this.customData,
+            customData: this.unsafeCustomData,
         } satisfies bsmap.v3.ILightRotationEventBox
         return prune ? objectPrune(output) : output
     }

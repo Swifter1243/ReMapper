@@ -19,7 +19,7 @@ export abstract class AbstractInfo<
     assetBundle: Record<string, number> | undefined
     contributors: bsmap.ICustomDataInfo['_contributors']
     editors: bsmap.IEditor | undefined
-    customData: bsmap.ICustomDataBase
+    unsafeCustomData: bsmap.ICustomDataBase
 
     protected constructor(
         json: TD,
@@ -37,7 +37,7 @@ export abstract class AbstractInfo<
         this.assetBundle = inner.assetBundle
         this.contributors = inner.contributors
         this.editors = inner.editors
-        this.customData = inner.customData
+        this.unsafeCustomData = inner.unsafeCustomData
     }
 
     abstract toJSON(): TD;

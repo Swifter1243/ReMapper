@@ -60,7 +60,7 @@ export class LightRotationEvent extends BaseLightEvent<bsmap.v3.ILightRotationBa
             o: this.rotationDirection,
             p: this.usePreviousEventRotation ? 1 : 0,
             r: this.rotationDegrees,
-            customData: this.customData,
+            customData: this.unsafeCustomData,
         } satisfies bsmap.v3.ILightRotationBase
         return prune ? objectPrune(output) : output
     }

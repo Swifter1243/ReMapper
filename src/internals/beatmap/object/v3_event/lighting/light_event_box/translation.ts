@@ -60,7 +60,7 @@ export class LightTranslationEventBox extends LightEventBox<
             : LightTranslationEventBox.defaults.translationDistributionFirst
         this.translationDistributionType = json.t ?? LightTranslationEventBox.defaults.translationDistributionType
         this.events = json.l.map((x) => lightTranslationEvent(this).fromJsonV3(x))
-        this.customData = json.customData ?? LightTranslationEventBox.defaults.customData
+        this.unsafeCustomData = json.customData ?? LightTranslationEventBox.defaults.unsafeCustomData
         return this
     }
 
@@ -80,7 +80,7 @@ export class LightTranslationEventBox extends LightEventBox<
             r: this.flipTranslation ? 1 : 0,
             s: this.translationDistribution,
             t: this.translationDistributionType,
-            customData: this.customData,
+            customData: this.unsafeCustomData,
         } satisfies bsmap.v3.ILightTranslationEventBox
         return prune ? objectPrune(output) : output
     }

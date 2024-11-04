@@ -43,7 +43,7 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
                 disableBadCutSpeed: this.disableBadCutSpeed,
                 disableBadCutSaberType: this.disableBadCutSaberType,
                 disableDebris: this.disableDebris,
-                ...this.customData,
+                ...this.unsafeCustomData,
             },
         } satisfies bsmap.v3.IBombNote
         return prune ? objectPrune(output) : output
@@ -71,7 +71,7 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
                 _disableNoteGravity: this.disableNoteGravity,
                 _disableNoteLook: this.disableNoteLook,
                 _disableSpawnEffect: this.disableSpawnEffect,
-                ...this.customData,
+                ...this.unsafeCustomData,
             },
         } satisfies bsmap.v2.INote
         return prune ? objectPrune(output) : output

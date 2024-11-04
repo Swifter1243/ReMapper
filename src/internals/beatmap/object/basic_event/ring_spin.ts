@@ -95,7 +95,7 @@ export class RingSpinEvent extends BasicEvent<bsmap.v2.IEventRing, bsmap.v3.IBas
                 _rotation: this.rotation,
                 _speed: this.speed,
                 _step: this.step,
-                ...this.customData,
+                ...this.unsafeCustomData,
             },
         } satisfies bsmap.v2.IEventRing
         return prune ? objectPrune(output) : output

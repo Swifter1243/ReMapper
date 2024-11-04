@@ -18,19 +18,19 @@ export abstract class BeatmapObject<
 
         this.parent = parentDifficulty
         this.beat = obj.beat ?? BeatmapObject.defaults.beat
-        // gotta do this funky shit cause obj.customData is generic
-        this.customData = (obj as Record<string, unknown>).customData ?? copy(BeatmapObject.defaults.customData)
+        // gotta do this funky shit cause obj.unsafeCustomData is generic
+        this.unsafeCustomData = (obj as Record<string, unknown>).unsafeCustomData ?? copy(BeatmapObject.defaults.unsafeCustomData)
     }
 
     /** The time that this object is scheduled for. */
     beat: number
     /** Any community made properties on this object. */
-    customData: NonNullable<TV2['_customData'] | TV3['customData']>
+    unsafeCustomData: NonNullable<TV2['_customData'] | TV3['customData']>
 
     /** Default values for initializing class fields */
     static defaults: BeatmapObjectDefaults<BeatmapObject> = {
         beat: 0,
-        customData: {}
+        unsafeCustomData: {}
     }
 
     /** Checks if the object has modded properties. */
@@ -40,13 +40,13 @@ export abstract class BeatmapObject<
 
     fromJsonV3(json: TV3): this {
         this.beat = json.b ?? BeatmapObject.defaults.beat
-        this.customData = json.customData ?? copy(BeatmapObject.defaults.customData)
+        this.unsafeCustomData = json.customData ?? copy(BeatmapObject.defaults.unsafeCustomData)
         return this
     }
 
     fromJsonV2(json: TV2): this {
         this.beat = json._time ?? BeatmapObject.defaults.beat
-        this.customData = json._customData ?? copy(BeatmapObject.defaults.customData)
+        this.unsafeCustomData = json._customData ?? copy(BeatmapObject.defaults.unsafeCustomData)
         return this
     }
 

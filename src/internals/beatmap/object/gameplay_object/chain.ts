@@ -130,7 +130,7 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
                 disableBadCutSpeed: this.disableBadCutSpeed,
                 disableBadCutSaberType: this.disableBadCutSaberType,
                 disableDebris: this.disableDebris,
-                ...this.customData,
+                ...this.unsafeCustomData,
             },
         } satisfies bsmap.v3.IChain
         return prune ? objectPrune(output) : output

@@ -229,7 +229,7 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
 
         // Extra
         this.specialEventsKeywordFilters = assertAndGet('_specialEventsKeywordFilters')
-        this.customData = json._customData ?? {}
+        this.unsafeCustomData = json._customData ?? {}
     }
 
     toJSON(): bsmap.v2.IDifficulty {
@@ -331,7 +331,7 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
             _sliders: [],
             _waypoints: this.waypoints,
             _customData: shallowPrune({
-                ...this.customData,
+                ...this.unsafeCustomData,
                 _environment: environment,
                 _pointDefinitions: pointDefinitions,
                 _customEvents: customEvents,

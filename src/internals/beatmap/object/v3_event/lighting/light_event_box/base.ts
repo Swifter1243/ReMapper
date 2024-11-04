@@ -18,7 +18,7 @@ export abstract class LightEventBox<
         this.beatDistribution = obj.beatDistribution ?? LightEventBox.defaults.beatDistribution
         this.beatDistributionType = obj.beatDistributionType ?? LightEventBox.defaults.beatDistributionType
         this.distributionEasing = obj.distributionEasing ?? LightEventBox.defaults.distributionEasing
-        this.customData = (obj as Record<string, unknown>).customData ?? copy(LightEventBox.defaults.customData)
+        this.unsafeCustomData = (obj as Record<string, unknown>).customData ?? copy(LightEventBox.defaults.unsafeCustomData)
         this.events = obj.events ?? copy(LightEventBox.defaults.events) as E[]
     }
 
@@ -31,7 +31,7 @@ export abstract class LightEventBox<
     /** An integer value which determines the interpolation of the distribution, or the behavior for how to traverse the sequence. */
     distributionEasing: RotationEase
     /** Community properties in the event box. */
-    customData: T['customData']
+    unsafeCustomData: T['customData']
     /** The events in this event box. */
     events: E[]
 
@@ -51,7 +51,7 @@ export abstract class LightEventBox<
         beatDistribution: 0,
         beatDistributionType: DistributionType.STEP,
         distributionEasing: RotationEase.None,
-        customData: {},
+        unsafeCustomData: {},
         events: [],
     }
 
