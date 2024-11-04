@@ -54,12 +54,12 @@ export class SetMaterialProperty extends CustomEvent<
     }
 
     override fromJsonV2(_json: never): this {
-        throw 'SetMaterialProperty is only supported in V3!'
+        throw new Error('SetMaterialProperty is only supported in V3!')
     }
 
     toJsonV3(prune?: boolean): ISetMaterialProperty {
         if (Object.keys(this.properties).length === 0) {
-            throw 'properties is empty, which is redundant for SetMaterialProperty!'
+            throw new Error('properties is empty, which is redundant for SetMaterialProperty!')
         }
 
         const output = {
@@ -77,6 +77,6 @@ export class SetMaterialProperty extends CustomEvent<
     }
 
     toJsonV2(_prune?: boolean): never {
-        throw 'SetMaterialProperty is only supported in V3!'
+        throw new Error('SetMaterialProperty is only supported in V3!')
     }
 }

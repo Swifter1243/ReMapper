@@ -38,7 +38,7 @@ export abstract class ModelScene<I, M, O> {
         this.ID = ModelScene.modelSceneCount++
 
         if (Object.values(settings.groups).length === 0) {
-            throw 'ModelScene has no groups, which is redundant as no objects will be represented.'
+            throw new Error('ModelScene has no groups, which is redundant as no objects will be represented.')
         }
 
         this.settings = settings
@@ -150,14 +150,14 @@ export abstract class ModelScene<I, M, O> {
 
             if (!group) {
                 if (this.settings.throwOnMissingGroup) {
-                    throw `Group '${groupKey}' is in model object, but ModelScene has no corresponding group!`
+                    throw new Error(`Group '${groupKey}' is in model object, but ModelScene has no corresponding group!`)
                 }
                 return
             }
 
             if (!group.object) {
                 if (trackGroups.has(groupKey)) {
-                    throw `Track group '${groupKey}' was referenced by multiple model objects in a model, when track groups should only represent one!`
+                    throw new Error(`Track group '${groupKey}' was referenced by multiple model objects in a model, when track groups should only represent one!`)
                 }
                 trackGroups.add(groupKey)
             }
@@ -243,14 +243,14 @@ export abstract class ModelScene<I, M, O> {
 
             if (!group) {
                 if (this.settings.throwOnMissingGroup) {
-                    throw `Group '${groupKey}' is in model object, but ModelScene has no corresponding group!`
+                    throw new Error(`Group '${groupKey}' is in model object, but ModelScene has no corresponding group!`)
                 }
                 return
             }
 
             if (!group.object) {
                 if (trackGroups.has(groupKey)) {
-                    throw `Track group '${groupKey}' was referenced by multiple model objects in a model, when track groups should only represent one!`
+                    throw new Error(`Track group '${groupKey}' was referenced by multiple model objects in a model, when track groups should only represent one!`)
                 }
                 trackGroups.add(groupKey)
             }
@@ -270,7 +270,7 @@ export abstract class ModelScene<I, M, O> {
             }
 
             if (position.length !== rotation.length || rotation.length !== scale.length) {
-                throw 'Animated model data expected uniform length for scale, position, and rotation animations'
+                throw new Error('Animated model data expected uniform length for scale, position, and rotation animations')
             }
 
             for (let i = 0; i < position.length; i++) {

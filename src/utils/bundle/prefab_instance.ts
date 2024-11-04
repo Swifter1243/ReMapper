@@ -63,7 +63,7 @@ export class PrefabInstance {
 
     /** Destroy this instance. */
     destroy(beat = 0) {
-        if (this.destroyed) throw `Prefab ${this.id} is already destroyed.`
+        if (this.destroyed) throw new Error(`Prefab ${this.id} is already destroyed.`)
 
         destroyPrefab(this._parentDifficulty, beat, this.id)
         this.destroyed = true
@@ -75,7 +75,7 @@ export function destroyPrefabInstances(difficulty: AbstractDifficulty, prefabs: 
     const ids: string[] = []
 
     prefabs.forEach((x) => {
-        if (x.destroyed) throw `Prefab ${x.id} is already destroyed.`
+        if (x.destroyed) throw new Error(`Prefab ${x.id} is already destroyed.`)
         ids.push(x.id)
         x.destroyed = true
     })

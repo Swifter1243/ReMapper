@@ -49,7 +49,7 @@ export class LightRotationEvent extends BaseLightEvent<bsmap.v3.ILightRotationBa
     }
 
     override fromJsonV2(_json: never): this {
-        throw 'Event box groups are not supported in V2!'
+        throw new Error('Event box groups are not supported in V2!')
     }
 
     toJsonV3(prune?: boolean): bsmap.v3.ILightRotationBase {

@@ -58,7 +58,7 @@ export class AssignObjectPrefab extends CustomEvent<
     }
 
     override fromJsonV2(_json: never): this {
-        throw 'AssignObjectPrefab is only supported in V3!'
+        throw new Error('AssignObjectPrefab is only supported in V3!')
     }
 
     toJsonV3(prune?: boolean): IAssignObjectPrefab {
@@ -79,6 +79,6 @@ export class AssignObjectPrefab extends CustomEvent<
     }
 
     toJsonV2(_prune?: boolean): never {
-        throw 'AssignObjectPrefab is only supported in V3!'
+        throw new Error('AssignObjectPrefab is only supported in V3!')
     }
 }

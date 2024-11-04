@@ -55,12 +55,12 @@ export class DeclareCullingTexture extends CustomEvent<
     }
 
     override fromJsonV2(_json: never): this {
-        throw 'DeclareCullingTexture is only supported in V3!'
+        throw new Error('DeclareCullingTexture is only supported in V3!')
     }
 
     toJsonV3(prune?: boolean): IDeclareCullingTexture {
         if (!this.track.value) {
-            throw 'track is undefined, which is required for DeclareCullingTexture!'
+            throw new Error('track is undefined, which is required for DeclareCullingTexture!')
         }
 
         const output = {
@@ -78,6 +78,6 @@ export class DeclareCullingTexture extends CustomEvent<
     }
 
     toJsonV2(_prune?: boolean): never {
-        throw 'DeclareCullingTexture is only supported in V3!'
+        throw new Error('DeclareCullingTexture is only supported in V3!')
     }
 }

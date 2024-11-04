@@ -127,7 +127,7 @@ export class LightIterator extends BaseLightIterator {
 
             const lightIDs = complexifyLightIDs(e.lightID).map(id => {
                 if (map[id] === undefined) {
-                    throw `ID ${id} was not found in the provided map.`
+                    throw new Error(`ID ${id} was not found in the provided map.`)
                 } else {
                     return map[id]
                 }
@@ -172,7 +172,7 @@ function normalizeIDChanges(start: number, map: Record<number, number>, ids: num
         const lastChange = changes.findLast(change => change.rawTime <= id)
 
         if (!lastChange) {
-            throw `id ${id} was outside of the range of the map provided.`
+            throw new Error(`id ${id} was outside of the range of the map provided.`)
         }
 
         id -= lastChange.rawTime

@@ -43,12 +43,12 @@ export class DestroyPrefab extends CustomEvent<
     }
 
     override fromJsonV2(_json: never): this {
-        throw 'DestroyPrefab is only supported in V3!'
+        throw new Error('DestroyPrefab is only supported in V3!')
     }
 
     toJsonV3(prune?: boolean): IDestroyPrefab {
         if (!this.id.value) {
-            throw 'id is undefined, which is required for DestroyPrefab!'
+            throw new Error('id is undefined, which is required for DestroyPrefab!')
         }
 
         const output = {
@@ -63,6 +63,6 @@ export class DestroyPrefab extends CustomEvent<
     }
 
     toJsonV2(_prune?: boolean): never {
-        throw 'DestroyPrefab is only supported in V3!'
+        throw new Error('DestroyPrefab is only supported in V3!')
     }
 }

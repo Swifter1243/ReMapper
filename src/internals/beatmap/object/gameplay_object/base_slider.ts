@@ -85,6 +85,6 @@ export abstract class BaseSliderObject<TV3 extends bsmap.v3.IBaseSlider = bsmap.
     }
 
     override fromJsonV2(_json: never): this {
-        throw 'V2 is not supported for slider notes'
+        throw new Error('V2 is not supported for slider notes')
     }
 }

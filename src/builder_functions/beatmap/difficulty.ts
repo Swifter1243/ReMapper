@@ -19,7 +19,7 @@ export async function readDifficulty(
             path.isAbsolute(output ?? '')
         )
     ) {
-        throw 'A working directory is already defined and your difficulties are not in it.'
+        throw new Error('A working directory is already defined and your difficulties are not in it.')
     }
 
     input = attachWorkingDirectory(input) as DIFFICULTY_PATH

@@ -69,7 +69,7 @@ export class InstantiatePrefab extends CustomEvent<
     }
 
     override fromJsonV2(_json: never): this {
-        throw 'InstantiatePrefab is only supported in V3!'
+        throw new Error('InstantiatePrefab is only supported in V3!')
     }
 
     toJsonV3(prune?: boolean): IInstantiatePrefab {
@@ -92,6 +92,6 @@ export class InstantiatePrefab extends CustomEvent<
     }
 
     toJsonV2(_prune?: boolean): never {
-        throw 'InstantiatePrefab is only supported in V3!'
+        throw new Error('InstantiatePrefab is only supported in V3!')
     }
 }

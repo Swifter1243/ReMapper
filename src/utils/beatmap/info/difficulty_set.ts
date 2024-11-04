@@ -13,6 +13,6 @@ export function tryGetDifficultyInfo(difficultyName: bsmap.GenericFileName) {
             info,
         }
     } else {
-        throw `The difficulty ${difficultyName} does not exist in the Info.dat`
+        throw new Error(`The difficulty ${difficultyName} does not exist in the Info.dat`)
     }
 }

@@ -43,12 +43,12 @@ export class DestroyTexture extends CustomEvent<
     }
 
     override fromJsonV2(_json: never): this {
-        throw 'DestroyTexture is only supported in V3!'
+        throw new Error('DestroyTexture is only supported in V3!')
     }
 
     toJsonV3(prune?: boolean): IDestroyTexture {
         if (!this.id.value) {
-            throw 'id is undefined, which is required for DestroyTexture!'
+            throw new Error('id is undefined, which is required for DestroyTexture!')
         }
 
         const output = {
@@ -63,6 +63,6 @@ export class DestroyTexture extends CustomEvent<
     }
 
     toJsonV2(_prune?: boolean): never {
-        throw 'DestroyTexture is only supported in V3!'
+        throw new Error('DestroyTexture is only supported in V3!')
     }
 }

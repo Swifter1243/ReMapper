@@ -41,7 +41,7 @@ function createInfo(json: InfoJson): AbstractInfo {
 
         return new V2Info(json)
     } else {
-        throw 'Version of Info.dat not recognized!'
+        throw new Error('Version of Info.dat not recognized!')
     }
 }
 
@@ -51,7 +51,7 @@ function createInfo(json: InfoJson): AbstractInfo {
 export function getActiveInfo() {
     if (activeInfo) return activeInfo
 
-    throw 'There is currently no loaded Info.dat'
+    throw new Error('There is currently no loaded Info.dat')
 }
 
 /** Get the current active activeInfo object as {@link V2Info}.
@@ -62,9 +62,9 @@ export function getActiveInfoAsV2(): V2Info {
         if (activeInfo instanceof V2Info) {
             return activeInfo
         } else {
-            throw 'Info.dat is not V2.'
+            throw new Error('Info.dat is not V2.')
         }
     } else {
-        throw 'There is currently no loaded Info.dat'
+        throw new Error('There is currently no loaded Info.dat')
     }
 }

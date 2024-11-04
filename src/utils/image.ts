@@ -25,9 +25,9 @@ export class Image {
     }
 
     private coordToIndex(x: number, y: number) {
-        if (x >= this.width || x < 0) throw 'x coordinate exceeds image bounds.'
+        if (x >= this.width || x < 0) throw new Error('x coordinate exceeds image bounds.')
         if (y >= this.height || y < 0) {
-            throw 'y coordinate exceeds image bounds.'
+            throw new Error('y coordinate exceeds image bounds.')
         }
 
         return (x + y * this.width) * 4

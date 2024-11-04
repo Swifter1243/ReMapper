@@ -70,7 +70,9 @@ export class AssignPathAnimation extends CustomEvent<
     }
 
     toJsonV3(prune?: boolean): bsmap.v3.ICustomEventAssignPathAnimation {
-        if (!this.track.value) throw 'Track cannot be null!'
+        if (!this.track.value) {
+            throw new Error('Track cannot be null!')
+        }
 
         const output = {
             b: this.beat,
@@ -89,7 +91,9 @@ export class AssignPathAnimation extends CustomEvent<
     }
 
     toJsonV2(prune?: boolean): bsmap.v2.ICustomEventAssignPathAnimation {
-        if (!this.track.value) throw 'Track cannot be null!'
+        if (!this.track.value) {
+            throw new Error('Track cannot be null!')
+        }
 
         const output = {
             _time: this.beat,

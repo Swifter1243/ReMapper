@@ -78,7 +78,7 @@ export function setPointFlag(
     exact ??= old === undefined
 
     if (!old && !value) {
-        throw 'Old value cannot be inferenced when both "old" and "value" are undefined.'
+        throw new Error('Old value cannot be inferenced when both "old" and "value" are undefined.')
     }
 
     let index = getPointFlagIndex(

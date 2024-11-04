@@ -55,12 +55,12 @@ export class SetAnimatorProperty extends CustomEvent<
     }
 
     override fromJsonV2(_json: never): this {
-        throw 'SetAnimatorProperty is only supported in V3!'
+        throw new Error('SetAnimatorProperty is only supported in V3!')
     }
 
     toJsonV3(prune?: boolean): ISetAnimatorProperty {
         if (Object.keys(this.properties).length === 0) {
-            throw 'properties is empty, which is redundant for SetAnimatorProperty!'
+            throw new Error('properties is empty, which is redundant for SetAnimatorProperty!')
         }
 
         const output = {
@@ -78,6 +78,6 @@ export class SetAnimatorProperty extends CustomEvent<
     }
 
     toJsonV2(_prune?: boolean): never {
-        throw 'SetAnimatorProperty is only supported in V3!'
+        throw new Error('SetAnimatorProperty is only supported in V3!')
     }
 }

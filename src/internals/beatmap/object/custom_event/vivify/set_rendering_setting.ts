@@ -55,21 +55,21 @@ export class SetRenderingSettings extends CustomEvent<
     }
 
     override fromJsonV2(_json: never): this {
-        throw 'SetRenderingSettings is only supported in V3!'
+        throw new Error('SetRenderingSettings is only supported in V3!')
     }
 
     toJsonV3(prune?: boolean): ISetRenderingSettings {
         if (this.renderSettings && Object.keys(this.renderSettings).length === 0) {
-            throw 'renderSettings is empty, which is redundant for SetRenderingSettings!'
+            throw new Error('renderSettings is empty, which is redundant for SetRenderingSettings!')
         }
         if (this.qualitySettings && Object.keys(this.qualitySettings).length === 0) {
-            throw 'qualitySettings is empty, which is redundant for SetRenderingSettings!'
+            throw new Error('qualitySettings is empty, which is redundant for SetRenderingSettings!')
         }
         if (this.xrSettings && Object.keys(this.xrSettings).length === 0) {
-            throw 'xrSettings is empty, which is redundant for SetRenderingSettings!'
+            throw new Error('xrSettings is empty, which is redundant for SetRenderingSettings!')
         }
         if (!this.qualitySettings && !this.renderSettings && !this.xrSettings) {
-            throw 'there are no settings on this event, which is redundant for SetRenderingSettings!'
+            throw new Error('there are no settings on this event, which is redundant for SetRenderingSettings!')
         }
 
         const output = {
@@ -88,6 +88,6 @@ export class SetRenderingSettings extends CustomEvent<
     }
 
     toJsonV2(_prune?: boolean): never {
-        throw 'SetRenderingSettings is only supported in V3!'
+        throw new Error('SetRenderingSettings is only supported in V3!')
     }
 }

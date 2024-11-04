@@ -49,7 +49,7 @@ export class LightColorEventBox extends LightEventBox<bsmap.v3.ILightColorEventB
     }
 
     fromJsonV2(_json: never): this {
-        throw 'Event boxes are not supported in V2!'
+        throw new Error('Event boxes are not supported in V2!')
     }
 
     toJsonV3(prune?: boolean): bsmap.v3.ILightColorEventBox {
@@ -68,6 +68,6 @@ export class LightColorEventBox extends LightEventBox<bsmap.v3.ILightColorEventB
     }
 
     toJsonV2(_prune?: boolean): never {
-        throw 'Event boxes are not supported in V2!'
+        throw new Error('Event boxes are not supported in V2!')
     }
 }

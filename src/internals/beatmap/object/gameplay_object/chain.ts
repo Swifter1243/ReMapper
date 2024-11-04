@@ -95,7 +95,7 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
     }
 
     override fromJsonV2(_json: never): this {
-        throw 'V2 is not supported for chains'
+        throw new Error('V2 is not supported for chains')
     }
 
     toJsonV3(prune?: boolean): bsmap.v3.IChain {
@@ -137,6 +137,6 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
     }
 
     toJsonV2(_prune?: boolean): never {
-        throw 'V2 is not supported for chains'
+        throw new Error('V2 is not supported for chains')
     }
 }

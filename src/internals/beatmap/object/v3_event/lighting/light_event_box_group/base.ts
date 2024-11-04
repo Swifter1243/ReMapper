@@ -35,7 +35,7 @@ export abstract class LightEventBoxGroup<T extends bsmap.v3.IEventBox = bsmap.v3
     }
 
     toJsonV2(_prune?: boolean): never {
-        throw 'Event box groups are not supported in V2!'
+        throw new Error('Event box groups are not supported in V2!')
     }
 
     protected override _copy(): this {

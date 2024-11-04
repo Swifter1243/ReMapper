@@ -60,11 +60,13 @@ export class AnimateComponent extends CustomEvent<never, bsmap.v3.ICustomEventAn
     }
 
     override fromJsonV2(_json: never): this {
-        throw 'V2 not supported for animating components'
+        throw new Error('V2 not supported for animating components')
     }
 
     toJsonV3(prune?: boolean): bsmap.v3.ICustomEventAnimateComponent {
-        if (this.track.value === undefined) throw 'Track cannot be null!'
+        if (this.track.value === undefined) {
+            throw new Error('Track cannot be null!')
+        }
 
         const output = {
             b: this.beat,
@@ -82,6 +84,6 @@ export class AnimateComponent extends CustomEvent<never, bsmap.v3.ICustomEventAn
     }
 
     toJsonV2(_prune?: boolean): never {
-        throw 'V2 not supported for animating components'
+        throw new Error('V2 not supported for animating components')
     }
 }

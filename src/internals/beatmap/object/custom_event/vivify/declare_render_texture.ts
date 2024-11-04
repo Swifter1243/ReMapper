@@ -67,7 +67,7 @@ export class DeclareRenderTexture extends CustomEvent<
     }
 
     override fromJsonV2(_json: never): this {
-        throw 'DeclareRenderTexture is only supported in V3!'
+        throw new Error('DeclareRenderTexture is only supported in V3!')
     }
 
     toJsonV3(prune?: boolean): IDeclareRenderTexture {
@@ -89,6 +89,6 @@ export class DeclareRenderTexture extends CustomEvent<
     }
 
     toJsonV2(_prune?: boolean): never {
-        throw 'DeclareRenderTexture is only supported in V3!'
+        throw new Error('DeclareRenderTexture is only supported in V3!')
     }
 }

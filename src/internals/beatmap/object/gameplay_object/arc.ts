@@ -68,7 +68,7 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
     }
 
     override fromJsonV2(_json: never): this {
-        throw 'V2 is not supported for arcs'
+        throw new Error('V2 is not supported for arcs')
     }
 
     toJsonV3(prune?: boolean): bsmap.v3.IArc {
@@ -107,6 +107,6 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
     }
 
     toJsonV2(_prune?: boolean): never {
-        throw 'V2 is not supported for arcs'
+        throw new Error('V2 is not supported for arcs')
     }
 }

@@ -63,7 +63,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
             key: K
         ): (typeof json)[K] {
             if (!Object.hasOwn(json, key)) {
-                throw `Beatmap incomplete. Expected key '${key}' in beatmap but it wasn't there.`
+                throw new Error(`Beatmap incomplete. Expected key '${key}' in beatmap but it wasn't there.`)
             }
 
             return json[key]

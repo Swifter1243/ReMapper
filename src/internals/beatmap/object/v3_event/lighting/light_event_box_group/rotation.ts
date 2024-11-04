@@ -15,6 +15,6 @@ export class LightRotationEventBoxGroup extends LightEventBoxGroup<bsmap.v3.ILig
     }
 
     override fromJsonV2(_json: never): this {
-        throw 'Event box groups are not supported in V2!'
+        throw new Error('Event box groups are not supported in V2!')
     }
 }

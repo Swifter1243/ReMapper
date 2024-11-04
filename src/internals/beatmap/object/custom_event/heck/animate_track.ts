@@ -72,7 +72,9 @@ export class AnimateTrack extends CustomEvent<
     }
 
     toJsonV3(prune?: boolean): bsmap.v3.ICustomEventAnimateTrack {
-        if (!this.track.value) throw 'Track cannot be null!'
+        if (!this.track.value) {
+            throw new Error('Track cannot be null!')
+        }
 
         const output = {
             b: this.beat,
@@ -90,7 +92,9 @@ export class AnimateTrack extends CustomEvent<
     }
 
     toJsonV2(prune?: boolean): bsmap.v2.ICustomEventAnimateTrack {
-        if (!this.track.value) throw 'Track cannot be null!'
+        if (!this.track.value) {
+            throw new Error('Track cannot be null!')
+        }
 
         if (this.repeat) {
             console.log('Repeat is unsupported in v2')

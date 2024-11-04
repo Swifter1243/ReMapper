@@ -47,7 +47,7 @@ export class SetCameraProperty extends CustomEvent<
     }
 
     override fromJsonV2(_json: never): this {
-        throw 'SetCameraProperty is only supported in V3!'
+        throw new Error('SetCameraProperty is only supported in V3!')
     }
 
     toJsonV3(prune?: boolean): ISetCameraProperty {
@@ -65,6 +65,6 @@ export class SetCameraProperty extends CustomEvent<
     }
 
     toJsonV2(_prune?: boolean): never {
-        throw 'SetCameraProperty is only supported in V3!'
+        throw new Error('SetCameraProperty is only supported in V3!')
     }
 }

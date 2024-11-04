@@ -49,12 +49,12 @@ export class SetGlobalProperty extends CustomEvent<
     }
 
     override fromJsonV2(_json: never): this {
-        throw 'SetGlobalProperty is only supported in V3!'
+        throw new Error('SetGlobalProperty is only supported in V3!')
     }
 
     toJsonV3(prune?: boolean): ISetGlobalProperty {
         if (Object.keys(this.properties).length === 0) {
-            throw 'properties is empty, which is redundant for SetGlobalProperty!'
+            throw new Error('properties is empty, which is redundant for SetGlobalProperty!')
         }
 
         const output = {
@@ -71,6 +71,6 @@ export class SetGlobalProperty extends CustomEvent<
     }
 
     toJsonV2(_prune?: boolean): never {
-        throw 'SetGlobalProperty is only supported in V3!'
+        throw new Error('SetGlobalProperty is only supported in V3!')
     }
 }

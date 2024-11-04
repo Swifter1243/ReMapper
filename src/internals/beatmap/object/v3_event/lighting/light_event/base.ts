@@ -36,7 +36,7 @@ export abstract class BaseLightEvent<T extends LightBase = LightBase> extends Be
     }
 
     fromJsonV2(_json: never): this {
-        throw 'V3 Lighting is not supported in V2!'
+        throw new Error('V3 Lighting is not supported in V2!')
     }
 
     fromJsonV3(json: LightBase): this {
@@ -45,7 +45,7 @@ export abstract class BaseLightEvent<T extends LightBase = LightBase> extends Be
     }
 
     toJsonV2(_prune?: boolean): never {
-        throw 'V3 Lighting is not supported in V2!'
+        throw new Error('V3 Lighting is not supported in V2!')
     }
 
     abstract toJsonV3(prune?: boolean): T

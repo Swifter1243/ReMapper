@@ -34,7 +34,7 @@ export abstract class BeatmapArrayMember<T> {
         if (thisIndex !== -1) {
             arrayRemove(difficultyArray, thisIndex)
         } else {
-            throw `You tried to destroy an element that wasn't present in a difficulty!`
+            throw new Error(`You tried to destroy an element that wasn't present in a difficulty!`)
         }
     }
 }

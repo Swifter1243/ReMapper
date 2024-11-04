@@ -67,7 +67,7 @@ export class Blit extends CustomEvent<
     }
 
     override fromJsonV2(_json: never): this {
-        throw 'Blit is only supported in V3!'
+        throw new Error('Blit is only supported in V3!')
     }
 
     toJsonV3(prune?: boolean): IBlit {
@@ -90,6 +90,6 @@ export class Blit extends CustomEvent<
     }
 
     toJsonV2(_prune?: boolean): never {
-        throw 'Blit is only supported in V3!'
+        throw new Error('Blit is only supported in V3!')
     }
 }

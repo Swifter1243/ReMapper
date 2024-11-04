@@ -13,5 +13,5 @@ export function loadCache() {
 export async function getActiveCache() {
     if (activeCache) return await activeCache
 
-    throw 'There is no active ReMapper Cache. Waiting for a working directory.'
+    throw new Error('There is no active ReMapper Cache. Waiting for a working directory.')
 }
