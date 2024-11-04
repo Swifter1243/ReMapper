@@ -71,7 +71,7 @@ export class AssignObjectPrefab extends CustomEvent<
                 burstSliderElements: this.chainLinks,
                 bombNotes: this.bombNotes,
                 saber: this.saber,
-                ...this.data,
+                ...this.unsafeData,
             },
             t: 'AssignObjectPrefab',
         } satisfies IAssignObjectPrefab

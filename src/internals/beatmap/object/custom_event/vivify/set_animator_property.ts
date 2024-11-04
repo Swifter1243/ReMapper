@@ -70,7 +70,7 @@ export class SetAnimatorProperty extends CustomEvent<
                 duration: this.duration,
                 easing: this.easing,
                 properties: this.properties,
-                ...this.data,
+                ...this.unsafeData,
             },
             t: 'SetAnimatorProperty',
         } satisfies ISetAnimatorProperty

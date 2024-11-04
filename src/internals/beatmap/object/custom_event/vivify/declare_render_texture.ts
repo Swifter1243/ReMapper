@@ -81,7 +81,7 @@ export class DeclareRenderTexture extends CustomEvent<
                 width: this.width,
                 xRatio: this.xRatio,
                 yRatio: this.yRatio,
-                ...this.data,
+                ...this.unsafeData,
             },
             t: 'DeclareRenderTexture',
         } satisfies IDeclareRenderTexture

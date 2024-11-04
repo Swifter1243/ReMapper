@@ -70,7 +70,7 @@ export class DeclareCullingTexture extends CustomEvent<
                 track: this.track.value,
                 depthTexture: this.depthTexture,
                 whitelist: this.whitelist,
-                ...this.data,
+                ...this.unsafeData,
             },
             t: 'DeclareCullingTexture',
         } satisfies IDeclareCullingTexture

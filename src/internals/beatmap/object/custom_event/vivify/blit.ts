@@ -82,7 +82,7 @@ export class Blit extends CustomEvent<
                 priority: this.priority,
                 properties: this.properties,
                 source: this.source,
-                ...this.data,
+                ...this.unsafeData,
             },
             t: 'Blit',
         } satisfies IBlit

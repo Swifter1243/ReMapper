@@ -52,7 +52,7 @@ export class AssignPlayerToTrack extends CustomEvent<
             d: {
                 track: this.track!,
                 target: this.target,
-                ...this.data,
+                ...this.unsafeData,
             },
             t: 'AssignPlayerToTrack',
         } satisfies bsmap.v3.ICustomEventAssignPlayerToTrack
@@ -67,7 +67,7 @@ export class AssignPlayerToTrack extends CustomEvent<
         const output = {
             _data: {
                 _track: this.track!,
-                ...this.data,
+                ...this.unsafeData,
             },
             _time: this.beat,
             _type: 'AssignPlayerToTrack',

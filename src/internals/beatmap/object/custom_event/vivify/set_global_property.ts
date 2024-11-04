@@ -63,7 +63,7 @@ export class SetGlobalProperty extends CustomEvent<
                 duration: this.duration,
                 easing: this.easing,
                 properties: this.properties,
-                ...this.data,
+                ...this.unsafeData,
             },
             t: 'SetGlobalProperty',
         } satisfies ISetGlobalProperty

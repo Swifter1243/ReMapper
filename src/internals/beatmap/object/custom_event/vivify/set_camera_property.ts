@@ -57,7 +57,7 @@ export class SetCameraProperty extends CustomEvent<
                 depthTextureMode: this.depthTextureMode,
                 clearFlags: this.clearFlags,
                 backgroundColor: this.backgroundColor,
-                ...this.data,
+                ...this.unsafeData,
             },
             t: 'SetCameraProperty',
         } satisfies ISetCameraProperty

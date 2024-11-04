@@ -15,34 +15,34 @@ export abstract class CustomEvent<
 
         this.beat = fields.beat ?? CustomEvent.defaults.beat
         this.type = fields.type ?? CustomEvent.defaults.type
-        this.data = fields.data ?? CustomEvent.defaults.data
+        this.unsafeData = fields.unsafeData ?? CustomEvent.defaults.unsafeData
     }
 
     /** The beat this light event will activate. */
     beat: number
     /** The type of CustomEvent. */
     type: string
-    /** The "properties" object inside the CustomEvent. */
-    data: TJson
+    /** The "data" object inside the CustomEvent. */
+    unsafeData: TJson
 
     /** Default values for initializing class fields */
     static defaults: JsonObjectDefaults<CustomEvent> = {
         beat: 0,
-        data: {},
+        unsafeData: {},
         type: '',
     }
 
     fromJsonV3(json: TV3): this {
         this.beat = json.b ?? CustomEvent.defaults.beat
         this.type = json.t ?? CustomEvent.defaults.type
-        this.data = json.d as TJson ?? CustomEvent.defaults.data
+        this.unsafeData = json.d as TJson ?? CustomEvent.defaults.unsafeData
         return this
     }
 
     fromJsonV2(json: TV2): this {
         this.beat = json._time ?? CustomEvent.defaults.beat
         this.type = json._type ?? CustomEvent.defaults.type
-        this.data = json._data as unknown as TJson ?? CustomEvent.defaults.data
+        this.unsafeData = json._data as unknown as TJson ?? CustomEvent.defaults.unsafeData
         return this
     }
 

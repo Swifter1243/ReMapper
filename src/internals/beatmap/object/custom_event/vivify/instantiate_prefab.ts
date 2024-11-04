@@ -84,7 +84,7 @@ export class InstantiatePrefab extends CustomEvent<
                 rotation: this.rotation,
                 scale: this.scale,
                 track: this.track.value,
-                ...this.data,
+                ...this.unsafeData,
             },
             t: 'InstantiatePrefab',
         } satisfies IInstantiatePrefab

@@ -55,7 +55,7 @@ export class DestroyPrefab extends CustomEvent<
             b: this.beat,
             d: {
                 id: this.id.value,
-                ...this.data,
+                ...this.unsafeData,
             },
             t: 'DestroyPrefab',
         } satisfies IDestroyPrefab

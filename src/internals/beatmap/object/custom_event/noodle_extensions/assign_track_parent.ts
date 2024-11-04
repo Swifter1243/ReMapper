@@ -65,7 +65,7 @@ export class AssignTrackParent extends CustomEvent<
                 childrenTracks: this.childrenTracks,
                 parentTrack: this.parentTrack,
                 worldPositionStays: this.worldPositionStays,
-                ...this.data,
+                ...this.unsafeData,
             },
             t: 'AssignTrackParent',
         } satisfies bsmap.v3.ICustomEventAssignTrackParent
@@ -78,7 +78,7 @@ export class AssignTrackParent extends CustomEvent<
                 _childrenTracks: this.childrenTracks,
                 _parentTrack: this.parentTrack,
                 _worldPositionStays: this.worldPositionStays,
-                ...this.data,
+                ...this.unsafeData,
             },
             _time: this.beat,
             _type: 'AssignTrackParent',

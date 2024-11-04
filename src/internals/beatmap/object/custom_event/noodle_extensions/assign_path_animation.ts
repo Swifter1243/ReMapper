@@ -80,7 +80,7 @@ export class AssignPathAnimation extends CustomEvent<
                 // TODO: bsmap error
                 // @ts-ignore 2322
                 duration: this.duration,
-                ...this.data,
+                ...this.unsafeData,
                 ...this.animation as bsmap.v3.IAnimation,
             },
             t: 'AssignPathAnimation',
@@ -99,7 +99,7 @@ export class AssignPathAnimation extends CustomEvent<
                 // TODO: bsmap error
                 // @ts-ignore 2322
                 _duration: this.duration,
-                ...this.data,
+                ...this.unsafeData,
                 ...animationV3toV2(this.animation),
             },
             _type: 'AssignPathAnimation',

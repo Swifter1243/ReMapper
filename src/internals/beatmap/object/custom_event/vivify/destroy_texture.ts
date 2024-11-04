@@ -55,7 +55,7 @@ export class DestroyTexture extends CustomEvent<
             b: this.beat,
             d: {
                 id: this.id.value,
-                ...this.data,
+                ...this.unsafeData,
             },
             t: 'DestroyTexture',
         } satisfies IDestroyTexture

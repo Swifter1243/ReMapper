@@ -75,7 +75,7 @@ export class AnimateComponent extends CustomEvent<never, bsmap.v3.ICustomEventAn
                 easing: this.easing,
                 TubeBloomPrePassLight: this.lightMultiplier as bsmap.v3.ICustomEventAnimateComponent['d']['TubeBloomPrePassLight'],
                 BloomFogEnvironment: this.fog as bsmap.v3.ICustomEventAnimateComponent['d']['BloomFogEnvironment'],
-                ...this.data,
+                ...this.unsafeData,
             },
         } satisfies bsmap.v3.ICustomEventAnimateComponent
         return prune ? objectPrune(output) : output

@@ -25,7 +25,7 @@ export class AbstractCustomEvent extends CustomEvent<
         const result = {
             _time: this.beat,
             _type: this.type as bsmap.v2.ICustomEvent['_type'],
-            _data: this.data as unknown as bsmap.v2.ICustomEvent['_data'],
+            _data: this.unsafeData as unknown as bsmap.v2.ICustomEvent['_data'],
         } as bsmap.v2.ICustomEvent
         return prune ? objectPrune(result) : result
     }
@@ -34,7 +34,7 @@ export class AbstractCustomEvent extends CustomEvent<
         const result = {
             b: this.beat,
             t: this.type as bsmap.v3.ICustomEvent['t'],
-            d: this.data as unknown as bsmap.v3.ICustomEvent['d'],
+            d: this.unsafeData as unknown as bsmap.v3.ICustomEvent['d'],
         } as bsmap.v3.ICustomEvent
         return prune ? objectPrune(result) : result
     }

@@ -26,6 +26,6 @@ export function abstractCustomEvent(
     return new AbstractCustomEvent(parentDifficulty, {
         beat: beat as number,
         type,
-        data,
+        unsafeData: data,
     })
 }
