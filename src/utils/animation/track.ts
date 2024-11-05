@@ -11,16 +11,14 @@ export class Track {
         this._value = new Set(Track.complexifyValue(value))
     }
     get value() {
-        const result = this._value.values().toArray()
-
-        if (result.length === 0) {
+        if (this._value.size === 0) {
             return undefined
         }
-        else if (result.length === 1) {
-            return result[0]
+        else if (this._value.size === 1) {
+            return [...this._value][0]
         }
         else {
-            return result
+            return [...this._value]
         }
     }
 
@@ -68,7 +66,7 @@ export class Track {
     }
 
     /** Get the track value as an array. */
-    array() {
+    get array() {
         return [...this._value]
     }
 
