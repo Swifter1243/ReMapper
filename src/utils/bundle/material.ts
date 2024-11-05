@@ -81,7 +81,7 @@ export class Material<T extends MaterialProperties = MaterialProperties> {
             }
         })
 
-        const event = setMaterialProperty(
+        return setMaterialProperty(
             difficulty,
             beat,
             this.path,
@@ -89,7 +89,5 @@ export class Material<T extends MaterialProperties = MaterialProperties> {
             duration,
             easing,
         )
-
-        return event
     }
 }
