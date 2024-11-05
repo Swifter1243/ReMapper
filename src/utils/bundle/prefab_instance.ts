@@ -12,7 +12,7 @@ export class PrefabInstance {
     readonly event: InstantiatePrefab
     /** The track of this instance. Equivalent to id. */
     get track() {
-        return this.event.track.value
+        return this.event.track
     }
     /** The id of this instance. */
     get id() {
