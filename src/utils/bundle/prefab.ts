@@ -10,11 +10,15 @@ export class Prefab {
     /** Name of this prefab, it is also included in the track. */
     readonly name: string
     /** Keeps track of how many times this prefab has been instantiated. */
-    private iteration = 0
+    private count = 0
 
     constructor(path: string, name: string) {
         this.path = path
         this.name = name
+    }
+
+    private static getID(self: Prefab) {
+        return `prefab_${self.name}_${self.count}`
     }
 
     /** Instantiate this prefab. Returns the instance. */
@@ -23,10 +27,10 @@ export class Prefab {
         beat = 0,
         event?: (event: InstantiatePrefab) => void,
     ) {
-        const id = `${this.name}_${this.iteration}`
+        this.count++
+        const id = Prefab.getID(this)
         const instantiation = instantiatePrefab(difficulty, beat, this.path, id, id)
         if (event) event(instantiation)
-        this.iteration++
         return new PrefabInstance(difficulty, id, instantiation)
     }
 }
