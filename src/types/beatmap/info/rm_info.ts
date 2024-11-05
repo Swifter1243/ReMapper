@@ -18,7 +18,7 @@ export interface RMInfo {
     /** Information for all the difficulties included in this beatmap. */
     difficultyBeatmaps: Partial<Record<bsmap.GenericFileName, IDifficultyInfo>>
 
-    /** CRC Checksums for Vivify asset bundles. */
+    /** Checksums for Vivify asset bundles. */
     assetBundle: Record<string, number> | undefined
     /** Information about the contributors in this beatmap. */
     contributors: bsmap.ICustomDataInfo['contributors'] | undefined
