@@ -8,7 +8,7 @@ import { getActiveInfo } from '../../data/active_info.ts'
 
 function applyCRCsToInfo(bundleInfo: BundleInfo) {
     const info = getActiveInfo()
-    Object.assign(info.assetBundle ??= {}, bundleInfo.default.bundleCRCs)
+    Object.assign(info.assetBundleChecksums ??= {}, bundleInfo.default.bundleCRCs)
 }
 
 /** Generate a typed list of assets from JSON.

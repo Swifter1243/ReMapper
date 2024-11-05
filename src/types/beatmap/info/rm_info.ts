@@ -19,7 +19,7 @@ export interface RMInfo {
     difficultyBeatmaps: Partial<Record<bsmap.GenericFileName, IDifficultyInfo>>
 
     /** Checksums for Vivify asset bundles. */
-    assetBundle: Record<string, number> | undefined
+    assetBundleChecksums: Record<string, number> | undefined
     /** Information about the contributors in this beatmap. */
     contributors: bsmap.ICustomDataInfo['contributors'] | undefined
     /** Information about the editors used to edit this beatmap. */

@@ -371,7 +371,7 @@ export class V2Info extends AbstractInfo<bsmap.v2.IInfo> {
             environmentNames: json._environmentNames,
             difficultyBeatmaps,
 
-            assetBundle: getCDProp(json, '_assetBundle'),
+            assetBundleChecksums: getCDProp(json, '_assetBundle'),
             contributors: getCDProp(json, '_contributors'),
             editors: getCDProp(json, '_editors'),
             unsafeCustomData: json._customData ?? {},
@@ -415,7 +415,7 @@ export class V2Info extends AbstractInfo<bsmap.v2.IInfo> {
                 _contributors: this.contributors,
                 _customEnvironment: this.customEnvironment,
                 _customEnvironmentHash: this.customEnvironmentHash,
-                _assetBundle: this.assetBundle,
+                _assetBundle: this.assetBundleChecksums,
                 ...this.unsafeCustomData,
             }),
         }

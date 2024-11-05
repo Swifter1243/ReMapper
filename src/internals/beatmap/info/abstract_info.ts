@@ -16,7 +16,7 @@ export abstract class AbstractInfo<
     colorSchemes: IColorScheme[]
     difficultyBeatmaps: Partial<Record<bsmap.GenericFileName, IDifficultyInfo>>
 
-    assetBundle: Record<string, number> | undefined
+    assetBundleChecksums: Record<string, number> | undefined
     contributors: bsmap.ICustomDataInfo['_contributors']
     editors: bsmap.IEditor | undefined
     unsafeCustomData: bsmap.ICustomDataBase
@@ -34,7 +34,7 @@ export abstract class AbstractInfo<
         this.colorSchemes = inner.colorSchemes
         this.difficultyBeatmaps = inner.difficultyBeatmaps
 
-        this.assetBundle = inner.assetBundle
+        this.assetBundleChecksums = inner.assetBundleChecksums
         this.contributors = inner.contributors
         this.editors = inner.editors
         this.unsafeCustomData = inner.unsafeCustomData
