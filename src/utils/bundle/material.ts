@@ -69,10 +69,7 @@ export class Material<T extends MaterialProperties = MaterialProperties> {
         values: Partial<MaterialPropertyValues<T>>,
         beat?: number,
         duration?: number,
-        easing?: EASE,
-        eventCallback?: (
-            event: SetMaterialProperty,
-        ) => void,
+        easing?: EASE
     ) {
         beat ??= 0
 
@@ -92,6 +89,7 @@ export class Material<T extends MaterialProperties = MaterialProperties> {
             duration,
             easing,
         )
-        if (eventCallback) eventCallback(event)
+
+        return event
     }
 }
