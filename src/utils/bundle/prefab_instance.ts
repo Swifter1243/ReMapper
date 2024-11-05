@@ -8,13 +8,15 @@ import {AbstractDifficulty} from "../../internals/beatmap/abstract_beatmap.ts";
 export class PrefabInstance {
     private _parentDifficulty: AbstractDifficulty
 
-    /** The id/track of this instance. */
-    readonly id: string
     /** The event used to push this instance. */
     readonly event: InstantiatePrefab
     /** The track of this instance. Equivalent to id. */
     get track() {
-        return this.id
+        return this.event.track.value
+    }
+    /** The id of this instance. */
+    get id() {
+        return this.event.id!
     }
     /** Whether this instance has been destroyed. */
     destroyed = false
@@ -55,9 +57,8 @@ export class PrefabInstance {
         this.event.scale = scale
     }
 
-    constructor(difficulty: AbstractDifficulty, id: string, event: InstantiatePrefab) {
+    constructor(difficulty: AbstractDifficulty, event: InstantiatePrefab) {
         this._parentDifficulty = difficulty
-        this.id = id
         this.event = event
     }
 

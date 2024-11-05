@@ -24,13 +24,34 @@ export class Prefab {
     /** Instantiate this prefab. Returns the instance. */
     instantiate(
         difficulty: AbstractDifficulty,
-        beat = 0,
-        event?: (event: InstantiatePrefab) => void,
+        ...params:
+        | [
+            beat?: number
+        ]
+        | [
+            Omit<
+                ConstructorParameters<typeof InstantiatePrefab>[1],
+                'asset'
+            >,
+        ]
     ) {
         this.count++
         const id = Prefab.getID(this)
-        const instantiation = instantiatePrefab(difficulty, beat, this.path, id, id)
-        if (event) event(instantiation)
-        return new PrefabInstance(difficulty, id, instantiation)
+
+        if (typeof params[0] === 'object') {
+            const obj = params[0]
+
+            const instantiation = instantiatePrefab(difficulty, {
+                ...obj,
+                asset: this.path,
+            })
+            instantiation.id ??= id
+            instantiation.track.value ??= id
+            return new PrefabInstance(difficulty, instantiation)
+        }
+
+        const [beat] = params
+        const instantiation = instantiatePrefab(difficulty, beat ?? 0, this.path, id, id)
+        return new PrefabInstance(difficulty, instantiation)
     }
 }
