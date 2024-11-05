@@ -17,7 +17,7 @@ export abstract class AbstractInfo<
     difficultyBeatmaps: Partial<Record<bsmap.GenericFileName, IDifficultyInfo>>
 
     assetBundleChecksums: Record<string, number> | undefined
-    contributors: bsmap.ICustomDataInfo['_contributors']
+    contributors: bsmap.ICustomDataInfo['_contributors'] | undefined
     editors: bsmap.IEditor | undefined
     unsafeCustomData: bsmap.ICustomDataBase
 
