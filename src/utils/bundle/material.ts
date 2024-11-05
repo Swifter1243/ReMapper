@@ -4,7 +4,6 @@ import { MaterialProperties, MaterialPropertyValues, StaticMaterialPropertyValue
 import { EASE } from '../../types/animation/easing.ts'
 import { DeepReadonly } from '../../types/util/mutability.ts'
 import { MATERIAL_PROP_TYPE, MaterialProperty } from '../../types/vivify/material.ts'
-import { SetMaterialProperty } from '../../internals/beatmap/object/custom_event/vivify/set_material_property.ts'
 import { Blit } from '../../internals/beatmap/object/custom_event/vivify/blit.ts'
 import { AbstractDifficulty } from '../../internals/beatmap/abstract_beatmap.ts'
 
