@@ -64,13 +64,13 @@ export class Material<T extends MaterialProperties = MaterialProperties> {
     }
 
     /** Set a property on this material. Also allows for animations. */
-    set<K extends keyof T>(
+    set(
         difficulty: AbstractDifficulty,
         values: Partial<MaterialPropertyValues<T>>,
         beat?: number,
         duration?: number,
         easing?: EASE,
-        callback?: (
+        eventCallback?: (
             event: SetMaterialProperty,
         ) => void,
     ) {
@@ -92,6 +92,6 @@ export class Material<T extends MaterialProperties = MaterialProperties> {
             duration,
             easing,
         )
-        if (callback) callback(event)
+        if (eventCallback) eventCallback(event)
     }
 }
