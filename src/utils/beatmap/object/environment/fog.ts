@@ -42,25 +42,16 @@ export function adjustFog(
     if (typeof params[0] === 'object') {
         const obj = (params as Overload1)[0]
 
-        difficulty.fogEvents.push(
-            new FogEvent(difficulty, obj, obj.beat, obj.duration),
-        )
-
+        new FogEvent(difficulty, obj, obj.beat, obj.duration)
         delete obj.beat
         delete obj.duration
     } else if (params.length === 2) {
         const obj = params as Overload2
 
-        difficulty.fogEvents.push(
-            new FogEvent(difficulty, obj[1], obj[0]),
-        )
-
+        new FogEvent(difficulty, obj[1], obj[0])
         delete obj[1].duration
     } else {
         const obj = params as Overload3
-
-        difficulty.fogEvents.push(
-            new FogEvent(difficulty, obj[2], obj[0], obj[1]),
-        )
+        new FogEvent(difficulty, obj[2], obj[0], obj[1])
     }
 }
