@@ -1,4 +1,3 @@
-import { Track } from '../../../../../utils/animation/track.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import {CameraProperties, ICreateCamera} from '../../../../../types/beatmap/object/vivify_event_interfaces.ts'
 import {CustomEventConstructorTrack} from "../../../../../types/beatmap/object/custom_event.ts";

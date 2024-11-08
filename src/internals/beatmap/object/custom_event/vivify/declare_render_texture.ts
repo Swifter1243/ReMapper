@@ -1,7 +1,7 @@
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import { IDeclareRenderTexture } from '../../../../../types/beatmap/object/vivify_event_interfaces.ts'
 import { COLOR_FORMAT, TEX_FILTER_MODE } from '../../../../../types/vivify/setting.ts'
-import {CreateCamera} from "./declare_culling_texture.ts";
+import {CreateCamera} from "./create_camera.ts";
 import {CustomEventConstructor} from "../../../../../types/beatmap/object/custom_event.ts";
 
 import {getDataProp} from "../../../../../utils/beatmap/json.ts";

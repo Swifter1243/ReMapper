@@ -1,6 +1,6 @@
 export * from './assign_object_prefab.ts'
 export * from './blit.ts'
-export * from './declare_culling_texture.ts'
+export * from './create_camera.ts'
 export * from './declare_render_texture.ts'
 export * from './destroy_object.ts'
 export * from './instantiate_prefab.ts'

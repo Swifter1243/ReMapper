@@ -1,7 +1,7 @@
 import { SetMaterialProperty } from '../../../internals/beatmap/object/custom_event/vivify/set_material_property.ts'
 import { SetGlobalProperty } from '../../../internals/beatmap/object/custom_event/vivify/set_global_property.ts'
 import { Blit } from '../../../internals/beatmap/object/custom_event/vivify/blit.ts'
-import { CreateCamera } from '../../../internals/beatmap/object/custom_event/vivify/declare_culling_texture.ts'
+import { CreateCamera } from '../../../internals/beatmap/object/custom_event/vivify/create_camera.ts'
 import { DeclareRenderTexture } from '../../../internals/beatmap/object/custom_event/vivify/declare_render_texture.ts'
 import { InstantiatePrefab } from '../../../internals/beatmap/object/custom_event/vivify/instantiate_prefab.ts'
 import { DestroyObject } from '../../../internals/beatmap/object/custom_event/vivify/destroy_object.ts'
