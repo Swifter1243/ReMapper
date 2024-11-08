@@ -3,13 +3,13 @@ import {CameraProperties, ICreateCamera} from '../../../../../types/beatmap/obje
 import {CustomEventConstructorTrack} from "../../../../../types/beatmap/object/custom_event.ts";
 
 import {getDataProp} from "../../../../../utils/beatmap/json.ts";
-import {CustomEvent} from "../base/custom_event.ts";
 import {JsonObjectDefaults} from "../../../../../types/beatmap/object/object.ts";
 import type { AbstractDifficulty } from '../../../abstract_beatmap.ts'
 import {CAMERA_CLEAR_FLAGS, DEPTH_TEX_MODE} from "../../../../../types/vivify/setting.ts";
 import {ColorVec} from "../../../../../types/math/vector.ts";
+import {Destroyable} from "./destroyable.ts";
 
-export class CreateCamera extends CustomEvent<
+export class CreateCamera extends Destroyable<
     never,
     ICreateCamera
 > implements CameraProperties {
@@ -22,7 +22,6 @@ export class CreateCamera extends CustomEvent<
     ) {
         super(difficulty, params)
         this.type = 'CreateCamera'
-        this.id = params.id ?? CreateCamera.defaults.id
         this.texture = params.texture
         this.depthTexture = params.depthTexture
         this.depthTextureMode = params.depthTextureMode
@@ -31,7 +30,7 @@ export class CreateCamera extends CustomEvent<
     }
 
     /** ID of the camera. */
-    id: string
+    declare id: string
     /** Will render to a new texture set to this key. */
     texture?: string
     /** Renders just the depth to this texture. */
@@ -50,7 +49,6 @@ export class CreateCamera extends CustomEvent<
     }
 
     override fromJsonV3(json: ICreateCamera): this {
-        this.id = getDataProp(json.d, 'id') ?? CreateCamera.defaults.id
         this.texture = getDataProp(json.d, 'texture')
         this.depthTexture = getDataProp(json.d, 'depthTexture')
         this.depthTextureMode = getDataProp(json.d, 'depthTextureMode')
@@ -64,6 +62,10 @@ export class CreateCamera extends CustomEvent<
     }
 
     toJsonV3(prune?: boolean): ICreateCamera {
+        if (!this.id) {
+            throw new Error(`'id' is missing, which is required for CreateCamera!`)
+        }
+
         const output = {
             b: this.beat,
             d: {

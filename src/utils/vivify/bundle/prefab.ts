@@ -1,5 +1,4 @@
 import { instantiatePrefab } from '../../../builder_functions/beatmap/object/custom_event/vivify.ts'
-import {PrefabInstance} from "./prefab_instance.ts";
 import {InstantiatePrefab} from "../../../internals/beatmap/object/custom_event/vivify/instantiate_prefab.ts";
 import {AbstractDifficulty} from "../../../internals/beatmap/abstract_beatmap.ts";
 
@@ -21,7 +20,7 @@ export class Prefab {
         return `prefab_${self.name}_${self.count}`
     }
 
-    /** Instantiate this prefab. Returns the instance. */
+    /** Instantiate this prefab. */
     instantiate(
         difficulty: AbstractDifficulty,
         ...params:
@@ -47,11 +46,10 @@ export class Prefab {
             })
             instantiation.id ??= id
             instantiation.track.value ??= id
-            return new PrefabInstance(difficulty, instantiation)
+            return instantiation
         }
 
         const [beat] = params
-        const instantiation = instantiatePrefab(difficulty, beat ?? 0, this.path, id, id)
-        return new PrefabInstance(difficulty, instantiation)
+        return instantiatePrefab(difficulty, beat ?? 0, this.path, id, id)
     }
 }

@@ -71,6 +71,11 @@ export type IV3CustomEvent =
     | ISetMaterialProperty
     | ISetRenderingSettings
 
+export type IV3EventDestroyable =
+    | IInstantiatePrefab
+    | ICreateCamera
+    | ICreateScreenTexture
+
 export type CustomEventExclusions = {
     type: never
 }

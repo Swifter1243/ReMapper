@@ -1,15 +1,14 @@
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import { ICreateScreenTexture } from '../../../../../types/beatmap/object/vivify_event_interfaces.ts'
 import { COLOR_FORMAT, TEX_FILTER_MODE } from '../../../../../types/vivify/setting.ts'
-import {CreateCamera} from "./create_camera.ts";
 import {CustomEventConstructor} from "../../../../../types/beatmap/object/custom_event.ts";
 
 import {getDataProp} from "../../../../../utils/beatmap/json.ts";
-import {CustomEvent} from "../base/custom_event.ts";
 import {JsonObjectDefaults} from "../../../../../types/beatmap/object/object.ts";
 import {AbstractDifficulty} from "../../../abstract_beatmap.ts";
+import {Destroyable} from "./destroyable.ts";
 
-export class CreateScreenTexture extends CustomEvent<
+export class CreateScreenTexture extends Destroyable<
     never,
     ICreateScreenTexture
 > {
@@ -22,7 +21,6 @@ export class CreateScreenTexture extends CustomEvent<
     ) {
         super(difficulty, params)
         this.type = 'CreateScreenTexture'
-        this.id = params.id ?? CreateCamera.defaults.id
         this.xRatio = params.xRatio
         this.yRatio = params.yRatio
         this.width = params.width
@@ -32,7 +30,7 @@ export class CreateScreenTexture extends CustomEvent<
     }
 
     /** Name of the texture */
-    id: string
+    declare id: string
     /** Number to divide width by, i.e. on a 1920x1080 screen, an xRatio of 2 will give you a 960x1080 texture. */
     xRatio?: number
     /** Number to divide height by. */
@@ -56,7 +54,6 @@ export class CreateScreenTexture extends CustomEvent<
     }
 
     override fromJsonV3(json: ICreateScreenTexture): this {
-        this.id = getDataProp(json.d, 'id') ?? CreateCamera.defaults.id
         this.xRatio = getDataProp(json.d, 'xRatio')
         this.yRatio = getDataProp(json.d, 'yRatio')
         this.width = getDataProp(json.d, 'width')
@@ -71,6 +68,10 @@ export class CreateScreenTexture extends CustomEvent<
     }
 
     toJsonV3(prune?: boolean): ICreateScreenTexture {
+        if (!this.id) {
+            throw new Error(`'id' is missing, which is required for CreateScreenTexture!`)
+        }
+
         const output = {
             b: this.beat,
             d: {

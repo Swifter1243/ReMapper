@@ -14,6 +14,7 @@ export abstract class BeatmapArrayMember<T> {
         return copyBeatmapMember(this)
     }
 
+    /** Duplicate this object, keeping its parent array. */
     copy(): this {
         const newObject = this._copy()
         newObject.parent = this.parent
@@ -21,20 +22,22 @@ export abstract class BeatmapArrayMember<T> {
         return this
     }
 
+    /** Copy this object into another parent array. */
     copyInto(parent: T): this {
         const newObject = this.copy()
         newObject.parent = parent
         return newObject
     }
 
-    destroy(): void {
+    /** Remove this object from its parent array. */
+    remove(): void {
         const difficultyArray = this.getArray(this.parent)
         const thisIndex = difficultyArray.findIndex((o) => o === this)
 
         if (thisIndex !== -1) {
             arrayRemove(difficultyArray, thisIndex)
         } else {
-            throw new Error(`You tried to destroy an element that wasn't present in a difficulty!`)
+            throw new Error(`You tried to remove an element that wasn't present in it's parent array!`)
         }
     }
 }
