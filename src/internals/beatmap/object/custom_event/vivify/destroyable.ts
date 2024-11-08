@@ -56,10 +56,3 @@ export abstract class Destroyable<
         return super.fromJsonV3(json);
     }
 }
-
-export function destroyObjects(difficulty: AbstractDifficulty, objects: Destroyable[], beat = 0) {
-    const event = destroyObject(difficulty, {
-        beat,
-    })
-    objects.forEach((o) => o.destroyObject(event))
-}
