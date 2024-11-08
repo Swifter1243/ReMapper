@@ -1,49 +1,37 @@
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import {
     CameraProperties,
-    CullingMask,
     ISetCameraProperty
 } from '../../../../../types/beatmap/object/vivify_event_interfaces.ts'
-import {CAMERA_CLEAR_FLAGS, DEPTH_TEX_MODE} from '../../../../../types/vivify/setting.ts'
 import {CustomEventConstructor} from "../../../../../types/beatmap/object/custom_event.ts";
 
 import {getDataProp} from "../../../../../utils/beatmap/json.ts";
 import {CustomEvent} from "../base/custom_event.ts";
 import {JsonObjectDefaults} from "../../../../../types/beatmap/object/object.ts";
-import {ColorVec} from "../../../../../types/math/vector.ts";
 import {AbstractDifficulty} from "../../../abstract_beatmap.ts";
+import {copy} from "../../../../../utils/object/copy.ts";
 
 export class SetCameraProperty extends CustomEvent<
     never,
     ISetCameraProperty
-> implements CameraProperties {
+> {
     constructor(
         difficulty: AbstractDifficulty,
         params: CustomEventConstructor<SetCameraProperty>,
     ) {
         super(difficulty, params)
         this.type = 'SetCameraProperty'
+        this.properties = params.properties ?? copy(SetCameraProperty.defaults.properties)
         this.id = params.id
-        this.depthTextureMode = params.depthTextureMode
-        this.clearFlags = params.clearFlags
-        this.backgroundColor = params.backgroundColor
-        this.culling = params.culling
-        this.bloomPrePass = params.bloomPrePass
-        this.mainEffect = params.mainEffect
     }
 
     /** ID of camera to affect. Default to "_Main". */
     id?: string
-
-    // CameraProperties
-    depthTextureMode?: DEPTH_TEX_MODE[]
-    clearFlags?: CAMERA_CLEAR_FLAGS
-    backgroundColor?: ColorVec
-    culling?: CullingMask
-    bloomPrePass?: boolean
-    mainEffect?: boolean
+    /** The properties for the camera. */
+    properties: CameraProperties
 
     static override defaults: JsonObjectDefaults<SetCameraProperty> = {
+        properties: {},
         ...super.defaults
     }
 
@@ -53,12 +41,7 @@ export class SetCameraProperty extends CustomEvent<
 
     override fromJsonV3(json: ISetCameraProperty): this {
         this.id = getDataProp(json.d, 'id')
-        this.depthTextureMode = getDataProp(json.d, 'depthTextureMode')
-        this.clearFlags = getDataProp(json.d, 'clearFlags')
-        this.backgroundColor = getDataProp(json.d, 'backgroundColor')
-        this.culling = getDataProp(json.d, 'culling')
-        this.bloomPrePass = getDataProp(json.d, 'bloomPrePass')
-        this.mainEffect = getDataProp(json.d, 'mainEffect')
+        this.properties = getDataProp(json.d, 'properties') ?? copy(SetCameraProperty.defaults.properties)
         return super.fromJsonV3(json);
     }
 
@@ -71,12 +54,7 @@ export class SetCameraProperty extends CustomEvent<
             b: this.beat,
             d: {
                 id: this.id,
-                depthTextureMode: this.depthTextureMode,
-                clearFlags: this.clearFlags,
-                backgroundColor: this.backgroundColor,
-                culling: this.culling,
-                bloomPrePass: this.bloomPrePass,
-                mainEffect: this.mainEffect,
+                properties: this.properties,
                 ...this.unsafeData,
             },
             t: 'SetCameraProperty',

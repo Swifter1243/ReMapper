@@ -57,8 +57,9 @@ export interface ICreateCamera {
     d: {
         id: string
         texture?: string,
-        depthTexture?: string
-    } & CameraProperties
+        depthTexture?: string,
+        properties: CameraProperties
+    }
 }
 
 /** JSON properties for CreateScreenTexture events */
@@ -119,7 +120,8 @@ export interface ISetCameraProperty {
     t: 'SetCameraProperty'
     d: {
         id?: string
-    } & CameraProperties
+        properties: CameraProperties
+    }
 }
 
 /** Properties to set on cameras. Used by {@link CreateCamera} and {@link SetCameraProperty}. */

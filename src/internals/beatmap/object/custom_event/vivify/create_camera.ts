@@ -1,18 +1,17 @@
 import { objectPrune } from '../../../../../utils/object/prune.ts'
-import {CameraProperties, CullingMask, ICreateCamera} from '../../../../../types/beatmap/object/vivify_event_interfaces.ts'
+import {CameraProperties, ICreateCamera} from '../../../../../types/beatmap/object/vivify_event_interfaces.ts'
 import {CustomEventConstructorTrack} from "../../../../../types/beatmap/object/custom_event.ts";
 
 import {getDataProp} from "../../../../../utils/beatmap/json.ts";
 import {JsonObjectDefaults} from "../../../../../types/beatmap/object/object.ts";
 import type { AbstractDifficulty } from '../../../abstract_beatmap.ts'
-import {CAMERA_CLEAR_FLAGS, DEPTH_TEX_MODE} from "../../../../../types/vivify/setting.ts";
-import {ColorVec} from "../../../../../types/math/vector.ts";
 import {Destroyable} from "./destroyable.ts";
+import {copy} from "../../../../../utils/object/copy.ts";
 
 export class CreateCamera extends Destroyable<
     never,
     ICreateCamera
-> implements CameraProperties {
+> {
     /**
      * Animate objects on a track across their lifespan.
      */
@@ -22,14 +21,9 @@ export class CreateCamera extends Destroyable<
     ) {
         super(difficulty, params)
         this.type = 'CreateCamera'
+        this.properties = params.properties ?? copy(CreateCamera.defaults.properties)
         this.texture = params.texture
         this.depthTexture = params.depthTexture
-        this.depthTextureMode = params.depthTextureMode
-        this.clearFlags = params.clearFlags
-        this.backgroundColor = params.backgroundColor
-        this.culling = params.culling
-        this.bloomPrePass = params.bloomPrePass
-        this.mainEffect = params.mainEffect
     }
 
     /** ID of the camera. */
@@ -38,17 +32,12 @@ export class CreateCamera extends Destroyable<
     texture?: string
     /** Renders just the depth to this texture. */
     depthTexture?: string
-
-    // CameraProperties
-    depthTextureMode?: DEPTH_TEX_MODE[]
-    clearFlags?: CAMERA_CLEAR_FLAGS
-    backgroundColor?: ColorVec
-    culling?: CullingMask
-    bloomPrePass?: boolean
-    mainEffect?: boolean
+    /** The properties for the camera. */
+    properties: CameraProperties
 
     static override defaults: JsonObjectDefaults<CreateCamera> = {
         id: '',
+        properties: {},
         ...super.defaults
     }
 
@@ -59,12 +48,7 @@ export class CreateCamera extends Destroyable<
     override fromJsonV3(json: ICreateCamera): this {
         this.texture = getDataProp(json.d, 'texture')
         this.depthTexture = getDataProp(json.d, 'depthTexture')
-        this.depthTextureMode = getDataProp(json.d, 'depthTextureMode')
-        this.clearFlags = getDataProp(json.d, 'clearFlags')
-        this.backgroundColor = getDataProp(json.d, 'backgroundColor')
-        this.culling = getDataProp(json.d, 'culling')
-        this.bloomPrePass = getDataProp(json.d, 'bloomPrePass')
-        this.mainEffect = getDataProp(json.d, 'mainEffect')
+        this.properties = getDataProp(json.d, 'properties') ?? copy(CreateCamera.defaults.properties)
         return super.fromJsonV3(json);
     }
 
@@ -83,12 +67,7 @@ export class CreateCamera extends Destroyable<
                 id: this.id,
                 texture: this.texture,
                 depthTexture: this.depthTexture,
-                depthTextureMode: this.depthTextureMode,
-                clearFlags: this.clearFlags,
-                backgroundColor: this.backgroundColor,
-                culling: this.culling,
-                bloomPrePass: this.bloomPrePass,
-                mainEffect: this.mainEffect,
+                properties: this.properties,
                 ...this.unsafeData,
             },
             t: 'CreateCamera',
