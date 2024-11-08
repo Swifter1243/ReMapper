@@ -12,7 +12,7 @@ import { DeclareCullingTexture } from '../../../../internals/beatmap/object/cust
 import { DeclareRenderTexture } from '../../../../internals/beatmap/object/custom_event/vivify/declare_render_texture.ts'
 import { DestroyTexture } from '../../../../internals/beatmap/object/custom_event/vivify/destroy_texture.ts'
 import { InstantiatePrefab } from '../../../../internals/beatmap/object/custom_event/vivify/instantiate_prefab.ts'
-import { DestroyPrefab } from '../../../../internals/beatmap/object/custom_event/vivify/destroy_prefab.ts'
+import { DestroyObject } from '../../../../internals/beatmap/object/custom_event/vivify/destroy_object.ts'
 import { SetAnimatorProperty } from '../../../../internals/beatmap/object/custom_event/vivify/set_animator_property.ts'
 import { SetCameraProperty } from '../../../../internals/beatmap/object/custom_event/vivify/set_camera_property.ts'
 import { AssignObjectPrefab } from '../../../../internals/beatmap/object/custom_event/vivify/assign_object_prefab.ts'
@@ -260,28 +260,28 @@ export function instantiatePrefab(
 }
 
 /** Destroys a prefab or multiple prefabs in the scene. */
-export function destroyPrefab(
+export function destroyObject(
     ...params:
         | ConstructorParameters<
-            typeof DestroyPrefab
+            typeof DestroyObject
         >
         | [
             parentDifficulty: AbstractDifficulty,
-            beat: number,
-            id: TrackValue,
+            beat?: number,
+            id?: TrackValue,
         ]
 ) {
     if (typeof params[1] === 'object') {
-        return new DestroyPrefab(
+        return new DestroyObject(
             ...params as ConstructorParameters<
-                typeof DestroyPrefab
+                typeof DestroyObject
             >,
         )
     }
 
     const [parentDifficulty, beat, id] = params
 
-    return new DestroyPrefab(parentDifficulty, {
+    return new DestroyObject(parentDifficulty, {
         beat,
         id,
     })

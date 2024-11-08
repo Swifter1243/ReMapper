@@ -99,7 +99,7 @@ export abstract class AbstractDifficulty<
         declareRenderTextureEvents: [],
         destroyTextureEvents: [],
         instantiatePrefabEvents:  [],
-        destroyPrefabEvents:  [],
+        destroyObjectEvents:  [],
         setAnimatorPropertyEvents: [],
         setCameraPropertyEvents: [],
         assignObjectPrefabEvents: [],

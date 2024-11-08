@@ -1,7 +1,7 @@
 import {AbstractDifficulty} from "../../internals/beatmap/abstract_beatmap.ts";
-import {destroyPrefab} from "../../builder_functions/beatmap/object/custom_event/vivify.ts";
+import {destroyObject} from "../../builder_functions/beatmap/object/custom_event/vivify.ts";
 import {CustomEvent} from "../../internals/beatmap/object/custom_event/base/custom_event.ts";
-import {DestroyPrefab} from "../../internals/beatmap/object/custom_event/vivify/destroy_prefab.ts";
+import {DestroyObject} from "../../internals/beatmap/object/custom_event/vivify/destroy_object.ts";
 
 export abstract class Destroyable<E extends CustomEvent = CustomEvent>
 {
@@ -26,11 +26,11 @@ export abstract class Destroyable<E extends CustomEvent = CustomEvent>
             throw new Error(`Object ${this.id} is already destroyed.`)
         }
 
-        destroyPrefab(this._parentDifficulty, beat, this.id)
+        destroyObject(this._parentDifficulty, beat, this.id)
         this._destroyed = true
     }
 
-    destroyWithEvent(event: DestroyPrefab)
+    destroyWithEvent(event: DestroyObject)
     {
         event.id.add(this.id)
         this._destroyed = true
@@ -39,7 +39,7 @@ export abstract class Destroyable<E extends CustomEvent = CustomEvent>
 
 export function destroyObjects(difficulty: AbstractDifficulty, objects: Destroyable[], beat = 0)
 {
-    const event = destroyPrefab(difficulty, {
+    const event = destroyObject(difficulty, {
         beat
     })
     objects.forEach(o => o.destroyWithEvent(event))

@@ -1,7 +1,7 @@
 import { TrackValue } from '../../../../../types/animation/track.ts'
 import { Track } from '../../../../../utils/animation/track.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
-import { IDestroyPrefab } from '../../../../../types/beatmap/object/vivify_event_interfaces.ts'
+import { IDestroyObject } from '../../../../../types/beatmap/object/vivify_event_interfaces.ts'
 import { CustomEventConstructorTrack } from '../../../../../types/beatmap/object/custom_event.ts'
 
 import { getDataProp } from '../../../../../utils/beatmap/json.ts'
@@ -9,46 +9,46 @@ import { CustomEvent } from '../base/custom_event.ts'
 import {JsonObjectDefaults} from "../../../../../types/beatmap/object/object.ts";
 import {AbstractDifficulty} from "../../../abstract_beatmap.ts";
 
-export class DestroyPrefab extends CustomEvent<
+export class DestroyObject extends CustomEvent<
     never,
-    IDestroyPrefab
+    IDestroyObject
 > {
     constructor(
         difficulty: AbstractDifficulty,
         params: CustomEventConstructorTrack<
-            DestroyPrefab,
+            DestroyObject,
             { id?: TrackValue | Track }
         >,
     ) {
         super(difficulty, params)
-        this.type = 'DestroyPrefab'
+        this.type = 'DestroyObject'
         this.id = params.id instanceof Track ? params.id : new Track(params.id)
     }
 
     /** ID(s) of prefab to destroy. */
     id: Track
 
-    static override defaults: JsonObjectDefaults<DestroyPrefab> = {
+    static override defaults: JsonObjectDefaults<DestroyObject> = {
         id: new Track(),
         ...super.defaults,
     }
 
     protected override getArray(difficulty: AbstractDifficulty): this[] {
-        return difficulty.customEvents.destroyPrefabEvents as this[]
+        return difficulty.customEvents.destroyObjectEvents as this[]
     }
 
-    override fromJsonV3(json: IDestroyPrefab): this {
+    override fromJsonV3(json: IDestroyObject): this {
         this.id = new Track(getDataProp(json.d, 'id'))
         return super.fromJsonV3(json)
     }
 
     override fromJsonV2(_json: never): this {
-        throw new Error('DestroyPrefab is only supported in V3!')
+        throw new Error('DestroyObject is only supported in V3!')
     }
 
-    toJsonV3(prune?: boolean): IDestroyPrefab {
+    toJsonV3(prune?: boolean): IDestroyObject {
         if (!this.id.value) {
-            throw new Error('id is undefined, which is required for DestroyPrefab!')
+            throw new Error('id is undefined, which is required for DestroyObject!')
         }
 
         const output = {
@@ -57,12 +57,12 @@ export class DestroyPrefab extends CustomEvent<
                 id: this.id.value,
                 ...this.unsafeData,
             },
-            t: 'DestroyPrefab',
-        } satisfies IDestroyPrefab
+            t: 'DestroyObject',
+        } satisfies IDestroyObject
         return prune ? objectPrune(output) : output
     }
 
     toJsonV2(_prune?: boolean): never {
-        throw new Error('DestroyPrefab is only supported in V3!')
+        throw new Error('DestroyObject is only supported in V3!')
     }
 }

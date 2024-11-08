@@ -102,10 +102,10 @@ export interface IInstantiatePrefab {
     }
 }
 
-/** JSON properties for DestroyPrefab events */
-export interface IDestroyPrefab {
+/** JSON properties for DestroyObject events */
+export interface IDestroyObject {
     b: number
-    t: 'DestroyPrefab'
+    t: 'DestroyObject'
     d: {
         id: TrackValue
     }
