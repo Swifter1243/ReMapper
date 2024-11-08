@@ -27,6 +27,9 @@ export class CreateCamera extends Destroyable<
         this.depthTextureMode = params.depthTextureMode
         this.clearFlags = params.clearFlags
         this.backgroundColor = params.backgroundColor
+        this.culling = params.culling
+        this.bloomPrePass = params.bloomPrePass
+        this.mainEffect = params.mainEffect
     }
 
     /** ID of the camera. */

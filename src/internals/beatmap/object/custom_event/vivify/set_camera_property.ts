@@ -23,10 +23,17 @@ export class SetCameraProperty extends CustomEvent<
     ) {
         super(difficulty, params)
         this.type = 'SetCameraProperty'
+        this.id = params.id
         this.depthTextureMode = params.depthTextureMode
         this.clearFlags = params.clearFlags
         this.backgroundColor = params.backgroundColor
+        this.culling = params.culling
+        this.bloomPrePass = params.bloomPrePass
+        this.mainEffect = params.mainEffect
     }
+
+    /** ID of camera to affect. Default to "_Main". */
+    id?: string
 
     // CameraProperties
     depthTextureMode?: DEPTH_TEX_MODE[]
@@ -45,6 +52,7 @@ export class SetCameraProperty extends CustomEvent<
     }
 
     override fromJsonV3(json: ISetCameraProperty): this {
+        this.id = getDataProp(json.d, 'id')
         this.depthTextureMode = getDataProp(json.d, 'depthTextureMode')
         this.clearFlags = getDataProp(json.d, 'clearFlags')
         this.backgroundColor = getDataProp(json.d, 'backgroundColor')
@@ -62,6 +70,7 @@ export class SetCameraProperty extends CustomEvent<
         const output = {
             b: this.beat,
             d: {
+                id: this.id,
                 depthTextureMode: this.depthTextureMode,
                 clearFlags: this.clearFlags,
                 backgroundColor: this.backgroundColor,

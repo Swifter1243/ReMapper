@@ -117,7 +117,9 @@ export interface ISetAnimatorProperty {
 export interface ISetCameraProperty {
     b: number
     t: 'SetCameraProperty'
-    d: CameraProperties
+    d: {
+        id?: string
+    } & CameraProperties
 }
 
 /** Properties to set on cameras. Used by {@link CreateCamera} and {@link SetCameraProperty}. */
