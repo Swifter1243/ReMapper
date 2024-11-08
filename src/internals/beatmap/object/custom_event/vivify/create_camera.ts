@@ -1,5 +1,5 @@
 import { objectPrune } from '../../../../../utils/object/prune.ts'
-import {CameraProperties, ICreateCamera} from '../../../../../types/beatmap/object/vivify_event_interfaces.ts'
+import {CameraProperties, CullingMask, ICreateCamera} from '../../../../../types/beatmap/object/vivify_event_interfaces.ts'
 import {CustomEventConstructorTrack} from "../../../../../types/beatmap/object/custom_event.ts";
 
 import {getDataProp} from "../../../../../utils/beatmap/json.ts";
@@ -35,9 +35,14 @@ export class CreateCamera extends Destroyable<
     texture?: string
     /** Renders just the depth to this texture. */
     depthTexture?: string
+
+    // CameraProperties
     depthTextureMode?: DEPTH_TEX_MODE[]
     clearFlags?: CAMERA_CLEAR_FLAGS
     backgroundColor?: ColorVec
+    culling?: CullingMask
+    bloomPrePass?: boolean
+    mainEffect?: boolean
 
     static override defaults: JsonObjectDefaults<CreateCamera> = {
         id: '',
@@ -54,6 +59,9 @@ export class CreateCamera extends Destroyable<
         this.depthTextureMode = getDataProp(json.d, 'depthTextureMode')
         this.clearFlags = getDataProp(json.d, 'clearFlags')
         this.backgroundColor = getDataProp(json.d, 'backgroundColor')
+        this.culling = getDataProp(json.d, 'culling')
+        this.bloomPrePass = getDataProp(json.d, 'bloomPrePass')
+        this.mainEffect = getDataProp(json.d, 'mainEffect')
         return super.fromJsonV3(json);
     }
 
@@ -75,6 +83,9 @@ export class CreateCamera extends Destroyable<
                 depthTextureMode: this.depthTextureMode,
                 clearFlags: this.clearFlags,
                 backgroundColor: this.backgroundColor,
+                culling: this.culling,
+                bloomPrePass: this.bloomPrePass,
+                mainEffect: this.mainEffect,
                 ...this.unsafeData,
             },
             t: 'CreateCamera',

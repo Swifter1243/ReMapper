@@ -128,6 +128,20 @@ export type CameraProperties = {
     clearFlags?: CAMERA_CLEAR_FLAGS
     /** Color to clear the screen with. Only used with the `SolidColor` clear flag. */
     backgroundColor?: ColorVec
+    /** Sets a culling mask where the selected tracks are culled */
+    culling?: CullingMask
+    /** Enable or disable the bloom pre pass effect. */
+    bloomPrePass?: boolean
+    /** Enable or disable the main bloom effect. */
+    mainEffect?: boolean
+}
+
+/** Culling mask for cameras to cull tracks. */
+export type CullingMask = {
+    /** Name(s) of your track(s). Everything on the track(s) will be added to this mask. */
+    track: string | string[]
+    /** When true, will cull everything but the selected tracks. Defaults to false. */
+    whitelist?: boolean
 }
 
 /** JSON properties for AssignObjectPrefab events */

@@ -1,5 +1,9 @@
 import { objectPrune } from '../../../../../utils/object/prune.ts'
-import {CameraProperties, ISetCameraProperty} from '../../../../../types/beatmap/object/vivify_event_interfaces.ts'
+import {
+    CameraProperties,
+    CullingMask,
+    ISetCameraProperty
+} from '../../../../../types/beatmap/object/vivify_event_interfaces.ts'
 import {CAMERA_CLEAR_FLAGS, DEPTH_TEX_MODE} from '../../../../../types/vivify/setting.ts'
 import {CustomEventConstructor} from "../../../../../types/beatmap/object/custom_event.ts";
 
@@ -24,9 +28,13 @@ export class SetCameraProperty extends CustomEvent<
         this.backgroundColor = params.backgroundColor
     }
 
+    // CameraProperties
     depthTextureMode?: DEPTH_TEX_MODE[]
     clearFlags?: CAMERA_CLEAR_FLAGS
     backgroundColor?: ColorVec
+    culling?: CullingMask
+    bloomPrePass?: boolean
+    mainEffect?: boolean
 
     static override defaults: JsonObjectDefaults<SetCameraProperty> = {
         ...super.defaults
@@ -40,6 +48,9 @@ export class SetCameraProperty extends CustomEvent<
         this.depthTextureMode = getDataProp(json.d, 'depthTextureMode')
         this.clearFlags = getDataProp(json.d, 'clearFlags')
         this.backgroundColor = getDataProp(json.d, 'backgroundColor')
+        this.culling = getDataProp(json.d, 'culling')
+        this.bloomPrePass = getDataProp(json.d, 'bloomPrePass')
+        this.mainEffect = getDataProp(json.d, 'mainEffect')
         return super.fromJsonV3(json);
     }
 
@@ -54,6 +65,9 @@ export class SetCameraProperty extends CustomEvent<
                 depthTextureMode: this.depthTextureMode,
                 clearFlags: this.clearFlags,
                 backgroundColor: this.backgroundColor,
+                culling: this.culling,
+                bloomPrePass: this.bloomPrePass,
+                mainEffect: this.mainEffect,
                 ...this.unsafeData,
             },
             t: 'SetCameraProperty',
