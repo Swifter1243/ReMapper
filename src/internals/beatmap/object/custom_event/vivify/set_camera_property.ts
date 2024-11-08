@@ -1,5 +1,5 @@
 import { objectPrune } from '../../../../../utils/object/prune.ts'
-import { ISetCameraProperty } from '../../../../../types/beatmap/object/vivify_event_interfaces.ts'
+import {CameraProperties, ISetCameraProperty} from '../../../../../types/beatmap/object/vivify_event_interfaces.ts'
 import {CAMERA_CLEAR_FLAGS, DEPTH_TEX_MODE} from '../../../../../types/vivify/setting.ts'
 import {CustomEventConstructor} from "../../../../../types/beatmap/object/custom_event.ts";
 
@@ -12,7 +12,7 @@ import {AbstractDifficulty} from "../../../abstract_beatmap.ts";
 export class SetCameraProperty extends CustomEvent<
     never,
     ISetCameraProperty
-> {
+> implements CameraProperties {
     constructor(
         difficulty: AbstractDifficulty,
         params: CustomEventConstructor<SetCameraProperty>,
@@ -24,11 +24,8 @@ export class SetCameraProperty extends CustomEvent<
         this.backgroundColor = params.backgroundColor
     }
 
-    /** Sets the depth texture mode on the camera. */
     depthTextureMode?: DEPTH_TEX_MODE[]
-    /** Determines what to clear when rendering the camera.  */
     clearFlags?: CAMERA_CLEAR_FLAGS
-    /** Color to clear the screen with. Only used with the `SolidColor` clear flag. */
     backgroundColor?: ColorVec
 
     static override defaults: JsonObjectDefaults<SetCameraProperty> = {

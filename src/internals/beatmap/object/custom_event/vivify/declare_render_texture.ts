@@ -1,7 +1,7 @@
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import { IDeclareRenderTexture } from '../../../../../types/beatmap/object/vivify_event_interfaces.ts'
 import { COLOR_FORMAT, TEX_FILTER_MODE } from '../../../../../types/vivify/setting.ts'
-import {DeclareCullingTexture} from "./declare_culling_texture.ts";
+import {CreateCamera} from "./declare_culling_texture.ts";
 import {CustomEventConstructor} from "../../../../../types/beatmap/object/custom_event.ts";
 
 import {getDataProp} from "../../../../../utils/beatmap/json.ts";
@@ -22,7 +22,7 @@ export class DeclareRenderTexture extends CustomEvent<
     ) {
         super(difficulty, params)
         this.type = 'DeclareRenderTexture'
-        this.id = params.id ?? DeclareCullingTexture.defaults.id
+        this.id = params.id ?? CreateCamera.defaults.id
         this.xRatio = params.xRatio
         this.yRatio = params.yRatio
         this.width = params.width
@@ -56,7 +56,7 @@ export class DeclareRenderTexture extends CustomEvent<
     }
 
     override fromJsonV3(json: IDeclareRenderTexture): this {
-        this.id = getDataProp(json.d, 'id') ?? DeclareCullingTexture.defaults.id
+        this.id = getDataProp(json.d, 'id') ?? CreateCamera.defaults.id
         this.xRatio = getDataProp(json.d, 'xRatio')
         this.yRatio = getDataProp(json.d, 'yRatio')
         this.width = getDataProp(json.d, 'width')

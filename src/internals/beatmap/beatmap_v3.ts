@@ -5,7 +5,7 @@ import { AnyFog, FogEvent } from './object/environment/fog.ts'
 import {
     assignObjectPrefab,
     blit,
-    declareCullingTexture,
+    createCamera,
     declareRenderTexture,
     destroyObject,
     instantiatePrefab,
@@ -272,7 +272,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         extractCustomEvents(setMaterialProperty, 'SetMaterialProperty')
         extractCustomEvents(setGlobalProperty, 'SetGlobalProperty')
         extractCustomEvents(blit, 'Blit')
-        extractCustomEvents(declareCullingTexture, 'DeclareCullingTexture')
+        extractCustomEvents(createCamera, 'CreateCamera')
         extractCustomEvents(declareRenderTexture, 'DeclareRenderTexture')
         extractCustomEvents(instantiatePrefab, 'InstantiatePrefab')
         extractCustomEvents(destroyObject, 'DestroyObject')

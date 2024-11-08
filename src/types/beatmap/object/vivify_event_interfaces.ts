@@ -50,16 +50,15 @@ export interface IBlit {
     }
 }
 
-/** JSON properties for DeclareCullingTexture events */
-export interface IDeclareCullingTexture {
+/** JSON properties for CreateCamera events */
+export interface ICreateCamera {
     b: number
-    t: 'DeclareCullingTexture'
+    t: 'CreateCamera'
     d: {
         id: string
-        track: TrackValue
-        whitelist?: boolean
-        depthTexture?: boolean
-    }
+        texture?: string,
+        depthTexture?: string
+    } & CameraProperties
 }
 
 /** JSON properties for DeclareRenderTexture events */
@@ -118,11 +117,17 @@ export interface ISetAnimatorProperty {
 export interface ISetCameraProperty {
     b: number
     t: 'SetCameraProperty'
-    d: {
-        depthTextureMode?: DEPTH_TEX_MODE[]
-        clearFlags?: CAMERA_CLEAR_FLAGS
-        backgroundColor?: ColorVec
-    }
+    d: CameraProperties
+}
+
+/** Properties to set on cameras. Used by {@link CreateCamera} and {@link SetCameraProperty}. */
+export type CameraProperties = {
+    /** Sets the depth texture mode on the camera. */
+    depthTextureMode?: DEPTH_TEX_MODE[]
+    /** Determines what to clear when rendering the camera.  */
+    clearFlags?: CAMERA_CLEAR_FLAGS
+    /** Color to clear the screen with. Only used with the `SolidColor` clear flag. */
+    backgroundColor?: ColorVec
 }
 
 /** JSON properties for AssignObjectPrefab events */

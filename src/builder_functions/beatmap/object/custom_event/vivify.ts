@@ -8,7 +8,7 @@ import { AnimatorProperty } from '../../../../types/vivify/animator.ts'
 import { SetMaterialProperty } from '../../../../internals/beatmap/object/custom_event/vivify/set_material_property.ts'
 import { SetGlobalProperty } from '../../../../internals/beatmap/object/custom_event/vivify/set_global_property.ts'
 import { Blit } from '../../../../internals/beatmap/object/custom_event/vivify/blit.ts'
-import { DeclareCullingTexture } from '../../../../internals/beatmap/object/custom_event/vivify/declare_culling_texture.ts'
+import { CreateCamera } from '../../../../internals/beatmap/object/custom_event/vivify/declare_culling_texture.ts'
 import { DeclareRenderTexture } from '../../../../internals/beatmap/object/custom_event/vivify/declare_render_texture.ts'
 import { InstantiatePrefab } from '../../../../internals/beatmap/object/custom_event/vivify/instantiate_prefab.ts'
 import { DestroyObject } from '../../../../internals/beatmap/object/custom_event/vivify/destroy_object.ts'
@@ -120,37 +120,36 @@ export function blit(
 }
 
 /**
- * Declares a culling mask where selected tracks are culled.
- * Vivify will automatically create a texture for you to sample from your shader
+ * Creates an additional camera that will render to the desired texture. Useful for creating a secondary texture where a certain track is culled.
  */
-export function declareCullingTexture(
+export function createCamera(
     ...params:
         | ConstructorParameters<
-            typeof DeclareCullingTexture
+            typeof CreateCamera
         >
         | [
             parentDifficulty: AbstractDifficulty,
             beat: number,
             id: string,
-            track: TrackValue,
-            whitelist?: boolean,
+            texture?: string,
+            depthTexture?: string
         ]
 ) {
     if (typeof params[1] === 'object') {
-        return new DeclareCullingTexture(
+        return new CreateCamera(
             ...params as ConstructorParameters<
-                typeof DeclareCullingTexture
+                typeof CreateCamera
             >,
         )
     }
 
-    const [parentDifficulty, beat, id, track, whitelist] = params
+    const [parentDifficulty, beat, id, texture, depthTexture] = params
 
-    return new DeclareCullingTexture(parentDifficulty, {
+    return new CreateCamera(parentDifficulty, {
         beat,
         id,
-        track,
-        whitelist,
+        texture,
+        depthTexture
     })
 }
 

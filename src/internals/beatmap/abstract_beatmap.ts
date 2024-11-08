@@ -95,7 +95,7 @@ export abstract class AbstractDifficulty<
         setMaterialPropertyEvents: [],
         setGlobalPropertyEvents: [],
         blitEvents: [],
-        declareCullingTextureEvents: [],
+        createCameraEvents: [],
         declareRenderTextureEvents: [],
         instantiatePrefabEvents:  [],
         destroyObjectEvents:  [],
