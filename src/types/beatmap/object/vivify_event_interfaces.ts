@@ -61,10 +61,10 @@ export interface ICreateCamera {
     } & CameraProperties
 }
 
-/** JSON properties for DeclareRenderTexture events */
-export interface IDeclareRenderTexture {
+/** JSON properties for CreateScreenTexture events */
+export interface ICreateScreenTexture {
     b: number
-    t: 'DeclareRenderTexture'
+    t: 'CreateScreenTexture'
     d: {
         id: string
         xRatio?: number

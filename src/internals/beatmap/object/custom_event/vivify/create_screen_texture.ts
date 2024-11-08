@@ -1,5 +1,5 @@
 import { objectPrune } from '../../../../../utils/object/prune.ts'
-import { IDeclareRenderTexture } from '../../../../../types/beatmap/object/vivify_event_interfaces.ts'
+import { ICreateScreenTexture } from '../../../../../types/beatmap/object/vivify_event_interfaces.ts'
 import { COLOR_FORMAT, TEX_FILTER_MODE } from '../../../../../types/vivify/setting.ts'
 import {CreateCamera} from "./create_camera.ts";
 import {CustomEventConstructor} from "../../../../../types/beatmap/object/custom_event.ts";
@@ -9,19 +9,19 @@ import {CustomEvent} from "../base/custom_event.ts";
 import {JsonObjectDefaults} from "../../../../../types/beatmap/object/object.ts";
 import {AbstractDifficulty} from "../../../abstract_beatmap.ts";
 
-export class DeclareRenderTexture extends CustomEvent<
+export class CreateScreenTexture extends CustomEvent<
     never,
-    IDeclareRenderTexture
+    ICreateScreenTexture
 > {
     /**
      * Animate objects on a track across their lifespan.
      */
     constructor(
         difficulty: AbstractDifficulty,
-        params: CustomEventConstructor<DeclareRenderTexture>,
+        params: CustomEventConstructor<CreateScreenTexture>,
     ) {
         super(difficulty, params)
-        this.type = 'DeclareRenderTexture'
+        this.type = 'CreateScreenTexture'
         this.id = params.id ?? CreateCamera.defaults.id
         this.xRatio = params.xRatio
         this.yRatio = params.yRatio
@@ -46,16 +46,16 @@ export class DeclareRenderTexture extends CustomEvent<
     /** https://docs.unity3d.com/ScriptReference/FilterMode.html */
     filterMode?: TEX_FILTER_MODE
 
-    static override defaults: JsonObjectDefaults<DeclareRenderTexture> = {
+    static override defaults: JsonObjectDefaults<CreateScreenTexture> = {
         id: '',
         ...super.defaults
     }
 
     protected override getArray(difficulty: AbstractDifficulty): this[] {
-        return difficulty.customEvents.declareRenderTextureEvents as this[]
+        return difficulty.customEvents.createScreenTextureEvents as this[]
     }
 
-    override fromJsonV3(json: IDeclareRenderTexture): this {
+    override fromJsonV3(json: ICreateScreenTexture): this {
         this.id = getDataProp(json.d, 'id') ?? CreateCamera.defaults.id
         this.xRatio = getDataProp(json.d, 'xRatio')
         this.yRatio = getDataProp(json.d, 'yRatio')
@@ -67,10 +67,10 @@ export class DeclareRenderTexture extends CustomEvent<
     }
 
     override fromJsonV2(_json: never): this {
-        throw new Error('DeclareRenderTexture is only supported in V3!')
+        throw new Error('CreateScreenTexture is only supported in V3!')
     }
 
-    toJsonV3(prune?: boolean): IDeclareRenderTexture {
+    toJsonV3(prune?: boolean): ICreateScreenTexture {
         const output = {
             b: this.beat,
             d: {
@@ -83,12 +83,12 @@ export class DeclareRenderTexture extends CustomEvent<
                 yRatio: this.yRatio,
                 ...this.unsafeData,
             },
-            t: 'DeclareRenderTexture',
-        } satisfies IDeclareRenderTexture
+            t: 'CreateScreenTexture',
+        } satisfies ICreateScreenTexture
         return prune ? objectPrune(output) : output
     }
 
     toJsonV2(_prune?: boolean): never {
-        throw new Error('DeclareRenderTexture is only supported in V3!')
+        throw new Error('CreateScreenTexture is only supported in V3!')
     }
 }

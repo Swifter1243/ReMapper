@@ -96,7 +96,7 @@ export abstract class AbstractDifficulty<
         setGlobalPropertyEvents: [],
         blitEvents: [],
         createCameraEvents: [],
-        declareRenderTextureEvents: [],
+        createScreenTextureEvents: [],
         instantiatePrefabEvents:  [],
         destroyObjectEvents:  [],
         setAnimatorPropertyEvents: [],

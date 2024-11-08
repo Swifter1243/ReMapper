@@ -9,7 +9,7 @@ import { SetMaterialProperty } from '../../../../internals/beatmap/object/custom
 import { SetGlobalProperty } from '../../../../internals/beatmap/object/custom_event/vivify/set_global_property.ts'
 import { Blit } from '../../../../internals/beatmap/object/custom_event/vivify/blit.ts'
 import { CreateCamera } from '../../../../internals/beatmap/object/custom_event/vivify/create_camera.ts'
-import { DeclareRenderTexture } from '../../../../internals/beatmap/object/custom_event/vivify/declare_render_texture.ts'
+import { CreateScreenTexture } from '../../../../internals/beatmap/object/custom_event/vivify/create_screen_texture.ts'
 import { InstantiatePrefab } from '../../../../internals/beatmap/object/custom_event/vivify/instantiate_prefab.ts'
 import { DestroyObject } from '../../../../internals/beatmap/object/custom_event/vivify/destroy_object.ts'
 import { SetAnimatorProperty } from '../../../../internals/beatmap/object/custom_event/vivify/set_animator_property.ts'
@@ -154,14 +154,13 @@ export function createCamera(
 }
 
 /**
- * Declare a RenderTexture to be used anywhere.
- * They are set as a global variable and can be accessed by declaring a sampler named what you put in "name".
- * Depth texture can be obtained by adding the suffix "_Depth" to your sampler.
+ * Declares a RenderTexture to be used anywhere.
+ * They are set as a global variable and can be accessed by declaring a sampler named what you put in "id"
  */
-export function declareRenderTexture(
+export function createScreenTexture(
     ...params:
         | ConstructorParameters<
-            typeof DeclareRenderTexture
+            typeof CreateScreenTexture
         >
         | [
             parentDifficulty: AbstractDifficulty,
@@ -172,16 +171,16 @@ export function declareRenderTexture(
         ]
 ) {
     if (typeof params[1] === 'object') {
-        return new DeclareRenderTexture(
+        return new CreateScreenTexture(
             ...params as ConstructorParameters<
-                typeof DeclareRenderTexture
+                typeof CreateScreenTexture
             >,
         )
     }
 
     const [parentDifficulty, beat, id, width, height] = params
 
-    return new DeclareRenderTexture(parentDifficulty, {
+    return new CreateScreenTexture(parentDifficulty, {
         beat,
         id,
         width,

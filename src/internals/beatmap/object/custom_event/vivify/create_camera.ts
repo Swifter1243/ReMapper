@@ -30,7 +30,7 @@ export class CreateCamera extends CustomEvent<
         this.backgroundColor = params.backgroundColor
     }
 
-    /** Name of the culling mask, this is what you must name your sampler in your shader. */
+    /** ID of the camera. */
     id: string
     /** Will render to a new texture set to this key. */
     texture?: string

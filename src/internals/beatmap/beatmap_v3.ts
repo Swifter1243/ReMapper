@@ -6,7 +6,7 @@ import {
     assignObjectPrefab,
     blit,
     createCamera,
-    declareRenderTexture,
+    createScreenTexture,
     destroyObject,
     instantiatePrefab,
     setAnimatorProperty,
@@ -273,7 +273,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
         extractCustomEvents(setGlobalProperty, 'SetGlobalProperty')
         extractCustomEvents(blit, 'Blit')
         extractCustomEvents(createCamera, 'CreateCamera')
-        extractCustomEvents(declareRenderTexture, 'DeclareRenderTexture')
+        extractCustomEvents(createScreenTexture, 'CreateScreenTexture')
         extractCustomEvents(instantiatePrefab, 'InstantiatePrefab')
         extractCustomEvents(destroyObject, 'DestroyObject')
         extractCustomEvents(setAnimatorProperty, 'SetAnimatorPrefab')

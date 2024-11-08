@@ -2,7 +2,7 @@ import { SetMaterialProperty } from '../../../internals/beatmap/object/custom_ev
 import { SetGlobalProperty } from '../../../internals/beatmap/object/custom_event/vivify/set_global_property.ts'
 import { Blit } from '../../../internals/beatmap/object/custom_event/vivify/blit.ts'
 import { CreateCamera } from '../../../internals/beatmap/object/custom_event/vivify/create_camera.ts'
-import { DeclareRenderTexture } from '../../../internals/beatmap/object/custom_event/vivify/declare_render_texture.ts'
+import { CreateScreenTexture } from '../../../internals/beatmap/object/custom_event/vivify/create_screen_texture.ts'
 import { InstantiatePrefab } from '../../../internals/beatmap/object/custom_event/vivify/instantiate_prefab.ts'
 import { DestroyObject } from '../../../internals/beatmap/object/custom_event/vivify/destroy_object.ts'
 import { SetAnimatorProperty } from '../../../internals/beatmap/object/custom_event/vivify/set_animator_property.ts'
@@ -13,7 +13,7 @@ import {
     IAssignObjectPrefab,
     IBlit,
     ICreateCamera,
-    IDeclareRenderTexture,
+    ICreateScreenTexture,
     IDestroyObject,
     IInstantiatePrefab,
     ISetAnimatorProperty,
@@ -46,7 +46,7 @@ export interface BeatmapCustomEvents {
     setGlobalPropertyEvents: SetGlobalProperty[]
     blitEvents: Blit[]
     createCameraEvents: CreateCamera[]
-    declareRenderTextureEvents: DeclareRenderTexture[]
+    createScreenTextureEvents: CreateScreenTexture[]
     instantiatePrefabEvents: InstantiatePrefab[]
     destroyObjectEvents: DestroyObject[]
     setAnimatorPropertyEvents: SetAnimatorProperty[]
@@ -62,7 +62,7 @@ export type IV3CustomEvent =
     | IAssignObjectPrefab
     | IBlit
     | ICreateCamera
-    | IDeclareRenderTexture
+    | ICreateScreenTexture
     | IDestroyObject
     | IInstantiatePrefab
     | ISetAnimatorProperty
