@@ -7,7 +7,6 @@ import {
     IV3EventDestroyable
 } from '../../../../../types/beatmap/object/custom_event.ts'
 import { bsmap } from '../../../../../deps.ts'
-import {JsonObjectDefaults} from "../../../../../types/beatmap/object/object.ts";
 import {getDataProp} from "../../../../../utils/beatmap/json.ts";
 
 export abstract class Destroyable<
@@ -24,10 +23,6 @@ export abstract class Destroyable<
     ) {
         super(difficulty, params)
         this.id = params.id
-    }
-
-    static override defaults: JsonObjectDefaults<Destroyable> = {
-        ...super.defaults
     }
 
     /** Destroy this object with a DestroyObject event. Requires it to have an ID. */
