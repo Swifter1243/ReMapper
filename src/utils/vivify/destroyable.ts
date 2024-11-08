@@ -1,17 +1,18 @@
 import {AbstractDifficulty} from "../../internals/beatmap/abstract_beatmap.ts";
 import {destroyPrefab} from "../../builder_functions/beatmap/object/custom_event/vivify.ts";
 import {CustomEvent} from "../../internals/beatmap/object/custom_event/base/custom_event.ts";
+import {DestroyPrefab} from "../../internals/beatmap/object/custom_event/vivify/destroy_prefab.ts";
 
-export abstract class Destroyable<E extends CustomEvent>
+export abstract class Destroyable<E extends CustomEvent = CustomEvent>
 {
+    private readonly _parentDifficulty: AbstractDifficulty
     readonly creationEvent: E
     readonly id: string
-    private readonly _parentDifficulty: AbstractDifficulty
     private _destroyed = false
 
-    protected constructor(creationEvent: E, parentDifficulty: AbstractDifficulty, id: string) {
-        this.creationEvent = creationEvent
+    protected constructor(parentDifficulty: AbstractDifficulty, creationEvent: E, id: string) {
         this._parentDifficulty = parentDifficulty
+        this.creationEvent = creationEvent
         this.id = id;
     }
 
@@ -28,4 +29,18 @@ export abstract class Destroyable<E extends CustomEvent>
         destroyPrefab(this._parentDifficulty, beat, this.id)
         this._destroyed = true
     }
+
+    destroyWithEvent(event: DestroyPrefab)
+    {
+        event.id.add(this.id)
+        this._destroyed = true
+    }
+}
+
+export function destroyObjects(difficulty: AbstractDifficulty, objects: Destroyable[], beat = 0)
+{
+    const event = destroyPrefab(difficulty, {
+        beat
+    })
+    objects.forEach(o => o.destroyWithEvent(event))
 }
