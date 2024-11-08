@@ -77,15 +77,6 @@ export interface IDeclareRenderTexture {
     }
 }
 
-/** JSON properties for DestroyTexture events */
-export interface IDestroyTexture {
-    b: number
-    t: 'DestroyTexture'
-    d: {
-        id: TrackValue
-    }
-}
-
 /** JSON properties for InstantiatePrefab events */
 export interface IInstantiatePrefab {
     b: number

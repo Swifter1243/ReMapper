@@ -3,7 +3,6 @@ import { SetGlobalProperty } from '../../../internals/beatmap/object/custom_even
 import { Blit } from '../../../internals/beatmap/object/custom_event/vivify/blit.ts'
 import { DeclareCullingTexture } from '../../../internals/beatmap/object/custom_event/vivify/declare_culling_texture.ts'
 import { DeclareRenderTexture } from '../../../internals/beatmap/object/custom_event/vivify/declare_render_texture.ts'
-import { DestroyTexture } from '../../../internals/beatmap/object/custom_event/vivify/destroy_texture.ts'
 import { InstantiatePrefab } from '../../../internals/beatmap/object/custom_event/vivify/instantiate_prefab.ts'
 import { DestroyObject } from '../../../internals/beatmap/object/custom_event/vivify/destroy_object.ts'
 import { SetAnimatorProperty } from '../../../internals/beatmap/object/custom_event/vivify/set_animator_property.ts'
@@ -16,7 +15,6 @@ import {
     IDeclareCullingTexture,
     IDeclareRenderTexture,
     IDestroyObject,
-    IDestroyTexture,
     IInstantiatePrefab,
     ISetAnimatorProperty,
     ISetCameraProperty,
@@ -49,7 +47,6 @@ export interface BeatmapCustomEvents {
     blitEvents: Blit[]
     declareCullingTextureEvents: DeclareCullingTexture[]
     declareRenderTextureEvents: DeclareRenderTexture[]
-    destroyTextureEvents: DestroyTexture[]
     instantiatePrefabEvents: InstantiatePrefab[]
     destroyObjectEvents: DestroyObject[]
     setAnimatorPropertyEvents: SetAnimatorProperty[]
@@ -67,7 +64,6 @@ export type IV3CustomEvent =
     | IDeclareCullingTexture
     | IDeclareRenderTexture
     | IDestroyObject
-    | IDestroyTexture
     | IInstantiatePrefab
     | ISetAnimatorProperty
     | ISetCameraProperty

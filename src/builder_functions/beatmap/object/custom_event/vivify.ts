@@ -10,7 +10,6 @@ import { SetGlobalProperty } from '../../../../internals/beatmap/object/custom_e
 import { Blit } from '../../../../internals/beatmap/object/custom_event/vivify/blit.ts'
 import { DeclareCullingTexture } from '../../../../internals/beatmap/object/custom_event/vivify/declare_culling_texture.ts'
 import { DeclareRenderTexture } from '../../../../internals/beatmap/object/custom_event/vivify/declare_render_texture.ts'
-import { DestroyTexture } from '../../../../internals/beatmap/object/custom_event/vivify/destroy_texture.ts'
 import { InstantiatePrefab } from '../../../../internals/beatmap/object/custom_event/vivify/instantiate_prefab.ts'
 import { DestroyObject } from '../../../../internals/beatmap/object/custom_event/vivify/destroy_object.ts'
 import { SetAnimatorProperty } from '../../../../internals/beatmap/object/custom_event/vivify/set_animator_property.ts'
@@ -189,40 +188,6 @@ export function declareRenderTexture(
         width,
         height,
     })
-}
-
-/**
- * Destroys a texture.
- * It is important to destroy any textures created through DeclareCullingTexture because the scene will have to be rendered again for each active culling texture. This can also be used for textures created through DeclareRenderTexture to free up memory.
- */
-export function destroyTexture(
-    ...params:
-        | ConstructorParameters<
-            typeof DestroyTexture
-        >
-        | [
-            parentDifficulty: AbstractDifficulty,
-            beat: number,
-            id: TrackValue,
-        ]
-) {
-    if (typeof params[1] === 'object') {
-        return new DestroyTexture(
-            ...params as ConstructorParameters<
-                typeof DestroyTexture
-            >,
-        )
-    }
-
-    const [parentDifficulty, beat, id] = params
-
-    return new DestroyTexture(
-        parentDifficulty,
-        {
-            beat,
-            id,
-        },
-    )
 }
 
 /**
