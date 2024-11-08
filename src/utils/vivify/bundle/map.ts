@@ -7,10 +7,10 @@ import {
     MaterialPropertyMap,
     PrefabInfo,
     PrefabMap
-} from "../../types/bundle.ts";
-import {MATERIAL_PROP_TYPE} from "../../types/vivify/material.ts";
-import {FILEPATH} from "../../types/beatmap/file.ts";
-import {ColorVec, Vec4} from "../../types/math/vector.ts";
+} from "../../../types/bundle.ts";
+import {MATERIAL_PROP_TYPE} from "../../../types/vivify/material.ts";
+import {FILEPATH} from "../../../types/beatmap/file.ts";
+import {ColorVec, Vec4} from "../../../types/math/vector.ts";
 
 
 /** Generate a typed list of prefabs from JSON. */

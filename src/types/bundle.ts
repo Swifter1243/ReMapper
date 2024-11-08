@@ -1,5 +1,5 @@
-import { Material } from '../utils/bundle/material.ts'
-import { Prefab } from '../utils/bundle/prefab.ts'
+import { Material } from '../utils/vivify/bundle/material.ts'
+import { Prefab } from '../utils/vivify/bundle/prefab.ts'
 
 import { ColorVec, Vec4 } from './math/vector.ts'
 import { RuntimeDifficultyPointsLinear } from './animation/points/runtime/linear.ts'

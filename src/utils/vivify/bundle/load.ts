@@ -3,8 +3,8 @@ import {
     BundleInfo,
     MaterialMap,
     PrefabMap
-} from "../../types/bundle.ts";
-import { getActiveInfo } from '../../data/active_info.ts'
+} from "../../../types/bundle.ts";
+import { getActiveInfo } from '../../../data/active_info.ts'
 
 function applyCRCsToInfo(bundleInfo: BundleInfo) {
     const info = getActiveInfo()
