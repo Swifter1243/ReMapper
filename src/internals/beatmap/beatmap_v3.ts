@@ -50,6 +50,7 @@ import { OfficialBPMEvent } from './object/v3_event/bpm/official_bpm.ts'
 import { RawGeometryMaterial } from '../../types/beatmap/object/environment.ts'
 import { CustomEvent } from './object/custom_event/base/custom_event.ts'
 import {RotationEvent} from "./object/v3_event/rotation.ts";
+import {FOG_TRACK} from "../../constants/fog.ts";
 
 export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
     declare version: bsmap.v3.IDifficulty['version']
@@ -404,7 +405,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
                 id: '[0]Environment',
                 lookupMethod: 'EndsWith',
             }
-            fogEnvironment.track = 'ReMapper_Fog'
+            fogEnvironment.track = FOG_TRACK
         }
         if (fogEnvironment!) environment.push(fogEnvironment)
 

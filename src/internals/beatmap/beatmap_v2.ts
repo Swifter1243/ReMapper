@@ -31,6 +31,7 @@ import { ColorVec } from '../../types/math/vector.ts'
 import { RuntimeRawPointsAny } from '../../types/animation/points/runtime/any.ts'
 import { CustomEvent } from './object/custom_event/base/custom_event.ts'
 import { NoteColor } from '../../constants/note.ts'
+import {FOG_TRACK} from "../../constants/fog.ts";
 
 /** Difficulty V2 beatmap. */
 export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
@@ -314,7 +315,7 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
                 _time: 0,
                 _type: 'AssignFogTrack',
                 _data: {
-                    _track: 'ReMapper_Fog',
+                    _track: FOG_TRACK,
                 },
             } as bsmap.v2.ICustomEvent)
         }
