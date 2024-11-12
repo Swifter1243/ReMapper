@@ -30,6 +30,10 @@ export async function collectBeatmapFiles(
         'cinema-video.object',
     ]
 
+    if (info.contributors) {
+        unsanitizedFiles.push(...info.contributors.map(c => c._iconPath))
+    }
+
     if (bundleInfo) {
         unsanitizedFiles.push(...bundleInfo.default.bundleFiles)
     }
