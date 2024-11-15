@@ -50,7 +50,10 @@ export class ReMapperWorkspace {
             throw new Error("You are trying to export a beatmap into the same directory as itself!")
         }
 
-        await fs.emptyDir(outputDirectory) // creates directory
+        await Promise.all([
+            await fs.emptyDir(outputDirectory), // creates directory
+            ...this.activeDifficulties.values().map(d => d.awaitAllAsync())
+        ])
 
         const files: string[] = []
         const promises: Promise<unknown>[] = []
