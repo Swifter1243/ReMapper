@@ -53,9 +53,6 @@ export class ReMapperWorkspace {
             promises.push(fs.copy(file, newDirectory))
         }
 
-        // Add bundle
-        // TODO
-
         // Add info
         addTextFile('Info.dat', this.info.toJSON())
         copyFile(this.info.coverImageFilename)
@@ -64,6 +61,11 @@ export class ReMapperWorkspace {
         // Add contributors
         if (this.info.contributors) {
             this.info.contributors.map(c => copyFile(c._iconPath))
+        }
+
+        // Add bundle
+        if (this.bundleInfo) {
+            this.bundleInfo.default.bundleFiles.forEach(copyFile)
         }
 
         // Add diffs
