@@ -1,12 +1,12 @@
 import { AbstractInfo } from './beatmap/info/abstract_info.ts'
 import { AbstractDifficulty } from './beatmap/abstract_beatmap.ts'
 import { V2Info } from './beatmap/info/info_v2.ts'
-import { fs, path } from '../deps.ts'
-import { WorkspaceExportOptions } from '../types/remapper/rm_workspace.ts'
-import {BundleInfo} from "../types/bundle.ts";
-import {applyCRCsToInfo} from "../utils/vivify/bundle/load.ts";
-import {REMAPPER_VERSION} from "../constants/package.ts";
-import {RMLog} from "../utils/rm_log.ts";
+import { compress, fs, path } from '../deps.ts'
+import { WorkspaceExportOptions, WorkspaceZipOptions } from '../types/remapper/rm_workspace.ts'
+import { BundleInfo } from '../types/bundle.ts'
+import { applyCRCsToInfo } from '../utils/vivify/bundle/load.ts'
+import { REMAPPER_VERSION } from '../constants/package.ts'
+import { RMError, RMLog } from '../utils/rm_log.ts'
 
 export class ReMapperWorkspace {
     readonly info: AbstractInfo
@@ -20,9 +20,9 @@ export class ReMapperWorkspace {
         this.bundleInfo = bundleInfo
 
         info.editors ??= {}
-        info.editors._lastEditedBy = "ReMapper"
-        info.editors["ReMapper"] = {
-            version: REMAPPER_VERSION
+        info.editors._lastEditedBy = 'ReMapper'
+        info.editors['ReMapper'] = {
+            version: REMAPPER_VERSION,
         }
 
         if (this.bundleInfo) {
@@ -47,12 +47,12 @@ export class ReMapperWorkspace {
 
         const outputDirectoryIsInput = path.resolve(outputDirectory) === this.directory
         if (outputDirectoryIsInput) {
-            throw new Error("You are trying to export a beatmap into the same directory as itself!")
+            throw new Error('You are trying to export a beatmap into the same directory as itself!')
         }
 
         await Promise.all([
             await fs.emptyDir(outputDirectory), // creates directory
-            ...this.activeDifficulties.values().map(d => d.awaitAllAsync())
+            ...this.activeDifficulties.values().map((d) => d.awaitAllAsync()),
         ])
 
         const files: string[] = []
@@ -77,7 +77,7 @@ export class ReMapperWorkspace {
 
         // Add contributors
         if (this.info.contributors) {
-            this.info.contributors.map(c => addCopiedFile(c._iconPath))
+            this.info.contributors.map((c) => addCopiedFile(c._iconPath))
         }
 
         // Add bundle
@@ -99,5 +99,37 @@ export class ReMapperWorkspace {
         // Export
         await Promise.all(promises)
         RMLog(`Successfully saved beatmap to ${outputDirectory}`)
+
+        const exportPromises: Promise<unknown>[] = []
+
+        if (options.zip) {
+            exportPromises.push(this.exportZip(files, options.zip))
+        }
+
+        await Promise.all(exportPromises)
+    }
+
+    private async exportZip(files: string[], zipOptions: WorkspaceZipOptions) {
+        let zipName = zipOptions.name ?? `${path.parse(this.directory).name}`
+        zipName = `${zipName}.zip`
+        zipName = zipName.replaceAll(' ', '_')
+        zipName = encodeURI(zipName)
+
+        if (this.bundleInfo && !this.bundleInfo.default.isCompressed) {
+            RMError(
+                'Warning: You are trying to distribute uncompressed bundles. It is recommended that you export these bundles as compressed if you plan to distribute them.',
+            )
+        }
+
+        if (this.bundleInfo && !zipOptions.includeBundles) {
+            files = files.filter((f) => !path.parse(f).name.includes('bundle'))
+        }
+
+        // surround with quotes for safety
+        files = files.map(f => `"${f}"`)
+
+        await compress(files, zipName, { overwrite: true })
+
+        RMLog(`"${zipName}" has been zipped!`)
     }
 }

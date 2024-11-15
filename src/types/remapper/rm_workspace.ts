@@ -12,12 +12,7 @@ export type WorkspaceExportOptions = {
     /** The directory where this map should be exported to. */
     outputDirectory: string,
     /** Export the map to a zip. */
-    zip?: {
-        /** Name of the .zip. Defaults to the map name. */
-        name?: string,
-        /** Add bundles to the zip. Only do this if you're distributing to friends, don't include these files in a BeatSaver upload. */
-        includeBundles?: boolean
-    }
+    zip?: WorkspaceZipOptions
     /**
      * Automatically upload the map files to quest, including only necessary files.
      *
@@ -27,4 +22,11 @@ export type WorkspaceExportOptions = {
         /** Options to pass to ADB */
         adbOptions: adbDeno.InvokeADBOptions
     }
+}
+
+export type WorkspaceZipOptions = {
+    /** Name of the .zip. Defaults to the map name. */
+    name?: string,
+    /** Add bundles to the zip. Only do this if you're distributing to friends, don't include these files in a BeatSaver upload. */
+    includeBundles?: boolean
 }
