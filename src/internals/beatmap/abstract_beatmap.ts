@@ -44,11 +44,11 @@ export abstract class AbstractDifficulty<
     /** The Json of the entire difficulty. Readonly since it is not outputted in the resulting diff */
     readonly json: Readonly<TD>
     /** The info relating to this difficulty on the Info.dat */
-    difficultyInfo: IDifficultyInfo
+    readonly difficultyInfo: IDifficultyInfo
     /** The workspace this difficulty is a part of. */
-    workspace: ReMapperWorkspace
+    readonly workspace: ReMapperWorkspace
     /** Tasks to complete before the difficulty is saved. */
-    awaitingCompletion = new Set<Promise<unknown>>()
+    readonly awaitingCompletion = new Set<Promise<unknown>>()
 
     private postProcesses = new Map<number, PostProcessFn[]>()
 
