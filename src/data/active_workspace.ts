@@ -11,8 +11,6 @@ export function loadWorkspace(workspace: ReMapperWorkspace) {
     }
 
     activeWorkspace = workspace
-
-
 }
 
 export function addWorkspaceDifficulty(difficulty: AbstractDifficulty) {
