@@ -5,6 +5,7 @@ import { fs, path } from '../deps.ts'
 import { WorkspaceExportOptions } from '../types/remapper/rm_workspace.ts'
 import {BundleInfo} from "../types/bundle.ts";
 import {applyCRCsToInfo} from "../utils/vivify/bundle/load.ts";
+import {REMAPPER_VERSION} from "../constants/package.ts";
 
 export class ReMapperWorkspace {
     readonly info: AbstractInfo
@@ -16,6 +17,12 @@ export class ReMapperWorkspace {
         this.info = info
         this.directory = directory
         this.bundleInfo = bundleInfo
+
+        info.editors ??= {}
+        info.editors._lastEditedBy = "ReMapper"
+        info.editors["ReMapper"] = {
+            version: REMAPPER_VERSION
+        }
 
         if (this.bundleInfo) {
             applyCRCsToInfo(this.info, this.bundleInfo)
