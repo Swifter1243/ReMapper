@@ -17,9 +17,7 @@ export class ReMapperWorkspace
     }
 
     attachInputDirectory(file: string) {
-        if (path.isAbsolute(file)) return file
-
-        return path.join(this.inputDirectory, file)
+        path.join(this.inputDirectory, file)
     }
 
     get infoAsV2() {
