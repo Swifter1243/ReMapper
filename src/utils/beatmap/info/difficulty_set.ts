@@ -6,10 +6,7 @@ import {AbstractInfo} from "../../../internals/beatmap/info/abstract_info.ts";
  */
 export function tryGetDifficultyInfo(info: AbstractInfo, difficultyName: bsmap.GenericFileName) {
     if (info.difficultyBeatmaps[difficultyName]) {
-        return {
-            difficultyInfo: info.difficultyBeatmaps[difficultyName],
-            info,
-        }
+        return info.difficultyBeatmaps[difficultyName]
     } else {
         throw new Error(`The difficulty ${difficultyName} does not exist in the Info.dat`)
     }

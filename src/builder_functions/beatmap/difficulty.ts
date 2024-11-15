@@ -12,7 +12,7 @@ export async function readDifficulty(workspace: ReMapperWorkspace, fileName: DIF
     const parsedFileName = await parseFilePath(fileName, '.dat')
     const jsonPromise = Deno.readTextFile(parsedFileName.path)
 
-    const infoData = tryGetDifficultyInfo(parsedFileName.name as bsmap.GenericFileName)
+    const difficultyInfo = tryGetDifficultyInfo(workspace.info, parsedFileName.name as bsmap.GenericFileName)
     const json = JSON.parse(await jsonPromise) as
         | bsmap.v2.IDifficulty
         | bsmap.v3.IDifficulty
@@ -23,15 +23,19 @@ export async function readDifficulty(workspace: ReMapperWorkspace, fileName: DIF
 
     if (v3) {
         diff = new V3Difficulty(
+            workspace,
             json as bsmap.v3.IDifficulty,
-            infoData.difficultyInfo,
+            difficultyInfo,
         )
     } else {
         diff = new V2Difficulty(
+            workspace,
             json as bsmap.v2.IDifficulty,
-            infoData.difficultyInfo,
+            difficultyInfo,
         )
     }
+
+    workspace.activeDifficulties.add(diff)
 
     return diff
 }
