@@ -174,8 +174,66 @@ export abstract class AbstractDifficulty<
 
     protected abstract loadJSON(json: TD): void
 
-    /** Convert this difficulty to the JSON outputted into the .dat file. */
     abstract toJSON(): TD
+
+    async toString(pretty = false) {
+        await this.awaitAllAsync()
+        this.applySettings()
+        const outputJSON = this.toJSON()
+
+        const sortedProcess = [...this.postProcesses.entries()]
+            // ascending
+            .sort(([a], [b]) => a - b)
+            // descending
+            .reverse()
+            .flatMap(([, arr]) => arr)
+
+        const transformer = (k: string, v: unknown) => {
+            let newValue = v
+
+            sortedProcess.forEach((process) => {
+                const oldValue = newValue
+                newValue = process(k, newValue)
+
+                /// if undefined, use previous value
+                if (newValue === undefined) {
+                    newValue = oldValue
+                }
+            })
+
+            return newValue
+        }
+
+        return JSON.stringify(
+            outputJSON,
+            sortedProcess.length > 0 ? transformer : undefined,
+            pretty ? 2 : 0,
+        )
+    }
+
+    private applySettings() {
+        const identityScaledObjects = [
+            ...this.colorNotes,
+            ...this.chains,
+            ...this.bombs,
+        ]
+
+        if (settings.forceDefaultScale && identityScaledObjects.length > 0) {
+            identityScaledObjects.forEach((o) => {
+                o.track.add(DEFAULT_SCALED_TRACK)
+            })
+
+            animateTrack(this, {
+                track: DEFAULT_SCALED_TRACK,
+                animation: {
+                    scale: [1, 1, 1],
+                },
+            })
+        }
+        if (settings.convertRotationEventsToObjectRotation) {
+            convertRotationEventsToObjectRotation(this)
+        }
+    }
 
     /**
      * Saves the difficulty.
@@ -185,68 +243,6 @@ export abstract class AbstractDifficulty<
      */
     async save(diffName?: DIFFICULTY_PATH, pretty = false) {
         async function thisProcess(self: AbstractDifficulty) {
-            diffName =
-                (diffName ? (await parseFilePath(diffName, '.dat')).name : self.difficultyInfo.beatmapDataFilename) as DIFFICULTY_PATH
-            await self.awaitAllAsync()
-
-            // Apply Settings
-            const identityScaledObjects = [
-                ...self.colorNotes,
-                ...self.chains,
-                ...self.bombs,
-            ]
-
-            if (settings.forceDefaultScale && identityScaledObjects.length > 0) {
-                identityScaledObjects.forEach((o) => {
-                    o.track.add(DEFAULT_SCALED_TRACK)
-                })
-
-                animateTrack(self, {
-                    track: DEFAULT_SCALED_TRACK,
-                    animation: {
-                        scale: [1, 1, 1],
-                    },
-                })
-            }
-            if (settings.convertRotationEventsToObjectRotation) {
-                convertRotationEventsToObjectRotation(self)
-            }
-
-            const outputJSON = self.toJSON()
-            const promise1 = getActiveCache().then((rm) => rm.save())
-            const sortedProcess = [...self.postProcesses.entries()]
-                // ascending
-                .sort(([a], [b]) => a - b)
-                // descending
-                .reverse()
-                .flatMap(([, arr]) => arr)
-
-            const transformer = (k: string, v: unknown) => {
-                let newValue = v
-
-                sortedProcess.forEach((process) => {
-                    const oldValue = newValue
-                    newValue = process(k, newValue)
-
-                    /// if undefined, use previous value
-                    if (newValue === undefined) {
-                        newValue = oldValue
-                    }
-                })
-
-                return newValue
-            }
-
-            const promise2 = Deno.writeTextFile(
-                self.workspace.attachDirectory(diffName),
-                JSON.stringify(
-                    outputJSON,
-                    sortedProcess.length > 0 ? transformer : undefined,
-                    pretty ? 2 : 0,
-                ),
-            )
-            await Promise.all([promise1, promise2])
-            RMLog(`${diffName} successfully saved!`)
         }
 
         this.savePromise = thisProcess(this)
