@@ -5,7 +5,7 @@ import { bsmap, semver } from '../../deps.ts'
 import {parseFilePath} from "../../utils/file.ts";
 import {tryGetDifficultyInfo} from "../../utils/beatmap/info/difficulty_set.ts";
 import {DIFFICULTY_NAME} from "../../types/beatmap/file.ts";
-import {ReMapperWorkspace} from "../../internals/remapper_workspace.ts";
+import {ReMapperWorkspace} from "../../internals/rm_workspace.ts";
 
 /** Asynchronous function to read a difficulty. Not concerned with version. */
 export async function readDifficulty(workspace: ReMapperWorkspace, fileName: DIFFICULTY_NAME): Promise<AbstractDifficulty> {

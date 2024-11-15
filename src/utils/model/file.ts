@@ -1,5 +1,4 @@
 import {parseFilePath} from "../file.ts";
-import {attachWorkingDirectory} from "../../data/working_directory.ts";
 
 import {RawPointsVec3} from "../../types/animation/points/vec3.ts";
 import {FILEPATH} from "../../types/beatmap/file.ts";
@@ -20,7 +19,7 @@ export async function getModel(
     hash = '',
 ) {
     const parsedPath = await parseFilePath(filePath, '.rmmodel')
-    const inputPath = attachWorkingDirectory(parsedPath.path)
+    const inputPath = parsedPath.path
     const mTime = await Deno.stat(inputPath).then((x) => x.mtime?.toString())
     hash += mTime
     hash += process?.toString()

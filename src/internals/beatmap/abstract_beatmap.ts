@@ -20,7 +20,6 @@ import { AbstractEnvironment, RawGeometryMaterial } from '../../types/beatmap/ob
 import { FogEvent } from './object/environment/fog.ts'
 import { parseFilePath } from '../../utils/file.ts'
 import { getActiveCache } from '../../data/active_cache.ts'
-import { attachWorkingDirectory } from '../../data/working_directory.ts'
 import { RMLog } from '../../utils/rm_log.ts'
 import { BasicEvent } from './object/basic_event/basic_event.ts'
 import { AnyNote } from '../../types/beatmap/object/note.ts'
@@ -38,7 +37,7 @@ import { DEFAULT_SCALED_TRACK } from '../../constants/settings.ts'
 import { IDifficultyInfo } from '../../types/beatmap/info/difficulty_info.ts'
 import { arrayEnsureValue } from '../../utils/array/mutate.ts'
 import { DIFFICULTY_PATH } from '../../types/beatmap/file.ts'
-import {ReMapperWorkspace} from "../remapper_workspace.ts";
+import {ReMapperWorkspace} from "../rm_workspace.ts";
 
 /** A remapper difficulty, version agnostic */
 export abstract class AbstractDifficulty<
@@ -239,7 +238,7 @@ export abstract class AbstractDifficulty<
             }
 
             const promise2 = Deno.writeTextFile(
-                attachWorkingDirectory(diffName),
+                self.workspace.attachInputDirectory(diffName),
                 JSON.stringify(
                     outputJSON,
                     sortedProcess.length > 0 ? transformer : undefined,

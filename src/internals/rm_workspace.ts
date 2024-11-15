@@ -1,18 +1,25 @@
 import {AbstractInfo} from "./beatmap/info/abstract_info.ts";
 import {AbstractDifficulty} from "./beatmap/abstract_beatmap.ts";
 import {V2Info} from "./beatmap/info/info_v2.ts";
+import { path } from '../deps.ts'
 
 export class ReMapperWorkspace
 {
-    info: AbstractInfo
-    inputDirectory: string
-    outputDirectory: string
+    readonly info: AbstractInfo
+    readonly inputDirectory: string
+    readonly outputDirectory: string
     activeDifficulties: Set<AbstractDifficulty> = new Set()
 
     constructor(info: AbstractInfo, inputDirectory: string, outputDirectory: string) {
         this.info = info
         this.inputDirectory = inputDirectory
         this.outputDirectory = outputDirectory
+    }
+
+    attachInputDirectory(file: string) {
+        if (path.isAbsolute(file)) return file
+
+        return path.join(this.inputDirectory, file)
     }
 
     get infoAsV2() {

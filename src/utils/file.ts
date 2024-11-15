@@ -1,5 +1,4 @@
 import { fs, path } from '../deps.ts'
-import { getWorkingDirectory } from '../data/working_directory.ts'
 import {FILENAME, FILENAME_WITH_EXTENSION, FILEPATH} from '../types/beatmap/file.ts'
 
 /**
@@ -34,19 +33,4 @@ export async function parseFilePath(
 export function forceFileNameExtension(input: FILENAME, ext: `.${string}`): FILENAME_WITH_EXTENSION {
     const split = input.split('.')
     return split[0] + ext as FILENAME_WITH_EXTENSION
-}
-
-/** Tries to get the CRC value of a given bundle file name. */
-export async function getBundleCRC(name: string) {
-    const file = path.join(getWorkingDirectory(), name)
-
-    try {
-        const content = await Deno.readTextFile(file)
-        const lines = content.split('\n')
-        const crcLine = lines.find((x) => x.includes('CRC:'))
-        const crcValue = crcLine?.split(':')[1].trim()
-        return crcValue ? parseInt(crcValue) : undefined
-    } catch {
-        return undefined
-    }
 }
