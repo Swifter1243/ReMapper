@@ -48,13 +48,15 @@ export class ReMapperWorkspace {
     }
 
     async export(options: WorkspaceExportOptions) {
-        const outputDirectory = path.join(options.outputDirectory, path.basename(this.directory))
-        if (path.resolve(outputDirectory) === this.directory) {
+        const inputDirectory = this.directory
+        const outputDirectory = path.join(options.outputDirectory, path.basename(inputDirectory))
+        if (path.resolve(outputDirectory) === path.resolve(inputDirectory)) {
             throw new Error('You are trying to export a beatmap into the same directory as itself!')
         }
 
         const filesToCopy: MovedFile[] = []
         const filesToWrite: MovedFile[] = []
+        const ensureFilesExistPromises: Promise<void>[] = []
 
         function addTextFile(file: string, contents: object) {
             const newDirectory = path.join(outputDirectory, path.basename(file))
@@ -66,10 +68,18 @@ export class ReMapperWorkspace {
 
         function addCopiedFile(file: string) {
             const newDirectory = path.join(outputDirectory, path.basename(file))
+            const fileToCopy = path.join(inputDirectory, path.basename(file))
             filesToCopy.push({
-                old: file,
+                old: fileToCopy,
                 new: newDirectory
             })
+            ensureFilesExistPromises.push(ensureFileExists(fileToCopy))
+        }
+
+        async function ensureFileExists(file: string) {
+            if (!await fs.exists(file)) {
+                throw new Error(`The file "${file}" does not exist.`)
+            }
         }
 
         // Add info
@@ -101,6 +111,7 @@ export class ReMapperWorkspace {
         })
 
         // Serialize
+        await Promise.all(ensureFilesExistPromises)
         await this.serialize(outputDirectory, filesToCopy, filesToWrite, options)
     }
 
