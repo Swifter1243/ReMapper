@@ -1,5 +1,5 @@
 import {getCacheLocation} from "./location.ts";
-import {CachedData} from "../../types/rm_cache.ts";
+import {CachedData} from "../../types/remapper/rm_cache.ts";
 
 export class ReMapperCache {
     /** Amount of times the ReMapper script has been run. */
