@@ -1,6 +1,7 @@
 import {ReMapperWorkspace} from "../types/remapper/rm_workspace.ts";
 import {AbstractDifficulty} from "../internals/beatmap/abstract_beatmap.ts";
 import {IDifficultyInfo} from "../types/beatmap/info/difficulty_info.ts";
+import {startLoadingInfo} from "./active_info.ts";
 
 let activeWorkspace: ReMapperWorkspace
 const workspaceDifficulties: Set<IDifficultyInfo> = new Set()
@@ -11,6 +12,7 @@ export function loadWorkspace(workspace: ReMapperWorkspace) {
     }
 
     activeWorkspace = workspace
+    startLoadingInfo()
 }
 
 export function addWorkspaceDifficulty(difficulty: AbstractDifficulty) {
