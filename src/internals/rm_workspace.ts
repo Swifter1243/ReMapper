@@ -8,6 +8,11 @@ import { applyCRCsToInfo } from '../utils/vivify/bundle/load.ts'
 import { REMAPPER_VERSION } from '../constants/package.ts'
 import { RMError, RMLog } from '../utils/rm_log.ts'
 
+type MovedFile = {
+    old: string,
+    new: string
+}
+
 export class ReMapperWorkspace {
     readonly info: AbstractInfo
     readonly directory: string
@@ -44,30 +49,27 @@ export class ReMapperWorkspace {
 
     async export(options: WorkspaceExportOptions) {
         const outputDirectory = path.join(options.outputDirectory, path.basename(this.directory))
-
-        const outputDirectoryIsInput = path.resolve(outputDirectory) === this.directory
-        if (outputDirectoryIsInput) {
+        if (path.resolve(outputDirectory) === this.directory) {
             throw new Error('You are trying to export a beatmap into the same directory as itself!')
         }
 
-        await Promise.all([
-            await fs.emptyDir(outputDirectory), // creates directory
-            ...this.activeDifficulties.values().map((d) => d.awaitAllAsync()),
-        ])
-
-        const files: string[] = []
-        const promises: Promise<unknown>[] = []
+        const filesToCopy: MovedFile[] = []
+        const filesToWrite: MovedFile[] = []
 
         function addTextFile(file: string, contents: object) {
             const newDirectory = path.join(outputDirectory, path.basename(file))
-            files.push(newDirectory)
-            promises.push(Deno.writeTextFile(newDirectory, JSON.stringify(contents)))
+            filesToWrite.push({
+                old: JSON.stringify(contents),
+                new: newDirectory
+            })
         }
 
         function addCopiedFile(file: string) {
             const newDirectory = path.join(outputDirectory, path.basename(file))
-            files.push(newDirectory)
-            promises.push(fs.copy(file, newDirectory))
+            filesToCopy.push({
+                old: file,
+                new: newDirectory
+            })
         }
 
         // Add info
@@ -86,6 +88,8 @@ export class ReMapperWorkspace {
         }
 
         // Add diffs
+        await Promise.all(this.activeDifficulties.values().map((d) => d.awaitAllAsync()))
+
         Object.values(this.info.difficultyBeatmaps).forEach((difficultyInfo) => {
             const diff = this.activeDifficulties.values().find((x) => x.difficultyInfo === difficultyInfo)
 
@@ -96,14 +100,24 @@ export class ReMapperWorkspace {
             }
         })
 
-        // Export
-        await Promise.all(promises)
+        // Serialize
+        await this.serialize(outputDirectory, filesToCopy, filesToWrite, options)
+    }
+
+    private async serialize(outputDirectory: string, filesToCopy: MovedFile[], filesToWrite: MovedFile[], options: WorkspaceExportOptions) {
+        await fs.emptyDir(outputDirectory) // clear/create directory
+
+        await Promise.all([
+            ...filesToCopy.map(file => fs.copy(file.old, file.new)),
+            ...filesToWrite.map(file => Deno.writeTextFile(file.new, file.old))
+        ])
         RMLog(`Successfully saved beatmap to ${outputDirectory}`)
 
         const exportPromises: Promise<unknown>[] = []
+        const exportedFiles = [...filesToCopy, ...filesToWrite].map(f => f.new)
 
         if (options.zip) {
-            exportPromises.push(this.exportZip(files, options.zip))
+            exportPromises.push(this.exportZip(exportedFiles, options.zip))
         }
 
         await Promise.all(exportPromises)
