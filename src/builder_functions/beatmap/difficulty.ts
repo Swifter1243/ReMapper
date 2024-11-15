@@ -7,6 +7,7 @@ import {attachWorkingDirectory, setWorkingDirectory, workingDirectoryExists} fro
 import {parseFilePath} from "../../utils/file.ts";
 import {tryGetDifficultyInfo} from "../../utils/beatmap/info/difficulty_set.ts";
 import {DIFFICULTY_PATH} from "../../types/beatmap/file.ts";
+import {addWorkspaceDifficulty} from "../../data/active_workspace.ts";
 
 /** Asynchronous function to read a difficulty. Not concerned with version. */
 export async function readDifficulty(
@@ -75,6 +76,8 @@ export async function readDifficulty(
             infoData.difficultyInfo,
         )
     }
+
+    addWorkspaceDifficulty(diff)
 
     return diff
 }
