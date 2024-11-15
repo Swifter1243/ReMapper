@@ -115,6 +115,10 @@ export class ReMapperWorkspace {
         zipName = zipName.replaceAll(' ', '_')
         zipName = encodeURI(zipName)
 
+        if (zipOptions.includeBundles && !this.bundleInfo) {
+            throw new Error("You are trying to zip bundles, but the workspace has no bundleInfo! It should have been passed in 'createWorkspace'.")
+        }
+
         if (this.bundleInfo && !this.bundleInfo.default.isCompressed) {
             RMError(
                 'Warning: You are trying to distribute uncompressed bundles. It is recommended that you export these bundles as compressed if you plan to distribute them.',
