@@ -56,30 +56,30 @@ export class ReMapperWorkspace {
         const promises: Promise<unknown>[] = []
 
         function addTextFile(file: string, contents: object) {
-            const newDirectory = path.join(outputDirectory, file)
+            const newDirectory = path.join(outputDirectory, path.basename(file))
             files.push(newDirectory)
             promises.push(Deno.writeTextFile(newDirectory, JSON.stringify(contents)))
         }
 
-        function copyFile(file: string) {
-            const newDirectory = path.join(outputDirectory, file)
+        function addCopiedFile(file: string) {
+            const newDirectory = path.join(outputDirectory, path.basename(file))
             files.push(newDirectory)
             promises.push(fs.copy(file, newDirectory))
         }
 
         // Add info
         addTextFile('Info.dat', this.info.toJSON())
-        copyFile(this.info.coverImageFilename)
-        copyFile(this.info.audio.songFilename)
+        addCopiedFile(this.info.coverImageFilename)
+        addCopiedFile(this.info.audio.songFilename)
 
         // Add contributors
         if (this.info.contributors) {
-            this.info.contributors.map(c => copyFile(c._iconPath))
+            this.info.contributors.map(c => addCopiedFile(c._iconPath))
         }
 
         // Add bundle
         if (this.bundleInfo) {
-            this.bundleInfo.default.bundleFiles.forEach(copyFile)
+            this.bundleInfo.default.bundleFiles.forEach(addCopiedFile)
         }
 
         // Add diffs
@@ -89,7 +89,7 @@ export class ReMapperWorkspace {
             if (diff) {
                 addTextFile(difficultyInfo.beatmapDataFilename, diff.toJSON())
             } else {
-                copyFile(difficultyInfo.beatmapDataFilename)
+                addCopiedFile(difficultyInfo.beatmapDataFilename)
             }
         })
 
