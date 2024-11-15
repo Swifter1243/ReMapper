@@ -3,15 +3,23 @@ import { AbstractDifficulty } from './beatmap/abstract_beatmap.ts'
 import { V2Info } from './beatmap/info/info_v2.ts'
 import { fs, path } from '../deps.ts'
 import { WorkspaceExportOptions } from '../types/remapper/rm_workspace.ts'
+import {BundleInfo} from "../types/bundle.ts";
+import {applyCRCsToInfo} from "../utils/vivify/bundle/load.ts";
 
 export class ReMapperWorkspace {
     readonly info: AbstractInfo
     readonly directory: string
+    readonly bundleInfo?: BundleInfo
     activeDifficulties: Set<AbstractDifficulty> = new Set()
 
-    constructor(info: AbstractInfo, directory: string) {
+    constructor(info: AbstractInfo, directory: string, bundleInfo?: BundleInfo) {
         this.info = info
         this.directory = directory
+        this.bundleInfo = bundleInfo
+
+        if (this.bundleInfo) {
+            applyCRCsToInfo(this.info, this.bundleInfo)
+        }
     }
 
     attachDirectory(file: string) {

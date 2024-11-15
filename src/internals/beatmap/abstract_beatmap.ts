@@ -329,45 +329,4 @@ function reduceDecimalsPostProcess(
     if (typeof v !== 'number') return
 
     return setDecimals(v, settings.decimalPrecision)
-
-    // TODO: Remove
-    // if (typeof v !== "object") return
-    // reduceDecimalsInObject(v as Record<string, unknown>)
-
-    // function reduceDecimalsInObject(object: TJson) {
-    //     Object.keys(object).forEach((key) => {
-    //         // deno-lint-ignore no-prototype-builtins
-    //         if (!object.hasOwnProperty(key)) return
-    //         const element = object[key]
-
-    //         if (typeof element === 'number') {
-    //             object[key] = setDecimals(element, settings.decimals as number)
-    //         } else if (typeof element === 'object') {
-    //             reduceDecimalsInObject(element as TJson)
-    //         }
-    //     })
-    // }
 }
-
-//! Redundant, toJson prunes.
-
-// function pruneCustomData(
-//     k: string,
-//     v: unknown,
-// ): unknown {
-//     if (k !== 'customData') return v
-
-//     /// if customData is not an object
-//     if (typeof v !== 'object') return {}
-
-//     /// if no value
-//     if (!v) return null
-
-//     jsonPrune(v)
-
-//     if (Object.entries(v).length === 0) {
-//         return null // remove customData if empty
-//     }
-
-//     return v
-// }
