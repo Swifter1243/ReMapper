@@ -1,4 +1,4 @@
-import { CAMERA_CLEAR_FLAGS, DEPTH_TEX_MODE, QUALITY_SETTINGS, RENDERING_SETTINGS, XR_SETTINGS } from '../../../../types/vivify/setting.ts'
+import { QUALITY_SETTINGS, RENDERING_SETTINGS, XR_SETTINGS } from '../../../../types/vivify/setting.ts'
 
 import { EASE } from '../../../../types/animation/easing.ts'
 import { TrackValue } from '../../../../types/animation/track.ts'
@@ -16,8 +16,8 @@ import { SetAnimatorProperty } from '../../../../internals/beatmap/object/custom
 import { SetCameraProperty } from '../../../../internals/beatmap/object/custom_event/vivify/set_camera_property.ts'
 import { AssignObjectPrefab } from '../../../../internals/beatmap/object/custom_event/vivify/assign_object_prefab.ts'
 import { SetRenderingSettings } from '../../../../internals/beatmap/object/custom_event/vivify/set_rendering_setting.ts'
-import { ColorVec } from '../../../../types/math/vector.ts'
 import { AbstractDifficulty } from '../../../../internals/beatmap/abstract_beatmap.ts'
+import {CameraProperties} from "../../../../types/beatmap/object/vivify_event_interfaces.ts";
 
 /**
  * Set properties on a material.
@@ -291,9 +291,7 @@ export function setCameraProperty(
         | [
             parentDifficulty: AbstractDifficulty,
             beat: number,
-            depthTextureMode?: DEPTH_TEX_MODE[],
-            clearFlags?: CAMERA_CLEAR_FLAGS,
-            backgroundColor?: ColorVec,
+            properties?: CameraProperties
         ]
 ) {
     if (typeof params[1] === 'object') {
@@ -304,13 +302,11 @@ export function setCameraProperty(
         )
     }
 
-    const [parentDifficulty, beat, depthTextureMode, clearFlags, backgroundColor] = params
+    const [parentDifficulty, beat, properties] = params
 
     return new SetCameraProperty(parentDifficulty, {
         beat,
-        depthTextureMode,
-        clearFlags,
-        backgroundColor,
+        properties
     })
 }
 
