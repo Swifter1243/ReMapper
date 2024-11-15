@@ -44,6 +44,12 @@ export class ReMapperWorkspace {
 
     async export(options: WorkspaceExportOptions) {
         const outputDirectory = path.join(options.outputDirectory, path.basename(this.directory))
+
+        const outputDirectoryIsInput = path.resolve(outputDirectory) === this.directory
+        if (outputDirectoryIsInput) {
+            throw new Error("You are trying to export a beatmap into the same directory as itself!")
+        }
+
         await fs.emptyDir(outputDirectory) // creates directory
 
         const files: string[] = []
