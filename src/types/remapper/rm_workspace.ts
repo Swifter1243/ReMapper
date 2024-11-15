@@ -1,14 +1,9 @@
 import {BundleInfo} from "../bundle.ts";
 import { adbDeno } from "../../deps.ts"
 
-export type WorkspaceInput = {
-    /** The location of the input map. Leave undefined to use Deno's current workspace. */
-    inputDirectory?: string
-    /** The location of the output map. */
+export type WorkspaceExportOptions = {
+    /** The directory where this map should be exported to. */
     outputDirectory: string,
-}
-
-export type WorkspaceExport = {
     /** Export the map to a zip. */
     zip?: {
         /** Name of the .zip. Defaults to the map name. */

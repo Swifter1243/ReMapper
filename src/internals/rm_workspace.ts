@@ -2,22 +2,21 @@ import {AbstractInfo} from "./beatmap/info/abstract_info.ts";
 import {AbstractDifficulty} from "./beatmap/abstract_beatmap.ts";
 import {V2Info} from "./beatmap/info/info_v2.ts";
 import { path } from '../deps.ts'
+import {WorkspaceExportOptions} from "../types/remapper/rm_workspace.ts";
 
 export class ReMapperWorkspace
 {
     readonly info: AbstractInfo
-    readonly inputDirectory: string
-    readonly outputDirectory: string
+    readonly directory: string
     activeDifficulties: Set<AbstractDifficulty> = new Set()
 
-    constructor(info: AbstractInfo, inputDirectory: string, outputDirectory: string) {
+    constructor(info: AbstractInfo, directory: string) {
         this.info = info
-        this.inputDirectory = inputDirectory
-        this.outputDirectory = outputDirectory
+        this.directory = directory
     }
 
-    attachInputDirectory(file: string) {
-        path.join(this.inputDirectory, file)
+    attachDirectory(file: string) {
+        path.join(this.directory, file)
     }
 
     get infoAsV2() {
@@ -26,5 +25,9 @@ export class ReMapperWorkspace
         } else {
             throw new Error('Info.dat is not V2.')
         }
+    }
+
+    async export(options: WorkspaceExportOptions) {
+
     }
 }

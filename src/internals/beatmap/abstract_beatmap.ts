@@ -238,7 +238,7 @@ export abstract class AbstractDifficulty<
             }
 
             const promise2 = Deno.writeTextFile(
-                self.workspace.attachInputDirectory(diffName),
+                self.workspace.attachDirectory(diffName),
                 JSON.stringify(
                     outputJSON,
                     sortedProcess.length > 0 ? transformer : undefined,
