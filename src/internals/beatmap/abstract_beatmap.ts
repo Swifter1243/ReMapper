@@ -38,6 +38,7 @@ import { DEFAULT_SCALED_TRACK } from '../../constants/settings.ts'
 import { IDifficultyInfo } from '../../types/beatmap/info/difficulty_info.ts'
 import { arrayEnsureValue } from '../../utils/array/mutate.ts'
 import { DIFFICULTY_PATH } from '../../types/beatmap/file.ts'
+import {ReMapperWorkspace} from "../remapper_workspace.ts";
 
 /** A remapper difficulty, version agnostic */
 export abstract class AbstractDifficulty<
@@ -49,6 +50,8 @@ export abstract class AbstractDifficulty<
     readonly json: Readonly<TD>
     /** The info relating to this difficulty on the Info.dat */
     difficultyInfo: IDifficultyInfo
+    /** The workspace this difficulty is a part of. */
+    workspace: ReMapperWorkspace
     /** Tasks to complete before the difficulty is saved. */
     awaitingCompletion = new Set<Promise<unknown>>()
     /** The current promise of the difficulty being saved. */
@@ -120,12 +123,14 @@ export abstract class AbstractDifficulty<
      * Will set the active difficulty to this.
      */
     constructor(
+        workspace: ReMapperWorkspace,
         json: TD,
         difficultyInfo: IDifficultyInfo,
     ) {
         this.difficultyInfo = difficultyInfo
         this.loadJSON(json)
         this.json = json
+        this.workspace = workspace
         this.registerProcessors()
     }
 

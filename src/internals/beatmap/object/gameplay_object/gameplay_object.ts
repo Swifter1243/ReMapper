@@ -1,5 +1,4 @@
 import { Track } from '../../../../utils/animation/track.ts'
-import { getActiveInfo } from '../../../../data/active_info.ts'
 import { animationV2ToV3 } from '../../../../utils/animation/json.ts'
 import { BeatmapObject } from '../object.ts'
 import { ColorVec, Vec2, Vec3 } from '../../../../types/math/vector.ts'
@@ -116,14 +115,14 @@ export abstract class BeatmapGameplayObject<
         return getJumps(
             this.implicitNoteJumpSpeed,
             this.implicitNoteJumpOffset,
-            getActiveInfo().audio.beatsPerMinute,
+            this.parent.workspace.info.audio.beatsPerMinute,
         ).halfDuration
     }
     set halfJumpDuration(value: number) {
         this.noteJumpOffset = getOffsetFromHalfJumpDuration(
             value,
             this.implicitNoteJumpSpeed,
-            getActiveInfo().audio.beatsPerMinute,
+            this.parent.workspace.info.audio.beatsPerMinute,
         )
     }
 
@@ -135,14 +134,14 @@ export abstract class BeatmapGameplayObject<
         return getJumps(
             this.implicitNoteJumpSpeed,
             this.implicitNoteJumpOffset,
-            getActiveInfo().audio.beatsPerMinute,
+            this.parent.workspace.info.audio.beatsPerMinute,
         ).jumpDistance
     }
     set jumpDistance(value: number) {
         this.noteJumpOffset = getOffsetFromJumpDistance(
             value,
             this.implicitNoteJumpSpeed,
-            getActiveInfo().audio.beatsPerMinute,
+            this.parent.workspace.info.audio.beatsPerMinute,
         )
     }
 
@@ -151,14 +150,14 @@ export abstract class BeatmapGameplayObject<
         return getReactionTime(
             this.implicitNoteJumpSpeed,
             this.implicitNoteJumpOffset,
-            getActiveInfo().audio.beatsPerMinute,
+            this.parent.workspace.info.audio.beatsPerMinute,
         )
     }
     set reactionTime(value: number) {
         this.noteJumpOffset = getOffsetFromReactionTime(
             value,
             this.implicitNoteJumpSpeed,
-            getActiveInfo().audio.beatsPerMinute,
+            this.parent.workspace.info.audio.beatsPerMinute,
         )
     }
 
@@ -187,7 +186,7 @@ export abstract class BeatmapGameplayObject<
         this.noteJumpOffset = getOffsetFromHalfJumpDuration(
             value / 2,
             this.implicitNoteJumpSpeed,
-            getActiveInfo().audio.beatsPerMinute,
+            this.parent.workspace.info.audio.beatsPerMinute,
         )
     }
 
