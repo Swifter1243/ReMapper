@@ -110,8 +110,7 @@ export class ReMapperWorkspace {
     }
 
     private async exportZip(files: string[], zipOptions: WorkspaceZipOptions) {
-        let zipName = zipOptions.name ?? `${path.parse(this.directory).name}`
-        zipName = `${zipName}.zip`
+        let zipName = zipOptions.name + '.zip'
         zipName = zipName.replaceAll(' ', '_')
         zipName = encodeURI(zipName)
 

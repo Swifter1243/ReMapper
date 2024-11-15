@@ -25,8 +25,8 @@ export type WorkspaceExportOptions = {
 }
 
 export type WorkspaceZipOptions = {
-    /** Name of the .zip. Defaults to the map name. */
-    name?: string,
+    /** Name of the .zip. */
+    name: string,
     /** Add bundles to the zip. Only do this if you're distributing to friends, don't include these files in a BeatSaver upload. */
     includeBundles?: boolean
 }
