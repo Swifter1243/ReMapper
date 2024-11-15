@@ -4,14 +4,14 @@ import {ReMapperWorkspace} from "../internals/rm_workspace.ts";
 import {WorkspaceInitialization} from "../types/remapper/rm_workspace.ts";
 
 export async function createWorkspace(initialization: WorkspaceInitialization) {
-    const infoPath = initialization.infoPath ?? path.join(Deno.cwd(), 'Info.dat')
+    const infoPath = path.join(initialization.infoPath ?? Deno.cwd(), 'Info.dat')
+    const info = await loadInfo(infoPath)
     const directory = path.dirname(infoPath)
-    const info = await loadInfo(directory)
     return new ReMapperWorkspace(info, directory, initialization.bundleInfo)
 }
 
 async function loadInfo(path: string) {
-    const infoText = Deno.readTextFile(path)
-    const infoJson = JSON.parse(await infoText)
+    const infoText = await Deno.readTextFile(path)
+    const infoJson = JSON.parse(infoText)
     return createInfo(infoJson)
 }

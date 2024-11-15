@@ -6,6 +6,7 @@ import { WorkspaceExportOptions } from '../types/remapper/rm_workspace.ts'
 import {BundleInfo} from "../types/bundle.ts";
 import {applyCRCsToInfo} from "../utils/vivify/bundle/load.ts";
 import {REMAPPER_VERSION} from "../constants/package.ts";
+import {RMLog} from "../utils/rm_log.ts";
 
 export class ReMapperWorkspace {
     readonly info: AbstractInfo
@@ -42,20 +43,20 @@ export class ReMapperWorkspace {
     }
 
     async export(options: WorkspaceExportOptions) {
-        // creates directory
-        await fs.emptyDir(options.outputDirectory)
+        const outputDirectory = path.join(options.outputDirectory, path.basename(this.directory))
+        await fs.emptyDir(outputDirectory) // creates directory
 
         const files: string[] = []
         const promises: Promise<unknown>[] = []
 
         function addTextFile(file: string, contents: object) {
-            const newDirectory = path.join(options.outputDirectory, file)
+            const newDirectory = path.join(outputDirectory, file)
             files.push(newDirectory)
             promises.push(Deno.writeTextFile(newDirectory, JSON.stringify(contents)))
         }
 
         function copyFile(file: string) {
-            const newDirectory = path.join(options.outputDirectory, file)
+            const newDirectory = path.join(outputDirectory, file)
             files.push(newDirectory)
             promises.push(fs.copy(file, newDirectory))
         }
@@ -88,5 +89,6 @@ export class ReMapperWorkspace {
 
         // Export
         await Promise.all(promises)
+        RMLog(`Successfully saved beatmap to ${outputDirectory}`)
     }
 }
