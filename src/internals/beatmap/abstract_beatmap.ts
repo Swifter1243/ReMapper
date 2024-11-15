@@ -18,9 +18,6 @@ import { Environment } from './object/environment/environment.ts'
 import { Geometry } from './object/environment/geometry.ts'
 import { AbstractEnvironment, RawGeometryMaterial } from '../../types/beatmap/object/environment.ts'
 import { FogEvent } from './object/environment/fog.ts'
-import { parseFilePath } from '../../utils/file.ts'
-import { getActiveCache } from '../../data/active_cache.ts'
-import { RMLog } from '../../utils/rm_log.ts'
 import { BasicEvent } from './object/basic_event/basic_event.ts'
 import { AnyNote } from '../../types/beatmap/object/note.ts'
 import { settings } from '../../data/settings.ts'
@@ -36,7 +33,6 @@ import { animateTrack } from '../../builder_functions/beatmap/object/custom_even
 import { DEFAULT_SCALED_TRACK } from '../../constants/settings.ts'
 import { IDifficultyInfo } from '../../types/beatmap/info/difficulty_info.ts'
 import { arrayEnsureValue } from '../../utils/array/mutate.ts'
-import { DIFFICULTY_PATH } from '../../types/beatmap/file.ts'
 import {ReMapperWorkspace} from "../rm_workspace.ts";
 
 /** A remapper difficulty, version agnostic */
@@ -53,8 +49,6 @@ export abstract class AbstractDifficulty<
     workspace: ReMapperWorkspace
     /** Tasks to complete before the difficulty is saved. */
     awaitingCompletion = new Set<Promise<unknown>>()
-    /** The current promise of the difficulty being saved. */
-    savePromise?: Promise<void>
 
     private postProcesses = new Map<number, PostProcessFn[]>()
 
@@ -233,20 +227,6 @@ export abstract class AbstractDifficulty<
         if (settings.convertRotationEventsToObjectRotation) {
             convertRotationEventsToObjectRotation(this)
         }
-    }
-
-    /**
-     * Saves the difficulty.
-     * @param diffName Filename for the save.
-     * If left blank, the beatmap file name will be used for the save.
-     * @param pretty Whether to make the saved JSON prettified.
-     */
-    async save(diffName?: DIFFICULTY_PATH, pretty = false) {
-        async function thisProcess(self: AbstractDifficulty) {
-        }
-
-        this.savePromise = thisProcess(this)
-        await this.savePromise
     }
 
     /** Clear objects on this difficulty.
