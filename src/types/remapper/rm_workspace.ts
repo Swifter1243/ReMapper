@@ -1,7 +1,7 @@
 import {BundleInfo} from "../bundle.ts";
 import { adbDeno } from "../../deps.ts"
 
-export type ReMapperWorkspace = {
+export type ReMapperWorkspaceInput = {
     /** The folder where output maps are being created and played in-game. */
     outputMapsPath: string,
     /** Options to export output maps. */
