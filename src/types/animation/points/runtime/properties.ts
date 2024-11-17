@@ -1,5 +1,14 @@
 /** Properties that will be evaluated at runtime, used in linear (e.g. `dissolve`) animations. */
-export type RuntimePropertiesLinear = never
+export type RuntimePropertiesLinear =
+    | 'baseCombo'
+    | 'baseMultipliedScore'
+    | 'baseImmediateMaxPossibleMultipliedScore'
+    | 'baseModifiedScore'
+    | 'baseImmediateMaxPossibleModifiedScore'
+    | 'baseMultiplier'
+    | 'baseEnergy'
+    | 'baseSongTime'
+    | 'baseSongLength'
 
 /** Properties that will be evaluated at runtime, used in vec3 (e.g. `position`) animations. */
 export type RuntimePropertiesVec3 =
