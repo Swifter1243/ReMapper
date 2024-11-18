@@ -1,17 +1,16 @@
-import {readRemapperCache} from "../utils/rm_cache/read.ts";
-import {ReMapperCache} from "../utils/rm_cache/rm_cache.ts";
+import { readRemapperCache } from '../utils/rm_cache/read.ts'
+import { ReMapperCache } from '../utils/rm_cache/rm_cache.ts'
 
 /** The ReMapper cache. */
-let activeCache: Promise<ReMapperCache>
+const activeCache: Promise<ReMapperCache> = setupActiveCache()
 
-/** Start loading the ReMapper cache. This should only be done once. */
-export function loadCache() {
-    activeCache = readRemapperCache()
+async function setupActiveCache() {
+    const cache = await readRemapperCache()
+    globalThis.addEventListener('unload', () => cache.saveSync())
+    return cache
 }
 
 /** Get the currently active ReMapper cache. */
 export async function getActiveCache() {
-    if (activeCache) return await activeCache
-
-    throw new Error('There is no active ReMapper Cache. Waiting for a working directory.')
+    return await activeCache
 }

@@ -4,27 +4,27 @@ import { fs } from '../../deps.ts'
 
 /** Read the ReMapper cache. */
 export async function readRemapperCache(): Promise<ReMapperCache> {
-    const json = new ReMapperCache()
+    const cache = new ReMapperCache()
 
     if (!await fs.exists(getCacheLocation())) {
-        await json.save()
+        cache.saveSync()
     }
     try {
         Object.assign(
-            json,
+            cache,
             JSON.parse(await Deno.readTextFile(getCacheLocation())),
         )
     } catch (e) {
         console.error(`Suffered from error, invalidating cache: ${e}`)
-        await json.save()
+        cache.saveSync()
     }
 
-    json.runs++
-    Object.keys(json.cachedData).forEach((x) => {
-        const data = json.cachedData[x]
-        if (!data.accessed) delete json.cachedData[x]
+    cache.runs++
+    Object.keys(cache.cachedData).forEach((x) => {
+        const data = cache.cachedData[x]
+        if (!data.accessed) delete cache.cachedData[x]
         else data.accessed = false
     })
 
-    return json
+    return cache
 }

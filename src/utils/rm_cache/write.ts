@@ -39,7 +39,6 @@ export async function cacheData<T>(
     }
 
     rmCache.cachedData[name].accessed = true
-    await rmCache.save()
 
     return outputData as T
 }

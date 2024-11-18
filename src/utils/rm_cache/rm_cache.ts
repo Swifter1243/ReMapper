@@ -8,8 +8,8 @@ export class ReMapperCache {
     cachedData = {} as Record<string, CachedData>
 
     /** Save the cache. */
-    async save(): Promise<void> {
-        await Deno.writeTextFile(
+     saveSync(){
+         Deno.writeTextFileSync(
             getCacheLocation(),
             JSON.stringify({
                 runs: this.runs,
