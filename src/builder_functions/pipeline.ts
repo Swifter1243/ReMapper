@@ -6,7 +6,7 @@ import {PipelineInitialization} from "../types/remapper/pipeline.ts";
 export async function createPipeline(): Promise<Pipeline>
 export async function createPipeline(initialization: PipelineInitialization): Promise<Pipeline>
 export async function createPipeline(initialization?: PipelineInitialization) {
-    const infoPath = path.join(initialization?.infoPath ?? Deno.cwd(), 'Info.dat')
+    const infoPath = initialization?.infoPath ?? path.join(Deno.cwd(), 'Info.dat')
     const info = await loadInfo(infoPath)
     const directory = path.dirname(infoPath)
     return new Pipeline(info, directory, initialization?.bundleInfo)
