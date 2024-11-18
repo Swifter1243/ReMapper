@@ -1,18 +1,18 @@
 import { adbDeno } from "../../deps.ts"
 import {BundleInfo} from "../bundle.ts";
 
-export type WorkspaceInitialization = {
+export type PipelineInitialization = {
     /** The path to the Info.dat of the beatmap. Leave undefined to use the Info.dat in the current directory. */
     infoPath?: string,
     /** Asset bundle info to include in the Info.dat. */
     bundleInfo?: BundleInfo
 }
 
-export type WorkspaceExportOptions = {
+export type PipelineExportOptions = {
     /** The directory where this map should be exported to. */
     outputDirectory: string,
     /** Export the map to a zip. */
-    zip?: WorkspaceZipOptions
+    zip?: PipelineZipOptions
     /**
      * Automatically upload the map files to quest, including only necessary files.
      *
@@ -24,7 +24,7 @@ export type WorkspaceExportOptions = {
     }
 }
 
-export type WorkspaceZipOptions = {
+export type PipelineZipOptions = {
     /** Name of the .zip. */
     name: string,
     /** Add bundles to the zip. Only do this if you're distributing to friends, don't include these files in a BeatSaver upload. */

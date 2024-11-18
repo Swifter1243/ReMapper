@@ -2,7 +2,7 @@ import { AbstractInfo } from './beatmap/info/abstract_info.ts'
 import { AbstractDifficulty } from './beatmap/abstract_difficulty.ts'
 import { V2Info } from './beatmap/info/info_v2.ts'
 import { compress, fs, path } from '../deps.ts'
-import { WorkspaceExportOptions, WorkspaceZipOptions } from '../types/remapper/rm_workspace.ts'
+import { PipelineExportOptions, PipelineZipOptions } from '../types/remapper/pipeline.ts'
 import { BundleInfo } from '../types/bundle.ts'
 import { applyCRCsToInfo } from '../utils/vivify/bundle/load.ts'
 import { REMAPPER_VERSION } from '../constants/package.ts'
@@ -13,7 +13,7 @@ type MovedFile = {
     new: string
 }
 
-export class ReMapperWorkspace {
+export class Pipeline {
     readonly info: AbstractInfo
     readonly directory: string
     readonly bundleInfo?: BundleInfo
@@ -47,7 +47,7 @@ export class ReMapperWorkspace {
         }
     }
 
-    async export(options: WorkspaceExportOptions) {
+    async export(options: PipelineExportOptions) {
         const inputDirectory = this.directory
         const outputDirectory = path.join(options.outputDirectory, path.basename(inputDirectory))
         if (path.resolve(outputDirectory) === path.resolve(inputDirectory)) {
@@ -115,7 +115,7 @@ export class ReMapperWorkspace {
         await this.serialize(outputDirectory, filesToCopy, filesToWrite, options)
     }
 
-    private async serialize(outputDirectory: string, filesToCopy: MovedFile[], filesToWrite: MovedFile[], options: WorkspaceExportOptions) {
+    private async serialize(outputDirectory: string, filesToCopy: MovedFile[], filesToWrite: MovedFile[], options: PipelineExportOptions) {
         await fs.emptyDir(outputDirectory) // clear/create directory
 
         await Promise.all([
@@ -134,13 +134,13 @@ export class ReMapperWorkspace {
         await Promise.all(exportPromises)
     }
 
-    private async exportZip(files: string[], zipOptions: WorkspaceZipOptions) {
+    private async exportZip(files: string[], zipOptions: PipelineZipOptions) {
         let zipName = zipOptions.name + '.zip'
         zipName = zipName.replaceAll(' ', '_')
         zipName = encodeURI(zipName)
 
         if (zipOptions.includeBundles && !this.bundleInfo) {
-            throw new Error("You are trying to zip bundles, but the workspace has no bundleInfo! It should have been passed in 'createWorkspace'.")
+            throw new Error("You are trying to zip bundles, but the pipeline has no bundleInfo! It should have been passed in 'createPipeline'.")
         }
 
         if (this.bundleInfo && !this.bundleInfo.default.isCompressed) {

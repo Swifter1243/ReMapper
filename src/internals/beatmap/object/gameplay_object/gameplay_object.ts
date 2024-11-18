@@ -115,14 +115,14 @@ export abstract class BeatmapGameplayObject<
         return getJumps(
             this.implicitNoteJumpSpeed,
             this.implicitNoteJumpOffset,
-            this.parent.workspace.info.audio.beatsPerMinute,
+            this.parent.pipeline.info.audio.beatsPerMinute,
         ).halfDuration
     }
     set halfJumpDuration(value: number) {
         this.noteJumpOffset = getOffsetFromHalfJumpDuration(
             value,
             this.implicitNoteJumpSpeed,
-            this.parent.workspace.info.audio.beatsPerMinute,
+            this.parent.pipeline.info.audio.beatsPerMinute,
         )
     }
 
@@ -134,14 +134,14 @@ export abstract class BeatmapGameplayObject<
         return getJumps(
             this.implicitNoteJumpSpeed,
             this.implicitNoteJumpOffset,
-            this.parent.workspace.info.audio.beatsPerMinute,
+            this.parent.pipeline.info.audio.beatsPerMinute,
         ).jumpDistance
     }
     set jumpDistance(value: number) {
         this.noteJumpOffset = getOffsetFromJumpDistance(
             value,
             this.implicitNoteJumpSpeed,
-            this.parent.workspace.info.audio.beatsPerMinute,
+            this.parent.pipeline.info.audio.beatsPerMinute,
         )
     }
 
@@ -150,14 +150,14 @@ export abstract class BeatmapGameplayObject<
         return getReactionTime(
             this.implicitNoteJumpSpeed,
             this.implicitNoteJumpOffset,
-            this.parent.workspace.info.audio.beatsPerMinute,
+            this.parent.pipeline.info.audio.beatsPerMinute,
         )
     }
     set reactionTime(value: number) {
         this.noteJumpOffset = getOffsetFromReactionTime(
             value,
             this.implicitNoteJumpSpeed,
-            this.parent.workspace.info.audio.beatsPerMinute,
+            this.parent.pipeline.info.audio.beatsPerMinute,
         )
     }
 
@@ -186,7 +186,7 @@ export abstract class BeatmapGameplayObject<
         this.noteJumpOffset = getOffsetFromHalfJumpDuration(
             value / 2,
             this.implicitNoteJumpSpeed,
-            this.parent.workspace.info.audio.beatsPerMinute,
+            this.parent.pipeline.info.audio.beatsPerMinute,
         )
     }
 
