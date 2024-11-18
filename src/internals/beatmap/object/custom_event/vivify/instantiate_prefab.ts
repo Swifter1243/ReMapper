@@ -5,7 +5,7 @@ import {CustomEventConstructorTrack} from "../../../../../types/beatmap/object/c
 
 import {getDataProp} from "../../../../../utils/beatmap/json.ts";
 import {JsonObjectDefaults} from "../../../../../types/beatmap/object/object.ts";
-import {AbstractDifficulty} from "../../../abstract_beatmap.ts";
+import {AbstractDifficulty} from "../../../abstract_difficulty.ts";
 import {Track} from "../../../../../utils/animation/track.ts";
 import {Destroyable} from "./destroyable.ts";
 

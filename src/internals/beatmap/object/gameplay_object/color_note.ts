@@ -6,7 +6,7 @@ import { BaseNote } from './base_note.ts'
 import { objectPrune } from '../../../../utils/object/prune.ts'
 import {exportInvertedBoolean, simplifyWorldRotation} from '../../../../utils/beatmap/json.ts'
 import { GameplayObjectDefaults, GameplayObjectConstructor } from '../../../../types/beatmap/object/gameplay_object.ts'
-import type { AbstractDifficulty } from '../../abstract_beatmap.ts'
+import type { AbstractDifficulty } from '../../abstract_difficulty.ts'
 
 export class ColorNote extends BaseNote<bsmap.v3.IColorNote> {
     constructor(

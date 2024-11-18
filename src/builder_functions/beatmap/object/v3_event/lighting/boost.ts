@@ -1,5 +1,5 @@
 import { BoostEvent } from '../../../../../internals/beatmap/object/v3_event/lighting/boost.ts'
-import { AbstractDifficulty } from '../../../../../internals/beatmap/abstract_beatmap.ts'
+import { AbstractDifficulty } from '../../../../../internals/beatmap/abstract_difficulty.ts'
 
 /** Switches the color palette in the lighting. */
 export function boost(

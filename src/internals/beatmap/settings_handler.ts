@@ -1,4 +1,4 @@
-import { AbstractDifficulty } from './abstract_beatmap.ts'
+import { AbstractDifficulty } from './abstract_difficulty.ts'
 
 /** Handler to alias settings. */
 export class SettingsHandler {

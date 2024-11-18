@@ -1,7 +1,7 @@
 import { LightEventBoxGroup } from './base.ts'
 import { lightTranslationEventBox } from '../../../../../../builder_functions/beatmap/object/v3_event/lighting/light_event_box.ts'
 import { bsmap } from '../../../../../../deps.ts'
-import {AbstractDifficulty} from "../../../../abstract_beatmap.ts";
+import {AbstractDifficulty} from "../../../../abstract_difficulty.ts";
 
 export class LightTranslationEventBoxGroup extends LightEventBoxGroup<bsmap.v3.ILightTranslationEventBox> {
     protected getArray(difficulty: AbstractDifficulty): this[] {

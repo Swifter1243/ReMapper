@@ -1,6 +1,6 @@
 import { Geometry } from '../../../../internals/beatmap/object/environment/geometry.ts'
 import { GeometryMaterial, GeoType } from '../../../../types/beatmap/object/environment.ts'
-import { AbstractDifficulty } from '../../../../internals/beatmap/abstract_beatmap.ts'
+import { AbstractDifficulty } from '../../../../internals/beatmap/abstract_difficulty.ts'
 
 /**
  * Creates a new primitive object.

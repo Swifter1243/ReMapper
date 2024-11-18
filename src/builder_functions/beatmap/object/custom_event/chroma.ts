@@ -1,7 +1,7 @@
 import { EASE } from '../../../../types/animation/easing.ts'
 import { TrackValue } from '../../../../types/animation/track.ts'
 import { AnimateComponent } from '../../../../internals/beatmap/object/custom_event/chroma/animate_component.ts'
-import { AbstractDifficulty } from '../../../../internals/beatmap/abstract_beatmap.ts'
+import { AbstractDifficulty } from '../../../../internals/beatmap/abstract_difficulty.ts'
 
 /**
  * Animate components on a track.

@@ -16,7 +16,7 @@ import { SetAnimatorProperty } from '../../../../internals/beatmap/object/custom
 import { SetCameraProperty } from '../../../../internals/beatmap/object/custom_event/vivify/set_camera_property.ts'
 import { AssignObjectPrefab } from '../../../../internals/beatmap/object/custom_event/vivify/assign_object_prefab.ts'
 import { SetRenderingSettings } from '../../../../internals/beatmap/object/custom_event/vivify/set_rendering_setting.ts'
-import { AbstractDifficulty } from '../../../../internals/beatmap/abstract_beatmap.ts'
+import { AbstractDifficulty } from '../../../../internals/beatmap/abstract_difficulty.ts'
 import {CameraProperties} from "../../../../types/beatmap/object/vivify_event_interfaces.ts";
 
 /**

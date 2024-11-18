@@ -1,6 +1,6 @@
 import { wall } from '../../builder_functions/beatmap/object/gameplay_object/wall.ts'
 import { bsmap } from '../../deps.ts'
-import { AbstractDifficulty } from './abstract_beatmap.ts'
+import { AbstractDifficulty } from './abstract_difficulty.ts'
 import { AnyFog, FogEvent } from './object/environment/fog.ts'
 import {
     assignObjectPrefab,

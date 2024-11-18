@@ -1,4 +1,4 @@
-import type { AbstractDifficulty } from '../../../../internals/beatmap/abstract_beatmap.ts'
+import type { AbstractDifficulty } from '../../../../internals/beatmap/abstract_difficulty.ts'
 import { CommunityBPMEvent } from '../../../../internals/beatmap/object/v3_event/bpm/community_bpm.ts'
 
 /** Creates a community BPM event, which is deprecated.

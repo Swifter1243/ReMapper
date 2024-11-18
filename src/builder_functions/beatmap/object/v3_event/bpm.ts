@@ -1,5 +1,5 @@
 import {OfficialBPMEvent} from "../../../../internals/beatmap/object/v3_event/bpm/official_bpm.ts";
-import {AbstractDifficulty} from "../../../../internals/beatmap/abstract_beatmap.ts";
+import {AbstractDifficulty} from "../../../../internals/beatmap/abstract_difficulty.ts";
 
 
 /** Creates an official BPM event, which changes the actual time between object beats.

@@ -1,4 +1,4 @@
-import {AbstractDifficulty} from "../../internals/beatmap/abstract_beatmap.ts";
+import {AbstractDifficulty} from "../../internals/beatmap/abstract_difficulty.ts";
 import {destroyObject} from "../../builder_functions/beatmap/object/custom_event/vivify.ts";
 import {Destroyable} from "../../internals/beatmap/object/custom_event/vivify/destroyable.ts";
 

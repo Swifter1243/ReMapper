@@ -1,7 +1,7 @@
 import { Chain } from '../../../../internals/beatmap/object/gameplay_object/chain.ts'
 
 import { NoteColor, NoteCut } from '../../../../constants/note.ts'
-import { AbstractDifficulty } from '../../../../internals/beatmap/abstract_beatmap.ts'
+import { AbstractDifficulty } from '../../../../internals/beatmap/abstract_difficulty.ts'
 
 /** Create a chain. */
 export function chain(

@@ -1,6 +1,6 @@
 import { LookupMethod } from '../../../../types/beatmap/object/environment.ts'
 import { environment } from '../../../../builder_functions/beatmap/object/environment/environment.ts'
-import {AbstractDifficulty} from "../../../../internals/beatmap/abstract_beatmap.ts";
+import {AbstractDifficulty} from "../../../../internals/beatmap/abstract_difficulty.ts";
 
 /** Remove a list of IDs from the environment */
 export function environmentRemoval(

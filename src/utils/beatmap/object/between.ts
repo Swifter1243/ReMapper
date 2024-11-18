@@ -7,7 +7,7 @@ import {Bomb} from "../../../internals/beatmap/object/gameplay_object/bomb.ts";
 import {Arc} from "../../../internals/beatmap/object/gameplay_object/arc.ts";
 import {AnyNote} from "../../../types/beatmap/object/note.ts";
 import {filterObjectsByProperty} from "../../object/filter.ts";
-import {AbstractDifficulty} from "../../../internals/beatmap/abstract_beatmap.ts";
+import {AbstractDifficulty} from "../../../internals/beatmap/abstract_difficulty.ts";
 
 function objectsBetween<T extends AnyBeatmapObject>(
     array: T[],

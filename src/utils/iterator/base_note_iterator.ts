@@ -4,7 +4,7 @@ import {Chain} from "../../internals/beatmap/object/gameplay_object/chain.ts";
 import {CutName, NoteCondition, NoteProcess} from "../../types/iterator.ts";
 import {TrackValue} from "../../types/animation/track.ts";
 import {AnyNote, AnyNoteLiteral} from "../../types/beatmap/object/note.ts";
-import {AbstractDifficulty} from "../../internals/beatmap/abstract_beatmap.ts";
+import {AbstractDifficulty} from "../../internals/beatmap/abstract_difficulty.ts";
 
 const directionsLiteral: Record<NoteCut, CutName> = {
     [NoteCut.DOT]: 'dot',

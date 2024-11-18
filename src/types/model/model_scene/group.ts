@@ -3,7 +3,7 @@ import type * as EnvironmentInternals from '../../../internals/beatmap/object/en
 import { Geometry } from '../../../internals/beatmap/object/environment/geometry.ts'
 import {Transform} from "../../math/transform.ts";
 import {DeepReadonly} from "../../util/mutability.ts";
-import {AbstractDifficulty} from "../../../internals/beatmap/abstract_beatmap.ts";
+import {AbstractDifficulty} from "../../../internals/beatmap/abstract_difficulty.ts";
 
 /** Objects that are allowed to be spawned with a ModelScene. */
 export type GroupObjectTypes =

@@ -5,7 +5,7 @@ import { Transform } from '../../../types/math/transform.ts'
 import { EnvironmentModelPiece } from '../../../types/model/model_scene/piece.ts'
 import { environment } from '../../../builder_functions/beatmap/object/environment/environment.ts'
 import { ModelScene } from './base.ts'
-import { AbstractDifficulty } from '../../../internals/beatmap/abstract_beatmap.ts'
+import { AbstractDifficulty } from '../../../internals/beatmap/abstract_difficulty.ts'
 import { RawGeometryMaterial} from "../../../types/beatmap/object/environment.ts";
 
 export class ModelSceneSettings {

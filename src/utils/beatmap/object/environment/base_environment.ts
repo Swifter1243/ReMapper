@@ -1,6 +1,6 @@
 import { Environment } from '../../../../internals/beatmap/object/environment/environment.ts'
 import { environment } from '../../../../builder_functions/beatmap/object/environment/environment.ts'
-import {AbstractDifficulty} from "../../../../internals/beatmap/abstract_beatmap.ts";
+import {AbstractDifficulty} from "../../../../internals/beatmap/abstract_difficulty.ts";
 
 /** Get the base "Environment" object. */
 export function getBaseEnvironment(difficulty: AbstractDifficulty, callback: (env: Environment) => void) {

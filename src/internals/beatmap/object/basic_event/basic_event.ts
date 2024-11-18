@@ -1,7 +1,7 @@
 import { bsmap } from '../../../../deps.ts'
 import { BeatmapObject } from '../object.ts'
 import { BeatmapObjectConstructor, BeatmapObjectDefaults } from '../../../../types/beatmap/object/object.ts'
-import {AbstractDifficulty} from "../../abstract_beatmap.ts";
+import {AbstractDifficulty} from "../../abstract_difficulty.ts";
 
 export abstract class BasicEvent<
     TV2 extends bsmap.v2.IEvent = bsmap.v2.IEvent,

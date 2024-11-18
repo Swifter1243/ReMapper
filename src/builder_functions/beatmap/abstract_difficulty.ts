@@ -1,6 +1,6 @@
-import { AbstractDifficulty } from '../../internals/beatmap/abstract_beatmap.ts'
-import { V3Difficulty } from '../../internals/beatmap/beatmap_v3.ts'
-import { V2Difficulty } from '../../internals/beatmap/beatmap_v2.ts'
+import { AbstractDifficulty } from '../../internals/beatmap/abstract_difficulty.ts'
+import { V3Difficulty } from '../../internals/beatmap/difficulty_v3.ts'
+import { V2Difficulty } from '../../internals/beatmap/difficulty_v2.ts'
 import { bsmap, semver } from '../../deps.ts'
 import {parseFilePath} from "../../utils/file.ts";
 import {tryGetDifficultyInfo} from "../../utils/beatmap/info/difficulty_set.ts";

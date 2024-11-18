@@ -1,6 +1,6 @@
 import { TJson } from '../../../../types/util/json.ts'
 import { AbstractCustomEvent } from '../../../../internals/beatmap/object/custom_event/base/abstract_custom_event.ts'
-import { AbstractDifficulty } from '../../../../internals/beatmap/abstract_beatmap.ts'
+import { AbstractDifficulty } from '../../../../internals/beatmap/abstract_difficulty.ts'
 
 /** Make a custom event with no particular identity. */
 export function abstractCustomEvent(

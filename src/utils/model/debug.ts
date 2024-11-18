@@ -8,7 +8,7 @@ import { modelScene } from '../../builder_functions/model/model_scene.ts'
 import { Transform } from '../../types/math/transform.ts'
 import { vec } from '../array/tuple.ts'
 import { getBaseEnvironment } from '../beatmap/object/environment/base_environment.ts'
-import {AbstractDifficulty} from "../../internals/beatmap/abstract_beatmap.ts";
+import {AbstractDifficulty} from "../../internals/beatmap/abstract_difficulty.ts";
 import {ModelSceneSettings} from "./model_scene/settings.ts";
 import {lightEvent} from "../../builder_functions/beatmap/object/basic_event/light_event.ts";
 

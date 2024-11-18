@@ -2,7 +2,7 @@ import {BPMEvent} from "./bpm.ts";
 import { bsmap } from '../../../../../deps.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import {JsonObjectConstructor, JsonObjectDefaults} from "../../../../../types/beatmap/object/object.ts";
-import {AbstractDifficulty} from "../../../abstract_beatmap.ts";
+import {AbstractDifficulty} from "../../../abstract_difficulty.ts";
 
 export class CommunityBPMEvent extends BPMEvent<
     bsmap.v2.IBPMChange | bsmap.v2.IBPMChangeOld,

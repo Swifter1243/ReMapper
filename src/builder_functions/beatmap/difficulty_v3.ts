@@ -1,7 +1,7 @@
 import {asserts} from '../../deps.ts'
-import {V3Difficulty} from '../../internals/beatmap/beatmap_v3.ts'
+import {V3Difficulty} from '../../internals/beatmap/difficulty_v3.ts'
 
-import {readDifficulty} from "./difficulty.ts";
+import {readDifficulty} from "./abstract_difficulty.ts";
 
 /** Read a V3 beatmap. */
 export async function readDifficultyV3(

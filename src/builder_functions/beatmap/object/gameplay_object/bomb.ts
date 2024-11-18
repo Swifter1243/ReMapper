@@ -1,5 +1,5 @@
 import { Bomb } from '../../../../internals/beatmap/object/gameplay_object/bomb.ts'
-import { AbstractDifficulty } from '../../../../internals/beatmap/abstract_beatmap.ts'
+import { AbstractDifficulty } from '../../../../internals/beatmap/abstract_difficulty.ts'
 
 /** Create a bomb. */
 export function bomb(

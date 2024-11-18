@@ -4,7 +4,7 @@ import { BasicEvent } from './basic_event.ts'
 import { bsmap } from '../../../../deps.ts'
 import { getCDProp } from '../../../../utils/beatmap/json.ts'
 import {BeatmapObjectDefaults, BeatmapObjectFields} from "../../../../types/beatmap/object/object.ts";
-import type { AbstractDifficulty } from '../../abstract_beatmap.ts'
+import type { AbstractDifficulty } from '../../abstract_difficulty.ts'
 
 export class RingZoomEvent extends BasicEvent<bsmap.v2.IEventZoom, bsmap.v3.IBasicEventRing> {
     constructor(difficulty: AbstractDifficulty,obj: Partial<Omit<BeatmapObjectFields<RingZoomEvent>, 'type'>>) {

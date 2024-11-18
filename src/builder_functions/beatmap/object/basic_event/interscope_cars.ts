@@ -2,7 +2,7 @@ import { EventGroup, InterscopeGroup } from '../../../../constants/basic_event.t
 import { LightEvent } from '../../../../internals/beatmap/object/basic_event/light_event.ts'
 
 import { RingSpinEvent } from '../../../../internals/beatmap/object/basic_event/ring_spin.ts'
-import {AbstractDifficulty} from "../../../../internals/beatmap/abstract_beatmap.ts";
+import {AbstractDifficulty} from "../../../../internals/beatmap/abstract_difficulty.ts";
 
 type MoveCarsParams = Omit<ConstructorParameters<typeof RingSpinEvent>, 'type'>
 

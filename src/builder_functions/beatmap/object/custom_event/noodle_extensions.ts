@@ -5,7 +5,7 @@ import { TrackValue } from '../../../../types/animation/track.ts'
 import { AssignPathAnimation } from '../../../../internals/beatmap/object/custom_event/noodle_extensions/assign_path_animation.ts'
 import { AssignTrackParent } from '../../../../internals/beatmap/object/custom_event/noodle_extensions/assign_track_parent.ts'
 import { AssignPlayerToTrack } from '../../../../internals/beatmap/object/custom_event/noodle_extensions/assign_player_to_track.ts'
-import { AbstractDifficulty } from '../../../../internals/beatmap/abstract_beatmap.ts'
+import { AbstractDifficulty } from '../../../../internals/beatmap/abstract_difficulty.ts'
 
 /**
  * Animate objects on a track across their lifespan.

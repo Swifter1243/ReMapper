@@ -8,7 +8,7 @@ import { animationV2ToV3, animationV3toV2 } from '../../../../../utils/animation
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import { bsmap } from '../../../../../deps.ts'
 import { JsonObjectDefaults } from '../../../../../types/beatmap/object/object.ts'
-import type { AbstractDifficulty } from '../../../abstract_beatmap.ts'
+import type { AbstractDifficulty } from '../../../abstract_difficulty.ts'
 import {GameplayObjectAnimationData} from "../../../../../types/animation/properties/gameplay_object.ts";
 import {AssignPathAnimationData} from "../../../../../types/animation/properties/assign_path.ts";
 

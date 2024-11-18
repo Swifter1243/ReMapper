@@ -5,7 +5,7 @@ import { NoteAnimationData } from '../../../../types/animation/properties/note.t
 import { getCDProp, importInvertedBoolean } from '../../../../utils/beatmap/json.ts'
 import { GameplayObjectDefaults, GameplayObjectConstructor } from '../../../../types/beatmap/object/gameplay_object.ts'
 import { IV3Note } from '../../../../types/beatmap/object/note.ts'
-import type {AbstractDifficulty} from "../../abstract_beatmap.ts";
+import type {AbstractDifficulty} from "../../abstract_difficulty.ts";
 
 export abstract class BaseNote<
     TV3 extends IV3Note = IV3Note,

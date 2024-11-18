@@ -5,7 +5,7 @@ import {animationV3toV2} from "../../../../utils/animation/json.ts";
 import {BaseNote} from "./base_note.ts";
 import {exportInvertedBoolean, simplifyWorldRotation} from "../../../../utils/beatmap/json.ts";
 import {GameplayObjectConstructor} from "../../../../types/beatmap/object/gameplay_object.ts";
-import {AbstractDifficulty} from "../../abstract_beatmap.ts";
+import {AbstractDifficulty} from "../../abstract_difficulty.ts";
 
 export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
     constructor(

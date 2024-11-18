@@ -4,7 +4,7 @@ import { bsmap } from '../../../../../deps.ts'
 import {objectPrune} from "../../../../../utils/object/prune.ts";
 import {EventGroup} from "../../../../../constants/basic_event.ts";
 import {JsonObjectConstructor, JsonObjectDefaults} from "../../../../../types/beatmap/object/object.ts";
-import {AbstractDifficulty} from "../../../abstract_beatmap.ts";
+import {AbstractDifficulty} from "../../../abstract_difficulty.ts";
 
 export class OfficialBPMEvent extends BPMEvent<
     bsmap.v2.IEvent,

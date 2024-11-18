@@ -1,6 +1,6 @@
 import { EventGroup, SpinDirection } from '../../../../constants/basic_event.ts'
 import { LaserSpeedEvent } from '../../../../internals/beatmap/object/basic_event/laser_speed.ts'
-import { AbstractDifficulty } from '../../../../internals/beatmap/abstract_beatmap.ts'
+import { AbstractDifficulty } from '../../../../internals/beatmap/abstract_difficulty.ts'
 
 type LaserSpeedParams = [
     ConstructorParameters<typeof LaserSpeedEvent>[0],

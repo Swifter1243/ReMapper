@@ -1,5 +1,5 @@
 import { AbstractBasicEvent } from '../../../../internals/beatmap/object/basic_event/abstract.ts'
-import {AbstractDifficulty} from "../../../../internals/beatmap/abstract_beatmap.ts";
+import {AbstractDifficulty} from "../../../../internals/beatmap/abstract_difficulty.ts";
 
 /** The bare minimum basic light event. */
 export function abstract(

@@ -1,4 +1,4 @@
-import type { AbstractDifficulty } from '../../../../internals/beatmap/abstract_beatmap.ts'
+import type { AbstractDifficulty } from '../../../../internals/beatmap/abstract_difficulty.ts'
 import * as EnvironmentInternals from '../../../../internals/beatmap/object/environment/environment.ts'
 import { LookupMethod } from '../../../../types/beatmap/object/environment.ts'
 

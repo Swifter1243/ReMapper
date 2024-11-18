@@ -4,7 +4,7 @@ import { CustomEventConstructorTrack } from '../../../../../types/beatmap/object
 import { getDataProp } from '../../../../../utils/beatmap/json.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import { bsmap } from '../../../../../deps.ts'
-import {AbstractDifficulty} from "../../../abstract_beatmap.ts";
+import {AbstractDifficulty} from "../../../abstract_difficulty.ts";
 
 export class AssignPlayerToTrack extends CustomEvent<
     bsmap.v2.ICustomEventAssignPlayerToTrack,

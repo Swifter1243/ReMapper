@@ -5,7 +5,7 @@ import { EventGroup, InverseRotationAction, RotationAction } from '../../../../c
 import { getCDProp } from '../../../../utils/beatmap/json.ts'
 import { objectPrune } from '../../../../utils/object/prune.ts'
 import { BeatmapObjectConstructor, BeatmapObjectDefaults } from '../../../../types/beatmap/object/object.ts'
-import {AbstractDifficulty} from "../../abstract_beatmap.ts";
+import {AbstractDifficulty} from "../../abstract_difficulty.ts";
 
 export class RotationEvent extends BeatmapObject<bsmap.v2.IEventLaneRotation, bsmap.v3.IRotationEvent> implements ConvertableEvent {
     constructor(

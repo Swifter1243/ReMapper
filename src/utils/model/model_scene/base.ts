@@ -16,7 +16,7 @@ import { TransformKeyframe } from '../../../types/animation/bake.ts'
 import { bakeAnimation } from '../../animation/bake.ts'
 import { DeepReadonly } from '../../../types/util/mutability.ts'
 import { ModelSceneSettings } from './settings.ts'
-import { AbstractDifficulty } from '../../../internals/beatmap/abstract_beatmap.ts'
+import { AbstractDifficulty } from '../../../internals/beatmap/abstract_difficulty.ts'
 import { Environment } from '../../../internals/beatmap/object/environment/environment.ts'
 
 export abstract class ModelScene<I, M, O> {

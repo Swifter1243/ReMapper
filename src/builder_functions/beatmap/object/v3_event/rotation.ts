@@ -1,5 +1,5 @@
 import { RotationEvent } from '../../../../internals/beatmap/object/v3_event/rotation.ts'
-import { AbstractDifficulty } from '../../../../internals/beatmap/abstract_beatmap.ts'
+import { AbstractDifficulty } from '../../../../internals/beatmap/abstract_difficulty.ts'
 
 /**
  * Used for 360 mode, rotates future objects and active objects.

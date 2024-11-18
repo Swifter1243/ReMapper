@@ -8,7 +8,7 @@ import { ColorVec } from '../../../../types/math/vector.ts'
 import { EASE } from '../../../../types/animation/easing.ts'
 import { getCDProp } from '../../../../utils/beatmap/json.ts'
 import { BeatmapObjectConstructor, BeatmapObjectDefaults } from '../../../../types/beatmap/object/object.ts'
-import type {AbstractDifficulty} from "../../abstract_beatmap.ts";
+import type {AbstractDifficulty} from "../../abstract_difficulty.ts";
 
 type ActionFunction = [
     color?: ColorVec | LightColorLiteral,

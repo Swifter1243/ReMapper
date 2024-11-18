@@ -1,4 +1,4 @@
-import { AbstractDifficulty } from '../../internals/beatmap/abstract_beatmap.ts'
+import { AbstractDifficulty } from '../../internals/beatmap/abstract_difficulty.ts'
 
 /** Bakes all rotations from `RotationEvent`s in a difficulty into gameplay object `worldRotation` fields. */
 export function convertRotationEventsToObjectRotation(difficulty: AbstractDifficulty) {

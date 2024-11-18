@@ -1,5 +1,5 @@
 import { AbstractInfo } from './beatmap/info/abstract_info.ts'
-import { AbstractDifficulty } from './beatmap/abstract_beatmap.ts'
+import { AbstractDifficulty } from './beatmap/abstract_difficulty.ts'
 import { V2Info } from './beatmap/info/info_v2.ts'
 import { compress, fs, path } from '../deps.ts'
 import { WorkspaceExportOptions, WorkspaceZipOptions } from '../types/remapper/rm_workspace.ts'

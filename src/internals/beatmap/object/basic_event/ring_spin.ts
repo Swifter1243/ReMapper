@@ -5,7 +5,7 @@ import { bsmap } from '../../../../deps.ts'
 import { getCDProp } from '../../../../utils/beatmap/json.ts'
 
 import {BeatmapObjectDefaults, BeatmapObjectFields} from "../../../../types/beatmap/object/object.ts";
-import {AbstractDifficulty} from "../../abstract_beatmap.ts";
+import {AbstractDifficulty} from "../../abstract_difficulty.ts";
 
 export class RingSpinEvent extends BasicEvent<bsmap.v2.IEventRing, bsmap.v3.IBasicEventRing> {
     constructor(difficulty: AbstractDifficulty, obj: Partial<Omit<BeatmapObjectFields<RingSpinEvent>, 'type'>>) {

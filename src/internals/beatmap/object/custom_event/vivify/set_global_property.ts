@@ -8,7 +8,7 @@ import {CustomEventConstructor} from "../../../../../types/beatmap/object/custom
 import {getDataProp} from "../../../../../utils/beatmap/json.ts";
 import {CustomEvent} from "../base/custom_event.ts";
 import {JsonObjectDefaults} from "../../../../../types/beatmap/object/object.ts";
-import {AbstractDifficulty} from "../../../abstract_beatmap.ts";
+import {AbstractDifficulty} from "../../../abstract_difficulty.ts";
 
 export class SetGlobalProperty extends CustomEvent<
     never,

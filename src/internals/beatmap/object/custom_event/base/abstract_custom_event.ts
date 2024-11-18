@@ -1,7 +1,7 @@
 import { CustomEvent } from './custom_event.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import { bsmap } from '../../../../../deps.ts'
-import type { AbstractDifficulty } from '../../../abstract_beatmap.ts'
+import type { AbstractDifficulty } from '../../../abstract_difficulty.ts'
 
 export class AbstractCustomEvent extends CustomEvent<
     bsmap.v2.ICustomEvent,

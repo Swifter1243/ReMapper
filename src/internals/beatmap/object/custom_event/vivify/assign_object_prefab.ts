@@ -6,7 +6,7 @@ import {getDataProp} from "../../../../../utils/beatmap/json.ts";
 import {CustomEvent} from "../base/custom_event.ts";
 import {JsonObjectDefaults} from "../../../../../types/beatmap/object/object.ts";
 import {LOAD_MODE} from "../../../../../types/vivify/setting.ts";
-import {AbstractDifficulty} from "../../../abstract_beatmap.ts";
+import {AbstractDifficulty} from "../../../abstract_difficulty.ts";
 
 export class AssignObjectPrefab extends CustomEvent<
     never,

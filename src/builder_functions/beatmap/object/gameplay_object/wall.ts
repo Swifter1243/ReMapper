@@ -1,5 +1,5 @@
 // deno-lint-ignore-file
-import type { AbstractDifficulty } from '../../../../internals/beatmap/abstract_beatmap.ts'
+import type { AbstractDifficulty } from '../../../../internals/beatmap/abstract_difficulty.ts'
 import { Wall } from '../../../../internals/beatmap/object/gameplay_object/wall.ts'
 
 /**

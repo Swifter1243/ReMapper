@@ -4,7 +4,7 @@ import { BloomFogEnvironment } from '../../../../types/beatmap/object/environmen
 import { objectPrune } from '../../../../utils/object/prune.ts'
 import { FOG_TRACK } from '../../../../constants/fog.ts'
 import { BeatmapArrayMember } from '../../../../types/beatmap/beatmap_array_member.ts'
-import { AbstractDifficulty } from '../../abstract_beatmap.ts'
+import { AbstractDifficulty } from '../../abstract_difficulty.ts'
 
 // TODO: Maybe make this a difficulty based thing?
 export type AnyFog = BloomFogEnvironment<

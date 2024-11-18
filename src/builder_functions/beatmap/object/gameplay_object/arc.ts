@@ -1,7 +1,7 @@
 import { Arc } from '../../../../internals/beatmap/object/gameplay_object/arc.ts'
 
 import { NoteColor, NoteCut } from '../../../../constants/note.ts'
-import type { AbstractDifficulty } from '../../../../internals/beatmap/abstract_beatmap.ts'
+import type { AbstractDifficulty } from '../../../../internals/beatmap/abstract_difficulty.ts'
 
 /** Create an arc. */
 export function arc(

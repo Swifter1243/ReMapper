@@ -13,7 +13,7 @@ import { Transform } from '../../types/math/transform.ts'
 import { ComplexPointsVec3 } from '../../types/animation/points/vec3.ts'
 import { ModelObject, ReadonlyModel } from '../../types/model/object.ts'
 import { Wall } from '../../internals/beatmap/object/gameplay_object/wall.ts'
-import {AbstractDifficulty} from "../../internals/beatmap/abstract_beatmap.ts";
+import {AbstractDifficulty} from "../../internals/beatmap/abstract_difficulty.ts";
 import {RawPointsAny} from "../../types/animation/points/any.ts";
 
 let modelToWallCount = 0

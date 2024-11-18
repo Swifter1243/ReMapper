@@ -7,7 +7,7 @@ import {Vec3} from "../../types/math/vector.ts";
 import {Transform} from "../../types/math/transform.ts";
 import {Bounds} from "../../types/math/bounds.ts";
 import {ReadonlyText, TextInfo, TextObject} from "../../types/model/text.ts";
-import {AbstractDifficulty} from "../../internals/beatmap/abstract_beatmap.ts";
+import {AbstractDifficulty} from "../../internals/beatmap/abstract_difficulty.ts";
 
 export class Text implements TextInfo {
     horizontalAnchor: 'Left' | 'Center' | 'Right' = 'Center'

@@ -7,7 +7,7 @@ import { animateTrack } from '../../../builder_functions/beatmap/object/custom_e
 import { StaticSceneInfo } from '../../../types/model/model_scene/scene_info.ts'
 import {ReadonlyModel, type ModelObject} from "../../../types/model/object.ts";
 import type { DeepReadonly } from '../../../types/util/mutability.ts'
-import {AbstractDifficulty} from "../../../internals/beatmap/abstract_beatmap.ts";
+import {AbstractDifficulty} from "../../../internals/beatmap/abstract_difficulty.ts";
 import {RawPointsVec3} from "../../../types/animation/points/vec3.ts";
 
 export class StaticModelScene extends ModelScene<StaticModelInput, Promise<ReadonlyModel>, StaticSceneInfo> {

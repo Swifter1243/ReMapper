@@ -9,7 +9,7 @@ import {
     simplifyWorldRotation
 } from '../../../../utils/beatmap/json.ts'
 import { GameplayObjectDefaults, GameplayObjectConstructor } from '../../../../types/beatmap/object/gameplay_object.ts'
-import type {AbstractDifficulty} from "../../abstract_beatmap.ts";
+import type {AbstractDifficulty} from "../../abstract_difficulty.ts";
 
 export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
     constructor(

@@ -3,7 +3,7 @@ import {BaseEnvironmentEnhancement} from "./base_environment.ts";
 import {objectPrune} from "../../../../utils/object/prune.ts";
 import {ExcludedEnvironmentFields, LookupMethod} from "../../../../types/beatmap/object/environment.ts";
 import {JsonObjectDefaults} from "../../../../types/beatmap/object/object.ts";
-import {AbstractDifficulty} from "../../abstract_beatmap.ts";
+import {AbstractDifficulty} from "../../abstract_difficulty.ts";
 
 export class Environment extends BaseEnvironmentEnhancement<
     bsmap.v2.IChromaEnvironmentID,

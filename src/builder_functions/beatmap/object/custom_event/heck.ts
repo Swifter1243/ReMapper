@@ -1,7 +1,7 @@
 import { EASE } from '../../../../types/animation/easing.ts'
 import { TrackValue } from '../../../../types/animation/track.ts'
 import { AnimateTrack } from '../../../../internals/beatmap/object/custom_event/heck/animate_track.ts'
-import type { AbstractDifficulty } from '../../../../internals/beatmap/abstract_beatmap.ts'
+import type { AbstractDifficulty } from '../../../../internals/beatmap/abstract_difficulty.ts'
 
 /**
  * Animate a track.

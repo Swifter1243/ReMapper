@@ -13,7 +13,7 @@ import {
 import {
     LightTranslationEventBoxGroup
 } from "../../../../../internals/beatmap/object/v3_event/lighting/light_event_box_group/translation.ts";
-import {AbstractDifficulty} from "../../../../../internals/beatmap/abstract_beatmap.ts";
+import {AbstractDifficulty} from "../../../../../internals/beatmap/abstract_difficulty.ts";
 
 type BoxGroupParameters<T extends bsmap.v3.IEventBox> = [
     parentDifficulty: AbstractDifficulty,

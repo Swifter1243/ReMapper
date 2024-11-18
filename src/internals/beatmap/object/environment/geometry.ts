@@ -4,7 +4,7 @@ import { bsmap } from '../../../../deps.ts'
 import { copy } from '../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../utils/object/prune.ts'
 import { JsonObjectDefaults } from '../../../../types/beatmap/object/object.ts'
-import type { AbstractDifficulty } from '../../abstract_beatmap.ts'
+import type { AbstractDifficulty } from '../../abstract_difficulty.ts'
 
 export class Geometry extends BaseEnvironmentEnhancement<
     bsmap.v2.IChromaEnvironmentGeometry,

@@ -5,7 +5,7 @@ import { copy } from '../../../../../utils/object/copy.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import { EventGroup } from '../../../../../constants/basic_event.ts'
 import { BeatmapObjectConstructor, BeatmapObjectDefaults } from '../../../../../types/beatmap/object/object.ts'
-import {AbstractDifficulty} from "../../../abstract_beatmap.ts";
+import {AbstractDifficulty} from "../../../abstract_difficulty.ts";
 
 export class BoostEvent extends BeatmapObject<bsmap.v2.IEvent, bsmap.v3.IColorBoostEvent> implements ConvertableEvent {
     constructor(parentDifficulty: AbstractDifficulty, obj: BeatmapObjectConstructor<BoostEvent>) {

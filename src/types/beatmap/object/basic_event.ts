@@ -1,5 +1,5 @@
 import { LightEvent } from '../../../internals/beatmap/object/basic_event/light_event.ts'
-import { AbstractDifficulty } from '../../../internals/beatmap/abstract_beatmap.ts'
+import { AbstractDifficulty } from '../../../internals/beatmap/abstract_difficulty.ts'
 
 export type LightParameters =
     | [

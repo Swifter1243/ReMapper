@@ -2,7 +2,7 @@ import { IV2BPM, IV3BPM } from '../../../../../types/beatmap/object/v3_event.ts'
 import { JsonWrapper } from '../../../../../types/beatmap/json_wrapper.ts'
 import { JsonObjectConstructor, JsonObjectDefaults } from '../../../../../types/beatmap/object/object.ts'
 import {BeatmapArrayMember} from "../../../../../types/beatmap/beatmap_array_member.ts";
-import type { AbstractDifficulty } from '../../../abstract_beatmap.ts'
+import type { AbstractDifficulty } from '../../../abstract_difficulty.ts'
 
 export abstract class BPMEvent<
     TV2 extends IV2BPM = IV2BPM,

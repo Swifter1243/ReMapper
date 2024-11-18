@@ -20,7 +20,7 @@ import {
     getOffsetFromJumpDistance,
     getOffsetFromReactionTime, getReactionTime
 } from "../../../../utils/beatmap/object/jumps.ts";
-import {AbstractDifficulty} from "../../abstract_beatmap.ts";
+import {AbstractDifficulty} from "../../abstract_difficulty.ts";
 import {GameplayObjectAnimationData} from "../../../../types/animation/properties/gameplay_object.ts";
 
 export abstract class BeatmapGameplayObject<

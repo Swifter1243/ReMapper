@@ -1,5 +1,5 @@
 import { AnyFog, FogEvent } from '../../../../internals/beatmap/object/environment/fog.ts'
-import {AbstractDifficulty} from "../../../../internals/beatmap/abstract_beatmap.ts";
+import {AbstractDifficulty} from "../../../../internals/beatmap/abstract_difficulty.ts";
 
 type Overload1 = [
     AnyFog & {

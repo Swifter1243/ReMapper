@@ -5,7 +5,7 @@ import { getDataProp } from '../../../../../utils/beatmap/json.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
 import { bsmap } from '../../../../../deps.ts'
 import { JsonObjectDefaults } from '../../../../../types/beatmap/object/object.ts'
-import {AbstractDifficulty} from "../../../abstract_beatmap.ts";
+import {AbstractDifficulty} from "../../../abstract_difficulty.ts";
 
 export class AssignTrackParent extends CustomEvent<
     bsmap.v2.ICustomEventAssignTrackParent,

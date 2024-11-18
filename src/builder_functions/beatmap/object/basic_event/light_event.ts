@@ -1,7 +1,7 @@
 import { EventGroup } from '../../../../constants/basic_event.ts'
 import { LightEvent } from '../../../../internals/beatmap/object/basic_event/light_event.ts'
 import { LightParameters } from '../../../../types/beatmap/object/basic_event.ts'
-import {AbstractDifficulty} from "../../../../internals/beatmap/abstract_beatmap.ts";
+import {AbstractDifficulty} from "../../../../internals/beatmap/abstract_difficulty.ts";
 
 function fixupParams<TG extends LightEvent['type']>(
     group: TG,

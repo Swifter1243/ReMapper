@@ -9,7 +9,7 @@ import { AnimatedTransform } from '../../../../types/math/transform.ts'
 import {exportInvertedBoolean, getCDProp, simplifyWorldRotation} from '../../../../utils/beatmap/json.ts'
 import { setWallWorldTransform } from '../../../../utils/beatmap/object/wall/transform.ts'
 import { GameplayObjectDefaults, GameplayObjectConstructor } from '../../../../types/beatmap/object/gameplay_object.ts'
-import {AbstractDifficulty} from "../../abstract_beatmap.ts";
+import {AbstractDifficulty} from "../../abstract_difficulty.ts";
 
 export class Wall extends BeatmapGameplayObject<bsmap.v2.IObstacle, bsmap.v3.IObstacle> {
     constructor(

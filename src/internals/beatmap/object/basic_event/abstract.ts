@@ -1,7 +1,7 @@
 import { bsmap } from '../../../../deps.ts'
 import { objectPrune } from '../../../../utils/object/prune.ts'
 import { BasicEvent } from './basic_event.ts'
-import type {AbstractDifficulty} from "../../abstract_beatmap.ts";
+import type {AbstractDifficulty} from "../../abstract_difficulty.ts";
 
 export class AbstractBasicEvent extends BasicEvent {
     protected override getArray(difficulty: AbstractDifficulty): this[] {

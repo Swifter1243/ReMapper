@@ -1,4 +1,4 @@
-import { AbstractDifficulty } from '../../../abstract_beatmap.ts'
+import { AbstractDifficulty } from '../../../abstract_difficulty.ts'
 import { destroyObject } from '../../../../../builder_functions/beatmap/object/custom_event/vivify.ts'
 import { CustomEvent } from '../base/custom_event.ts'
 import { DestroyObject } from './destroy_object.ts'

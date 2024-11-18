@@ -4,7 +4,7 @@ import {JsonWrapper} from "../../../types/beatmap/json_wrapper.ts";
 import {copy} from "../../../utils/object/copy.ts";
 import {BeatmapObjectConstructor, BeatmapObjectDefaults} from "../../../types/beatmap/object/object.ts";
 import {BeatmapArrayMember} from "../../../types/beatmap/beatmap_array_member.ts";
-import type { AbstractDifficulty } from '../abstract_beatmap.ts'
+import type { AbstractDifficulty } from '../abstract_difficulty.ts'
 
 export abstract class BeatmapObject<
     TV2 extends bsmap.v2.IBaseObject = bsmap.v2.IBaseObject,

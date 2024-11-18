@@ -10,7 +10,7 @@ import { DeepReadonly } from '../../../types/util/mutability.ts'
 import { ModelObject } from '../../../types/model/object.ts'
 import { MultiSceneInfo, SceneSwitchInfo } from '../../../types/model/model_scene/scene_info.ts'
 import {AnimatedSceneMaterial, ScenePromises} from '../../../types/model/model_scene/animated.ts'
-import { AbstractDifficulty } from '../../../internals/beatmap/abstract_beatmap.ts'
+import { AbstractDifficulty } from '../../../internals/beatmap/abstract_difficulty.ts'
 import {RawPointsVec3} from "../../../types/animation/points/vec3.ts";
 
 export class AnimatedModelScene extends ModelScene<SceneSwitch[], ScenePromises, MultiSceneInfo> {

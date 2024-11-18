@@ -1,7 +1,7 @@
 import {LightEvent} from "../../internals/beatmap/object/basic_event/light_event.ts";
 import {LightEventCondition, LightEventProcess} from "../../types/iterator.ts";
 import {lightEvent} from "../../builder_functions/beatmap/object/basic_event/light_event.ts";
-import {AbstractDifficulty} from "../../internals/beatmap/abstract_beatmap.ts";
+import {AbstractDifficulty} from "../../internals/beatmap/abstract_difficulty.ts";
 
 /*
  * Class used to iterate through every event in the map.

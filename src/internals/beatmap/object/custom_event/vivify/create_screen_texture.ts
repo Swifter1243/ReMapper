@@ -5,7 +5,7 @@ import {CustomEventConstructor} from "../../../../../types/beatmap/object/custom
 
 import {getDataProp} from "../../../../../utils/beatmap/json.ts";
 import {JsonObjectDefaults} from "../../../../../types/beatmap/object/object.ts";
-import {AbstractDifficulty} from "../../../abstract_beatmap.ts";
+import {AbstractDifficulty} from "../../../abstract_difficulty.ts";
 import {Destroyable} from "./destroyable.ts";
 
 export class CreateScreenTexture extends Destroyable<

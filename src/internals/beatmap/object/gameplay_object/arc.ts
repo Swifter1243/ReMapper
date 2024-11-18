@@ -6,7 +6,7 @@ import { BaseSliderObject } from './base_slider.ts'
 import { Vec2 } from '../../../../types/math/vector.ts'
 import {defaultBoolean, getCDProp, simplifyWorldRotation} from '../../../../utils/beatmap/json.ts'
 import { GameplayObjectDefaults, GameplayObjectConstructor } from '../../../../types/beatmap/object/gameplay_object.ts'
-import type { AbstractDifficulty } from '../../abstract_beatmap.ts'
+import type { AbstractDifficulty } from '../../abstract_difficulty.ts'
 
 export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
     /**
