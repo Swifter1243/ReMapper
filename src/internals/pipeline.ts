@@ -36,7 +36,7 @@ export class Pipeline {
     }
 
     attachDirectory(file: string) {
-        path.join(this.directory, file)
+        return path.join(this.directory, file);
     }
 
     get infoAsV2() {
