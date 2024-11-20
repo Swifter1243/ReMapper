@@ -170,9 +170,9 @@ export class V2Info extends AbstractInfo<bsmap.v2.IInfo> {
             case 'Low':
                 return 1
             case 'Medium':
-                return 1
-            case 'High':
                 return 2
+            case 'High':
+                return 3
             default:
                 return undefined
         }
