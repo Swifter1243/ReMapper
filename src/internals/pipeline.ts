@@ -1,12 +1,13 @@
 import { AbstractInfo } from './beatmap/info/abstract_info.ts'
 import { AbstractDifficulty } from './beatmap/abstract_difficulty.ts'
 import { V2Info } from './beatmap/info/info_v2.ts'
-import { compress, fs, path } from '../deps.ts'
-import { PipelineExportOptions, PipelineZipOptions } from '../types/remapper/pipeline.ts'
+import { compress, fs, path, adbDeno } from '../deps.ts'
+import {PipelineExportOptions, PipelineQuestOptions, PipelineZipOptions} from '../types/remapper/pipeline.ts'
 import { BundleInfo } from '../types/bundle.ts'
 import { applyCRCsToInfo } from '../utils/vivify/bundle/load.ts'
 import { REMAPPER_VERSION } from '../constants/package.ts'
 import { RMError, RMLog } from '../utils/rm_log.ts'
+import { QUEST_WIP_PATH } from '../constants/file.ts'
 
 type MovedFile = {
     old: string,
@@ -133,6 +134,9 @@ export class Pipeline {
         if (options.zip) {
             exportPromises.push(this.exportZip(exportedFiles, options.zip))
         }
+        if (options.quest) {
+            exportPromises.push(this.exportQuest(exportedFiles, options.quest))
+        }
 
         await Promise.all(exportPromises)
     }
@@ -162,5 +166,31 @@ export class Pipeline {
         await compress(files, zipName, { overwrite: true })
 
         RMLog(`"${zipName}" has been zipped!`)
+    }
+
+    private async exportQuest(files: string[], questOptions: PipelineQuestOptions) {
+        const adbBinary = adbDeno.getADBBinary(adbDeno.defaultADBPath())
+
+        // Download ADB
+        if (!fs.existsSync(adbBinary)) {
+            console.log("ADB not found, downloading")
+            await adbDeno.downloadADB(questOptions.adbOptions?.downloadPath)
+        }
+
+        const questSongFolder = `${QUEST_WIP_PATH}/${this.info.song.title}`;
+        await adbDeno.mkdir(questSongFolder);
+
+        const tasks = files.map(v => {
+            const relativePath = path.relative(this.directory, v);
+            console.log(`Uploading ${relativePath} to quest`)
+            adbDeno.uploadFile(
+                `${questSongFolder}/${relativePath}`,
+                v,
+                questOptions.adbOptions
+            );
+        })
+
+        await Promise.all(tasks);
+        RMLog(`"${this.info.song.title}" has been uploaded to quest!`)
     }
 }

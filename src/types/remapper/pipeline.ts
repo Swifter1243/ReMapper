@@ -32,10 +32,7 @@ export type PipelineExportOptions = {
      *
      * They will be uploaded to the song WIP folder, {@link QUEST_WIP_PATH}
      * */
-    quest?: {
-        /** Options to pass to ADB */
-        adbOptions: adbDeno.InvokeADBOptions
-    }
+    quest?: PipelineQuestOptions
 }
 
 export type PipelineZipOptions = {
@@ -43,4 +40,9 @@ export type PipelineZipOptions = {
     name: string,
     /** Add bundles to the zip. Only do this if you're distributing to friends, don't include these files in a BeatSaver upload. */
     includeBundles?: boolean
+}
+
+export type PipelineQuestOptions = {
+    /** Options to pass to ADB */
+    adbOptions?: adbDeno.InvokeADBOptions
 }
