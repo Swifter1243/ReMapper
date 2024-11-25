@@ -11,6 +11,8 @@ export type PipelineInitialization = {
 export type PipelineExportOptions = {
     /** The directory where this map should be exported to. */
     outputDirectory: string,
+    /** The name of the folder which will be outputted into {@link outputDirectory}. Defaults to the folder name of {@link directory}. */
+    outputFolderName?: string
     /** Export the map to a zip. */
     zip?: PipelineZipOptions
     /**

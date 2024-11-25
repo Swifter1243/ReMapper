@@ -49,9 +49,10 @@ export class Pipeline {
 
     async export(options: PipelineExportOptions) {
         const inputDirectory = this.directory
-        const outputDirectory = path.join(options.outputDirectory, path.basename(inputDirectory))
+        const outputFolderName = options.outputFolderName ?? path.basename(inputDirectory)
+        const outputDirectory = path.join(options.outputDirectory, outputFolderName)
         if (path.resolve(outputDirectory) === path.resolve(inputDirectory)) {
-            throw new Error('You are trying to export a beatmap into the same directory as itself!')
+            throw new Error('You are trying to export a pipeline into it\'s own directory!')
         }
 
         const filesToCopy: MovedFile[] = []
