@@ -9,7 +9,19 @@ export type PipelineInitialization = {
 }
 
 export type PipelineExportOptions = {
-    /** The directory where this map should be exported to. */
+    /**
+     * The directory where this map should be exported to.
+     * This is not the directory of the output map, but it's the folder where the output map will be placed inside.
+     * ```
+     * outputDirectory
+     * └── outputFolderName
+     *     ├── Info.dat
+     *     ├── song.ogg
+     *     ├── cover.png
+     *     ├── ExpertPlusStandard.dat
+     *     ...
+     * ```
+     * */
     outputDirectory: string,
     /** The name of the folder which will be outputted into {@link outputDirectory}. Defaults to the folder name of {@link directory}. */
     outputFolderName?: string
