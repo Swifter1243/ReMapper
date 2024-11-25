@@ -117,10 +117,12 @@ export class Pipeline {
     }
 
     private async serialize(outputDirectory: string, filesToCopy: MovedFile[], filesToWrite: MovedFile[], options: PipelineExportOptions) {
-        await fs.emptyDir(outputDirectory) // clear/create directory
+        await fs.ensureDir(outputDirectory) // create directory
 
         await Promise.all([
-            ...filesToCopy.map(file => fs.copy(file.old, file.new)),
+            ...filesToCopy.map(file => fs.copy(file.old, file.new, {
+                overwrite: true
+            })),
             ...filesToWrite.map(file => Deno.writeTextFile(file.new, file.old))
         ])
         RMLog(`Successfully saved beatmap to ${outputDirectory}`)
