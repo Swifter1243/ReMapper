@@ -9,6 +9,7 @@ export type RuntimePropertiesLinear =
     | 'baseEnergy'
     | 'baseSongTime'
     | 'baseSongLength'
+    | 'baseRelativeScore'
 
 /** Properties that will be evaluated at runtime, used in vec3 (e.g. `position`) animations. */
 export type RuntimePropertiesVec3 =
