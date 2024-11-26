@@ -1,4 +1,4 @@
-import {PointModifier} from '../components.ts'
+import { PointModifier } from "../components.ts";
 
 /** Values for runtime points.
  * [[...], [...], [...]] where [...] is [...x, time]
@@ -8,7 +8,9 @@ export type RuntimePointValues<
     T extends number[],
     R extends string,
 > =
-    [...T, ...Modifier<T>[]] |
-    [R, ...Modifier<T>[]]
+    | [...T, ...Modifier<T, R>[]]
+    | [R, ...Modifier<T, R>[]]
 
-type Modifier<T extends number[]> = [...T, PointModifier]
+type Modifier<T extends number[], R extends string> =
+    | [...T, PointModifier]
+    | [R, PointModifier]
