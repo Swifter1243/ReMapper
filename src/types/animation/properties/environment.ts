@@ -1,7 +1,7 @@
 import {RuntimeDifficultyPointsVec3} from "../points/runtime/vec3.ts";
 
 /** Animation properties for environment enhancements */
-export interface EnvironmentAnimationData {
+export type EnvironmentAnimationData = {
     /** The position of the object in world space. */
     position?: RuntimeDifficultyPointsVec3
     /** The position of the object relative to it's parent. */

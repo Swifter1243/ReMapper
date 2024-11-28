@@ -9,7 +9,6 @@ import { objectPrune } from '../../../../../utils/object/prune.ts'
 import { bsmap } from '../../../../../deps.ts'
 import { JsonObjectDefaults } from '../../../../../types/beatmap/object/object.ts'
 import type { AbstractDifficulty } from '../../../abstract_difficulty.ts'
-import {GameplayObjectAnimationData} from "../../../../../types/animation/properties/gameplay_object.ts";
 import {AssignPathAnimationData} from "../../../../../types/animation/properties/assign_path.ts";
 
 export class AssignPathAnimation extends CustomEvent<
@@ -55,7 +54,7 @@ export class AssignPathAnimation extends CustomEvent<
         // @ts-ignore 2322
         this.duration = getDataProp(json.d, 'duration')
         this.easing = getDataProp(json.d, 'easing')
-        this.animation = { ...json.d } as unknown as GameplayObjectAnimationData
+        this.animation = { ...json.d } as unknown as AssignPathAnimationData
         return super.fromJsonV3(json)
     }
 

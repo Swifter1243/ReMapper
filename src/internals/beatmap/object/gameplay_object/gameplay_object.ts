@@ -21,7 +21,7 @@ import {
     getOffsetFromReactionTime, getReactionTime
 } from "../../../../utils/beatmap/object/jumps.ts";
 import {AbstractDifficulty} from "../../abstract_difficulty.ts";
-import {GameplayObjectAnimationData} from "../../../../types/animation/properties/gameplay_object.ts";
+import { ObjectPathAnimationData } from '../../../../types/animation/properties/object.ts'
 
 export abstract class BeatmapGameplayObject<
     TV2 extends IV2GameplayObject = IV2GameplayObject,
@@ -66,7 +66,7 @@ export abstract class BeatmapGameplayObject<
     /** The y position of this object on the grid. */
     y: number
     /** The animation object on the object. */
-    animation: GameplayObjectAnimationData
+    animation: ObjectPathAnimationData
     /** The track of this object.
      * Uses a wrapper that simplifies single strings and arrays.
      */
@@ -239,7 +239,7 @@ export abstract class BeatmapGameplayObject<
     override fromJsonV3(json: TV3): this {
         this.x = json.x ?? BeatmapGameplayObject.defaults.x
         this.y = json.y ?? BeatmapGameplayObject.defaults.y
-        this.animation = getCDProp(json, 'animation') as GameplayObjectAnimationData | undefined ?? copy(BeatmapGameplayObject.defaults.animation)
+        this.animation = getCDProp(json, 'animation') as ObjectPathAnimationData | undefined ?? copy(BeatmapGameplayObject.defaults.animation)
         this.chromaColor = getCDProp(json, 'color') as ColorVec
         this.coordinates = getCDProp(json, 'coordinates')
         this.uninteractable = getCDProp(json, 'uninteractable')

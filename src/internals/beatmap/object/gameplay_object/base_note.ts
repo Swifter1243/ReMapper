@@ -1,7 +1,7 @@
 import { BeatmapGameplayObject } from './gameplay_object.ts'
 import { bsmap } from '../../../../deps.ts'
 import { Vec2 } from '../../../../types/math/vector.ts'
-import { NoteAnimationData } from '../../../../types/animation/properties/note.ts'
+import {NotePathAnimationData} from '../../../../types/animation/properties/note.ts'
 import { getCDProp, importInvertedBoolean } from '../../../../utils/beatmap/json.ts'
 import { GameplayObjectDefaults, GameplayObjectConstructor } from '../../../../types/beatmap/object/gameplay_object.ts'
 import { IV3Note } from '../../../../types/beatmap/object/note.ts'
@@ -27,7 +27,7 @@ export abstract class BaseNote<
         this.disableDebris = fields.disableDebris
     }
 
-    declare animation: NoteAnimationData
+    declare animation: NotePathAnimationData
 
     /** Moves the note to the separate fake note array on save. */
     fake?: boolean

@@ -2,9 +2,10 @@ import { RuntimeDifficultyPointsVec3 } from '../points/runtime/vec3.ts'
 import { RuntimeDifficultyPointsLinear } from '../points/runtime/linear.ts'
 import { RuntimeDifficultyPointsVec4 } from '../points/runtime/vec4.ts'
 import { RuntimeDifficultyPointsAny } from '../points/runtime/any.ts'
+import {DefinitePositionData} from "./assign_path.ts";
 
 /** Animation properties for beatmap objects. */
-export interface ObjectAnimationData {
+export type ObjectAnimationData = {
     /** Describes the position offset of an object. It will continue any normal movement and have this stacked on top of it. */
     offsetPosition?: RuntimeDifficultyPointsVec3
     /** This property describes the world rotation offset of an object. This means it is rotated with the world as the origin. Uses euler values. Think of 360 mode. */
@@ -22,3 +23,5 @@ export interface ObjectAnimationData {
     color?: RuntimeDifficultyPointsVec4
     [key: string]: RuntimeDifficultyPointsAny | undefined
 }
+
+export type ObjectPathAnimationData = ObjectAnimationData & DefinitePositionData
