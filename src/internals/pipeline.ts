@@ -50,8 +50,7 @@ export class Pipeline {
 
     async export(options: PipelineExportOptions) {
         const inputDirectory = this.directory
-        const outputFolderName = options.outputFolderName ?? path.basename(inputDirectory)
-        const outputDirectory = path.join(options.outputDirectory, outputFolderName)
+        const outputDirectory = options.outputDirectory
         if (path.resolve(outputDirectory) === path.resolve(inputDirectory)) {
             throw new Error('You are trying to export a pipeline into it\'s own directory!')
         }
