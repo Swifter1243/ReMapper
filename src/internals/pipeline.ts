@@ -67,25 +67,30 @@ export class Pipeline {
             })
         }
 
-        function addCopiedFile(file: string) {
+        function addCopiedFile(file: string, required = true) {
             const newDirectory = path.join(outputDirectory, path.basename(file))
             const fileToCopy = path.join(inputDirectory, path.basename(file))
-            filesToCopy.push({
+            const promise = ensureFileExists({
                 old: fileToCopy,
                 new: newDirectory
-            })
-            ensureFilesExistPromises.push(ensureFileExists(fileToCopy))
+            }, required)
+            ensureFilesExistPromises.push(promise)
         }
 
-        async function ensureFileExists(file: string) {
-            if (!await fs.exists(file)) {
-                throw new Error(`The file "${file}" does not exist.`)
+        async function ensureFileExists(file: MovedFile, required = true) {
+            const exists = await fs.exists(file.old)
+
+            if (required && !exists) {
+                throw new Error(`The file "${file.old}" does not exist.`)
+            }
+            if (exists) {
+                filesToCopy.push(file)
             }
         }
 
         // Add info
         addTextFile('Info.dat', this.info.toJSON())
-        addCopiedFile(this.info.coverImageFilename)
+        addCopiedFile(this.info.coverImageFilename, false)
         addCopiedFile(this.info.audio.songFilename)
 
         // Add contributors
@@ -95,7 +100,7 @@ export class Pipeline {
 
         // Add bundle
         if (this.bundleInfo) {
-            this.bundleInfo.default.bundleFiles.forEach(addCopiedFile)
+            this.bundleInfo.default.bundleFiles.forEach((f) => addCopiedFile(f))
         }
 
         // Add diffs
