@@ -5,16 +5,11 @@ import { DecreaseNumber } from '../../../util/generate.ts'
  * [[...], [...], [...]] where [...] is [...x, time]
  * This type represents the "x".
  */
-export type RuntimePointValues<
-    T extends number[],
-    R extends string,
-> =
-    | [...T, ...RecursiveModifier<T, R>[]]
-    | [R, ...RecursiveModifier<T, R>[]]
+export type RuntimePointValues<V extends unknown[]> =
+    | [...V, ...RecursiveModifier<V>[]]
 
 // what the fuck
-type RecursiveModifier<T extends number[], R extends string, Depth extends number = 20> = Depth extends 0
-    ? [...T, PointModifier] | [R, PointModifier]
+type RecursiveModifier<V extends unknown[], Depth extends number = 20> = Depth extends 0
+    ? [...V, PointModifier]
     :
-        | [...T, ...RecursiveModifier<T, R, DecreaseNumber<Depth>>[], PointModifier]
-        | [R, ...RecursiveModifier<T, R, DecreaseNumber<Depth>>[], PointModifier]
+        | [...V, ...RecursiveModifier<V, DecreaseNumber<Depth>>[], PointModifier]

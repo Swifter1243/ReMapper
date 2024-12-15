@@ -3,7 +3,7 @@
  * @param arr Array to mutate.
  * @param index Element to remove. Can be -1 to remove last element.
  */
-export function arrayRemove<T>(arr: T[], index: number) {
+export function arrayRemove(arr: unknown[], index: number) {
     if (index === -1) index = arr.length - 1
     if (index > arr.length - 1 || index < 0) return
 

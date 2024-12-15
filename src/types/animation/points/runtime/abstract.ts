@@ -5,28 +5,19 @@ import {RuntimePointValues} from "./structure.ts";
 /** Helper type for complex points. `[[...], [...], [...]]`.
  * Includes runtime properties.
  */
-export type RuntimeComplexPointsAbstract<
-    T extends number[],
-    R extends string,
-> = InnerPointAbstract<[
-    ...RuntimePointValues<T, R>,
+export type RuntimeComplexPointsAbstract<V extends unknown[]> = InnerPointAbstract<[
+    ...RuntimePointValues<V>,
     TimeValue,
 ]>[]
 /** Helper type for raw points. `[...] | [[...], [...], [...]]`.
  * Includes runtime properties.
  */
-export type RuntimeRawPointsAbstract<
-    T extends number[],
-    R extends string,
-> =
-    | RuntimeComplexPointsAbstract<T, R>
-    | RuntimePointValues<T, R>
+export type RuntimeRawPointsAbstract<V extends unknown[]> =
+    | RuntimeComplexPointsAbstract<V>
+    | RuntimePointValues<V>
 /** Helper type for points arrays.
  * Includes runtime properties.
  */
-export type RuntimeDifficultyPointsAbstract<
-    T extends number[],
-    R extends string,
-> =
-    | RuntimeRawPointsAbstract<T, R>
+export type RuntimeDifficultyPointsAbstract<V extends unknown[]> =
+    | RuntimeRawPointsAbstract<V>
     | string

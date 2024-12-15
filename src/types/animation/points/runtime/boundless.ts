@@ -10,19 +10,21 @@ import {
 } from './abstract.ts'
 import { RuntimeProperties } from './properties.ts'
 
+type BoundlessRuntimeValues = number[] | [RuntimeProperties]
+
 /** Point or array of points with any number of values. Allows point definitions.
  * `[[..., time]...]` or `[...]`.
  * Includes runtime properties.
  */
 export type RuntimeDifficultyPointsBoundless =
     | RuntimeDifficultyPointsAny
-    | RuntimeDifficultyPointsAbstract<number[], RuntimeProperties>
+    | RuntimeDifficultyPointsAbstract<BoundlessRuntimeValues>
 /** Array of points with any number of values. `[[... ,time]...]`.
  * Includes runtime properties.
  */
 export type RuntimeComplexPointsBoundless =
     | RuntimeComplexPointsAny
-    | RuntimeComplexPointsAbstract<number[], RuntimeProperties>
+    | RuntimeComplexPointsAbstract<BoundlessRuntimeValues>
 /** Single points with any number of values. `[..., time]`
  * Includes runtime properties.
  */
@@ -33,4 +35,4 @@ export type RuntimeInnerPointBoundless = RuntimeComplexPointsBoundless[0]
  */
 export type RuntimeRawPointsBoundless =
     | RuntimeRawPointsAny
-    | RuntimeRawPointsAbstract<number[], RuntimeProperties>
+    | RuntimeRawPointsAbstract<BoundlessRuntimeValues>
