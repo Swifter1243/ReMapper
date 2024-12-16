@@ -9,8 +9,6 @@ import {
     PrefabMap
 } from "../../../types/bundle.ts";
 import {MATERIAL_PROP_TYPE} from "../../../types/vivify/material.ts";
-import {FILEPATH} from "../../../types/beatmap/file.ts";
-import {ColorVec, Vec4} from "../../../types/math/vector.ts";
 
 
 /** Generate a typed list of prefabs from JSON. */
@@ -26,10 +24,11 @@ export function makePrefabMap<T extends PrefabInfo>(map: T) {
 
 function fixMaterialValue(type: MATERIAL_PROP_TYPE, value: string): MaterialPropertyMap[MATERIAL_PROP_TYPE] {
     switch (type) {
-        case "Texture": return value as FILEPATH
+        case "Texture": return value
         case "Float": return parseFloat(value)
-        case "Color": return JSON.parse(value) as ColorVec
-        case "Vector": return JSON.parse(value) as Vec4
+        case "Color": return JSON.parse(value)
+        case "Vector": return JSON.parse(value)
+        case "Keyword": return JSON.parse(value)
     }
 }
 

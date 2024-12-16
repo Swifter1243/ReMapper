@@ -49,7 +49,8 @@ export type StaticMaterialPropertyMap = {
     'Texture': FILEPATH
     'Float': number
     'Color': ColorVec
-    'Vector': Vec4
+    'Vector': Vec4,
+    'Keyword': boolean
 }
 
 /** Represents a list of material properties and their types as the equivalent list with their values. */
@@ -63,6 +64,7 @@ export type MaterialPropertyMap = {
     'Float': number | RuntimeDifficultyPointsLinear
     'Color': ColorVec | RuntimeDifficultyPointsVec4
     'Vector': Vec4 | RuntimeDifficultyPointsVec4
+    'Keyword': boolean
 }
 
 

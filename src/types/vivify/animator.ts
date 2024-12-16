@@ -8,11 +8,12 @@ export type ANIMATOR_PROP_TYPE =
     | 'Float'
     | 'Trigger'
 
-/** A valid value for animator properties. */
-export type AnimatorPropertyValue = boolean | RuntimeDifficultyPointsLinear | number
-
 /** A property for an animator. */
 export type AnimatorProperty = Property<
     ANIMATOR_PROP_TYPE,
-    AnimatorPropertyValue
+    {
+        Float: number | RuntimeDifficultyPointsLinear,
+        Bool: boolean | RuntimeDifficultyPointsLinear,
+        Trigger: boolean
+    }
 >
