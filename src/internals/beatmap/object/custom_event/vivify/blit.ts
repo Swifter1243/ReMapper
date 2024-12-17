@@ -8,6 +8,7 @@ import {getDataProp} from "../../../../../utils/beatmap/json.ts";
 import {CustomEvent} from "../base/custom_event.ts";
 import {JsonObjectDefaults} from "../../../../../types/beatmap/object/object.ts";
 import {AbstractDifficulty} from "../../../abstract_difficulty.ts";
+import {BLIT_ORDER} from "../../../../../types/vivify/setting.ts";
 
 export class Blit extends CustomEvent<
     never,
@@ -21,6 +22,7 @@ export class Blit extends CustomEvent<
         this.type = 'Blit'
         this.asset = params.asset ?? Blit.defaults.asset
         this.pass = params.pass
+        this.order = params.order
         this.source = params.source
         this.destination = params.destination
         this.duration = params.duration
@@ -34,6 +36,8 @@ export class Blit extends CustomEvent<
     priority?: number
     /** Which pass in the shader to use. Will use all passes if not defined. */
     pass?: number
+    /** Whether to activate before the main bloom effect or after. Defaults fo AfterMainEffect. */
+    order?: BLIT_ORDER
     /** Which texture to pass to the shader as "_MainTex". "_Main" is reserved for the camera. Default = "_Main" */
     source?: string
     /** Which render texture to save to. Can be an array. "_Main" is reserved for the camera. Default = "_Main" */
@@ -59,6 +63,7 @@ export class Blit extends CustomEvent<
         this.destination = getDataProp(json.d, 'destination')
         this.duration = getDataProp(json.d, 'duration')
         this.easing = getDataProp(json.d, 'easing')
+        this.order = getDataProp(json.d, 'order')
         this.pass = getDataProp(json.d, 'pass')
         this.priority = getDataProp(json.d, 'priority')
         this.properties = getDataProp(json.d, 'properties')
@@ -78,6 +83,7 @@ export class Blit extends CustomEvent<
                 destination: this.destination,
                 duration: this.duration,
                 easing: this.easing,
+                order: this.order,
                 pass: this.pass,
                 priority: this.priority,
                 properties: this.properties,

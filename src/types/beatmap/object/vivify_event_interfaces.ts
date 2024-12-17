@@ -1,4 +1,5 @@
 import {
+    BLIT_ORDER,
     CAMERA_CLEAR_FLAGS,
     COLOR_FORMAT,
     DEPTH_TEX_MODE, LOAD_MODE, QUALITY_SETTINGS,
@@ -42,6 +43,7 @@ export interface IBlit {
         asset?: string
         priority?: number
         pass?: number
+        order?: BLIT_ORDER,
         source?: string
         destination?: string
         duration?: number

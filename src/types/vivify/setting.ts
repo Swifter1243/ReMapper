@@ -186,3 +186,8 @@ export enum SHADOWS {
 export type LOAD_MODE =
     | 'Additive'
     | 'Single'
+
+/** Whether to activate before the main bloom effect or after in a blit event. Defaults fo AfterMainEffect. */
+export type BLIT_ORDER =
+    | 'BeforeMainEffect'
+    | 'AfterMainEffect'
