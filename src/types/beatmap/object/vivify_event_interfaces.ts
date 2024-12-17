@@ -192,7 +192,7 @@ export interface IAssignObjectPrefab {
             /** File path to the desired prefab. Sets property _Color.*/
             asset?: string | null
             /** File path to the material to replace the saber. Sets property _Color and sets vertex colors for a gradient. */
-            trailAsset?: string
+            trailAsset?: string | null
             /** Age of most distant segment of trail in seconds. Defaults to 0.4 */
             trailDuration?: number
             /** Vector3 position of the top of the trail. Defaults to [0, 0, 1] */
