@@ -1,5 +1,6 @@
 type Smoothing = `s${number}`
 
+//#region Linear
 export type BaseRuntimePropertiesLinear =
     | 'baseCombo'
     | 'baseMultipliedScore'
@@ -26,7 +27,9 @@ export type BaseRuntimePropertiesVec3 =
     | 'baseRightHandLocalPosition'
     | 'baseLeftHandLocalRotation'
     | 'baseRightHandLocalRotation'
+//#endregion
 
+//#region Vec3
 type Vec3Component = 'x' | 'y' | 'z'
 type Vec3Swizzle = `${Vec3Component}${Vec3Component}${Vec3Component}`
 
@@ -50,7 +53,9 @@ export type BaseRuntimePropertiesVec4 =
     | 'baseEnvironmentColor1Boost'
     | 'baseEnvironmentColorWBoost'
     | 'baseObstaclesColor'
+//#endregion
 
+//#region Vec4
 type Vec4Component = Vec3Component | 'w'
 type Vec4Swizzle = `${Vec4Component}${Vec4Component}${Vec4Component}${Vec4Component}`
 
@@ -67,3 +72,4 @@ export type RuntimeProperties =
     | RuntimePropertiesLinear
     | RuntimePropertiesVec3
     | RuntimePropertiesVec4
+//#endregion
