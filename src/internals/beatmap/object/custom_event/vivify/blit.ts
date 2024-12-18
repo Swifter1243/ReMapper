@@ -78,6 +78,7 @@ export class Blit extends CustomEvent<
     toJsonV3(prune?: boolean): IBlit {
         const output = {
             b: this.beat,
+            t: 'Blit',
             d: {
                 asset: this.asset,
                 destination: this.destination,
@@ -90,7 +91,6 @@ export class Blit extends CustomEvent<
                 source: this.source,
                 ...this.unsafeData,
             },
-            t: 'Blit',
         } satisfies IBlit
         return prune ? objectPrune(output) : output
     }

@@ -49,12 +49,12 @@ export class AssignPlayerToTrack extends CustomEvent<
     toJsonV3(prune?: boolean): bsmap.v3.ICustomEventAssignPlayerToTrack {
         const output = {
             b: this.beat,
+            t: 'AssignPlayerToTrack',
             d: {
                 track: this.track!,
                 target: this.target,
                 ...this.unsafeData,
             },
-            t: 'AssignPlayerToTrack',
         } satisfies bsmap.v3.ICustomEventAssignPlayerToTrack
         return prune ? objectPrune(output) : output
     }

@@ -52,12 +52,12 @@ export class SetCameraProperty extends CustomEvent<
     toJsonV3(prune?: boolean): ISetCameraProperty {
         const output = {
             b: this.beat,
+            t: 'SetCameraProperty',
             d: {
                 id: this.id,
                 properties: this.properties,
                 ...this.unsafeData,
             },
-            t: 'SetCameraProperty',
         } satisfies ISetCameraProperty
         return prune ? objectPrune(output) : output
     }

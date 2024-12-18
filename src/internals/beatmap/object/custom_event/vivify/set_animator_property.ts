@@ -65,6 +65,7 @@ export class SetAnimatorProperty extends CustomEvent<
 
         const output = {
             b: this.beat,
+            t: 'SetAnimatorProperty',
             d: {
                 id: this.id,
                 duration: this.duration,
@@ -72,7 +73,6 @@ export class SetAnimatorProperty extends CustomEvent<
                 properties: this.properties,
                 ...this.unsafeData,
             },
-            t: 'SetAnimatorProperty',
         } satisfies ISetAnimatorProperty
         return prune ? objectPrune(output) : output
     }

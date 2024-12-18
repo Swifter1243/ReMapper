@@ -74,6 +74,7 @@ export class CreateScreenTexture extends Destroyable<
 
         const output = {
             b: this.beat,
+            t: 'CreateScreenTexture',
             d: {
                 id: this.id,
                 colorFormat: this.colorFormat,
@@ -84,7 +85,6 @@ export class CreateScreenTexture extends Destroyable<
                 yRatio: this.yRatio,
                 ...this.unsafeData,
             },
-            t: 'CreateScreenTexture',
         } satisfies ICreateScreenTexture
         return prune ? objectPrune(output) : output
     }

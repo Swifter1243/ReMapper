@@ -74,6 +74,7 @@ export class SetRenderingSettings extends CustomEvent<
 
         const output = {
             b: this.beat,
+            t: 'SetRenderingSettings',
             d: {
                 duration: this.duration,
                 easing: this.easing,
@@ -82,7 +83,6 @@ export class SetRenderingSettings extends CustomEvent<
                 xrSettings: this.xrSettings,
                 ...this.unsafeData,
             },
-            t: 'SetRenderingSettings',
         } satisfies ISetRenderingSettings
         return prune ? objectPrune(output) : output
     }

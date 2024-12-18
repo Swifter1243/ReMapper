@@ -73,6 +73,7 @@ export class InstantiatePrefab extends Destroyable<
     toJsonV3(prune?: boolean): IInstantiatePrefab {
         const output = {
             b: this.beat,
+            t: 'InstantiatePrefab',
             d: {
                 asset: this.asset,
                 id: this.id,
@@ -84,7 +85,6 @@ export class InstantiatePrefab extends Destroyable<
                 track: this.track.value,
                 ...this.unsafeData,
             },
-            t: 'InstantiatePrefab',
         } satisfies IInstantiatePrefab
         return prune ? objectPrune(output) : output
     }

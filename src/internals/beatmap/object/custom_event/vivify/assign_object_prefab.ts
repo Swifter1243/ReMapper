@@ -64,6 +64,7 @@ export class AssignObjectPrefab extends CustomEvent<
     toJsonV3(prune?: boolean): IAssignObjectPrefab {
         const output = {
             b: this.beat,
+            t: 'AssignObjectPrefab',
             d: {
                 loadMode: this.loadMode,
                 colorNotes: this.colorNotes,
@@ -73,7 +74,6 @@ export class AssignObjectPrefab extends CustomEvent<
                 saber: this.saber,
                 ...this.unsafeData,
             },
-            t: 'AssignObjectPrefab',
         } satisfies IAssignObjectPrefab
         return prune ? objectPrune(output) : output
     }

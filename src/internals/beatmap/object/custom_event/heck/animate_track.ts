@@ -78,6 +78,7 @@ export class AnimateTrack extends CustomEvent<
 
         const output = {
             b: this.beat,
+            t: 'AnimateTrack',
             d: {
                 repeat: this.repeat,
                 easing: this.easing,
@@ -86,7 +87,6 @@ export class AnimateTrack extends CustomEvent<
                 ...this.unsafeData,
                 ...this.animation as bsmap.v3.IAnimation,
             },
-            t: 'AnimateTrack',
         } satisfies bsmap.v3.ICustomEventAnimateTrack
         return prune ? objectPrune(output) : output
     }

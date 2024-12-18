@@ -64,6 +64,7 @@ export class SetMaterialProperty extends CustomEvent<
 
         const output = {
             b: this.beat,
+            t: 'SetMaterialProperty',
             d: {
                 asset: this.asset,
                 duration: this.duration,
@@ -71,7 +72,6 @@ export class SetMaterialProperty extends CustomEvent<
                 properties: this.properties,
                 ...this.unsafeData,
             },
-            t: 'SetMaterialProperty',
         } satisfies ISetMaterialProperty
         return prune ? objectPrune(output) : output
     }

@@ -63,6 +63,7 @@ export class CreateCamera extends Destroyable<
 
         const output = {
             b: this.beat,
+            t: 'CreateCamera',
             d: {
                 id: this.id,
                 texture: this.texture,
@@ -70,7 +71,6 @@ export class CreateCamera extends Destroyable<
                 properties: this.properties,
                 ...this.unsafeData,
             },
-            t: 'CreateCamera',
         } satisfies ICreateCamera
         return prune ? objectPrune(output) : output
     }

@@ -61,13 +61,13 @@ export class AssignTrackParent extends CustomEvent<
     toJsonV3(prune?: boolean): bsmap.v3.ICustomEventAssignTrackParent {
         const output = {
             b: this.beat,
+            t: 'AssignTrackParent',
             d: {
                 childrenTracks: this.childrenTracks,
                 parentTrack: this.parentTrack,
                 worldPositionStays: this.worldPositionStays,
                 ...this.unsafeData,
             },
-            t: 'AssignTrackParent',
         } satisfies bsmap.v3.ICustomEventAssignTrackParent
         return prune ? objectPrune(output) : output
     }

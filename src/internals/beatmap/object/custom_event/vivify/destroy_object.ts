@@ -53,11 +53,11 @@ export class DestroyObject extends CustomEvent<
 
         const output = {
             b: this.beat,
+            t: 'DestroyObject',
             d: {
                 id: this.id.value,
                 ...this.unsafeData,
             },
-            t: 'DestroyObject',
         } satisfies IDestroyObject
         return prune ? objectPrune(output) : output
     }

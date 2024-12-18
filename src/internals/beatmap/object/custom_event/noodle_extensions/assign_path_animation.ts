@@ -75,6 +75,7 @@ export class AssignPathAnimation extends CustomEvent<
 
         const output = {
             b: this.beat,
+            t: 'AssignPathAnimation',
             d: {
                 easing: this.easing,
                 track: this.track.value,
@@ -84,7 +85,6 @@ export class AssignPathAnimation extends CustomEvent<
                 ...this.unsafeData,
                 ...this.animation as bsmap.v3.IAnimation,
             },
-            t: 'AssignPathAnimation',
         } satisfies bsmap.v3.ICustomEventAssignPathAnimation
         return prune ? objectPrune(output) : output
     }

@@ -59,13 +59,13 @@ export class SetGlobalProperty extends CustomEvent<
 
         const output = {
             b: this.beat,
+            t: 'SetGlobalProperty',
             d: {
                 duration: this.duration,
                 easing: this.easing,
                 properties: this.properties,
                 ...this.unsafeData,
             },
-            t: 'SetGlobalProperty',
         } satisfies ISetGlobalProperty
         return prune ? objectPrune(output) : output
     }
