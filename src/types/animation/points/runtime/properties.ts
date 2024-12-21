@@ -1,4 +1,4 @@
-type Smoothing = `s${number}`
+type Smoothing = `s${number}` | `s${number}-${number}`
 type PropertyFunction<T extends string> = `.${T}` | ''
 type PropertyFunctions = `${PropertyFunction<Smoothing>}`
 
