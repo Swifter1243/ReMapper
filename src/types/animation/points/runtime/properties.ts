@@ -25,16 +25,6 @@ export type RuntimePropertiesLinear =
     | `${Vec4NarrowedToLinear}${PropertyFunctions}`
 //#endregion
 
-export type BaseRuntimePropertiesVec3 =
-    | 'baseHeadLocalPosition'
-    | 'baseHeadLocalRotation'
-    | 'baseHeadPosition'
-    | 'baseHeadRotation'
-    | 'baseLeftHandLocalPosition'
-    | 'baseRightHandLocalPosition'
-    | 'baseLeftHandLocalRotation'
-    | 'baseRightHandLocalRotation'
-
 //#region Vec2
 type Vec3NarrowedToVec2 = `${BaseRuntimePropertiesVec3}.${Vec3Component}${Vec3Component}`
 type Vec4NarrowedToVec2 = `${BaseRuntimePropertiesVec4}.${Vec4Component}${Vec4Component}`
@@ -45,6 +35,16 @@ export type RuntimePropertiesVec2 =
 //#endregion
 
 //#region Vec3
+export type BaseRuntimePropertiesVec3 =
+    | 'baseHeadLocalPosition'
+    | 'baseHeadLocalRotation'
+    | 'baseHeadPosition'
+    | 'baseHeadRotation'
+    | 'baseLeftHandLocalPosition'
+    | 'baseRightHandLocalPosition'
+    | 'baseLeftHandLocalRotation'
+    | 'baseRightHandLocalRotation'
+
 type Vec3Component = 'x' | 'y' | 'z'
 type Vec3Swizzle = `${BaseRuntimePropertiesVec3}.${Vec3Component}${Vec3Component}${Vec3Component}`
 type Vec4NarrowedToVec3 = `${BaseRuntimePropertiesVec4}.${Vec4Component}${Vec4Component}${Vec4Component}`
@@ -54,6 +54,7 @@ export type RuntimePropertiesVec3 =
     | `${BaseRuntimePropertiesVec3}${PropertyFunctions}`
     | `${Vec3Swizzle}${PropertyFunctions}`
     | `${Vec4NarrowedToVec3}${PropertyFunctions}`
+//#endregion
 
 export type BaseRuntimePropertiesVec4 =
     | 'baseNote0Color'
@@ -67,7 +68,6 @@ export type BaseRuntimePropertiesVec4 =
     | 'baseEnvironmentColor1Boost'
     | 'baseEnvironmentColorWBoost'
     | 'baseObstaclesColor'
-//#endregion
 
 //#region Vec4
 type Vec4Component = Vec3Component | 'w'
