@@ -3,9 +3,9 @@ import {
     RuntimeDifficultyPointsAbstract,
     RuntimeRawPointsAbstract,
 } from './abstract.ts'
-import { RuntimePropertiesLinear } from './properties.ts'
+import {RuntimeProperties} from './properties.ts'
 
-export type LinearRuntimeValues = [number] | [RuntimePropertiesLinear]
+export type LinearRuntimeValues = [number] | [RuntimeProperties]
 
 /** Point or array of points with 1 value. Allows point definitions.
  * `[[x, time]...]` or `[x]` or `string`.
