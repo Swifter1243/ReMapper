@@ -1,10 +1,14 @@
 import { RuntimeComplexPointsAbstract, RuntimeDifficultyPointsAbstract, RuntimeRawPointsAbstract } from './abstract.ts'
 import { Vec3 } from '../../../math/vector.ts'
 import {RuntimeProperties} from './properties.ts'
+import {LinearRuntimeValues} from "./linear.ts";
 
 export type Vec3RuntimeValues =
     | Vec3
     | [RuntimeProperties]
+    | [...LinearRuntimeValues, ...LinearRuntimeValues, ...LinearRuntimeValues]
+    | [...LinearRuntimeValues, number]
+    | [number, ...LinearRuntimeValues]
 
 /** Point or array of points with 3 values. Allows point definitions.
  * `[[x,y,z,time]...]` or `[x,y,z]` or `string`.
