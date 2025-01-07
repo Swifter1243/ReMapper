@@ -1,13 +1,13 @@
 import { AbstractInfo } from './beatmap/info/abstract_info.ts'
 import { AbstractDifficulty } from './beatmap/abstract_difficulty.ts'
 import { V2Info } from './beatmap/info/info_v2.ts'
-import { compress, fs, path, adbDeno } from '../deps.ts'
 import {PipelineExportOptions, PipelineQuestOptions, PipelineZipOptions} from '../types/remapper/pipeline.ts'
 import { BundleInfo } from '../types/bundle.ts'
 import { applyCRCsToInfo } from '../utils/vivify/bundle/load.ts'
 import { REMAPPER_VERSION } from '../constants/package.ts'
 import { RMError, RMLog } from '../utils/rm_log.ts'
 import { QUEST_WIP_PATH } from '../constants/file.ts'
+import {adbDeno, compress, fs, path} from '../deps.ts'
 
 type MovedFile = {
     old: string,
@@ -150,26 +150,34 @@ export class Pipeline {
         zipName = zipName.replaceAll(' ', '_')
         zipName = encodeURI(zipName)
 
-        if (zipOptions.includeBundles && !this.bundleInfo) {
-            throw new Error("You are trying to zip bundles, but the pipeline has no bundleInfo! It should have been passed in 'createPipeline'.")
-        }
+        if (this.bundleInfo) {
+            if (!this.bundleInfo.default.isCompressed) {
+                RMError(
+                    'Warning: You are trying to distribute uncompressed bundles. It is recommended that you export these bundles as compressed if you plan to distribute them.',
+                )
+            }
 
-        if (this.bundleInfo && !this.bundleInfo.default.isCompressed) {
-            RMError(
-                'Warning: You are trying to distribute uncompressed bundles. It is recommended that you export these bundles as compressed if you plan to distribute them.',
-            )
+            if (!zipOptions.includeBundles) {
+                // remove bundles
+                files = files.filter((f) => !path.parse(f).name.includes('bundle'))
+            }
         }
-
-        if (this.bundleInfo && !zipOptions.includeBundles) {
-            files = files.filter((f) => !path.parse(f).name.includes('bundle'))
+        else {
+            if (zipOptions.includeBundles) {
+                throw new Error("You are trying to zip bundles, but the pipeline has no bundleInfo! It should have been passed in 'createPipeline'.")
+            }
         }
 
         // surround with quotes for safety
         files = files.map(f => `"${f}"`)
 
-        await compress(files, zipName, { overwrite: true })
+        const success = await compress(files, zipName, { overwrite: true })
 
-        RMLog(`"${zipName}" has been zipped!`)
+        if (success) {
+            RMLog(`"${zipName}" has been zipped!`)
+        } else {
+            RMLog(`Something went wrong when zipping ${zipName}`)
+        }
     }
 
     private async exportQuest(files: string[], questOptions: PipelineQuestOptions) {
