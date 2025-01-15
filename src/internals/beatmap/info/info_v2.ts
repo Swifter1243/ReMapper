@@ -209,6 +209,9 @@ export class V2Info extends AbstractInfo<bsmap.v2.IInfo> {
         const graphics = json?._graphics
         const modifiers = json?._modifiers
         const playerOptions = json?._playerOptions
+        // TODO: bsmap got this wrong
+        // @ts-ignore 2322
+        const _countersPlus = json?._countersPlus
 
         return {
             chroma: {
@@ -274,6 +277,9 @@ export class V2Info extends AbstractInfo<bsmap.v2.IInfo> {
                 // @ts-ignore 2322
                 environmentEffectsFilterExpertPlusPreset: playerOptions?._environmentEffectsFilterExpertPlusPreset,
             },
+            ...{
+                _countersPlus
+            }
         }
     }
 
@@ -284,6 +290,7 @@ export class V2Info extends AbstractInfo<bsmap.v2.IInfo> {
         const colors = json.colors
         const environments = json.environments
         const playerOptions = json.playerOptions
+        const _countersPlus = json._countersPlus
 
         return {
             _chroma: {
@@ -344,6 +351,9 @@ export class V2Info extends AbstractInfo<bsmap.v2.IInfo> {
                 _environmentEffectsFilterDefaultPreset: playerOptions?.environmentEffectsFilterDefaultPreset,
                 // @ts-ignore 2322
                 _environmentEffectsFilterExpertPlusPreset: playerOptions?.environmentEffectsFilterExpertPlusPreset,
+            },
+            ...{
+                _countersPlus: _countersPlus
             }
         }
     }

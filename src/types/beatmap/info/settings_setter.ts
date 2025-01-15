@@ -55,5 +55,5 @@ export type SettingsSetter = {
         disableNoteColoring?: boolean,
         forceZenModeWalls?: boolean,
     },
-    [key: string]: Record<string, unknown>
+    _countersPlus?: Record<string, unknown>
 }
