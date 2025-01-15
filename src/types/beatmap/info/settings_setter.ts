@@ -54,5 +54,6 @@ export type SettingsSetter = {
         disableEnvironmentEnhancements?: boolean,
         disableNoteColoring?: boolean,
         forceZenModeWalls?: boolean,
-    }
+    },
+    [key: string]: Record<string, unknown>
 }
