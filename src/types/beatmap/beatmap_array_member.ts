@@ -19,7 +19,7 @@ export abstract class BeatmapArrayMember<T> {
         const newObject = this._copy()
         newObject.parent = this.parent
         this.getArray(this.parent).push(newObject)
-        return this
+        return newObject
     }
 
     /** Copy this object into another parent array. */
