@@ -35,7 +35,7 @@ export class Track {
      * @param value
      */
     has(value: TrackValue) {
-        const other = new Set(value)
+        const other = new Set([value])
         return this._value.intersection(other).size > 0
     }
 
