@@ -55,8 +55,6 @@ import {FOG_TRACK} from "../../constants/fog.ts";
 export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
     declare version: bsmap.v3.IDifficulty['version']
     declare waypoints: bsmap.v3.IWaypoint[]
-    basicEventTypesWithKeywords!: bsmap.v3.IDifficulty['basicEventTypesWithKeywords']
-    useNormalEventsAsCompatibleEvents!: bsmap.v3.IDifficulty['useNormalEventsAsCompatibleEvents']
 
     protected loadJSON(json: bsmap.v3.IDifficulty) {
         function assertAndGet<K extends keyof typeof json>(

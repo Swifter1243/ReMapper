@@ -111,6 +111,11 @@ export abstract class AbstractDifficulty<
     /** All of the fog related things that happen in this difficulty. */
     fogEvents: FogEvent[] = []
 
+    // these need to be defined in here for some stupid reason...
+    // JS wipes the values as soon as they're defined in a child class
+    basicEventTypesWithKeywords!: bsmap.v3.IDifficulty['basicEventTypesWithKeywords']
+    useNormalEventsAsCompatibleEvents!: bsmap.v3.IDifficulty['useNormalEventsAsCompatibleEvents']
+
     /**
      * Creates a difficulty. Can be used to access various information and the map properties.
      * Will set the active difficulty to this.
