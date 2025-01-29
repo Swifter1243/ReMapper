@@ -173,10 +173,15 @@ export class Pipeline {
 
         const success = await compress(files, zipName, { overwrite: true })
 
-        if (success) {
-            RMLog(`"${zipName}" has been zipped!`)
-        } else {
-            RMLog(`Something went wrong when zipping ${zipName}`)
+        if (!(await fs.exists(zipName)) && zipOptions.includeBundles) {
+            RMError(`${zipName} was not able to be saved. This is likely because Beat Saber had a lock on your bundles, preventing them from being zipped. Exit the level and try again.`)
+        }
+        else {
+            if (success) {
+                RMLog(`"${zipName}" has been zipped!`)
+            } else {
+                RMError(`Something went wrong when zipping ${zipName}`)
+            }
         }
     }
 
