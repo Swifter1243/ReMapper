@@ -4,7 +4,7 @@
 
 This is a [TypeScript](https://www.typescriptlang.org/) library designed to help with making Beat Saber modcharts. It models the beatmap schema through wrapper classes and allows an easier, type safe scripting workflow.
 
-![image](https://github.com/Swifter1243/ReMapper-Vivify/assets/61858676/77f40cb2-aff0-4858-abdc-631fc072a823)
+![332497994-77f40cb2-aff0-4858-abdc-631fc072a823](https://github.com/user-attachments/assets/3837cb78-e8ae-4b60-bc4e-883fb40ffcea)
 
 
 It implements features from the base game as well as Aeroluna's Heck suite.
