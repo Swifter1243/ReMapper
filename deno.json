@@ -1,0 +1,19 @@
+{
+    "lint": {
+        "exclude": [".git"]
+    },
+
+    "fmt": {
+        "exclude": [".git"],
+        "options": {
+            "indentWidth": 4,
+            "singleQuote": true,
+            "lineWidth": 140,
+            "proseWrap": "preserve",
+            "semiColons": false
+        }
+    },
+    "compilerOptions": {
+      "strict": true
+    }
+}
