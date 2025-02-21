@@ -1,4 +1,3 @@
-import { REQUIRE_MODS, SUGGEST_MODS } from '../beatmap.ts'
 import { bsmap } from '../../../deps.ts'
 import {SettingsSetter} from "./settings_setter.ts";
 
@@ -22,9 +21,9 @@ export type IDifficultyInfoV2 = {
     /** Custom data for this difficulty. Some properties (e.g. `requirements`, `suggestions`, ...etc.) have already been extracted */
     unsafeCustomData: bsmap.ICustomDataInfoDifficulty | undefined
     /** The required mods for this difficulty. */
-    requirements: REQUIRE_MODS[] | undefined
+    requirements: string[] | undefined
     /** The suggested mods for this difficulty. */
-    suggestions: SUGGEST_MODS[] | undefined
+    suggestions: string[] | undefined
     /** The custom label to show on the difficulty in the game's menu. */
     difficultyLabel: string | undefined
     /** Arbitrary information about the difficulty to show in the [?] button in the game's menu. */

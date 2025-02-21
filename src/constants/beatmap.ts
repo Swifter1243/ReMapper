@@ -30,3 +30,11 @@ export const clearPropertyMap = {
 } as const satisfies {
     [K in keyof RMDifficulty]: string | undefined
 }
+
+export const MODS = {
+    NOODLE_EXTENSIONS: 'Noodle Extensions',
+    CHROMA: 'Chroma',
+    VIVIFY: 'Vivify',
+    AUDIO_LINK: 'AudioLink',
+    CINEMA: 'Cinema'
+}

@@ -1,16 +1,5 @@
 import { clearPropertyMap } from '../../constants/beatmap.ts'
 
-/** All mods that can be suggested. */
-export type SUGGEST_MODS =
-    | 'Chroma'
-    | 'Cinema'
-
-/** All mods that can be required. */
-export type REQUIRE_MODS =
-    | 'Chroma'
-    | 'Noodle Extensions'
-    | 'Vivify'
-
 /** A property representing something that can be cleared in a beatmap. */
 export type ClearProperty = Exclude<
     typeof clearPropertyMap[keyof typeof clearPropertyMap],

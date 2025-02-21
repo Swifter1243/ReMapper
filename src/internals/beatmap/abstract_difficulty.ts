@@ -1,6 +1,6 @@
 import { bsmap } from '../../deps.ts'
 import { RMDifficulty } from '../../types/beatmap/rm_difficulty.ts'
-import { ClearProperty, PostProcessFn, REQUIRE_MODS, SUGGEST_MODS } from '../../types/beatmap/beatmap.ts'
+import { ClearProperty, PostProcessFn } from '../../types/beatmap/beatmap.ts'
 import { LightEvent } from './object/basic_event/light_event.ts'
 import { LaserSpeedEvent } from './object/basic_event/laser_speed.ts'
 import { RingZoomEvent } from './object/basic_event/ring_zoom.ts'
@@ -27,7 +27,7 @@ import { ColorNote } from './object/gameplay_object/color_note.ts'
 import { Bomb } from './object/gameplay_object/bomb.ts'
 import { Arc } from './object/gameplay_object/arc.ts'
 import { Chain } from './object/gameplay_object/chain.ts'
-import { clearPropertyMap } from '../../constants/beatmap.ts'
+import {clearPropertyMap, MODS} from '../../constants/beatmap.ts'
 import { convertRotationEventsToObjectRotation } from '../../utils/beatmap/convert.ts'
 import { animateTrack } from '../../builder_functions/beatmap/object/custom_event/heck.ts'
 import { DEFAULT_SCALED_TRACK } from '../../constants/settings.ts'
@@ -273,7 +273,7 @@ export abstract class AbstractDifficulty<
      * @param requirement The requirement to effect.
      * @param required True by default, set to false to remove the requirement.
      */
-    require(requirement: REQUIRE_MODS, required = true) {
+    require(requirement: string, required = true) {
         const requirements = this.difficultyInfo.requirements ??= []
         arrayEnsureValue(requirements, requirement, required)
     }
@@ -283,7 +283,7 @@ export abstract class AbstractDifficulty<
      * @param suggestion The suggestion to effect.
      * @param suggested True by default, set to false to remove the suggestion.
      */
-    suggest(suggestion: SUGGEST_MODS, suggested = true) {
+    suggest(suggestion: string, suggested = true) {
         const suggestions = this.difficultyInfo.suggestions ??= []
         arrayEnsureValue(suggestions, suggestion, suggested)
     }

@@ -3,7 +3,6 @@ import { bsmap } from '../../../deps.ts'
 import { IColorScheme } from '../../../types/beatmap/info/rm_info.ts'
 import { ColorVec } from '../../../types/math/vector.ts'
 import { getCDProp } from '../../../utils/beatmap/json.ts'
-import { REQUIRE_MODS, SUGGEST_MODS } from '../../../types/beatmap/beatmap.ts'
 import { objectPrune } from '../../../utils/object/prune.ts'
 import { DIFFICULTY_TO_RANK } from '../../../constants/info.ts'
 import { IAudioInfoV2 } from '../../../types/beatmap/info/audio_info.ts'
@@ -98,8 +97,8 @@ export class V2Info extends AbstractInfo<bsmap.v2.IInfo> {
                     noteJumpOffset: beatmap._noteJumpStartBeatOffset,
 
                     difficultyLabel: getCDProp(beatmap, '_difficultyLabel'),
-                    requirements: getCDProp(beatmap, '_requirements') as REQUIRE_MODS[],
-                    suggestions: getCDProp(beatmap, '_suggestions') as SUGGEST_MODS[],
+                    requirements: getCDProp(beatmap, '_requirements'),
+                    suggestions: getCDProp(beatmap, '_suggestions'),
                     warnings: getCDProp(beatmap, '_warnings'),
                     information: getCDProp(beatmap, '_information'),
                     settingsSetter: V2Info.loadSettingsSetter(getCDProp(beatmap, '_settings')),
