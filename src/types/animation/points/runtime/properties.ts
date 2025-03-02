@@ -24,9 +24,13 @@ export type BaseRuntimePropertiesVec3 =
     | 'baseHeadLocalRotation'
     | 'baseHeadPosition'
     | 'baseHeadRotation'
+    | 'baseLeftHandPosition'
     | 'baseLeftHandLocalPosition'
+    | 'baseRightHandPosition'
     | 'baseRightHandLocalPosition'
+    | 'baseLeftHandRotation'
     | 'baseLeftHandLocalRotation'
+    | 'baseRightHandRotation'
     | 'baseRightHandLocalRotation'
 
 /** Properties that will be evaluated at runtime, used in vec3 (e.g. `position`) animations. */
