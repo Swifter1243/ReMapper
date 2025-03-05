@@ -15,8 +15,13 @@ export type PrefabInfo = Record<string, string>
  */
 export type MaterialInfo = Record<string, {
     path: string
-    properties: Record<string, Partial<Record<MATERIAL_PROP_TYPE, string>>>
+    properties: Record<string, UncleanPropertyValue>
 }>
+
+type UncleanPropertyValue = {
+    type: Partial<Record<MATERIAL_PROP_TYPE, null>>,
+    value: number | number[] | string
+}
 
 /** Bundle info exported from the VivifyTemplate exporter. Imported to this type in the form of `asset_info.json`. */
 export type BundleInfo = {
@@ -32,11 +37,11 @@ export type BundleInfo = {
 /** Generates the "properties" field for FixedMaterialInfo
  * @see FixedMaterialInfo
  * */
-export type FixedMaterialProperties<BaseMaterial extends MaterialInfo[string]> = {
-    [MaterialProperty in keyof BaseMaterial['properties']]:
-    BaseMaterial['properties'][MaterialProperty] extends Record<string, unknown>
-        ? Extract<keyof BaseMaterial['properties'][MaterialProperty], MATERIAL_PROP_TYPE>
-        : never
+export type FixedMaterialProperties<
+    Material extends MaterialInfo[string],
+    Props extends Material['properties'] = Material['properties']
+> = {
+    [Prop in keyof Props]: Extract<keyof Props[Prop]['type'], MATERIAL_PROP_TYPE>
 }
 
 /** Represents a list of material properties and their types as the equivalent list with their values. */

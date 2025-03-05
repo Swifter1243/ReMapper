@@ -22,16 +22,6 @@ export function makePrefabMap<T extends PrefabInfo>(map: T) {
     return newMap as PrefabMap<T>
 }
 
-function fixMaterialValue(type: MATERIAL_PROP_TYPE, value: string): MaterialPropertyMap[MATERIAL_PROP_TYPE] {
-    switch (type) {
-        case "Texture": return value
-        case "Float": return parseFloat(value)
-        case "Color": return JSON.parse(value)
-        case "Vector": return JSON.parse(value)
-        case "Keyword": return JSON.parse(value)
-    }
-}
-
 function fixMaterial<T extends MaterialInfo['properties']>(map: T) {
     const newMap = {
         path: map.path,
@@ -42,11 +32,11 @@ function fixMaterial<T extends MaterialInfo['properties']>(map: T) {
     const properties = newMap.properties as Record<string, MATERIAL_PROP_TYPE>
     const defaults = newMap.defaults as Record<string, MaterialPropertyMap[MATERIAL_PROP_TYPE]>
 
-    Object.entries(map.properties).forEach(([prop, typeObject]) => {
-        const type = Object.keys(typeObject)[0] as MATERIAL_PROP_TYPE
-        const value = Object.values(typeObject)[0]
+    Object.entries(map.properties).forEach(([prop, uncleanValue]) => {
+        const type = Object.keys(uncleanValue.type)[0] as MATERIAL_PROP_TYPE
+        const value = uncleanValue.value as MaterialPropertyMap[MATERIAL_PROP_TYPE]
         properties[prop] = type
-        defaults[prop] = fixMaterialValue(type, value)
+        defaults[prop] = value
     })
 
     return newMap
