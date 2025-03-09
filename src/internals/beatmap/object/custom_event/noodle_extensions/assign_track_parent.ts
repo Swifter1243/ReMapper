@@ -1,5 +1,5 @@
 import { CustomEvent } from '../base/custom_event.ts'
-import { CustomEventConstructorTrack } from '../../../../../types/beatmap/object/custom_event.ts'
+import {CustomEventConstructor} from '../../../../../types/beatmap/object/custom_event.ts'
 import { copy } from '../../../../../utils/object/copy.ts'
 import { getDataProp } from '../../../../../utils/beatmap/json.ts'
 import { objectPrune } from '../../../../../utils/object/prune.ts'
@@ -16,7 +16,7 @@ export class AssignTrackParent extends CustomEvent<
      */
     constructor(
         difficulty: AbstractDifficulty,
-        params: CustomEventConstructorTrack<AssignTrackParent>,
+        params: CustomEventConstructor<AssignTrackParent>,
     ) {
         super(difficulty, params)
         this.type = 'AssignTrackParent'
