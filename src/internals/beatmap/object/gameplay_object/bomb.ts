@@ -29,7 +29,7 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
                 flip: this.flip,
                 disableNoteGravity: this.disableNoteGravity,
                 disableNoteLook: this.disableNoteLook,
-                spawnEffect: exportInvertedBoolean(this.disableSpawnEffect, true),
+                spawnEffect: this.spawnEffect,
                 noteJumpMovementSpeed: this.getForcedNJS(),
                 noteJumpStartBeatOffset: this.getForcedOffset(),
                 uninteractable: this.uninteractable,
@@ -70,7 +70,7 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
                 _track: this.track.value,
                 _disableNoteGravity: this.disableNoteGravity,
                 _disableNoteLook: this.disableNoteLook,
-                _disableSpawnEffect: this.disableSpawnEffect,
+                _disableSpawnEffect: exportInvertedBoolean(this.spawnEffect, false),
                 ...this.unsafeCustomData,
             },
         } satisfies bsmap.v2.INote

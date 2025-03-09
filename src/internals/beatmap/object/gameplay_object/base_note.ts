@@ -2,7 +2,7 @@ import { BeatmapGameplayObject } from './gameplay_object.ts'
 import { bsmap } from '../../../../deps.ts'
 import { Vec2 } from '../../../../types/math/vector.ts'
 import {NotePathAnimationData} from '../../../../types/animation/properties/note.ts'
-import { getCDProp, importInvertedBoolean } from '../../../../utils/beatmap/json.ts'
+import {getCDProp, importInvertedBoolean} from '../../../../utils/beatmap/json.ts'
 import { GameplayObjectDefaults, GameplayObjectConstructor } from '../../../../types/beatmap/object/gameplay_object.ts'
 import { IV3Note } from '../../../../types/beatmap/object/note.ts'
 import type {AbstractDifficulty} from "../../abstract_difficulty.ts";
@@ -19,7 +19,7 @@ export abstract class BaseNote<
         this.flip = fields.flip
         this.disableNoteGravity = fields.disableNoteGravity
         this.disableNoteLook = fields.disableNoteLook
-        this.disableSpawnEffect = fields.disableSpawnEffect
+        this.spawnEffect = fields.spawnEffect
         this.link = fields.link
         this.disableBadCutDirection = fields.disableBadCutDirection
         this.disableBadCutSpeed = fields.disableBadCutSpeed
@@ -37,8 +37,8 @@ export abstract class BaseNote<
     disableNoteGravity?: boolean
     /** Whether this note looking at the player will be disabled. */
     disableNoteLook?: boolean
-    /** Whether this note will have it's spawn effect hidden. */
-    disableSpawnEffect?: boolean
+    /** Whether this note will have it's spawn effect shown. */
+    spawnEffect?: boolean
     /** When cut, all notes with the same link string will also be cut. */
     link?: string
     /** Disable directional bad cuts on this note. */
@@ -71,7 +71,7 @@ export abstract class BaseNote<
         this.flip = getCDProp(json, 'flip')
         this.disableNoteLook = getCDProp(json, 'disableNoteLook')
         this.disableNoteGravity = getCDProp(json, 'disableNoteGravity')
-        this.disableSpawnEffect = importInvertedBoolean(getCDProp(json, 'spawnEffect'))
+        this.spawnEffect = getCDProp(json, 'spawnEffect')
         this.disableDebris = getCDProp(json, 'disableDebris')
         this.disableBadCutSpeed = getCDProp(json, 'disableBadCutSpeed')
         this.disableBadCutDirection = getCDProp(json, 'disableBadCutDirection')
@@ -84,7 +84,7 @@ export abstract class BaseNote<
         this.flip = getCDProp(json, '_flip')
         this.disableNoteLook = getCDProp(json, '_disableNoteLook')
         this.disableNoteGravity = getCDProp(json, '_disableNoteGravity')
-        this.disableSpawnEffect = getCDProp(json, '_disableSpawnEffect')
+        this.spawnEffect = importInvertedBoolean(getCDProp(json, '_disableSpawnEffect'))
         this.fake = getCDProp(json, '_fake')
         this.y = json._lineLayer
         return super.fromJsonV2(json)
