@@ -229,7 +229,7 @@ export class V2Info extends AbstractInfo<bsmap.v2.IInfo> {
             },
             graphics: {
                 mirrorGraphicsSettings: V2Info.loadMirrorGraphicsSettings(graphics?._mirrorGraphicsSettings),
-                bloomGraphicsSettings: V2Info.loadBoolean(graphics?._mainEffectGraphicsSettings),
+                mainEffectGraphicsSettings: V2Info.loadBoolean(graphics?._mainEffectGraphicsSettings),
                 smokeGraphicsSettings: V2Info.loadBoolean(graphics?._smokeGraphicsSettings),
                 burnMarkTrailsEnabled: graphics?._burnMarkTrailsEnabled,
                 screenDisplacementEffectsEnabled: graphics?._screenDisplacementEffectsEnabled,
@@ -299,7 +299,7 @@ export class V2Info extends AbstractInfo<bsmap.v2.IInfo> {
                 _forceZenModeWall: chroma.forceZenModeWalls,
             },
             _graphics: {
-                _mainEffectGraphicsSettings: V2Info.saveBoolean(graphics.bloomGraphicsSettings),
+                _mainEffectGraphicsSettings: V2Info.saveBoolean(graphics.mainEffectGraphicsSettings),
                 _burnMarkTrailsEnabled: graphics.burnMarkTrailsEnabled,
                 _maxShockwaveParticles: graphics.maxShockwaveParticles,
                 _mirrorGraphicsSettings: V2Info.saveMirrorGraphicsSettings(graphics.mirrorGraphicsSettings),

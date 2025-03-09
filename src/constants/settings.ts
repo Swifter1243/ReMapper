@@ -18,7 +18,7 @@ export const SETTINGS_PRESET = {
             environmentEffectsFilterDefaultPreset: 'AllEffects',
         },
         graphics: {
-            bloomGraphicsSettings: 'On',
+            mainEffectGraphicsSettings: 'On',
             maxShockwaveParticles: 0,
             screenDisplacementEffectsEnabled: true,
         },
@@ -40,7 +40,7 @@ export const SETTINGS_PRESET = {
             environmentEffectsFilterDefaultPreset: 'AllEffects',
         },
         graphics: {
-            bloomGraphicsSettings: 'On',
+            mainEffectGraphicsSettings: 'On',
         },
         chroma: {
             disableEnvironmentEnhancements: false,

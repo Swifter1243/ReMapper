@@ -43,7 +43,7 @@ export type SettingsSetter = {
     },
     graphics: {
         mirrorGraphicsSettings?: 'Off' | 'Low' | 'Medium' | 'High',
-        bloomGraphicsSettings?: 'Off' | 'On',
+        mainEffectGraphicsSettings?: 'Off' | 'On',
         smokeGraphicsSettings?: 'Off' | 'On',
         burnMarkTrailsEnabled?: boolean,
         screenDisplacementEffectsEnabled?: boolean,
