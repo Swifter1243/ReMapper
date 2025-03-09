@@ -8,9 +8,9 @@ export type IDifficultyInfoV2 = {
     /** The level difficulty of this difficulty. (e.g. `Easy`, `Normal`, `Hard`, ...etc.) */
     difficulty: bsmap.DifficultyName
     /** The units/second speed of gameplay objects in this level. */
-    noteJumpSpeed: number
+    noteJumpMovementSpeed: number
     /** The offset added to the position where gameplay objects "jump" in. */
-    noteJumpOffset: number
+    noteJumpStartBeatOffset: number
     /** The index into the array of color schemes that this difficulty will use. */
     beatmapColorSchemeIdx: number
     /** The index into the array of environment names this difficulty will use. */

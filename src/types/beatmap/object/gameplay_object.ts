@@ -31,8 +31,8 @@ export interface GameplayObjectSetters {
 }
 
 export interface GameplayObjectGetters {
-    get implicitNoteJumpSpeed(): number
-    get implicitNoteJumpOffset(): number
+    get implicitNoteJumpMovementSpeed(): number
+    get implicitNoteJumpStartBeatOffset(): number
     get halfJumpDuration(): number
     get jumpDistance(): number
     get reactionTime(): number

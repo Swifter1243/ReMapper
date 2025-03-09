@@ -1,9 +1,9 @@
 /** Interface for ReMapper's internal settings. */
 export type ReMapperSettings = {
     /** Force note offset for gameplay objects to combat against JDFixer and similar mods. */
-    forceNoteJumpOffset: boolean,
+    forceNoteJumpStartBeatOffset: boolean,
     /** Force note jump speed for gameplay objects to combat against JDFixer and similar mods. */
-    forceNoteJumpSpeed: boolean,
+    forceNoteJumpMovementSpeed: boolean,
     /** Force initial `[1,1,1]` scale on notes, bombs, and chains to combat mods changing custom note sizes.  */
     forceDefaultScale: boolean,
     /** Decimal precision of file output. 7 by default. */

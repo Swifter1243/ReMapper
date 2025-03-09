@@ -93,8 +93,8 @@ export class V2Info extends AbstractInfo<bsmap.v2.IInfo> {
                     beatmapColorSchemeIdx: beatmap._beatmapColorSchemeIdx,
                     characteristic: infoSet._beatmapCharacteristicName,
                     environmentNameIdx: beatmap._environmentNameIdx,
-                    noteJumpSpeed: beatmap._noteJumpMovementSpeed,
-                    noteJumpOffset: beatmap._noteJumpStartBeatOffset,
+                    noteJumpMovementSpeed: beatmap._noteJumpMovementSpeed,
+                    noteJumpStartBeatOffset: beatmap._noteJumpStartBeatOffset,
 
                     difficultyLabel: getCDProp(beatmap, '_difficultyLabel'),
                     requirements: getCDProp(beatmap, '_requirements'),
@@ -125,8 +125,8 @@ export class V2Info extends AbstractInfo<bsmap.v2.IInfo> {
                 _beatmapFilename: beatmap.beatmapDataFilename,
                 _difficultyRank: DIFFICULTY_TO_RANK[beatmap.difficulty],
                 _beatmapColorSchemeIdx: beatmap.beatmapColorSchemeIdx,
-                _noteJumpMovementSpeed: beatmap.noteJumpSpeed,
-                _noteJumpStartBeatOffset: beatmap.noteJumpOffset,
+                _noteJumpMovementSpeed: beatmap.noteJumpMovementSpeed,
+                _noteJumpStartBeatOffset: beatmap.noteJumpStartBeatOffset,
                 _environmentNameIdx: beatmap.environmentNameIdx,
                 _customData: objectPrune({
                     _requirements: beatmap.requirements,

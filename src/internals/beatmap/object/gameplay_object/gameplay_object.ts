@@ -39,8 +39,8 @@ export abstract class BeatmapGameplayObject<
         this.coordinates = obj.coordinates
         this.worldRotation = obj.worldRotation
         this.localRotation = obj.localRotation
-        this.noteJumpSpeed = obj.noteJumpSpeed
-        this.noteJumpOffset = obj.noteJumpOffset
+        this.noteJumpMovementSpeed = obj.noteJumpMovementSpeed
+        this.noteJumpStartBeatOffset = obj.noteJumpStartBeatOffset
         this.uninteractable = obj.uninteractable
         this.chromaColor = obj.chromaColor
 
@@ -78,9 +78,9 @@ export abstract class BeatmapGameplayObject<
     /** The rotation added to an object around it's anchor point. */
     localRotation?: Vec3
     /** The speed of this object in units (meters) per second. */
-    noteJumpSpeed?: number
+    noteJumpMovementSpeed?: number
     /** The offset added to the position where this object "jumps" in. */
-    noteJumpOffset?: number
+    noteJumpStartBeatOffset?: number
     /** Whether this object is uninteractable with the player. */
     uninteractable?: boolean
     /** The chroma color of the object. */
@@ -96,14 +96,14 @@ export abstract class BeatmapGameplayObject<
 
     /** The speed of this object in units (meters) per second.
      * Refers to the difficulty if undefined. */
-    get implicitNoteJumpSpeed() {
-        return this.noteJumpSpeed ?? this.parent.difficultyInfo.noteJumpSpeed
+    get implicitNoteJumpMovementSpeed() {
+        return this.noteJumpMovementSpeed ?? this.parent.difficultyInfo.noteJumpMovementSpeed
     }
 
     /** The offset added to the position where this object "jumps" in.
      * Refers to the difficulty if undefined. */
-    get implicitNoteJumpOffset() {
-        return this.noteJumpOffset ?? this.parent.difficultyInfo.noteJumpOffset
+    get implicitNoteJumpStartBeatOffset() {
+        return this.noteJumpStartBeatOffset ?? this.parent.difficultyInfo.noteJumpStartBeatOffset
     }
 
     /**
@@ -113,15 +113,15 @@ export abstract class BeatmapGameplayObject<
      */
     get halfJumpDuration() {
         return getJumps(
-            this.implicitNoteJumpSpeed,
-            this.implicitNoteJumpOffset,
+            this.implicitNoteJumpMovementSpeed,
+            this.implicitNoteJumpStartBeatOffset,
             this.parent.pipeline.info.audio.beatsPerMinute,
         ).halfDuration
     }
     set halfJumpDuration(value: number) {
-        this.noteJumpOffset = getOffsetFromHalfJumpDuration(
+        this.noteJumpStartBeatOffset = getOffsetFromHalfJumpDuration(
             value,
-            this.implicitNoteJumpSpeed,
+            this.implicitNoteJumpMovementSpeed,
             this.parent.pipeline.info.audio.beatsPerMinute,
         )
     }
@@ -132,15 +132,15 @@ export abstract class BeatmapGameplayObject<
      */
     get jumpDistance() {
         return getJumps(
-            this.implicitNoteJumpSpeed,
-            this.implicitNoteJumpOffset,
+            this.implicitNoteJumpMovementSpeed,
+            this.implicitNoteJumpStartBeatOffset,
             this.parent.pipeline.info.audio.beatsPerMinute,
         ).jumpDistance
     }
     set jumpDistance(value: number) {
-        this.noteJumpOffset = getOffsetFromJumpDistance(
+        this.noteJumpStartBeatOffset = getOffsetFromJumpDistance(
             value,
-            this.implicitNoteJumpSpeed,
+            this.implicitNoteJumpMovementSpeed,
             this.parent.pipeline.info.audio.beatsPerMinute,
         )
     }
@@ -148,15 +148,15 @@ export abstract class BeatmapGameplayObject<
     /** This is the amount of time in milliseconds the player has to react from the object spawning. */
     get reactionTime() {
         return getReactionTime(
-            this.implicitNoteJumpSpeed,
-            this.implicitNoteJumpOffset,
+            this.implicitNoteJumpMovementSpeed,
+            this.implicitNoteJumpStartBeatOffset,
             this.parent.pipeline.info.audio.beatsPerMinute,
         )
     }
     set reactionTime(value: number) {
-        this.noteJumpOffset = getOffsetFromReactionTime(
+        this.noteJumpStartBeatOffset = getOffsetFromReactionTime(
             value,
-            this.implicitNoteJumpSpeed,
+            this.implicitNoteJumpMovementSpeed,
             this.parent.pipeline.info.audio.beatsPerMinute,
         )
     }
@@ -183,9 +183,9 @@ export abstract class BeatmapGameplayObject<
                 'Warning: The lifespan of a note has a minimum of 0.25 beats.',
             )
         }
-        this.noteJumpOffset = getOffsetFromHalfJumpDuration(
+        this.noteJumpStartBeatOffset = getOffsetFromHalfJumpDuration(
             value / 2,
-            this.implicitNoteJumpSpeed,
+            this.implicitNoteJumpMovementSpeed,
             this.parent.pipeline.info.audio.beatsPerMinute,
         )
     }
@@ -215,24 +215,24 @@ export abstract class BeatmapGameplayObject<
         if (this.coordinates) return true
         if (this.worldRotation) return true
         if (this.localRotation) return true
-        if (this.noteJumpSpeed !== undefined) return true
-        if (this.noteJumpOffset !== undefined) return true
+        if (this.noteJumpMovementSpeed !== undefined) return true
+        if (this.noteJumpStartBeatOffset !== undefined) return true
         return !!this.uninteractable;
     }
 
     protected getForcedOffset() {
-        if (settings.forceNoteJumpOffset) {
-            return this.noteJumpOffset ?? this.parent.difficultyInfo.noteJumpOffset
+        if (settings.forceNoteJumpStartBeatOffset) {
+            return this.noteJumpStartBeatOffset ?? this.parent.difficultyInfo.noteJumpStartBeatOffset
         } else {
-            return this.noteJumpOffset
+            return this.noteJumpStartBeatOffset
         }
     }
 
     protected getForcedNJS() {
-        if (settings.forceNoteJumpSpeed) {
-            return this.noteJumpSpeed ?? this.parent.difficultyInfo.noteJumpSpeed
+        if (settings.forceNoteJumpMovementSpeed) {
+            return this.noteJumpMovementSpeed ?? this.parent.difficultyInfo.noteJumpMovementSpeed
         } else {
-            return this.noteJumpSpeed
+            return this.noteJumpMovementSpeed
         }
     }
 
@@ -248,8 +248,8 @@ export abstract class BeatmapGameplayObject<
             ? [0, getCDProp(json, 'worldRotation'), 0]
             : getCDProp(json, 'worldRotation')
         this.track = new Track(getCDProp(json, 'track'))
-        this.noteJumpSpeed = getCDProp(json, 'noteJumpMovementSpeed')
-        this.noteJumpOffset = getCDProp(json, 'noteJumpStartBeatOffset')
+        this.noteJumpMovementSpeed = getCDProp(json, 'noteJumpMovementSpeed')
+        this.noteJumpStartBeatOffset = getCDProp(json, 'noteJumpStartBeatOffset')
         return super.fromJsonV3(json)
     }
 
@@ -265,8 +265,8 @@ export abstract class BeatmapGameplayObject<
             ? [0, getCDProp(json, '_rotation'), 0] as Vec3
             : getCDProp(json, '_rotation') as Vec3
         this.track = new Track(getCDProp(json, '_track'))
-        this.noteJumpSpeed = getCDProp(json, '_noteJumpMovementSpeed')
-        this.noteJumpOffset = getCDProp(json, '_noteJumpStartBeatOffset')
+        this.noteJumpMovementSpeed = getCDProp(json, '_noteJumpMovementSpeed')
+        this.noteJumpStartBeatOffset = getCDProp(json, '_noteJumpStartBeatOffset')
         return super.fromJsonV2(json)
     }
 }

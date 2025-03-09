@@ -2,8 +2,8 @@ import { rawBeatsToSeconds } from '../../math/beatmap.ts'
 
 /**
  * Get jump related info.
- * @param noteJumpSpeed Note jump speed.
- * @param noteJumpOffset Note offset.
+ * @param noteJumpMovementSpeed Note jump speed.
+ * @param noteJumpStartBeatOffset Note offset.
  * @param beatsPerMinute Song BPM.
  * @returns Returns an object; {halfDur, dist}.
  * A "jump" is the period when the object "jumps" in (indicated by spawning light on notes) to when it's deleted.
@@ -12,8 +12,8 @@ import { rawBeatsToSeconds } from '../../math/beatmap.ts'
  * Jump Distance is the Z distance from when the object starts it's jump to when it's deleted.
  */
 export function getJumps(
-    noteJumpSpeed: number,
-    noteJumpOffset: number,
+    noteJumpMovementSpeed: number,
+    noteJumpStartBeatOffset: number,
     beatsPerMinute: number,
 ) {
     const startHJD = 4
@@ -21,28 +21,28 @@ export function getJumps(
     const oneBeatDur = 60 / beatsPerMinute
 
     let halfDuration = startHJD
-    const num2 = noteJumpSpeed * oneBeatDur
+    const num2 = noteJumpMovementSpeed * oneBeatDur
     let num3 = num2 * halfDuration
     while (num3 > maxHJD) {
         halfDuration /= 2
         num3 = num2 * halfDuration
     }
-    halfDuration += noteJumpOffset
+    halfDuration += noteJumpStartBeatOffset
     if (halfDuration < 0.25) halfDuration = 0.25
 
     const jumpDuration = halfDuration * 2 * oneBeatDur
-    const jumpDistance = noteJumpSpeed * jumpDuration
+    const jumpDistance = noteJumpMovementSpeed * jumpDuration
 
     return { halfDuration, jumpDistance }
 }
 
 /** Get the reaction time in milliseconds the player will have for an object from it's spawn. */
 export function getReactionTime(
-    noteJumpSpeed: number,
-    noteJumpOffset: number,
+    noteJumpMovementSpeed: number,
+    noteJumpStartBeatOffset: number,
     beatsPerMinute: number,
 ) {
-    const halfJumpDuration = getJumps(noteJumpSpeed, noteJumpOffset, beatsPerMinute).halfDuration
+    const halfJumpDuration = getJumps(noteJumpMovementSpeed, noteJumpStartBeatOffset, beatsPerMinute).halfDuration
     const beatMilliseconds = 60000 / beatsPerMinute
     return beatMilliseconds * halfJumpDuration
 }
@@ -50,40 +50,40 @@ export function getReactionTime(
 /** Get the offset required to generate a given reaction time in milliseconds. */
 export function getOffsetFromReactionTime(
     reactionTime: number,
-    noteJumpSpeed: number,
+    noteJumpMovementSpeed: number,
     beatsPerMinute: number,
 ) {
     const hjdAfterOffset = Math.max(0.25, reactionTime / (60000 / beatsPerMinute))
-    return songBeatOffset(hjdAfterOffset, noteJumpSpeed, beatsPerMinute)
+    return songBeatOffset(hjdAfterOffset, noteJumpMovementSpeed, beatsPerMinute)
 }
 
 /** Get the offset required to generate a given jump distance. */
 export function getOffsetFromJumpDistance(
     jumpDistance: number,
-    noteJumpSpeed: number,
+    noteJumpMovementSpeed: number,
     beatsPerMinute: number,
 ) {
-    const seconds = rawBeatsToSeconds(noteJumpSpeed * 2, beatsPerMinute)
+    const seconds = rawBeatsToSeconds(noteJumpMovementSpeed * 2, beatsPerMinute)
     const hjdAfterOffset = Math.max(0.25, jumpDistance / seconds)
-    return songBeatOffset(hjdAfterOffset, noteJumpSpeed, beatsPerMinute)
+    return songBeatOffset(hjdAfterOffset, noteJumpMovementSpeed, beatsPerMinute)
 }
 
 /** Get the offset required to get a given half jump duration. */
 export function getOffsetFromHalfJumpDuration(
     halfJumpDuration: number,
-    noteJumpSpeed: number,
+    noteJumpMovementSpeed: number,
     beatsPerMinute: number,
 ) {
     const hjdAfterOffset = Math.max(0.25, halfJumpDuration)
-    return songBeatOffset(hjdAfterOffset, noteJumpSpeed, beatsPerMinute)
+    return songBeatOffset(hjdAfterOffset, noteJumpMovementSpeed, beatsPerMinute)
 }
 
 // idk what this does??? https://github.com/Caeden117/ChroMapper/blob/5167402385181379629dd4a516aaea914cbe7a93/Assets/__Scripts/UI/SongEditMenu/DifficultyInfo.cs#L79-L87
 function songBeatOffset(
     hjdAfterOffset: number,
-    noteJumpSpeed: number,
+    noteJumpMovementSpeed: number,
     beatsPerMinute: number,
 ) {
-    const hjdBeforeOffset = getJumps(noteJumpSpeed, 0, beatsPerMinute).halfDuration
+    const hjdBeforeOffset = getJumps(noteJumpMovementSpeed, 0, beatsPerMinute).halfDuration
     return hjdAfterOffset - hjdBeforeOffset
 }
