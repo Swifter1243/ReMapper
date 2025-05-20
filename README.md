@@ -18,4 +18,4 @@ ReMapper was created from multiple goals:
 
 Though it was mostly created for myself, ReMapper (and the code that derived it) has been used in a multitude of other projects.
 
-To get started, check out the [wiki page](https://github.com/Swifter1243/ReMapper/wiki)!
+## To get started, check out the [wiki page](https://github.com/Swifter1243/ReMapper/wiki)!
