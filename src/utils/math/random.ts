@@ -1,5 +1,6 @@
 import {lerp} from "./lerp.ts";
 import {roundTo} from "./rounding.ts";
+import {Vec3} from "../../types/math/vector.ts";
 
 /**
  * Gives a random number in the given range.
@@ -12,11 +13,13 @@ export function random(start: number, end: number, roundResult?: number) {
     return roundResult ? roundTo(result, roundResult) : result
 }
 
+export type RandomFunction = (min: number, max: number) => number
+
 // https://stackoverflow.com/questions/521295/seeding-the-random-number-generator-in-javascript
 /**
  * Returns a unique random function per integer seed
  */
-export function seededRandom(seed: number) {
+export function seededRandom(seed: number): RandomFunction {
     return (min: number, max: number) => {
         seed += 0x6D2B79F5
         const r = hashInteger(seed)
@@ -45,4 +48,17 @@ export function hashString(str: string) {
     }
 
     return Number(hash % 1000000n) / 1000000
+}
+
+/** Generate a Vec3 from an amplitude.
+ * ```ts
+ * const vec = randomVec3(3, rm.random) // values range from -3 to 3
+ * ```
+ * */
+export function randomVec3(amplitude: number, random: RandomFunction): Vec3 {
+    return [
+        random(-amplitude, amplitude),
+        random(-amplitude, amplitude),
+        random(-amplitude, amplitude)
+    ]
 }
