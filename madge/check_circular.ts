@@ -1,6 +1,6 @@
 import madge from 'npm:madge@^6.0.0'
 
-// deno run --allow-all "madge/generate_image.ts" --no-check
+// deno run --allow-all "madge/check_circular.ts"
 
 madge('src/mod.ts', {
     detectiveOptions: {
