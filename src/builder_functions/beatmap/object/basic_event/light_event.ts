@@ -9,7 +9,7 @@ function fixupParams<TG extends LightEvent['type']>(
 ): ConstructorParameters<typeof LightEvent> {
     if (typeof params[1] === 'object') {
         const [diff, obj] = params
-        return [diff, obj]
+        return [diff, {type: group, ...obj}]
     }
 
     const [parentDifficulty, beat, value, floatValue] = params
