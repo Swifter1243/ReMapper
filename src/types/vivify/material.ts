@@ -3,7 +3,6 @@ import { RuntimeDifficultyPointsLinear } from '../animation/points/runtime/linea
 import { RuntimeDifficultyPointsVec4 } from '../animation/points/runtime/vec4.ts'
 
 import {Property} from "./property.ts";
-import {ColorVec} from "../math/vector.ts";
 
 /** Types allowed for material properties. */
 export type MATERIAL_PROP_TYPE =
@@ -17,7 +16,7 @@ export type MATERIAL_PROP_TYPE =
 export type MaterialProperty = Property<
     MATERIAL_PROP_TYPE,
     {
-        Color: ColorVec | RuntimeDifficultyPointsVec4,
+        Color: RuntimeDifficultyPointsVec4,
         Float: number | RuntimeDifficultyPointsLinear,
         Keyword: boolean,
         Texture: FILEPATH,
