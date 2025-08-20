@@ -1,6 +1,6 @@
 import { arePointsSimple, complexifyPoints } from './points/complexity.ts'
-import { getPointEasing, getPointFlagIndex, getPointTimeIndex } from './points/get.ts'
-import { setPointEasing } from './points/set.ts'
+import {getPointEasing, getPointFlagIndex, getPointTime, getPointTimeIndex} from './points/get.ts'
+import { setPointEasing, setPointTime } from './points/set.ts'
 
 import {iteratePoints} from "./points/iterate.ts";
 import {arrayRemove} from "../array/mutate.ts";
@@ -8,6 +8,7 @@ import {copy} from "../object/copy.ts";
 import {EASE} from "../../types/animation/easing.ts";
 import {ComplexPointsAbstract, RawPointsAbstract} from "../../types/animation/points/abstract.ts";
 import {NumberTuple} from "../../types/util/tuple.ts";
+import { inverseLerp } from '../mod.ts'
 
 /**
  * Reverse an animation. Accounts for most easings but not splines.
@@ -80,4 +81,49 @@ export function mirrorAnimation<T extends NumberTuple>(
     })
 
     return output
+}
+
+/** Convert time in points from beats to a normalized 0-1 range.
+ * ```ts
+ * const points: rm.ComplexPointsVec3 = [
+ *     [0, 0, 0, 5],
+ *     [0, 1, 0, 10]
+ * ]
+ * const normalized = rm.pointsBeatsToNormalized(points)
+ * // {
+ * //     points: [[0, 0, 0, 0], [0, 1, 0, 1]],
+ * //     minTime: 5,
+ * //     maxTime: 10,
+ * //     duration: 5,
+ * // }
+ * ```
+ * */
+export function pointsBeatsToNormalized<T extends number[]>(points: ComplexPointsAbstract<T>): {
+    points: ComplexPointsAbstract<T>
+    minTime: number
+    maxTime: number
+    duration: number
+} {
+    let minTime = getPointTime(points[0])
+    let maxTime = minTime
+
+    points.forEach((x) => {
+        const time = getPointTime(x)
+        minTime = Math.min(minTime, time)
+        maxTime = Math.max(maxTime, time)
+    })
+
+    const normalizedPoints = points.map((x) => {
+        const time = getPointTime(x)
+        const normalizedTime = inverseLerp(minTime, maxTime, time)
+        setPointTime(x, normalizedTime)
+        return x
+    })
+
+    return {
+        points: normalizedPoints,
+        maxTime,
+        minTime,
+        duration: maxTime - minTime,
+    }
 }
