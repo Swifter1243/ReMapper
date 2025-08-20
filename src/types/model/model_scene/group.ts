@@ -1,4 +1,4 @@
-import { RawGeometryMaterial } from '../../beatmap/object/environment.ts'
+import {GeometryMaterial} from '../../beatmap/object/environment.ts'
 import type * as EnvironmentInternals from '../../../internals/beatmap/object/environment/environment.ts'
 import { Geometry } from '../../../internals/beatmap/object/environment/geometry.ts'
 import {Transform} from "../../math/transform.ts";
@@ -30,7 +30,7 @@ export type ModelGroup = {
      * If undefined, each geometry object will have it's own material. This means each object will be colored from the `color` objects in the input model properties.
      * Though, beware of the fact each geometry object will create it's own draw call, which is bad for performance. If you want colored objects with lots of common colors, making multiple groups is advised.
      */
-    defaultMaterial?: RawGeometryMaterial
+    defaultMaterial?: GeometryMaterial
     /** Whether to position in noodle units or unity units. */
     useNoodleUnits?: boolean
 }

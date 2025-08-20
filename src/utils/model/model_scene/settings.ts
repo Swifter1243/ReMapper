@@ -6,7 +6,7 @@ import { EnvironmentModelPiece } from '../../../types/model/model_scene/piece.ts
 import { environment } from '../../../builder_functions/beatmap/object/environment/environment.ts'
 import { ModelScene } from './base.ts'
 import { AbstractDifficulty } from '../../../internals/beatmap/abstract_difficulty.ts'
-import { RawGeometryMaterial} from "../../../types/beatmap/object/environment.ts";
+import {GeometryMaterial} from "../../../types/beatmap/object/environment.ts";
 
 export class ModelSceneSettings {
     /** Throw when a model has groups that aren't represented. */
@@ -37,7 +37,7 @@ export class ModelSceneSettings {
         key: string,
         object: ModelGroupObjectFactory,
         transform?: DeepReadonly<Transform>,
-        defaultMaterial: RawGeometryMaterial = { shader: 'Standard' },
+        defaultMaterial: GeometryMaterial = { shader: 'Standard' },
     ) {
         this.groups[key as string] = {
             object,
@@ -56,7 +56,7 @@ export class ModelSceneSettings {
     setDefaultObjectGroup(
         object: ModelGroupObjectFactory,
         transform?: DeepReadonly<Transform>,
-        defaultMaterial?: RawGeometryMaterial,
+        defaultMaterial?: GeometryMaterial,
     ): void
     setDefaultObjectGroup(
         modelPiece: EnvironmentModelPiece,
@@ -65,7 +65,7 @@ export class ModelSceneSettings {
         ...params: [
             object: ModelGroupObjectFactory,
             transform?: DeepReadonly<Transform>,
-            defaultMaterial?: RawGeometryMaterial,
+            defaultMaterial?: GeometryMaterial,
         ] | [
             modelPiece: EnvironmentModelPiece,
         ]
@@ -96,7 +96,7 @@ export class ModelSceneSettings {
         group: string,
         object: ModelGroupObjectFactory,
         transform?: DeepReadonly<Transform>,
-        defaultMaterial?: RawGeometryMaterial,
+        defaultMaterial?: GeometryMaterial,
     ): void
     setObjectGroup(
         group: string,
@@ -107,7 +107,7 @@ export class ModelSceneSettings {
             group: string,
             object: ModelGroupObjectFactory,
             transform?: DeepReadonly<Transform>,
-            defaultMaterial?: RawGeometryMaterial,
+            defaultMaterial?: GeometryMaterial,
         ] | [
             group: string,
             modelPiece: EnvironmentModelPiece,

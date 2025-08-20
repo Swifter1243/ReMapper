@@ -99,9 +99,14 @@ export abstract class ModelScene<I, M, O> {
         } else { // Geometry
             const defaultMaterial = this.settings.groups[groupKey].defaultMaterial
             if (defaultMaterial) {
-                const materialKey = this.getGroupDefaultMaterialKey(groupKey)
-                difficulty.geometryMaterials[materialKey] = defaultMaterial
-                object.material = materialKey
+                if (typeof defaultMaterial === 'string') {
+                    object.material = defaultMaterial
+                }
+                else {
+                    const materialKey = this.getGroupDefaultMaterialKey(groupKey)
+                    difficulty.geometryMaterials[materialKey] = defaultMaterial
+                    object.material = materialKey
+                }
             }
         }
 
