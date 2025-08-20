@@ -8,7 +8,7 @@ import {copy} from "../object/copy.ts";
 import {EASE} from "../../types/animation/easing.ts";
 import {ComplexPointsAbstract, RawPointsAbstract} from "../../types/animation/points/abstract.ts";
 import {NumberTuple} from "../../types/util/tuple.ts";
-import { inverseLerp } from '../mod.ts'
+import { inverseLerp } from '../math/lerp.ts'
 
 /**
  * Reverse an animation. Accounts for most easings but not splines.

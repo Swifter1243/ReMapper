@@ -9,6 +9,7 @@ import {ReadonlyModel, type ModelObject} from "../../../types/model/object.ts";
 import type { DeepReadonly } from '../../../types/util/mutability.ts'
 import {AbstractDifficulty} from "../../../internals/beatmap/abstract_difficulty.ts";
 import {RawPointsVec3} from "../../../types/animation/points/vec3.ts";
+import {MODEL_SCENE_DEFAULT_GROUP_KEY} from "../../../constants/model.ts";
 
 export class StaticModelScene extends ModelScene<StaticModelInput, Promise<ReadonlyModel>, StaticSceneInfo> {
     private initializeSceneInfo() {
@@ -47,7 +48,7 @@ export class StaticModelScene extends ModelScene<StaticModelInput, Promise<Reado
         const data = await this.modelPromise
         data.forEach((modelObject, index) => {
             // Getting info about group
-            const groupKey = modelObject.group ?? ModelScene.defaultGroupKey
+            const groupKey = modelObject.group ?? MODEL_SCENE_DEFAULT_GROUP_KEY
             const group = this.settings.groups[groupKey]
             if (!group) return
             const track = this.getPieceTrack(group, groupKey, index)

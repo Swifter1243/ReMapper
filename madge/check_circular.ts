@@ -10,7 +10,7 @@ madge('src/mod.ts', {
     },
 // deno-lint-ignore no-explicit-any
 }).then((res: any) => {
-    res.image('madge/image.png')
-    res.image('madge/circular.png', true)
-    console.log(res.circular())
+    const circular = res.circular()
+    const circularNoTypes = circular.filter((a: string[]) => !a.some(s => s.includes('types')))
+    Deno.writeTextFileSync('madge/circular.txt', JSON.stringify(circularNoTypes, undefined, 2))
 })

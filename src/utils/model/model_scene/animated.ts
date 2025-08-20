@@ -11,6 +11,7 @@ import { MultiSceneInfo, SceneSwitchInfo } from '../../../types/model/model_scen
 import {AnimatedSceneMaterial, ScenePromises} from '../../../types/model/model_scene/animated.ts'
 import { AbstractDifficulty } from '../../../internals/beatmap/abstract_difficulty.ts'
 import {RawPointsVec3} from "../../../types/animation/points/vec3.ts";
+import {MODEL_SCENE_DEFAULT_GROUP_KEY} from "../../../constants/model.ts";
 
 export class AnimatedModelScene extends ModelScene<SceneSwitch[], ScenePromises, MultiSceneInfo> {
     protected override _createModelPromise(input: SceneSwitch[]): ScenePromises {
@@ -157,7 +158,7 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], ScenePromises,
                 complexifyPoints(modelObject.scale).length === 1
 
             // Getting info about group
-            const groupKey = modelObject.group ?? ModelScene.defaultGroupKey
+            const groupKey = modelObject.group ?? MODEL_SCENE_DEFAULT_GROUP_KEY
             const group = this.settings.groups[groupKey]
             if (!group) return // continue if object isn't present
 

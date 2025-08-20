@@ -4,9 +4,9 @@ import { DeepReadonly } from '../../../types/util/mutability.ts'
 import { Transform } from '../../../types/math/transform.ts'
 import { EnvironmentModelPiece } from '../../../types/model/model_scene/piece.ts'
 import { environment } from '../../../builder_functions/beatmap/object/environment/environment.ts'
-import { ModelScene } from './base.ts'
 import { AbstractDifficulty } from '../../../internals/beatmap/abstract_difficulty.ts'
 import {GeometryMaterial} from "../../../types/beatmap/object/environment.ts";
+import {MODEL_SCENE_DEFAULT_GROUP_KEY} from "../../../constants/model.ts";
 
 export class ModelSceneSettings {
     /** Throw when a model has groups that aren't represented. */
@@ -30,7 +30,7 @@ export class ModelSceneSettings {
 
     /** Get the default group from this ModelScene */
     getDefaultGroup(): DeepReadonly<ModelGroup> {
-        return this.groups[ModelScene.defaultGroupKey]
+        return this.groups[MODEL_SCENE_DEFAULT_GROUP_KEY]
     }
 
     private pushObjectGroup(
@@ -73,11 +73,11 @@ export class ModelSceneSettings {
         if (typeof params[0] === 'function') {
             const [object, transform, defaultMaterial] = params
 
-            this.pushObjectGroup(ModelScene.defaultGroupKey, object, transform, defaultMaterial)
+            this.pushObjectGroup(MODEL_SCENE_DEFAULT_GROUP_KEY, object, transform, defaultMaterial)
         } else {
             const [modelPiece] = params
 
-            this.pushObjectGroup(ModelScene.defaultGroupKey, (difficulty) =>
+            this.pushObjectGroup(MODEL_SCENE_DEFAULT_GROUP_KEY, (difficulty) =>
                 environment(difficulty as AbstractDifficulty, {
                     id: modelPiece.id,
                     lookupMethod: modelPiece.lookupMethod,

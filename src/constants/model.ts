@@ -106,3 +106,5 @@ export const ENVIRONMENT_MODEL_PIECES = {
         },
     },
 } satisfies Record<string, Record<string, EnvironmentModelPiece>>
+
+export const MODEL_SCENE_DEFAULT_GROUP_KEY = 'default_group'

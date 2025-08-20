@@ -18,10 +18,10 @@ import { DeepReadonly } from '../../../types/util/mutability.ts'
 import { ModelSceneSettings } from './settings.ts'
 import { AbstractDifficulty } from '../../../internals/beatmap/abstract_difficulty.ts'
 import { Environment } from '../../../internals/beatmap/object/environment/environment.ts'
+import {MODEL_SCENE_DEFAULT_GROUP_KEY} from "../../../constants/model.ts";
 
 export abstract class ModelScene<I, M, O> {
     protected static modelSceneCount = 0
-    static readonly defaultGroupKey = 'default_group'
 
     // hash -> name
     private static cachedModels: Record<string, string> = {}
@@ -150,7 +150,7 @@ export abstract class ModelScene<I, M, O> {
         const trackGroups = new Set<string>()
 
         objects.forEach((x) => {
-            const groupKey = x.group ?? ModelScene.defaultGroupKey
+            const groupKey = x.group ?? MODEL_SCENE_DEFAULT_GROUP_KEY
             const group = this.settings.groups[groupKey]
 
             if (!group) {
@@ -243,7 +243,7 @@ export abstract class ModelScene<I, M, O> {
         const trackGroups = new Set<string>()
 
         objects.forEach((x) => {
-            const groupKey = x.group ?? ModelScene.defaultGroupKey
+            const groupKey = x.group ?? MODEL_SCENE_DEFAULT_GROUP_KEY
             const group = this.settings.groups[groupKey]
 
             if (!group) {

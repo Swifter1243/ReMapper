@@ -6,6 +6,7 @@ deno.lock
 # Madge
 madge/image.png
 madge/circular.png
+madge/circular.txt
 
 # Logs
 logs
