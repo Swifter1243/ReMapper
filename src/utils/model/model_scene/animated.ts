@@ -5,7 +5,6 @@ import { complexifyPoints } from '../../animation/points/complexity.ts'
 import { animateTrack } from '../../../builder_functions/beatmap/object/custom_event/heck.ts'
 import {ColorVec, Vec3, Vec4} from '../../../types/math/vector.ts'
 import { Geometry } from '../../../internals/beatmap/object/environment/geometry.ts'
-import { RawGeometryMaterial } from '../../../types/beatmap/object/environment.ts'
 import { DeepReadonly } from '../../../types/util/mutability.ts'
 import { ModelObject } from '../../../types/model/object.ts'
 import { MultiSceneInfo, SceneSwitchInfo } from '../../../types/model/model_scene/scene_info.ts'
@@ -311,8 +310,9 @@ export class AnimatedModelScene extends ModelScene<SceneSwitch[], ScenePromises,
                     object.scale = initialPos.scale as Vec3
 
                     if (initialPos.color) {
-                        const material = (object as Geometry).material as RawGeometryMaterial
-                        material.color = initialPos.color
+                        const material = (object as Geometry).material
+                        if (typeof material !== 'string')
+                            material.color = initialPos.color
                     }
                 }
 
