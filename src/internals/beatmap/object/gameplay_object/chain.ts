@@ -125,6 +125,7 @@ export class Chain extends BaseSliderObject<bsmap.v3.IChain> {
                 spawnEffect: exportInvertedBoolean(this.disableSpawnEffect, true),
                 track: this.track.value,
                 worldRotation: simplifyWorldRotation(this.worldRotation),
+                scale: this.scale,
                 link: this.link,
                 disableBadCutDirection: this.disableBadCutDirection,
                 disableBadCutSpeed: this.disableBadCutSpeed,

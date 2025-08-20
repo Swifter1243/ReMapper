@@ -39,6 +39,7 @@ export abstract class BeatmapGameplayObject<
         this.coordinates = obj.coordinates
         this.worldRotation = obj.worldRotation
         this.localRotation = obj.localRotation
+        this.scale = obj.scale
         this.noteJumpMovementSpeed = obj.noteJumpMovementSpeed
         this.noteJumpStartBeatOffset = obj.noteJumpStartBeatOffset
         this.uninteractable = obj.uninteractable
@@ -77,6 +78,8 @@ export abstract class BeatmapGameplayObject<
     worldRotation?: Vec3
     /** The rotation added to an object around it's anchor point. */
     localRotation?: Vec3
+    /** The scale of the object. */
+    scale?: Vec3
     /** The speed of this object in units (meters) per second. */
     noteJumpMovementSpeed?: number
     /** The offset added to the position where this object "jumps" in. */
@@ -247,6 +250,7 @@ export abstract class BeatmapGameplayObject<
         this.worldRotation = typeof json.customData?.worldRotation === 'number'
             ? [0, getCDProp(json, 'worldRotation'), 0]
             : getCDProp(json, 'worldRotation')
+        this.scale = getCDProp(json, 'scale')
         this.track = new Track(getCDProp(json, 'track'))
         this.noteJumpMovementSpeed = getCDProp(json, 'noteJumpMovementSpeed')
         this.noteJumpStartBeatOffset = getCDProp(json, 'noteJumpStartBeatOffset')
@@ -264,6 +268,7 @@ export abstract class BeatmapGameplayObject<
         this.worldRotation = typeof json._customData?._rotation === 'number'
             ? [0, getCDProp(json, '_rotation'), 0] as Vec3
             : getCDProp(json, '_rotation') as Vec3
+        // No scale in V2
         this.track = new Track(getCDProp(json, '_track'))
         this.noteJumpMovementSpeed = getCDProp(json, '_noteJumpMovementSpeed')
         this.noteJumpStartBeatOffset = getCDProp(json, '_noteJumpStartBeatOffset')

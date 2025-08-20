@@ -128,6 +128,7 @@ export class Wall extends BeatmapGameplayObject<bsmap.v2.IObstacle, bsmap.v3.IOb
                 localRotation: this.localRotation,
                 coordinates: this.coordinates,
                 worldRotation: simplifyWorldRotation(this.worldRotation),
+                scale: this.scale,
                 track: this.track.value,
                 color: this.chromaColor,
                 uninteractable: this.uninteractable,

@@ -100,6 +100,7 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
                 disableNoteGravity: defaultBoolean(this.disableNoteGravity, false),
                 track: this.track.value,
                 worldRotation: simplifyWorldRotation(this.worldRotation),
+                scale: this.scale,
                 ...this.unsafeCustomData,
             },
         } satisfies bsmap.v3.IArc

@@ -38,6 +38,7 @@ export class Bomb extends BaseNote<bsmap.v3.IBombNote> {
                 coordinates: this.coordinates,
                 track: this.track.value,
                 worldRotation: simplifyWorldRotation(this.worldRotation),
+                scale: this.scale,
                 link: this.link,
                 disableBadCutDirection: this.disableBadCutDirection,
                 disableBadCutSpeed: this.disableBadCutSpeed,

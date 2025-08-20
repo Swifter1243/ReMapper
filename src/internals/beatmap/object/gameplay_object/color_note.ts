@@ -72,6 +72,7 @@ export class ColorNote extends BaseNote<bsmap.v3.IColorNote> {
                 track: this.track.value,
                 uninteractable: this.uninteractable,
                 worldRotation: simplifyWorldRotation(this.worldRotation),
+                scale: this.scale,
                 link: this.link,
                 disableBadCutDirection: this.disableBadCutDirection,
                 disableBadCutSpeed: this.disableBadCutSpeed,
