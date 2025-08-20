@@ -40,5 +40,9 @@ export abstract class AbstractInfo<
         this.unsafeCustomData = inner.unsafeCustomData
     }
 
-    abstract toJSON(): TD;
+    protected abstract toJSON(): TD;
+
+    toFinalString(): string {
+        return JSON.stringify(this.toJSON())
+    }
 }

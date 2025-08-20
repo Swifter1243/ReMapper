@@ -29,8 +29,6 @@ import { Arc } from './object/gameplay_object/arc.ts'
 import { Chain } from './object/gameplay_object/chain.ts'
 import {clearPropertyMap} from '../../constants/beatmap.ts'
 import { convertRotationEventsToObjectRotation } from '../../utils/beatmap/convert.ts'
-import { animateTrack } from '../../builder_functions/beatmap/object/custom_event/heck.ts'
-import { DEFAULT_SCALED_TRACK } from '../../constants/settings.ts'
 import { IDifficultyInfo } from '../../types/beatmap/info/difficulty_info.ts'
 import { arrayEnsureValue } from '../../utils/array/mutate.ts'
 import {Pipeline} from "../pipeline.ts";
@@ -173,9 +171,9 @@ export abstract class AbstractDifficulty<
 
     protected abstract loadJSON(json: TD): void
 
-    abstract toJSON(): TD
+    protected abstract toJSON(): TD
 
-    async toString(pretty = false) {
+    async toFinalString(pretty = false) {
         await this.awaitAllAsync()
         this.applySettings()
         const outputJSON = this.toJSON()
@@ -217,18 +215,10 @@ export abstract class AbstractDifficulty<
             ...this.bombs,
         ]
 
-        if (settings.forceDefaultScale && identityScaledObjects.length > 0) {
-            identityScaledObjects.forEach((o) => {
-                o.track.add(DEFAULT_SCALED_TRACK)
-            })
+        identityScaledObjects.forEach(o => {
+            o.scale ??= [1,1,1]
+        })
 
-            animateTrack(this, {
-                track: DEFAULT_SCALED_TRACK,
-                animation: {
-                    scale: [1, 1, 1],
-                },
-            })
-        }
         if (settings.convertRotationEventsToObjectRotation) {
             convertRotationEventsToObjectRotation(this)
         }

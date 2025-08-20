@@ -59,10 +59,10 @@ export class Pipeline {
         const filesToWrite: MovedFile[] = []
         const ensureFilesExistPromises: Promise<void>[] = []
 
-        function addTextFile(file: string, contents: object) {
+        function addTextFile(file: string, contents: string) {
             const newDirectory = path.join(outputDirectory, path.basename(file))
             filesToWrite.push({
-                old: JSON.stringify(contents),
+                old: contents,
                 new: newDirectory
             })
         }
@@ -89,7 +89,7 @@ export class Pipeline {
         }
 
         // Add info
-        addTextFile('Info.dat', this.info.toJSON())
+        addTextFile('Info.dat', this.info.toFinalString())
         addCopiedFile(this.info.coverImageFilename, false)
         addCopiedFile(this.info.audio.songFilename)
 
@@ -104,17 +104,17 @@ export class Pipeline {
         }
 
         // Add diffs
-        await Promise.all(this.activeDifficulties.values().map((d) => d.awaitAllAsync()))
-
-        Object.values(this.info.difficultyBeatmaps).forEach((difficultyInfo) => {
+        const diffProcess = Object.values(this.info.difficultyBeatmaps).map(async (difficultyInfo) => {
             const diff = this.activeDifficulties.values().find((x) => x.difficultyInfo === difficultyInfo)
 
             if (diff) {
-                addTextFile(difficultyInfo.beatmapDataFilename, diff.toJSON())
+                const diffString = await diff.toFinalString()
+                addTextFile(difficultyInfo.beatmapDataFilename, diffString)
             } else {
                 addCopiedFile(difficultyInfo.beatmapDataFilename)
             }
         })
+        await Promise.all(diffProcess)
 
         // Serialize
         await Promise.all(ensureFilesExistPromises)

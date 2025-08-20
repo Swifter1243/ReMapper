@@ -51,6 +51,3 @@ export const SETTINGS_PRESET = {
         modifiers: {},
     },
 } satisfies Record<string, SettingsSetter>
-
-/** The track used to scale notes to `[1,1,1]` initially if enabled in the ReMapper settings. */
-export const DEFAULT_SCALED_TRACK = 'RM_forceDefaultScale'

@@ -396,7 +396,7 @@ export class V2Info extends AbstractInfo<bsmap.v2.IInfo> {
         this.customEnvironmentHash = customEnvironmentHash
     }
 
-    toJSON(): bsmap.v2.IInfo {
+    protected toJSON(): bsmap.v2.IInfo {
         const _colorSchemes = this.colorSchemes.map(V2Info.saveColorScheme)
         const _difficultyBeatmapSets = V2Info.saveDifficultyBeatmaps(this.difficultyBeatmaps)
 
