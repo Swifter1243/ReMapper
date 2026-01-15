@@ -4,7 +4,7 @@ export * as fs from "https://deno.land/std@0.187.0/fs/mod.ts";
 export * as asserts from "https://deno.land/std@0.189.0/testing/asserts.ts";
 
 export { compress } from "jsr:@fakoua/zip-ts";
-export * as adbDeno from "https://deno.land/x/adb_deno@0.1.4/lib.ts";
+export * as adbDeno from "https://deno.land/x/adb_deno@0.1.5/lib.ts";
 
 export * as three from "jsr:@3d/three";
 
