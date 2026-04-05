@@ -95,7 +95,10 @@ export class Pipeline {
 
         // Add contributors
         if (this.info.contributors) {
-            this.info.contributors.map((c) => addCopiedFile(c._iconPath))
+            this.info.contributors.forEach((c) => {
+                if (c._iconPath)
+                    addCopiedFile(c._iconPath)
+            })
         }
 
         // Add bundle
