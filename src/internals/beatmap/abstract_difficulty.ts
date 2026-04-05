@@ -209,15 +209,17 @@ export abstract class AbstractDifficulty<
     }
 
     private applySettings() {
-        const identityScaledObjects = [
-            ...this.colorNotes,
-            ...this.chains,
-            ...this.bombs,
-        ]
+        if (settings.forceDefaultScale) {
+            const identityScaledObjects = [
+                ...this.colorNotes,
+                ...this.chains,
+                ...this.bombs,
+            ]
 
-        identityScaledObjects.forEach(o => {
-            o.scale ??= [1,1,1]
-        })
+            identityScaledObjects.forEach(o => {
+                o.scale ??= [1,1,1]
+            })
+        }
 
         if (settings.convertRotationEventsToObjectRotation) {
             convertRotationEventsToObjectRotation(this)
