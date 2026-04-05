@@ -418,7 +418,7 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
             .map((x) => x.toJsonV3(true)).sort(sortItems)
 
         return {
-            version: '3.2.0',
+            version: '3.3.0',
             colorNotes: colorNotes,
             bombNotes: bombNotes,
             basicBeatmapEvents: basicEvents,
