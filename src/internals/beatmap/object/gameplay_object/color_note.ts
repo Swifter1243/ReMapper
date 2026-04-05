@@ -28,7 +28,7 @@ export class ColorNote extends BaseNote<bsmap.v3.IColorNote> {
 
     static override defaults: GameplayObjectDefaults<ColorNote> = {
         color: NoteColor.RED,
-        cutDirection: NoteCut.DOWN,
+        cutDirection: NoteCut.UP,
         angleOffset: 0,
         ...super.defaults,
     }
