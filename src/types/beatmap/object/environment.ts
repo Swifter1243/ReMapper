@@ -57,6 +57,7 @@ export type GeoShader =
     | 'InterscopeCar'
     | 'Obstacle'
     | 'WaterfallMirror'
+    | 'Glowing'
 
 /** LightID used on lights and other lighting_v3 events. `ID | [ID, ID, ID]` */
 export type LightID = number | number[]
