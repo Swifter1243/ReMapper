@@ -39,7 +39,7 @@ export class Arc extends BaseSliderObject<bsmap.v3.IArc> {
     disableNoteGravity?: boolean
 
     static override defaults: GameplayObjectDefaults<Arc> = {
-        tailCutDirection: NoteCut.DOWN,
+        tailCutDirection: NoteCut.UP,
         headLength: 0,
         tailLength: 0,
         anchorMode: AnchorMode.STRAIGHT,
