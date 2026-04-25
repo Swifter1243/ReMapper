@@ -9,7 +9,7 @@ import { IAudioInfoV2 } from '../../../types/beatmap/info/audio_info.ts'
 import { IDifficultyInfoV2 } from '../../../types/beatmap/info/difficulty_info.ts'
 import { SettingsSetter } from '../../../types/beatmap/info/settings_setter.ts'
 
-type RawSettingsSetter = (bsmap.IV2HeckInfoCustomData & bsmap.IV2ChromaInfoCustomData)['_settings']
+type RawSettingsSetter = bsmap.v2.ICustomDataInfoDifficulty['_settings']
 
 export class V2Info extends AbstractInfo<bsmap.v2.IInfo> {
     /** The mapper's name. */
@@ -208,8 +208,6 @@ export class V2Info extends AbstractInfo<bsmap.v2.IInfo> {
         const graphics = json?._graphics
         const modifiers = json?._modifiers
         const playerOptions = json?._playerOptions
-        // TODO: bsmap got this wrong
-        // @ts-ignore 2322
         const _countersPlus = json?._countersPlus
 
         return {
@@ -217,8 +215,6 @@ export class V2Info extends AbstractInfo<bsmap.v2.IInfo> {
                 disableChromaEvents: chroma?._disableChromaEvents,
                 disableEnvironmentEnhancements: chroma?._disableEnvironmentEnhancements,
                 disableNoteColoring: chroma?._disableNoteColoring,
-                // TODO: bsmap got this wrong
-                // @ts-ignore 2322
                 forceZenModeWalls: chroma?._forceZenModeWalls,
             },
             environments: {
@@ -267,13 +263,8 @@ export class V2Info extends AbstractInfo<bsmap.v2.IInfo> {
                 noteJumpFixedDuration: playerOptions?._noteJumpFixedDuration,
                 noteJumpStartBeatOffset: playerOptions?._noteJumpStartBeatOffset,
                 hideNoteSpawnEffect: playerOptions?._hideNoteSpawnEffect,
-                // TODO: bsmap also got this wrong
-                // @ts-ignore 2322
                 adaptiveSfx: playerOptions?._adaptiveSfx,
-                // TODO: bsmap ALSO got THIS wrong
-                // @ts-ignore 2322
                 environmentEffectsFilterDefaultPreset: playerOptions?._environmentEffectsFilterDefaultPreset,
-                // @ts-ignore 2322
                 environmentEffectsFilterExpertPlusPreset: playerOptions?._environmentEffectsFilterExpertPlusPreset,
             },
             ...{
@@ -296,7 +287,7 @@ export class V2Info extends AbstractInfo<bsmap.v2.IInfo> {
                 _disableEnvironmentEnhancements: chroma.disableEnvironmentEnhancements,
                 _disableChromaEvents: chroma.disableChromaEvents,
                 _disableNoteColoring: chroma.disableNoteColoring,
-                _forceZenModeWall: chroma.forceZenModeWalls,
+                _forceZenModeWalls: chroma.forceZenModeWalls,
             },
             _graphics: {
                 _mainEffectGraphicsSettings: V2Info.saveBoolean(graphics.mainEffectGraphicsSettings),
@@ -344,16 +335,13 @@ export class V2Info extends AbstractInfo<bsmap.v2.IInfo> {
                 _noteJumpFixedDuration: playerOptions?.noteJumpFixedDuration,
                 _noteJumpStartBeatOffset: playerOptions?.noteJumpStartBeatOffset,
                 _hideNoteSpawnEffect: playerOptions?.hideNoteSpawnEffect,
-                // @ts-ignore 2322
                 _adaptiveSfx: playerOptions?.adaptiveSfx,
-                // @ts-ignore 2322
                 _environmentEffectsFilterDefaultPreset: playerOptions?.environmentEffectsFilterDefaultPreset,
-                // @ts-ignore 2322
                 _environmentEffectsFilterExpertPlusPreset: playerOptions?.environmentEffectsFilterExpertPlusPreset,
             },
             ...{
                 _countersPlus: _countersPlus
-            }
+            } satisfies RawSettingsSetter
         }
     }
 

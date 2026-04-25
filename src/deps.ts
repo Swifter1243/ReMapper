@@ -7,6 +7,6 @@ export { compress } from "jsr:@fakoua/zip-ts";
 export * as adbDeno from "https://deno.land/x/adb_deno@0.1.6/lib.ts";
 
 export * as three from "jsr:@3d/three";
-export * as bsmap from 'jsr:@kvl/bsmap@2.3.3'
+export * as bsmap from 'jsr:@kvl/bsmap@2.3.3' // TODO: Update when fixes are implemented!
 
 export * as pngs from 'https://deno.land/x/pngs@0.1.1/mod.ts'

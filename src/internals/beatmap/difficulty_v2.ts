@@ -32,6 +32,7 @@ import { RuntimeRawPointsAny } from '../../types/animation/points/runtime/any.ts
 import { CustomEvent } from './object/custom_event/base/custom_event.ts'
 import { NoteColor } from '../../constants/note.ts'
 import {FOG_TRACK} from "../../constants/fog.ts";
+import { ComplexPointsLinear } from '../../types/animation/points/linear.ts'
 
 /** Difficulty V2 beatmap. */
 export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
@@ -142,6 +143,18 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
         delete json._customData?._bpmChanges
 
         // Fog
+        function expandFogProperty(input: string | bsmap.FloatPointDefinition | undefined | number): string | number | ComplexPointsLinear | undefined {
+            if (Array.isArray(input)) {
+                if (typeof input[0] === 'number') {
+                    return input[0]
+                } else {
+                    return input as ComplexPointsLinear
+                }
+            }
+
+            return input
+        }
+
         if (json._customData?._customEvents) {
             const fogEvent = json._customData._customEvents
                 .find((o) => o._type === 'AssignFogTrack')
@@ -153,18 +166,17 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
                     const isFogRelated = x._type === 'AssignFogTrack' || x._type === 'AnimateTrack'
 
                     if (isFogRelated && x._data._track && x._data._track === fogTrack) {
+
                         const fog: AnyFog = {
-                            // @ts-ignore 2322
-                            attenuation: x._data._attenuation,
-                            // @ts-ignore 2322
-                            height: x._data._height,
-                            // @ts-ignore 2322
-                            offset: x._data._offset,
-                            // @ts-ignore 2322
-                            startY: x._data._startY,
+                            attenuation: expandFogProperty(x._data._attenuation),
+                            height: expandFogProperty(x._data._height),
+                            offset: expandFogProperty(x._data._offset),
+                            startY: expandFogProperty(x._data._startY),
                         }
 
-                        new FogEvent(this, fog, x._time, x._data._duration)
+                        const duration = x._type == 'AnimateTrack' ? x._data._duration : 0
+
+                        new FogEvent(this, fog, x._time, duration)
                         return true
                     }
                     return false
@@ -317,7 +329,7 @@ export class V2Difficulty extends AbstractDifficulty<bsmap.v2.IDifficulty> {
                 _data: {
                     _track: FOG_TRACK,
                 },
-            } as bsmap.v2.ICustomEvent)
+            } satisfies bsmap.v2.ICustomEventAssignFogTrack)
         }
 
         this.fogEvents.forEach((x) => {
