@@ -428,6 +428,11 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
             lightColorEventBoxGroups: lightColorEventBoxGroups,
             lightRotationEventBoxGroups: lightRotationEventBoxGroups,
             lightTranslationEventBoxGroups: lightTranslationEventBoxGroups,
+            vfxEventBoxGroups: [], // TODO: Properly support
+            _fxEventsCollection: {
+                _fl: [],
+                _il: []
+            }, // TODO: Properly support
             rotationEvents: rotationEvents,
             obstacles: obstacles,
             sliders: arcs,
