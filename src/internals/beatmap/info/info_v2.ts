@@ -9,7 +9,7 @@ import { IAudioInfoV2 } from '../../../types/beatmap/info/audio_info.ts'
 import { IDifficultyInfoV2 } from '../../../types/beatmap/info/difficulty_info.ts'
 import { SettingsSetter } from '../../../types/beatmap/info/settings_setter.ts'
 
-type RawSettingsSetter = (bsmap.IHeckInfoCustomData & bsmap.IChromaInfoCustomData)['_settings']
+type RawSettingsSetter = (bsmap.IV2HeckInfoCustomData & bsmap.IV2ChromaInfoCustomData)['_settings']
 
 export class V2Info extends AbstractInfo<bsmap.v2.IInfo> {
     /** The mapper's name. */
@@ -19,9 +19,9 @@ export class V2Info extends AbstractInfo<bsmap.v2.IInfo> {
     /** Deprecated. */
     shufflePeriod: number
     /** The environment used for 360 maps. */
-    allDirectionEnvironmentName: bsmap.Environment360Name
+    allDirectionEnvironmentName?: bsmap.Environment360Name
     /** The environment name used. */
-    environmentName: bsmap.EnvironmentName | bsmap.EnvironmentV3Name
+    environmentName: bsmap.EnvironmentV2Name | bsmap.EnvironmentV3Name
     /** Deprecated. */
     songTimeOffset: number
     /** Deprecated. */
@@ -30,7 +30,7 @@ export class V2Info extends AbstractInfo<bsmap.v2.IInfo> {
     customEnvironmentHash: string | undefined
 
     declare audio: IAudioInfoV2
-    declare difficultyBeatmaps: Partial<Record<bsmap.GenericFileName, IDifficultyInfoV2>>
+    declare difficultyBeatmaps: Partial<Record<bsmap.GenericBeatmapFilename, IDifficultyInfoV2>>
 
     private static loadColor(json: {
         r: number
@@ -85,7 +85,7 @@ export class V2Info extends AbstractInfo<bsmap.v2.IInfo> {
 
         json.forEach((infoSet) => {
             infoSet._difficultyBeatmaps.forEach((beatmap) => {
-                const beatmapDataFilename = beatmap._beatmapFilename as bsmap.GenericFileName
+                const beatmapDataFilename = beatmap._beatmapFilename as bsmap.GenericBeatmapFilename
 
                 result[beatmapDataFilename] = {
                     beatmapDataFilename,

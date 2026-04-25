@@ -12,18 +12,18 @@ export interface RMInfo {
     /** The path to the cover art. These should be in `png`, `jpeg`, or `jpg` format. */
     coverImageFilename: string
     /** https://bsmg.wiki/mapping/map-format/info.html#environments */
-    environmentNames: bsmap.EnvironmentAllName[]
+    environmentNames: bsmap.EnvironmentName[]
     /** A collection of color schemes for the difficulties to use. */
     colorSchemes: IColorScheme[]
     /** Information for all the difficulties included in this beatmap. */
-    difficultyBeatmaps: Partial<Record<bsmap.GenericFileName, IDifficultyInfo>>
+    difficultyBeatmaps: Partial<Record<bsmap.GenericBeatmapFilename, IDifficultyInfo>>
 
     /** Checksums for Vivify asset bundles. */
-    assetBundleChecksums: Record<string, number> | undefined
+    assetBundleChecksums: bsmap.IV2VivifyCustomDataInfo['_assetBundle']
     /** Information about the contributors in this beatmap. */
     contributors: bsmap.ICustomDataInfo['contributors'] | undefined
     /** Information about the editors used to edit this beatmap. */
-    editors: bsmap.IEditor | undefined
+    editors: bsmap.IV2Editor | undefined
     /** Custom data for the entire beatmap. Some properties (e.g. {@link contributors}, {@link editors}, ...etc.) are already extracted. */
     unsafeCustomData: bsmap.ICustomDataBase
 }

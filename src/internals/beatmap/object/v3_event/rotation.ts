@@ -43,7 +43,7 @@ export class RotationEvent extends BeatmapObject<bsmap.v2.IEventLaneRotation, bs
 
     fromBasicEvent(json: bsmap.v3.IBasicEventLaneRotation) {
         this.early = json.et !== undefined ? json.et === EventGroup.EARLY_ROTATION : RotationEvent.defaults.early
-        this.rotation = json.customData?.rotation ?? this.tryInverseRotation(json.i) ?? RotationEvent.defaults.rotation
+        this.rotation = json.customData?.rotation ?? this.tryInverseRotation(json.i ?? 0) ?? RotationEvent.defaults.rotation
         this.beat = json.b ?? RotationEvent.defaults.beat
         this.unsafeCustomData = json.customData ?? RotationEvent.defaults.unsafeCustomData
         return this
@@ -57,7 +57,7 @@ export class RotationEvent extends BeatmapObject<bsmap.v2.IEventLaneRotation, bs
 
     override fromJsonV2(json: bsmap.v2.IEventLaneRotation): this {
         this.early = json._type !== undefined ? json._type === EventGroup.EARLY_ROTATION : RotationEvent.defaults.early
-        this.rotation = getCDProp(json, '_rotation') ?? this.tryInverseRotation(json._value) ?? RotationEvent.defaults.rotation
+        this.rotation = getCDProp(json, '_rotation') ?? this.tryInverseRotation(json._value ?? 0) ?? RotationEvent.defaults.rotation
         return super.fromJsonV2(json);
     }
 

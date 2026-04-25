@@ -1,5 +1,6 @@
 /** The color for a note. */
 export enum NoteColor {
+    NONE = -1,
     RED = 0,
     BLUE = 1,
 }

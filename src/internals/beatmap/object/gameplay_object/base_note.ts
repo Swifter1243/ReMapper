@@ -86,7 +86,7 @@ export abstract class BaseNote<
         this.disableNoteGravity = getCDProp(json, '_disableNoteGravity')
         this.spawnEffect = importInvertedBoolean(getCDProp(json, '_disableSpawnEffect'))
         this.fake = getCDProp(json, '_fake')
-        this.y = json._lineLayer
+        this.y = json._lineLayer ?? BaseNote.defaults.y
         return super.fromJsonV2(json)
     }
 }

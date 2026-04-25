@@ -59,7 +59,7 @@ export class LightTranslationEventBox extends LightEventBox<
             ? json.b === 1
             : LightTranslationEventBox.defaults.translationDistributionFirst
         this.translationDistributionType = json.t ?? LightTranslationEventBox.defaults.translationDistributionType
-        this.events = json.l.map((x) => lightTranslationEvent(this).fromJsonV3(x))
+        this.events = (json.l ?? []).map((x) => lightTranslationEvent(this).fromJsonV3(x))
         this.unsafeCustomData = json.customData ?? LightTranslationEventBox.defaults.unsafeCustomData
         return this
     }

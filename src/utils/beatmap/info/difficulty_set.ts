@@ -4,7 +4,7 @@ import {AbstractInfo} from "../../../internals/beatmap/info/abstract_info.ts";
 /** From the active Info.dat, try to get info about {@link difficultyName}.
  * Contains difficulty, difficulty rank, among other information.
  */
-export function tryGetDifficultyInfo(info: AbstractInfo, difficultyName: bsmap.GenericFileName) {
+export function tryGetDifficultyInfo(info: AbstractInfo, difficultyName: bsmap.GenericBeatmapFilename) {
     if (info.difficultyBeatmaps[difficultyName]) {
         return info.difficultyBeatmaps[difficultyName]
     } else {

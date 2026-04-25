@@ -59,12 +59,12 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
     protected loadJSON(json: bsmap.v3.IDifficulty) {
         function assertAndGet<K extends keyof typeof json>(
             key: K
-        ): (typeof json)[K] {
+        ): NonNullable<(typeof json)[K]> {
             if (!Object.hasOwn(json, key)) {
                 throw new Error(`Beatmap incomplete. Expected key '${key}' in beatmap but it wasn't there.`)
             }
 
-            return json[key]
+            return json[key]!
         }
 
         // Header
@@ -310,8 +310,8 @@ export class V3Difficulty extends AbstractDifficulty<bsmap.v3.IDifficulty> {
     }
 
     toJSON(): bsmap.v3.IDifficulty {
-        function sortItems(a: { b: number }, b: { b: number }) {
-            return a.b - b.b
+        function sortItems(a: { b?: number }, b: { b?: number }) {
+            return (a.b ?? 0) - (b.b ?? 0)
         }
 
         // Notes

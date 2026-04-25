@@ -8,9 +8,9 @@ import {JsonWrapper} from "../../../../../../types/beatmap/json_wrapper.ts";
 import {JsonObjectConstructor, JsonObjectDefaults} from "../../../../../../types/beatmap/object/object.ts";
 
 type LightBase =
-    | bsmap.v3.ILightColorBase
-    | bsmap.v3.ILightRotationBase
-    | bsmap.v3.ILightTranslationBase
+    | bsmap.v3.ILightColorEvent
+    | bsmap.v3.ILightRotationEvent
+    | bsmap.v3.ILightTranslationEvent
 
 export abstract class BaseLightEvent<T extends LightBase = LightBase> extends BeatmapArrayMember<LightEventBox> implements JsonWrapper<never, T> {
     protected constructor(

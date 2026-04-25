@@ -5,7 +5,7 @@ import { BeatmapObjectConstructor, BeatmapObjectDefaults } from '../../../../../
 import {BaseLightEvent} from "./base.ts";
 import {LightTranslationEventBox} from "../light_event_box/translation.ts";
 
-export class LightTranslationEvent extends BaseLightEvent<bsmap.v3.ILightTranslationBase> {
+export class LightTranslationEvent extends BaseLightEvent<bsmap.v3.ILightTranslationEvent> {
     constructor(parent: LightTranslationEventBox, obj: BeatmapObjectConstructor<LightTranslationEvent>) {
         super(parent, obj)
         this.usePreviousEventTranslation = obj.usePreviousEventTranslation ?? LightTranslationEvent.defaults.usePreviousEventTranslation
@@ -31,7 +31,7 @@ export class LightTranslationEvent extends BaseLightEvent<bsmap.v3.ILightTransla
         return parent.events as this[]
     }
 
-    override fromJsonV3(json: bsmap.v3.ILightTranslationBase): this {
+    override fromJsonV3(json: bsmap.v3.ILightTranslationEvent): this {
         this.usePreviousEventTranslation = json.p !== undefined ? json.p === 1 : LightTranslationEvent.defaults.usePreviousEventTranslation
         this.easing = json.e ?? LightTranslationEvent.defaults.easing
         this.magnitude = json.t ?? LightTranslationEvent.defaults.magnitude
@@ -42,14 +42,14 @@ export class LightTranslationEvent extends BaseLightEvent<bsmap.v3.ILightTransla
         throw new Error('Event box groups are not supported in V2!')
     }
 
-    toJsonV3(prune?: boolean): bsmap.v3.ILightTranslationBase {
+    toJsonV3(prune?: boolean): bsmap.v3.ILightTranslationEvent {
         const output = {
             b: this.beat,
-            e: this.easing as bsmap.v3.ILightTranslationBase['e'],
+            e: this.easing as bsmap.v3.ILightTranslationEvent['e'],
             p: this.usePreviousEventTranslation ? 1 : 0,
             t: this.magnitude,
             customData: this.unsafeCustomData,
-        } satisfies bsmap.v3.ILightTranslationBase
+        } satisfies bsmap.v3.ILightTranslationEvent
         return prune ? objectPrune(output) : output
     }
 }

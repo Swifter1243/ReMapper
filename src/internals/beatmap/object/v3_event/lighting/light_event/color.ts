@@ -5,7 +5,7 @@ import { objectPrune } from '../../../../../../utils/object/prune.ts'
 import { BeatmapObjectConstructor, BeatmapObjectDefaults } from '../../../../../../types/beatmap/object/object.ts'
 import {LightColorEventBox} from "../light_event_box/color.ts";
 
-export class LightColorEvent extends BaseLightEvent<bsmap.v3.ILightColorBase> {
+export class LightColorEvent extends BaseLightEvent<bsmap.v3.ILightColorEvent> {
     constructor(parent: LightColorEventBox, obj: BeatmapObjectConstructor<LightColorEvent>) {
         super(parent, obj)
         this.transitionType = obj.transitionType ?? LightColorEvent.defaults.transitionType
@@ -35,7 +35,7 @@ export class LightColorEvent extends BaseLightEvent<bsmap.v3.ILightColorBase> {
         return parent.events as this[]
     }
 
-    override fromJsonV3(json: bsmap.v3.ILightColorBase): this {
+    override fromJsonV3(json: bsmap.v3.ILightColorEvent): this {
         this.transitionType = json.i ?? LightColorEvent.defaults.transitionType
         this.color = json.c ?? LightColorEvent.defaults.color
         this.brightness = json.s ?? LightColorEvent.defaults.brightness
@@ -43,7 +43,7 @@ export class LightColorEvent extends BaseLightEvent<bsmap.v3.ILightColorBase> {
         return super.fromJsonV3(json)
     }
 
-    toJsonV3(prune?: boolean): bsmap.v3.ILightColorBase {
+    toJsonV3(prune?: boolean): bsmap.v3.ILightColorEvent {
         const output = {
             b: this.beat,
             c: this.color,
@@ -51,7 +51,7 @@ export class LightColorEvent extends BaseLightEvent<bsmap.v3.ILightColorBase> {
             i: this.transitionType,
             s: this.brightness,
             customData: this.unsafeCustomData,
-        } satisfies bsmap.v3.ILightColorBase
+        } satisfies bsmap.v3.ILightColorEvent
         return prune ? objectPrune(output) : output
     }
 }

@@ -12,13 +12,13 @@ export abstract class AbstractInfo<
     song: ISongInfo
     audio: IAudioInfo
     coverImageFilename: string
-    environmentNames: bsmap.EnvironmentAllName[]
+    environmentNames: bsmap.EnvironmentName[]
     colorSchemes: IColorScheme[]
-    difficultyBeatmaps: Partial<Record<bsmap.GenericFileName, IDifficultyInfo>>
+    difficultyBeatmaps: Partial<Record<bsmap.GenericBeatmapFilename, IDifficultyInfo>>
 
-    assetBundleChecksums: Record<string, number> | undefined
+    assetBundleChecksums: bsmap.IV2VivifyCustomDataInfo['_assetBundle']
     contributors: bsmap.ICustomDataInfo['_contributors'] | undefined
-    editors: bsmap.IEditor | undefined
+    editors: bsmap.IV2Editor | undefined
     unsafeCustomData: bsmap.ICustomDataBase
 
     protected constructor(

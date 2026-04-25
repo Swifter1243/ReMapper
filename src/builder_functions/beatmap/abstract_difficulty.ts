@@ -12,7 +12,7 @@ export async function readDifficulty(pipeline: Pipeline, fileName: DIFFICULTY_NA
     const parsedFileName = await parseFilePath(pipeline.attachDirectory(fileName), '.dat')
     const jsonPromise = Deno.readTextFile(parsedFileName.path)
 
-    const difficultyInfo = tryGetDifficultyInfo(pipeline.info, parsedFileName.name as bsmap.GenericFileName)
+    const difficultyInfo = tryGetDifficultyInfo(pipeline.info, parsedFileName.name as bsmap.GenericBeatmapFilename)
     const json = JSON.parse(await jsonPromise) as
         | bsmap.v2.IDifficulty
         | bsmap.v3.IDifficulty

@@ -16,10 +16,10 @@ export type IDifficultyInfoV2 = {
     /** The index into the array of environment names this difficulty will use. */
     environmentNameIdx: number
     /** The filename of the data for the difficulty. */
-    beatmapDataFilename: bsmap.GenericFileName
+    beatmapDataFilename: bsmap.GenericBeatmapFilename
 
     /** Custom data for this difficulty. Some properties (e.g. `requirements`, `suggestions`, ...etc.) have already been extracted */
-    unsafeCustomData: bsmap.ICustomDataInfoDifficulty | undefined
+    unsafeCustomData: bsmap.IV2CustomDataInfoDifficulty | undefined
     /** The required mods for this difficulty. */
     requirements: string[] | undefined
     /** The suggested mods for this difficulty. */
