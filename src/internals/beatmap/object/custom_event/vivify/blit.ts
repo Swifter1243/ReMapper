@@ -21,6 +21,7 @@ export class Blit extends CustomEvent<
         super(difficulty, params)
         this.type = 'Blit'
         this.asset = params.asset ?? Blit.defaults.asset
+        this.priority = params.priority
         this.pass = params.pass
         this.order = params.order
         this.source = params.source
