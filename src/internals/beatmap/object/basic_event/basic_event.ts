@@ -27,7 +27,7 @@ export abstract class BasicEvent<
     static override defaults: BeatmapObjectDefaults<BasicEvent> = {
         type: 0,
         value: 0,
-        floatValue: 1,
+        floatValue: 0,
         ...super.defaults,
     }
 
